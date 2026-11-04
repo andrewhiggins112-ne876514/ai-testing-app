@@ -124,26 +124,24 @@ function watchChat() {
 watchChat();
 setInterval(tick, 150);
 
-const filaments = [];
-for (let index = 0; index < 24; index++) {
-  const inner = index % 2 === 0;
-  filaments.push({
-    rx: inner ? 0.32 + (index % 5) * 0.1 : 0.7 + (index % 4) * 0.09,
-    ry: inner ? 0.2 + (index % 4) * 0.08 : 0.38 + (index % 5) * 0.1,
-    tilt: index * 0.39,
-    speed: 0.2 + (index % 8) * 0.12,
-    phase: index * 0.91,
-    span: 5.4 + (index % 3) * 0.3,
-    width: inner ? 0.7 + (index % 3) * 0.2 : 0.85 + (index % 3) * 0.22,
-    wobble: inner ? 2.4 + (index % 3) : 1.1 + (index % 3) * 0.6,
-    inner: inner,
+const mists = [];
+for (let index = 0; index < 7; index++) {
+  mists.push({
+    rx: 0.42 + (index % 3) * 0.16,
+    ry: 0.26 + (index % 4) * 0.1,
+    tilt: index * 0.72,
+    speed: 0.24 + (index % 5) * 0.15,
+    phase: index * 1.31,
+    span: 4.1 + (index % 3) * 0.7,
+    spread: 18 + (index % 3) * 7,
+    wobble: 7 + index * 1.4,
   });
 }
 
 function fillGlow(cx, cy, radius, reach, inner, mid) {
-  const glow = ctx.createRadialGradient(cx, cy, radius * 0.04, cx, cy, reach);
+  const glow = ctx.createRadialGradient(cx, cy, radius * 0.02, cx, cy, reach);
   glow.addColorStop(0, inner);
-  glow.addColorStop(0.42, mid);
+  glow.addColorStop(0.45, mid);
   glow.addColorStop(1, "rgba(5, 7, 13, 0)");
   ctx.fillStyle = glow;
   ctx.beginPath();
@@ -151,32 +149,40 @@ function fillGlow(cx, cy, radius, reach, inner, mid) {
   ctx.fill();
 }
 
-function strokeFilament(cx, cy, radius, spec, time, alpha) {
-  const spin = time * spec.speed + spec.phase;
-  const tilt = spec.tilt + Math.sin(time * 0.32 + spec.phase) * 0.22;
+function mistPoint(cx, cy, radius, spec, time, u) {
+  const along = time * spec.speed + spec.phase + u * spec.span;
+  const tilt = spec.tilt + Math.sin(time * 0.25 + spec.phase) * 0.28;
+  const breathe = 1 + 0.1 * Math.sin(time * 1.3 + spec.phase + u * 3.6);
+  const wave = Math.sin(along * 1.5 + time * 0.9 + spec.phase) * spec.wobble;
+  const rx = radius * spec.rx * breathe;
+  const ry = radius * spec.ry * breathe;
+  const x0 = Math.cos(along) * rx;
+  const y0 = Math.sin(along) * ry + wave;
   const ct = Math.cos(tilt);
   const st = Math.sin(tilt);
-  ctx.beginPath();
-  const steps = 46;
-  for (let step = 0; step <= steps; step++) {
-    const u = step / steps;
-    const along = spin + u * spec.span;
-    const breathe = 1 + 0.07 * Math.sin(time * 1.7 + spec.phase + u * 5.4);
-    const wave = Math.sin(along * 2.3 + time * 1.45 + spec.phase) * spec.wobble;
-    const rx = radius * spec.rx * breathe;
-    const ry = radius * spec.ry * breathe;
-    const x0 = Math.cos(along) * rx;
-    const y0 = Math.sin(along) * ry + wave * (0.32 + 0.12 * Math.sin(time + spec.phase));
-    const x = cx + x0 * ct - y0 * st * 0.22;
-    const y = cy + x0 * st * 0.58 + y0 * ct;
-    if (step === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
+  return {
+    x: cx + x0 * ct - y0 * st * 0.18,
+    y: cy + x0 * st * 0.48 + y0 * ct,
+    fade: Math.sin(Math.PI * u),
+  };
+}
+
+function paintMist(cx, cy, radius, spec, time, strength) {
+  const samples = 14;
+  for (let step = 0; step <= samples; step++) {
+    const point = mistPoint(cx, cy, radius, spec, time, step / samples);
+    if (point.fade < 0.05) continue;
+    const reach = spec.spread * (0.5 + 0.5 * point.fade);
+    const puff = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, reach);
+    const alpha = strength * point.fade;
+    puff.addColorStop(0, "rgba(214, 248, 255, " + (alpha * 0.34) + ")");
+    puff.addColorStop(0.38, "rgba(60, 180, 255, " + (alpha * 0.14) + ")");
+    puff.addColorStop(1, "rgba(8, 30, 70, 0)");
+    ctx.fillStyle = puff;
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, reach, 0, Math.PI * 2);
+    ctx.fill();
   }
-  ctx.lineWidth = spec.width;
-  ctx.strokeStyle = "rgba(214, 248, 255, " + alpha + ")";
-  ctx.shadowColor = "rgba(80, 210, 255, 0.95)";
-  ctx.shadowBlur = 7;
-  ctx.stroke();
 }
 
 function draw() {
@@ -187,76 +193,57 @@ function draw() {
   const cy = viewH / 2;
   const radius = 98;
   const pulse = 0.5 + 0.5 * Math.sin(angle * (thinking ? 3.4 : 1.35));
-  const trail = thinking ? 0.95 : 0.82;
+  const strength = thinking ? 0.72 : 0.5;
   ctx.clearRect(0, 0, viewW, viewH);
   ctx.globalCompositeOperation = "source-over";
   ctx.shadowBlur = 0;
+  ctx.lineWidth = 0;
 
-  fillGlow(cx, cy, radius, 150, "rgba(80, 180, 255, " + (0.26 + pulse * 0.08) + ")", "rgba(10, 50, 140, 0.06)");
-  fillGlow(cx, cy, radius, 112, "rgba(160, 230, 255, " + (0.4 + pulse * 0.12) + ")", "rgba(24, 130, 220, 0.14)");
-  fillGlow(cx, cy, radius, 68, "rgba(230, 250, 255, " + (0.32 + pulse * 0.1) + ")", "rgba(90, 200, 255, 0.1)");
+  fillGlow(cx, cy, radius, 152, "rgba(70, 160, 255, " + (0.22 + pulse * 0.08) + ")", "rgba(8, 40, 120, 0.05)");
+  fillGlow(cx, cy, radius, 114, "rgba(140, 220, 255, " + (0.28 + pulse * 0.1) + ")", "rgba(20, 110, 210, 0.1)");
+  fillGlow(cx, cy, radius, 70, "rgba(220, 248, 255, " + (0.22 + pulse * 0.08) + ")", "rgba(80, 190, 255, 0.08)");
 
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius * 0.94, 0, Math.PI * 2);
-  ctx.clip();
-  ctx.globalCompositeOperation = "lighter";
-  for (let index = 0; index < filaments.length; index++) {
-    if (!filaments[index].inner) continue;
-    strokeFilament(cx, cy, radius, filaments[index], angle, trail * 0.9);
+  for (let index = 0; index < mists.length; index++) {
+    paintMist(cx, cy, radius, mists[index], angle, strength);
   }
-  ctx.restore();
 
-  const shell = ctx.createRadialGradient(cx - 14, cy - 18, 2, cx, cy, radius);
-  shell.addColorStop(0, "rgba(200, 245, 255, 0.2)");
-  shell.addColorStop(0.34, "rgba(40, 150, 230, 0.12)");
-  shell.addColorStop(0.72, "rgba(8, 60, 150, 0.16)");
-  shell.addColorStop(1, "rgba(3, 14, 40, 0.38)");
-  ctx.shadowBlur = 0;
+  const shell = ctx.createRadialGradient(cx - 16, cy - 20, 4, cx, cy, radius * 1.05);
+  shell.addColorStop(0, "rgba(210, 246, 255, 0.16)");
+  shell.addColorStop(0.28, "rgba(50, 160, 235, 0.1)");
+  shell.addColorStop(0.62, "rgba(12, 70, 160, 0.07)");
+  shell.addColorStop(1, "rgba(5, 7, 13, 0)");
   ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius * 1.05, 0, Math.PI * 2);
   ctx.fillStyle = shell;
-  ctx.shadowColor = "rgba(70, 200, 255, " + (thinking ? 0.85 : 0.6) + ")";
-  ctx.shadowBlur = thinking ? 36 : 24;
+  ctx.shadowColor = "rgba(60, 180, 255, " + (thinking ? 0.45 : 0.3) + ")";
+  ctx.shadowBlur = thinking ? 28 : 18;
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  ctx.globalCompositeOperation = "lighter";
-  for (let index = 0; index < filaments.length; index++) {
-    if (filaments[index].inner) continue;
-    strokeFilament(cx, cy, radius, filaments[index], angle, trail);
-  }
-
-  const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.34);
-  bloom.addColorStop(0, "rgba(255, 255, 255, 0.95)");
-  bloom.addColorStop(0.3, "rgba(186, 244, 255, 0.5)");
-  bloom.addColorStop(0.65, "rgba(40, 170, 255, 0.14)");
-  bloom.addColorStop(1, "rgba(0, 90, 190, 0)");
+  const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.42);
+  bloom.addColorStop(0, "rgba(255, 255, 255, " + (0.72 + pulse * 0.08) + ")");
+  bloom.addColorStop(0.22, "rgba(190, 245, 255, 0.38)");
+  bloom.addColorStop(0.55, "rgba(40, 160, 255, 0.1)");
+  bloom.addColorStop(1, "rgba(0, 80, 170, 0)");
   ctx.fillStyle = bloom;
   ctx.beginPath();
-  ctx.arc(cx, cy, radius * 0.34, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius * 0.42, 0, Math.PI * 2);
   ctx.fill();
-  ctx.globalCompositeOperation = "source-over";
 
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius - 0.6, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(210, 248, 255, " + (0.45 + pulse * 0.28) + ")";
-  ctx.lineWidth = 1.35;
-  ctx.shadowColor = "rgba(160, 235, 255, 0.9)";
-  ctx.shadowBlur = 14;
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  for (let spark = 0; spark < 22; spark++) {
-    const seed = spark * 2.399;
-    const orbit = angle * (0.35 + (spark % 5) * 0.16) + seed;
-    const dist = radius * (0.2 + (spark % 7) * 0.13);
+  for (let mote = 0; mote < 8; mote++) {
+    const seed = mote * 2.399;
+    const orbit = angle * (0.3 + (mote % 4) * 0.12) + seed;
+    const dist = radius * (0.22 + (mote % 5) * 0.12);
     const x = cx + Math.cos(orbit) * dist;
-    const y = cy + Math.sin(orbit * 0.9 + seed) * dist * 0.82;
-    const twinkle = 0.15 + 0.85 * Math.abs(Math.sin(angle * (thinking ? 5.2 : 2.0) + seed));
+    const y = cy + Math.sin(orbit * 0.85 + seed) * dist * 0.8;
+    const twinkle = 0.25 + 0.75 * Math.abs(Math.sin(angle * (thinking ? 4.2 : 1.7) + seed));
+    const reach = 6 + (mote % 3) * 3;
+    const puff = ctx.createRadialGradient(x, y, 0, x, y, reach);
+    puff.addColorStop(0, "rgba(230, 250, 255, " + (0.22 * twinkle) + ")");
+    puff.addColorStop(1, "rgba(80, 180, 255, 0)");
+    ctx.fillStyle = puff;
     ctx.beginPath();
-    ctx.arc(x, y, spark % 6 === 0 ? 1.7 : 0.75, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(230, 252, 255, " + (0.15 + twinkle * 0.55) + ")";
+    ctx.arc(x, y, reach, 0, Math.PI * 2);
     ctx.fill();
   }
 
