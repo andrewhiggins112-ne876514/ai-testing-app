@@ -100,10 +100,10 @@ def _best_control(intended: str, controls: List[Tuple[str, str]]):
     return scored[0], scored
 
 
-async def _click(page, selector: str):
+async def _click(page, selector: str, click_timeout: int = 10000, retry_timeout: int = 5000):
     intended = _intended_text(selector)
     try:
-        await page.click(selector, timeout=10000)
+        await page.click(selector, timeout=click_timeout)
         return None
     except PlaywrightTimeout as exc:
         match, scored = _best_control(intended, await _visible_controls(page))
@@ -116,9 +116,9 @@ async def _click(page, selector: str):
             raise _NoHeal(str(exc), best_score, candidates)
         role, label, score = match
         try:
-            await page.get_by_role(role, name=label, exact=True).click(timeout=5000)
+            await page.get_by_role(role, name=label, exact=True).click(timeout=retry_timeout)
         except Exception:
-            await page.get_by_text(label, exact=True).click(timeout=5000)
+            await page.get_by_text(label, exact=True).click(timeout=retry_timeout)
         return {
             "healed": True,
             "original": intended,
@@ -128,14 +128,14 @@ async def _click(page, selector: str):
         }
 
 
-async def _run_step(page, step: Dict[str, Any]):
+async def _run_step(page, step: Dict[str, Any], click_timeout: int = 10000, retry_timeout: int = 5000):
     action = step["action"]
     selector = step.get("selector")
     value = step.get("value")
     if action == "goto":
         await page.goto(value)
     elif action == "click":
-        return await _click(page, selector)
+        return await _click(page, selector, click_timeout, retry_timeout)
     elif action == "fill":
         await page.fill(selector, value)
     elif action == "expect_text":
@@ -162,6 +162,9 @@ async def run_playwright(
     security_level: str = "OFFICIAL",
     request_text: str = "",
     session_id: str = "default",
+    click_timeout: int = 10000,
+    retry_timeout: int = 5000,
+    browser=None,
 ) -> Dict[str, Any]:
     result: Dict[str, Any] = {"status": "fail", "title": None, "screenshot": None, "error": None}
     if steps:
@@ -171,49 +174,55 @@ async def run_playwright(
             result["steps"] = []
             return export_run(result, request_text, session_id)
 
-    browser = None
+    started = None
     try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=False)  # headed for visibility on laptop
-            try:
-                page = await (await browser.new_context()).new_page()
-                if steps:
-                    result["steps"] = []
-                    for step in steps:
-                        try:
-                            healed = await _run_step(page, step)
-                        except Exception as e:
-                            failed = {
-                                "action": step.get("action"),
-                                "status": "fail",
-                                "error": str(e),
-                            }
-                            if getattr(e, "candidates", None) is not None:
-                                failed["score"] = e.score
-                                failed["candidates"] = e.candidates
-                            result["steps"].append(failed)
-                            result["error"] = str(e)
-                            break
-                        passed = {"action": step["action"], "status": "pass"}
-                        if healed:
-                            passed.update(healed)
-                        result["steps"].append(passed)
-                    else:
-                        result["status"] = "pass"
+        if browser is None:
+            started = await async_playwright().start()
+            browser = await started.chromium.launch(headless=False)  # headed for visibility on laptop
+        page = await (await browser.new_context()).new_page()
+        try:
+            if steps:
+                result["steps"] = []
+                for step in steps:
                     try:
-                        result["title"] = await page.title()
-                    except Exception:
-                        pass
-                    await _save_screenshot(page, result)
+                        healed = await _run_step(page, step, click_timeout, retry_timeout)
+                    except Exception as e:
+                        failed = {
+                            "action": step.get("action"),
+                            "status": "fail",
+                            "error": str(e),
+                        }
+                        if getattr(e, "candidates", None) is not None:
+                            failed["score"] = e.score
+                            failed["candidates"] = e.candidates
+                        result["steps"].append(failed)
+                        result["error"] = str(e)
+                        break
+                    passed = {"action": step["action"], "status": "pass"}
+                    if healed:
+                        passed.update(healed)
+                    result["steps"].append(passed)
                 else:
-                    await page.goto(url)
-                    result["title"] = await page.title()
-                    await _save_screenshot(page, result)
                     result["status"] = "pass"
-            finally:
-                await browser.close()
+                try:
+                    result["title"] = await page.title()
+                except Exception:
+                    pass
+                await _save_screenshot(page, result)
+            else:
+                await page.goto(url)
+                result["title"] = await page.title()
+                await _save_screenshot(page, result)
+                result["status"] = "pass"
+        finally:
+            await page.context.close()
     except Exception as e:
         result["status"] = "fail"
         if not result.get("error"):
             result["error"] = str(e)
+    finally:
+        if started is not None:
+            if browser is not None:
+                await browser.close()
+            await started.stop()
     return export_run(result, request_text, session_id)
