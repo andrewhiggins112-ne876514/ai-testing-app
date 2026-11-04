@@ -1,8 +1,10 @@
 """Jira tools. list_stories is read-only. create_issue POSTs only after the user's own confirmation."""
+import json
 import os
 import re
 import time
 import uuid
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 import httpx
@@ -357,6 +359,8 @@ async def resolve_create(session_id: str, user_message: str) -> Optional[Dict[st
         return await _put_parent(record["preview"])
     if record.get("action") == "transition":
         return await _post_transition(record["preview"])
+    if record.get("action") == "comment":
+        return await _post_comment(record["preview"])
     return await _post_issue(record["preview"])
 
 
@@ -597,4 +601,115 @@ async def transition_issue(issue_key: str, target: str, session_id: str = "defau
     }
     confirm_id = _store_pending(session_id, stored, "transition")
     shown = {key: stored[key] for key in ("issue_key", "current_status", "target")}
+    return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": shown}
+
+
+def _adf_comment(text: str) -> Dict[str, Any]:
+    """Turn plain text into ADF paragraphs. Blank lines stay blank paragraphs."""
+    paragraphs = []
+    for line in text.splitlines() or [text]:
+        if line:
+            paragraphs.append({"type": "paragraph", "content": [{"type": "text", "text": line}]})
+        else:
+            paragraphs.append({"type": "paragraph", "content": [{"type": "text", "text": " "}]})
+    return {"type": "doc", "version": 1, "content": paragraphs}
+
+
+def _local_reports_dir() -> Optional[Path]:
+    base = os.getenv("LOCALAPPDATA")
+    if not base or not str(base).strip():
+        return None
+    return (Path(base) / "ai_testing_app" / "reports").resolve()
+
+
+def _report_summary(report_path: str) -> Any:
+    """Overall status and step lines from a report JSON inside the local reports folder."""
+    root = _local_reports_dir()
+    if root is None:
+        return {"status": "error", "message": "report path must be inside the local reports folder"}
+    try:
+        path = Path(report_path).expanduser().resolve()
+    except (OSError, RuntimeError, ValueError):
+        return {"status": "error", "message": "report path must be inside the local reports folder"}
+    if path.suffix.lower() != ".json" or root not in path.parents:
+        return {"status": "error", "message": "report path must be inside the local reports folder"}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, UnicodeError):
+        return {"status": "error", "message": "report could not be read"}
+    if not isinstance(payload, dict):
+        return {"status": "error", "message": "report could not be read"}
+    result = payload.get("result") if isinstance(payload.get("result"), dict) else payload
+    if not isinstance(result, dict):
+        return {"status": "error", "message": "report could not be read"}
+    lines = [f"Report overall: {result.get('status') or 'unknown'}"]
+    steps = result.get("steps") or []
+    if isinstance(steps, list):
+        for step in steps:
+            if not isinstance(step, dict):
+                continue
+            lines.append(f"- {step.get('action') or ''}: {step.get('status') or ''}")
+    return "\n".join(lines)
+
+
+async def _post_comment(preview: Dict[str, str]) -> Dict[str, Any]:
+    """POST one comment. The result never includes credentials."""
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    headers, auth = _auth(creds)
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            response = await client.post(
+                f"{creds['url']}/rest/api/3/issue/{preview['issue_key']}/comment",
+                json={"body": _adf_comment(preview["body"])},
+                auth=auth,
+                headers=headers,
+            )
+        failed = _status_failure(response, "issue not found")
+        if failed:
+            return failed
+        data = response.json()
+    except (httpx.HTTPError, ValueError):
+        return {"status": "error", "message": "jira_request_failed"}
+    return {
+        "status": "commented",
+        "issue_key": preview["issue_key"],
+        "comment_id": str(data.get("id") or ""),
+    }
+
+
+async def add_comment(
+    issue_key: str,
+    body: str,
+    report_path: Optional[str] = None,
+    session_id: str = "default",
+) -> Dict[str, Any]:
+    """Preview a comment. POST happens only after the user's own confirmation."""
+    issue = _issue_key(issue_key)
+    if not issue:
+        return {"status": "error", "message": "issue key must look like KEY-123"}
+    text = str(body or "").strip()
+    if not text:
+        return {"status": "error", "message": "comment body is required"}
+    if len(text) > 5000:
+        return {"status": "error", "message": "comment body must be 5000 characters or less"}
+    path = str(report_path or "").strip()
+    if path:
+        summary = _report_summary(path)
+        if isinstance(summary, dict):
+            return summary
+        text = text + "\n\n" + summary
+        if len(text) > 5000:
+            return {"status": "error", "message": "comment body must be 5000 characters or less"}
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    stored = {"issue_key": issue, "body": text}
+    confirm_id = _store_pending(session_id, stored, "comment")
+    shown = {"issue_key": issue, "body": text[:300]}
     return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": shown}

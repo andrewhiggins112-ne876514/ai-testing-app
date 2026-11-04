@@ -25,6 +25,7 @@ Rules:
 - When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
 - To link a Jira issue to an epic, call set_parent with the issue key and epic key, then wait for the user to reply yes. Do not answer yes for the user.
 - To change a Jira issue's status, call transition_issue with the issue key and target status, then wait for the user to reply yes. Do not answer yes for the user.
+- To comment on a Jira issue, call add_comment with the issue key and body, then wait for the user to reply yes. Do not answer yes for the user. Pass report_path only when the user names a report file.
 """
 
 class Agent:
@@ -152,6 +153,22 @@ class Agent:
             {
                 "type": "function",
                 "function": {
+                    "name": "add_comment",
+                    "description": "Preview a Jira comment. Does not post until the user replies yes.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "issue_key": {"type": "string", "description": "Issue key, like KAN-4"},
+                            "body": {"type": "string", "description": "Plain-text comment, 5000 characters or less"},
+                            "report_path": {"type": "string", "description": "Optional report JSON inside the local reports folder"}
+                        },
+                        "required": ["issue_key", "body"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
                     "name": "update_settings",
                     "description": "Propose or apply settings changes (credentials, URLs, security level). Always confirm first.",
                     "parameters": {
@@ -242,7 +259,7 @@ class Agent:
         except json.JSONDecodeError:
             return None
         name = data.get("name") if isinstance(data, dict) else None
-        if name not in {"jira_action", "run_playwright", "update_settings", "list_stories", "create_issue", "set_parent", "transition_issue"}:
+        if name not in {"jira_action", "run_playwright", "update_settings", "list_stories", "create_issue", "set_parent", "transition_issue", "add_comment"}:
             return None
         return {"name": name, "arguments": data.get("arguments") or {}}
 
@@ -291,6 +308,12 @@ class Agent:
             kwargs = {k: v for k, v in args.items() if k in allowed}
             kwargs["session_id"] = session_id
             return await transition_issue(**kwargs)
+        elif name == "add_comment":
+            from plugins.jira_plugin import add_comment
+            allowed = {"issue_key", "body", "report_path"}
+            kwargs = {k: v for k, v in args.items() if k in allowed}
+            kwargs["session_id"] = session_id
+            return await add_comment(**kwargs)
         elif name == "update_settings":
             from settings.store import update_setting
             allowed = {"key", "value", "confirm"}
@@ -306,6 +329,8 @@ def _create_reply(result: Dict) -> str:
         return f"Linked {result.get('issue_key')} to epic {result.get('epic_key')}."
     if status == "transitioned":
         return f"Moved {result.get('issue_key')} to {result.get('target')}."
+    if status == "commented":
+        return f"Comment {result.get('comment_id')} on {result.get('issue_key')}."
     if status == "expired":
         return "That confirmation expired. Ask again to create the issue."
     if status == "unconfigured":
