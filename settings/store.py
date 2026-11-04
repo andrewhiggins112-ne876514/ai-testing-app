@@ -32,7 +32,7 @@ def _hidden(key: str, value: Any) -> Any:
 def load_settings() -> dict:
     path = settings_path()
     if path.exists():
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
         merged = _defaults()
         merged.update(data)
         return merged
