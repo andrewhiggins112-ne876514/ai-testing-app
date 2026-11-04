@@ -1,13 +1,35 @@
 """Minimal local Gradio chat client. Talks to the FastAPI agent on port 8000."""
 import os
+import sys
 import uuid
+from pathlib import Path
 
 os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import gradio as gr
 import httpx
+from settings.store import load_settings, update_setting
 
 CHAT_URL = "http://127.0.0.1:8000/chat"
+LEVELS = ("OFFICIAL", "SECRET")
+
+
+def current_settings():
+    data = load_settings()
+    return data.get("security_level") or "OFFICIAL", data.get("jira_url") or ""
+
+
+def save_settings(level, jira_base_url):
+    level = (level or "").strip()
+    url = (jira_base_url or "").strip()
+    if level not in LEVELS:
+        return "Invalid security level."
+    if url and not (url.startswith("https://") or url.startswith("http://")):
+        return "Jira URL must start with http:// or https://."
+    update_setting("security_level", level, confirm=True)
+    update_setting("jira_url", url, confirm=True)
+    return "Saved."
 
 
 def new_session_id():
@@ -35,13 +57,22 @@ class LocalApp(gr.Blocks):
 
 
 with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
-    session_id = gr.State(new_session_id)
-    gr.ChatInterface(
-        respond,
-        additional_inputs=[session_id],
-        title="AI Testing Agent",
-        analytics_enabled=False,
-    )
+    with gr.Tabs():
+        with gr.Tab("Chat"):
+            session_id = gr.State(new_session_id)
+            gr.ChatInterface(
+                respond,
+                additional_inputs=[session_id],
+                title="AI Testing Agent",
+                analytics_enabled=False,
+            )
+        with gr.Tab("Settings"):
+            loaded_level, loaded_url = current_settings()
+            level = gr.Dropdown(choices=list(LEVELS), value=loaded_level, label="security_level")
+            jira_base_url = gr.Textbox(value=loaded_url, label="jira_base_url")
+            status = gr.Textbox(label="Status", interactive=False)
+            gr.Button("Save").click(save_settings, [level, jira_base_url], status)
+    demo.load(current_settings, outputs=[level, jira_base_url])
 
 if __name__ == "__main__":
     demo.launch(server_name="127.0.0.1", share=False, analytics_enabled=False)
