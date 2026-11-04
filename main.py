@@ -18,11 +18,12 @@ agent = Agent()
 
 class ChatRequest(BaseModel):
     message: str
+    session_id: str = "default"
 
 @app.post("/chat")
 async def chat(req: ChatRequest):
     try:
-        reply = await agent.chat(req.message)
+        reply = await agent.chat(req.message, req.session_id)
     except httpx.HTTPError:
         reply = "Ollama is not reachable. Start Ollama and check that the model is pulled."
     return {"reply": reply}

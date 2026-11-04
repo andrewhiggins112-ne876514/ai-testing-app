@@ -25,7 +25,11 @@ Rules:
 class Agent:
     def __init__(self):
         self.tools = self._register_tools()
-        self.history: List[Dict] = [{"role": "system", "content": SYSTEM_PROMPT}]
+        self.histories: Dict[str, List[Dict]] = {}
+
+    def _cap(self, hist: List[Dict]) -> None:
+        if len(hist) > 50:
+            del hist[:-50]
 
     def _register_tools(self) -> List[Dict]:
         return [
@@ -78,15 +82,19 @@ class Agent:
             }
         ]
 
-    async def chat(self, user_message: str) -> str:
-        self.history.append({"role": "user", "content": user_message})
+    async def chat(self, user_message: str, session_id: str = "default") -> str:
+        history = self.histories.setdefault(
+            session_id, [{"role": "system", "content": SYSTEM_PROMPT}]
+        )
+        history.append({"role": "user", "content": user_message})
+        self._cap(history)
 
         async with httpx.AsyncClient(timeout=120.0) as client:
             resp = await client.post(
                 f"{OLLAMA_URL}/api/chat",
                 json={
                     "model": MODEL,
-                    "messages": self.history,
+                    "messages": history,
                     "tools": self.tools,
                     "stream": False
                 }
@@ -99,7 +107,7 @@ class Agent:
                 if parsed:
                     tool_calls = [{"function": parsed}]
                     message = {**message, "tool_calls": tool_calls}
-            self.history.append(message)
+            history.append(message)
 
             # Handle tool calls
             if tool_calls:
@@ -111,21 +119,24 @@ class Agent:
                         "content": json.dumps(result),
                         "tool_call_id": call.get("id", "call_1")
                     })
-                self.history.extend(tool_results)
+                history.extend(tool_results)
+                self._cap(history)
 
                 # Second call to get final response
                 resp2 = await client.post(
                     f"{OLLAMA_URL}/api/chat",
                     json={
                         "model": MODEL,
-                        "messages": self.history,
+                        "messages": history,
                         "stream": False
                     }
                 )
                 final = resp2.json().get("message", {}).get("content", "Done.")
-                self.history.append({"role": "assistant", "content": final})
+                history.append({"role": "assistant", "content": final})
+                self._cap(history)
                 return final
 
+            self._cap(history)
             return message.get("content", "No response.")
 
     def _tool_from_text(self, content: str):
