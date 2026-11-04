@@ -122,8 +122,8 @@ def _clamp_max(value: Any) -> int:
     try:
         number = int(value)
     except (TypeError, ValueError):
-        return 10
-    return min(50, max(1, number))
+        return 50
+    return min(100, max(1, number))
 
 
 def _type_clause(issue_types: Any) -> Any:
@@ -150,7 +150,7 @@ def _type_clause(issue_types: Any) -> Any:
 async def _list_search(url: str, email: str, token: str, project: str, limit: int, clause: str) -> Dict[str, Any]:
     """GET the search API. The result never includes credentials."""
     params = {
-        "jql": f"project = {project}{clause} ORDER BY updated DESC",
+        "jql": f"project = {project}{clause} ORDER BY key DESC",
         "maxResults": limit,
         "fields": "summary,status,issuetype",
     }
@@ -175,12 +175,20 @@ async def _list_search(url: str, email: str, token: str, project: str, limit: in
             if response.status_code in (401, 403):
                 return {"status": "unauthorized", "message": "Jira rejected the credentials"}
             response.raise_for_status()
-            stories = _stories(response.json(), project)["stories"]
-            return {"status": "ok", "stories": stories}
+            payload = response.json()
+            stories = _stories(payload, project)["stories"]
+            result = {"status": "ok", "stories": stories}
+            try:
+                total = int(payload.get("total"))
+            except (TypeError, ValueError):
+                total = None
+            if total is not None and total > len(stories):
+                result["note"] = f"showing {len(stories)} of {total}"
+            return result
     return {"status": "error", "message": "jira_search_unavailable"}
 
 
-async def list_stories(project: str, max: int = 10, issue_types: Any = None) -> Dict[str, Any]:
+async def list_stories(project: str, max: int = 50, issue_types: Any = None) -> Dict[str, Any]:
     """Read-only issue list. GET only. Missing URL or token returns unconfigured."""
     key = str(project or "").strip().upper()
     if not _LIST_KEY.fullmatch(key):

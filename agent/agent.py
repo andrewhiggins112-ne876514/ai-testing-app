@@ -88,7 +88,7 @@ class Agent:
                         "type": "object",
                         "properties": {
                             "project": {"type": "string", "description": "Jira project key: 1-10 characters, A-Z and 0-9"},
-                            "max": {"type": "integer", "description": "Maximum issues to return. Default 10."},
+                            "max": {"type": "integer", "description": "Maximum issues to return. Default 50, capped at 100."},
                             "issue_types": {
                                 "type": "array",
                                 "items": {"type": "string", "enum": ["Story", "Task", "Bug", "Epic", "Subtask"]},

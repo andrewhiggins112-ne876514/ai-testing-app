@@ -109,7 +109,7 @@ class ListStoriesTests(unittest.TestCase):
         self.assertTrue(endpoint.startswith("https://jira.example.com/rest/api/3/search/jql"))
         self.assertEqual(
             client.get.await_args.kwargs["params"]["jql"],
-            "project = TEST ORDER BY updated DESC",
+            "project = TEST ORDER BY key DESC",
         )
         self.assertEqual(client.get.await_args.kwargs["params"]["maxResults"], 3)
         self.assertEqual(client.get.await_args.kwargs["auth"], ("qa@example.com", self.token))
@@ -146,12 +146,39 @@ class ListStoriesTests(unittest.TestCase):
         self.assertEqual(result["stories"][0]["type"], "Task")
         self.assertEqual(
             client.get.await_args.kwargs["params"]["jql"],
-            'project = TEST AND issuetype IN ("Task") ORDER BY updated DESC',
+            'project = TEST AND issuetype IN ("Task") ORDER BY key DESC',
         )
         client.post.assert_not_called()
         with patch("plugins.jira_plugin.httpx.AsyncClient", return_value=client):
             asyncio.run(list_stories("TEST", issue_types=["Subtask"]))
         self.assertIn('issuetype IN ("Sub-task")', client.get.await_args.kwargs["params"]["jql"])
+
+    def test_default_max_and_cap(self):
+        self._configure()
+        client = _client(_response(200, {"issues": [], "total": 0}))
+        with patch("plugins.jira_plugin.httpx.AsyncClient", return_value=client):
+            asyncio.run(list_stories("TEST"))
+        self.assertEqual(client.get.await_args.kwargs["params"]["maxResults"], 50)
+        with patch("plugins.jira_plugin.httpx.AsyncClient", return_value=client):
+            result = asyncio.run(list_stories("TEST", max=250))
+        self.assertEqual(client.get.await_args.kwargs["params"]["maxResults"], 100)
+        self.assertEqual(result["status"], "ok")
+        self.assertNotIn("note", result)
+
+    def test_truncation_note(self):
+        self._configure()
+        payload = {
+            "total": 16,
+            "issues": [{
+                "key": "TEST-2",
+                "fields": {"summary": "B", "status": {"name": "To Do"}, "issuetype": {"name": "Task"}},
+            }],
+        }
+        client = _client(_response(200, payload))
+        with patch("plugins.jira_plugin.httpx.AsyncClient", return_value=client):
+            result = asyncio.run(list_stories("TEST", max=1))
+        self.assertEqual(result["note"], "showing 1 of 16")
+        self.assertEqual(len(result["stories"]), 1)
 
     def test_invalid_type_skips_http(self):
         self._configure()
