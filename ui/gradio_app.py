@@ -29,8 +29,8 @@ const canvas = element.querySelector("canvas");
 const label = element.querySelector(".orb-state");
 if (!canvas) return;
 const ctx = canvas.getContext("2d");
-const viewW = 340;
-const viewH = 400;
+const viewW = 360;
+const viewH = 360;
 const dpr = Math.min(window.devicePixelRatio || 1, 2);
 canvas.width = Math.round(viewW * dpr);
 canvas.height = Math.round(viewH * dpr);
@@ -125,16 +125,18 @@ watchChat();
 setInterval(tick, 150);
 
 const filaments = [];
-for (let index = 0; index < 22; index++) {
+for (let index = 0; index < 24; index++) {
+  const inner = index % 2 === 0;
   filaments.push({
-    rx: 0.62 + (index % 4) * 0.12,
-    ry: 0.34 + (index % 5) * 0.11,
-    tilt: index * 0.41,
-    speed: 0.22 + (index % 8) * 0.11,
-    phase: index * 0.97,
-    span: 5.5 + (index % 3) * 0.28,
-    width: 0.8 + (index % 3) * 0.28,
-    wobble: 1.2 + (index % 3) * 0.7,
+    rx: inner ? 0.32 + (index % 5) * 0.1 : 0.7 + (index % 4) * 0.09,
+    ry: inner ? 0.2 + (index % 4) * 0.08 : 0.38 + (index % 5) * 0.1,
+    tilt: index * 0.39,
+    speed: 0.2 + (index % 8) * 0.12,
+    phase: index * 0.91,
+    span: 5.4 + (index % 3) * 0.3,
+    width: inner ? 0.7 + (index % 3) * 0.2 : 0.85 + (index % 3) * 0.22,
+    wobble: inner ? 2.4 + (index % 3) : 1.1 + (index % 3) * 0.6,
+    inner: inner,
   });
 }
 
@@ -182,46 +184,34 @@ function draw() {
   const thinking = mode === "thinking";
   angle += thinking ? 0.011 : 0.0045;
   const cx = viewW / 2;
-  const cy = 150;
-  const radius = 90;
-  const floorY = 368;
+  const cy = viewH / 2;
+  const radius = 98;
   const pulse = 0.5 + 0.5 * Math.sin(angle * (thinking ? 3.4 : 1.35));
   const trail = thinking ? 0.95 : 0.82;
   ctx.clearRect(0, 0, viewW, viewH);
   ctx.globalCompositeOperation = "source-over";
   ctx.shadowBlur = 0;
 
-  fillGlow(cx, cy, radius, 140, "rgba(90, 190, 255, " + (0.28 + pulse * 0.08) + ")", "rgba(12, 60, 150, 0.07)");
-  fillGlow(cx, cy, radius, 104, "rgba(170, 236, 255, " + (0.42 + pulse * 0.12) + ")", "rgba(30, 140, 230, 0.14)");
-  fillGlow(cx, cy, radius, 64, "rgba(255, 255, 255, " + (0.34 + pulse * 0.1) + ")", "rgba(120, 220, 255, 0.1)");
+  fillGlow(cx, cy, radius, 150, "rgba(80, 180, 255, " + (0.26 + pulse * 0.08) + ")", "rgba(10, 50, 140, 0.06)");
+  fillGlow(cx, cy, radius, 112, "rgba(160, 230, 255, " + (0.4 + pulse * 0.12) + ")", "rgba(24, 130, 220, 0.14)");
+  fillGlow(cx, cy, radius, 68, "rgba(230, 250, 255, " + (0.32 + pulse * 0.1) + ")", "rgba(90, 200, 255, 0.1)");
 
-  const beam = ctx.createLinearGradient(cx, cy + radius * 0.35, cx, floorY);
-  beam.addColorStop(0, "rgba(190, 245, 255, " + (0.5 + pulse * 0.12) + ")");
-  beam.addColorStop(0.4, "rgba(60, 180, 255, 0.14)");
-  beam.addColorStop(1, "rgba(40, 140, 255, 0)");
-  ctx.fillStyle = beam;
+  ctx.save();
   ctx.beginPath();
-  ctx.moveTo(cx - 8, cy + radius * 0.7);
-  ctx.lineTo(cx + 8, cy + radius * 0.7);
-  ctx.lineTo(cx + 30, floorY);
-  ctx.lineTo(cx - 30, floorY);
-  ctx.fill();
-  for (let ring = 0; ring < 4; ring++) {
-    ctx.beginPath();
-    ctx.ellipse(cx, floorY, 22 + ring * 18, 6 + ring * 4, 0, 0, Math.PI * 2);
-    ctx.strokeStyle = "rgba(150, 230, 255, " + (0.38 - ring * 0.07) + ")";
-    ctx.lineWidth = ring === 0 ? 1.35 : 0.9;
-    ctx.stroke();
+  ctx.arc(cx, cy, radius * 0.94, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.globalCompositeOperation = "lighter";
+  for (let index = 0; index < filaments.length; index++) {
+    if (!filaments[index].inner) continue;
+    strokeFilament(cx, cy, radius, filaments[index], angle, trail * 0.9);
   }
-  ctx.beginPath();
-  ctx.arc(cx, floorY, 2.4, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(235, 252, 255, 0.9)";
-  ctx.fill();
+  ctx.restore();
 
-  const shell = ctx.createRadialGradient(cx - 12, cy - 16, 2, cx, cy, radius);
-  shell.addColorStop(0, "rgba(170, 230, 255, 0.16)");
-  shell.addColorStop(0.4, "rgba(18, 100, 190, 0.2)");
-  shell.addColorStop(1, "rgba(4, 18, 48, 0.28)");
+  const shell = ctx.createRadialGradient(cx - 14, cy - 18, 2, cx, cy, radius);
+  shell.addColorStop(0, "rgba(200, 245, 255, 0.2)");
+  shell.addColorStop(0.34, "rgba(40, 150, 230, 0.12)");
+  shell.addColorStop(0.72, "rgba(8, 60, 150, 0.16)");
+  shell.addColorStop(1, "rgba(3, 14, 40, 0.38)");
   ctx.shadowBlur = 0;
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -233,17 +223,18 @@ function draw() {
 
   ctx.globalCompositeOperation = "lighter";
   for (let index = 0; index < filaments.length; index++) {
+    if (filaments[index].inner) continue;
     strokeFilament(cx, cy, radius, filaments[index], angle, trail);
   }
 
-  const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.38);
+  const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.34);
   bloom.addColorStop(0, "rgba(255, 255, 255, 0.95)");
-  bloom.addColorStop(0.28, "rgba(190, 246, 255, 0.55)");
-  bloom.addColorStop(0.62, "rgba(50, 180, 255, 0.16)");
+  bloom.addColorStop(0.3, "rgba(186, 244, 255, 0.5)");
+  bloom.addColorStop(0.65, "rgba(40, 170, 255, 0.14)");
   bloom.addColorStop(1, "rgba(0, 90, 190, 0)");
   ctx.fillStyle = bloom;
   ctx.beginPath();
-  ctx.arc(cx, cy, radius * 0.38, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius * 0.34, 0, Math.PI * 2);
   ctx.fill();
   ctx.globalCompositeOperation = "source-over";
 
@@ -334,12 +325,12 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 430px;
+  min-height: 380px;
 }
 #energy-orb-host canvas {
   display: block;
-  width: 340px;
-  height: 400px;
+  width: 360px;
+  height: 360px;
 }
 #energy-orb-host .orb-state {
   margin-top: 2px;
