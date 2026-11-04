@@ -11,6 +11,7 @@ from settings.store import load_settings
 
 _PROJECT = re.compile(r"[A-Za-z][A-Za-z0-9_]{1,10}")
 _LIST_KEY = re.compile(r"[A-Z0-9]{1,10}")
+_ISSUE_KEY = re.compile(r"[A-Z][A-Z0-9]{0,9}-\d+")
 _TYPE_JQL = {
     "story": "Story",
     "task": "Task",
@@ -217,7 +218,39 @@ def _unconfigured() -> Dict[str, str]:
     }
 
 
-def _valid_create(project: str, summary: str, description: Optional[str], issue_type: Optional[str]) -> Dict[str, Any]:
+def _issue_key(value: Any) -> str:
+    text = str(value or "").strip().upper()
+    if not _ISSUE_KEY.fullmatch(text):
+        return ""
+    return text
+
+
+def _store_pending(session_id: str, preview: Dict[str, Any], action: str = "create") -> str:
+    confirm_id = uuid.uuid4().hex
+    _PENDING[str(session_id)] = {
+        "confirm_id": confirm_id,
+        "action": action,
+        "preview": preview,
+        "expires": time.monotonic() + _CONFIRM_TTL,
+    }
+    return confirm_id
+
+
+def _auth(creds: Dict[str, str]) -> tuple:
+    headers = {"Accept": "application/json", "Content-Type": "application/json"}
+    if creds["email"]:
+        return headers, (creds["email"], creds["token"])
+    headers["Authorization"] = f"Bearer {creds['token']}"
+    return headers, None
+
+
+def _valid_create(
+    project: str,
+    summary: str,
+    description: Optional[str],
+    issue_type: Optional[str],
+    parent_key: Optional[str] = None,
+) -> Dict[str, Any]:
     key = str(project or "").strip().upper()
     if not _LIST_KEY.fullmatch(key):
         return {"status": "error", "message": "project key must be 1-10 characters, A-Z and 0-9"}
@@ -230,7 +263,16 @@ def _valid_create(project: str, summary: str, description: Optional[str], issue_
     if not _ISSUE_TYPE.fullmatch(kind):
         return {"status": "error", "message": "issue type must be 1-40 characters, letters, digits, and spaces"}
     detail = str(description or "").strip()
-    return {"project": key, "summary": text, "description": detail, "issue_type": kind}
+    parent = ""
+    raw_parent = str(parent_key or "").strip()
+    if raw_parent:
+        parent = _issue_key(raw_parent)
+        if not parent:
+            return {"status": "error", "message": "parent key must look like KEY-123"}
+    preview = {"project": key, "summary": text, "description": detail, "issue_type": kind}
+    if parent:
+        preview["parent_key"] = parent
+    return preview
 
 
 def _adf(text: str) -> Dict[str, Any]:
@@ -255,10 +297,9 @@ async def _post_issue(preview: Dict[str, str]) -> Dict[str, Any]:
     }
     if preview.get("description"):
         fields["description"] = _adf(preview["description"])
-    headers = {"Accept": "application/json", "Content-Type": "application/json"}
-    auth = (creds["email"], creds["token"]) if creds["email"] else None
-    if auth is None:
-        headers["Authorization"] = f"Bearer {creds['token']}"
+    if preview.get("parent_key"):
+        fields["parent"] = {"key": preview["parent_key"]}
+    headers, auth = _auth(creds)
     try:
         async with httpx.AsyncClient(timeout=20.0) as client:
             response = await client.post(
@@ -285,10 +326,11 @@ async def create_issue(
     summary: str,
     description: Optional[str] = None,
     issue_type: str = "Task",
+    parent_key: Optional[str] = None,
     session_id: str = "default",
 ) -> Dict[str, Any]:
     """Store a preview for this session. Never POSTs."""
-    preview = _valid_create(project, summary, description, issue_type)
+    preview = _valid_create(project, summary, description, issue_type, parent_key)
     if preview.get("status"):
         return preview
     creds = _list_creds()
@@ -296,12 +338,7 @@ async def create_issue(
         return _unconfigured()
     if not _url_ok(creds["url"]):
         return {"status": "error", "message": "jira_url must start with https://"}
-    confirm_id = uuid.uuid4().hex
-    _PENDING[str(session_id)] = {
-        "confirm_id": confirm_id,
-        "preview": preview,
-        "expires": time.monotonic() + _CONFIRM_TTL,
-    }
+    confirm_id = _store_pending(session_id, preview, "create")
     return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": preview}
 
 
@@ -316,4 +353,88 @@ async def resolve_create(session_id: str, user_message: str) -> Optional[Dict[st
         return {"status": "cancelled", "confirm_id": record["confirm_id"]}
     if time.monotonic() >= record["expires"]:
         return {"status": "expired", "confirm_id": record["confirm_id"]}
+    if record.get("action") == "set_parent":
+        return await _put_parent(record["preview"])
     return await _post_issue(record["preview"])
+
+
+async def _read_error(response: Any) -> Optional[Dict[str, str]]:
+    if response.status_code in (401, 403):
+        return {"status": "unauthorized", "message": "Jira rejected the credentials"}
+    if response.status_code == 404:
+        return {"status": "error", "message": "epic not found"}
+    if response.status_code >= 400:
+        return {"status": "error", "message": "jira_request_failed"}
+    return None
+
+
+async def _get_issue_type(key: str) -> Dict[str, Any]:
+    """GET one issue type. The result never includes credentials."""
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    headers, auth = _auth(creds)
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            response = await client.get(
+                f"{creds['url']}/rest/api/3/issue/{key}",
+                params={"fields": "issuetype"},
+                auth=auth,
+                headers=headers,
+            )
+        failed = await _read_error(response)
+        if failed:
+            return failed
+        fields = (response.json().get("fields") or {})
+        kind = fields.get("issuetype") or {}
+        name = kind.get("name", "") if isinstance(kind, dict) else ""
+    except (httpx.HTTPError, ValueError):
+        return {"status": "error", "message": "jira_request_failed"}
+    return {"status": "ok", "type": name}
+
+
+async def _put_parent(preview: Dict[str, str]) -> Dict[str, Any]:
+    """PUT fields.parent only. The result never includes credentials."""
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    headers, auth = _auth(creds)
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            response = await client.put(
+                f"{creds['url']}/rest/api/3/issue/{preview['issue_key']}",
+                json={"fields": {"parent": {"key": preview["epic_key"]}}},
+                auth=auth,
+                headers=headers,
+            )
+        failed = await _read_error(response)
+        if failed:
+            return failed
+    except httpx.HTTPError:
+        return {"status": "error", "message": "jira_request_failed"}
+    return {"status": "linked", "issue_key": preview["issue_key"], "epic_key": preview["epic_key"]}
+
+
+async def set_parent(issue_key: str, epic_key: str, session_id: str = "default") -> Dict[str, Any]:
+    """Preview a parent link. PUT happens only after the user's own confirmation."""
+    issue = _issue_key(issue_key)
+    epic = _issue_key(epic_key)
+    if not issue or not epic:
+        return {"status": "error", "message": "issue and epic keys must look like KEY-123"}
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    looked = await _get_issue_type(epic)
+    if looked.get("status") != "ok":
+        return looked
+    if str(looked.get("type") or "").casefold() != "epic":
+        return {"status": "error", "message": "parent is not an Epic"}
+    preview = {"issue_key": issue, "epic_key": epic}
+    confirm_id = _store_pending(session_id, preview, "set_parent")
+    return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": preview}

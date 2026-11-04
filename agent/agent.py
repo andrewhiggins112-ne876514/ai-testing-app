@@ -23,6 +23,7 @@ Rules:
 - For a browse request, call run_playwright with steps, a list of {action, selector?, value?}; action is goto, click, fill, expect_text, or expect_url, and click a visible label with selector text=Label.
 - When the user asks to list Jira issues or stories, call list_stories with the project key and do not invent issues. Set issue_types only when the user names types. "list issues in KAN" omits issue_types.
 - When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
+- To link a Jira issue to an epic, call set_parent with the issue key and epic key, then wait for the user to reply yes. Do not answer yes for the user.
 """
 
 class Agent:
@@ -110,9 +111,25 @@ class Agent:
                             "project": {"type": "string", "description": "Jira project key: 1-10 characters, A-Z and 0-9"},
                             "summary": {"type": "string", "description": "Issue summary, 255 characters or less"},
                             "description": {"type": "string", "description": "Optional issue description"},
-                            "issue_type": {"type": "string", "description": "Issue type name. Default Task."}
+                            "issue_type": {"type": "string", "description": "Issue type name. Default Task."},
+                            "parent_key": {"type": "string", "description": "Optional parent issue key, like KAN-5."}
                         },
                         "required": ["project", "summary"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "set_parent",
+                    "description": "Preview linking a Jira issue to an epic. Does not change Jira until the user replies yes.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "issue_key": {"type": "string", "description": "Issue to link, like KAN-2"},
+                            "epic_key": {"type": "string", "description": "Epic key, like KAN-5"}
+                        },
+                        "required": ["issue_key", "epic_key"]
                     }
                 }
             },
@@ -209,7 +226,7 @@ class Agent:
         except json.JSONDecodeError:
             return None
         name = data.get("name") if isinstance(data, dict) else None
-        if name not in {"jira_action", "run_playwright", "update_settings", "list_stories", "create_issue"}:
+        if name not in {"jira_action", "run_playwright", "update_settings", "list_stories", "create_issue", "set_parent"}:
             return None
         return {"name": name, "arguments": data.get("arguments") or {}}
 
@@ -242,10 +259,16 @@ class Agent:
             return await list_stories(**{k: v for k, v in args.items() if k in allowed})
         elif name == "create_issue":
             from plugins.jira_plugin import create_issue
-            allowed = {"project", "summary", "description", "issue_type"}
+            allowed = {"project", "summary", "description", "issue_type", "parent_key"}
             kwargs = {k: v for k, v in args.items() if k in allowed}
             kwargs["session_id"] = session_id
             return await create_issue(**kwargs)
+        elif name == "set_parent":
+            from plugins.jira_plugin import set_parent
+            allowed = {"issue_key", "epic_key"}
+            kwargs = {k: v for k, v in args.items() if k in allowed}
+            kwargs["session_id"] = session_id
+            return await set_parent(**kwargs)
         elif name == "update_settings":
             from settings.store import update_setting
             allowed = {"key", "value", "confirm"}
@@ -257,6 +280,8 @@ def _create_reply(result: Dict) -> str:
     status = result.get("status")
     if status == "created":
         return f"Created {result.get('key') or 'the issue'}."
+    if status == "linked":
+        return f"Linked {result.get('issue_key')} to epic {result.get('epic_key')}."
     if status == "expired":
         return "That confirmation expired. Ask again to create the issue."
     if status == "unconfigured":
