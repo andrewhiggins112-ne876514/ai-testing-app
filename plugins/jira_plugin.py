@@ -1,4 +1,5 @@
-"""Read-only Jira. Credentials come from the local settings store only."""
+"""Read-only Jira. list_stories reads the base URL from the store and credentials from the environment or store."""
+import os
 import re
 from typing import Any, Dict, Optional
 
@@ -7,6 +8,7 @@ import httpx
 from settings.store import load_settings
 
 _PROJECT = re.compile(r"[A-Za-z][A-Za-z0-9_]{1,10}")
+_LIST_KEY = re.compile(r"[A-Z0-9]{1,10}")
 _WRITE = {"create_test", "update_status", "create_bug"}
 
 def _creds() -> Dict[str, str]:
@@ -90,3 +92,71 @@ async def jira_action(
     except httpx.HTTPError as exc:
         detail = str(exc).replace(creds["token"], "***")[:200]
         return {"error": "jira_request_failed", "detail": detail}
+
+
+def _list_creds() -> Dict[str, str]:
+    settings = load_settings()
+    base = settings.get("jira_base_url") or settings.get("jira_url") or ""
+    token = os.getenv("JIRA_API_TOKEN") or settings.get("jira_api_token") or ""
+    email = os.getenv("JIRA_EMAIL") or settings.get("jira_email") or ""
+    return {"url": str(base).strip().rstrip("/"), "email": str(email).strip(), "token": str(token).strip()}
+
+
+def _clamp_max(value: Any) -> int:
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return 10
+    return min(50, max(1, number))
+
+
+async def _list_search(url: str, email: str, token: str, project: str, limit: int) -> Dict[str, Any]:
+    """GET the search API. The result never includes credentials."""
+    params = {
+        "jql": f"project = {project} AND issuetype = Story ORDER BY updated DESC",
+        "maxResults": limit,
+        "fields": "summary,status",
+    }
+    if email:
+        attempts = [
+            (f"{url}/rest/api/3/search/jql", (email, token), {}),
+            (f"{url}/rest/api/2/search", (email, token), {}),
+        ]
+    else:
+        attempts = [(f"{url}/rest/api/2/search", None, {"Authorization": f"Bearer {token}"})]
+
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        for endpoint, auth, headers in attempts:
+            response = await client.get(
+                endpoint,
+                params=params,
+                auth=auth,
+                headers={"Accept": "application/json", **headers},
+            )
+            if response.status_code == 404:
+                continue
+            if response.status_code in (401, 403):
+                return {"status": "unauthorized", "message": "Jira rejected the credentials"}
+            response.raise_for_status()
+            stories = _stories(response.json(), project)["stories"]
+            return {"status": "ok", "stories": stories}
+    return {"status": "error", "message": "jira_search_unavailable"}
+
+
+async def list_stories(project: str, max: int = 10) -> Dict[str, Any]:
+    """Read-only story list. GET only. Missing URL or token returns unconfigured."""
+    key = str(project or "").strip().upper()
+    if not _LIST_KEY.fullmatch(key):
+        return {"status": "error", "message": "project key must be 1-10 characters, A-Z and 0-9"}
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return {
+            "status": "unconfigured",
+            "message": "Set jira_url or jira_base_url in local settings and a token in JIRA_API_TOKEN or jira_api_token.",
+        }
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    try:
+        return await _list_search(creds["url"], creds["email"], creds["token"], key, _clamp_max(max))
+    except httpx.HTTPError:
+        return {"status": "error", "message": "jira_request_failed"}

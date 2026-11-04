@@ -21,6 +21,7 @@ Rules:
 - Report results clearly, including failures and suggested next steps.
 - Security context is important: respect the current level (OFFICIAL / SECRET).
 - For a browse request, call run_playwright with steps, a list of {action, selector?, value?}; action is goto, click, fill, expect_text, or expect_url, and click a visible label with selector text=Label.
+- When the user asks to list Jira stories, call list_stories with the project key and do not invent stories.
 """
 
 class Agent:
@@ -74,6 +75,21 @@ class Agent:
                             "project": {"type": "string", "description": "Jira project key, for example PROJ"}
                         },
                         "required": ["action", "project"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "list_stories",
+                    "description": "Read-only GET. List Jira stories for one project key. Returns key, summary, and status only.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "project": {"type": "string", "description": "Jira project key: 1-10 characters, A-Z and 0-9"},
+                            "max": {"type": "integer", "description": "Maximum stories to return. Default 10."}
+                        },
+                        "required": ["project"]
                     }
                 }
             },
@@ -162,7 +178,7 @@ class Agent:
         except json.JSONDecodeError:
             return None
         name = data.get("name") if isinstance(data, dict) else None
-        if name not in {"jira_action", "run_playwright", "update_settings"}:
+        if name not in {"jira_action", "run_playwright", "update_settings", "list_stories"}:
             return None
         return {"name": name, "arguments": data.get("arguments") or {}}
 
@@ -189,6 +205,10 @@ class Agent:
             from plugins.jira_plugin import jira_action
             allowed = {"action", "project", "summary", "status"}
             return await jira_action(**{k: v for k, v in args.items() if k in allowed})
+        elif name == "list_stories":
+            from plugins.jira_plugin import list_stories
+            allowed = {"project", "max"}
+            return await list_stories(**{k: v for k, v in args.items() if k in allowed})
         elif name == "update_settings":
             from settings.store import update_setting
             allowed = {"key", "value", "confirm"}
