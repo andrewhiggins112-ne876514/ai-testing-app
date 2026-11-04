@@ -15,13 +15,14 @@ SYSTEM_PROMPT = """You are a local AI testing agent (Jarvis-style).
 You help testers by reasoning about requests and calling tools.
 
 Rules:
-- Always clarify ambiguous requests before acting (e.g. "create new strategy or use existing Jira tests?").
+- Always clarify ambiguous requests before acting (e.g. "use the new strategy or the existing one?"). A Jira request that names a project key and a summary is not ambiguous.
 - Never update credentials, create Jira tickets, or run destructive actions without explicit confirmation.
 - Prefer structured tool calls over guessing.
 - Report results clearly, including failures and suggested next steps.
 - Security context is important: respect the current level (OFFICIAL / SECRET).
 - For a browse request, call run_playwright with steps, a list of {action, selector?, value?}; action is goto, click, fill, expect_text, or expect_url, and click a visible label with selector text=Label.
 - When the user asks to list Jira stories, call list_stories with the project key and do not invent stories.
+- When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
 """
 
 class Agent:
@@ -96,6 +97,23 @@ class Agent:
             {
                 "type": "function",
                 "function": {
+                    "name": "create_issue",
+                    "description": "Call this immediately when the user names a Jira project key and an issue summary. Returns a preview only. Does not create the issue. The user must reply yes or confirm.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "project": {"type": "string", "description": "Jira project key: 1-10 characters, A-Z and 0-9"},
+                            "summary": {"type": "string", "description": "Issue summary, 255 characters or less"},
+                            "description": {"type": "string", "description": "Optional issue description"},
+                            "issue_type": {"type": "string", "description": "Issue type name. Default Task."}
+                        },
+                        "required": ["project", "summary"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
                     "name": "update_settings",
                     "description": "Propose or apply settings changes (credentials, URLs, security level). Always confirm first.",
                     "parameters": {
@@ -112,9 +130,17 @@ class Agent:
         ]
 
     async def chat(self, user_message: str, session_id: str = "default") -> str:
+        from plugins.jira_plugin import resolve_create
         history = self.histories.setdefault(
             session_id, [{"role": "system", "content": SYSTEM_PROMPT}]
         )
+        outcome = await resolve_create(session_id, user_message)
+        if outcome is not None and outcome.get("status") != "cancelled":
+            reply = _create_reply(outcome)
+            history.append({"role": "user", "content": user_message})
+            history.append({"role": "assistant", "content": reply})
+            self._cap(history)
+            return reply
         history.append({"role": "user", "content": user_message})
         self._cap(history)
 
@@ -178,7 +204,7 @@ class Agent:
         except json.JSONDecodeError:
             return None
         name = data.get("name") if isinstance(data, dict) else None
-        if name not in {"jira_action", "run_playwright", "update_settings", "list_stories"}:
+        if name not in {"jira_action", "run_playwright", "update_settings", "list_stories", "create_issue"}:
             return None
         return {"name": name, "arguments": data.get("arguments") or {}}
 
@@ -209,8 +235,27 @@ class Agent:
             from plugins.jira_plugin import list_stories
             allowed = {"project", "max"}
             return await list_stories(**{k: v for k, v in args.items() if k in allowed})
+        elif name == "create_issue":
+            from plugins.jira_plugin import create_issue
+            allowed = {"project", "summary", "description", "issue_type"}
+            kwargs = {k: v for k, v in args.items() if k in allowed}
+            kwargs["session_id"] = session_id
+            return await create_issue(**kwargs)
         elif name == "update_settings":
             from settings.store import update_setting
             allowed = {"key", "value", "confirm"}
             return update_setting(**{k: v for k, v in args.items() if k in allowed})
         return {"error": "Unknown tool"}
+
+
+def _create_reply(result: Dict) -> str:
+    status = result.get("status")
+    if status == "created":
+        return f"Created {result.get('key') or 'the issue'}."
+    if status == "expired":
+        return "That confirmation expired. Ask again to create the issue."
+    if status == "unconfigured":
+        return result.get("message") or "Jira is not configured."
+    if status == "unauthorized":
+        return result.get("message") or "Jira rejected the credentials."
+    return result.get("message") or "Jira did not create the issue."

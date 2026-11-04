@@ -1,6 +1,8 @@
-"""Read-only Jira. list_stories reads the base URL from the store and credentials from the environment or store."""
+"""Jira tools. list_stories is read-only. create_issue POSTs only after the user's own confirmation."""
 import os
 import re
+import time
+import uuid
 from typing import Any, Dict, Optional
 
 import httpx
@@ -9,7 +11,11 @@ from settings.store import load_settings
 
 _PROJECT = re.compile(r"[A-Za-z][A-Za-z0-9_]{1,10}")
 _LIST_KEY = re.compile(r"[A-Z0-9]{1,10}")
+_ISSUE_TYPE = re.compile(r"[A-Za-z][A-Za-z0-9 ]{0,39}")
 _WRITE = {"create_test", "update_status", "create_bug"}
+_CONFIRM_WORDS = {"yes", "confirm"}
+_PENDING: Dict[str, Dict[str, Any]] = {}
+_CONFIRM_TTL = 300.0
 
 def _creds() -> Dict[str, str]:
     settings = load_settings()
@@ -160,3 +166,112 @@ async def list_stories(project: str, max: int = 10) -> Dict[str, Any]:
         return await _list_search(creds["url"], creds["email"], creds["token"], key, _clamp_max(max))
     except httpx.HTTPError:
         return {"status": "error", "message": "jira_request_failed"}
+
+
+def _unconfigured() -> Dict[str, str]:
+    return {
+        "status": "unconfigured",
+        "message": "Set jira_url or jira_base_url in local settings and a token in JIRA_API_TOKEN or jira_api_token.",
+    }
+
+
+def _valid_create(project: str, summary: str, description: Optional[str], issue_type: Optional[str]) -> Dict[str, Any]:
+    key = str(project or "").strip().upper()
+    if not _LIST_KEY.fullmatch(key):
+        return {"status": "error", "message": "project key must be 1-10 characters, A-Z and 0-9"}
+    text = str(summary or "").strip()
+    if not text or len(text) > 255:
+        return {"status": "error", "message": "summary is required and must be 255 characters or less"}
+    kind = str(issue_type or "").strip() or "Task"
+    if kind.casefold() == "task":
+        kind = "Task"
+    if not _ISSUE_TYPE.fullmatch(kind):
+        return {"status": "error", "message": "issue type must be 1-40 characters, letters, digits, and spaces"}
+    detail = str(description or "").strip()
+    return {"project": key, "summary": text, "description": detail, "issue_type": kind}
+
+
+def _adf(text: str) -> Dict[str, Any]:
+    return {
+        "type": "doc",
+        "version": 1,
+        "content": [{"type": "paragraph", "content": [{"type": "text", "text": text}]}],
+    }
+
+
+async def _post_issue(preview: Dict[str, str]) -> Dict[str, Any]:
+    """POST one issue. The result never includes credentials."""
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    fields: Dict[str, Any] = {
+        "project": {"key": preview["project"]},
+        "summary": preview["summary"],
+        "issuetype": {"name": preview["issue_type"]},
+    }
+    if preview.get("description"):
+        fields["description"] = _adf(preview["description"])
+    headers = {"Accept": "application/json", "Content-Type": "application/json"}
+    auth = (creds["email"], creds["token"]) if creds["email"] else None
+    if auth is None:
+        headers["Authorization"] = f"Bearer {creds['token']}"
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            response = await client.post(
+                f"{creds['url']}/rest/api/3/issue",
+                json={"fields": fields},
+                auth=auth,
+                headers=headers,
+            )
+        if response.status_code in (401, 403):
+            return {"status": "unauthorized", "message": "Jira rejected the credentials"}
+        if response.status_code >= 400:
+            return {"status": "error", "message": "jira_request_failed"}
+        try:
+            data = response.json()
+        except ValueError:
+            return {"status": "error", "message": "jira_request_failed"}
+    except httpx.HTTPError:
+        return {"status": "error", "message": "jira_request_failed"}
+    return {"status": "created", "key": data.get("key") or ""}
+
+
+async def create_issue(
+    project: str,
+    summary: str,
+    description: Optional[str] = None,
+    issue_type: str = "Task",
+    session_id: str = "default",
+) -> Dict[str, Any]:
+    """Store a preview for this session. Never POSTs."""
+    preview = _valid_create(project, summary, description, issue_type)
+    if preview.get("status"):
+        return preview
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    confirm_id = uuid.uuid4().hex
+    _PENDING[str(session_id)] = {
+        "confirm_id": confirm_id,
+        "preview": preview,
+        "expires": time.monotonic() + _CONFIRM_TTL,
+    }
+    return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": preview}
+
+
+async def resolve_create(session_id: str, user_message: str) -> Optional[Dict[str, Any]]:
+    """Consume this session's pending create. yes/confirm POSTs once. Anything else cancels."""
+    record = _PENDING.get(str(session_id))
+    if not record:
+        return None
+    _PENDING.pop(str(session_id), None)
+    word = str(user_message or "").strip().casefold()
+    if word not in _CONFIRM_WORDS:
+        return {"status": "cancelled", "confirm_id": record["confirm_id"]}
+    if time.monotonic() >= record["expires"]:
+        return {"status": "expired", "confirm_id": record["confirm_id"]}
+    return await _post_issue(record["preview"])
