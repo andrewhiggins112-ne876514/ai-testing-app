@@ -24,6 +24,7 @@ Rules:
 - When the user asks to list Jira issues or stories, call list_stories with the project key and do not invent issues. Set issue_types only when the user names types. "list issues in KAN" omits issue_types.
 - When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
 - To link a Jira issue to an epic, call set_parent with the issue key and epic key, then wait for the user to reply yes. Do not answer yes for the user.
+- To change a Jira issue's status, call transition_issue with the issue key and target status, then wait for the user to reply yes. Do not answer yes for the user.
 """
 
 class Agent:
@@ -136,6 +137,21 @@ class Agent:
             {
                 "type": "function",
                 "function": {
+                    "name": "transition_issue",
+                    "description": "Preview a Jira status change. Does not change Jira until the user replies yes.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "issue_key": {"type": "string", "description": "Issue key, like KAN-4"},
+                            "target": {"type": "string", "description": "Target status name, like In Progress"}
+                        },
+                        "required": ["issue_key", "target"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
                     "name": "update_settings",
                     "description": "Propose or apply settings changes (credentials, URLs, security level). Always confirm first.",
                     "parameters": {
@@ -226,7 +242,7 @@ class Agent:
         except json.JSONDecodeError:
             return None
         name = data.get("name") if isinstance(data, dict) else None
-        if name not in {"jira_action", "run_playwright", "update_settings", "list_stories", "create_issue", "set_parent"}:
+        if name not in {"jira_action", "run_playwright", "update_settings", "list_stories", "create_issue", "set_parent", "transition_issue"}:
             return None
         return {"name": name, "arguments": data.get("arguments") or {}}
 
@@ -269,6 +285,12 @@ class Agent:
             kwargs = {k: v for k, v in args.items() if k in allowed}
             kwargs["session_id"] = session_id
             return await set_parent(**kwargs)
+        elif name == "transition_issue":
+            from plugins.jira_plugin import transition_issue
+            allowed = {"issue_key", "target"}
+            kwargs = {k: v for k, v in args.items() if k in allowed}
+            kwargs["session_id"] = session_id
+            return await transition_issue(**kwargs)
         elif name == "update_settings":
             from settings.store import update_setting
             allowed = {"key", "value", "confirm"}
@@ -282,6 +304,8 @@ def _create_reply(result: Dict) -> str:
         return f"Created {result.get('key') or 'the issue'}."
     if status == "linked":
         return f"Linked {result.get('issue_key')} to epic {result.get('epic_key')}."
+    if status == "transitioned":
+        return f"Moved {result.get('issue_key')} to {result.get('target')}."
     if status == "expired":
         return "That confirmation expired. Ask again to create the issue."
     if status == "unconfigured":

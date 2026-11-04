@@ -355,6 +355,8 @@ async def resolve_create(session_id: str, user_message: str) -> Optional[Dict[st
         return {"status": "expired", "confirm_id": record["confirm_id"]}
     if record.get("action") == "set_parent":
         return await _put_parent(record["preview"])
+    if record.get("action") == "transition":
+        return await _post_transition(record["preview"])
     return await _post_issue(record["preview"])
 
 
@@ -438,3 +440,161 @@ async def set_parent(issue_key: str, epic_key: str, session_id: str = "default")
     preview = {"issue_key": issue, "epic_key": epic}
     confirm_id = _store_pending(session_id, preview, "set_parent")
     return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": preview}
+
+
+def _status_failure(response: Any, missing: str) -> Optional[Dict[str, str]]:
+    if response.status_code in (401, 403):
+        return {"status": "unauthorized", "message": "Jira rejected the credentials"}
+    if response.status_code == 404:
+        return {"status": "error", "message": missing}
+    if response.status_code >= 400:
+        return {"status": "error", "message": "jira_request_failed"}
+    return None
+
+
+def _option_names(transitions: Any) -> list:
+    names = []
+    for item in transitions or []:
+        if not isinstance(item, dict):
+            continue
+        to = item.get("to") or {}
+        label = to.get("name") if isinstance(to, dict) else ""
+        if not label:
+            label = item.get("name") or ""
+        if label and label not in names:
+            names.append(label)
+    return names
+
+
+def _pick_transition(transitions: Any, target: str) -> Optional[Dict[str, Any]]:
+    wanted = target.casefold()
+    status_hits = []
+    name_hits = []
+    for item in transitions or []:
+        if not isinstance(item, dict) or item.get("id") in (None, ""):
+            continue
+        to = item.get("to") or {}
+        to_name = to.get("name", "") if isinstance(to, dict) else ""
+        if str(to_name).casefold() == wanted:
+            status_hits.append(item)
+        elif str(item.get("name") or "").casefold() == wanted:
+            name_hits.append(item)
+    hits = status_hits or name_hits
+    if len(hits) != 1:
+        return None
+    return hits[0]
+
+
+async def _load_transition(key: str) -> Dict[str, Any]:
+    """GET the current status and transitions. The result never includes credentials."""
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    headers, auth = _auth(creds)
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            issue = await client.get(
+                f"{creds['url']}/rest/api/3/issue/{key}",
+                params={"fields": "status"},
+                auth=auth,
+                headers=headers,
+            )
+            failed = _status_failure(issue, "issue not found")
+            if failed:
+                return failed
+            fields = issue.json().get("fields") or {}
+            status = fields.get("status") or {}
+            current = status.get("name", "") if isinstance(status, dict) else ""
+            listed = await client.get(
+                f"{creds['url']}/rest/api/3/issue/{key}/transitions",
+                auth=auth,
+                headers=headers,
+            )
+            failed = _status_failure(listed, "issue not found")
+            if failed:
+                return failed
+            transitions = listed.json().get("transitions") or []
+    except (httpx.HTTPError, ValueError):
+        return {"status": "error", "message": "jira_request_failed"}
+    return {"status": "ok", "current_status": current, "transitions": transitions}
+
+
+async def _post_transition(preview: Dict[str, str]) -> Dict[str, Any]:
+    """POST one transition after checking it is still available."""
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    headers, auth = _auth(creds)
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            listed = await client.get(
+                f"{creds['url']}/rest/api/3/issue/{preview['issue_key']}/transitions",
+                auth=auth,
+                headers=headers,
+            )
+            failed = _status_failure(listed, "issue not found")
+            if failed:
+                return failed
+            transitions = listed.json().get("transitions") or []
+            still = [
+                item for item in transitions
+                if isinstance(item, dict) and str(item.get("id")) == str(preview.get("transition_id"))
+            ]
+            if len(still) != 1:
+                return {
+                    "status": "error",
+                    "message": "transition is no longer available",
+                    "options": _option_names(transitions),
+                }
+            response = await client.post(
+                f"{creds['url']}/rest/api/3/issue/{preview['issue_key']}/transitions",
+                json={"transition": {"id": str(preview["transition_id"])}},
+                auth=auth,
+                headers=headers,
+            )
+            failed = _status_failure(response, "issue not found")
+            if failed:
+                return failed
+    except (httpx.HTTPError, ValueError):
+        return {"status": "error", "message": "jira_request_failed"}
+    return {"status": "transitioned", "issue_key": preview["issue_key"], "target": preview["target"]}
+
+
+async def transition_issue(issue_key: str, target: str, session_id: str = "default") -> Dict[str, Any]:
+    """Preview a status change. POST happens only after the user's own confirmation."""
+    issue = _issue_key(issue_key)
+    if not issue:
+        return {"status": "error", "message": "issue key must look like KEY-123"}
+    wanted = str(target or "").strip()
+    if not wanted:
+        return {"status": "error", "message": "target status is required"}
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    loaded = await _load_transition(issue)
+    if loaded.get("status") != "ok":
+        return loaded
+    match = _pick_transition(loaded["transitions"], wanted)
+    if not match:
+        return {
+            "status": "error",
+            "message": "no matching transition",
+            "options": _option_names(loaded["transitions"]),
+        }
+    to = match.get("to") or {}
+    label = to.get("name") if isinstance(to, dict) and to.get("name") else (match.get("name") or wanted)
+    stored = {
+        "issue_key": issue,
+        "current_status": loaded["current_status"],
+        "target": label,
+        "transition_id": str(match.get("id")),
+    }
+    confirm_id = _store_pending(session_id, stored, "transition")
+    shown = {key: stored[key] for key in ("issue_key", "current_status", "target")}
+    return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": shown}
