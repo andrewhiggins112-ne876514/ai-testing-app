@@ -11,6 +11,8 @@ from typing import List, Optional, Dict, Any, Tuple
 from playwright.async_api import TimeoutError as PlaywrightTimeout
 from playwright.async_api import async_playwright
 
+from reports.exporter import export_run
+
 _ACTIONS = {"goto", "click", "fill", "expect_text", "expect_url"}
 
 
@@ -157,7 +159,9 @@ async def run_playwright(
     url: str = "",
     mode: str = "generate",
     steps: Optional[List[Dict[str, Any]]] = None,
-    security_level: str = "OFFICIAL"
+    security_level: str = "OFFICIAL",
+    request_text: str = "",
+    session_id: str = "default",
 ) -> Dict[str, Any]:
     result: Dict[str, Any] = {"status": "fail", "title": None, "screenshot": None, "error": None}
     if steps:
@@ -165,7 +169,7 @@ async def run_playwright(
         if invalid:
             result["error"] = invalid
             result["steps"] = []
-            return result
+            return export_run(result, request_text, session_id)
 
     browser = None
     try:
@@ -212,4 +216,4 @@ async def run_playwright(
         result["status"] = "fail"
         if not result.get("error"):
             result["error"] = str(e)
-    return result
+    return export_run(result, request_text, session_id)

@@ -126,7 +126,7 @@ class Agent:
             if tool_calls:
                 tool_results = []
                 for call in tool_calls:
-                    result = await self._execute_tool(call)
+                    result = await self._execute_tool(call, user_message, session_id)
                     tool_results.append({
                         "role": "tool",
                         "content": json.dumps(result),
@@ -175,13 +175,16 @@ class Agent:
             raw = {}
         return function.get("name"), raw
 
-    async def _execute_tool(self, call: Dict) -> Dict:
+    async def _execute_tool(self, call: Dict, request_text: str = "", session_id: str = "default") -> Dict:
         name, args = self._parse_call(call)
 
         if name == "run_playwright":
             from plugins.playwright_runner import run_playwright
             allowed = {"url", "mode", "steps", "security_level"}
-            return await run_playwright(**{k: v for k, v in args.items() if k in allowed})
+            kwargs = {k: v for k, v in args.items() if k in allowed}
+            kwargs["request_text"] = request_text
+            kwargs["session_id"] = session_id
+            return await run_playwright(**kwargs)
         elif name == "jira_action":
             from plugins.jira_plugin import jira_action
             allowed = {"action", "project", "summary", "status"}
