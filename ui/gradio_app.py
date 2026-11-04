@@ -29,12 +29,13 @@ const canvas = element.querySelector("canvas");
 const label = element.querySelector(".jarvis-state");
 if (!canvas) return;
 const ctx = canvas.getContext("2d");
-const cssSize = 320;
+const viewW = 340;
+const viewH = 400;
 const dpr = Math.min(window.devicePixelRatio || 1, 2);
-canvas.width = Math.round(cssSize * dpr);
-canvas.height = Math.round(cssSize * dpr);
-canvas.style.width = cssSize + "px";
-canvas.style.height = cssSize + "px";
+canvas.width = Math.round(viewW * dpr);
+canvas.height = Math.round(viewH * dpr);
+canvas.style.width = viewW + "px";
+canvas.style.height = viewH + "px";
 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
 if (element._jarvisStop) element._jarvisStop();
@@ -123,104 +124,148 @@ function watchChat() {
 watchChat();
 setInterval(tick, 150);
 
-function filament(index, count, radius, amp) {
-  const cx = cssSize / 2;
-  const cy = cssSize / 2;
+function glowArc(cx, cy, rx, ry, tilt, spin, span, width, alpha) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(tilt);
+  ctx.shadowColor = "rgba(110, 225, 255, 0.95)";
+  ctx.shadowBlur = 14;
   ctx.beginPath();
-  const rot = angle * (0.65 + index * 0.17) + index * 1.7;
-  const steps = 90;
-  for (let step = 0; step <= steps; step++) {
-    const u = step / steps;
-    const a = rot + u * Math.PI * (mode === "thinking" ? 3.1 : 2.25);
-    const wobble = Math.sin(a * 2.0 + index * 1.3) * amp;
-    const rr = radius * (0.22 + 0.7 * u) + wobble;
-    const x = cx + Math.cos(a) * rr;
-    const y = cy + Math.sin(a * 0.82 + index) * rr * 0.62;
-    if (step === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  }
-  const alpha = mode === "thinking" ? 0.9 : 0.58;
-  ctx.strokeStyle = "rgba(" + (150 + index * 18) + "," + (220 - index * 8) + ",255," + alpha + ")";
-  ctx.lineWidth = mode === "thinking" ? 2.1 : 1.45;
+  ctx.ellipse(0, 0, rx, ry, 0, spin, spin + span);
+  ctx.strokeStyle = "rgba(120, 210, 255, " + (alpha * 0.4) + ")";
+  ctx.lineWidth = width + 2.6;
   ctx.stroke();
+  ctx.shadowBlur = 5;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, rx, ry, 0, spin, spin + span);
+  ctx.strokeStyle = "rgba(236, 252, 255, " + alpha + ")";
+  ctx.lineWidth = width;
+  ctx.stroke();
+  ctx.restore();
 }
 
 function draw() {
   if (stopped) return;
   const thinking = mode === "thinking";
   angle += thinking ? 0.011 : 0.0045;
-  const cx = cssSize / 2;
-  const cy = cssSize / 2;
-  const radius = 104;
+  const cx = viewW / 2;
+  const cy = 148;
+  const radius = 86;
+  const floorY = 368;
   const pulse = 0.5 + 0.5 * Math.sin(angle * (thinking ? 3.4 : 1.35));
-  ctx.clearRect(0, 0, cssSize, cssSize);
+  const arcAlpha = thinking ? 0.92 : 0.7;
+  ctx.clearRect(0, 0, viewW, viewH);
+  ctx.globalCompositeOperation = "source-over";
+  ctx.shadowBlur = 0;
 
-  const glow = ctx.createRadialGradient(cx, cy, radius * 0.15, cx, cy, radius * 1.85);
-  glow.addColorStop(0, "rgba(90, 220, 255, " + (0.34 + pulse * 0.16) + ")");
-  glow.addColorStop(0.42, "rgba(18, 110, 210, " + (0.16 + pulse * 0.08) + ")");
-  glow.addColorStop(1, "rgba(5, 7, 13, 0)");
-  ctx.fillStyle = glow;
+  const glowReach = 142;
+  const halo = ctx.createRadialGradient(cx, cy, radius * 0.08, cx, cy, glowReach);
+  halo.addColorStop(0, "rgba(198, 248, 255, " + (0.7 + pulse * 0.18) + ")");
+  halo.addColorStop(0.2, "rgba(60, 185, 255, " + (0.38 + pulse * 0.1) + ")");
+  halo.addColorStop(0.5, "rgba(14, 90, 180, 0.16)");
+  halo.addColorStop(0.78, "rgba(8, 28, 60, 0.04)");
+  halo.addColorStop(1, "rgba(5, 7, 13, 0)");
+  ctx.fillStyle = halo;
   ctx.beginPath();
-  ctx.arc(cx, cy, radius * 1.85, 0, Math.PI * 2);
+  ctx.arc(cx, cy, glowReach, 0, Math.PI * 2);
   ctx.fill();
 
-  const body = ctx.createRadialGradient(cx - 26, cy - 30, 8, cx, cy, radius);
-  body.addColorStop(0, "rgba(236, 253, 255, 0.96)");
-  body.addColorStop(0.22, "rgba(96, 214, 255, 0.9)");
-  body.addColorStop(0.58, "rgba(14, 86, 176, 0.94)");
-  body.addColorStop(1, "rgba(3, 14, 36, 0.98)");
+  const beam = ctx.createLinearGradient(cx, cy + radius * 0.4, cx, floorY);
+  beam.addColorStop(0, "rgba(170, 240, 255, " + (0.42 + pulse * 0.12) + ")");
+  beam.addColorStop(0.45, "rgba(50, 170, 255, 0.16)");
+  beam.addColorStop(1, "rgba(50, 170, 255, 0)");
+  ctx.fillStyle = beam;
+  ctx.beginPath();
+  ctx.moveTo(cx - 7, cy + radius * 0.72);
+  ctx.lineTo(cx + 7, cy + radius * 0.72);
+  ctx.lineTo(cx + 26, floorY);
+  ctx.lineTo(cx - 26, floorY);
+  ctx.fill();
+
+  for (let ring = 0; ring < 3; ring++) {
+    ctx.beginPath();
+    ctx.ellipse(cx, floorY, 34 + ring * 26, 8 + ring * 5, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(130, 220, 255, " + (0.32 - ring * 0.07) + ")";
+    ctx.lineWidth = ring === 0 ? 1.4 : 1;
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.arc(cx, floorY, 2.2, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(220, 250, 255, 0.85)";
+  ctx.fill();
+
+  const body = ctx.createRadialGradient(cx - 18, cy - 22, 2, cx, cy, radius);
+  body.addColorStop(0, "rgba(255, 255, 255, 1)");
+  body.addColorStop(0.1, "rgba(210, 250, 255, 0.98)");
+  body.addColorStop(0.32, "rgba(70, 205, 255, 0.9)");
+  body.addColorStop(0.68, "rgba(10, 78, 180, 0.78)");
+  body.addColorStop(1, "rgba(3, 16, 42, 0.5)");
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.fillStyle = body;
-  ctx.shadowColor = "rgba(50, 190, 255, " + (thinking ? 0.75 : 0.5) + ")";
-  ctx.shadowBlur = thinking ? 34 : 20;
+  ctx.shadowColor = "rgba(80, 210, 255, " + (thinking ? 0.9 : 0.65) + ")";
+  ctx.shadowBlur = thinking ? 42 : 28;
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  ctx.save();
+  const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.42);
+  core.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+  core.addColorStop(0.45, "rgba(140, 235, 255, 0.45)");
+  core.addColorStop(1, "rgba(80, 190, 255, 0)");
+  ctx.fillStyle = core;
   ctx.beginPath();
-  ctx.arc(cx, cy, radius - 2, 0, Math.PI * 2);
-  ctx.clip();
-  ctx.globalCompositeOperation = "lighter";
-  ctx.shadowColor = "rgba(120, 230, 255, 0.95)";
-  ctx.shadowBlur = thinking ? 16 : 8;
-  const count = thinking ? 5 : 3;
-  const amp = thinking ? 16 : 9;
-  for (let index = 0; index < count; index++) filament(index, count, radius * 0.92, amp);
-  ctx.restore();
+  ctx.arc(cx, cy, radius * 0.42, 0, Math.PI * 2);
+  ctx.fill();
 
-  ctx.shadowBlur = 0;
-  ctx.globalCompositeOperation = "source-over";
-  const orbits = thinking ? 3 : 2;
-  for (let index = 0; index < orbits; index++) {
-    ctx.beginPath();
-    ctx.ellipse(
+  ctx.globalCompositeOperation = "lighter";
+  const arcs = [
+    [radius * 0.62, radius * 0.34, 0.55, 0.72, 0.4, 4.4, 1.15],
+    [radius * 0.84, radius * 0.5, -0.85, 1.2, 1.7, 4.1, 1.05],
+    [radius * 1.16, radius * 0.46, 1.15, 0.55, 2.5, 3.5, 1.1],
+    [radius * 1.34, radius * 0.3, -0.25, 1.55, 4.1, 2.9, 0.95],
+  ];
+  for (let index = 0; index < arcs.length; index++) {
+    const arc = arcs[index];
+    glowArc(
       cx,
       cy,
-      radius * (1.18 + index * 0.08),
-      radius * (0.34 + index * 0.07),
-      angle * 0.55 + index * 1.15,
-      0,
-      Math.PI * 2
+      arc[0],
+      arc[1],
+      arc[2] + angle * 0.12,
+      angle * arc[3] + arc[4],
+      arc[5],
+      arc[6],
+      arcAlpha
     );
-    ctx.strokeStyle = "rgba(130, 226, 255, " + (thinking ? 0.42 : 0.26) + ")";
-    ctx.lineWidth = 1.15;
-    ctx.stroke();
   }
+  ctx.globalCompositeOperation = "source-over";
 
   ctx.beginPath();
-  ctx.arc(cx, cy, radius - 1.2, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(186, 244, 255, " + (0.32 + pulse * 0.28) + ")";
-  ctx.lineWidth = 2;
-  ctx.shadowColor = "rgba(140, 230, 255, 0.8)";
+  ctx.arc(cx, cy, radius - 1, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(200, 246, 255, " + (0.4 + pulse * 0.3) + ")";
+  ctx.lineWidth = 1.6;
+  ctx.shadowColor = "rgba(150, 235, 255, 0.85)";
   ctx.shadowBlur = 12;
   ctx.stroke();
   ctx.shadowBlur = 0;
 
   ctx.beginPath();
-  ctx.ellipse(cx - 34, cy - 38, 26, 14, -0.6, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+  ctx.ellipse(cx - 28, cy - 32, 22, 11, -0.55, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
   ctx.fill();
+
+  for (let spark = 0; spark < 14; spark++) {
+    const seed = spark * 2.399;
+    const orbit = angle * (0.45 + (spark % 4) * 0.22) + seed;
+    const dist = radius * (0.28 + (spark % 6) * 0.16);
+    const x = cx + Math.cos(orbit) * dist;
+    const y = cy + Math.sin(orbit * 0.86 + seed) * dist * 0.78;
+    const twinkle = 0.2 + 0.8 * Math.abs(Math.sin(angle * (thinking ? 5.5 : 2.1) + seed));
+    ctx.beginPath();
+    ctx.arc(x, y, spark % 5 === 0 ? 1.5 : 0.85, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(225, 250, 255, " + (0.18 + twinkle * 0.5) + ")";
+    ctx.fill();
+  }
 
   frame = requestAnimationFrame(draw);
 }
@@ -287,12 +332,12 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 340px;
+  min-height: 430px;
 }
 #jarvis-orb-host canvas {
   display: block;
-  width: 320px;
-  height: 320px;
+  width: 340px;
+  height: 400px;
 }
 #jarvis-orb-host .jarvis-state {
   margin-top: 2px;
