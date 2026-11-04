@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import gradio as gr
 import httpx
+from reports.exporter import reports_dir
 from settings.store import load_settings, update_setting
 
 CHAT_URL = "http://127.0.0.1:8000/chat"
@@ -30,6 +31,27 @@ def save_settings(level, jira_base_url):
     update_setting("security_level", level, confirm=True)
     update_setting("jira_url", url, confirm=True)
     return "Saved."
+
+
+def latest_report():
+    try:
+        folder = reports_dir()
+    except Exception:
+        return "No reports yet", None
+    if not folder.exists():
+        return "No reports yet", None
+    files = sorted(folder.glob("*.md"), key=lambda path: path.stat().st_mtime)
+    if not files:
+        return "No reports yet", None
+    text = files[-1].read_text(encoding="utf-8")
+    shot = None
+    for line in text.splitlines():
+        if line.startswith("Screenshot:"):
+            candidate = Path(line.split(":", 1)[1].strip())
+            if candidate.is_file():
+                shot = str(candidate)
+            break
+    return text, shot
 
 
 def new_session_id():
@@ -72,6 +94,10 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
             jira_base_url = gr.Textbox(value=loaded_url, label="jira_base_url")
             status = gr.Textbox(label="Status", interactive=False)
             gr.Button("Save").click(save_settings, [level, jira_base_url], status)
+        with gr.Tab("Reports"):
+            report_md = gr.Markdown("No reports yet")
+            report_image = gr.Image(label="Screenshot")
+            gr.Button("Refresh").click(latest_report, outputs=[report_md, report_image])
     demo.load(current_settings, outputs=[level, jira_base_url])
 
 if __name__ == "__main__":
