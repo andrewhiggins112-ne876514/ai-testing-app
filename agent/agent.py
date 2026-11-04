@@ -20,6 +20,7 @@ Rules:
 - Prefer structured tool calls over guessing.
 - Report results clearly, including failures and suggested next steps.
 - Security context is important: respect the current level (OFFICIAL / SECRET).
+- For a browse request, call run_playwright with steps, a list of {action, selector?, value?}; action is goto, click, fill, expect_text, or expect_url, and click a visible label with selector text=Label.
 """
 
 class Agent:
@@ -37,13 +38,25 @@ class Agent:
                 "type": "function",
                 "function": {
                     "name": "run_playwright",
-                    "description": "Run Playwright tests against a URL or existing suite. Returns structured results.",
+                    "description": "Run Playwright steps against a page. Returns status, title, screenshot, error, and per-step pass/fail.",
                     "parameters": {
                         "type": "object",
                         "properties": {
                             "url": {"type": "string", "description": "Target URL"},
                             "mode": {"type": "string", "enum": ["generate", "existing"], "description": "Generate new or run existing"},
-                            "steps": {"type": "array", "items": {"type": "string"}, "description": "Optional steps"}
+                            "steps": {
+                                "type": "array",
+                                "description": "Ordered steps. Example: [{\"action\":\"goto\",\"value\":\"https://example.com\"},{\"action\":\"click\",\"selector\":\"text=More information\"},{\"action\":\"expect_url\",\"value\":\"iana\"}]. goto and expect_* need value. click needs selector. fill needs selector and value.",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "action": {"type": "string", "enum": ["goto", "click", "fill", "expect_text", "expect_url"]},
+                                        "selector": {"type": "string"},
+                                        "value": {"type": "string"}
+                                    },
+                                    "required": ["action"]
+                                }
+                            }
                         },
                         "required": ["url"]
                     }
