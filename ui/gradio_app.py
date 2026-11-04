@@ -1,4 +1,5 @@
 """Minimal local Gradio chat client. Talks to the FastAPI agent on port 8000."""
+import json
 import os
 import sys
 import uuid
@@ -33,17 +34,28 @@ def save_settings(level, jira_base_url):
     return "Saved."
 
 
+def _report_json(md_path: Path):
+    path = md_path.with_suffix(".json")
+    if not path.is_file():
+        return "No JSON found"
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return "No JSON found"
+
+
 def latest_report():
     try:
         folder = reports_dir()
     except Exception:
-        return "No reports yet", None
+        return "No reports yet", None, "No JSON found"
     if not folder.exists():
-        return "No reports yet", None
+        return "No reports yet", None, "No JSON found"
     files = sorted(folder.glob("*.md"), key=lambda path: path.stat().st_mtime)
     if not files:
-        return "No reports yet", None
-    text = files[-1].read_text(encoding="utf-8")
+        return "No reports yet", None, "No JSON found"
+    newest = files[-1]
+    text = newest.read_text(encoding="utf-8")
     shot = None
     for line in text.splitlines():
         if line.startswith("Screenshot:"):
@@ -51,7 +63,15 @@ def latest_report():
             if candidate.is_file():
                 shot = str(candidate)
             break
-    return text, shot
+    return text, shot, _report_json(newest)
+
+
+def refresh_report():
+    """gr.JSON rejects a plain sentence, so the missing-file message is wrapped."""
+    text, shot, payload = latest_report()
+    if isinstance(payload, str):
+        payload = {"message": payload}
+    return text, shot, payload
 
 
 def new_session_id():
@@ -97,7 +117,9 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
         with gr.Tab("Reports"):
             report_md = gr.Markdown("No reports yet")
             report_image = gr.Image(label="Screenshot")
-            gr.Button("Refresh").click(latest_report, outputs=[report_md, report_image])
+            with gr.Accordion("Raw JSON", open=False):
+                report_json = gr.JSON(value={"message": "No JSON found"})
+            gr.Button("Refresh").click(refresh_report, outputs=[report_md, report_image, report_json])
     demo.load(current_settings, outputs=[level, jira_base_url])
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
-"""Reports tab reads the newest markdown file. Uses a temp directory."""
+"""Reports tab reads the newest markdown file and its matching JSON."""
 import importlib.util
+import json
 import os
 import sys
 import tempfile
@@ -27,9 +28,10 @@ class ReportsTabTests(unittest.TestCase):
             os.environ["AI_TESTING_REPORTS"] = self._old
 
     def test_empty_folder_shows_no_reports(self):
-        text, image = gradio_app.latest_report()
+        text, image, payload = gradio_app.latest_report()
         self.assertEqual(text, "No reports yet")
         self.assertIsNone(image)
+        self.assertEqual(payload, "No JSON found")
 
     def test_newest_report_and_existing_screenshot(self):
         older = self.folder / "old.md"
@@ -40,16 +42,35 @@ class ReportsTabTests(unittest.TestCase):
         newer.write_text(f"# New\n\nScreenshot: {missing}\n", encoding="utf-8")
         os.utime(older, (1_000_000, 1_000_000))
         os.utime(newer, (2_000_000, 2_000_000))
-        text, image = gradio_app.latest_report()
+        text, image, payload = gradio_app.latest_report()
         self.assertIn("# New", text)
         self.assertNotIn("# Old", text)
         self.assertIsNone(image)
+        self.assertEqual(payload, "No JSON found")
         shot.write_bytes(b"\x89PNG\r\n")
         newer.write_text(f"# New\n\nScreenshot: {shot}\n", encoding="utf-8")
         os.utime(newer, (3_000_000, 3_000_000))
-        text, image = gradio_app.latest_report()
+        text, image, payload = gradio_app.latest_report()
         self.assertIn("# New", text)
         self.assertEqual(image, str(shot))
+        self.assertEqual(payload, "No JSON found")
+
+    def test_matching_json_for_newest_report(self):
+        older = self.folder / "old.md"
+        newer = self.folder / "new.md"
+        older.write_text("# Old\n", encoding="utf-8")
+        newer.write_text("# New\n", encoding="utf-8")
+        (self.folder / "old.json").write_text(json.dumps({"request": "old"}), encoding="utf-8")
+        (self.folder / "new.json").write_text(
+            json.dumps({"request": "new", "status": "pass"}), encoding="utf-8"
+        )
+        os.utime(older, (1_000_000, 1_000_000))
+        os.utime(self.folder / "old.json", (4_000_000, 4_000_000))
+        os.utime(newer, (2_000_000, 2_000_000))
+        text, image, payload = gradio_app.latest_report()
+        self.assertIn("# New", text)
+        self.assertIsNone(image)
+        self.assertEqual(payload, {"request": "new", "status": "pass"})
 
 
 if __name__ == "__main__":
