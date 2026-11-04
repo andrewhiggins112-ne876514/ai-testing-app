@@ -39,15 +39,30 @@ canvas.style.height = viewH + "px";
 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
 if (element._orbStop) element._orbStop();
+window.__energyOrbBoots = (window.__energyOrbBoots || 0) + 1;
 let stopped = false;
 let frame = 0;
+let watchTimer = 0;
+let angle = element._orbAngle || 0;
 element._orbStop = function () {
   stopped = true;
   cancelAnimationFrame(frame);
+  if (watchTimer) {
+    clearTimeout(watchTimer);
+    watchTimer = 0;
+  }
+  if (element._orbInterval) {
+    clearInterval(element._orbInterval);
+    element._orbInterval = 0;
+  }
+  if (element._orbObserver) {
+    element._orbObserver.disconnect();
+    element._orbObserver = null;
+  }
+  element._orbAngle = angle;
 };
 
 let mode = "calm";
-let angle = 0;
 let sawLoading = false;
 let armedAt = 0;
 
@@ -61,11 +76,13 @@ function loading() {
 }
 
 function setMode(next) {
-  if (next === mode) return;
+  if (next === mode && window.__energyOrbMode === next) return;
   mode = next;
-  if (label) label.textContent = next === "thinking" ? "THINKING" : "CALM";
-  const orb = element.querySelector(".energy-orb");
-  if (orb) orb.setAttribute("data-state", next);
+  window.__energyOrbMode = next;
+  const liveLabel = document.querySelector("#energy-orb-host .orb-state");
+  const liveOrb = document.querySelector("#energy-orb-host .energy-orb");
+  if (liveLabel) liveLabel.textContent = next === "thinking" ? "THINKING" : "CALM";
+  if (liveOrb) liveOrb.setAttribute("data-state", next);
 }
 
 function armThinking() {
@@ -92,49 +109,59 @@ function tick() {
   }
 }
 
-document.addEventListener("keydown", function (event) {
-  if (event.key !== "Enter" || event.shiftKey) return;
-  const root = chatRoot();
-  if (!root || !event.target || !root.contains(event.target)) return;
-  if (event.target.tagName !== "TEXTAREA") return;
-  if (!String(event.target.value || "").trim()) return;
-  armThinking();
-}, true);
+if (!window.__energyOrbInputBound) {
+  window.__energyOrbInputBound = true;
+  document.addEventListener("keydown", function (event) {
+    try {
+      if (event.key !== "Enter" || event.shiftKey) return;
+      const root = chatRoot();
+      if (!root || !event.target || !root.contains(event.target)) return;
+      if (event.target.tagName !== "TEXTAREA") return;
+      if (!String(event.target.value || "").trim()) return;
+      armThinking();
+    } catch (err) {}
+  }, true);
+  document.addEventListener("click", function (event) {
+    try {
+      const root = chatRoot();
+      if (!root || !event.target || !event.target.closest) return;
+      const button = event.target.closest('[data-testid="submit-button"]');
+      if (!button || !root.contains(button)) return;
+      const box = root.querySelector("textarea");
+      if (!box || !String(box.value || "").trim()) return;
+      armThinking();
+    } catch (err) {}
+  }, true);
+}
 
-document.addEventListener("click", function (event) {
-  const root = chatRoot();
-  if (!root || !event.target || !event.target.closest) return;
-  const button = event.target.closest('[data-testid="submit-button"]');
-  if (!button || !root.contains(button)) return;
-  const box = root.querySelector("textarea");
-  if (!box || !String(box.value || "").trim()) return;
-  armThinking();
-}, true);
-
-const observer = new MutationObserver(tick);
 function watchChat() {
   const root = chatRoot();
   if (!root) {
-    setTimeout(watchChat, 200);
+    watchTimer = setTimeout(watchChat, 200);
     return;
   }
-  observer.observe(root, { childList: true, subtree: true, attributes: true });
+  if (element._orbObserver) element._orbObserver.disconnect();
+  const observer = new MutationObserver(tick);
+  element._orbObserver = observer;
+  observer.observe(root, { childList: true, subtree: true });
   tick();
 }
 watchChat();
-setInterval(tick, 150);
+element._orbInterval = setInterval(tick, 200);
 
-const mists = [];
-for (let index = 0; index < 7; index++) {
-  mists.push({
-    rx: 0.42 + (index % 3) * 0.16,
-    ry: 0.26 + (index % 4) * 0.1,
-    tilt: index * 0.72,
-    speed: 0.24 + (index % 5) * 0.15,
-    phase: index * 1.31,
-    span: 4.1 + (index % 3) * 0.7,
-    spread: 18 + (index % 3) * 7,
-    wobble: 7 + index * 1.4,
+const filaments = [];
+for (let index = 0; index < 28; index++) {
+  const inner = index < 16;
+  filaments.push({
+    rx: inner ? 0.3 + (index % 5) * 0.09 : 0.68 + (index % 4) * 0.07,
+    ry: inner ? 0.16 + (index % 4) * 0.07 : 0.32 + (index % 5) * 0.08,
+    tilt: index * 0.46,
+    speed: 0.26 + (index % 8) * 0.12,
+    phase: index * 0.93,
+    span: index % 4 === 0 ? 6.05 : 3.8 + (index % 3) * 0.7,
+    width: inner ? 0.55 + (index % 3) * 0.15 : 0.7 + (index % 3) * 0.12,
+    wobble: inner ? 1.8 + (index % 3) * 0.55 : 1.05 + (index % 3) * 0.4,
+    inner: inner,
   });
 }
 
@@ -149,104 +176,113 @@ function fillGlow(cx, cy, radius, reach, inner, mid) {
   ctx.fill();
 }
 
-function mistPoint(cx, cy, radius, spec, time, u) {
-  const along = time * spec.speed + spec.phase + u * spec.span;
-  const tilt = spec.tilt + Math.sin(time * 0.25 + spec.phase) * 0.28;
-  const breathe = 1 + 0.1 * Math.sin(time * 1.3 + spec.phase + u * 3.6);
-  const wave = Math.sin(along * 1.5 + time * 0.9 + spec.phase) * spec.wobble;
-  const rx = radius * spec.rx * breathe;
-  const ry = radius * spec.ry * breathe;
-  const x0 = Math.cos(along) * rx;
-  const y0 = Math.sin(along) * ry + wave;
+function filamentPath(cx, cy, radius, spec, time) {
+  const path = new Path2D();
+  const spin = time * spec.speed + spec.phase;
+  const tilt = spec.tilt + Math.sin(time * 0.28 + spec.phase) * 0.18;
   const ct = Math.cos(tilt);
   const st = Math.sin(tilt);
-  return {
-    x: cx + x0 * ct - y0 * st * 0.18,
-    y: cy + x0 * st * 0.48 + y0 * ct,
-    fade: Math.sin(Math.PI * u),
-  };
+  const steps = 42;
+  for (let step = 0; step <= steps; step++) {
+    const u = step / steps;
+    const along = spin + u * spec.span;
+    const breathe = 1 + 0.045 * Math.sin(time * 1.4 + spec.phase + u * 5);
+    const wave = Math.sin(along * 2.15 + time * 1.25 + spec.phase) * spec.wobble;
+    const x0 = Math.cos(along) * radius * spec.rx * breathe;
+    const y0 = Math.sin(along) * radius * spec.ry * breathe + wave * 0.32;
+    const x = cx + x0 * ct - y0 * st * 0.16;
+    const y = cy + x0 * st * 0.54 + y0 * ct;
+    if (step === 0) path.moveTo(x, y);
+    else path.lineTo(x, y);
+  }
+  return path;
 }
 
-function paintMist(cx, cy, radius, spec, time, strength) {
-  const samples = 14;
-  for (let step = 0; step <= samples; step++) {
-    const point = mistPoint(cx, cy, radius, spec, time, step / samples);
-    if (point.fade < 0.05) continue;
-    const reach = spec.spread * (0.5 + 0.5 * point.fade);
-    const puff = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, reach);
-    const alpha = strength * point.fade;
-    puff.addColorStop(0, "rgba(214, 248, 255, " + (alpha * 0.34) + ")");
-    puff.addColorStop(0.38, "rgba(60, 180, 255, " + (alpha * 0.14) + ")");
-    puff.addColorStop(1, "rgba(8, 30, 70, 0)");
-    ctx.fillStyle = puff;
-    ctx.beginPath();
-    ctx.arc(point.x, point.y, reach, 0, Math.PI * 2);
-    ctx.fill();
-  }
+function paintFilament(cx, cy, radius, spec, time, alpha) {
+  const path = filamentPath(cx, cy, radius, spec, time);
+  ctx.lineWidth = spec.width + 1.7;
+  ctx.strokeStyle = "rgba(70, 190, 255, " + (alpha * 0.32) + ")";
+  ctx.stroke(path);
+  ctx.lineWidth = spec.width;
+  ctx.strokeStyle = "rgba(232, 252, 255, " + alpha + ")";
+  ctx.stroke(path);
 }
 
 function draw() {
   if (stopped) return;
-  const thinking = mode === "thinking";
+  const thinking = (window.__energyOrbMode || mode) === "thinking";
   angle += thinking ? 0.011 : 0.0045;
   const cx = viewW / 2;
   const cy = viewH / 2;
   const radius = 98;
   const pulse = 0.5 + 0.5 * Math.sin(angle * (thinking ? 3.4 : 1.35));
-  const strength = thinking ? 0.72 : 0.5;
+  const alpha = thinking ? 0.92 : 0.78;
   ctx.clearRect(0, 0, viewW, viewH);
   ctx.globalCompositeOperation = "source-over";
   ctx.shadowBlur = 0;
-  ctx.lineWidth = 0;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
 
-  fillGlow(cx, cy, radius, 152, "rgba(70, 160, 255, " + (0.22 + pulse * 0.08) + ")", "rgba(8, 40, 120, 0.05)");
-  fillGlow(cx, cy, radius, 114, "rgba(140, 220, 255, " + (0.28 + pulse * 0.1) + ")", "rgba(20, 110, 210, 0.1)");
-  fillGlow(cx, cy, radius, 70, "rgba(220, 248, 255, " + (0.22 + pulse * 0.08) + ")", "rgba(80, 190, 255, 0.08)");
+  fillGlow(cx, cy, radius, 155, "rgba(80, 180, 255, " + (0.3 + pulse * 0.1) + ")", "rgba(8, 40, 130, 0.07)");
+  fillGlow(cx, cy, radius, 116, "rgba(150, 225, 255, " + (0.38 + pulse * 0.12) + ")", "rgba(20, 120, 220, 0.14)");
+  fillGlow(cx, cy, radius, 68, "rgba(230, 250, 255, " + (0.28 + pulse * 0.08) + ")", "rgba(70, 190, 255, 0.08)");
 
-  for (let index = 0; index < mists.length; index++) {
-    paintMist(cx, cy, radius, mists[index], angle, strength);
-  }
-
-  const shell = ctx.createRadialGradient(cx - 16, cy - 20, 4, cx, cy, radius * 1.05);
-  shell.addColorStop(0, "rgba(210, 246, 255, 0.16)");
-  shell.addColorStop(0.28, "rgba(50, 160, 235, 0.1)");
-  shell.addColorStop(0.62, "rgba(12, 70, 160, 0.07)");
-  shell.addColorStop(1, "rgba(5, 7, 13, 0)");
+  const shell = ctx.createRadialGradient(cx - 16, cy - 20, 4, cx, cy, radius);
+  shell.addColorStop(0, "rgba(214, 248, 255, 0.16)");
+  shell.addColorStop(0.42, "rgba(36, 140, 220, 0.1)");
+  shell.addColorStop(0.78, "rgba(6, 48, 130, 0.22)");
+  shell.addColorStop(1, "rgba(4, 18, 48, 0.34)");
   ctx.beginPath();
-  ctx.arc(cx, cy, radius * 1.05, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.fillStyle = shell;
-  ctx.shadowColor = "rgba(60, 180, 255, " + (thinking ? 0.45 : 0.3) + ")";
-  ctx.shadowBlur = thinking ? 28 : 18;
+  ctx.shadowColor = "rgba(80, 200, 255, " + (thinking ? 0.65 : 0.42) + ")";
+  ctx.shadowBlur = thinking ? 26 : 18;
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.42);
-  bloom.addColorStop(0, "rgba(255, 255, 255, " + (0.72 + pulse * 0.08) + ")");
-  bloom.addColorStop(0.22, "rgba(190, 245, 255, 0.38)");
-  bloom.addColorStop(0.55, "rgba(40, 160, 255, 0.1)");
-  bloom.addColorStop(1, "rgba(0, 80, 170, 0)");
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius * 0.98, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.globalCompositeOperation = "lighter";
+  for (let index = 0; index < filaments.length; index++) {
+    paintFilament(cx, cy, radius, filaments[index], angle, filaments[index].inner ? alpha * 0.85 : alpha);
+  }
+  ctx.restore();
+
+  const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.34);
+  bloom.addColorStop(0, "rgba(255, 255, 255, 0.96)");
+  bloom.addColorStop(0.2, "rgba(198, 248, 255, 0.7)");
+  bloom.addColorStop(0.5, "rgba(40, 180, 255, 0.18)");
+  bloom.addColorStop(1, "rgba(0, 90, 180, 0)");
+  ctx.globalCompositeOperation = "lighter";
   ctx.fillStyle = bloom;
   ctx.beginPath();
-  ctx.arc(cx, cy, radius * 0.42, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius * 0.34, 0, Math.PI * 2);
   ctx.fill();
 
-  for (let mote = 0; mote < 8; mote++) {
-    const seed = mote * 2.399;
-    const orbit = angle * (0.3 + (mote % 4) * 0.12) + seed;
-    const dist = radius * (0.22 + (mote % 5) * 0.12);
+  ctx.globalCompositeOperation = "source-over";
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius - 0.6, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(186, 240, 255, " + (0.5 + pulse * 0.28) + ")";
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  for (let spark = 0; spark < 18; spark++) {
+    const seed = spark * 2.399;
+    const orbit = angle * (0.38 + (spark % 5) * 0.14) + seed;
+    const dist = radius * (0.22 + (spark % 6) * 0.11);
     const x = cx + Math.cos(orbit) * dist;
-    const y = cy + Math.sin(orbit * 0.85 + seed) * dist * 0.8;
+    const y = cy + Math.sin(orbit * 0.88 + seed) * dist * 0.8;
     const twinkle = 0.25 + 0.75 * Math.abs(Math.sin(angle * (thinking ? 4.2 : 1.7) + seed));
-    const reach = 6 + (mote % 3) * 3;
-    const puff = ctx.createRadialGradient(x, y, 0, x, y, reach);
-    puff.addColorStop(0, "rgba(230, 250, 255, " + (0.22 * twinkle) + ")");
-    puff.addColorStop(1, "rgba(80, 180, 255, 0)");
-    ctx.fillStyle = puff;
     ctx.beginPath();
-    ctx.arc(x, y, reach, 0, Math.PI * 2);
+    ctx.arc(x, y, spark % 5 === 0 ? 1.35 : 0.7, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(236, 252, 255, " + (twinkle * 0.85) + ")";
     ctx.fill();
   }
 
+  element._orbAngle = angle;
+  window.__energyOrbFrames = (window.__energyOrbFrames || 0) + 1;
   frame = requestAnimationFrame(draw);
 }
 draw();
