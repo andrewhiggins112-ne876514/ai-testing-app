@@ -11,6 +11,14 @@ from settings.store import load_settings
 
 _PROJECT = re.compile(r"[A-Za-z][A-Za-z0-9_]{1,10}")
 _LIST_KEY = re.compile(r"[A-Z0-9]{1,10}")
+_TYPE_JQL = {
+    "story": "Story",
+    "task": "Task",
+    "bug": "Bug",
+    "epic": "Epic",
+    "subtask": "Sub-task",
+    "sub-task": "Sub-task",
+}
 _ISSUE_TYPE = re.compile(r"[A-Za-z][A-Za-z0-9 ]{0,39}")
 _WRITE = {"create_test", "update_status", "create_bug"}
 _CONFIRM_WORDS = {"yes", "confirm"}
@@ -33,10 +41,12 @@ def _stories(payload: Dict[str, Any], project: str) -> Dict[str, Any]:
     for issue in payload.get("issues") or []:
         fields = issue.get("fields") or {}
         status = fields.get("status") or {}
+        kind = fields.get("issuetype") or {}
         stories.append({
             "key": issue.get("key", ""),
             "summary": fields.get("summary", ""),
             "status": status.get("name", "") if isinstance(status, dict) else "",
+            "type": kind.get("name", "") if isinstance(kind, dict) else "",
         })
     return {"stories": stories, "project": project}
 
@@ -116,12 +126,33 @@ def _clamp_max(value: Any) -> int:
     return min(50, max(1, number))
 
 
-async def _list_search(url: str, email: str, token: str, project: str, limit: int) -> Dict[str, Any]:
+def _type_clause(issue_types: Any) -> Any:
+    """JQL fragment from the allow-list, or an error dict. Empty means every type."""
+    if issue_types is None:
+        return ""
+    if isinstance(issue_types, str):
+        issue_types = [issue_types]
+    if not isinstance(issue_types, (list, tuple)):
+        return {"status": "error", "message": "issue type must be Story, Task, Bug, Epic, or Subtask"}
+    names = []
+    for item in issue_types:
+        canonical = _TYPE_JQL.get(str(item or "").strip().casefold())
+        if not canonical:
+            return {"status": "error", "message": "issue type must be Story, Task, Bug, Epic, or Subtask"}
+        if canonical not in names:
+            names.append(canonical)
+    if not names:
+        return ""
+    quoted = ", ".join(f'"{name}"' for name in names)
+    return f" AND issuetype IN ({quoted})"
+
+
+async def _list_search(url: str, email: str, token: str, project: str, limit: int, clause: str) -> Dict[str, Any]:
     """GET the search API. The result never includes credentials."""
     params = {
-        "jql": f"project = {project} AND issuetype = Story ORDER BY updated DESC",
+        "jql": f"project = {project}{clause} ORDER BY updated DESC",
         "maxResults": limit,
-        "fields": "summary,status",
+        "fields": "summary,status,issuetype",
     }
     if email:
         attempts = [
@@ -149,11 +180,14 @@ async def _list_search(url: str, email: str, token: str, project: str, limit: in
     return {"status": "error", "message": "jira_search_unavailable"}
 
 
-async def list_stories(project: str, max: int = 10) -> Dict[str, Any]:
-    """Read-only story list. GET only. Missing URL or token returns unconfigured."""
+async def list_stories(project: str, max: int = 10, issue_types: Any = None) -> Dict[str, Any]:
+    """Read-only issue list. GET only. Missing URL or token returns unconfigured."""
     key = str(project or "").strip().upper()
     if not _LIST_KEY.fullmatch(key):
         return {"status": "error", "message": "project key must be 1-10 characters, A-Z and 0-9"}
+    clause = _type_clause(issue_types)
+    if isinstance(clause, dict):
+        return clause
     creds = _list_creds()
     if not creds["url"] or not creds["token"]:
         return {
@@ -163,7 +197,7 @@ async def list_stories(project: str, max: int = 10) -> Dict[str, Any]:
     if not _url_ok(creds["url"]):
         return {"status": "error", "message": "jira_url must start with https://"}
     try:
-        return await _list_search(creds["url"], creds["email"], creds["token"], key, _clamp_max(max))
+        return await _list_search(creds["url"], creds["email"], creds["token"], key, _clamp_max(max), clause)
     except httpx.HTTPError:
         return {"status": "error", "message": "jira_request_failed"}
 

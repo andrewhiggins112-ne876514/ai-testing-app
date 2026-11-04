@@ -21,7 +21,7 @@ Rules:
 - Report results clearly, including failures and suggested next steps.
 - Security context is important: respect the current level (OFFICIAL / SECRET).
 - For a browse request, call run_playwright with steps, a list of {action, selector?, value?}; action is goto, click, fill, expect_text, or expect_url, and click a visible label with selector text=Label.
-- When the user asks to list Jira stories, call list_stories with the project key and do not invent stories.
+- When the user asks to list Jira issues or stories, call list_stories with the project key and do not invent issues. Set issue_types only when the user names types. "list issues in KAN" omits issue_types.
 - When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
 """
 
@@ -83,12 +83,17 @@ class Agent:
                 "type": "function",
                 "function": {
                     "name": "list_stories",
-                    "description": "Read-only GET. List Jira stories for one project key. Returns key, summary, and status only.",
+                    "description": "Read-only GET. List Jira issues for one project key. Returns key, summary, status, and type. Omit issue_types to list every type.",
                     "parameters": {
                         "type": "object",
                         "properties": {
                             "project": {"type": "string", "description": "Jira project key: 1-10 characters, A-Z and 0-9"},
-                            "max": {"type": "integer", "description": "Maximum stories to return. Default 10."}
+                            "max": {"type": "integer", "description": "Maximum issues to return. Default 10."},
+                            "issue_types": {
+                                "type": "array",
+                                "items": {"type": "string", "enum": ["Story", "Task", "Bug", "Epic", "Subtask"]},
+                                "description": "Optional. Omit to list every issue type."
+                            }
                         },
                         "required": ["project"]
                     }
@@ -233,7 +238,7 @@ class Agent:
             return await jira_action(**{k: v for k, v in args.items() if k in allowed})
         elif name == "list_stories":
             from plugins.jira_plugin import list_stories
-            allowed = {"project", "max"}
+            allowed = {"project", "max", "issue_types"}
             return await list_stories(**{k: v for k, v in args.items() if k in allowed})
         elif name == "create_issue":
             from plugins.jira_plugin import create_issue

@@ -50,6 +50,11 @@ class ListStoriesTests(unittest.TestCase):
                 os.environ[key] = value
         self.tmp.cleanup()
 
+    def _configure(self):
+        os.environ["JIRA_API_TOKEN"] = self.token
+        os.environ["JIRA_EMAIL"] = "qa@example.com"
+        self.settings.write_text(json.dumps({"jira_url": "https://jira.example.com"}), encoding="utf-8")
+
     def test_unconfigured(self):
         with patch("plugins.jira_plugin.httpx.AsyncClient") as ctor:
             result = asyncio.run(list_stories("TEST"))
@@ -85,16 +90,27 @@ class ListStoriesTests(unittest.TestCase):
         payload = {"issues": [{
             "id": "10001",
             "key": "TEST-1",
-            "fields": {"summary": "First story", "status": {"name": "To Do"}, "description": "hidden"},
+            "fields": {
+                "summary": "First story",
+                "status": {"name": "To Do"},
+                "issuetype": {"name": "Story"},
+                "description": "hidden",
+            },
         }]}
         client = _client(_response(200, payload))
         with patch("plugins.jira_plugin.httpx.AsyncClient", return_value=client):
             result = asyncio.run(list_stories("TEST", max=3))
         self.assertEqual(result["status"], "ok")
-        self.assertEqual(result["stories"], [{"key": "TEST-1", "summary": "First story", "status": "To Do"}])
-        self.assertEqual(list(result["stories"][0].keys()), ["key", "summary", "status"])
+        self.assertEqual(result["stories"], [{
+            "key": "TEST-1", "summary": "First story", "status": "To Do", "type": "Story",
+        }])
+        self.assertEqual(list(result["stories"][0].keys()), ["key", "summary", "status", "type"])
         endpoint = client.get.await_args.args[0]
         self.assertTrue(endpoint.startswith("https://jira.example.com/rest/api/3/search/jql"))
+        self.assertEqual(
+            client.get.await_args.kwargs["params"]["jql"],
+            "project = TEST ORDER BY updated DESC",
+        )
         self.assertEqual(client.get.await_args.kwargs["params"]["maxResults"], 3)
         self.assertEqual(client.get.await_args.kwargs["auth"], ("qa@example.com", self.token))
         client.post.assert_not_called()
@@ -117,6 +133,33 @@ class ListStoriesTests(unittest.TestCase):
         self.assertNotIn(self.token, json.dumps(result))
         client.post.assert_not_called()
         client.put.assert_not_called()
+
+    def test_task_filter_and_subtask_name(self):
+        self._configure()
+        payload = {"issues": [{
+            "key": "TEST-2",
+            "fields": {"summary": "A task", "status": {"name": "To Do"}, "issuetype": {"name": "Task"}},
+        }]}
+        client = _client(_response(200, payload))
+        with patch("plugins.jira_plugin.httpx.AsyncClient", return_value=client):
+            result = asyncio.run(list_stories("TEST", issue_types=["Task"]))
+        self.assertEqual(result["stories"][0]["type"], "Task")
+        self.assertEqual(
+            client.get.await_args.kwargs["params"]["jql"],
+            'project = TEST AND issuetype IN ("Task") ORDER BY updated DESC',
+        )
+        client.post.assert_not_called()
+        with patch("plugins.jira_plugin.httpx.AsyncClient", return_value=client):
+            asyncio.run(list_stories("TEST", issue_types=["Subtask"]))
+        self.assertIn('issuetype IN ("Sub-task")', client.get.await_args.kwargs["params"]["jql"])
+
+    def test_invalid_type_skips_http(self):
+        self._configure()
+        for value in (["Feature"], ['Story" OR project = HACK']):
+            with patch("plugins.jira_plugin.httpx.AsyncClient") as ctor:
+                result = asyncio.run(list_stories("TEST", issue_types=value))
+            self.assertEqual(result["status"], "error")
+            ctor.assert_not_called()
 
 
 if __name__ == "__main__":
