@@ -4,6 +4,7 @@ fastapi
 uvicorn
 playwright
 httpx
+gradio
 python-dotenv
 pydantic
 # Optional: langgraph if we expand the agent loop later
