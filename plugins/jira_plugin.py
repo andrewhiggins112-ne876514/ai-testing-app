@@ -1,0 +1,92 @@
+"""Read-only Jira. Credentials come from the local settings store only."""
+import re
+from typing import Any, Dict, Optional
+
+import httpx
+
+from settings.store import load_settings
+
+_PROJECT = re.compile(r"[A-Za-z][A-Za-z0-9_]{1,10}")
+_WRITE = {"create_test", "update_status", "create_bug"}
+
+def _creds() -> Dict[str, str]:
+    settings = load_settings()
+    return {
+        "url": (settings.get("jira_url") or "").rstrip("/"),
+        "email": settings.get("jira_email") or "",
+        "token": settings.get("jira_api_token") or "",
+    }
+
+def _url_ok(url: str) -> bool:
+    return url.startswith("https://") or url.startswith("http://127.0.0.1") or url.startswith("http://localhost")
+
+def _stories(payload: Dict[str, Any], project: str) -> Dict[str, Any]:
+    stories = []
+    for issue in payload.get("issues") or []:
+        fields = issue.get("fields") or {}
+        status = fields.get("status") or {}
+        stories.append({
+            "key": issue.get("key", ""),
+            "summary": fields.get("summary", ""),
+            "status": status.get("name", "") if isinstance(status, dict) else "",
+        })
+    return {"stories": stories, "project": project}
+
+async def _search(url: str, email: str, token: str, project: str) -> Dict[str, Any]:
+    jql = f"project = {project} AND issuetype = Story ORDER BY updated DESC"
+    params = {"jql": jql, "maxResults": 10, "fields": "summary,status"}
+    attempts = []
+    if email:
+        attempts.append((f"{url}/rest/api/3/search/jql", (email, token), {}))
+        attempts.append((f"{url}/rest/api/2/search", (email, token), {}))
+    else:
+        attempts.append((f"{url}/rest/api/2/search", None, {"Authorization": f"Bearer {token}"}))
+
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        last_status = 0
+        for endpoint, auth, headers in attempts:
+            response = await client.get(
+                endpoint,
+                params=params,
+                auth=auth,
+                headers={"Accept": "application/json", **headers},
+            )
+            last_status = response.status_code
+            if response.status_code == 404:
+                continue
+            if response.status_code in (401, 403):
+                return {"error": "jira_unauthorized", "status": response.status_code}
+            response.raise_for_status()
+            return _stories(response.json(), project)
+    return {"error": "jira_search_unavailable", "status": last_status}
+
+async def jira_action(
+    action: str,
+    project: Optional[str] = None,
+    summary: Optional[str] = None,
+    status: Optional[str] = None,
+) -> Dict[str, Any]:
+    if action in _WRITE:
+        return {
+            "status": "confirmation_required",
+            "action": action,
+            "note": "Jira writes are not enabled. list_stories is read-only.",
+        }
+    if action != "list_stories":
+        return {"error": "Unknown action"}
+    if not project or not _PROJECT.fullmatch(project):
+        return {"error": "project key required, for example PROJ"}
+    creds = _creds()
+    if not creds["url"] or not creds["token"]:
+        return {
+            "error": "jira_not_configured",
+            "need": ["jira_url", "jira_api_token"],
+            "optional": ["jira_email for Jira Cloud"],
+        }
+    if not _url_ok(creds["url"]):
+        return {"error": "jira_url must start with https://"}
+    try:
+        return await _search(creds["url"], creds["email"], creds["token"], project)
+    except httpx.HTTPError as exc:
+        detail = str(exc).replace(creds["token"], "***")[:200]
+        return {"error": "jira_request_failed", "detail": detail}

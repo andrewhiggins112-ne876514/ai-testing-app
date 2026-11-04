@@ -1,0 +1,14 @@
+# AI Testing Application - Local Jarvis-style Agent
+# Requirements
+fastapi
+uvicorn
+playwright
+httpx
+python-dotenv
+pydantic
+# Optional: langgraph if we expand the agent loop later
+# langgraph
+
+# Install with:
+# pip install -r requirements.txt
+# playwright install chromium
