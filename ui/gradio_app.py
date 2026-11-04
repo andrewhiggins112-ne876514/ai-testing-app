@@ -149,26 +149,63 @@ function watchChat() {
 watchChat();
 element._orbInterval = setInterval(tick, 200);
 
-const filaments = [];
-for (let index = 0; index < 28; index++) {
-  const inner = index < 16;
-  filaments.push({
-    rx: inner ? 0.3 + (index % 5) * 0.09 : 0.68 + (index % 4) * 0.07,
-    ry: inner ? 0.16 + (index % 4) * 0.07 : 0.32 + (index % 5) * 0.08,
-    tilt: index * 0.46,
-    speed: 0.26 + (index % 8) * 0.12,
-    phase: index * 0.93,
-    span: index % 4 === 0 ? 6.05 : 3.8 + (index % 3) * 0.7,
-    width: inner ? 0.55 + (index % 3) * 0.15 : 0.7 + (index % 3) * 0.12,
-    wobble: inner ? 1.8 + (index % 3) * 0.55 : 1.05 + (index % 3) * 0.4,
-    inner: inner,
-  });
+function hash(n) {
+  const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+const webs = [];
+function addArc(index, theta, phi, dir, span, width, gain, speed) {
+  const points = [];
+  const steps = 26;
+  for (let step = 0; step <= steps; step++) {
+    const u = step / steps;
+    const along = (u - 0.5) * span;
+    const wave = Math.sin(u * Math.PI * 2.4 + index) * 0.11 + Math.sin(u * Math.PI * 5.2 + index * 1.6) * 0.045;
+    let nextPhi = phi + Math.sin(dir) * along + wave;
+    if (nextPhi < 0.28) nextPhi = 0.28;
+    if (nextPhi > Math.PI - 0.28) nextPhi = Math.PI - 0.28;
+    points.push({
+      theta: theta + Math.cos(dir) * along + wave * 0.4,
+      phi: nextPhi,
+    });
+  }
+  webs.push({ points: points, speed: speed, width: width, gain: gain });
+}
+for (let index = 0; index < 64; index++) {
+  const theta = hash(index + 1) * Math.PI * 2;
+  const phi = 0.4 + hash(index + 2) * 2.34;
+  const dir = hash(index + 3) * Math.PI * 2;
+  const bolt = index % 8 === 0;
+  const span = bolt ? 1.55 + hash(index + 4) * 0.45 : 0.85 + hash(index + 4) * 0.7;
+  addArc(
+    index,
+    theta,
+    phi,
+    dir,
+    span,
+    bolt ? 0.9 : 0.36 + hash(index + 5) * 0.24,
+    bolt ? 0.95 : 0.48 + hash(index + 6) * 0.4,
+    0.35 + hash(index + 7) * 1.05
+  );
+  if (index % 3 === 0) {
+    addArc(
+      index + 80,
+      theta + 0.05,
+      phi,
+      dir + 1.15 + hash(index + 9),
+      span * 0.62,
+      0.34,
+      0.55,
+      0.5 + hash(index + 11) * 0.8
+    );
+  }
 }
 
 function fillGlow(cx, cy, radius, reach, inner, mid) {
-  const glow = ctx.createRadialGradient(cx, cy, radius * 0.02, cx, cy, reach);
+  const glow = ctx.createRadialGradient(cx, cy, radius * 0.2, cx, cy, reach);
   glow.addColorStop(0, inner);
-  glow.addColorStop(0.45, mid);
+  glow.addColorStop(0.5, mid);
   glow.addColorStop(1, "rgba(5, 7, 13, 0)");
   ctx.fillStyle = glow;
   ctx.beginPath();
@@ -176,36 +213,71 @@ function fillGlow(cx, cy, radius, reach, inner, mid) {
   ctx.fill();
 }
 
-function filamentPath(cx, cy, radius, spec, time) {
-  const path = new Path2D();
-  const spin = time * spec.speed + spec.phase;
-  const tilt = spec.tilt + Math.sin(time * 0.28 + spec.phase) * 0.18;
-  const ct = Math.cos(tilt);
-  const st = Math.sin(tilt);
-  const steps = 42;
-  for (let step = 0; step <= steps; step++) {
-    const u = step / steps;
-    const along = spin + u * spec.span;
-    const breathe = 1 + 0.045 * Math.sin(time * 1.4 + spec.phase + u * 5);
-    const wave = Math.sin(along * 2.15 + time * 1.25 + spec.phase) * spec.wobble;
-    const x0 = Math.cos(along) * radius * spec.rx * breathe;
-    const y0 = Math.sin(along) * radius * spec.ry * breathe + wave * 0.32;
-    const x = cx + x0 * ct - y0 * st * 0.16;
-    const y = cy + x0 * st * 0.54 + y0 * ct;
-    if (step === 0) path.moveTo(x, y);
-    else path.lineTo(x, y);
-  }
-  return path;
+function projectPoint(point, spin, cx, cy, radius) {
+  const theta = point.theta + spin;
+  const phi = point.phi;
+  const sinPhi = Math.sin(phi);
+  const x = sinPhi * Math.cos(theta);
+  const y = Math.cos(phi);
+  const z = sinPhi * Math.sin(theta);
+  return { x: cx + x * radius, y: cy + y * radius, z: z };
 }
 
-function paintFilament(cx, cy, radius, spec, time, alpha) {
-  const path = filamentPath(cx, cy, radius, spec, time);
-  ctx.lineWidth = spec.width + 1.7;
-  ctx.strokeStyle = "rgba(70, 190, 255, " + (alpha * 0.32) + ")";
+function webPaths(spec, spin, cx, cy, radius) {
+  const front = new Path2D();
+  const back = new Path2D();
+  let prev = null;
+  let frontPen = false;
+  let backPen = false;
+  const limit = radius * 0.14;
+  for (let index = 0; index < spec.points.length; index++) {
+    const point = projectPoint(spec.points[index], spin, cx, cy, radius);
+    if (prev) {
+      const dx = point.x - prev.x;
+      const dy = point.y - prev.y;
+      const near = dx * dx + dy * dy < limit * limit;
+      const onFront = point.z > -0.04 && prev.z > -0.04;
+      if (near && onFront) {
+        if (!frontPen) front.moveTo(prev.x, prev.y);
+        front.lineTo(point.x, point.y);
+        frontPen = true;
+        backPen = false;
+      } else if (near) {
+        if (!backPen) back.moveTo(prev.x, prev.y);
+        back.lineTo(point.x, point.y);
+        backPen = true;
+        frontPen = false;
+      } else {
+        frontPen = false;
+        backPen = false;
+      }
+    }
+    prev = point;
+  }
+  return { front: front, back: back };
+}
+
+function strokeWeb(path, width, alpha) {
+  if (alpha < 0.03) return;
+  ctx.lineWidth = width + 1.15;
+  ctx.strokeStyle = "rgba(80, 205, 255, " + (alpha * 0.22) + ")";
   ctx.stroke(path);
-  ctx.lineWidth = spec.width;
-  ctx.strokeStyle = "rgba(232, 252, 255, " + alpha + ")";
+  ctx.lineWidth = width;
+  ctx.strokeStyle = "rgba(240, 253, 255, " + alpha + ")";
   ctx.stroke(path);
+}
+
+function strokeRing(cx, cy, rx, ry, rotation, width, alpha) {
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, rotation, 0, Math.PI * 2);
+  ctx.lineWidth = width + 2.4;
+  ctx.strokeStyle = "rgba(90, 210, 255, " + (alpha * 0.32) + ")";
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, rotation, 0, Math.PI * 2);
+  ctx.lineWidth = width;
+  ctx.strokeStyle = "rgba(226, 250, 255, " + alpha + ")";
+  ctx.stroke();
 }
 
 function draw() {
@@ -215,71 +287,101 @@ function draw() {
   const cx = viewW / 2;
   const cy = viewH / 2;
   const radius = 98;
-  const pulse = 0.5 + 0.5 * Math.sin(angle * (thinking ? 3.4 : 1.35));
-  const alpha = thinking ? 0.92 : 0.78;
+  const pulse = 0.5 + 0.5 * Math.sin(angle * (thinking ? 3.2 : 1.4));
+  const boost = thinking ? 1.12 : 1;
   ctx.clearRect(0, 0, viewW, viewH);
   ctx.globalCompositeOperation = "source-over";
   ctx.shadowBlur = 0;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
-  fillGlow(cx, cy, radius, 155, "rgba(80, 180, 255, " + (0.3 + pulse * 0.1) + ")", "rgba(8, 40, 130, 0.07)");
-  fillGlow(cx, cy, radius, 116, "rgba(150, 225, 255, " + (0.38 + pulse * 0.12) + ")", "rgba(20, 120, 220, 0.14)");
-  fillGlow(cx, cy, radius, 68, "rgba(230, 250, 255, " + (0.28 + pulse * 0.08) + ")", "rgba(70, 190, 255, 0.08)");
+  fillGlow(cx, cy, radius, 150, "rgba(80, 190, 255, " + (0.4 + pulse * 0.12) + ")", "rgba(6, 36, 110, 0.06)");
+  fillGlow(cx, cy, radius, 114, "rgba(150, 230, 255, " + (0.32 + pulse * 0.1) + ")", "rgba(16, 110, 200, 0.1)");
 
-  const shell = ctx.createRadialGradient(cx - 16, cy - 20, 4, cx, cy, radius);
-  shell.addColorStop(0, "rgba(214, 248, 255, 0.16)");
-  shell.addColorStop(0.42, "rgba(36, 140, 220, 0.1)");
-  shell.addColorStop(0.78, "rgba(6, 48, 130, 0.22)");
-  shell.addColorStop(1, "rgba(4, 18, 48, 0.34)");
+  const shell = ctx.createRadialGradient(cx, cy - radius * 0.12, radius * 0.08, cx, cy, radius);
+  shell.addColorStop(0, "rgba(186, 244, 255, 0.1)");
+  shell.addColorStop(0.48, "rgba(3, 24, 58, 0.55)");
+  shell.addColorStop(0.8, "rgba(10, 80, 150, 0.2)");
+  shell.addColorStop(0.94, "rgba(70, 200, 255, 0.32)");
+  shell.addColorStop(1, "rgba(200, 250, 255, 0.62)");
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.fillStyle = shell;
-  ctx.shadowColor = "rgba(80, 200, 255, " + (thinking ? 0.65 : 0.42) + ")";
-  ctx.shadowBlur = thinking ? 26 : 18;
   ctx.fill();
-  ctx.shadowBlur = 0;
+
+  ctx.globalCompositeOperation = "lighter";
+  const ringTilt = 0.28 + Math.sin(angle * 0.45) * 0.05;
+  strokeRing(cx, cy, radius * 0.74, radius * 0.6, ringTilt, 1.15 * boost, 0.72);
+  strokeRing(cx, cy, radius * 0.46, radius * 0.37, ringTilt - 0.08, 1.2 * boost, 0.88);
+
+  for (let index = 0; index < webs.length; index++) {
+    const spec = webs[index];
+    const spin = angle * spec.speed;
+    const paths = webPaths(spec, spin, cx, cy, radius);
+    strokeWeb(paths.back, spec.width * 0.8, spec.gain * 0.16 * boost);
+    strokeWeb(paths.front, spec.width, spec.gain * 0.82 * boost);
+  }
 
   ctx.save();
   ctx.beginPath();
-  ctx.arc(cx, cy, radius * 0.98, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius * 1.04, 0, Math.PI * 2);
   ctx.clip();
-  ctx.globalCompositeOperation = "lighter";
-  for (let index = 0; index < filaments.length; index++) {
-    paintFilament(cx, cy, radius, filaments[index], angle, filaments[index].inner ? alpha * 0.85 : alpha);
-  }
+  const band = ctx.createLinearGradient(cx, cy - 11, cx, cy + 11);
+  band.addColorStop(0, "rgba(80, 200, 255, 0)");
+  band.addColorStop(0.38, "rgba(120, 220, 255, 0.14)");
+  band.addColorStop(0.5, "rgba(230, 252, 255, " + (0.62 + pulse * 0.12) + ")");
+  band.addColorStop(0.62, "rgba(120, 220, 255, 0.14)");
+  band.addColorStop(1, "rgba(80, 200, 255, 0)");
+  ctx.fillStyle = band;
+  ctx.fillRect(cx - radius, cy - 11, radius * 2, 22);
+  const flare = ctx.createLinearGradient(cx - radius, cy, cx + radius, cy);
+  flare.addColorStop(0, "rgba(180, 240, 255, 0)");
+  flare.addColorStop(0.12, "rgba(210, 248, 255, 0.15)");
+  flare.addColorStop(0.38, "rgba(245, 254, 255, 0.85)");
+  flare.addColorStop(0.5, "rgba(255, 255, 255, 1)");
+  flare.addColorStop(0.62, "rgba(245, 254, 255, 0.85)");
+  flare.addColorStop(0.88, "rgba(210, 248, 255, 0.15)");
+  flare.addColorStop(1, "rgba(180, 240, 255, 0)");
+  ctx.strokeStyle = flare;
+  ctx.lineWidth = thinking ? 1.45 : 1.15;
+  ctx.beginPath();
+  ctx.moveTo(cx - radius * 0.98, cy);
+  ctx.lineTo(cx + radius * 0.98, cy);
+  ctx.stroke();
   ctx.restore();
 
-  const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.34);
-  bloom.addColorStop(0, "rgba(255, 255, 255, 0.96)");
-  bloom.addColorStop(0.2, "rgba(198, 248, 255, 0.7)");
-  bloom.addColorStop(0.5, "rgba(40, 180, 255, 0.18)");
-  bloom.addColorStop(1, "rgba(0, 90, 180, 0)");
-  ctx.globalCompositeOperation = "lighter";
+  const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.16);
+  bloom.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+  bloom.addColorStop(0.35, "rgba(190, 246, 255, 0.55)");
+  bloom.addColorStop(1, "rgba(40, 180, 255, 0)");
   ctx.fillStyle = bloom;
   ctx.beginPath();
-  ctx.arc(cx, cy, radius * 0.34, 0, Math.PI * 2);
+  ctx.arc(cx, cy, radius * 0.16, 0, Math.PI * 2);
   ctx.fill();
+
+  for (let spark = 0; spark < 22; spark++) {
+    const spec = webs[spark % webs.length];
+    const point = spec.points[Math.min(spec.points.length - 1, 2 + (spark % 5))];
+    const projected = projectPoint(point, angle * spec.speed, cx, cy, radius);
+    if (projected.z < 0.05) continue;
+    const twinkle = 0.35 + 0.65 * Math.abs(Math.sin(angle * (thinking ? 4 : 1.8) + spark));
+    ctx.beginPath();
+    ctx.arc(projected.x, projected.y, spark % 4 === 0 ? 1.5 : 0.8, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(245, 254, 255, " + twinkle + ")";
+    ctx.fill();
+  }
 
   ctx.globalCompositeOperation = "source-over";
   ctx.beginPath();
-  ctx.arc(cx, cy, radius - 0.6, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(186, 240, 255, " + (0.5 + pulse * 0.28) + ")";
-  ctx.lineWidth = 1.2;
+  ctx.arc(cx, cy, radius - 0.4, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(214, 250, 255, " + (0.72 + pulse * 0.2) + ")";
+  ctx.lineWidth = 1.45;
   ctx.stroke();
-
-  for (let spark = 0; spark < 18; spark++) {
-    const seed = spark * 2.399;
-    const orbit = angle * (0.38 + (spark % 5) * 0.14) + seed;
-    const dist = radius * (0.22 + (spark % 6) * 0.11);
-    const x = cx + Math.cos(orbit) * dist;
-    const y = cy + Math.sin(orbit * 0.88 + seed) * dist * 0.8;
-    const twinkle = 0.25 + 0.75 * Math.abs(Math.sin(angle * (thinking ? 4.2 : 1.7) + seed));
-    ctx.beginPath();
-    ctx.arc(x, y, spark % 5 === 0 ? 1.35 : 0.7, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(236, 252, 255, " + (twinkle * 0.85) + ")";
-    ctx.fill();
-  }
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius + 1.2, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(120, 220, 255, " + (0.28 + pulse * 0.1) + ")";
+  ctx.lineWidth = 3.2;
+  ctx.stroke();
 
   element._orbAngle = angle;
   window.__energyOrbFrames = (window.__energyOrbFrames || 0) + 1;
