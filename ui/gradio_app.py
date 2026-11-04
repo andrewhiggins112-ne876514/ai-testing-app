@@ -17,16 +17,16 @@ CHAT_URL = "http://127.0.0.1:8000/chat"
 LEVELS = ("OFFICIAL", "SECRET")
 VOID = "#05070d"
 
-JARVIS_HTML = """
-<div class="jarvis-orb" data-state="calm">
-  <canvas width="640" height="640" aria-label="JARVIS energy orb"></canvas>
-  <div class="jarvis-state">CALM</div>
+ORB_HTML = """
+<div class="energy-orb" data-state="calm">
+  <canvas width="680" height="800" aria-label="energy orb"></canvas>
+  <div class="orb-state">CALM</div>
 </div>
 """
 
-JARVIS_JS = r"""
+ORB_JS = r"""
 const canvas = element.querySelector("canvas");
-const label = element.querySelector(".jarvis-state");
+const label = element.querySelector(".orb-state");
 if (!canvas) return;
 const ctx = canvas.getContext("2d");
 const viewW = 340;
@@ -38,10 +38,10 @@ canvas.style.width = viewW + "px";
 canvas.style.height = viewH + "px";
 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-if (element._jarvisStop) element._jarvisStop();
+if (element._orbStop) element._orbStop();
 let stopped = false;
 let frame = 0;
-element._jarvisStop = function () {
+element._orbStop = function () {
   stopped = true;
   cancelAnimationFrame(frame);
 };
@@ -52,7 +52,7 @@ let sawLoading = false;
 let armedAt = 0;
 
 function chatRoot() {
-  return document.getElementById("jarvis-chat");
+  return document.getElementById("agent-chat");
 }
 
 function loading() {
@@ -64,7 +64,7 @@ function setMode(next) {
   if (next === mode) return;
   mode = next;
   if (label) label.textContent = next === "thinking" ? "THINKING" : "CALM";
-  const orb = element.querySelector(".jarvis-orb");
+  const orb = element.querySelector(".energy-orb");
   if (orb) orb.setAttribute("data-state", next);
 }
 
@@ -124,24 +124,57 @@ function watchChat() {
 watchChat();
 setInterval(tick, 150);
 
-function glowArc(cx, cy, rx, ry, tilt, spin, span, width, alpha) {
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(tilt);
-  ctx.shadowColor = "rgba(110, 225, 255, 0.95)";
-  ctx.shadowBlur = 14;
+const filaments = [];
+for (let index = 0; index < 22; index++) {
+  filaments.push({
+    rx: 0.62 + (index % 4) * 0.12,
+    ry: 0.34 + (index % 5) * 0.11,
+    tilt: index * 0.41,
+    speed: 0.22 + (index % 8) * 0.11,
+    phase: index * 0.97,
+    span: 5.5 + (index % 3) * 0.28,
+    width: 0.8 + (index % 3) * 0.28,
+    wobble: 1.2 + (index % 3) * 0.7,
+  });
+}
+
+function fillGlow(cx, cy, radius, reach, inner, mid) {
+  const glow = ctx.createRadialGradient(cx, cy, radius * 0.04, cx, cy, reach);
+  glow.addColorStop(0, inner);
+  glow.addColorStop(0.42, mid);
+  glow.addColorStop(1, "rgba(5, 7, 13, 0)");
+  ctx.fillStyle = glow;
   ctx.beginPath();
-  ctx.ellipse(0, 0, rx, ry, 0, spin, spin + span);
-  ctx.strokeStyle = "rgba(120, 210, 255, " + (alpha * 0.4) + ")";
-  ctx.lineWidth = width + 2.6;
-  ctx.stroke();
-  ctx.shadowBlur = 5;
+  ctx.arc(cx, cy, reach, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function strokeFilament(cx, cy, radius, spec, time, alpha) {
+  const spin = time * spec.speed + spec.phase;
+  const tilt = spec.tilt + Math.sin(time * 0.32 + spec.phase) * 0.22;
+  const ct = Math.cos(tilt);
+  const st = Math.sin(tilt);
   ctx.beginPath();
-  ctx.ellipse(0, 0, rx, ry, 0, spin, spin + span);
-  ctx.strokeStyle = "rgba(236, 252, 255, " + alpha + ")";
-  ctx.lineWidth = width;
+  const steps = 46;
+  for (let step = 0; step <= steps; step++) {
+    const u = step / steps;
+    const along = spin + u * spec.span;
+    const breathe = 1 + 0.07 * Math.sin(time * 1.7 + spec.phase + u * 5.4);
+    const wave = Math.sin(along * 2.3 + time * 1.45 + spec.phase) * spec.wobble;
+    const rx = radius * spec.rx * breathe;
+    const ry = radius * spec.ry * breathe;
+    const x0 = Math.cos(along) * rx;
+    const y0 = Math.sin(along) * ry + wave * (0.32 + 0.12 * Math.sin(time + spec.phase));
+    const x = cx + x0 * ct - y0 * st * 0.22;
+    const y = cy + x0 * st * 0.58 + y0 * ct;
+    if (step === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.lineWidth = spec.width;
+  ctx.strokeStyle = "rgba(214, 248, 255, " + alpha + ")";
+  ctx.shadowColor = "rgba(80, 210, 255, 0.95)";
+  ctx.shadowBlur = 7;
   ctx.stroke();
-  ctx.restore();
 }
 
 function draw() {
@@ -149,121 +182,90 @@ function draw() {
   const thinking = mode === "thinking";
   angle += thinking ? 0.011 : 0.0045;
   const cx = viewW / 2;
-  const cy = 148;
-  const radius = 86;
+  const cy = 150;
+  const radius = 90;
   const floorY = 368;
   const pulse = 0.5 + 0.5 * Math.sin(angle * (thinking ? 3.4 : 1.35));
-  const arcAlpha = thinking ? 0.92 : 0.7;
+  const trail = thinking ? 0.95 : 0.82;
   ctx.clearRect(0, 0, viewW, viewH);
   ctx.globalCompositeOperation = "source-over";
   ctx.shadowBlur = 0;
 
-  const glowReach = 142;
-  const halo = ctx.createRadialGradient(cx, cy, radius * 0.08, cx, cy, glowReach);
-  halo.addColorStop(0, "rgba(198, 248, 255, " + (0.7 + pulse * 0.18) + ")");
-  halo.addColorStop(0.2, "rgba(60, 185, 255, " + (0.38 + pulse * 0.1) + ")");
-  halo.addColorStop(0.5, "rgba(14, 90, 180, 0.16)");
-  halo.addColorStop(0.78, "rgba(8, 28, 60, 0.04)");
-  halo.addColorStop(1, "rgba(5, 7, 13, 0)");
-  ctx.fillStyle = halo;
-  ctx.beginPath();
-  ctx.arc(cx, cy, glowReach, 0, Math.PI * 2);
-  ctx.fill();
+  fillGlow(cx, cy, radius, 140, "rgba(90, 190, 255, " + (0.28 + pulse * 0.08) + ")", "rgba(12, 60, 150, 0.07)");
+  fillGlow(cx, cy, radius, 104, "rgba(170, 236, 255, " + (0.42 + pulse * 0.12) + ")", "rgba(30, 140, 230, 0.14)");
+  fillGlow(cx, cy, radius, 64, "rgba(255, 255, 255, " + (0.34 + pulse * 0.1) + ")", "rgba(120, 220, 255, 0.1)");
 
-  const beam = ctx.createLinearGradient(cx, cy + radius * 0.4, cx, floorY);
-  beam.addColorStop(0, "rgba(170, 240, 255, " + (0.42 + pulse * 0.12) + ")");
-  beam.addColorStop(0.45, "rgba(50, 170, 255, 0.16)");
-  beam.addColorStop(1, "rgba(50, 170, 255, 0)");
+  const beam = ctx.createLinearGradient(cx, cy + radius * 0.35, cx, floorY);
+  beam.addColorStop(0, "rgba(190, 245, 255, " + (0.5 + pulse * 0.12) + ")");
+  beam.addColorStop(0.4, "rgba(60, 180, 255, 0.14)");
+  beam.addColorStop(1, "rgba(40, 140, 255, 0)");
   ctx.fillStyle = beam;
   ctx.beginPath();
-  ctx.moveTo(cx - 7, cy + radius * 0.72);
-  ctx.lineTo(cx + 7, cy + radius * 0.72);
-  ctx.lineTo(cx + 26, floorY);
-  ctx.lineTo(cx - 26, floorY);
+  ctx.moveTo(cx - 8, cy + radius * 0.7);
+  ctx.lineTo(cx + 8, cy + radius * 0.7);
+  ctx.lineTo(cx + 30, floorY);
+  ctx.lineTo(cx - 30, floorY);
   ctx.fill();
-
-  for (let ring = 0; ring < 3; ring++) {
+  for (let ring = 0; ring < 4; ring++) {
     ctx.beginPath();
-    ctx.ellipse(cx, floorY, 34 + ring * 26, 8 + ring * 5, 0, 0, Math.PI * 2);
-    ctx.strokeStyle = "rgba(130, 220, 255, " + (0.32 - ring * 0.07) + ")";
-    ctx.lineWidth = ring === 0 ? 1.4 : 1;
+    ctx.ellipse(cx, floorY, 22 + ring * 18, 6 + ring * 4, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(150, 230, 255, " + (0.38 - ring * 0.07) + ")";
+    ctx.lineWidth = ring === 0 ? 1.35 : 0.9;
     ctx.stroke();
   }
   ctx.beginPath();
-  ctx.arc(cx, floorY, 2.2, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(220, 250, 255, 0.85)";
+  ctx.arc(cx, floorY, 2.4, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(235, 252, 255, 0.9)";
   ctx.fill();
 
-  const body = ctx.createRadialGradient(cx - 18, cy - 22, 2, cx, cy, radius);
-  body.addColorStop(0, "rgba(255, 255, 255, 1)");
-  body.addColorStop(0.1, "rgba(210, 250, 255, 0.98)");
-  body.addColorStop(0.32, "rgba(70, 205, 255, 0.9)");
-  body.addColorStop(0.68, "rgba(10, 78, 180, 0.78)");
-  body.addColorStop(1, "rgba(3, 16, 42, 0.5)");
+  const shell = ctx.createRadialGradient(cx - 12, cy - 16, 2, cx, cy, radius);
+  shell.addColorStop(0, "rgba(170, 230, 255, 0.16)");
+  shell.addColorStop(0.4, "rgba(18, 100, 190, 0.2)");
+  shell.addColorStop(1, "rgba(4, 18, 48, 0.28)");
+  ctx.shadowBlur = 0;
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.fillStyle = body;
-  ctx.shadowColor = "rgba(80, 210, 255, " + (thinking ? 0.9 : 0.65) + ")";
-  ctx.shadowBlur = thinking ? 42 : 28;
+  ctx.fillStyle = shell;
+  ctx.shadowColor = "rgba(70, 200, 255, " + (thinking ? 0.85 : 0.6) + ")";
+  ctx.shadowBlur = thinking ? 36 : 24;
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.42);
-  core.addColorStop(0, "rgba(255, 255, 255, 0.95)");
-  core.addColorStop(0.45, "rgba(140, 235, 255, 0.45)");
-  core.addColorStop(1, "rgba(80, 190, 255, 0)");
-  ctx.fillStyle = core;
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius * 0.42, 0, Math.PI * 2);
-  ctx.fill();
-
   ctx.globalCompositeOperation = "lighter";
-  const arcs = [
-    [radius * 0.62, radius * 0.34, 0.55, 0.72, 0.4, 4.4, 1.15],
-    [radius * 0.84, radius * 0.5, -0.85, 1.2, 1.7, 4.1, 1.05],
-    [radius * 1.16, radius * 0.46, 1.15, 0.55, 2.5, 3.5, 1.1],
-    [radius * 1.34, radius * 0.3, -0.25, 1.55, 4.1, 2.9, 0.95],
-  ];
-  for (let index = 0; index < arcs.length; index++) {
-    const arc = arcs[index];
-    glowArc(
-      cx,
-      cy,
-      arc[0],
-      arc[1],
-      arc[2] + angle * 0.12,
-      angle * arc[3] + arc[4],
-      arc[5],
-      arc[6],
-      arcAlpha
-    );
+  for (let index = 0; index < filaments.length; index++) {
+    strokeFilament(cx, cy, radius, filaments[index], angle, trail);
   }
+
+  const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.38);
+  bloom.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+  bloom.addColorStop(0.28, "rgba(190, 246, 255, 0.55)");
+  bloom.addColorStop(0.62, "rgba(50, 180, 255, 0.16)");
+  bloom.addColorStop(1, "rgba(0, 90, 190, 0)");
+  ctx.fillStyle = bloom;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius * 0.38, 0, Math.PI * 2);
+  ctx.fill();
   ctx.globalCompositeOperation = "source-over";
 
   ctx.beginPath();
-  ctx.arc(cx, cy, radius - 1, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(200, 246, 255, " + (0.4 + pulse * 0.3) + ")";
-  ctx.lineWidth = 1.6;
-  ctx.shadowColor = "rgba(150, 235, 255, 0.85)";
-  ctx.shadowBlur = 12;
+  ctx.arc(cx, cy, radius - 0.6, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(210, 248, 255, " + (0.45 + pulse * 0.28) + ")";
+  ctx.lineWidth = 1.35;
+  ctx.shadowColor = "rgba(160, 235, 255, 0.9)";
+  ctx.shadowBlur = 14;
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  ctx.beginPath();
-  ctx.ellipse(cx - 28, cy - 32, 22, 11, -0.55, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
-  ctx.fill();
-
-  for (let spark = 0; spark < 14; spark++) {
+  for (let spark = 0; spark < 22; spark++) {
     const seed = spark * 2.399;
-    const orbit = angle * (0.45 + (spark % 4) * 0.22) + seed;
-    const dist = radius * (0.28 + (spark % 6) * 0.16);
+    const orbit = angle * (0.35 + (spark % 5) * 0.16) + seed;
+    const dist = radius * (0.2 + (spark % 7) * 0.13);
     const x = cx + Math.cos(orbit) * dist;
-    const y = cy + Math.sin(orbit * 0.86 + seed) * dist * 0.78;
-    const twinkle = 0.2 + 0.8 * Math.abs(Math.sin(angle * (thinking ? 5.5 : 2.1) + seed));
+    const y = cy + Math.sin(orbit * 0.9 + seed) * dist * 0.82;
+    const twinkle = 0.15 + 0.85 * Math.abs(Math.sin(angle * (thinking ? 5.2 : 2.0) + seed));
     ctx.beginPath();
-    ctx.arc(x, y, spark % 5 === 0 ? 1.5 : 0.85, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(225, 250, 255, " + (0.18 + twinkle * 0.5) + ")";
+    ctx.arc(x, y, spark % 6 === 0 ? 1.7 : 0.75, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(230, 252, 255, " + (0.15 + twinkle * 0.55) + ")";
     ctx.fill();
   }
 
@@ -272,7 +274,7 @@ function draw() {
 draw();
 """
 
-JARVIS_CSS = """
+ORB_CSS = """
 html, body {
   background: #05070d !important;
   color-scheme: dark;
@@ -320,36 +322,36 @@ html, body {
 .gradio-container footer, footer {
   background: #05070d !important;
 }
-#jarvis-orb-host,
-#jarvis-orb-host .html-container {
+#energy-orb-host,
+#energy-orb-host .html-container {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
 }
-#jarvis-orb-host .jarvis-orb {
+#energy-orb-host .energy-orb {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 430px;
 }
-#jarvis-orb-host canvas {
+#energy-orb-host canvas {
   display: block;
   width: 340px;
   height: 400px;
 }
-#jarvis-orb-host .jarvis-state {
+#energy-orb-host .orb-state {
   margin-top: 2px;
   font-family: ui-monospace, Consolas, monospace;
   letter-spacing: 0.42em;
   font-size: 12px;
   color: #7ee7ff;
 }
-#jarvis-chat { background: transparent !important; }
+#agent-chat { background: transparent !important; }
 """
 
-JARVIS_THEME = gr.themes.Base(
+ORB_THEME = gr.themes.Base(
     primary_hue="cyan",
     secondary_hue="sky",
     neutral_hue="slate",
@@ -502,14 +504,14 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
     with gr.Tabs():
         with gr.Tab("Chat"):
             gr.HTML(
-                JARVIS_HTML,
-                elem_id="jarvis-orb-host",
-                js_on_load=JARVIS_JS,
+                ORB_HTML,
+                elem_id="energy-orb-host",
+                js_on_load=ORB_JS,
                 apply_default_css=False,
                 padding=False,
                 container=False,
             )
-            with gr.Column(elem_id="jarvis-chat"):
+            with gr.Column(elem_id="agent-chat"):
                 session_id = gr.State(new_session_id)
                 gr.ChatInterface(
                     respond,
@@ -538,6 +540,6 @@ if __name__ == "__main__":
         server_name="127.0.0.1",
         share=False,
         analytics_enabled=False,
-        theme=JARVIS_THEME,
-        css=JARVIS_CSS,
+        theme=ORB_THEME,
+        css=ORB_CSS,
     )

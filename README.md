@@ -1,6 +1,6 @@
 # AI Testing Application
 
-Local-first AI testing agent with Jarvis-style chat.
+Local-first AI testing agent with a local chat UI.
 
 ## Quick start (on your laptop)
 

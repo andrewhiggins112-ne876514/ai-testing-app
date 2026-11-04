@@ -1,4 +1,4 @@
-# AI Testing Application - Local Jarvis-style Agent
+# AI Testing Application - Local AI testing agent
 # Requirements
 fastapi
 uvicorn

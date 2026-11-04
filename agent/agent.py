@@ -11,7 +11,7 @@ import httpx
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b")  # installed locally; qwen3:8b also fine
 
-SYSTEM_PROMPT = """You are a local AI testing agent (Jarvis-style).
+SYSTEM_PROMPT = """You are a local AI testing agent.
 You help testers by reasoning about requests and calling tools.
 
 Rules:

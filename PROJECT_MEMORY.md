@@ -4,7 +4,7 @@
 Last updated: 2026-11-04 (skeleton boots on Windows; Jira list_stories is read-only)
 
 ## Original Vision
-A local AI testing agent with a Jarvis/HAL-style conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
+A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
 
 The tool should solve real testing pain for software companies:
 - Generate and run tests from functional specs, Jira stories, or existing Playwright suites
