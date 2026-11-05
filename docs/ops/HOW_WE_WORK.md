@@ -9,6 +9,8 @@
 3. Paste results back to Grok  
 4. Burn Premium credits on long, repeated context  
 
+There is also a **Grok guide bot** that stored project state and emitted the next AFK prompt. Treat it as frozen until beginner setup Step 4 (`docs/ops/SETUP_FOR_BEGINNERS.md`) — then keep, rewrite, or retire it on purpose.
+
 ## New loop (default)
 
 1. Talk to the **PM chat** in Cursor (this project chat or a fresh “PM” chat).  

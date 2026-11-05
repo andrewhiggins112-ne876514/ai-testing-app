@@ -61,6 +61,8 @@ Not yet done:
 - GDPR and UK security classifications are non-negotiable.
 - Token usage in long agent sessions burns Premium quickly — ops docs encode the fix.
 - User is not a project manager; Cursor PM chat fills process blanks (roadmap, slices, advice).
+- User is brand new to Cursor; follow `docs/ops/SETUP_FOR_BEGINNERS.md` one step at a time.
+- There is an existing **Grok guide bot** (browser) that remembered project state and wrote the next AFK Pilot prompt. Decision pending (keep / rewrite for Cursor / retire) after Step 4 of the beginner setup — do not resume daily Grok↔AFK copy-paste meanwhile.
 
 ## How to Use This File
 - At the start of a coding session: “Read PROJECT_MEMORY.md and AGENTS.md, then continue from the Current State. Keep tool use targeted.”

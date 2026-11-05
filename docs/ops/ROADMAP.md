@@ -9,6 +9,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
 | OPS-1 | Cursor ops (rules, agents, skills, HOW_WE_WORK) | now | This change set — replaces Grok↔AFK copy-paste |
+| OPS-2 | Beginner Cursor setup (merge, panels, guide-bot decision) | now | `docs/ops/SETUP_FOR_BEGINNERS.md` — one step at a time with user |
 | UI-5 | Orb presets (save/load named configs) | next | Continues orb slices 1–4 at `8553d6a` |
 
 ## Near term (after OPS-1)
