@@ -32,7 +32,7 @@ Long-term goal: dominate the testing space for companies that want a capable loc
 - Coding models: **Grok family only** while on Grok Premium (4.7 feature/UI; 4.5 docs/explore/verify). Composer/Claude/GPT are not “free” here. Product runtime stays on local Ollama (free).
 - Token efficiency matters: prefer targeted reads, compact slices, avoid re-sending full file contents.
 - Pure canvas energy orb (no Three.js / CDN) for the Gradio UI centrepiece.
-- Orb styles include `mystic sphere` (Grok reference video: equator flare, filaments, gyro rings, holographic pedestal).
+- Orb styles include experimental `mystic sphere` (from Grok reference video). **Not a match yet** — current canvas pass still looks like earlier geometric/tech attempts. Defer a serious recreation; may need a dedicated orb polish slice or reconsider pure-canvas limits vs the video quality.
 - Jira writes are two-step confirm; no Jira account yet — do not solicit credentials until the user says one exists.
 
 ## Current State
