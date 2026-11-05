@@ -1,37 +1,66 @@
 # Cursor My Machines (local worker)
 
-Lets a Cloud/PM agent run terminals and edits on your Windows PC (like AFK Pilot could).
+Lets a Cloud/PM agent run terminals on your Windows PC.
 
-## Install (once)
+## Important: use Cursor agent, not Grok agent
 
-1. PowerShell:
-   ```powershell
-   irm 'https://cursor.com/install?win32=true' | iex
-   ```
-2. New PowerShell window:
-   ```powershell
-   agent --version
-   agent login
-   ```
-   Sign in with the **same** Cursor account as the app.
+Grok also installs an `agent` on PATH. Always call Cursor explicitly:
 
-## Run the worker (each session you want cloud→PC)
+```powershell
+$CursorAgent = "$env:LOCALAPPDATA\cursor-agent\agent.cmd"
+& $CursorAgent --version
+```
+
+## 1. Finish login (if stuck waiting)
+
+The CLI pauses until you complete the browser login.
+
+1. Copy the full `https://cursor.com/loginDeepControl?...` URL from PowerShell.  
+2. Paste it into Chrome.  
+3. Sign in with the **same** Cursor account as the Cursor app.  
+4. Approve the device.  
+5. Return to PowerShell — it should finish login (not hang forever after approval).
+
+Check:
+
+```powershell
+$CursorAgent = "$env:LOCALAPPDATA\cursor-agent\agent.cmd"
+& $CursorAgent status
+```
+
+You want signed-in / your email.
+
+## 2. Start the worker (leave window open)
 
 ```powershell
 cd C:\Users\User\ai_testing_app
-agent worker start --name "home-pc"
+$CursorAgent = "$env:LOCALAPPDATA\cursor-agent\agent.cmd"
+& $CursorAgent worker start --name "home-pc"
 ```
 
-Leave that window open. Closing it disconnects the machine.
+Or double-click `scripts\start_worker.cmd`.
 
-## Use it
+Success looks like the process **stays running** (connected / worker running). Closing the window disconnects.
 
-1. Open https://cursor.com/agents (or start an agent that offers a machine picker).
-2. Under **My Machines**, choose `home-pc`.
-3. Talk to that agent — commands can run on your PC.
+## 3. Where is "My Machines"? (easy to miss)
 
-## Notes
+It is **not** a big section on the main https://cursor.com/agents home page.
 
-- Outbound HTTPS only; no inbound ports.
-- Windows worker: terminals/files yes; GUI computer-use is macOS/Linux only.
-- Same Cursor account on app + CLI.
+It appears only in the **Run on / environment picker** when starting or configuring an agent, **and only after** a logged-in worker is running.
+
+### On the website
+1. Keep `worker start` running.  
+2. Open https://cursor.com/agents → **New agent**.  
+3. Find **Run on** / environment / location control (near the compose box).  
+4. Open it → **My Machines** or **Remote Control** → choose `home-pc`.
+
+### In Cursor Desktop
+1. Open Agents window.  
+2. Under the input, open the **Cloud / Run on / location** dropdown.  
+3. **My Machines** / **Remote Control** → `home-pc`.
+
+If the machine is missing: worker not running, wrong account, or login never finished.
+
+## 4. Optional PATH fix
+
+Put `C:\Users\User\AppData\Local\cursor-agent` **before** any Grok agent folder in User PATH, or always use `agent.cmd` as above.

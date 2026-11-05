@@ -1155,14 +1155,77 @@ html, body {
   top: 56px;
   right: 12px;
   z-index: 60;
-  width: min(360px, calc(100% - 24px));
-  max-height: min(70vh, 560px);
-  overflow: auto;
-  padding: 12px !important;
+  width: min(420px, calc(100% - 24px));
+  max-height: min(78vh, 640px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 14px 14px 10px !important;
   border: 1px solid #1f6f8f !important;
-  border-radius: 12px !important;
-  background: rgba(8, 14, 22, 0.96) !important;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  border-radius: 14px !important;
+  background: rgba(8, 14, 22, 0.97) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+#orb-settings-panel .block,
+#orb-settings-panel .form,
+#orb-settings-panel .panel {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 8px !important;
+}
+#orb-settings-panel .gap {
+  gap: 8px !important;
+}
+#orb-settings-panel label,
+#orb-settings-panel .label-wrap span {
+  font-size: 11px !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #7eb7d4 !important;
+}
+#orb-settings-panel .orb-panel-title {
+  margin: 0 0 10px 0 !important;
+  font-size: 13px !important;
+  font-weight: 600;
+  color: #d7eaf6 !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+#orb-settings-panel .orb-section-label {
+  margin: 10px 0 4px 0 !important;
+  font-size: 11px !important;
+  color: #67e8f9 !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+#orb-settings-panel button {
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  border-radius: 8px !important;
+  border: 1px solid #1f6f8f !important;
+  background: #0d1a28 !important;
+  color: #c8e7f7 !important;
+}
+#orb-settings-panel #orb-preset-actions button {
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+}
+#orb-settings-panel input,
+#orb-settings-panel textarea,
+#orb-settings-panel select {
+  min-height: 32px !important;
+  font-size: 13px !important;
+}
+#orb-settings-panel input[type="range"] {
+  min-height: 18px !important;
+}
+#orb-settings-panel .svelte-color-picker,
+#orb-settings-panel [data-testid="color-picker"] {
+  min-height: 32px !important;
 }
 #energy-orb-host canvas {
   display: block;
@@ -1360,31 +1423,70 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     _active_preset = None
                 _preset_choices = _preset_names if _preset_names else ["(none yet)"]
                 with gr.Column(visible=False, elem_id="orb-settings-panel") as orb_settings_panel:
-                    gr.Markdown("Orb settings")
-                    orb_preset = gr.Dropdown(
-                        choices=_preset_choices,
-                        value=_active_preset if _active_preset else _preset_choices[0],
-                        label="preset",
-                    )
-                    orb_preset_name = gr.Textbox(value="", label="preset name", placeholder="my look")
-                    with gr.Row():
-                        orb_preset_save = gr.Button("Save preset")
-                        orb_preset_load = gr.Button("Load preset")
-                        orb_preset_delete = gr.Button("Delete preset")
+                    gr.HTML('<div class="orb-panel-title">Orb</div>')
+                    gr.HTML('<div class="orb-section-label">Presets</div>')
+                    with gr.Row(equal_height=True):
+                        orb_preset = gr.Dropdown(
+                            choices=_preset_choices,
+                            value=_active_preset if _active_preset else _preset_choices[0],
+                            label="Saved",
+                            scale=3,
+                        )
+                        orb_preset_name = gr.Textbox(
+                            value="",
+                            label="New name",
+                            placeholder="my look",
+                            scale=2,
+                        )
+                    with gr.Row(elem_id="orb-preset-actions", equal_height=True):
+                        orb_preset_save = gr.Button("Save", size="sm")
+                        orb_preset_load = gr.Button("Load", size="sm")
+                        orb_preset_delete = gr.Button("Delete", size="sm")
                     orb_preset_status = gr.Textbox(
-                        value="Ready - enter a name and click Save preset",
-                        label="preset status",
+                        value="Ready",
+                        label="Status",
                         interactive=False,
+                        max_lines=1,
                     )
-                    orb_style = gr.Dropdown(choices=list(ORB_STYLES), value=_orb["style"], label="style")
-                    orb_calm = gr.ColorPicker(value=_orb["calm_color"], label="calm")
-                    orb_thinking = gr.ColorPicker(value=_orb["thinking_color"], label="thinking")
-                    orb_size = gr.Slider(minimum=200, maximum=480, step=20, value=_orb["size"], label="size")
-                    orb_shape = gr.Dropdown(choices=list(ORB_SHAPES), value=_orb["shape"], label="shape")
-                    orb_spin = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["spin_speed"], label="spin_speed")
-                    orb_turbulence = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["turbulence"], label="turbulence")
-                    orb_pulse = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["pulse"], label="pulse")
-                    orb_glow = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["glow"], label="glow")
+                    gr.HTML('<div class="orb-section-label">Look</div>')
+                    with gr.Row(equal_height=True):
+                        orb_style = gr.Dropdown(
+                            choices=list(ORB_STYLES),
+                            value=_orb["style"],
+                            label="Style",
+                            scale=2,
+                        )
+                        orb_shape = gr.Dropdown(
+                            choices=list(ORB_SHAPES),
+                            value=_orb["shape"],
+                            label="Shape",
+                            scale=1,
+                        )
+                    with gr.Row(equal_height=True):
+                        orb_calm = gr.ColorPicker(value=_orb["calm_color"], label="Calm")
+                        orb_thinking = gr.ColorPicker(value=_orb["thinking_color"], label="Thinking")
+                    orb_size = gr.Slider(
+                        minimum=200,
+                        maximum=480,
+                        step=20,
+                        value=_orb["size"],
+                        label="Size",
+                    )
+                    gr.HTML('<div class="orb-section-label">Motion</div>')
+                    with gr.Row(equal_height=True):
+                        orb_spin = gr.Slider(
+                            minimum=0, maximum=2, step=0.1, value=_orb["spin_speed"], label="Spin"
+                        )
+                        orb_turbulence = gr.Slider(
+                            minimum=0, maximum=2, step=0.1, value=_orb["turbulence"], label="Turbulence"
+                        )
+                    with gr.Row(equal_height=True):
+                        orb_pulse = gr.Slider(
+                            minimum=0, maximum=2, step=0.1, value=_orb["pulse"], label="Pulse"
+                        )
+                        orb_glow = gr.Slider(
+                            minimum=0, maximum=2, step=0.1, value=_orb["glow"], label="Glow"
+                        )
                 orb_settings_btn.click(
                     toggle_orb_settings,
                     [orb_settings_open],
