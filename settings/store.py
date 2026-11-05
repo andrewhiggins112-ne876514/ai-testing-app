@@ -22,6 +22,10 @@ def _defaults() -> dict:
         "jira_email": "",
         "jira_api_token": "",
         "github_token": "",
+        "orb_style": "lightning",
+        "orb_calm_color": "#50cdff",
+        "orb_thinking_color": "#b388ff",
+        "orb_size": 360,
     }
 
 def _hidden(key: str, value: Any) -> Any:

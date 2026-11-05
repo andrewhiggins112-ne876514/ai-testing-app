@@ -1,6 +1,7 @@
 """Minimal local Gradio chat client. Talks to the FastAPI agent on port 8000."""
 import json
 import os
+import re
 import sys
 import uuid
 from pathlib import Path
@@ -16,6 +17,77 @@ from settings.store import load_settings, update_setting
 CHAT_URL = "http://127.0.0.1:8000/chat"
 LEVELS = ("OFFICIAL", "SECRET")
 VOID = "#05070d"
+ORB_STYLES = ("lightning", "mist", "nebula", "nebula+lightning")
+ORB_DEFAULTS = {
+    "style": "lightning",
+    "calm_color": "#50cdff",
+    "thinking_color": "#b388ff",
+    "size": 360,
+}
+_HEX_COLOR = re.compile(r"^#[0-9A-Fa-f]{6}$")
+
+
+def normalize_orb_config(raw) -> dict:
+    raw = raw or {}
+    style = raw.get("style")
+    if style not in ORB_STYLES:
+        style = ORB_DEFAULTS["style"]
+    calm = str(raw.get("calm_color") or "").strip()
+    calm = calm.lower() if _HEX_COLOR.match(calm) else ORB_DEFAULTS["calm_color"]
+    thinking = str(raw.get("thinking_color") or "").strip()
+    thinking = thinking.lower() if _HEX_COLOR.match(thinking) else ORB_DEFAULTS["thinking_color"]
+    try:
+        size = int(round(float(raw.get("size"))))
+    except (TypeError, ValueError):
+        size = ORB_DEFAULTS["size"]
+    size = max(200, min(480, size))
+    return {
+        "style": style,
+        "calm_color": calm,
+        "thinking_color": thinking,
+        "size": size,
+    }
+
+
+def current_orb_config() -> dict:
+    data = load_settings()
+    return normalize_orb_config({
+        "style": data.get("orb_style"),
+        "calm_color": data.get("orb_calm_color"),
+        "thinking_color": data.get("orb_thinking_color"),
+        "size": data.get("orb_size"),
+    })
+
+
+def orb_config_markup(cfg: dict) -> str:
+    cfg = normalize_orb_config(cfg)
+    return (
+        '<div id="orb-config" hidden'
+        f' data-style="{cfg["style"]}"'
+        f' data-calm-color="{cfg["calm_color"]}"'
+        f' data-thinking-color="{cfg["thinking_color"]}"'
+        f' data-size="{cfg["size"]}"></div>'
+    )
+
+
+def save_orb_config(style, calm_color, thinking_color, size):
+    cfg = normalize_orb_config({
+        "style": style,
+        "calm_color": calm_color,
+        "thinking_color": thinking_color,
+        "size": size,
+    })
+    update_setting("orb_style", cfg["style"], confirm=True)
+    update_setting("orb_calm_color", cfg["calm_color"], confirm=True)
+    update_setting("orb_thinking_color", cfg["thinking_color"], confirm=True)
+    update_setting("orb_size", cfg["size"], confirm=True)
+    return orb_config_markup(cfg)
+
+
+def current_orb_inputs():
+    cfg = current_orb_config()
+    return cfg["style"], cfg["calm_color"], cfg["thinking_color"], cfg["size"]
+
 
 ORB_HTML = """
 <div class="energy-orb" data-state="calm">
@@ -29,14 +101,63 @@ const canvas = element.querySelector("canvas");
 const label = element.querySelector(".orb-state");
 if (!canvas) return;
 const ctx = canvas.getContext("2d");
-const viewW = 360;
-const viewH = 360;
-const dpr = Math.min(window.devicePixelRatio || 1, 2);
-canvas.width = Math.round(viewW * dpr);
-canvas.height = Math.round(viewH * dpr);
-canvas.style.width = viewW + "px";
-canvas.style.height = viewH + "px";
-ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+let viewW = 360;
+let viewH = 360;
+let appliedSize = 0;
+let glowRgb = { r: 80, g: 205, b: 255 };
+
+function applySize(size) {
+  const next = size || 360;
+  if (next === appliedSize) return;
+  appliedSize = next;
+  viewW = next;
+  viewH = next;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(viewW * dpr);
+  canvas.height = Math.round(viewH * dpr);
+  canvas.style.width = viewW + "px";
+  canvas.style.height = viewH + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const orb = element.querySelector(".energy-orb");
+  if (orb) orb.style.minHeight = (next + 28) + "px";
+}
+
+function hexToRgb(hex) {
+  const h = String(hex || "").replace("#", "").trim();
+  if (!/^[0-9a-fA-F]{6}/.test(h)) return { r: 80, g: 205, b: 255 };
+  return {
+    r: parseInt(h.slice(0, 2), 16),
+    g: parseInt(h.slice(2, 4), 16),
+    b: parseInt(h.slice(4, 6), 16),
+  };
+}
+
+function rgba(rgb, alpha) {
+  return "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + alpha + ")";
+}
+
+function mixWhite(rgb, amount) {
+  return {
+    r: Math.round(rgb.r + (255 - rgb.r) * amount),
+    g: Math.round(rgb.g + (255 - rgb.g) * amount),
+    b: Math.round(rgb.b + (255 - rgb.b) * amount),
+  };
+}
+
+function readConfig() {
+  const node = document.getElementById("orb-config");
+  let style = node ? (node.getAttribute("data-style") || "lightning") : "lightning";
+  const calm = node ? (node.getAttribute("data-calm-color") || "#50cdff") : "#50cdff";
+  const thinkingColor = node ? (node.getAttribute("data-thinking-color") || "#b388ff") : "#b388ff";
+  let size = node ? parseInt(node.getAttribute("data-size") || "360", 10) : 360;
+  if (!size || size < 200) size = 200;
+  if (size > 480) size = 480;
+  if (style !== "lightning") {
+    // TODO: draw mist, nebula, and nebula+lightning. Slice 1 falls back to lightning filaments.
+    style = "lightning";
+  }
+  return { style: style, calm: calm, thinking: thinkingColor, size: size };
+}
 
 if (element._orbStop) element._orbStop();
 window.__energyOrbBoots = (window.__energyOrbBoots || 0) + 1;
@@ -260,7 +381,7 @@ function webPaths(spec, spin, cx, cy, radius) {
 function strokeWeb(path, width, alpha) {
   if (alpha < 0.03) return;
   ctx.lineWidth = width + 1.15;
-  ctx.strokeStyle = "rgba(80, 205, 255, " + (alpha * 0.22) + ")";
+  ctx.strokeStyle = rgba(glowRgb, alpha * 0.22);
   ctx.stroke(path);
   ctx.lineWidth = width;
   ctx.strokeStyle = "rgba(240, 253, 255, " + alpha + ")";
@@ -271,7 +392,7 @@ function strokeRing(cx, cy, rx, ry, rotation, width, alpha) {
   ctx.beginPath();
   ctx.ellipse(cx, cy, rx, ry, rotation, 0, Math.PI * 2);
   ctx.lineWidth = width + 2.4;
-  ctx.strokeStyle = "rgba(90, 210, 255, " + (alpha * 0.32) + ")";
+  ctx.strokeStyle = rgba(glowRgb, alpha * 0.32);
   ctx.stroke();
   ctx.beginPath();
   ctx.ellipse(cx, cy, rx, ry, rotation, 0, Math.PI * 2);
@@ -282,11 +403,17 @@ function strokeRing(cx, cy, rx, ry, rotation, width, alpha) {
 
 function draw() {
   if (stopped) return;
+  const cfg = readConfig();
+  applySize(cfg.size);
   const thinking = (window.__energyOrbMode || mode) === "thinking";
+  const activeHex = thinking ? cfg.thinking : cfg.calm;
+  glowRgb = hexToRgb(activeHex);
+  const liveLabel = document.querySelector("#energy-orb-host .orb-state");
+  if (liveLabel) liveLabel.style.color = activeHex;
   angle += thinking ? 0.011 : 0.0045;
   const cx = viewW / 2;
   const cy = viewH / 2;
-  const radius = 98;
+  const radius = (viewW * 98) / 360;
   const pulse = 0.5 + 0.5 * Math.sin(angle * (thinking ? 3.2 : 1.4));
   const boost = thinking ? 1.12 : 1;
   ctx.clearRect(0, 0, viewW, viewH);
@@ -295,14 +422,14 @@ function draw() {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
-  fillGlow(cx, cy, radius, 150, "rgba(80, 190, 255, " + (0.4 + pulse * 0.12) + ")", "rgba(6, 36, 110, 0.06)");
-  fillGlow(cx, cy, radius, 114, "rgba(150, 230, 255, " + (0.32 + pulse * 0.1) + ")", "rgba(16, 110, 200, 0.1)");
+  fillGlow(cx, cy, radius, 150, rgba(glowRgb, 0.4 + pulse * 0.12), "rgba(6, 36, 110, 0.06)");
+  fillGlow(cx, cy, radius, 114, rgba(mixWhite(glowRgb, 0.45), 0.32 + pulse * 0.1), rgba(glowRgb, 0.1));
 
   const shell = ctx.createRadialGradient(cx, cy - radius * 0.12, radius * 0.08, cx, cy, radius);
   shell.addColorStop(0, "rgba(186, 244, 255, 0.1)");
   shell.addColorStop(0.48, "rgba(3, 24, 58, 0.55)");
-  shell.addColorStop(0.8, "rgba(10, 80, 150, 0.2)");
-  shell.addColorStop(0.94, "rgba(70, 200, 255, 0.32)");
+  shell.addColorStop(0.8, rgba(glowRgb, 0.2));
+  shell.addColorStop(0.94, rgba(glowRgb, 0.32));
   shell.addColorStop(1, "rgba(200, 250, 255, 0.62)");
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -327,11 +454,12 @@ function draw() {
   ctx.arc(cx, cy, radius * 1.04, 0, Math.PI * 2);
   ctx.clip();
   const band = ctx.createLinearGradient(cx, cy - 11, cx, cy + 11);
-  band.addColorStop(0, "rgba(80, 200, 255, 0)");
-  band.addColorStop(0.38, "rgba(120, 220, 255, 0.14)");
+  const bandEdge = mixWhite(glowRgb, 0.35);
+  band.addColorStop(0, rgba(glowRgb, 0));
+  band.addColorStop(0.38, rgba(bandEdge, 0.14));
   band.addColorStop(0.5, "rgba(230, 252, 255, " + (0.62 + pulse * 0.12) + ")");
-  band.addColorStop(0.62, "rgba(120, 220, 255, 0.14)");
-  band.addColorStop(1, "rgba(80, 200, 255, 0)");
+  band.addColorStop(0.62, rgba(bandEdge, 0.14));
+  band.addColorStop(1, rgba(glowRgb, 0));
   ctx.fillStyle = band;
   ctx.fillRect(cx - radius, cy - 11, radius * 2, 22);
   const flare = ctx.createLinearGradient(cx - radius, cy, cx + radius, cy);
@@ -379,7 +507,7 @@ function draw() {
   ctx.stroke();
   ctx.beginPath();
   ctx.arc(cx, cy, radius + 1.2, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(120, 220, 255, " + (0.28 + pulse * 0.1) + ")";
+  ctx.strokeStyle = rgba(glowRgb, 0.28 + pulse * 0.1);
   ctx.lineWidth = 3.2;
   ctx.stroke();
 
@@ -452,10 +580,18 @@ html, body {
   justify-content: center;
   min-height: 380px;
 }
+#orb-config-host,
+#orb-config-host .html-container {
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
+  background: transparent !important;
+}
 #energy-orb-host canvas {
   display: block;
-  width: 360px;
-  height: 360px;
 }
 #energy-orb-host .orb-state {
   margin-top: 2px;
@@ -619,6 +755,14 @@ class LocalApp(gr.Blocks):
 with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
     with gr.Tabs():
         with gr.Tab("Chat"):
+            _orb = current_orb_config()
+            orb_config_host = gr.HTML(
+                orb_config_markup(_orb),
+                elem_id="orb-config-host",
+                apply_default_css=False,
+                padding=False,
+                container=False,
+            )
             gr.HTML(
                 ORB_HTML,
                 elem_id="energy-orb-host",
@@ -627,6 +771,14 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 padding=False,
                 container=False,
             )
+            with gr.Accordion("Orb", open=False):
+                orb_style = gr.Dropdown(choices=list(ORB_STYLES), value=_orb["style"], label="style")
+                orb_calm = gr.ColorPicker(value=_orb["calm_color"], label="calm")
+                orb_thinking = gr.ColorPicker(value=_orb["thinking_color"], label="thinking")
+                orb_size = gr.Slider(minimum=200, maximum=480, step=20, value=_orb["size"], label="size")
+            orb_inputs = [orb_style, orb_calm, orb_thinking, orb_size]
+            for orb_control in orb_inputs:
+                orb_control.change(save_orb_config, orb_inputs, orb_config_host)
             with gr.Column(elem_id="agent-chat"):
                 session_id = gr.State(new_session_id)
                 gr.ChatInterface(
@@ -650,6 +802,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 report_json = gr.JSON(value={"message": "No JSON found"})
             gr.Button("Refresh").click(refresh_report, outputs=[report_md, report_image, report_json])
     demo.load(current_settings, outputs=[level, jira_base_url])
+    demo.load(current_orb_inputs, outputs=orb_inputs)
 
 if __name__ == "__main__":
     demo.launch(
