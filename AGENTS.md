@@ -9,7 +9,8 @@
 - Never store real credentials in code or in this repository. Use the local settings store only.
 
 ## Cursor workflow (replaces Grok browser + AFK Pilot)
-- Primary home is Cursor. Do not instruct the user to copy-paste prompts between browser Grok and VS Code.
+- Primary home is Cursor. Do not instruct the user to copy-paste prompts between browser Grok and VS Code / AFK Pilot.
+- The old Grok guide bot is retired as daily driver; do not revive AFK Pilot prompt loops.
 - Ops docs: `docs/ops/HOW_WE_WORK.md`, `docs/ops/TEAM.md`, `docs/ops/ROADMAP.md`.
 - Custom agents: `.cursor/agents/` (`explorer-cheap`, `architect`, `implementer`, `verifier`, `ui-orb`).
 - Skills: `.cursor/skills/` (`slice-workflow`, `run-local-stack`, `jira-safe`, `orb-slice`).

@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-05 (Cursor ops setup; PM + agent team; Grok+AFK loop retired)
+Last updated: 2026-11-05 (Grok guide bot retired as daily driver; Cursor PM + repo memory)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -62,7 +62,8 @@ Not yet done:
 - Token usage in long agent sessions burns Premium quickly — ops docs encode the fix.
 - User is not a project manager; Cursor PM chat fills process blanks (roadmap, slices, advice).
 - User is brand new to Cursor; follow `docs/ops/SETUP_FOR_BEGINNERS.md` one step at a time.
-- There is an existing **Grok guide bot** (browser) that remembered project state and wrote the next AFK Pilot prompt. Decision pending (keep / rewrite for Cursor / retire) after Step 4 of the beginner setup — do not resume daily Grok↔AFK copy-paste meanwhile.
+- **Grok guide bot — retired as daily driver (2026-11-05).** It kept architecture in Grok persistent memory and wrote short AFK Pilot paste-prompts. That loop is replaced by: this file + `docs/ops/ROADMAP.md` + Cursor PM chat + slice chats (Composer). Do not use it for daily next-prompt / AFK copy-paste. Optional: leave the bot open read-only for a week if you want to cross-check old journal notes, then ignore it. Source of truth is the repo, not Grok memory (its journal was last current at orb `8553d6a`, before Cursor ops).
+- Kept from that bot’s standing rules: plan first for larger diffs; test before commit; no secrets in git/UI; settings/reports/screenshots under `%LOCALAPPDATA%`; no telemetry; Jira writes only after explicit yes; prefer the smaller/safer foundational option.
 
 ## How to Use This File
 - At the start of a coding session: “Read PROJECT_MEMORY.md and AGENTS.md, then continue from the Current State. Keep tool use targeted.”

@@ -9,7 +9,7 @@
 3. Paste results back to Grok  
 4. Burn Premium credits on long, repeated context  
 
-There is also a **Grok guide bot** that stored project state and emitted the next AFK prompt. Treat it as frozen until beginner setup Step 4 (`docs/ops/SETUP_FOR_BEGINNERS.md`) — then keep, rewrite, or retire it on purpose.
+**Grok guide bot:** retired as daily driver (2026-11-05). It used to store memory in Grok and emit AFK Pilot paste-prompts. That role is now this repo (`PROJECT_MEMORY.md`, `ROADMAP.md`) + the Cursor PM chat. Do not paste its prompts into AFK Pilot anymore.
 
 ## New loop (default)
 
