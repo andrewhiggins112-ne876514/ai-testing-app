@@ -18,11 +18,17 @@ CHAT_URL = "http://127.0.0.1:8000/chat"
 LEVELS = ("OFFICIAL", "SECRET")
 VOID = "#05070d"
 ORB_STYLES = ("lightning", "mist", "nebula", "nebula+lightning")
+ORB_SHAPES = ("sphere", "oval", "ring")
 ORB_DEFAULTS = {
     "style": "lightning",
     "calm_color": "#50cdff",
     "thinking_color": "#b388ff",
     "size": 360,
+    "shape": "sphere",
+    "spin_speed": 1.0,
+    "turbulence": 1.0,
+    "pulse": 1.0,
+    "glow": 1.0,
 }
 _HEX_COLOR = re.compile(r"^#[0-9A-Fa-f]{6}$")
 
@@ -41,12 +47,28 @@ def normalize_orb_config(raw) -> dict:
     except (TypeError, ValueError):
         size = ORB_DEFAULTS["size"]
     size = max(200, min(480, size))
+    shape = raw.get("shape")
+    if shape not in ORB_SHAPES:
+        shape = ORB_DEFAULTS["shape"]
     return {
         "style": style,
         "calm_color": calm,
         "thinking_color": thinking,
         "size": size,
+        "shape": shape,
+        "spin_speed": _unit_amount(raw.get("spin_speed")),
+        "turbulence": _unit_amount(raw.get("turbulence")),
+        "pulse": _unit_amount(raw.get("pulse")),
+        "glow": _unit_amount(raw.get("glow")),
     }
+
+
+def _unit_amount(value) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return 1.0
+    return max(0.0, min(2.0, number))
 
 
 def current_orb_config() -> dict:
@@ -56,6 +78,11 @@ def current_orb_config() -> dict:
         "calm_color": data.get("orb_calm_color"),
         "thinking_color": data.get("orb_thinking_color"),
         "size": data.get("orb_size"),
+        "shape": data.get("orb_shape"),
+        "spin_speed": data.get("orb_spin_speed"),
+        "turbulence": data.get("orb_turbulence"),
+        "pulse": data.get("orb_pulse"),
+        "glow": data.get("orb_glow"),
     })
 
 
@@ -66,27 +93,52 @@ def orb_config_markup(cfg: dict) -> str:
         f' data-style="{cfg["style"]}"'
         f' data-calm-color="{cfg["calm_color"]}"'
         f' data-thinking-color="{cfg["thinking_color"]}"'
-        f' data-size="{cfg["size"]}"></div>'
+        f' data-size="{cfg["size"]}"'
+        f' data-shape="{cfg["shape"]}"'
+        f' data-spin-speed="{cfg["spin_speed"]}"'
+        f' data-turbulence="{cfg["turbulence"]}"'
+        f' data-pulse="{cfg["pulse"]}"'
+        f' data-glow="{cfg["glow"]}"></div>'
     )
 
 
-def save_orb_config(style, calm_color, thinking_color, size):
+def save_orb_config(style, calm_color, thinking_color, size, shape="sphere", spin_speed=1, turbulence=1, pulse=1, glow=1):
     cfg = normalize_orb_config({
         "style": style,
         "calm_color": calm_color,
         "thinking_color": thinking_color,
         "size": size,
+        "shape": shape,
+        "spin_speed": spin_speed,
+        "turbulence": turbulence,
+        "pulse": pulse,
+        "glow": glow,
     })
     update_setting("orb_style", cfg["style"], confirm=True)
     update_setting("orb_calm_color", cfg["calm_color"], confirm=True)
     update_setting("orb_thinking_color", cfg["thinking_color"], confirm=True)
     update_setting("orb_size", cfg["size"], confirm=True)
+    update_setting("orb_shape", cfg["shape"], confirm=True)
+    update_setting("orb_spin_speed", cfg["spin_speed"], confirm=True)
+    update_setting("orb_turbulence", cfg["turbulence"], confirm=True)
+    update_setting("orb_pulse", cfg["pulse"], confirm=True)
+    update_setting("orb_glow", cfg["glow"], confirm=True)
     return orb_config_markup(cfg)
 
 
 def current_orb_inputs():
     cfg = current_orb_config()
-    return cfg["style"], cfg["calm_color"], cfg["thinking_color"], cfg["size"]
+    return (
+        cfg["style"],
+        cfg["calm_color"],
+        cfg["thinking_color"],
+        cfg["size"],
+        cfg["shape"],
+        cfg["spin_speed"],
+        cfg["turbulence"],
+        cfg["pulse"],
+        cfg["glow"],
+    )
 
 
 ORB_HTML = """
@@ -179,7 +231,38 @@ function readConfig() {
   if (style !== "lightning" && style !== "mist" && style !== "nebula" && style !== "nebula+lightning") {
     style = "lightning";
   }
-  return { style: style, calm: calm, thinking: thinkingColor, size: size };
+  let shape = node ? (node.getAttribute("data-shape") || "sphere") : "sphere";
+  if (shape !== "sphere" && shape !== "oval" && shape !== "ring") shape = "sphere";
+  function unit(raw) {
+    let amount = parseFloat(raw);
+    if (isNaN(amount)) amount = 1;
+    if (amount < 0) amount = 0;
+    if (amount > 2) amount = 2;
+    return amount;
+  }
+  const spin = unit(node ? node.getAttribute("data-spin-speed") : "1");
+  const turbulence = unit(node ? node.getAttribute("data-turbulence") : "1");
+  const pulseAmt = unit(node ? node.getAttribute("data-pulse") : "1");
+  const glowAmt = unit(node ? node.getAttribute("data-glow") : "1");
+  return {
+    style: style,
+    calm: calm,
+    thinking: thinkingColor,
+    size: size,
+    shape: shape,
+    spin: spin,
+    turbulence: turbulence,
+    pulseAmt: pulseAmt,
+    glowAmt: glowAmt,
+  };
+}
+
+function driftSpin(scene, drift) {
+  return scene.angle * scene.swirl * (1 + (drift - 1) * scene.turbulence);
+}
+
+function jitter(scene, index) {
+  return Math.sin(scene.now * 0.004 + index) * 0.22 * scene.turbulence;
 }
 
 if (element._orbStop) element._orbStop();
@@ -523,8 +606,21 @@ function drawSphere(scene) {
   ctx.fill();
 }
 
+function cutRing(scene) {
+  const hole = scene.radius * 0.55;
+  const grad = ctx.createRadialGradient(scene.cx, scene.cy, hole * 0.62, scene.cx, scene.cy, hole);
+  grad.addColorStop(0, "rgba(0,0,0,1)");
+  grad.addColorStop(0.7, "rgba(0,0,0,1)");
+  grad.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(scene.cx, scene.cy, hole, 0, Math.PI * 2);
+  ctx.fill();
+}
+
 function drawHalo(scene) {
-  const alpha = 0.12 + 0.16 * scene.mood + 0.08 * scene.mood * scene.pulse;
+  const alpha = (0.12 + 0.16 * scene.mood + 0.08 * scene.mood * scene.pulse) * scene.glow;
   const reach = scene.radius * 1.55;
   const halo = ctx.createRadialGradient(scene.cx, scene.cy, scene.radius * 0.9, scene.cx, scene.cy, reach);
   halo.addColorStop(0, rgba(scene.active, 0));
@@ -553,12 +649,13 @@ function drawLightning(scene) {
     const spec = webs[index];
     const life = boltLife(spec, scene, index, false);
     if (life < 0.03) continue;
-    const paths = webPaths(spec, scene.angle * spec.speed * scene.swirl, cx, cy, radius);
-    strokeBolt(paths.back, spec.width * 0.8, spec.gain * 0.28 * life);
-    strokeBolt(paths.front, spec.width, spec.gain * life);
+    const paths = webPaths(spec, driftSpin(scene, spec.speed) + jitter(scene, index), cx, cy, radius);
+    strokeBolt(paths.back, spec.width * 0.8, spec.gain * 0.28 * life * scene.bright);
+    strokeBolt(paths.front, spec.width, spec.gain * life * scene.bright);
   }
 
   ctx.save();
+  ctx.globalAlpha = Math.min(1, scene.bright);
   ctx.beginPath();
   ctx.arc(cx, cy, radius * 1.04, 0, Math.PI * 2);
   ctx.clip();
@@ -588,6 +685,7 @@ function drawLightning(scene) {
   ctx.stroke();
   ctx.restore();
 
+  ctx.globalAlpha = Math.min(1, scene.bright);
   const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.16);
   bloom.addColorStop(0, "rgba(255, 255, 255, 0.95)");
   bloom.addColorStop(0.35, rgba(mixWhite(glowRgb, 0.55), 0.55));
@@ -602,7 +700,7 @@ function drawLightning(scene) {
     const point = spec.points[Math.min(spec.points.length - 1, 2 + (spark % 5))];
     const life = boltLife(spec, scene, spark, false);
     if (life < 0.05) continue;
-    const projected = projectPoint(point, scene.angle * spec.speed * scene.swirl, cx, cy, radius);
+    const projected = projectPoint(point, driftSpin(scene, spec.speed) + jitter(scene, spark), cx, cy, radius);
     if (projected.z < 0.05) continue;
     const twinkle = (0.35 + 0.65 * scene.pulse) * life;
     ctx.beginPath();
@@ -623,7 +721,7 @@ function drawMist(scene) {
     const inner = index < 20;
     const projected = projectPoint(
       { theta: puff.theta, phi: puff.phi },
-      scene.angle * puff.drift * (inner ? 0.45 : 1) * scene.swirl,
+      driftSpin(scene, puff.drift * (inner ? 0.45 : 1)) + jitter(scene, index),
       scene.cx,
       scene.cy,
       scene.radius * (inner ? 0.46 : 0.78)
@@ -654,7 +752,7 @@ function drawNebula(scene) {
     const cloud = clouds[index];
     const projected = projectPoint(
       { theta: cloud.theta, phi: cloud.phi },
-      scene.angle * cloud.speed * 0.45 * scene.swirl,
+      driftSpin(scene, cloud.speed * 0.45) + jitter(scene, index),
       scene.cx,
       scene.cy,
       scene.radius * 0.5
@@ -673,7 +771,7 @@ function drawNebula(scene) {
   }
   for (let index = 0; index < stars.length; index++) {
     const star = stars[index];
-    const projected = projectPoint(star, scene.angle * 1.15 * scene.swirl, scene.cx, scene.cy, scene.radius * 0.86);
+    const projected = projectPoint(star, driftSpin(scene, 1.15) + jitter(scene, index + 40), scene.cx, scene.cy, scene.radius * 0.86);
     if (projected.z < 0) continue;
     const twinkle = 0.12 + 0.28 * Math.abs(Math.sin(scene.now * 0.003 * (1 + scene.mood) + star.twinkle));
     ctx.fillStyle = "rgba(255, 255, 255, " + twinkle * scene.bright + ")";
@@ -696,9 +794,9 @@ function drawBolts(scene) {
     const spec = bolts[index];
     const life = boltLife(spec, scene, index + 20, true);
     if (life < 0.03) continue;
-    const paths = webPaths(spec, scene.angle * spec.speed * scene.swirl, scene.cx, scene.cy, scene.radius);
-    strokeBolt(paths.back, spec.width * 0.8, spec.gain * 0.28 * life);
-    strokeBolt(paths.front, spec.width, spec.gain * life);
+    const paths = webPaths(spec, driftSpin(scene, spec.speed) + jitter(scene, index + 20), scene.cx, scene.cy, scene.radius);
+    strokeBolt(paths.back, spec.width * 0.8, spec.gain * 0.28 * life * scene.bright);
+    strokeBolt(paths.front, spec.width, spec.gain * life * scene.bright);
   }
   ctx.restore();
 }
@@ -734,13 +832,13 @@ function draw() {
     liveLabel.textContent = mood >= 0.5 ? "THINKING" : "CALM";
     liveLabel.style.color = rgbToHex(glowRgb);
   }
-  angle += (0.35 + 0.6 * mood) * dt;
+  angle += (0.35 + 0.6 * mood) * cfg.spin * dt;
   const cx = viewW / 2;
   const cy = viewH / 2;
   const breath = Math.sin(now * 0.001 * Math.PI * 2 / 4);
-  const radius = (viewW * 98) / 360 * (1 + 0.03 * (1 - mood * 0.45) * breath);
+  const radius = (viewW * 98) / 360 * (1 + 0.03 * (1 - mood * 0.45) * breath * cfg.pulseAmt);
   const pulse = 0.5 + 0.5 * Math.sin(now * 0.001 * (1.4 + mood * 1.8));
-  const bright = 1 + 0.35 * mood;
+  const bright = (1 + 0.35 * mood) * cfg.glowAmt;
   const scene = {
     cx: cx,
     cy: cy,
@@ -753,6 +851,9 @@ function draw() {
     swirl: 1 + mood * 0.6,
     now: now,
     dt: dt,
+    turbulence: cfg.turbulence,
+    glow: cfg.glowAmt,
+    shape: cfg.shape,
     active: glowRgb,
     light: mixWhite(glowRgb, 0.5),
     dark: shade(glowRgb, 0.4),
@@ -762,24 +863,35 @@ function draw() {
   ctx.shadowBlur = 0;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
+  ctx.save();
+  ctx.translate(cx, cy);
+  if (cfg.shape === "oval") ctx.scale(1, 0.8);
+  ctx.translate(-cx, -cy);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.clip();
   drawSphere(scene);
 
   const paint = drawStyle[cfg.style] || drawLightning;
   paint(scene);
-  drawHalo(scene);
 
   ctx.globalCompositeOperation = "source-over";
   ctx.shadowBlur = 0;
   ctx.beginPath();
   ctx.arc(cx, cy, radius - 0.4, 0, Math.PI * 2);
-  ctx.strokeStyle = rgba(mixWhite(glowRgb, 0.65), 0.35 + pulse * 0.12);
+  ctx.strokeStyle = rgba(mixWhite(glowRgb, 0.65), (0.35 + pulse * 0.12) * cfg.glowAmt);
   ctx.lineWidth = 1.15;
   ctx.stroke();
   ctx.beginPath();
   ctx.arc(cx, cy, radius + 1.2, 0, Math.PI * 2);
-  ctx.strokeStyle = rgba(glowRgb, 0.16 + 0.14 * mood + pulse * 0.06);
+  ctx.strokeStyle = rgba(glowRgb, (0.16 + 0.14 * mood + pulse * 0.06) * cfg.glowAmt);
   ctx.lineWidth = 2.4;
   ctx.stroke();
+  if (cfg.shape === "ring") cutRing(scene);
+  ctx.restore();
+  drawHalo(scene);
+  ctx.restore();
 
   element._orbAngle = angle;
   window.__energyOrbFrames = (window.__energyOrbFrames || 0) + 1;
@@ -1046,7 +1158,12 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 orb_calm = gr.ColorPicker(value=_orb["calm_color"], label="calm")
                 orb_thinking = gr.ColorPicker(value=_orb["thinking_color"], label="thinking")
                 orb_size = gr.Slider(minimum=200, maximum=480, step=20, value=_orb["size"], label="size")
-            orb_inputs = [orb_style, orb_calm, orb_thinking, orb_size]
+                orb_shape = gr.Dropdown(choices=list(ORB_SHAPES), value=_orb["shape"], label="shape")
+                orb_spin = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["spin_speed"], label="spin_speed")
+                orb_turbulence = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["turbulence"], label="turbulence")
+                orb_pulse = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["pulse"], label="pulse")
+                orb_glow = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["glow"], label="glow")
+            orb_inputs = [orb_style, orb_calm, orb_thinking, orb_size, orb_shape, orb_spin, orb_turbulence, orb_pulse, orb_glow]
             for orb_control in orb_inputs:
                 orb_control.change(save_orb_config, orb_inputs, orb_config_host)
             with gr.Column(elem_id="agent-chat"):

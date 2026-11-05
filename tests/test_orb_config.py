@@ -37,6 +37,11 @@ class OrbConfigTests(unittest.TestCase):
         self.assertEqual(data["orb_calm_color"], "#50cdff")
         self.assertEqual(data["orb_thinking_color"], "#b388ff")
         self.assertEqual(data["orb_size"], 360)
+        self.assertEqual(data["orb_shape"], "sphere")
+        self.assertEqual(data["orb_spin_speed"], 1.0)
+        self.assertEqual(data["orb_turbulence"], 1.0)
+        self.assertEqual(data["orb_pulse"], 1.0)
+        self.assertEqual(data["orb_glow"], 1.0)
 
     def test_defaults_fill_when_keys_missing(self):
         self.path.write_text('{"security_level": "OFFICIAL"}\n', encoding="utf-8")
@@ -45,6 +50,11 @@ class OrbConfigTests(unittest.TestCase):
         self.assertEqual(cfg["calm_color"], "#50cdff")
         self.assertEqual(cfg["thinking_color"], "#b388ff")
         self.assertEqual(cfg["size"], 360)
+        self.assertEqual(cfg["shape"], "sphere")
+        self.assertEqual(cfg["spin_speed"], 1.0)
+        self.assertEqual(cfg["turbulence"], 1.0)
+        self.assertEqual(cfg["pulse"], 1.0)
+        self.assertEqual(cfg["glow"], 1.0)
 
     def test_invalid_values_fall_back(self):
         cfg = gradio_app.normalize_orb_config({
@@ -71,6 +81,30 @@ class OrbConfigTests(unittest.TestCase):
             gradio_app.normalize_orb_config({"style": "nebula+lightning", "size": "280"})["style"],
             "nebula+lightning",
         )
+        clamped = gradio_app.normalize_orb_config({
+            "shape": "cube",
+            "spin_speed": -1,
+            "turbulence": 9,
+            "pulse": "nope",
+            "glow": 2.4,
+        })
+        self.assertEqual(clamped["shape"], "sphere")
+        self.assertEqual(clamped["spin_speed"], 0.0)
+        self.assertEqual(clamped["turbulence"], 2.0)
+        self.assertEqual(clamped["pulse"], 1.0)
+        self.assertEqual(clamped["glow"], 2.0)
+        allowed = gradio_app.normalize_orb_config({
+            "shape": "ring",
+            "spin_speed": 0,
+            "turbulence": "1.5",
+            "pulse": 2,
+            "glow": 0.25,
+        })
+        self.assertEqual(allowed["shape"], "ring")
+        self.assertEqual(allowed["spin_speed"], 0.0)
+        self.assertEqual(allowed["turbulence"], 1.5)
+        self.assertEqual(allowed["pulse"], 2.0)
+        self.assertEqual(allowed["glow"], 0.25)
 
     def test_save_then_load(self):
         markup = gradio_app.save_orb_config("nebula+lightning", "#ff00aa", "#00ffcc", 280)
@@ -90,6 +124,11 @@ class OrbConfigTests(unittest.TestCase):
             "calm_color": "#ff00aa",
             "thinking_color": "#00ffcc",
             "size": 280,
+            "shape": "sphere",
+            "spin_speed": 1.0,
+            "turbulence": 1.0,
+            "pulse": 1.0,
+            "glow": 1.0,
         })
         for key in ("orb_style", "orb_calm_color", "orb_thinking_color", "orb_size"):
             self.assertNotIn("token", key)
@@ -104,6 +143,33 @@ class OrbConfigTests(unittest.TestCase):
         self.assertEqual(saved["orb_calm_color"], "#50cdff")
         self.assertEqual(saved["orb_thinking_color"], "#b388ff")
         self.assertEqual(saved["orb_size"], 360)
+        self.assertEqual(saved["orb_shape"], "sphere")
+        self.assertEqual(saved["orb_spin_speed"], 1.0)
+
+    def test_shape_and_intensity_save_load(self):
+        markup = gradio_app.save_orb_config(
+            "mist", "#50cdff", "#b388ff", 360, "oval", 0, 2, 0.5, 1.5
+        )
+        self.assertIn('data-shape="oval"', markup)
+        self.assertIn('data-spin-speed="0.0"', markup)
+        self.assertIn('data-turbulence="2.0"', markup)
+        self.assertIn('data-pulse="0.5"', markup)
+        self.assertIn('data-glow="1.5"', markup)
+        saved = load_settings()
+        self.assertEqual(saved["orb_shape"], "oval")
+        self.assertEqual(saved["orb_spin_speed"], 0.0)
+        self.assertEqual(saved["orb_turbulence"], 2.0)
+        self.assertEqual(saved["orb_pulse"], 0.5)
+        self.assertEqual(saved["orb_glow"], 1.5)
+        self.assertEqual(gradio_app.current_orb_config()["shape"], "oval")
+        bad = gradio_app.save_orb_config("lightning", "#50cdff", "#b388ff", 360, "square", -4, 8, "x", 3)
+        self.assertIn('data-shape="sphere"', bad)
+        reloaded = load_settings()
+        self.assertEqual(reloaded["orb_shape"], "sphere")
+        self.assertEqual(reloaded["orb_spin_speed"], 0.0)
+        self.assertEqual(reloaded["orb_turbulence"], 2.0)
+        self.assertEqual(reloaded["orb_pulse"], 1.0)
+        self.assertEqual(reloaded["orb_glow"], 2.0)
 
 
 if __name__ == "__main__":

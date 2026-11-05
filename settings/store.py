@@ -26,6 +26,11 @@ def _defaults() -> dict:
         "orb_calm_color": "#50cdff",
         "orb_thinking_color": "#b388ff",
         "orb_size": 360,
+        "orb_shape": "sphere",
+        "orb_spin_speed": 1.0,
+        "orb_turbulence": 1.0,
+        "orb_pulse": 1.0,
+        "orb_glow": 1.0,
     }
 
 def _hidden(key: str, value: Any) -> Any:
