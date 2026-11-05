@@ -152,6 +152,22 @@ function shade(rgb, amount) {
   };
 }
 
+function mixRgb(a, b, t) {
+  return {
+    r: Math.round(a.r + (b.r - a.r) * t),
+    g: Math.round(a.g + (b.g - a.g) * t),
+    b: Math.round(a.b + (b.b - a.b) * t),
+  };
+}
+
+function rgbToHex(rgb) {
+  function part(n) {
+    const hex = Math.max(0, Math.min(255, Math.round(n))).toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
+  }
+  return "#" + part(rgb.r) + part(rgb.g) + part(rgb.b);
+}
+
 function readConfig() {
   const node = document.getElementById("orb-config");
   let style = node ? (node.getAttribute("data-style") || "lightning") : "lightning";
@@ -172,6 +188,8 @@ let stopped = false;
 let frame = 0;
 let watchTimer = 0;
 let angle = element._orbAngle || 0;
+let lastTime = 0;
+let mood = 0;
 element._orbStop = function () {
   stopped = true;
   cancelAnimationFrame(frame);
@@ -207,9 +225,7 @@ function setMode(next) {
   if (next === mode && window.__energyOrbMode === next) return;
   mode = next;
   window.__energyOrbMode = next;
-  const liveLabel = document.querySelector("#energy-orb-host .orb-state");
   const liveOrb = document.querySelector("#energy-orb-host .energy-orb");
-  if (liveLabel) liveLabel.textContent = next === "thinking" ? "THINKING" : "CALM";
   if (liveOrb) liveOrb.setAttribute("data-state", next);
 }
 
@@ -467,13 +483,58 @@ function strokeRing(cx, cy, rx, ry, rotation, width, alpha) {
   ctx.stroke();
 }
 
-function filamentFlicker(scene, index) {
-  const rate = scene.thinking ? 18 : 9;
-  let value = 0.72 + 0.28 * Math.abs(Math.sin(scene.angle * rate + index));
-  if (index % 8 === 0 && Math.sin(scene.angle * (scene.thinking ? 7 : 3.5) + index) > 0.72) {
-    value = Math.min(1.35, value + 0.45);
+function boltLife(spec, scene, index, occasional) {
+  const base = occasional ? 0.7 : 0.85;
+  const gap = (base - scene.mood * 0.45) * (0.72 + (index % 6) * 0.09);
+  const slot = Math.max(0.18, gap) * 1000;
+  const cycle = Math.floor((scene.now + index * slot * 0.37) / slot);
+  if (spec.cycle !== cycle) {
+    const first = spec.cycle === undefined;
+    spec.cycle = cycle;
+    spec.born = scene.now - (first ? (index * 47) % 150 : 0);
   }
-  return value;
+  const age = scene.now - spec.born;
+  if (age < 0 || age > 150) return 0;
+  return (1 - age / 150) * (0.72 + scene.mood * 0.5);
+}
+
+function strokeBolt(path, width, alpha) {
+  if (alpha < 0.03) return;
+  ctx.lineWidth = width + 2.4;
+  ctx.strokeStyle = rgba(glowRgb, alpha * 0.22);
+  ctx.stroke(path);
+  ctx.lineWidth = Math.max(0.4, width * 0.4);
+  ctx.strokeStyle = "rgba(255, 255, 255, " + Math.min(1, alpha) + ")";
+  ctx.stroke(path);
+}
+
+function drawSphere(scene) {
+  const hx = scene.cx - scene.radius * 0.28;
+  const hy = scene.cy - scene.radius * 0.32;
+  const body = ctx.createRadialGradient(hx, hy, scene.radius * 0.08, scene.cx, scene.cy, scene.radius);
+  body.addColorStop(0, rgba(mixWhite(scene.active, 0.75), 0.62));
+  body.addColorStop(0.38, rgba(scene.active, 0.28));
+  body.addColorStop(0.74, rgba(scene.dark, 0.55));
+  body.addColorStop(1, "rgba(2, 6, 16, 0.82)");
+  ctx.globalCompositeOperation = "source-over";
+  ctx.beginPath();
+  ctx.arc(scene.cx, scene.cy, scene.radius, 0, Math.PI * 2);
+  ctx.fillStyle = body;
+  ctx.fill();
+}
+
+function drawHalo(scene) {
+  const alpha = 0.12 + 0.16 * scene.mood + 0.08 * scene.mood * scene.pulse;
+  const reach = scene.radius * 1.55;
+  const halo = ctx.createRadialGradient(scene.cx, scene.cy, scene.radius * 0.9, scene.cx, scene.cy, reach);
+  halo.addColorStop(0, rgba(scene.active, 0));
+  halo.addColorStop(0.42, rgba(scene.active, alpha));
+  halo.addColorStop(1, rgba(scene.active, 0));
+  ctx.globalCompositeOperation = "lighter";
+  ctx.beginPath();
+  ctx.arc(scene.cx, scene.cy, reach, 0, Math.PI * 2);
+  ctx.fillStyle = halo;
+  ctx.fill();
 }
 
 function drawLightning(scene) {
@@ -484,16 +545,17 @@ function drawLightning(scene) {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   const ringTilt = 0.28 + Math.sin(scene.angle * 0.45) * 0.05;
-  const ringBoost = scene.thinking ? 1.08 : 1;
-  strokeRing(cx, cy, radius * 0.74, radius * 0.6, ringTilt, 1.15 * ringBoost, 0.72 * scene.bright);
-  strokeRing(cx, cy, radius * 0.46, radius * 0.37, ringTilt - 0.08, 1.2 * ringBoost, 0.88 * scene.bright);
+  const ringBoost = 1 + 0.08 * scene.mood;
+  strokeRing(cx, cy, radius * 0.74, radius * 0.6, ringTilt, 1.15 * ringBoost, 0.55 * scene.bright);
+  strokeRing(cx, cy, radius * 0.46, radius * 0.37, ringTilt - 0.08, 1.2 * ringBoost, 0.7 * scene.bright);
 
   for (let index = 0; index < webs.length; index++) {
     const spec = webs[index];
-    const flicker = filamentFlicker(scene, index);
-    const paths = webPaths(spec, scene.angle * spec.speed, cx, cy, radius);
-    strokeWeb(paths.back, spec.width * 0.8, spec.gain * 0.16 * scene.bright * flicker);
-    strokeWeb(paths.front, spec.width, spec.gain * 0.82 * scene.bright * flicker);
+    const life = boltLife(spec, scene, index, false);
+    if (life < 0.03) continue;
+    const paths = webPaths(spec, scene.angle * spec.speed * scene.swirl, cx, cy, radius);
+    strokeBolt(paths.back, spec.width * 0.8, spec.gain * 0.28 * life);
+    strokeBolt(paths.front, spec.width, spec.gain * life);
   }
 
   ctx.save();
@@ -519,7 +581,7 @@ function drawLightning(scene) {
   flare.addColorStop(0.88, "rgba(210, 248, 255, 0.15)");
   flare.addColorStop(1, "rgba(180, 240, 255, 0)");
   ctx.strokeStyle = flare;
-  ctx.lineWidth = scene.thinking ? 1.35 : 1.05;
+  ctx.lineWidth = 1.05 + 0.3 * scene.mood;
   ctx.beginPath();
   ctx.moveTo(cx - radius * 0.98, cy);
   ctx.lineTo(cx + radius * 0.98, cy);
@@ -538,9 +600,11 @@ function drawLightning(scene) {
   for (let spark = 0; spark < 22; spark++) {
     const spec = webs[spark % webs.length];
     const point = spec.points[Math.min(spec.points.length - 1, 2 + (spark % 5))];
-    const projected = projectPoint(point, scene.angle * spec.speed, cx, cy, radius);
+    const life = boltLife(spec, scene, spark, false);
+    if (life < 0.05) continue;
+    const projected = projectPoint(point, scene.angle * spec.speed * scene.swirl, cx, cy, radius);
     if (projected.z < 0.05) continue;
-    const twinkle = 0.35 + 0.65 * Math.abs(Math.sin(scene.angle * (scene.thinking ? 4 : 1.8) + spark));
+    const twinkle = (0.35 + 0.65 * scene.pulse) * life;
     ctx.beginPath();
     ctx.arc(projected.x, projected.y, spark % 4 === 0 ? 1.35 : 0.7, 0, Math.PI * 2);
     ctx.fillStyle = "rgba(245, 254, 255, " + twinkle * scene.bright + ")";
@@ -554,15 +618,15 @@ function drawMist(scene) {
   ctx.arc(scene.cx, scene.cy, scene.radius * 0.98, 0, Math.PI * 2);
   ctx.clip();
   ctx.globalCompositeOperation = "lighter";
-  const motion = scene.thinking ? 1.6 : 1;
   for (let index = 0; index < puffs.length; index++) {
     const puff = puffs[index];
+    const inner = index < 20;
     const projected = projectPoint(
       { theta: puff.theta, phi: puff.phi },
-      scene.angle * puff.drift * motion,
+      scene.angle * puff.drift * (inner ? 0.45 : 1) * scene.swirl,
       scene.cx,
       scene.cy,
-      scene.radius * 0.72
+      scene.radius * (inner ? 0.46 : 0.78)
     );
     if (projected.z < -0.35) continue;
     const depth = 0.55 + 0.45 * Math.max(0, projected.z);
@@ -586,15 +650,14 @@ function drawNebula(scene) {
   ctx.arc(scene.cx, scene.cy, scene.radius * 0.98, 0, Math.PI * 2);
   ctx.clip();
   ctx.globalCompositeOperation = "lighter";
-  const motion = scene.thinking ? 1.6 : 1;
   for (let index = 0; index < clouds.length; index++) {
     const cloud = clouds[index];
     const projected = projectPoint(
       { theta: cloud.theta, phi: cloud.phi },
-      scene.angle * cloud.speed * motion,
+      scene.angle * cloud.speed * 0.45 * scene.swirl,
       scene.cx,
       scene.cy,
-      scene.radius * 0.55
+      scene.radius * 0.5
     );
     const reach = scene.radius * cloud.reach;
     const tone = cloud.dark ? scene.dark : scene.light;
@@ -610,9 +673,9 @@ function drawNebula(scene) {
   }
   for (let index = 0; index < stars.length; index++) {
     const star = stars[index];
-    const projected = projectPoint(star, scene.angle * 0.15 * motion, scene.cx, scene.cy, scene.radius * 0.86);
+    const projected = projectPoint(star, scene.angle * 1.15 * scene.swirl, scene.cx, scene.cy, scene.radius * 0.86);
     if (projected.z < 0) continue;
-    const twinkle = 0.12 + 0.28 * Math.abs(Math.sin(scene.angle * (scene.thinking ? 3 : 1.2) + star.twinkle));
+    const twinkle = 0.12 + 0.28 * Math.abs(Math.sin(scene.now * 0.003 * (1 + scene.mood) + star.twinkle));
     ctx.fillStyle = "rgba(255, 255, 255, " + twinkle * scene.bright + ")";
     ctx.beginPath();
     ctx.arc(projected.x, projected.y, 0.7, 0, Math.PI * 2);
@@ -630,13 +693,12 @@ function drawBolts(scene) {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   for (let index = 0; index < bolts.length; index++) {
-    const gate = Math.sin(scene.angle * (scene.thinking ? 2.6 : 1.15) + index * 1.7);
-    if (gate < 0.4) continue;
     const spec = bolts[index];
-    const alpha = Math.min(1, (gate - 0.4) * 1.6 * scene.bright);
-    const paths = webPaths(spec, scene.angle * spec.speed, scene.cx, scene.cy, scene.radius);
-    strokeWeb(paths.back, spec.width * 0.8, spec.gain * 0.2 * alpha);
-    strokeWeb(paths.front, spec.width, spec.gain * alpha);
+    const life = boltLife(spec, scene, index + 20, true);
+    if (life < 0.03) continue;
+    const paths = webPaths(spec, scene.angle * spec.speed * scene.swirl, scene.cx, scene.cy, scene.radius);
+    strokeBolt(paths.back, spec.width * 0.8, spec.gain * 0.28 * life);
+    strokeBolt(paths.front, spec.width, spec.gain * life);
   }
   ctx.restore();
 }
@@ -657,39 +719,29 @@ function draw() {
   if (stopped) return;
   const cfg = readConfig();
   applySize(cfg.size);
+  const now = performance.now();
+  let dt = lastTime ? (now - lastTime) / 1000 : 0.016;
+  if (dt > 0.05) dt = 0.05;
+  if (dt < 0) dt = 0;
+  lastTime = now;
   const thinking = (window.__energyOrbMode || mode) === "thinking";
-  const activeHex = thinking ? cfg.thinking : cfg.calm;
-  glowRgb = hexToRgb(activeHex);
+  const target = thinking ? 1 : 0;
+  mood += (target - mood) * (1 - Math.exp(-dt / 0.4));
+  if (Math.abs(target - mood) < 0.001) mood = target;
+  glowRgb = mixRgb(hexToRgb(cfg.calm), hexToRgb(cfg.thinking), mood);
   const liveLabel = document.querySelector("#energy-orb-host .orb-state");
-  if (liveLabel) liveLabel.style.color = activeHex;
-  angle += thinking ? 0.012 : 0.0045;
+  if (liveLabel) {
+    liveLabel.textContent = mood >= 0.5 ? "THINKING" : "CALM";
+    liveLabel.style.color = rgbToHex(glowRgb);
+  }
+  angle += (0.35 + 0.6 * mood) * dt;
   const cx = viewW / 2;
   const cy = viewH / 2;
-  const radius = (viewW * 98) / 360;
-  const pulse = 0.5 + 0.5 * Math.sin(angle * (thinking ? 3.2 : 1.4));
-  const bright = thinking ? 1.35 : 1;
-  ctx.clearRect(0, 0, viewW, viewH);
-  ctx.globalCompositeOperation = "source-over";
-  ctx.shadowBlur = 0;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-
-  fillGlow(cx, cy, radius, radius * 1.53, rgba(glowRgb, (0.4 + pulse * 0.12) * Math.min(1, bright)), "rgba(6, 36, 110, 0.06)");
-  fillGlow(cx, cy, radius, radius * 1.16, rgba(mixWhite(glowRgb, 0.45), (0.32 + pulse * 0.1) * Math.min(1, bright)), rgba(glowRgb, 0.1 * bright));
-
-  const shell = ctx.createRadialGradient(cx, cy - radius * 0.12, radius * 0.08, cx, cy, radius);
-  shell.addColorStop(0, "rgba(186, 244, 255, 0.1)");
-  shell.addColorStop(0.48, "rgba(3, 24, 58, 0.55)");
-  shell.addColorStop(0.8, rgba(glowRgb, 0.2 * bright));
-  shell.addColorStop(0.94, rgba(glowRgb, 0.32 * Math.min(1, bright)));
-  shell.addColorStop(1, "rgba(200, 250, 255, 0.62)");
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.fillStyle = shell;
-  ctx.fill();
-
-  const paint = drawStyle[cfg.style] || drawLightning;
-  paint({
+  const breath = Math.sin(now * 0.001 * Math.PI * 2 / 4);
+  const radius = (viewW * 98) / 360 * (1 + 0.03 * (1 - mood * 0.45) * breath);
+  const pulse = 0.5 + 0.5 * Math.sin(now * 0.001 * (1.4 + mood * 1.8));
+  const bright = 1 + 0.35 * mood;
+  const scene = {
     cx: cx,
     cy: cy,
     radius: radius,
@@ -697,22 +749,36 @@ function draw() {
     pulse: pulse,
     thinking: thinking,
     bright: bright,
+    mood: mood,
+    swirl: 1 + mood * 0.6,
+    now: now,
+    dt: dt,
     active: glowRgb,
     light: mixWhite(glowRgb, 0.5),
     dark: shade(glowRgb, 0.4),
-  });
+  };
+  ctx.clearRect(0, 0, viewW, viewH);
+  ctx.globalCompositeOperation = "source-over";
+  ctx.shadowBlur = 0;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  drawSphere(scene);
+
+  const paint = drawStyle[cfg.style] || drawLightning;
+  paint(scene);
+  drawHalo(scene);
 
   ctx.globalCompositeOperation = "source-over";
   ctx.shadowBlur = 0;
   ctx.beginPath();
   ctx.arc(cx, cy, radius - 0.4, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(214, 250, 255, " + (0.72 + pulse * 0.2) + ")";
-  ctx.lineWidth = 1.45;
+  ctx.strokeStyle = rgba(mixWhite(glowRgb, 0.65), 0.35 + pulse * 0.12);
+  ctx.lineWidth = 1.15;
   ctx.stroke();
   ctx.beginPath();
   ctx.arc(cx, cy, radius + 1.2, 0, Math.PI * 2);
-  ctx.strokeStyle = rgba(glowRgb, 0.28 + pulse * 0.1);
-  ctx.lineWidth = 3.2;
+  ctx.strokeStyle = rgba(glowRgb, 0.16 + 0.14 * mood + pulse * 0.06);
+  ctx.lineWidth = 2.4;
   ctx.stroke();
 
   element._orbAngle = angle;
