@@ -15,11 +15,16 @@ $CursorAgent = "$env:LOCALAPPDATA\cursor-agent\agent.cmd"
 
 The CLI pauses until you complete the browser login.
 
-1. Copy the full `https://cursor.com/loginDeepControl?...` URL from PowerShell.  
-2. Paste it into Chrome.  
-3. Sign in with the **same** Cursor account as the Cursor app.  
-4. Approve the device.  
-5. Return to PowerShell — it should finish login (not hang forever after approval).
+1. In PowerShell, request a **fresh** login (old links expire fast):
+   ```powershell
+   $CursorAgent = "$env:LOCALAPPDATA\cursor-agent\agent.cmd"
+   & $CursorAgent login
+   ```
+2. Copy the **new** `https://cursor.com/loginDeepControl?...` URL from that same window.  
+3. Open it in Chrome **immediately** (do not reuse an old tab).  
+4. Confirm account `andrew.higgins112@gmail.com` (or your Cursor account) → click **Sign in**.  
+5. If you see **“incomplete or has expired”**, close that tab, run `login` again, use the newest URL only.  
+6. Return to PowerShell — login should complete.
 
 Check:
 
