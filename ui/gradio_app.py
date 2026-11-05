@@ -180,6 +180,15 @@ def _apply_orb_cfg(cfg: dict) -> str:
     )
 
 
+def _preset_dropdown_update(names=None, value=None):
+    names = list(names if names is not None else list_orb_preset_names())
+    if not names:
+        return gr.update(choices=["(none yet)"], value="(none yet)")
+    if value not in names:
+        value = names[0]
+    return gr.update(choices=names, value=value)
+
+
 def save_orb_preset(name, style, calm_color, thinking_color, size, shape, spin_speed, turbulence, pulse, glow):
     preset = normalize_preset_name(name)
     cfg = normalize_orb_config({
@@ -195,17 +204,32 @@ def save_orb_preset(name, style, calm_color, thinking_color, size, shape, spin_s
     })
     markup = _apply_orb_cfg(cfg)
     if not preset:
-        return markup, gr.update(choices=list_orb_preset_names()), "Preset name must be 1–40 letters, numbers, spaces, _ or -."
+        return markup, _preset_dropdown_update(), "Preset name must be 1–40 letters, numbers, spaces, _ or -."
     settings = load_settings()
     presets = _orb_presets_map()
     presets[preset] = cfg
     settings["orb_presets"] = presets
     settings["orb_active_preset"] = preset
     write_settings(settings)
-    return markup, gr.update(choices=sorted(presets.keys()), value=preset), f"Saved preset '{preset}'."
+    return markup, _preset_dropdown_update(sorted(presets.keys()), preset), f"Saved preset '{preset}'."
 
 
 def load_orb_preset(name):
+    if str(name or "").strip() in ("", "(none yet)"):
+        cfg = current_orb_config()
+        return (
+            orb_config_markup(cfg),
+            cfg["style"],
+            cfg["calm_color"],
+            cfg["thinking_color"],
+            cfg["size"],
+            cfg["shape"],
+            cfg["spin_speed"],
+            cfg["turbulence"],
+            cfg["pulse"],
+            cfg["glow"],
+            "No preset selected yet — save one first.",
+        )
     preset = normalize_preset_name(name)
     presets = _orb_presets_map()
     if not preset or preset not in presets:
@@ -246,13 +270,13 @@ def delete_orb_preset(name):
     settings = load_settings()
     presets = _orb_presets_map()
     if not preset or preset not in presets:
-        return gr.update(choices=list_orb_preset_names()), f"Unknown preset '{name}'."
+        return _preset_dropdown_update(), f"Unknown preset '{name}'."
     del presets[preset]
     settings["orb_presets"] = presets
     if settings.get("orb_active_preset") == preset:
         settings["orb_active_preset"] = ""
     write_settings(settings)
-    return gr.update(choices=sorted(presets.keys()), value=None), f"Deleted preset '{preset}'."
+    return _preset_dropdown_update(sorted(presets.keys())), f"Deleted preset '{preset}'."
 
 
 ORB_HTML = """
@@ -1267,24 +1291,30 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 padding=False,
                 container=False,
             )
-            with gr.Accordion("Orb", open=False):
+            with gr.Accordion("Orb", open=True):
+                gr.Markdown("**Presets (UI-5)** — save / load / delete named looks")
                 _preset_names = list_orb_preset_names()
                 _active_preset = load_settings().get("orb_active_preset") or None
                 if _active_preset not in _preset_names:
                     _active_preset = None
+                # Empty choices break some Gradio builds; keep a placeholder.
+                _preset_choices = _preset_names if _preset_names else ["(none yet)"]
                 with gr.Row():
                     orb_preset = gr.Dropdown(
-                        choices=_preset_names,
-                        value=_active_preset,
+                        choices=_preset_choices,
+                        value=_active_preset if _active_preset else _preset_choices[0],
                         label="preset",
-                        allow_custom_value=False,
                     )
                     orb_preset_name = gr.Textbox(value="", label="preset name", placeholder="my look")
                 with gr.Row():
                     orb_preset_save = gr.Button("Save preset")
                     orb_preset_load = gr.Button("Load preset")
                     orb_preset_delete = gr.Button("Delete preset")
-                orb_preset_status = gr.Textbox(label="preset status", interactive=False)
+                orb_preset_status = gr.Textbox(
+                    value="Ready — enter a name and click Save preset",
+                    label="preset status",
+                    interactive=False,
+                )
                 orb_style = gr.Dropdown(choices=list(ORB_STYLES), value=_orb["style"], label="style")
                 orb_calm = gr.ColorPicker(value=_orb["calm_color"], label="calm")
                 orb_thinking = gr.ColorPicker(value=_orb["thinking_color"], label="thinking")
