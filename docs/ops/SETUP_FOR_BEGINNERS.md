@@ -94,21 +94,20 @@ If you still want MCP after Node is installed:
 
 ---
 
-## Step 6 — First real coding slice (only after Steps 1–3)
+## Step 6 — First coding slice — DONE via PM
 
-1. **New chat**. Model: **Composer** or **Auto**.  
-2. Paste:
-   ```text
-   Read PROJECT_MEMORY.md and AGENTS.md once. Continue from Current State.
-   Slice UI-5 only: orb preset save/load named configs.
-   Prefer Composer. Use /ui-orb then /verifier.
-   Confirm before credentials / Jira writes / deletes / security changes.
-   ```
-3. If it plans multi-file work: use **Plan**, approve, then **Agent**.  
-4. After it finishes: run `/verifier` (type `/` and pick verifier).  
-5. Come back to the **PM chat** with a short “what landed” note.
+UI-5 (orb presets) was implemented by the PM chat — you do **not** paste prompts into a second coding agent.
 
-**Do not start Cursor Cloud Agents yet.** Local Agent chat only.
+When the PM says a slice landed:
+
+```powershell
+git checkout main
+git pull origin main
+```
+
+Then run the Gradio UI and check the change (for UI-5: Orb accordion → Save / Load / Delete preset).
+
+**Do not start Cursor Cloud Agents** unless the PM asks.
 
 ---
 

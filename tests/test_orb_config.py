@@ -171,6 +171,37 @@ class OrbConfigTests(unittest.TestCase):
         self.assertEqual(reloaded["orb_pulse"], 1.0)
         self.assertEqual(reloaded["orb_glow"], 2.0)
 
+    def test_preset_save_load_delete(self):
+        markup, dropdown, status = gradio_app.save_orb_preset(
+            "Calm Blue", "mist", "#112233", "#445566", 240, "oval", 0.5, 1.2, 0.8, 1.1
+        )
+        self.assertIn("Saved preset 'Calm Blue'", status)
+        self.assertIn('data-style="mist"', markup)
+        self.assertEqual(gradio_app.list_orb_preset_names(), ["Calm Blue"])
+        saved = load_settings()
+        self.assertEqual(saved["orb_active_preset"], "Calm Blue")
+        self.assertEqual(saved["orb_presets"]["Calm Blue"]["shape"], "oval")
+        self.assertEqual(saved["orb_style"], "mist")
+
+        gradio_app.save_orb_config("lightning", "#50cdff", "#b388ff", 360, "sphere", 1, 1, 1, 1)
+        loaded = gradio_app.load_orb_preset("Calm Blue")
+        self.assertIn("Loaded preset 'Calm Blue'", loaded[-1])
+        self.assertEqual(loaded[1], "mist")
+        self.assertEqual(loaded[5], "oval")
+        self.assertEqual(gradio_app.current_orb_config()["calm_color"], "#112233")
+
+        _, deleted = gradio_app.delete_orb_preset("Calm Blue")
+        self.assertIn("Deleted preset 'Calm Blue'", deleted)
+        self.assertEqual(gradio_app.list_orb_preset_names(), [])
+        self.assertEqual(load_settings().get("orb_active_preset"), "")
+
+    def test_preset_name_rejected(self):
+        _, _, status = gradio_app.save_orb_preset(
+            "!!!", "mist", "#112233", "#445566", 240, "oval", 1, 1, 1, 1
+        )
+        self.assertIn("Preset name must", status)
+        self.assertEqual(gradio_app.list_orb_preset_names(), [])
+
 
 if __name__ == "__main__":
     unittest.main()

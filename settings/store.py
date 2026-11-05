@@ -31,6 +31,8 @@ def _defaults() -> dict:
         "orb_turbulence": 1.0,
         "orb_pulse": 1.0,
         "orb_glow": 1.0,
+        "orb_presets": {},
+        "orb_active_preset": "",
     }
 
 def _hidden(key: str, value: Any) -> Any:
@@ -47,13 +49,17 @@ def load_settings() -> dict:
         return merged
     return _defaults()
 
-def update_setting(key: str, value: str, confirm: bool = False) -> dict:
+def write_settings(settings: dict) -> None:
+    path = settings_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(settings, indent=2), encoding="utf-8")
+
+
+def update_setting(key: str, value: Any, confirm: bool = False) -> dict:
     shown = _hidden(key, value)
     if not confirm:
         return {"status": "confirmation_required", "proposed": {key: shown}}
-    path = settings_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
     settings = load_settings()
     settings[key] = value
-    path.write_text(json.dumps(settings, indent=2), encoding="utf-8")
+    write_settings(settings)
     return {"status": "updated", "key": key, "value": shown}

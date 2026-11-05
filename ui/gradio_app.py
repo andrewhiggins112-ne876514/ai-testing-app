@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import gradio as gr
 import httpx
 from reports.exporter import reports_dir
-from settings.store import load_settings, update_setting
+from settings.store import load_settings, update_setting, write_settings
 
 CHAT_URL = "http://127.0.0.1:8000/chat"
 LEVELS = ("OFFICIAL", "SECRET")
@@ -31,6 +31,7 @@ ORB_DEFAULTS = {
     "glow": 1.0,
 }
 _HEX_COLOR = re.compile(r"^#[0-9A-Fa-f]{6}$")
+_PRESET_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 _-]{0,39}$")
 
 
 def normalize_orb_config(raw) -> dict:
@@ -139,6 +140,119 @@ def current_orb_inputs():
         cfg["pulse"],
         cfg["glow"],
     )
+
+
+def normalize_preset_name(name) -> str:
+    text = str(name or "").strip()
+    if not _PRESET_NAME.match(text):
+        return ""
+    return text
+
+
+def _orb_presets_map() -> dict:
+    raw = load_settings().get("orb_presets") or {}
+    if not isinstance(raw, dict):
+        return {}
+    cleaned = {}
+    for key, value in raw.items():
+        name = normalize_preset_name(key)
+        if not name or not isinstance(value, dict):
+            continue
+        cleaned[name] = normalize_orb_config(value)
+    return cleaned
+
+
+def list_orb_preset_names() -> list:
+    return sorted(_orb_presets_map().keys())
+
+
+def _apply_orb_cfg(cfg: dict) -> str:
+    return save_orb_config(
+        cfg["style"],
+        cfg["calm_color"],
+        cfg["thinking_color"],
+        cfg["size"],
+        cfg["shape"],
+        cfg["spin_speed"],
+        cfg["turbulence"],
+        cfg["pulse"],
+        cfg["glow"],
+    )
+
+
+def save_orb_preset(name, style, calm_color, thinking_color, size, shape, spin_speed, turbulence, pulse, glow):
+    preset = normalize_preset_name(name)
+    cfg = normalize_orb_config({
+        "style": style,
+        "calm_color": calm_color,
+        "thinking_color": thinking_color,
+        "size": size,
+        "shape": shape,
+        "spin_speed": spin_speed,
+        "turbulence": turbulence,
+        "pulse": pulse,
+        "glow": glow,
+    })
+    markup = _apply_orb_cfg(cfg)
+    if not preset:
+        return markup, gr.update(choices=list_orb_preset_names()), "Preset name must be 1–40 letters, numbers, spaces, _ or -."
+    settings = load_settings()
+    presets = _orb_presets_map()
+    presets[preset] = cfg
+    settings["orb_presets"] = presets
+    settings["orb_active_preset"] = preset
+    write_settings(settings)
+    return markup, gr.update(choices=sorted(presets.keys()), value=preset), f"Saved preset '{preset}'."
+
+
+def load_orb_preset(name):
+    preset = normalize_preset_name(name)
+    presets = _orb_presets_map()
+    if not preset or preset not in presets:
+        cfg = current_orb_config()
+        return (
+            orb_config_markup(cfg),
+            cfg["style"],
+            cfg["calm_color"],
+            cfg["thinking_color"],
+            cfg["size"],
+            cfg["shape"],
+            cfg["spin_speed"],
+            cfg["turbulence"],
+            cfg["pulse"],
+            cfg["glow"],
+            f"Unknown preset '{name}'.",
+        )
+    cfg = presets[preset]
+    markup = _apply_orb_cfg(cfg)
+    update_setting("orb_active_preset", preset, confirm=True)
+    return (
+        markup,
+        cfg["style"],
+        cfg["calm_color"],
+        cfg["thinking_color"],
+        cfg["size"],
+        cfg["shape"],
+        cfg["spin_speed"],
+        cfg["turbulence"],
+        cfg["pulse"],
+        cfg["glow"],
+        f"Loaded preset '{preset}'.",
+    )
+
+
+def delete_orb_preset(name):
+    preset = normalize_preset_name(name)
+    settings = load_settings()
+    presets = _orb_presets_map()
+    if not preset or preset not in presets:
+        return gr.update(choices=list_orb_preset_names()), f"Unknown preset '{name}'."
+    del presets[preset]
+    settings["orb_presets"] = presets
+    if settings.get("orb_active_preset") == preset:
+        settings["orb_active_preset"] = ""
+    write_settings(settings)
+    return gr.update(choices=sorted(presets.keys()), value=None), f"Deleted preset '{preset}'."
 
 
 ORB_HTML = """
@@ -1154,6 +1268,23 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 container=False,
             )
             with gr.Accordion("Orb", open=False):
+                _preset_names = list_orb_preset_names()
+                _active_preset = load_settings().get("orb_active_preset") or None
+                if _active_preset not in _preset_names:
+                    _active_preset = None
+                with gr.Row():
+                    orb_preset = gr.Dropdown(
+                        choices=_preset_names,
+                        value=_active_preset,
+                        label="preset",
+                        allow_custom_value=False,
+                    )
+                    orb_preset_name = gr.Textbox(value="", label="preset name", placeholder="my look")
+                with gr.Row():
+                    orb_preset_save = gr.Button("Save preset")
+                    orb_preset_load = gr.Button("Load preset")
+                    orb_preset_delete = gr.Button("Delete preset")
+                orb_preset_status = gr.Textbox(label="preset status", interactive=False)
                 orb_style = gr.Dropdown(choices=list(ORB_STYLES), value=_orb["style"], label="style")
                 orb_calm = gr.ColorPicker(value=_orb["calm_color"], label="calm")
                 orb_thinking = gr.ColorPicker(value=_orb["thinking_color"], label="thinking")
@@ -1166,6 +1297,21 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
             orb_inputs = [orb_style, orb_calm, orb_thinking, orb_size, orb_shape, orb_spin, orb_turbulence, orb_pulse, orb_glow]
             for orb_control in orb_inputs:
                 orb_control.change(save_orb_config, orb_inputs, orb_config_host)
+            orb_preset_save.click(
+                save_orb_preset,
+                [orb_preset_name] + orb_inputs,
+                [orb_config_host, orb_preset, orb_preset_status],
+            )
+            orb_preset_load.click(
+                load_orb_preset,
+                [orb_preset],
+                [orb_config_host] + orb_inputs + [orb_preset_status],
+            )
+            orb_preset_delete.click(
+                delete_orb_preset,
+                [orb_preset],
+                [orb_preset, orb_preset_status],
+            )
             with gr.Column(elem_id="agent-chat"):
                 session_id = gr.State(new_session_id)
                 gr.ChatInterface(

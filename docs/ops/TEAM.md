@@ -1,51 +1,46 @@
-# Agent Team
+# Agent Team (PM-managed)
 
-Custom agents live in `.cursor/agents/`. Invoke with `/name` or by asking the parent to delegate.
+You talk only to the **PM**. Agents are workers the PM invokes — not separate chats you paste into.
 
 ## Roster
 
-### pm (you talk here — no separate file required)
-Parent chat. Owns priorities, blank-filling, risk call-outs, and when to open a new slice chat. Does **not** dump entire files into context.
+| Agent | File | Model | When |
+|-------|------|--------|------|
+| PM | (this parent chat) | Auto / stronger as needed | Always — your only conversation |
+| implementer | `implementer.md` | Grok 4.7 | Backend / plugin / general code |
+| ui-orb | `ui-orb.md` | Grok 4.7 | Gradio + orb |
+| doc-keeper | `doc-keeper.md` | Composer 2.5 | Memory, roadmap, ops docs after a slice |
+| verifier | `verifier.md` | Composer 2.5 | After implementation |
+| explorer-cheap | `explorer-cheap.md` | Composer 2.5 | Discovery |
+| architect | `architect.md` | Inherit | Multi-file / security design |
 
-### explorer-cheap
-Readonly searcher. Returns paths + 1–2 line summaries. Prefer for “where is X?” before reading files in the parent.
+## Why these (including ones you didn’t ask for)
 
-### architect
-Design-only. Produces a short plan, trade-offs, and file touch list. Does not implement unless explicitly asked after approval.
+| Need | Agent |
+|------|--------|
+| Feature coding (you asked Grok) | implementer / ui-orb |
+| Docs on a cheap model (you asked) | doc-keeper |
+| Review on a cheap model (you asked) | verifier |
+| Stop re-reading the whole repo | explorer-cheap |
+| Hard design without burning Grok on exploration | architect |
+| PM does ops/merges/small fixes directly | — no extra agent |
 
-### implementer
-Applies one approved slice. Small diff, matches existing plugin patterns, no drive-by refactors.
+## Add later only if repeated pain
 
-### verifier
-Readonly skeptic. Runs or cites tests, checks AGENTS.md constraints, reports gaps. Never “looks good” without evidence.
-
-### ui-orb
-Scoped to `ui/gradio_app.py` + orb settings. Presets, styles, panels — not backend/Jira unless the slice requires a tiny hook.
-
-## When to add a new agent
-
-Add only if a job repeats weekly and keeps polluting the parent chat. Candidates later:
-
-- **doc-keeper** — PROJECT_MEMORY / ROADMAP updates only  
-- **playwright-healer** — locator self-heal experiments  
+- **debugger** — flaky Playwright / Ollama loops  
 - **security-isolation** — OFFICIAL/SECRET profile work  
+- **release-notes** — only if doc-keeper isn’t enough  
 
-Do **not** create vague agents (“helps with coding”). Routing fails and tokens rise.
+## Skills (playbooks)
 
-## Model policy (keep Premium alive)
+| Skill | Purpose |
+|-------|---------|
+| `slice-workflow` | How PM runs a slice without human paste |
+| `run-local-stack` | Boot FastAPI / health on Windows |
+| `jira-safe` | Confirm gates; no secrets |
+| `orb-slice` | Orb UI conventions |
+| `update-memory` | After-slice PROJECT_MEMORY / ROADMAP |
 
-1. Default coding: **Composer / Auto**  
-2. Explore + verify: **Composer 2.5** (subagent `model: composer-2.5`)  
-3. Hard architecture only: stronger model for `/architect` briefly  
-4. Product inference: **local Ollama** — free for runtime, not Cursor credits  
-5. Never run two heavy local models; never pull 32B+ on the home PC  
+## Constraint
 
-## Bots vs agents
-
-| Kind | Meaning here |
-|------|----------------|
-| Agent | Cursor chat/subagent with tools |
-| Bot / skill | On-demand playbook (`.cursor/skills/*/SKILL.md`) |
-| Product agent | The app’s own Ollama tool-calling loop in `agent/agent.py` |
-
-Skills: `run-local-stack`, `slice-workflow`, `jira-safe`, `orb-slice`.
+Cloud/PM agents **cannot** open a second chat inside your local IDE. They either edit the repo here or spawn in-run subagents. You still only talk to the PM; pull when told.

@@ -8,15 +8,15 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
+| UI-6 | Movable/resizable panels | now | Next Gradio UX slice after presets |
 | OPS-1 | Cursor ops (rules, agents, skills, HOW_WE_WORK) | done | Merged to main via PR #1 |
-| OPS-2 | Beginner Cursor setup (merge, panels, guide-bot decision) | now | Steps 1–4 done; Grok guide bot retired as daily driver |
-| UI-5 | Orb presets (save/load named configs) | next | Continues orb slices 1–4 at `8553d6a` |
+| OPS-2 | Beginner Cursor setup + PM-owned workflow | done | Human talks only to PM; Grok guide bot retired |
+| UI-5 | Orb presets (save/load/delete named configs) | done | Settings `orb_presets` + Gradio accordion controls |
 
-## Near term (after OPS-1)
+## Near term
 
 | ID | Item | Depends | Notes |
 |----|------|---------|-------|
-| UI-5 | Orb presets | OPS-1 | Settings store already holds orb config |
 | UI-6 | Movable/resizable panels | UI-5 | Keep Gradio; avoid rewrite |
 | JIRA-R | Richer tickets (AC + test steps) | — | Structured description; still two-step confirm |
 | JIRA-B | Backlog structure (epics/stories/tests/bugs) | JIRA-R | Resume when Jira account exists |
@@ -56,10 +56,6 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 4. `PROJECT_MEMORY.md` Current State updated when behaviour changes  
 5. No secrets in git  
 
-## Suggested next coding chat (after this ops PR merges)
+## Next slice (PM-owned — human does not paste prompts)
 
-```text
-Slice UI-5 only: orb preset save/load named configs.
-Read PROJECT_MEMORY.md + AGENTS.md once. Use /ui-orb and /verifier.
-Do not touch Jira writes or security isolation.
-```
+**UI-6** movable/resizable panels. PM implements or delegates; human only pulls and checks the UI.

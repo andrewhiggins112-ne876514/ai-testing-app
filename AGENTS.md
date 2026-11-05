@@ -8,13 +8,13 @@
 - If a requirement is ambiguous, stop and ask rather than guessing.
 - Never store real credentials in code or in this repository. Use the local settings store only.
 
-## Cursor workflow (replaces Grok browser + AFK Pilot)
-- Primary home is Cursor. Do not instruct the user to copy-paste prompts between browser Grok and VS Code / AFK Pilot.
+## Cursor workflow (PM-managed; replaces Grok browser + AFK Pilot)
+- Primary home is Cursor. The human speaks in the **PM chat only**. Do not ask them to paste coding prompts into other tools or chats.
 - The old Grok guide bot is retired as daily driver; do not revive AFK Pilot prompt loops.
 - Ops docs: `docs/ops/HOW_WE_WORK.md`, `docs/ops/TEAM.md`, `docs/ops/ROADMAP.md`.
-- Custom agents: `.cursor/agents/` (`explorer-cheap`, `architect`, `implementer`, `verifier`, `ui-orb`).
-- Skills: `.cursor/skills/` (`slice-workflow`, `run-local-stack`, `jira-safe`, `orb-slice`).
-- Default coding model: Composer / Auto. Local Ollama is for the *product*, not for burning Cursor credits on coding.
+- Custom agents: `.cursor/agents/` (`implementer`/`ui-orb` → Grok 4.7; `doc-keeper`/`verifier`/`explorer-cheap` → Composer; `architect`).
+- Skills: `.cursor/skills/` (`slice-workflow`, `run-local-stack`, `jira-safe`, `orb-slice`, `update-memory`).
+- Local Ollama is for the *product* runtime, not for Cursor coding credits.
 
 ## Token budget
 Premium plan only. Do not assume more tokens can be bought. Token use in long agent threads is much higher than short chats.
