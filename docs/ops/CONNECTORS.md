@@ -4,10 +4,14 @@
 
 `.cursor/mcp.json` includes **GitHub MCP** using `${env:GITHUB_PERSONAL_ACCESS_TOKEN}`.
 
-On the home PC:
-1. Create a fine-scoped GitHub PAT (repo as needed).
-2. Set the env var in Windows User environment variables — **not** in the repo.
-3. Restart Cursor. Enable the server under Customize → MCP only when you need it.
+**Prerequisite:** Node.js LTS must be installed so `npx` works in a normal PowerShell (`node -v` and `npx -v`). Without Node, enabling github MCP fails with `'npx' is not recognized`. That is optional — git in the Cursor IDE terminal is enough for day-to-day work.
+
+On the home PC (only if you want MCP):
+1. Install Node.js LTS from https://nodejs.org (default options). Close and reopen Cursor.
+2. Create a fine-scoped GitHub PAT (repo as needed).
+3. Set `GITHUB_PERSONAL_ACCESS_TOKEN` in Windows User environment variables — **not** in the repo.
+4. Restart Cursor. Enable the server under **Agents window → Customize → MCP** only when you need it.
+5. If it fails, leave the toggle **off** and keep using IDE git.
 
 ## Add when ready (do not rush)
 

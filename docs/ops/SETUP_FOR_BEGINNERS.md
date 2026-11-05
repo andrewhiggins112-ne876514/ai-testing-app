@@ -75,16 +75,20 @@ Thanks — daily guide duty moves to Cursor + PROJECT_MEMORY.md. Please stop giv
 
 ## Step 5 — GitHub MCP (optional; skip if tired)
 
-Only if you want Cursor to talk to GitHub via tools.
+Only if you want Cursor MCP tools for GitHub. **Not required** — IDE git is enough.
 
+**Customize → MCP** lives in the **Agents / main app** window (New Chat, Automations, Customize), **not** in the IDE window.
+
+Also needs **Node.js** (`npx`). If logs say `'npx' is not recognized`, turn **github** MCP **off** and treat Step 5 as skipped until you install Node LTS from https://nodejs.org.
+
+If you still want MCP after Node is installed:
 1. Create a GitHub **Personal Access Token** (fine-scoped). **Do not paste it into chat.**  
 2. Windows search → **Edit the system environment variables** → **Environment Variables…**  
 3. Under **User variables** → **New…**  
    - Name: `GITHUB_PERSONAL_ACCESS_TOKEN`  
    - Value: *(your token)*  
-4. **File → Exit** Cursor completely, then reopen the project.  
-5. **Customize → MCP** → enable **github**.  
-6. If it errors: **View → Output** → **MCP Logs**.
+4. Fully quit **both** Cursor windows, reopen.  
+5. Agents window → **Customize → MCP** → enable **github**.
 
 **Done when:** github MCP shows connected, or you say `Step 5 skipped`.
 
