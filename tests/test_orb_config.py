@@ -81,6 +81,11 @@ class OrbConfigTests(unittest.TestCase):
             gradio_app.normalize_orb_config({"style": "nebula+lightning", "size": "280"})["style"],
             "nebula+lightning",
         )
+        self.assertEqual(
+            gradio_app.normalize_orb_config({"style": "mystic sphere", "size": "300"})["style"],
+            "mystic sphere",
+        )
+        self.assertIn("mystic sphere", gradio_app.ORB_STYLES)
         clamped = gradio_app.normalize_orb_config({
             "shape": "cube",
             "spin_speed": -1,

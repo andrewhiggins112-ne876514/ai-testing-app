@@ -17,7 +17,7 @@ from settings.store import load_settings, update_setting, write_settings
 CHAT_URL = "http://127.0.0.1:8000/chat"
 LEVELS = ("OFFICIAL", "SECRET")
 VOID = "#05070d"
-ORB_STYLES = ("lightning", "mist", "nebula", "nebula+lightning")
+ORB_STYLES = ("lightning", "mist", "nebula", "nebula+lightning", "mystic sphere")
 ORB_SHAPES = ("sphere", "oval", "ring")
 ORB_DEFAULTS = {
     "style": "lightning",
@@ -949,11 +949,164 @@ function drawNebulaLightning(scene) {
   drawBolts(scene);
 }
 
+function drawMysticSphere(scene) {
+  // Interior of the Grok reference orb: soft volume, filaments, shells, equator flare.
+  const cx = scene.cx;
+  const cy = scene.cy;
+  const radius = scene.radius;
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+
+  // Soft volumetric fill (glass energy body)
+  for (let index = 0; index < Math.min(puffs.length, 28); index++) {
+    const puff = puffs[index];
+    const projected = projectPoint(
+      { theta: puff.theta, phi: puff.phi },
+      driftSpin(scene, puff.drift * 0.55) + jitter(scene, index + 70),
+      cx,
+      cy,
+      radius * (0.35 + 0.4 * (index % 5) / 5)
+    );
+    if (projected.z < -0.2) continue;
+    const depth = 0.5 + 0.5 * Math.max(0, projected.z);
+    const puffRadius = radius * puff.size * 1.35 * depth;
+    const alpha = (0.05 + 0.06 * depth) * scene.bright;
+    const glow = ctx.createRadialGradient(projected.x, projected.y, 0, projected.x, projected.y, puffRadius);
+    glow.addColorStop(0, rgba(scene.light, alpha));
+    glow.addColorStop(0.55, rgba(scene.active, alpha * 0.4));
+    glow.addColorStop(1, rgba(scene.active, 0));
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(projected.x, projected.y, puffRadius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Neural / filament energy (wispy lightning inside)
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  for (let index = 0; index < webs.length; index++) {
+    const spec = webs[index];
+    const life = boltLife(spec, scene, index + 11, false);
+    if (life < 0.04) continue;
+    const paths = webPaths(
+      spec,
+      driftSpin(scene, spec.speed * 0.85) + jitter(scene, index + 11),
+      cx,
+      cy,
+      radius * 0.92
+    );
+    strokeBolt(paths.back, spec.width * 0.55, spec.gain * 0.18 * life * scene.bright);
+    strokeBolt(paths.front, spec.width * 0.85, spec.gain * 0.75 * life * scene.bright);
+  }
+
+  // Concentric energy shells
+  const shellTilt = 0.34 + Math.sin(scene.angle * 0.5) * 0.04;
+  strokeRing(cx, cy, radius * 0.82, radius * 0.68, shellTilt, 1.05, 0.42 * scene.bright);
+  strokeRing(cx, cy, radius * 0.58, radius * 0.46, shellTilt - 0.1, 1.1, 0.5 * scene.bright);
+  strokeRing(cx, cy, radius * 0.34, radius * 0.28, shellTilt + 0.08, 1.0, 0.38 * scene.bright);
+
+  // Strong horizontal equator flare (signature of the reference)
+  const bandHalf = radius * 0.14;
+  const band = ctx.createLinearGradient(cx, cy - bandHalf, cx, cy + bandHalf);
+  band.addColorStop(0, rgba(glowRgb, 0));
+  band.addColorStop(0.35, rgba(mixWhite(glowRgb, 0.4), 0.18 * scene.bright));
+  band.addColorStop(0.5, "rgba(230, 252, 255, " + Math.min(1, (0.55 + scene.pulse * 0.2) * scene.bright) + ")");
+  band.addColorStop(0.65, rgba(mixWhite(glowRgb, 0.4), 0.18 * scene.bright));
+  band.addColorStop(1, rgba(glowRgb, 0));
+  ctx.fillStyle = band;
+  ctx.fillRect(cx - radius * 1.05, cy - bandHalf, radius * 2.1, bandHalf * 2);
+
+  const flare = ctx.createLinearGradient(cx - radius * 1.15, cy, cx + radius * 1.15, cy);
+  flare.addColorStop(0, "rgba(180, 240, 255, 0)");
+  flare.addColorStop(0.18, "rgba(210, 248, 255, 0.2)");
+  flare.addColorStop(0.45, "rgba(255, 255, 255, 0.95)");
+  flare.addColorStop(0.5, "rgba(255, 255, 255, 1)");
+  flare.addColorStop(0.55, "rgba(255, 255, 255, 0.95)");
+  flare.addColorStop(0.82, "rgba(210, 248, 255, 0.2)");
+  flare.addColorStop(1, "rgba(180, 240, 255, 0)");
+  ctx.strokeStyle = flare;
+  ctx.lineWidth = 1.4 + 0.5 * scene.mood + 0.4 * scene.pulse;
+  ctx.beginPath();
+  ctx.moveTo(cx - radius * 1.08, cy);
+  ctx.lineTo(cx + radius * 1.08, cy);
+  ctx.stroke();
+
+  // Bright core nucleus
+  const bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.22);
+  bloom.addColorStop(0, "rgba(255, 255, 255, 0.98)");
+  bloom.addColorStop(0.3, rgba(mixWhite(glowRgb, 0.6), 0.65));
+  bloom.addColorStop(1, rgba(glowRgb, 0));
+  ctx.fillStyle = bloom;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius * 0.22, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawMysticSphereExterior(scene) {
+  // Gyro rings + holographic pedestal from the Grok reference (outside the orb clip).
+  const cx = scene.cx;
+  const cy = scene.cy;
+  const radius = scene.radius;
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  ctx.lineCap = "round";
+
+  // Orbital gyroscope rings
+  const spin = scene.angle * 0.7;
+  strokeRing(cx, cy, radius * 1.18, radius * 0.42, spin * 0.35, 0.9, 0.28 * scene.bright);
+  strokeRing(cx, cy, radius * 1.05, radius * 0.95, Math.PI / 2 + spin * 0.2, 0.75, 0.22 * scene.bright);
+  strokeRing(cx, cy, radius * 1.28, radius * 0.28, -spin * 0.25, 0.7, 0.18 * scene.bright);
+
+  // Dotted orbital ticks
+  for (let i = 0; i < 36; i++) {
+    const a = spin * 0.4 + (i / 36) * Math.PI * 2;
+    const x = cx + Math.cos(a) * radius * 1.22;
+    const y = cy + Math.sin(a) * radius * 0.38;
+    ctx.beginPath();
+    ctx.arc(x, y, i % 3 === 0 ? 1.2 : 0.6, 0, Math.PI * 2);
+    ctx.fillStyle = rgba(mixWhite(glowRgb, 0.55), (0.25 + 0.35 * scene.pulse) * scene.bright);
+    ctx.fill();
+  }
+
+  // Pedestal: concentric floor rings + upright beam
+  const baseY = cy + radius * 1.22;
+  for (let ring = 0; ring < 4; ring++) {
+    const rx = radius * (0.55 + ring * 0.22);
+    const ry = rx * 0.22;
+    ctx.beginPath();
+    ctx.ellipse(cx, baseY, rx, ry, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = rgba(scene.active, (0.28 - ring * 0.05) * scene.bright);
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+  }
+  const beam = ctx.createLinearGradient(cx, cy + radius * 0.85, cx, baseY);
+  beam.addColorStop(0, rgba(mixWhite(glowRgb, 0.5), 0.55 * scene.bright));
+  beam.addColorStop(1, rgba(glowRgb, 0));
+  ctx.strokeStyle = beam;
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + radius * 0.9);
+  ctx.lineTo(cx, baseY);
+  ctx.stroke();
+
+  // Soft ground bloom
+  const floor = ctx.createRadialGradient(cx, baseY, 0, cx, baseY, radius * 1.1);
+  floor.addColorStop(0, rgba(scene.active, 0.18 * scene.bright));
+  floor.addColorStop(1, rgba(scene.active, 0));
+  ctx.fillStyle = floor;
+  ctx.beginPath();
+  ctx.ellipse(cx, baseY, radius * 1.1, radius * 0.28, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 const drawStyle = {
   lightning: drawLightning,
   mist: drawMist,
   nebula: drawNebula,
   "nebula+lightning": drawNebulaLightning,
+  "mystic sphere": drawMysticSphere,
 };
 
 function draw() {
@@ -1033,6 +1186,7 @@ function draw() {
   ctx.stroke();
   if (cfg.shape === "ring") cutRing(scene);
   ctx.restore();
+  if (cfg.style === "mystic sphere") drawMysticSphereExterior(scene);
   drawHalo(scene);
   ctx.restore();
 
