@@ -1,0 +1,12 @@
+---
+globs: plugins/**/*.py, agent/**/*.py
+alwaysApply: false
+---
+
+# Plugins and agent tools
+
+- Extend `plugins/` modules; match existing tool registration patterns in `agent/agent.py`.
+- Side-effecting tools must require explicit user confirmation (two-step for Jira writes).
+- Keep tool outputs short and structured; avoid returning huge HTML/JSON blobs to the LLM.
+- Playwright: headed by default for this product; evidence/screenshots belong with the runner/reports.
+- Add a focused unit/integration test when changing core tool behaviour.
