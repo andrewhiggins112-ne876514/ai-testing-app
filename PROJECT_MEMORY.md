@@ -29,7 +29,7 @@ Long-term goal: dominate the testing space for companies that want a capable loc
 - Development machine: Windows home PC (i7-8700K, 32 GB RAM, GTX 1080 Ti, Ollama already installed). User is on Python 3.15 (venv notes also mention 3.13 — watch compatibility).
 - **Primary IDE workflow is Cursor** (rules, skills, custom agents). Browser Grok + AFK Pilot copy-paste is retired to save Premium credits.
 - **PM-owned workflow:** human speaks only in the PM chat. PM implements or delegates agents; human pulls/runs — no paste of coding prompts into other chats.
-- Coding models: **Grok 4.7** for feature/UI implementers; **Composer** for docs/explore/verify. Product runtime stays on local Ollama.
+- Coding models: **Grok family only** while on Grok Premium (4.7 feature/UI; 4.5 docs/explore/verify). Composer/Claude/GPT are not “free” here. Product runtime stays on local Ollama (free).
 - Token efficiency matters: prefer targeted reads, compact slices, avoid re-sending full file contents.
 - Pure canvas energy orb (no Three.js / CDN) for the Gradio UI centrepiece.
 - Jira writes are two-step confirm; no Jira account yet — do not solicit credentials until the user says one exists.

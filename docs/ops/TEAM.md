@@ -6,23 +6,26 @@ You talk only to the **PM**. Agents are workers the PM invokes — not separate 
 
 | Agent | File | Model | When |
 |-------|------|--------|------|
-| PM | (this parent chat) | Auto / stronger as needed | Always — your only conversation |
+| PM | (this parent chat) | Grok 4.7 / Auto | Always — your only conversation |
 | implementer | `implementer.md` | Grok 4.7 | Backend / plugin / general code |
 | ui-orb | `ui-orb.md` | Grok 4.7 | Gradio + orb |
-| doc-keeper | `doc-keeper.md` | Composer 2.5 | Memory, roadmap, ops docs after a slice |
-| verifier | `verifier.md` | Composer 2.5 | After implementation |
-| explorer-cheap | `explorer-cheap.md` | Composer 2.5 | Discovery |
-| architect | `architect.md` | Inherit | Multi-file / security design |
+| doc-keeper | `doc-keeper.md` | Grok 4.5 | Memory, roadmap, ops docs after a slice |
+| verifier | `verifier.md` | Grok 4.5 | After implementation |
+| explorer-cheap | `explorer-cheap.md` | Grok 4.5 | Discovery |
+| architect | `architect.md` | Grok 4.7 | Multi-file / security design |
+
+## Billing reality (important)
+
+There is **no free Claude/Copilot/Composer lane** inside Cursor agents on a Grok-Premium-only setup. “Cheap” previously meant Composer’s lower *rate*, still from the **same paid pool**. We therefore keep **all agents on Grok** (4.5 for light work, 4.7 for coding). **Ollama** remains free only for the local app.
 
 ## Why these (including ones you didn’t ask for)
 
 | Need | Agent |
 |------|--------|
-| Feature coding (you asked Grok) | implementer / ui-orb |
-| Docs on a cheap model (you asked) | doc-keeper |
-| Review on a cheap model (you asked) | verifier |
+| Feature coding | implementer / ui-orb (Grok 4.7) |
+| Docs / review with less burn | doc-keeper / verifier (Grok 4.5) |
 | Stop re-reading the whole repo | explorer-cheap |
-| Hard design without burning Grok on exploration | architect |
+| Hard design without coding yet | architect |
 | PM does ops/merges/small fixes directly | — no extra agent |
 
 ## Add later only if repeated pain

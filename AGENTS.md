@@ -12,9 +12,9 @@
 - Primary home is Cursor. The human speaks in the **PM chat only**. Do not ask them to paste coding prompts into other tools or chats.
 - The old Grok guide bot is retired as daily driver; do not revive AFK Pilot prompt loops.
 - Ops docs: `docs/ops/HOW_WE_WORK.md`, `docs/ops/TEAM.md`, `docs/ops/ROADMAP.md`.
-- Custom agents: `.cursor/agents/` (`implementer`/`ui-orb` → Grok 4.7; `doc-keeper`/`verifier`/`explorer-cheap` → Composer; `architect`).
+- Custom agents: `.cursor/agents/` — **Grok family only** (`implementer`/`ui-orb`/`architect` → 4.7; `doc-keeper`/`verifier`/`explorer-cheap` → 4.5). User pays Grok Premium; do not assign Composer/Claude/GPT/Copilot as “free”.
 - Skills: `.cursor/skills/` (`slice-workflow`, `run-local-stack`, `jira-safe`, `orb-slice`, `update-memory`).
-- Local Ollama is for the *product* runtime, not for Cursor coding credits.
+- Local Ollama is for the *product* runtime (actually free). Cursor coding agents are not free.
 
 ## Token budget
 Premium plan only. Do not assume more tokens can be bought. Token use in long agent threads is much higher than short chats.

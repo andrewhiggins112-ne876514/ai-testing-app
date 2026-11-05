@@ -22,22 +22,25 @@
 |-------|--------|-----|
 | implementer | Grok 4.7 | Feature/code slices |
 | ui-orb | Grok 4.7 | Gradio / energy-orb slices |
-| doc-keeper | Composer 2.5 | PROJECT_MEMORY / ROADMAP / ops docs |
-| verifier | Composer 2.5 | Tests + skeptical review |
-| explorer-cheap | Composer 2.5 | Find files; short summaries |
-| architect | Inherit / stronger | Design-only trade-offs |
+| doc-keeper | Grok 4.5 | PROJECT_MEMORY / ROADMAP / ops docs |
+| verifier | Grok 4.5 | Tests + skeptical review |
+| explorer-cheap | Grok 4.5 | Find files; short summaries |
+| architect | Grok 4.7 | Design-only trade-offs |
 
-Product runtime LLM stays **Ollama on the home PC** (free for the app itself).
+Product runtime LLM stays **Ollama on the home PC** — that part is actually free.
 
 **Grok guide bot:** retired as daily driver. Do not resume AFK paste loops.
 
-## Model policy (Premium thrift)
+## Model policy (Grok Premium only)
 
-1. **Coding / UI:** Grok 4.7 for real feature slices.  
-2. **Docs, explore, verify:** Composer / Auto (cheap).  
-3. **Architecture spikes:** stronger model briefly via `/architect`.  
-4. Never parallelise agents unless slices are independent.  
-5. GitHub MCP needs Node/`npx` — optional; IDE git is enough.
+User pays **Grok Premium** only. Do **not** assume Composer/Claude/GPT/Copilot are free inside Cursor.
+
+1. **All Cursor agents stay on the Grok family** (4.7 for coding/UI/architecture; 4.5 for docs/explore/verify to spare the pool).  
+2. **Composer is not free** — it still uses the same Cursor/Grok weekly pool; we do not use it as a “free” option.  
+3. **Claude / GPT / Copilot** are separate paid products inside Cursor Agent — do not assign them.  
+4. **Ollama** = free for the *app* chat/runtime only, not for Cursor coding agents.  
+5. Never parallelise agents unless slices are independent.  
+6. GitHub MCP needs Node/`npx` — optional; IDE git is enough.
 
 ## Connectors
 
