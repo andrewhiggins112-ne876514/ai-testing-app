@@ -60,18 +60,16 @@ After setup, work **only in Cursor**. Stop: browser Grok → copy → AFK Pilot 
 
 ---
 
-## Step 4 — Grok “guide bot” check-in (decide keep / replace)
+## Step 4 — Grok “guide bot” check-in — DONE
 
-You already have a live Grok bot that remembers project state and writes the next AFK prompt.
+**Decision (2026-11-05): retire as daily driver.**  
+Cursor PM chat + `PROJECT_MEMORY.md` + `ROADMAP.md` replace it. Optional read-only cross-check for one week, then ignore.
 
-1. Open that Grok bot in the browser.  
-2. Ask it: `Summarise your job in 5 bullets and paste your standing instructions if you can.`  
-3. Copy its reply into the PM chat (this Cursor chat).  
-4. PM will decide: keep as backup, rewrite for Cursor, or retire in favour of `PROJECT_MEMORY.md` + ROADMAP + PM chat.
+Send the bot this freeze message (optional but tidy):
 
-**Do not** go back to daily AFK copy-paste while we decide.
-
-**Done when:** instructions (or a clear summary) are pasted into PM chat. Tell PM: `Step 4 done` plus the paste.
+```text
+Thanks — daily guide duty moves to Cursor + PROJECT_MEMORY.md. Please stop giving AFK Pilot prompts unless I explicitly ask for an archive lookup.
+```
 
 ---
 
