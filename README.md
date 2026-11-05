@@ -23,6 +23,13 @@ Local-first AI testing agent with a local chat UI.
    Invoke-RestMethod http://127.0.0.1:8000/health
    ```
 
+5. Run the Gradio UI (prefer the script — kills old port 7860 and starts clean):
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\scripts\restart_ui.ps1
+   ```
+   Or: `.\venv\Scripts\python.exe .\run_ui.py`  
+   Then open http://127.0.0.1:7860 (do not use browser Back on a dead tab).
+
 Jira read-only settings live in `%LOCALAPPDATA%\ai_testing_app\settings.json` (not in git). Set `jira_url`, `jira_api_token`, and `jira_email` for Cloud. Then ask the agent to list stories for a project key.
 
 ## Structure

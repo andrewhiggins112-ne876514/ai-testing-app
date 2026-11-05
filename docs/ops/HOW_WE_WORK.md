@@ -6,8 +6,9 @@
 
 1. Tell the PM what you want (goals, preferences, approvals).  
 2. Confirm when asked (credentials, Jira writes, deletes, security).  
-3. On your PC when told: `git pull`, run the app, say if the UI looks wrong.  
-4. Do **not** paste prompts into other AIs unless the PM explicitly asks (rare).
+3. On your PC when told: `git pull`, then prefer double‑click / one script `scripts\restart_ui.ps1` (PM cannot type into your Windows terminal from the cloud).  
+4. Do **not** paste prompts into other AIs unless the PM explicitly asks (rare).  
+5. Prefer **Cursor IDE**, not VS Code + AFK Pilot, for this project.
 
 ## PM job (this chat)
 

@@ -1291,30 +1291,29 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 padding=False,
                 container=False,
             )
-            with gr.Accordion("Orb", open=True):
-                gr.Markdown("**Presets (UI-5)** — save / load / delete named looks")
-                _preset_names = list_orb_preset_names()
-                _active_preset = load_settings().get("orb_active_preset") or None
-                if _active_preset not in _preset_names:
-                    _active_preset = None
-                # Empty choices break some Gradio builds; keep a placeholder.
-                _preset_choices = _preset_names if _preset_names else ["(none yet)"]
-                with gr.Row():
-                    orb_preset = gr.Dropdown(
-                        choices=_preset_choices,
-                        value=_active_preset if _active_preset else _preset_choices[0],
-                        label="preset",
-                    )
-                    orb_preset_name = gr.Textbox(value="", label="preset name", placeholder="my look")
-                with gr.Row():
-                    orb_preset_save = gr.Button("Save preset")
-                    orb_preset_load = gr.Button("Load preset")
-                    orb_preset_delete = gr.Button("Delete preset")
-                orb_preset_status = gr.Textbox(
-                    value="Ready — enter a name and click Save preset",
-                    label="preset status",
-                    interactive=False,
-                )
+            # Presets sit above the style accordion so they always render even if
+            # Accordion/Markdown quirks hit older Gradio builds.
+            _preset_names = list_orb_preset_names()
+            _active_preset = load_settings().get("orb_active_preset") or None
+            if _active_preset not in _preset_names:
+                _active_preset = None
+            _preset_choices = _preset_names if _preset_names else ["(none yet)"]
+            orb_preset = gr.Dropdown(
+                choices=_preset_choices,
+                value=_active_preset if _active_preset else _preset_choices[0],
+                label="preset",
+            )
+            orb_preset_name = gr.Textbox(value="", label="preset name", placeholder="my look")
+            with gr.Row():
+                orb_preset_save = gr.Button("Save preset")
+                orb_preset_load = gr.Button("Load preset")
+                orb_preset_delete = gr.Button("Delete preset")
+            orb_preset_status = gr.Textbox(
+                value="Ready - enter a name and click Save preset",
+                label="preset status",
+                interactive=False,
+            )
+            with gr.Accordion("Orb style", open=True):
                 orb_style = gr.Dropdown(choices=list(ORB_STYLES), value=_orb["style"], label="style")
                 orb_calm = gr.ColorPicker(value=_orb["calm_color"], label="calm")
                 orb_thinking = gr.ColorPicker(value=_orb["thinking_color"], label="thinking")
