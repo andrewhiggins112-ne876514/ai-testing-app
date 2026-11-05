@@ -6,28 +6,75 @@ After setup, work **only in Cursor**. Stop: browser Grok → copy → AFK Pilot 
 
 ---
 
-## Step 1 — Merge PR #1 and pull onto your PC
+## Step 1 — Merge PR #1 and get a real folder on your PC
 
-**Goal:** get the new `.cursor/` folder and `docs/ops/` onto your machine.
+**Goal:** a normal Windows folder with the repo (including `.cursor/` and `docs/ops/`) that Cursor can open.
 
-1. In a browser, open: https://github.com/andrewhiggins112-ne876514/ai-testing-app/pull/1  
-2. Open **Files changed** and skim (optional).  
-3. Click **Merge pull request** → **Confirm merge**.  
-4. Optional: **Delete branch**.  
-5. Open **Cursor** → **File → Open Folder…** → select your local `ai-testing-app` folder → **Trust** if asked.  
-6. Open a terminal in Cursor: **Terminal → New Terminal** (or `` Ctrl+` ``).  
-7. Run:
-   ```powershell
-   git checkout main
-   git pull origin main
-   ```
-8. In the left file list, confirm you see:
+### 1A — Merge the PR (browser)
+
+1. Open: https://github.com/andrewhiggins112-ne876514/ai-testing-app/pull/1  
+2. Optional: skim **Files changed**.  
+3. **Merge pull request** → **Confirm merge**.  
+4. Optional: **Delete branch**.
+
+### 1B — Do you already have the folder? (optional check)
+
+VS Code almost always opened a folder on disk somewhere. If you still use VS Code with this project:
+
+1. Open the project in VS Code.  
+2. **File → Open Folder…** shows the path, or right-click a file → **Reveal in File Explorer**.  
+3. If you find it, you can use that path in 1D instead of cloning — then only `git pull` in 1E.
+
+If you are not sure, **skip 1B and clone fresh (1C)**. That is the safe beginner path.
+
+### 1C — Clone from GitHub (if no local folder)
+
+1. Install Git for Windows if needed: https://git-scm.com/download/win (restart Cursor after install).  
+2. Open **PowerShell** (Windows search → PowerShell).  
+3. Prefer a simple location (change `User` if your Windows username differs):
+
+```powershell
+cd $HOME
+git clone https://github.com/andrewhiggins112-ne876514/ai-testing-app.git ai_testing_app
+cd ai_testing_app
+git checkout main
+git pull origin main
+```
+
+4. Your folder is now: `C:\Users\<YourWindowsUsername>\ai_testing_app`  
+   (PowerShell: `pwd` prints the exact path.)
+
+If `git clone` asks you to sign in to GitHub, complete the browser/login prompt, then re-run the clone if it failed.
+
+### 1D — Open that folder in Cursor  ← resume here if you were stuck on “Open Folder”
+
+1. Open **Cursor**.  
+2. **File → Open Folder…**  
+3. Browse to `ai_testing_app` (from 1B or 1C) → **Select Folder**.  
+4. If Windows/Cursor asks about trusting the folder → **Yes / Trust**.  
+5. Left sidebar should list files such as `AGENTS.md`, `PROJECT_MEMORY.md`, `main.py`.
+
+### 1E — Confirm ops files are present
+
+1. In Cursor: **Terminal → New Terminal** (or `` Ctrl+` ``).  
+2. Run:
+
+```powershell
+git checkout main
+git pull origin main
+dir .cursor
+dir docs\ops
+```
+
+3. Confirm you see:
    - `.cursor\rules`
    - `.cursor\agents`
    - `.cursor\skills`
-   - `docs\ops\HOW_WE_WORK.md`
+   - `docs\ops\SETUP_FOR_BEGINNERS.md`
 
-**Done when:** those folders/files exist locally. Tell the PM chat: `Step 1 done`.
+**Done when:** Cursor has the folder open and those paths exist. Tell the PM chat: `Step 1 done`.
+
+**Note:** A separate **Grok bot app** (e.g. downloaded from a link inside Cursor) is not the same as this repo folder. We deal with that in **Step 4**. Do not use it for the daily AFK copy-paste loop meanwhile.
 
 ---
 
