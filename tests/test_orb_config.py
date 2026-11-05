@@ -202,6 +202,14 @@ class OrbConfigTests(unittest.TestCase):
         self.assertIn("Preset name must", status)
         self.assertEqual(gradio_app.list_orb_preset_names(), [])
 
+    def test_toggle_orb_settings(self):
+        opened, update = gradio_app.toggle_orb_settings(False)
+        self.assertTrue(opened)
+        self.assertTrue(update["visible"])
+        closed, update2 = gradio_app.toggle_orb_settings(True)
+        self.assertFalse(closed)
+        self.assertFalse(update2["visible"])
+
 
 if __name__ == "__main__":
     unittest.main()

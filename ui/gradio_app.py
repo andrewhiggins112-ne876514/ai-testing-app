@@ -279,6 +279,11 @@ def delete_orb_preset(name):
     return _preset_dropdown_update(sorted(presets.keys())), f"Deleted preset '{preset}'."
 
 
+def toggle_orb_settings(is_open: bool):
+    nxt = not bool(is_open)
+    return nxt, gr.update(visible=nxt)
+
+
 ORB_HTML = """
 <div class="energy-orb" data-state="calm">
   <canvas width="680" height="800" aria-label="energy orb"></canvas>
@@ -1110,6 +1115,55 @@ html, body {
   overflow: hidden !important;
   background: transparent !important;
 }
+#chat-stage {
+  position: relative;
+  min-height: 420px;
+}
+#chat-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 50;
+  width: auto !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+#chat-toolbar .form,
+#chat-toolbar .block {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+#orb-settings-btn button,
+#orb-settings-btn {
+  min-width: 42px !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 999px !important;
+  border: 1px solid #1f6f8f !important;
+  background: #0a1522 !important;
+  color: #9fdfff !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.15);
+}
+#orb-settings-panel {
+  position: absolute;
+  top: 56px;
+  right: 12px;
+  z-index: 60;
+  width: min(360px, calc(100% - 24px));
+  max-height: min(70vh, 560px);
+  overflow: auto;
+  padding: 12px !important;
+  border: 1px solid #1f6f8f !important;
+  border-radius: 12px !important;
+  background: rgba(8, 14, 22, 0.96) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
 #energy-orb-host canvas {
   display: block;
 }
@@ -1276,53 +1330,66 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
     with gr.Tabs():
         with gr.Tab("Chat"):
             _orb = current_orb_config()
-            orb_config_host = gr.HTML(
-                orb_config_markup(_orb),
-                elem_id="orb-config-host",
-                apply_default_css=False,
-                padding=False,
-                container=False,
-            )
-            gr.HTML(
-                ORB_HTML,
-                elem_id="energy-orb-host",
-                js_on_load=ORB_JS,
-                apply_default_css=False,
-                padding=False,
-                container=False,
-            )
-            # Presets sit above the style accordion so they always render even if
-            # Accordion/Markdown quirks hit older Gradio builds.
-            _preset_names = list_orb_preset_names()
-            _active_preset = load_settings().get("orb_active_preset") or None
-            if _active_preset not in _preset_names:
-                _active_preset = None
-            _preset_choices = _preset_names if _preset_names else ["(none yet)"]
-            orb_preset = gr.Dropdown(
-                choices=_preset_choices,
-                value=_active_preset if _active_preset else _preset_choices[0],
-                label="preset",
-            )
-            orb_preset_name = gr.Textbox(value="", label="preset name", placeholder="my look")
-            with gr.Row():
-                orb_preset_save = gr.Button("Save preset")
-                orb_preset_load = gr.Button("Load preset")
-                orb_preset_delete = gr.Button("Delete preset")
-            orb_preset_status = gr.Textbox(
-                value="Ready - enter a name and click Save preset",
-                label="preset status",
-                interactive=False,
-            )
-            with gr.Accordion("Orb style", open=True):
-                orb_style = gr.Dropdown(choices=list(ORB_STYLES), value=_orb["style"], label="style")
-                orb_calm = gr.ColorPicker(value=_orb["calm_color"], label="calm")
-                orb_thinking = gr.ColorPicker(value=_orb["thinking_color"], label="thinking")
-                orb_size = gr.Slider(minimum=200, maximum=480, step=20, value=_orb["size"], label="size")
-                orb_shape = gr.Dropdown(choices=list(ORB_SHAPES), value=_orb["shape"], label="shape")
-                orb_spin = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["spin_speed"], label="spin_speed")
-                orb_turbulence = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["turbulence"], label="turbulence")
-                orb_pulse = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["pulse"], label="pulse")
-                orb_glow = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["glow"], label="glow")
+            with gr.Column(elem_id="chat-stage"):
+                orb_config_host = gr.HTML(
+                    orb_config_markup(_orb),
+                    elem_id="orb-config-host",
+                    apply_default_css=False,
+                    padding=False,
+                    container=False,
+                )
+                with gr.Row(elem_id="chat-toolbar"):
+                    orb_settings_open = gr.State(False)
+                    orb_settings_btn = gr.Button(
+                        "\u2699",
+                        elem_id="orb-settings-btn",
+                        scale=0,
+                        min_width=42,
+                    )
+                gr.HTML(
+                    ORB_HTML,
+                    elem_id="energy-orb-host",
+                    js_on_load=ORB_JS,
+                    apply_default_css=False,
+                    padding=False,
+                    container=False,
+                )
+                _preset_names = list_orb_preset_names()
+                _active_preset = load_settings().get("orb_active_preset") or None
+                if _active_preset not in _preset_names:
+                    _active_preset = None
+                _preset_choices = _preset_names if _preset_names else ["(none yet)"]
+                with gr.Column(visible=False, elem_id="orb-settings-panel") as orb_settings_panel:
+                    gr.Markdown("Orb settings")
+                    orb_preset = gr.Dropdown(
+                        choices=_preset_choices,
+                        value=_active_preset if _active_preset else _preset_choices[0],
+                        label="preset",
+                    )
+                    orb_preset_name = gr.Textbox(value="", label="preset name", placeholder="my look")
+                    with gr.Row():
+                        orb_preset_save = gr.Button("Save preset")
+                        orb_preset_load = gr.Button("Load preset")
+                        orb_preset_delete = gr.Button("Delete preset")
+                    orb_preset_status = gr.Textbox(
+                        value="Ready - enter a name and click Save preset",
+                        label="preset status",
+                        interactive=False,
+                    )
+                    orb_style = gr.Dropdown(choices=list(ORB_STYLES), value=_orb["style"], label="style")
+                    orb_calm = gr.ColorPicker(value=_orb["calm_color"], label="calm")
+                    orb_thinking = gr.ColorPicker(value=_orb["thinking_color"], label="thinking")
+                    orb_size = gr.Slider(minimum=200, maximum=480, step=20, value=_orb["size"], label="size")
+                    orb_shape = gr.Dropdown(choices=list(ORB_SHAPES), value=_orb["shape"], label="shape")
+                    orb_spin = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["spin_speed"], label="spin_speed")
+                    orb_turbulence = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["turbulence"], label="turbulence")
+                    orb_pulse = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["pulse"], label="pulse")
+                    orb_glow = gr.Slider(minimum=0, maximum=2, step=0.1, value=_orb["glow"], label="glow")
+                orb_settings_btn.click(
+                    toggle_orb_settings,
+                    [orb_settings_open],
+                    [orb_settings_open, orb_settings_panel],
+                )
             orb_inputs = [orb_style, orb_calm, orb_thinking, orb_size, orb_shape, orb_spin, orb_turbulence, orb_pulse, orb_glow]
             for orb_control in orb_inputs:
                 orb_control.change(save_orb_config, orb_inputs, orb_config_host)

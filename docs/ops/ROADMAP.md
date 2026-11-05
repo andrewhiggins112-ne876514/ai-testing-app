@@ -8,7 +8,8 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
-| UI-6 | Movable/resizable panels | now | Next Gradio UX slice after presets |
+| UI-6a | Orb settings behind top-right gear (clean chat dash) | now | Chatbot/input settings icons later |
+| UI-6 | Movable/resizable panels | next | After orb gear lands |
 | OPS-1 | Cursor ops (rules, agents, skills, HOW_WE_WORK) | done | Merged to main via PR #1 |
 | OPS-2 | Beginner Cursor setup + PM-owned workflow | done | Human talks only to PM; Grok guide bot retired |
 | UI-5 | Orb presets (save/load/delete named configs) | done | Settings `orb_presets` + Gradio accordion controls |

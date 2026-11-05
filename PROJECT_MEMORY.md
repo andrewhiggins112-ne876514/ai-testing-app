@@ -41,7 +41,7 @@ Skeleton + substantial features exist:
 - `plugins/jira_plugin.py` — list/create/transition/comment/epic link; writes need confirm
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\settings.json` (incl. orb)
 - `main.py` — FastAPI `/chat` + `/health`
-- `ui/gradio_app.py` — Gradio UI + energy orb (styles/shapes/sliders) + **named presets** (UI-5: save/load/delete)
+- `ui/gradio_app.py` — Gradio UI + energy orb; **named presets** (UI-5); orb controls behind top-right gear panel (UI-6a)
 - `reports/exporter.py` — run export
 - Tests under `tests/` for Jira, Playwright heal, orb config/presets, sessions, settings, reports
 - Architecture notes + AGENTS.md + this file
@@ -73,8 +73,8 @@ Not yet done:
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. Human: `git pull` and check Orb accordion presets in Gradio.
-2. Optional later: install Node.js if GitHub MCP is wanted; Atlassian MCP only after a Jira account exists.
-3. Slice **UI-6**: movable/resizable panels (PM-owned).
-4. Richer Jira ticket bodies (still confirm-gated).
-5. Playwright evidence improvements; then SEC-1 isolation when ready to confirm the design.
+1. Human: `git pull` + `scripts\restart_ui.cmd`; check top-right gear opens orb-only settings.
+2. Human: My Machines worker (`docs/ops/MY_MACHINES.md`) so Cloud PM can use the PC terminal.
+3. Optional: Node.js + GitHub MCP; Atlassian/Jira only after an account exists.
+4. Slice **UI-6**: movable/resizable panels; then chat/input settings icons.
+5. Jira epic/story structure once account exists (confirm-gated writes).
