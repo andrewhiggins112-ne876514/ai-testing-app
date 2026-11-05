@@ -85,7 +85,16 @@ class OrbConfigTests(unittest.TestCase):
             gradio_app.normalize_orb_config({"style": "mystic sphere", "size": "300"})["style"],
             "mystic sphere",
         )
-        self.assertIn("mystic sphere", gradio_app.ORB_STYLES)
+        self.assertEqual(
+            gradio_app.normalize_orb_config({"style": "aether ring"})["style"],
+            "aether ring",
+        )
+        self.assertEqual(
+            gradio_app.normalize_orb_config({"style": "neural mesh"})["style"],
+            "neural mesh",
+        )
+        for style in ("mystic sphere", "aether ring", "neural mesh"):
+            self.assertIn(style, gradio_app.ORB_STYLES)
         clamped = gradio_app.normalize_orb_config({
             "shape": "cube",
             "spin_speed": -1,

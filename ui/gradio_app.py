@@ -17,7 +17,15 @@ from settings.store import load_settings, update_setting, write_settings
 CHAT_URL = "http://127.0.0.1:8000/chat"
 LEVELS = ("OFFICIAL", "SECRET")
 VOID = "#05070d"
-ORB_STYLES = ("lightning", "mist", "nebula", "nebula+lightning", "mystic sphere")
+ORB_STYLES = (
+    "lightning",
+    "mist",
+    "nebula",
+    "nebula+lightning",
+    "mystic sphere",
+    "aether ring",
+    "neural mesh",
+)
 ORB_SHAPES = ("sphere", "oval", "ring")
 ORB_DEFAULTS = {
     "style": "lightning",
@@ -371,9 +379,16 @@ function readConfig() {
   let size = node ? parseInt(node.getAttribute("data-size") || "360", 10) : 360;
   if (!size || size < 200) size = 200;
   if (size > 480) size = 480;
-  if (style !== "lightning" && style !== "mist" && style !== "nebula" && style !== "nebula+lightning") {
-    style = "lightning";
-  }
+  const allowedStyles = {
+    lightning: 1,
+    mist: 1,
+    nebula: 1,
+    "nebula+lightning": 1,
+    "mystic sphere": 1,
+    "aether ring": 1,
+    "neural mesh": 1,
+  };
+  if (!allowedStyles[style]) style = "lightning";
   let shape = node ? (node.getAttribute("data-shape") || "sphere") : "sphere";
   if (shape !== "sphere" && shape !== "oval" && shape !== "ring") shape = "sphere";
   function unit(raw) {
@@ -629,6 +644,62 @@ for (let index = 0; index < 6; index++) {
     0.8 + hash(index + 204) * 0.4,
     bolts
   );
+}
+
+const aetherDust = [];
+for (let index = 0; index < 140; index++) {
+  const onRing = index < 90;
+  aetherDust.push({
+    angle: hash(index + 500) * Math.PI * 2,
+    radius: onRing ? 0.78 + hash(index + 501) * 0.28 : 0.2 + hash(index + 502) * 1.35,
+    size: onRing ? 0.6 + hash(index + 503) * 1.4 : 1.5 + hash(index + 504) * 4.5,
+    speed: 0.15 + hash(index + 505) * 0.55,
+    twinkle: hash(index + 506) * Math.PI * 2,
+    bokeh: !onRing && hash(index + 507) > 0.72,
+  });
+}
+
+const aetherBlades = [];
+for (let index = 0; index < 10; index++) {
+  aetherBlades.push({
+    angle: (index / 10) * Math.PI * 2 + hash(index + 520) * 0.35,
+    sweep: 0.55 + hash(index + 521) * 0.55,
+    width: 0.12 + hash(index + 522) * 0.1,
+    speed: 0.35 + hash(index + 523) * 0.45,
+    alpha: 0.12 + hash(index + 524) * 0.16,
+  });
+}
+
+const neuralPoints = [];
+for (let index = 0; index < 520; index++) {
+  neuralPoints.push({
+    theta: hash(index + 600) * Math.PI * 2,
+    phi: Math.acos(2 * hash(index + 601) - 1),
+    size: 0.45 + hash(index + 602) * 1.35,
+    speed: 0.12 + hash(index + 603) * 0.5,
+    twinkle: hash(index + 604) * Math.PI * 2,
+    shell: hash(index + 605) > 0.82,
+  });
+}
+
+const neuralSpokes = [];
+for (let index = 0; index < 28; index++) {
+  neuralSpokes.push({
+    theta: hash(index + 650) * Math.PI * 2,
+    phi: 0.35 + hash(index + 651) * 2.4,
+    speed: 0.2 + hash(index + 652) * 0.4,
+    gain: 0.25 + hash(index + 653) * 0.45,
+  });
+}
+
+const neuralBlocks = [];
+for (let index = 0; index < 36; index++) {
+  neuralBlocks.push({
+    theta: hash(index + 680) * Math.PI * 2,
+    phi: 0.45 + hash(index + 681) * 2.2,
+    arc: 0.08 + hash(index + 682) * 0.18,
+    speed: 0.15 + hash(index + 683) * 0.35,
+  });
 }
 
 function fillGlow(cx, cy, radius, reach, inner, mid) {
@@ -1101,12 +1172,218 @@ function drawMysticSphereExterior(scene) {
   ctx.restore();
 }
 
+function drawAetherRing(scene) {
+  // Hollow glowing ring with inner blades, dust, and bokeh (voice-orb reference).
+  const cx = scene.cx;
+  const cy = scene.cy;
+  const radius = scene.radius;
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+
+  // Soft outer bloom
+  const bloom = ctx.createRadialGradient(cx, cy, radius * 0.55, cx, cy, radius * 1.45);
+  bloom.addColorStop(0, rgba(scene.active, 0));
+  bloom.addColorStop(0.55, rgba(scene.active, 0.18 * scene.bright));
+  bloom.addColorStop(1, rgba(scene.active, 0));
+  ctx.fillStyle = bloom;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius * 1.45, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Inner sweeping blades (keep hollow core)
+  for (let index = 0; index < aetherBlades.length; index++) {
+    const blade = aetherBlades[index];
+    const start = blade.angle + driftSpin(scene, blade.speed);
+    const end = start + blade.sweep;
+    const inner = radius * (0.28 + blade.width);
+    const mid = radius * 0.62;
+    const outer = radius * 0.92;
+    ctx.beginPath();
+    ctx.arc(cx, cy, outer, start, end, false);
+    ctx.arc(cx, cy, inner, end, start, true);
+    ctx.closePath();
+    const grad = ctx.createRadialGradient(cx, cy, inner, cx, cy, outer);
+    grad.addColorStop(0, rgba(scene.active, 0));
+    grad.addColorStop(0.35, rgba(mixWhite(scene.active, 0.25), blade.alpha * scene.bright));
+    grad.addColorStop(0.75, rgba(scene.light, (blade.alpha + 0.08) * scene.bright));
+    grad.addColorStop(1, rgba(scene.active, 0));
+    ctx.fillStyle = grad;
+    ctx.fill();
+    // Bright leading edge
+    ctx.beginPath();
+    ctx.arc(cx, cy, mid, start, start + 0.12);
+    ctx.strokeStyle = rgba(mixWhite(scene.active, 0.7), (0.35 + 0.25 * scene.pulse) * scene.bright);
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+  }
+
+  // Thick luminous torus rim
+  for (let pass = 0; pass < 3; pass++) {
+    const rimR = radius * (0.86 + pass * 0.04);
+    const rim = ctx.createRadialGradient(cx - radius * 0.15, cy - radius * 0.2, radius * 0.1, cx, cy, rimR + radius * 0.18);
+    rim.addColorStop(0, rgba(mixWhite(scene.active, 0.55), 0));
+    rim.addColorStop(0.72, rgba(scene.active, (0.08 + pass * 0.05) * scene.bright));
+    rim.addColorStop(0.9, rgba(mixWhite(scene.active, 0.45), (0.45 - pass * 0.08) * scene.bright));
+    rim.addColorStop(1, rgba(scene.active, 0));
+    ctx.beginPath();
+    ctx.arc(cx, cy, rimR + radius * 0.12, 0, Math.PI * 2);
+    ctx.arc(cx, cy, rimR - radius * 0.1, 0, Math.PI * 2, true);
+    ctx.fillStyle = rim;
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius * 0.9, 0, Math.PI * 2);
+  ctx.strokeStyle = rgba(mixWhite(scene.active, 0.65), (0.55 + 0.2 * scene.pulse) * scene.bright);
+  ctx.lineWidth = 3.2 + scene.mood;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius * 0.78, 0, Math.PI * 2);
+  ctx.strokeStyle = rgba(scene.active, 0.28 * scene.bright);
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+
+  // Dust + bokeh
+  for (let index = 0; index < aetherDust.length; index++) {
+    const dust = aetherDust[index];
+    const a = dust.angle + driftSpin(scene, dust.speed) * (dust.bokeh ? 0.35 : 1);
+    const rr = radius * dust.radius;
+    const x = cx + Math.cos(a) * rr;
+    const y = cy + Math.sin(a) * rr * (dust.bokeh ? 0.92 : 1);
+    const twinkle = 0.35 + 0.65 * Math.abs(Math.sin(scene.now * 0.003 + dust.twinkle));
+    const size = dust.size * (dust.bokeh ? (0.8 + 0.4 * scene.pulse) : 1);
+    if (dust.bokeh) {
+      const soft = ctx.createRadialGradient(x, y, 0, x, y, size * 2.2);
+      soft.addColorStop(0, rgba(mixWhite(scene.active, 0.4), 0.35 * twinkle * scene.bright));
+      soft.addColorStop(1, rgba(scene.active, 0));
+      ctx.fillStyle = soft;
+      ctx.beginPath();
+      ctx.arc(x, y, size * 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.35, 0, Math.PI * 2);
+      ctx.fillStyle = rgba(mixWhite(scene.active, 0.55), twinkle * 0.85 * scene.bright);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function drawNeuralMesh(scene) {
+  // JARVIS-like neural point cloud + spokes + data arcs.
+  const cx = scene.cx;
+  const cy = scene.cy;
+  const radius = scene.radius;
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+
+  // Dim volumetric body (not solid glass)
+  const body = ctx.createRadialGradient(cx - radius * 0.2, cy - radius * 0.25, radius * 0.05, cx, cy, radius);
+  body.addColorStop(0, rgba(mixWhite(scene.active, 0.55), 0.22 * scene.bright));
+  body.addColorStop(0.45, rgba(scene.active, 0.1 * scene.bright));
+  body.addColorStop(1, rgba(scene.dark, 0.08));
+  ctx.globalCompositeOperation = "source-over";
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.fillStyle = body;
+  ctx.fill();
+  ctx.globalCompositeOperation = "lighter";
+
+  // Concentric orbital rings at varied tilts
+  strokeRing(cx, cy, radius * 0.95, radius * 0.42, scene.angle * 0.25, 0.7, 0.22 * scene.bright);
+  strokeRing(cx, cy, radius * 0.72, radius * 0.72, Math.PI / 2 + scene.angle * 0.15, 0.65, 0.18 * scene.bright);
+  strokeRing(cx, cy, radius * 0.55, radius * 0.28, -scene.angle * 0.3, 0.6, 0.2 * scene.bright);
+  strokeRing(cx, cy, radius * 0.38, radius * 0.38, scene.angle * 0.5, 0.55, 0.16 * scene.bright);
+
+  // Radial neural spokes
+  ctx.lineCap = "round";
+  for (let index = 0; index < neuralSpokes.length; index++) {
+    const spoke = neuralSpokes[index];
+    const projected = projectPoint(
+      { theta: spoke.theta, phi: spoke.phi },
+      driftSpin(scene, spoke.speed),
+      cx,
+      cy,
+      radius * 0.92
+    );
+    if (projected.z < -0.15) continue;
+    const depth = 0.4 + 0.6 * Math.max(0, projected.z);
+    const pulse = 0.5 + 0.5 * Math.sin(scene.now * 0.004 + index);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(projected.x, projected.y);
+    ctx.strokeStyle = rgba(scene.active, spoke.gain * depth * pulse * scene.bright);
+    ctx.lineWidth = 0.6 + depth;
+    ctx.stroke();
+  }
+
+  // Dense point cloud
+  for (let index = 0; index < neuralPoints.length; index++) {
+    const point = neuralPoints[index];
+    const projected = projectPoint(
+      { theta: point.theta, phi: point.phi },
+      driftSpin(scene, point.speed),
+      cx,
+      cy,
+      radius * (point.shell ? 0.98 : 0.78)
+    );
+    if (projected.z < -0.35) continue;
+    const depth = 0.35 + 0.65 * Math.max(0, projected.z);
+    const twinkle = 0.4 + 0.6 * Math.abs(Math.sin(scene.now * 0.005 + point.twinkle));
+    const size = point.size * depth * (point.shell ? 1.15 : 0.9);
+    ctx.beginPath();
+    ctx.arc(projected.x, projected.y, size * 0.45, 0, Math.PI * 2);
+    ctx.fillStyle = rgba(
+      mixWhite(scene.active, point.shell ? 0.55 : 0.25),
+      twinkle * depth * scene.bright
+    );
+    ctx.fill();
+  }
+
+  // Outer fragmented data blocks / arcs
+  for (let index = 0; index < neuralBlocks.length; index++) {
+    const block = neuralBlocks[index];
+    const spin = driftSpin(scene, block.speed);
+    const a0 = block.theta + spin;
+    const projected = projectPoint(
+      { theta: block.theta, phi: block.phi },
+      spin,
+      cx,
+      cy,
+      radius * 1.02
+    );
+    if (projected.z < 0) continue;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius * (0.92 + (index % 3) * 0.04), a0, a0 + block.arc);
+    ctx.strokeStyle = rgba(mixWhite(scene.active, 0.4), 0.35 * Math.max(0.2, projected.z) * scene.bright);
+    ctx.lineWidth = 1.4 + (index % 3) * 0.5;
+    ctx.stroke();
+  }
+
+  // Bright neural core
+  const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.28);
+  core.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+  core.addColorStop(0.25, rgba(mixWhite(scene.active, 0.65), 0.7));
+  core.addColorStop(1, rgba(scene.active, 0));
+  ctx.fillStyle = core;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius * 0.28, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 const drawStyle = {
   lightning: drawLightning,
   mist: drawMist,
   nebula: drawNebula,
   "nebula+lightning": drawNebulaLightning,
   "mystic sphere": drawMysticSphere,
+  "aether ring": drawAetherRing,
+  "neural mesh": drawNeuralMesh,
+};
+
+const hollowStyles = {
+  "aether ring": 1,
 };
 
 function draw() {
@@ -1163,28 +1440,33 @@ function draw() {
   ctx.translate(cx, cy);
   if (cfg.shape === "oval") ctx.scale(1, 0.8);
   ctx.translate(-cx, -cy);
+  const hollow = !!hollowStyles[cfg.style];
   ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.clip();
-  drawSphere(scene);
+  if (!hollow) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.clip();
+    drawSphere(scene);
+  }
 
   const paint = drawStyle[cfg.style] || drawLightning;
   paint(scene);
 
-  ctx.globalCompositeOperation = "source-over";
-  ctx.shadowBlur = 0;
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius - 0.4, 0, Math.PI * 2);
-  ctx.strokeStyle = rgba(mixWhite(glowRgb, 0.65), (0.35 + pulse * 0.12) * cfg.glowAmt);
-  ctx.lineWidth = 1.15;
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius + 1.2, 0, Math.PI * 2);
-  ctx.strokeStyle = rgba(glowRgb, (0.16 + 0.14 * mood + pulse * 0.06) * cfg.glowAmt);
-  ctx.lineWidth = 2.4;
-  ctx.stroke();
-  if (cfg.shape === "ring") cutRing(scene);
+  if (!hollow) {
+    ctx.globalCompositeOperation = "source-over";
+    ctx.shadowBlur = 0;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius - 0.4, 0, Math.PI * 2);
+    ctx.strokeStyle = rgba(mixWhite(glowRgb, 0.65), (0.35 + pulse * 0.12) * cfg.glowAmt);
+    ctx.lineWidth = 1.15;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius + 1.2, 0, Math.PI * 2);
+    ctx.strokeStyle = rgba(glowRgb, (0.16 + 0.14 * mood + pulse * 0.06) * cfg.glowAmt);
+    ctx.lineWidth = 2.4;
+    ctx.stroke();
+    if (cfg.shape === "ring") cutRing(scene);
+  }
   ctx.restore();
   if (cfg.style === "mystic sphere") drawMysticSphereExterior(scene);
   drawHalo(scene);
