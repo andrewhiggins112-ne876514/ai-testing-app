@@ -1,0 +1,11 @@
+---
+globs: main.py, settings/**/*.py
+alwaysApply: false
+---
+
+# FastAPI and settings
+
+- Settings path stays under the OS local app data dir (Windows: `%LOCALAPPDATA%\ai_testing_app\`).
+- Never commit `settings.json` or secrets. Mask secrets in any API response that echoes settings.
+- `/health` may report whether Jira is configured, not the token values.
+- Prefer small FastAPI surface; chat remains the primary interface.

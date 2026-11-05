@@ -29,6 +29,12 @@ Jira read-only settings live in `%LOCALAPPDATA%\ai_testing_app\settings.json` (n
 - `agent/` — core tool-calling agent
 - `plugins/` — Playwright, Jira, etc.
 - `settings/` — local config store
+- `ui/` — Gradio UI + energy orb
 - `main.py` — FastAPI server
+- `docs/ops/` — how we work, team, roadmap, connectors (Cursor workflow)
+- `.cursor/` — rules, agents, skills, MCP template
 
-Security levels, full document ingestion, self-healing, and richer UI come next as plugins.
+## Cursor workflow
+Primary development is in Cursor (not browser Grok + AFK Pilot copy-paste). See `docs/ops/HOW_WE_WORK.md`. Prefer Composer/Auto for coding; Ollama stays local for the product runtime.
+
+Security levels, full document ingestion, broader self-healing, and richer UI come next as plugins.

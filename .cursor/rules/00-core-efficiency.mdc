@@ -1,0 +1,21 @@
+---
+alwaysApply: true
+---
+
+# Core efficiency
+
+- For non-trivial work: read `PROJECT_MEMORY.md` once at session start; do not re-dump it later.
+- Prefer Ask or Plan before multi-file edits. One logical slice per chat when possible.
+- Targeted reads and greps only. No whole-repo dumps. Prefer `/explorer-cheap` for discovery.
+- Never store real credentials in the repo or chat. Local settings store only.
+- No Jira writes / credential prompts until the user says a Jira account exists.
+- Confirm before: security-level changes, deletes, credential updates, Jira writes.
+- Prefer Composer / Auto for implementation. Reserve frontier models for architecture.
+- Prefer small diffs; extend existing plugins — do not create parallel systems.
+- After a finished slice: update Current State in `PROJECT_MEMORY.md` if behaviour changed.
+
+# Ops pointers (do not paste full docs)
+
+- Workflow: `docs/ops/HOW_WE_WORK.md`
+- Team: `docs/ops/TEAM.md`
+- Priorities: `docs/ops/ROADMAP.md`

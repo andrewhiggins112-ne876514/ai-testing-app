@@ -8,8 +8,15 @@
 - If a requirement is ambiguous, stop and ask rather than guessing.
 - Never store real credentials in code or in this repository. Use the local settings store only.
 
+## Cursor workflow (replaces Grok browser + AFK Pilot)
+- Primary home is Cursor. Do not instruct the user to copy-paste prompts between browser Grok and VS Code.
+- Ops docs: `docs/ops/HOW_WE_WORK.md`, `docs/ops/TEAM.md`, `docs/ops/ROADMAP.md`.
+- Custom agents: `.cursor/agents/` (`explorer-cheap`, `architect`, `implementer`, `verifier`, `ui-orb`).
+- Skills: `.cursor/skills/` (`slice-workflow`, `run-local-stack`, `jira-safe`, `orb-slice`).
+- Default coding model: Composer / Auto. Local Ollama is for the *product*, not for burning Cursor credits on coding.
+
 ## Token budget
-Premium plan only. Do not assume more tokens can be bought. Token use in the VS Code agent is much higher than in chat.
+Premium plan only. Do not assume more tokens can be bought. Token use in long agent threads is much higher than short chats.
 - Do not re-read the entire codebase unless explicitly asked.
 - When exploring, prefer targeted reads (specific files or functions) over broad directory dumps.
 - After reading a file, summarise only what is relevant and do not re-send full contents in later turns unless necessary.
@@ -46,11 +53,13 @@ This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 M
 ## Tech stack (current)
 - Python 3.11+ (this PC is on 3.15 — watch for compatibility)
 - FastAPI
-- Ollama (recommended start model: qwen3:8b)
+- Ollama (recommended start model: qwen3:8b; installed default often `qwen2.5-coder:7b`)
 - Playwright (Python)
+- Gradio UI with pure-canvas energy orb
 - Local settings store
 - Target OS: Windows (home development machine first, then work Dell XPS 15s)
 
 ## When stuck
 - Re-read the “Original Vision” and “Key Decisions” sections of PROJECT_MEMORY.md.
 - Prefer extending existing plugins over creating parallel systems.
+- Re-read `docs/ops/HOW_WE_WORK.md` if the session drifts into multi-tool copy-paste habits.

@@ -1,0 +1,12 @@
+---
+description: UK OFFICIAL/SECRET isolation, GDPR, and credential scoping
+alwaysApply: false
+---
+
+# Security and GDPR
+
+- OFFICIAL and SECRET must stay isolated (credentials, browser profiles, settings scopes).
+- No telemetry by default. Explicit consent before storing extracted document data.
+- Easy local data deletion is a product requirement.
+- Confirm with the human before changing security-level handling.
+- Manual invoke: `@security-levels` when working on isolation.

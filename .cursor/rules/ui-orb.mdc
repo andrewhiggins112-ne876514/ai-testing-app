@@ -1,0 +1,11 @@
+---
+globs: ui/**/*.py
+alwaysApply: false
+---
+
+# Gradio UI and orb
+
+- Keep the orb as pure canvas JS (no Three.js / CDN) unless a deliberate decision says otherwise.
+- Persist orb config via the settings store; preserve calm ↔ thinking transitions.
+- One UI slice at a time (presets, panels, chat polish). Do not rewrite the whole Gradio app in one PR.
+- Cards and extra chrome only when they aid interaction; match the existing dark theme.
