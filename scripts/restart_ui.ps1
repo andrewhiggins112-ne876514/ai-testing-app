@@ -1,12 +1,11 @@
-# One-click: kill old Gradio on 7860, pull optional, start UI.
-# Double-click or run:  powershell -ExecutionPolicy Bypass -File .\scripts\restart_ui.ps1
+# Kill old Gradio on 7860 and start the UI. ASCII-only for Windows PowerShell 5.1.
+# Run: powershell -ExecutionPolicy Bypass -File .\scripts\restart_ui.ps1
 
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host "Repo: $PWD"
 
-# Stop anything bound to 7860
 Get-NetTCPConnection -LocalPort 7860 -ErrorAction SilentlyContinue |
   Select-Object -ExpandProperty OwningProcess -Unique |
   ForEach-Object {
@@ -22,7 +21,7 @@ if (-not (Test-Path ".\venv\Scripts\python.exe")) {
 }
 
 if (-not (Select-String -Path ".\ui\gradio_app.py" -Pattern "Save preset" -Quiet)) {
-  Write-Host "ERROR: ui\gradio_app.py has no Save preset — run git pull origin main first." -ForegroundColor Red
+  Write-Host "ERROR: ui\gradio_app.py missing Save preset. Run: git pull origin main" -ForegroundColor Red
   exit 1
 }
 
