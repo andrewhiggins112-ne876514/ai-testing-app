@@ -17,6 +17,13 @@
     }
   }
 
+  function readNumAttr(node, name, fallback) {
+    const raw = node && node.getAttribute(name);
+    if (raw == null || raw === "") return fallback;
+    const n = parseFloat(raw);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
   function readOrbNode() {
     const node = document.getElementById("orb-config");
     return {
@@ -24,10 +31,11 @@
       calm: node ? node.getAttribute("data-calm-color") || "#50cdff" : "#50cdff",
       thinking: node ? node.getAttribute("data-thinking-color") || "#b388ff" : "#b388ff",
       size: Math.max(200, Math.min(480, parseInt((node && node.getAttribute("data-size")) || "360", 10) || 360)),
-      spin: parseFloat((node && node.getAttribute("data-spin-speed")) || "1") || 1,
-      turbulence: parseFloat((node && node.getAttribute("data-turbulence")) || "1") || 1,
-      pulse: parseFloat((node && node.getAttribute("data-pulse")) || "1") || 1,
-      glow: parseFloat((node && node.getAttribute("data-glow")) || "1") || 1,
+      // Allow 0 — previous `|| 1` made the low end of every slider a no-op.
+      spin: Math.max(0, Math.min(2, readNumAttr(node, "data-spin-speed", 1))),
+      turbulence: Math.max(0, Math.min(2, readNumAttr(node, "data-turbulence", 1))),
+      pulse: Math.max(0, Math.min(2, readNumAttr(node, "data-pulse", 1))),
+      glow: Math.max(0, Math.min(2, readNumAttr(node, "data-glow", 1))),
     };
   }
 
@@ -70,7 +78,11 @@
   }
 
   function glowScale(cfg) {
-    return 0.62 + 0.38 * (cfg.glow || 1);
+    // Mid (1) stays at 1.0 so the approved mystic look is unchanged.
+    // Low drops clearly; high lifts bloom/floor without washing filaments.
+    const g = Math.max(0, Math.min(2, Number.isFinite(cfg.glow) ? cfg.glow : 1));
+    if (g <= 1) return 0.32 + 0.68 * g; // 0 → 0.32, 1 → 1.0
+    return 1.0 + 0.5 * (g - 1); // 2 → 1.5
   }
 
   function applyPaint(root, color, mood, cfg) {
@@ -82,7 +94,12 @@
         const p = m.userData && m.userData.paint;
         if (!p) return;
         const c = color.clone().lerp(WHITE, Math.min(0.92, p.white + mood * 0.08));
-        const op = (p.opacity + p.mood * mood) * (p.glow ? g : 1);
+        const base = p.opacity + p.mood * mood;
+        let op = p.glow ? base * g : base;
+        // Dense shells already near the shader alpha cap — nudge only, don't multiply to blow-out.
+        if (p.glow && g > 1 && p.opacity >= 0.7) {
+          op = base + (g - 1) * 0.1;
+        }
         if (m.uniforms && m.uniforms.uColor) {
           m.uniforms.uColor.value.copy(c);
           if (m.uniforms.uOpacity) m.uniforms.uOpacity.value = op;
@@ -157,6 +174,7 @@
         uPhase: { value: opts.phase || 0 },
         uStreak: { value: opts.streaks || 4 },
         uWhite: { value: opts.white || 0 },
+        uTurbulence: { value: opts.turbulence == null ? 1.0 : opts.turbulence },
       },
       vertexShader: opts.vertex || VERT_UV,
       fragmentShader: frag,
@@ -596,6 +614,7 @@
     "uniform float uTime;",
     "uniform float uPhase;",
     "uniform float uPower;",
+    "uniform float uTurbulence;",
     "varying vec3 vObj;",
     "varying vec3 vNormal;",
     "varying vec3 vView;",
@@ -625,8 +644,8 @@
     "  }",
     "  return v;",
     "}",
-    "float crest(float x) {",
-    "  return pow(1.0 - abs(sin(x)), 9.0);",
+    "float crest(float x, float sharp) {",
+    "  return pow(1.0 - abs(sin(x)), sharp);",
     "}",
     "void main() {",
     "  vec3 N = normalize(vNormal);",
@@ -635,18 +654,24 @@
     "  vec3 sp = normalize(vObj);",
     "  float lon = atan(sp.z, sp.x);",
     "  float lat = asin(clamp(sp.y, -1.0, 1.0));",
-    "  float t = uTime * 0.32 + uPhase;",
+    // turb 0 → calm filaments, 1 → approved look, 2 → livelier warp (not chaos)
+    "  float turb = clamp(uTurbulence, 0.0, 2.0);",
+    "  float t = uTime * (0.18 + 0.14 * turb) + uPhase;",
     "  float wLon = fbm(vec3(lon * 0.62, lat * 1.05, t * 0.22));",
     "  float wLat = fbm(vec3(lat * 0.74 + 4.2, lon * 0.55, t * 0.16 + 2.0));",
-    "  float lonW = lon + (wLon - 0.5) * 2.4 + t * 0.18 + uPhase;",
-    "  float latW = lat + (wLat - 0.5) * 1.15 + 0.28 * sin(lon * 2.0 - t * 0.65);",
-    "  lonW += 0.42 * sin(latW * 2.6 + t);",
-    "  float aArc = crest(latW * 5.7 + lonW * 0.42 + wLon * 3.2);",
-    "  float bArc = crest(lonW * 4.55 + latW * 1.25 + wLat * 2.6);",
-    "  float cArc = crest((latW + lonW) * 4.1 + wLon * 2.4);",
-    "  float dArc = crest((latW * 1.7 - lonW) * 3.15 + wLat * 4.0);",
+    "  float lonAmp = 0.9 + 1.5 * turb;",
+    "  float latAmp = 0.4 + 0.75 * turb;",
+    "  float lonW = lon + (wLon - 0.5) * lonAmp + t * 0.18 + uPhase;",
+    "  float latW = lat + (wLat - 0.5) * latAmp + (0.12 + 0.16 * turb) * sin(lon * 2.0 - t * 0.65);",
+    "  lonW += (0.18 + 0.24 * turb) * sin(latW * 2.6 + t);",
+    "  float sharp = mix(12.5, 5.5, clamp(turb * 0.5, 0.0, 1.0));",
+    "  float aArc = crest(latW * 5.7 + lonW * 0.42 + wLon * 3.2, sharp);",
+    "  float bArc = crest(lonW * 4.55 + latW * 1.25 + wLat * 2.6, sharp);",
+    "  float cArc = crest((latW + lonW) * 4.1 + wLon * 2.4, sharp);",
+    "  float dArc = crest((latW * 1.7 - lonW) * 3.15 + wLat * 4.0, sharp);",
     "  vec3 rp = vec3(lonW * 1.15, latW * 2.05, t * 0.12);",
-    "  float ridge = pow(clamp(1.0 - abs(fbm(rp) * 2.0 - 1.0), 0.0, 1.0), 11.0);",
+    "  float ridgePow = mix(14.0, 8.0, clamp(turb * 0.5, 0.0, 1.0));",
+    "  float ridge = pow(clamp(1.0 - abs(fbm(rp) * 2.0 - 1.0), 0.0, 1.0), ridgePow);",
     "  float knots = clamp((aArc * bArc + bArc * cArc + aArc * cArc) * 4.2, 0.0, 1.0);",
     "  float lines = max(max(aArc, bArc), max(cArc, dArc * 0.75));",
     "  lines = max(lines, ridge);",
@@ -745,14 +770,23 @@ function createMystic(scene, color) {
       bucket: bucket,
       cameraZ: 4.55,
       animate: function (state) {
-        const speed = 0.25 + state.cfg.spin * 0.35;
+        // Spin: 0 = still, 1 = prior mid (~0.60), 2 = clearly faster.
+        const speed = state.cfg.spin * 0.6;
+        const pulse = state.cfg.pulse;
+        const turb = state.cfg.turbulence;
         applyPaint(group, state.color, state.mood, state.cfg);
-        group.scale.setScalar(1 + 0.018 * Math.sin(state.now * 0.0014) * state.cfg.pulse);
+        // Pulse: mid keeps prior 0.018 / 0.08 amplitudes; high is stronger but not manic.
+        group.scale.setScalar(1 + 0.018 * Math.sin(state.now * 0.0014) * pulse);
         const swirl = state.now * 0.001 * speed;
         frontMat.uniforms.uTime.value = swirl;
         backMat.uniforms.uTime.value = swirl * 0.82;
-        core.scale.setScalar(1 + 0.08 * Math.sin(state.now * 0.0028) * state.cfg.pulse);
-        if (coreMat.uniforms) coreMat.uniforms.uOpacity.value *= 0.92 + 0.08 * Math.sin(state.now * 0.003);
+        frontMat.uniforms.uTurbulence.value = turb;
+        backMat.uniforms.uTurbulence.value = turb;
+        core.scale.setScalar(1 + 0.08 * Math.sin(state.now * 0.0028) * pulse);
+        if (coreMat.uniforms) {
+          const breath = pulse <= 0 ? 1 : 0.92 + 0.08 * Math.sin(state.now * 0.003) * Math.min(pulse, 1.35);
+          coreMat.uniforms.uOpacity.value *= breath;
+        }
       },
     };
   }

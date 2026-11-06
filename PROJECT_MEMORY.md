@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-06 (desktop shell: shared widget appearance settings)
+Last updated: 2026-11-06 (mystic orb live-control ranges retuned)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -50,7 +50,7 @@ Skeleton + substantial features exist:
 - `desktop_app.py` — **native Windows window** (pywebview + Edge WebView2) hosting mystic shell at `/ui/desktop/`; Gradio remains available via `run_ui.py`
 - `ui/desktop/` — full-window mystic orb on pure black `#000000`; shared **shell-surface** style for chat widget, both drawers, and chat input; **app drawer** + **screen drawer** (chat / orb / widget-settings icons); bottom chat bar; no top nav. **UI-6 partial:** edge-snap drawer toggles; free-drag widgets; Widget Settings (transparency + border/background colour) apply live to all shell surfaces; layout in `localStorage` (`desktop-shell-layout-v1`). See `docs/mockups/screenshots/widget_settings_desk7.png`.
 - `ui/gradio_app.py` — Gradio UI + energy orb; **named presets** (UI-5); orb controls behind top-right gear panel (UI-6a)
-- **Orb styles:** classic four on canvas; **`mystic` / `aether` / `neural` on WebGL** via `ui/orb_webgl.js` + vendored `ui/vendor/three.min.js` (particle counts capped; see `docs/mockups/orb_styles.md`). **Mystic** uses FBM / ridge-extracted filament fragment shaders (`FRAG_MYSTIC`), not ribbon meshes; soft atmospheric bloom replaces hard rim; equatorial streak removed; floor glow kept (see `docs/mockups/screenshots/mystic_final_*.png`).
+- **Orb styles:** classic four on canvas; **`mystic` / `aether` / `neural` on WebGL** via `ui/orb_webgl.js` + vendored `ui/vendor/three.min.js` (particle counts capped; see `docs/mockups/orb_styles.md`). **Mystic** uses FBM / ridge-extracted filament fragment shaders (`FRAG_MYSTIC`), not ribbon meshes; soft atmospheric bloom replaces hard rim; equatorial streak removed; floor glow kept (see `docs/mockups/screenshots/mystic_final_*.png`). **Live controls (2026-11-06):** slider `0` now applies (was forced to `1`); glow mid=`1` keeps approved look, low dims bloom, high boosts atmos without filament blow-out; turbulence drives filament warp; spin `0` stops swirl. Shots: `docs/mockups/screenshots/mystic_glow_*.png`, `mystic_turb_*.png`, `mystic_size_*.png`.
 - `reports/exporter.py` — run export
 - Tests under `tests/` for Jira, Playwright heal, orb config/presets, sessions, settings, reports
 - Architecture notes + AGENTS.md + this file
