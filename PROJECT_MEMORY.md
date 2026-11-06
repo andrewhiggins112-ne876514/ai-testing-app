@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-06 (WebGL allowed for mystic/aether/neural styles)
+Last updated: 2026-11-06 (first native desktop window via pywebview)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -46,7 +46,9 @@ Skeleton + substantial features exist:
 - `plugins/playwright_runner.py` — steps, click self-heal, screenshots/evidence path
 - `plugins/jira_plugin.py` — list/create/transition/comment/epic link; writes need confirm
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\settings.json` (incl. orb)
-- `main.py` — FastAPI `/chat` + `/health`
+- `main.py` — FastAPI `/chat` + `/health` + `/api/orb` + static `/ui`
+- `desktop_app.py` — **native Windows window** (pywebview + Edge WebView2) hosting mystic shell at `/ui/desktop/`; Gradio remains available via `run_ui.py`
+- `ui/desktop/` — dark-void chat layout: central WebGL mystic orb, glass chat panel + bottom chat bar, right icon drawer with live orb controls
 - `ui/gradio_app.py` — Gradio UI + energy orb; **named presets** (UI-5); orb controls behind top-right gear panel (UI-6a)
 - **Orb styles:** classic four on canvas; **`mystic` / `aether` / `neural` on WebGL** via `ui/orb_webgl.js` + vendored `ui/vendor/three.min.js` (particle counts capped; see `docs/mockups/orb_styles.md`). **Mystic** uses FBM / ridge-extracted filament fragment shaders (`FRAG_MYSTIC`), not ribbon meshes; soft atmospheric bloom replaces hard rim; equatorial streak removed; floor glow kept (see `docs/mockups/screenshots/mystic_final_*.png`).
 - `reports/exporter.py` — run export
@@ -81,6 +83,6 @@ Not yet done:
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. Visual polish / matching pass on mystic/aether/neural if needed (escalate model only if Composer pass is off).
+1. Desktop shell polish: drawer icons, hideable chat panel UX, wire Settings/Reports later.
 2. UI-6 movable/resizable panels; mockup widgets as configurable panels.
 3. Broader self-healing / security isolation / document ingestion as roadmap allows.

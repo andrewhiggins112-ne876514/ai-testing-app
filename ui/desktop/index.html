@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Testing Agent</title>
+  <link rel="stylesheet" href="/ui/desktop/desktop.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="orb-config" hidden
+      data-style="mystic"
+      data-calm-color="#50cdff"
+      data-thinking-color="#b388ff"
+      data-size="360"
+      data-shape="sphere"
+      data-spin-speed="1"
+      data-turbulence="1"
+      data-pulse="1"
+      data-glow="1"></div>
+
+    <header class="top-nav" aria-label="Primary">
+      <nav>
+        <span class="nav-item active">Chat</span>
+        <span class="nav-item muted" title="Coming soon">Settings</span>
+        <span class="nav-item muted" title="Coming soon">Reports</span>
+      </nav>
+    </header>
+
+    <main class="stage">
+      <section id="chat-panel" class="glass-panel chat-panel" aria-label="Chat">
+        <div id="chat-log" class="chat-log"></div>
+      </section>
+
+      <div id="energy-orb-host" class="orb-host">
+        <div class="energy-orb" data-state="calm">
+          <canvas width="680" height="800" aria-label="energy orb"></canvas>
+          <div class="orb-state">CALM</div>
+        </div>
+      </div>
+
+      <p class="app-title">AI Testing Agent</p>
+    </main>
+
+    <form id="chat-form" class="chat-bar glass-bar" autocomplete="off">
+      <input id="chat-input" type="text" placeholder="Talk to the agent…" aria-label="Message" />
+      <button type="submit" class="send-btn" aria-label="Send">↑</button>
+    </form>
+
+    <button id="drawer-toggle" class="icon-btn drawer-toggle" type="button" aria-label="Open panel" aria-expanded="false" aria-controls="side-drawer">☰</button>
+
+    <aside id="side-drawer" class="side-drawer" aria-hidden="true">
+      <div class="drawer-inner glass-panel">
+        <div class="icon-rail" role="toolbar" aria-label="Panels">
+          <button type="button" class="icon-btn active" data-action="toggle-chat" title="Chat panel">💬</button>
+          <button type="button" class="icon-btn" data-action="toggle-orb" title="Orb controls">⚙</button>
+          <button type="button" class="icon-btn" data-action="placeholder" title="Coming soon" disabled>○</button>
+          <button type="button" class="icon-btn" data-action="placeholder" title="Coming soon" disabled>○</button>
+        </div>
+        <div id="orb-controls" class="orb-controls" hidden>
+          <h2 class="panel-title">Orb</h2>
+          <label>Style
+            <select id="ctrl-style">
+              <option value="mystic">mystic</option>
+              <option value="aether">aether</option>
+              <option value="neural">neural</option>
+            </select>
+          </label>
+          <label>Calm <input id="ctrl-calm" type="color" value="#50cdff" /></label>
+          <label>Thinking <input id="ctrl-thinking" type="color" value="#b388ff" /></label>
+          <label>Size <input id="ctrl-size" type="range" min="200" max="480" step="20" value="360" /></label>
+          <label>Spin <input id="ctrl-spin" type="range" min="0" max="2" step="0.1" value="1" /></label>
+          <label>Turbulence <input id="ctrl-turbulence" type="range" min="0" max="2" step="0.1" value="1" /></label>
+          <label>Pulse <input id="ctrl-pulse" type="range" min="0" max="2" step="0.1" value="1" /></label>
+          <label>Glow <input id="ctrl-glow" type="range" min="0" max="2" step="0.1" value="1" /></label>
+          <button type="button" id="ctrl-save" class="save-btn">Save</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script src="/ui/vendor/three.min.js"></script>
+  <script src="/ui/orb_webgl.js"></script>
+  <script src="/ui/desktop/desktop.js"></script>
+</body>
+</html>

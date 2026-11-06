@@ -7,6 +7,7 @@ httpx
 gradio
 python-dotenv
 pydantic
+pywebview
 # Optional: langgraph if we expand the agent loop later
 # langgraph
 
