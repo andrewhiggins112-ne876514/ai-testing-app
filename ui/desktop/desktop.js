@@ -5,8 +5,10 @@
   const chatLog = document.getElementById("chat-log");
   const chatForm = document.getElementById("chat-form");
   const chatInput = document.getElementById("chat-input");
-  const drawer = document.getElementById("side-drawer");
-  const drawerToggle = document.getElementById("drawer-toggle");
+  const screenDrawer = document.getElementById("screen-drawer");
+  const screenToggle = document.getElementById("screen-drawer-toggle");
+  const appDrawer = document.getElementById("app-drawer");
+  const appToggle = document.getElementById("app-drawer-toggle");
   const orbControls = document.getElementById("orb-controls");
 
   const ctrls = {
@@ -20,6 +22,10 @@
     glow: document.getElementById("ctrl-glow"),
   };
 
+  function setOrbSizeVar(size) {
+    document.documentElement.style.setProperty("--orb-size", String(size || 360));
+  }
+
   function applyConfigToNode(cfg) {
     if (!node || !cfg) return;
     node.setAttribute("data-style", cfg.style || "mystic");
@@ -31,6 +37,7 @@
     node.setAttribute("data-turbulence", String(cfg.turbulence ?? 1));
     node.setAttribute("data-pulse", String(cfg.pulse ?? 1));
     node.setAttribute("data-glow", String(cfg.glow ?? 1));
+    setOrbSizeVar(cfg.size || 360);
   }
 
   function syncControlsFromNode() {
@@ -43,6 +50,7 @@
     ctrls.turbulence.value = node.getAttribute("data-turbulence") || "1";
     ctrls.pulse.value = node.getAttribute("data-pulse") || "1";
     ctrls.glow.value = node.getAttribute("data-glow") || "1";
+    setOrbSizeVar(parseInt(ctrls.size.value, 10));
   }
 
   function liveFromControls() {
@@ -124,17 +132,30 @@
     }
   });
 
-  function setDrawerOpen(open) {
+  function setDrawer(drawer, toggle, open) {
     drawer.classList.toggle("open", open);
     drawer.setAttribute("aria-hidden", open ? "false" : "true");
-    drawerToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
-  drawerToggle.addEventListener("click", function () {
-    setDrawerOpen(!drawer.classList.contains("open"));
+  function closeOther(which) {
+    if (which !== "screen") setDrawer(screenDrawer, screenToggle, false);
+    if (which !== "app") setDrawer(appDrawer, appToggle, false);
+  }
+
+  screenToggle.addEventListener("click", function () {
+    const open = !screenDrawer.classList.contains("open");
+    if (open) closeOther("screen");
+    setDrawer(screenDrawer, screenToggle, open);
   });
 
-  drawer.querySelectorAll("[data-action]").forEach(function (btn) {
+  appToggle.addEventListener("click", function () {
+    const open = !appDrawer.classList.contains("open");
+    if (open) closeOther("app");
+    setDrawer(appDrawer, appToggle, open);
+  });
+
+  screenDrawer.querySelectorAll("[data-action]").forEach(function (btn) {
     btn.addEventListener("click", function () {
       const action = btn.getAttribute("data-action");
       if (action === "toggle-chat") {

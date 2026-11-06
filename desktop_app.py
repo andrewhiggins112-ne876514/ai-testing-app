@@ -16,7 +16,7 @@ import webview
 
 HOST = "127.0.0.1"
 PORT = 8765
-URL = f"http://{HOST}:{PORT}/ui/desktop/index.html"
+URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v=desk4"
 HEALTH = f"http://{HOST}:{PORT}/health"
 
 

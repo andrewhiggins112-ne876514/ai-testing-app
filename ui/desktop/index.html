@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk4" />
 </head>
 <body>
   <div id="app">
@@ -19,43 +19,44 @@
       data-pulse="1"
       data-glow="1"></div>
 
-    <header class="top-nav" aria-label="Primary">
-      <nav>
-        <span class="nav-item active">Chat</span>
-        <span class="nav-item muted" title="Coming soon">Settings</span>
-        <span class="nav-item muted" title="Coming soon">Reports</span>
-      </nav>
-    </header>
-
-    <main class="stage">
-      <section id="chat-panel" class="glass-panel chat-panel" aria-label="Chat">
-        <div id="chat-log" class="chat-log"></div>
-      </section>
-
-      <div id="energy-orb-host" class="orb-host">
-        <div class="energy-orb" data-state="calm">
-          <canvas width="680" height="800" aria-label="energy orb"></canvas>
-          <div class="orb-state">CALM</div>
-        </div>
+    <div id="energy-orb-host" class="orb-host orb-fill" aria-hidden="true">
+      <div class="energy-orb" data-state="calm">
+        <canvas width="680" height="800" aria-label="energy orb"></canvas>
+        <div class="orb-state">CALM</div>
       </div>
+    </div>
 
-      <p class="app-title">AI Testing Agent</p>
-    </main>
+    <p class="app-title">AI Testing Agent</p>
+
+    <section id="chat-panel" class="glass-panel chat-panel" aria-label="Chat">
+      <div id="chat-log" class="chat-log"></div>
+    </section>
 
     <form id="chat-form" class="chat-bar glass-bar" autocomplete="off">
       <input id="chat-input" type="text" placeholder="Talk to the agent…" aria-label="Message" />
       <button type="submit" class="send-btn" aria-label="Send">↑</button>
     </form>
 
-    <button id="drawer-toggle" class="icon-btn drawer-toggle" type="button" aria-label="Open panel" aria-expanded="false" aria-controls="side-drawer">☰</button>
-
-    <aside id="side-drawer" class="side-drawer" aria-hidden="true">
+    <button id="app-drawer-toggle" class="icon-btn drawer-toggle app-drawer-toggle" type="button"
+      aria-label="Open app menu" aria-expanded="false" aria-controls="app-drawer" title="App">▦</button>
+    <aside id="app-drawer" class="side-drawer app-drawer" aria-hidden="true">
       <div class="drawer-inner glass-panel">
-        <div class="icon-rail" role="toolbar" aria-label="Panels">
+        <h2 class="panel-title">App</h2>
+        <nav class="app-nav" aria-label="Application sections">
+          <button type="button" class="app-nav-item" data-section="settings" disabled title="Coming soon">Settings</button>
+          <button type="button" class="app-nav-item" data-section="reports" disabled title="Coming soon">Reports</button>
+        </nav>
+        <p class="drawer-hint">More sections will appear here.</p>
+      </div>
+    </aside>
+
+    <button id="screen-drawer-toggle" class="icon-btn drawer-toggle screen-drawer-toggle" type="button"
+      aria-label="Open screen panel" aria-expanded="false" aria-controls="screen-drawer" title="Screen">☰</button>
+    <aside id="screen-drawer" class="side-drawer screen-drawer" aria-hidden="true">
+      <div class="drawer-inner glass-panel">
+        <div class="icon-rail" role="toolbar" aria-label="Screen widgets">
           <button type="button" class="icon-btn active" data-action="toggle-chat" title="Chat panel">💬</button>
           <button type="button" class="icon-btn" data-action="toggle-orb" title="Orb controls">⚙</button>
-          <button type="button" class="icon-btn" data-action="placeholder" title="Coming soon" disabled>○</button>
-          <button type="button" class="icon-btn" data-action="placeholder" title="Coming soon" disabled>○</button>
         </div>
         <div id="orb-controls" class="orb-controls" hidden>
           <h2 class="panel-title">Orb</h2>
@@ -80,7 +81,7 @@
   </div>
 
   <script src="/ui/vendor/three.min.js"></script>
-  <script src="/ui/orb_webgl.js"></script>
-  <script src="/ui/desktop/desktop.js"></script>
+  <script src="/ui/orb_webgl.js?v=desk4"></script>
+  <script src="/ui/desktop/desktop.js?v=desk4"></script>
 </body>
 </html>

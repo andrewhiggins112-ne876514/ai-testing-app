@@ -1180,8 +1180,23 @@ function createAether(scene, color) {
     let frame = 0;
     let last = 0;
     let appliedSize = 0;
+    const fillMode = !!(root && root.classList && root.classList.contains("orb-fill"));
 
     function setSize(px) {
+      if (fillMode) {
+        const w = Math.max(1, root.clientWidth || window.innerWidth || 1);
+        const h = Math.max(1, root.clientHeight || window.innerHeight || 1);
+        host.style.width = "100%";
+        host.style.height = "100%";
+        host.style.minHeight = "0";
+        renderer.setSize(w, h, true);
+        camera.aspect = w / h;
+        // Keep orb visual size ≈ px: larger canvas would otherwise magnify the same FOV.
+        camera.zoom = Math.max(0.05, (px * 1.08) / h);
+        camera.updateProjectionMatrix();
+        appliedSize = px;
+        return;
+      }
       const w = px;
       const h = Math.round(px * 1.08);
       host.style.width = w + "px";
@@ -1189,10 +1204,17 @@ function createAether(scene, color) {
       host.style.minHeight = h + "px";
       renderer.setSize(w, h, true);
       camera.aspect = w / h;
+      camera.zoom = 1;
       camera.updateProjectionMatrix();
       if (root) root.style.minHeight = h + 28 + "px";
       appliedSize = px;
     }
+
+    function onWindowResize() {
+      if (!fillMode || !appliedSize) return;
+      setSize(appliedSize);
+    }
+    if (fillMode) window.addEventListener("resize", onWindowResize);
 
     function rebuild(style) {
       if (parts) {
