@@ -9,6 +9,12 @@
     background: "#000000",
   };
 
+  const STYLE_ACCENTS = {
+    mystic: "#50cdff",
+    aether: "#ff8a2b",
+    neural: "#5ce1ff",
+  };
+
   const node = document.getElementById("orb-config");
   const host = document.getElementById("energy-orb-host");
   const chatPanel = document.getElementById("chat-panel");
@@ -45,9 +51,12 @@
     document.documentElement.style.setProperty("--orb-size", String(size || 360));
   }
 
+  let lastAppliedStyle = null;
+
   function applyConfigToNode(cfg) {
     if (!node || !cfg) return;
-    node.setAttribute("data-style", cfg.style || "mystic");
+    const style = cfg.style || "mystic";
+    node.setAttribute("data-style", style);
     node.setAttribute("data-calm-color", cfg.calm_color || "#50cdff");
     node.setAttribute("data-thinking-color", cfg.thinking_color || "#b388ff");
     node.setAttribute("data-size", String(cfg.size || 360));
@@ -57,6 +66,11 @@
     node.setAttribute("data-pulse", String(cfg.pulse ?? 1));
     node.setAttribute("data-glow", String(cfg.glow ?? 1));
     setOrbSizeVar(cfg.size || 360);
+    if (lastAppliedStyle !== null && style !== lastAppliedStyle) {
+      layout.appearance = applyStyleTheme(style, layout.appearance);
+      saveLayout(layout);
+    }
+    lastAppliedStyle = style;
   }
 
   function syncControlsFromNode() {
@@ -261,12 +275,37 @@
     }
   }
 
+  function accentForStyle(style) {
+    return STYLE_ACCENTS[style] || STYLE_ACCENTS.mystic;
+  }
+
+  function applyAccentVars(hex) {
+    const c = hexToRgb(normalizeHex(hex, DEFAULT_APPEARANCE.border));
+    const root = document.documentElement;
+    root.style.setProperty("--cyan", normalizeHex(hex, DEFAULT_APPEARANCE.border));
+    root.style.setProperty(
+      "--cyan-dim",
+      "rgba(" + c.r + ", " + c.g + ", " + c.b + ", 0.22)"
+    );
+  }
+
+  function applyStyleTheme(style, appearance) {
+    const accent = accentForStyle(style);
+    const base = normalizeAppearance(appearance || (layout && layout.appearance) || defaultAppearance());
+    return applyAppearance({
+      transparency: base.transparency,
+      border: accent,
+      background: base.background,
+    });
+  }
+
   function applyAppearance(appearance) {
     const next = normalizeAppearance(appearance);
     const alpha = (100 - next.transparency) / 100;
     const bg = hexToRgb(next.background);
     const border = hexToRgb(next.border);
     const root = document.documentElement;
+    applyAccentVars(next.border);
     root.style.setProperty(
       "--shell-fill",
       "rgba(" + bg.r + ", " + bg.g + ", " + bg.b + ", " + alpha + ")"
@@ -467,7 +506,11 @@
       }
     });
 
-    layout.appearance = applyAppearance(layout.appearance || defaultAppearance());
+    const style = (node && node.getAttribute("data-style")) || "mystic";
+    lastAppliedStyle = style;
+    // Style accent wins on load so shell matches the active orb style.
+    layout.appearance = applyStyleTheme(style, layout.appearance || defaultAppearance());
+    saveLayout(layout);
   }
 
   [widgetTransparencyCtrl, widgetBorderCtrl, widgetBgCtrl].forEach(function (el) {
