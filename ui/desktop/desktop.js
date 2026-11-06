@@ -3,6 +3,7 @@
   const EDGE_PAD = 16;
   const DRAG_THRESHOLD = 6;
   const BTN = 42;
+  const DEFAULT_WIDGET_TRANSPARENCY = 90;
 
   const node = document.getElementById("orb-config");
   const host = document.getElementById("energy-orb-host");
@@ -15,6 +16,7 @@
   const appDrawer = document.getElementById("app-drawer");
   const appToggle = document.getElementById("app-drawer-toggle");
   const orbControls = document.getElementById("orb-controls");
+  const widgetTransparencyCtrl = document.getElementById("ctrl-widget-transparency");
 
   const ctrls = {
     style: document.getElementById("ctrl-style"),
@@ -182,15 +184,36 @@
   function loadLayout() {
     try {
       const raw = localStorage.getItem(LAYOUT_KEY);
-      if (!raw) return { toggles: {}, widgets: {} };
+      if (!raw) {
+        return {
+          toggles: {},
+          widgets: {},
+          widgetTransparency: DEFAULT_WIDGET_TRANSPARENCY,
+        };
+      }
       const data = JSON.parse(raw);
+      const t = data.widgetTransparency;
       return {
         toggles: data.toggles || {},
         widgets: data.widgets || {},
+        widgetTransparency:
+          typeof t === "number" ? t : DEFAULT_WIDGET_TRANSPARENCY,
       };
     } catch (err) {
-      return { toggles: {}, widgets: {} };
+      return {
+        toggles: {},
+        widgets: {},
+        widgetTransparency: DEFAULT_WIDGET_TRANSPARENCY,
+      };
     }
+  }
+
+  function applyWidgetTransparency(pct) {
+    const clamped = Math.max(0, Math.min(95, Math.round(Number(pct) || 0)));
+    const alpha = (100 - clamped) / 100;
+    document.documentElement.style.setProperty("--widget-alpha", String(alpha));
+    if (widgetTransparencyCtrl) widgetTransparencyCtrl.value = String(clamped);
+    return clamped;
   }
 
   function saveLayout(layout) {
@@ -333,6 +356,19 @@
         placeWidget(el, saved.left, saved.top);
       }
     });
+
+    layout.widgetTransparency = applyWidgetTransparency(
+      layout.widgetTransparency != null
+        ? layout.widgetTransparency
+        : DEFAULT_WIDGET_TRANSPARENCY
+    );
+  }
+
+  if (widgetTransparencyCtrl) {
+    widgetTransparencyCtrl.addEventListener("input", function () {
+      layout.widgetTransparency = applyWidgetTransparency(widgetTransparencyCtrl.value);
+      saveLayout(layout);
+    });
   }
 
   /* ---- edge-snap drag for drawer toggles ---- */
@@ -413,10 +449,9 @@
     el.addEventListener("pointercancel", endDrag);
   }
 
-  /* ---- free drag for widgets ---- */
+  /* ---- free drag for widgets (entire surface) ---- */
 
   function bindWidgetDrag(el) {
-    const handle = el.querySelector(".widget-drag-handle") || el;
     let pointerId = null;
     let startX = 0;
     let startY = 0;
@@ -424,7 +459,7 @@
     let originTop = 0;
     let dragging = false;
 
-    handle.addEventListener("pointerdown", function (ev) {
+    el.addEventListener("pointerdown", function (ev) {
       if (ev.button != null && ev.button !== 0) return;
       if (ev.target.closest && ev.target.closest("button, a, input, textarea, select")) return;
       pointerId = ev.pointerId;
@@ -434,13 +469,9 @@
       originLeft = rect.left;
       originTop = rect.top;
       dragging = false;
-      try {
-        handle.setPointerCapture(pointerId);
-      } catch (err) { /* ignore */ }
-      ev.preventDefault();
     });
 
-    handle.addEventListener("pointermove", function (ev) {
+    el.addEventListener("pointermove", function (ev) {
       if (pointerId == null || ev.pointerId !== pointerId) return;
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
@@ -448,8 +479,13 @@
       if (!dragging) {
         dragging = true;
         el.classList.add("dragging");
+        try {
+          el.setPointerCapture(pointerId);
+        } catch (err) { /* ignore */ }
+        window.getSelection && window.getSelection().removeAllRanges();
       }
       placeWidget(el, originLeft + dx, originTop + dy);
+      ev.preventDefault();
     });
 
     function endDrag(ev) {
@@ -462,8 +498,8 @@
       dragging = false;
     }
 
-    handle.addEventListener("pointerup", endDrag);
-    handle.addEventListener("pointercancel", endDrag);
+    el.addEventListener("pointerup", endDrag);
+    el.addEventListener("pointercancel", endDrag);
   }
 
   bindEdgeSnapToggle(appToggle);

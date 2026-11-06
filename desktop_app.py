@@ -16,7 +16,7 @@ import webview
 
 HOST = "127.0.0.1"
 PORT = 8765
-URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v=desk5"
+URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v=desk6"
 HEALTH = f"http://{HOST}:{PORT}/health"
 
 
@@ -56,7 +56,7 @@ def main() -> int:
         width=1280,
         height=820,
         min_size=(960, 640),
-        background_color="#01040a",
+        background_color="#000000",
     )
     webview.start()
     return 0

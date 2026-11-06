@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk5" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk6" />
 </head>
 <body>
   <div id="app">
@@ -28,8 +28,7 @@
 
     <p class="app-title">AI Testing Agent</p>
 
-    <section id="chat-panel" class="glass-panel chat-panel movable-widget" data-widget="chat-panel" aria-label="Chat">
-      <div class="widget-drag-handle" title="Drag panel" aria-hidden="true"></div>
+    <section id="chat-panel" class="glass-panel chat-panel movable-widget" data-widget="chat-panel" aria-label="Chat" title="Drag to move">
       <div id="chat-log" class="chat-log"></div>
     </section>
 
@@ -79,12 +78,18 @@
           <label>Glow <input id="ctrl-glow" type="range" min="0" max="2" step="0.1" value="1" /></label>
           <button type="button" id="ctrl-save" class="save-btn">Save</button>
         </div>
+        <div class="widget-controls">
+          <h2 class="panel-title">Widgets</h2>
+          <label>Transparency
+            <input id="ctrl-widget-transparency" type="range" min="0" max="95" step="5" value="90" />
+          </label>
+        </div>
       </div>
     </aside>
   </div>
 
   <script src="/ui/vendor/three.min.js"></script>
-  <script src="/ui/orb_webgl.js?v=desk5"></script>
-  <script src="/ui/desktop/desktop.js?v=desk5"></script>
+  <script src="/ui/orb_webgl.js?v=desk6"></script>
+  <script src="/ui/desktop/desktop.js?v=desk6"></script>
 </body>
 </html>

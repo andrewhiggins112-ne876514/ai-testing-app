@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-06 (desktop shell: edge-snap drawer buttons + movable widgets)
+Last updated: 2026-11-06 (desktop widgets: full-surface drag + transparency slider)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -48,7 +48,7 @@ Skeleton + substantial features exist:
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\settings.json` (incl. orb)
 - `main.py` — FastAPI `/chat` + `/health` + `/api/orb` + static `/ui`
 - `desktop_app.py` — **native Windows window** (pywebview + Edge WebView2) hosting mystic shell at `/ui/desktop/`; Gradio remains available via `run_ui.py`
-- `ui/desktop/` — full-window mystic orb (no boxed canvas); soft cyan glass panels; **app drawer** + **screen drawer** (chat toggle + live orb controls); bottom chat bar; no top nav. **UI-6 partial:** drawer toggles drag + magnet-snap to nearest edge; widgets (chat panel) free-drag; positions in `localStorage` (`desktop-shell-layout-v1`) for the session. See `docs/mockups/screenshots/movable_controls_desk5.png`.
+- `ui/desktop/` — full-window mystic orb on pure black `#000000`; soft cyan glass panels; **app drawer** + **screen drawer** (chat toggle + live orb controls + widget transparency); bottom chat bar; no top nav. **UI-6 partial:** drawer toggles drag + magnet-snap to nearest edge; widgets free-drag from entire surface (no grab bar); default see-through fill with transparency slider; layout in `localStorage` (`desktop-shell-layout-v1`). See `docs/mockups/screenshots/widget_transparency_desk6.png`.
 - `ui/gradio_app.py` — Gradio UI + energy orb; **named presets** (UI-5); orb controls behind top-right gear panel (UI-6a)
 - **Orb styles:** classic four on canvas; **`mystic` / `aether` / `neural` on WebGL** via `ui/orb_webgl.js` + vendored `ui/vendor/three.min.js` (particle counts capped; see `docs/mockups/orb_styles.md`). **Mystic** uses FBM / ridge-extracted filament fragment shaders (`FRAG_MYSTIC`), not ribbon meshes; soft atmospheric bloom replaces hard rim; equatorial streak removed; floor glow kept (see `docs/mockups/screenshots/mystic_final_*.png`).
 - `reports/exporter.py` — run export
@@ -59,7 +59,7 @@ Skeleton + substantial features exist:
 
 Not yet done:
 - Jira credentials in local store only when user has an account (none yet)
-- UI-6 remainder: resizable panels; mockup widgets as configurable panels (desktop drag/snap landed)
+- UI-6 remainder: resizable panels; more mockup widgets as configurable panels (desktop drag/snap + transparency landed)
 - Document ingestion → settings proposal
 - Broader self-healing; security-level isolation (browser profiles + credential scopes)
 - Desktop .exe testing; customisable reporting polish; multi-sandbox orchestration

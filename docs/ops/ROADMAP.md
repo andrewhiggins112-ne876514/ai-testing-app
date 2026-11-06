@@ -9,14 +9,14 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
 | UI-6a | Orb settings behind top-right gear (clean chat dash) | now | Chatbot/input settings icons later |
-| UI-6 | Movable/resizable panels | partial | Desktop drag + edge-snap done; resize still open |
+| UI-6 | Movable/resizable panels | partial | Desktop drag/snap + transparency done; resize still open |
 | OPS-1 | Cursor ops (rules, agents, skills, HOW_WE_WORK) | done | Merged to main via PR #1 |
 | OPS-2 | Beginner Cursor setup + PM-owned workflow | done | Human talks only to PM; Grok guide bot retired |
 | UI-5 | Orb presets (save/load/delete named configs) | done | Settings `orb_presets` + Gradio accordion controls |
 | UI-ORB-W | WebGL styles mystic / aether / neural | done | Vendored Three.js; classic styles stay canvas |
 | UI-DESK-1 | First native desktop window (pywebview mystic shell) | done | `desktop_app.py` + `ui/desktop/`; Gradio kept |
 | UI-DESK-2 | Desktop dual drawers + full-void orb canvas | done | App/screen drawers; no top nav; soft cyan glass |
-| UI-DESK-3 | Edge-snap drawer buttons + movable widgets | done | localStorage layout; drawers follow button edge |
+| UI-DESK-3 | Edge-snap drawer buttons + movable widgets | done | Full-surface drag; transparency slider; pure black void |
 
 ## Near term
 
