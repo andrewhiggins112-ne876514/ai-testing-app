@@ -632,13 +632,6 @@
     "  vec3 N = normalize(vNormal);",
     "  vec3 V = normalize(vView);",
     "  float facing = abs(dot(N, V));",
-    "  if (uPower > 1.5) {",
-    "    float fres = pow(1.0 - facing, 2.15);",
-    "    float a = fres * fres * uOpacity;",
-    "    if (a < 0.02) discard;",
-    "    gl_FragColor = vec4(uColor, a);",
-    "    return;",
-    "  }",
     "  vec3 sp = normalize(vObj);",
     "  float lon = atan(sp.z, sp.x);",
     "  float lat = asin(clamp(sp.y, -1.0, 1.0));",
@@ -661,56 +654,56 @@
     "  lines *= 0.32 + 0.68 * smoothstep(0.0, 0.2, facing);",
     "  float front = step(0.5, uPower);",
     "  float core = front * exp(-dot(vObj.xy, vObj.xy) * 7.2) * pow(facing, 0.55);",
-    "  float streak = front * exp(-pow(vObj.y * 30.0, 2.0)) * exp(-pow(vObj.x * 0.72, 2.0));",
-    "  streak *= smoothstep(0.04, 0.32, facing);",
-    "  float fres = pow(1.0 - facing, 1.85);",
-    "  float body = 0.075 * (0.5 + 0.5 * facing);",
-    "  float feat = max(lines, max(core * 0.95, streak * 0.7));",
-    "  float alpha = body + fres * 0.2 + feat * 0.8;",
+    "  float body = 0.07 * (0.45 + 0.55 * facing);",
+    "  float feat = max(lines, core * 0.95);",
+    "  float limb = smoothstep(0.0, 0.38, facing);",
+    "  float alpha = (body + feat * 0.8) * mix(0.22, 1.0, limb);",
     "  alpha *= uOpacity;",
     "  if (alpha < 0.02) discard;",
     "  vec3 hot = mix(uColor, vec3(1.0), 0.48);",
-    "  float lift = clamp(core * 0.7 + streak * 0.22 + knots * 0.16, 0.0, 0.58);",
+    "  float lift = clamp(core * 0.7 + knots * 0.16, 0.0, 0.58);",
     "  vec3 col = mix(uColor * (0.42 + 0.58 * lines), hot, lift);",
     "  col = min(col, mix(uColor, vec3(1.0), 0.62));",
     "  gl_FragColor = vec4(col, min(alpha, 0.86));",
     "}",
   ].join("\n");
 
-  // Horizontal reach past the shell. Cyan-clamped — FRAG_FLARE mixes to pure white.
-  const FRAG_MYSTIC_STREAK = [
+  // Soft atmospheric bloom — radial falloff with no hard rim (mystic only).
+  const FRAG_MYSTIC_ATMOS = [
     "uniform vec3 uColor;",
     "uniform float uOpacity;",
+    "uniform float uPower;",
     "varying vec2 vUv;",
     "void main() {",
-    "  float x = (vUv.x - 0.5) * 2.0;",
-    "  float y = (vUv.y - 0.5) * 2.0;",
-    "  float line = exp(-pow(y * 3.4, 2.0)) * exp(-pow(x * 0.92, 2.0));",
-    "  float a = min(line * uOpacity, 0.4);",
-    "  if (a < 0.02) discard;",
-    "  vec3 col = min(mix(uColor, vec3(1.0), 0.36), mix(uColor, vec3(1.0), 0.58));",
-    "  gl_FragColor = vec4(col, a);",
+    "  float d = length(vUv - vec2(0.5)) * 2.0;",
+    "  float glow = exp(-pow(max(d - 0.22, 0.0) * uPower, 2.0));",
+    "  float veil = exp(-pow(max(d - 0.08, 0.0) * (uPower * 0.55), 2.0)) * 0.45;",
+    "  float a = (glow + veil) * uOpacity * smoothstep(1.05, 0.42, d);",
+    "  if (a < 0.003) discard;",
+    "  gl_FragColor = vec4(uColor, a);",
     "}",
   ].join("\n");
 
 function createMystic(scene, color) {
-    // Filament sphere: FBM-warped ridges on two shells, soft halo, clamped core. No ribbon fill.
+    // Filament sphere: FBM ridges, soft atmospheric bloom, clamped core. No hard rim / equatorial bar.
     const bucket = makeBucket();
     const group = new THREE.Group();
     group.name = "mystic";
 
-    addDisc(bucket, group, 1.72, FRAG_DISC, {
-      color: color, opacity: 0.2, power: 2.7, white: 0.0, z: -0.36, mood: 0.04,
+    addDisc(bucket, group, 2.75, FRAG_MYSTIC_ATMOS, {
+      color: color, opacity: 0.34, power: 1.15, white: 0.0, z: -0.48, mood: 0.05,
     });
     group.children[group.children.length - 1].renderOrder = 0;
 
-    const haloMat = shaderMat(bucket, FRAG_MYSTIC, {
-      color: color, opacity: 0.62, power: 2.0, white: 0.0, mood: 0.04,
-      vertex: VERT_ENERGY, side: THREE.FrontSide,
+    addDisc(bucket, group, 2.15, FRAG_MYSTIC_ATMOS, {
+      color: color, opacity: 0.4, power: 1.65, white: 0.0, z: -0.32, mood: 0.05,
     });
-    const halo = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(1.2, 48, 36)), haloMat);
-    halo.renderOrder = 1;
-    group.add(halo);
+    group.children[group.children.length - 1].renderOrder = 1;
+
+    addDisc(bucket, group, 1.55, FRAG_DISC, {
+      color: color, opacity: 0.16, power: 2.4, white: 0.0, z: -0.18, mood: 0.03,
+    });
+    group.children[group.children.length - 1].renderOrder = 1;
 
     const backMat = shaderMat(bucket, FRAG_MYSTIC, {
       color: color, opacity: 0.78, power: 0.0, phase: 1.85, white: 0.02, mood: 0.05,
@@ -734,13 +727,6 @@ function createMystic(scene, color) {
     });
     core.renderOrder = 4;
     group.add(core);
-
-    const streakMat = addDisc(bucket, group, 1, FRAG_MYSTIC_STREAK, {
-      color: color, opacity: 0.48, white: 0.04, z: 0.12, mood: 0.02,
-    });
-    const streakMesh = group.children[group.children.length - 1];
-    streakMesh.scale.set(2.15, 0.16, 1);
-    streakMesh.renderOrder = 5;
 
     const pedestal = new THREE.Group();
     pedestal.position.y = -1.38;
@@ -767,7 +753,6 @@ function createMystic(scene, color) {
         backMat.uniforms.uTime.value = swirl * 0.82;
         core.scale.setScalar(1 + 0.08 * Math.sin(state.now * 0.0028) * state.cfg.pulse);
         if (coreMat.uniforms) coreMat.uniforms.uOpacity.value *= 0.92 + 0.08 * Math.sin(state.now * 0.003);
-        if (streakMat.uniforms) streakMat.uniforms.uOpacity.value *= 0.9 + 0.1 * Math.sin(state.now * 0.0024);
       },
     };
   }
