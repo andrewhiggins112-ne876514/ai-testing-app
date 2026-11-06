@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-06 (local zero-token prompt helpers added; coding still paused)
+Last updated: 2026-11-06 (Ollama-in-Cursor parked as token fallback)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -37,6 +37,7 @@ Long-term goal: dominate the testing space for companies that want a capable loc
   - `docs/prompts/NEXT_PROMPT.md` — edit and copy into a fresh Cursor chat.
   - `scripts/next_prompt.py` — run locally to print a suggested prompt from PROJECT_MEMORY.
   - Use these instead of waking the Grok guide bot for day-to-day prompt hand-off.
+- **Ollama in Cursor (parked 2026-11-06):** possible via OpenAI Base URL override to localhost:11434, but unreliable for full Agent mode and requires tunnel for reliability. Revisit only when cloud tokens run out. App runtime already uses local Ollama.
 
 ## Current State
 Skeleton + substantial features exist:
