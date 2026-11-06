@@ -6,8 +6,9 @@
   --glow: 0 0 6px rgba(80, 205, 255, 0.28), 0 0 18px rgba(80, 205, 255, 0.1);
   --text: #e8f7ff;
   --muted: rgba(180, 220, 240, 0.45);
-  --glass: rgba(4, 18, 32, 0.34);
-  --widget-alpha: 0.1;
+  --shell-fill: rgba(0, 0, 0, 0.1);
+  --shell-border: rgba(80, 205, 255, 0.28);
+  --shell-glow: 0 0 6px rgba(80, 205, 255, 0.28), 0 0 18px rgba(80, 205, 255, 0.1);
   --orb-size: 360;
   --font: "Segoe UI", "Bahnschrift", "Trebuchet MS", sans-serif;
 }
@@ -93,13 +94,12 @@ html, body {
   z-index: 2;
 }
 
-.glass-panel,
-.glass-bar {
-  background: var(--glass);
-  border: 1px solid var(--cyan-border);
-  box-shadow: var(--glow), inset 0 0 28px rgba(80, 205, 255, 0.03);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+.shell-surface {
+  background: var(--shell-fill);
+  border: 1px solid var(--shell-border);
+  box-shadow: var(--shell-glow);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .chat-panel {
@@ -121,11 +121,7 @@ html, body {
   pointer-events: none;
 }
 
-.movable-widget.glass-panel {
-  background: rgba(0, 0, 0, var(--widget-alpha));
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: var(--glow);
+.movable-widget.shell-surface {
   cursor: grab;
   touch-action: none;
 }
@@ -408,7 +404,8 @@ html, body {
   padding-right: 2px;
 }
 
-.orb-controls[hidden] { display: none !important; }
+.orb-controls[hidden],
+.widget-controls[hidden] { display: none !important; }
 
 .widget-controls label {
   display: flex;
@@ -417,7 +414,8 @@ html, body {
   color: var(--muted);
 }
 
-.widget-controls input[type="range"] {
+.widget-controls input[type="range"],
+.widget-controls input[type="color"] {
   width: 100%;
   accent-color: var(--cyan);
 }

@@ -3,7 +3,11 @@
   const EDGE_PAD = 16;
   const DRAG_THRESHOLD = 6;
   const BTN = 42;
-  const DEFAULT_WIDGET_TRANSPARENCY = 90;
+  const DEFAULT_APPEARANCE = {
+    transparency: 90,
+    border: "#50cdff",
+    background: "#000000",
+  };
 
   const node = document.getElementById("orb-config");
   const host = document.getElementById("energy-orb-host");
@@ -16,7 +20,10 @@
   const appDrawer = document.getElementById("app-drawer");
   const appToggle = document.getElementById("app-drawer-toggle");
   const orbControls = document.getElementById("orb-controls");
+  const widgetSettings = document.getElementById("widget-settings");
   const widgetTransparencyCtrl = document.getElementById("ctrl-widget-transparency");
+  const widgetBorderCtrl = document.getElementById("ctrl-widget-border");
+  const widgetBgCtrl = document.getElementById("ctrl-widget-bg");
 
   const ctrls = {
     style: document.getElementById("ctrl-style"),
@@ -164,6 +171,13 @@
     setDrawer(drawer, toggle, open);
   }
 
+  function setPanelVisible(panel, btn, show) {
+    if (!panel) return;
+    if (show) panel.removeAttribute("hidden");
+    else panel.setAttribute("hidden", "");
+    if (btn) btn.classList.toggle("active", show);
+  }
+
   screenDrawer.querySelectorAll("[data-action]").forEach(function (btn) {
     btn.addEventListener("click", function () {
       const action = btn.getAttribute("data-action");
@@ -172,48 +186,144 @@
         btn.classList.toggle("active", !chatPanel.classList.contains("hidden"));
       } else if (action === "toggle-orb") {
         const show = orbControls.hasAttribute("hidden");
-        if (show) orbControls.removeAttribute("hidden");
-        else orbControls.setAttribute("hidden", "");
-        btn.classList.toggle("active", show);
+        setPanelVisible(orbControls, btn, show);
+        if (show) setPanelVisible(widgetSettings, screenDrawer.querySelector('[data-action="toggle-widget-settings"]'), false);
+      } else if (action === "toggle-widget-settings") {
+        const show = widgetSettings.hasAttribute("hidden");
+        setPanelVisible(widgetSettings, btn, show);
+        if (show) setPanelVisible(orbControls, screenDrawer.querySelector('[data-action="toggle-orb"]'), false);
       }
     });
   });
 
   /* ---- layout persistence ---- */
 
+  function normalizeHex(value, fallback) {
+    const raw = String(value || "").trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(raw)) return raw.toLowerCase();
+    if (/^[0-9a-fA-F]{6}$/.test(raw)) return "#" + raw.toLowerCase();
+    return fallback;
+  }
+
+  function hexToRgb(hex) {
+    const h = normalizeHex(hex, "#000000").slice(1);
+    return {
+      r: parseInt(h.slice(0, 2), 16),
+      g: parseInt(h.slice(2, 4), 16),
+      b: parseInt(h.slice(4, 6), 16),
+    };
+  }
+
+  function defaultAppearance() {
+    return {
+      transparency: DEFAULT_APPEARANCE.transparency,
+      border: DEFAULT_APPEARANCE.border,
+      background: DEFAULT_APPEARANCE.background,
+    };
+  }
+
+  function normalizeAppearance(raw) {
+    const base = defaultAppearance();
+    const src = raw && typeof raw === "object" ? raw : {};
+    const transparency = Math.max(
+      0,
+      Math.min(95, Math.round(Number(src.transparency != null ? src.transparency : base.transparency) || 0))
+    );
+    return {
+      transparency: transparency,
+      border: normalizeHex(src.border, base.border),
+      background: normalizeHex(src.background, base.background),
+    };
+  }
+
   function loadLayout() {
     try {
       const raw = localStorage.getItem(LAYOUT_KEY);
       if (!raw) {
-        return {
-          toggles: {},
-          widgets: {},
-          widgetTransparency: DEFAULT_WIDGET_TRANSPARENCY,
-        };
+        return { toggles: {}, widgets: {}, appearance: defaultAppearance() };
       }
       const data = JSON.parse(raw);
-      const t = data.widgetTransparency;
+      const appearanceSrc = data.appearance || {
+        transparency:
+          typeof data.widgetTransparency === "number"
+            ? data.widgetTransparency
+            : DEFAULT_APPEARANCE.transparency,
+        border: DEFAULT_APPEARANCE.border,
+        background: DEFAULT_APPEARANCE.background,
+      };
       return {
         toggles: data.toggles || {},
         widgets: data.widgets || {},
-        widgetTransparency:
-          typeof t === "number" ? t : DEFAULT_WIDGET_TRANSPARENCY,
+        appearance: normalizeAppearance(appearanceSrc),
       };
     } catch (err) {
-      return {
-        toggles: {},
-        widgets: {},
-        widgetTransparency: DEFAULT_WIDGET_TRANSPARENCY,
-      };
+      return { toggles: {}, widgets: {}, appearance: defaultAppearance() };
     }
   }
 
-  function applyWidgetTransparency(pct) {
-    const clamped = Math.max(0, Math.min(95, Math.round(Number(pct) || 0)));
-    const alpha = (100 - clamped) / 100;
-    document.documentElement.style.setProperty("--widget-alpha", String(alpha));
-    if (widgetTransparencyCtrl) widgetTransparencyCtrl.value = String(clamped);
-    return clamped;
+  function applyAppearance(appearance) {
+    const next = normalizeAppearance(appearance);
+    const alpha = (100 - next.transparency) / 100;
+    const bg = hexToRgb(next.background);
+    const border = hexToRgb(next.border);
+    const root = document.documentElement;
+    root.style.setProperty(
+      "--shell-fill",
+      "rgba(" + bg.r + ", " + bg.g + ", " + bg.b + ", " + alpha + ")"
+    );
+    root.style.setProperty(
+      "--shell-border",
+      "rgba(" + border.r + ", " + border.g + ", " + border.b + ", 0.28)"
+    );
+    root.style.setProperty(
+      "--shell-glow",
+      "0 0 6px rgba(" +
+        border.r +
+        ", " +
+        border.g +
+        ", " +
+        border.b +
+        ", 0.28), 0 0 18px rgba(" +
+        border.r +
+        ", " +
+        border.g +
+        ", " +
+        border.b +
+        ", 0.1)"
+    );
+    root.style.setProperty(
+      "--cyan-border",
+      "rgba(" + border.r + ", " + border.g + ", " + border.b + ", 0.28)"
+    );
+    root.style.setProperty(
+      "--glow",
+      "0 0 6px rgba(" +
+        border.r +
+        ", " +
+        border.g +
+        ", " +
+        border.b +
+        ", 0.28), 0 0 18px rgba(" +
+        border.r +
+        ", " +
+        border.g +
+        ", " +
+        border.b +
+        ", 0.1)"
+    );
+    if (widgetTransparencyCtrl) widgetTransparencyCtrl.value = String(next.transparency);
+    if (widgetBorderCtrl) widgetBorderCtrl.value = next.border;
+    if (widgetBgCtrl) widgetBgCtrl.value = next.background;
+    return next;
+  }
+
+  function persistAppearanceFromControls() {
+    layout.appearance = applyAppearance({
+      transparency: widgetTransparencyCtrl ? widgetTransparencyCtrl.value : DEFAULT_APPEARANCE.transparency,
+      border: widgetBorderCtrl ? widgetBorderCtrl.value : DEFAULT_APPEARANCE.border,
+      background: widgetBgCtrl ? widgetBgCtrl.value : DEFAULT_APPEARANCE.background,
+    });
+    saveLayout(layout);
   }
 
   function saveLayout(layout) {
@@ -357,19 +467,14 @@
       }
     });
 
-    layout.widgetTransparency = applyWidgetTransparency(
-      layout.widgetTransparency != null
-        ? layout.widgetTransparency
-        : DEFAULT_WIDGET_TRANSPARENCY
-    );
+    layout.appearance = applyAppearance(layout.appearance || defaultAppearance());
   }
 
-  if (widgetTransparencyCtrl) {
-    widgetTransparencyCtrl.addEventListener("input", function () {
-      layout.widgetTransparency = applyWidgetTransparency(widgetTransparencyCtrl.value);
-      saveLayout(layout);
-    });
-  }
+  [widgetTransparencyCtrl, widgetBorderCtrl, widgetBgCtrl].forEach(function (el) {
+    if (!el) return;
+    el.addEventListener("input", persistAppearanceFromControls);
+    el.addEventListener("change", persistAppearanceFromControls);
+  });
 
   /* ---- edge-snap drag for drawer toggles ---- */
 

@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-06 (desktop widgets: full-surface drag + transparency slider)
+Last updated: 2026-11-06 (desktop shell: shared widget appearance settings)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -48,7 +48,7 @@ Skeleton + substantial features exist:
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\settings.json` (incl. orb)
 - `main.py` — FastAPI `/chat` + `/health` + `/api/orb` + static `/ui`
 - `desktop_app.py` — **native Windows window** (pywebview + Edge WebView2) hosting mystic shell at `/ui/desktop/`; Gradio remains available via `run_ui.py`
-- `ui/desktop/` — full-window mystic orb on pure black `#000000`; soft cyan glass panels; **app drawer** + **screen drawer** (chat toggle + live orb controls + widget transparency); bottom chat bar; no top nav. **UI-6 partial:** drawer toggles drag + magnet-snap to nearest edge; widgets free-drag from entire surface (no grab bar); default see-through fill with transparency slider; layout in `localStorage` (`desktop-shell-layout-v1`). See `docs/mockups/screenshots/widget_transparency_desk6.png`.
+- `ui/desktop/` — full-window mystic orb on pure black `#000000`; shared **shell-surface** style for chat widget, both drawers, and chat input; **app drawer** + **screen drawer** (chat / orb / widget-settings icons); bottom chat bar; no top nav. **UI-6 partial:** edge-snap drawer toggles; free-drag widgets; Widget Settings (transparency + border/background colour) apply live to all shell surfaces; layout in `localStorage` (`desktop-shell-layout-v1`). See `docs/mockups/screenshots/widget_settings_desk7.png`.
 - `ui/gradio_app.py` — Gradio UI + energy orb; **named presets** (UI-5); orb controls behind top-right gear panel (UI-6a)
 - **Orb styles:** classic four on canvas; **`mystic` / `aether` / `neural` on WebGL** via `ui/orb_webgl.js` + vendored `ui/vendor/three.min.js` (particle counts capped; see `docs/mockups/orb_styles.md`). **Mystic** uses FBM / ridge-extracted filament fragment shaders (`FRAG_MYSTIC`), not ribbon meshes; soft atmospheric bloom replaces hard rim; equatorial streak removed; floor glow kept (see `docs/mockups/screenshots/mystic_final_*.png`).
 - `reports/exporter.py` — run export
