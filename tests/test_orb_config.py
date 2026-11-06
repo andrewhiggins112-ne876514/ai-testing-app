@@ -106,6 +106,16 @@ class OrbConfigTests(unittest.TestCase):
         self.assertEqual(allowed["pulse"], 2.0)
         self.assertEqual(allowed["glow"], 0.25)
 
+    def test_webgl_styles_in_orb_styles(self):
+        for style in ("mystic", "aether", "neural"):
+            self.assertIn(style, gradio_app.ORB_STYLES)
+            self.assertIn(style, gradio_app.ORB_WEBGL_STYLES)
+            cfg = gradio_app.normalize_orb_config({"style": style, "size": 320})
+            self.assertEqual(cfg["style"], style)
+            markup = gradio_app.save_orb_config(style, "#50cdff", "#b388ff", 320)
+            self.assertIn(f'data-style="{style}"', markup)
+            self.assertEqual(load_settings()["orb_style"], style)
+
     def test_save_then_load(self):
         markup = gradio_app.save_orb_config("nebula+lightning", "#ff00aa", "#00ffcc", 280)
         self.assertIn('data-style="nebula+lightning"', markup)

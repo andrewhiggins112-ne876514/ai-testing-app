@@ -14,10 +14,17 @@ import httpx
 from reports.exporter import reports_dir
 from settings.store import load_settings, update_setting, write_settings
 
+_UI_DIR = Path(__file__).resolve().parent
+_THREE_PATH = _UI_DIR / "vendor" / "three.min.js"
+_WEBGL_BOOT_PATH = _UI_DIR / "orb_webgl.js"
+THREE_JS = _THREE_PATH.read_text(encoding="utf-8") if _THREE_PATH.exists() else ""
+WEBGL_BOOT_JS = _WEBGL_BOOT_PATH.read_text(encoding="utf-8") if _WEBGL_BOOT_PATH.exists() else ""
+
 CHAT_URL = "http://127.0.0.1:8000/chat"
 LEVELS = ("OFFICIAL", "SECRET")
 VOID = "#05070d"
-ORB_STYLES = ("lightning", "mist", "nebula", "nebula+lightning")
+ORB_STYLES = ("lightning", "mist", "nebula", "nebula+lightning", "mystic", "aether", "neural")
+ORB_WEBGL_STYLES = ("mystic", "aether", "neural")
 ORB_SHAPES = ("sphere", "oval", "ring")
 ORB_DEFAULTS = {
     "style": "lightning",
@@ -371,7 +378,10 @@ function readConfig() {
   let size = node ? parseInt(node.getAttribute("data-size") || "360", 10) : 360;
   if (!size || size < 200) size = 200;
   if (size > 480) size = 480;
-  if (style !== "lightning" && style !== "mist" && style !== "nebula" && style !== "nebula+lightning") {
+  if (
+    style !== "lightning" && style !== "mist" && style !== "nebula" && style !== "nebula+lightning"
+    && style !== "mystic" && style !== "aether" && style !== "neural"
+  ) {
     style = "lightning";
   }
   let shape = node ? (node.getAttribute("data-shape") || "sphere") : "sphere";
@@ -956,6 +966,10 @@ const drawStyle = {
   "nebula+lightning": drawNebulaLightning,
 };
 
+function isWebGLStyle(style) {
+  return style === "mystic" || style === "aether" || style === "neural";
+}
+
 function draw() {
   if (stopped) return;
   const cfg = readConfig();
@@ -970,10 +984,15 @@ function draw() {
   mood += (target - mood) * (1 - Math.exp(-dt / 0.4));
   if (Math.abs(target - mood) < 0.001) mood = target;
   glowRgb = mixRgb(hexToRgb(cfg.calm), hexToRgb(cfg.thinking), mood);
+  window.__energyOrbMode = thinking ? "thinking" : "calm";
   const liveLabel = document.querySelector("#energy-orb-host .orb-state");
   if (liveLabel) {
     liveLabel.textContent = mood >= 0.5 ? "THINKING" : "CALM";
     liveLabel.style.color = rgbToHex(glowRgb);
+  }
+  if (isWebGLStyle(cfg.style)) {
+    frame = requestAnimationFrame(draw);
+    return;
   }
   angle += (0.35 + 0.6 * mood) * cfg.spin * dt;
   const cx = viewW / 2;
@@ -1040,8 +1059,11 @@ function draw() {
   window.__energyOrbFrames = (window.__energyOrbFrames || 0) + 1;
   frame = requestAnimationFrame(draw);
 }
+if (window.__orbWebGL) window.__orbWebGL.attach(element);
 draw();
 """
+
+ORB_JS_FULL = "\n".join(part for part in (THREE_JS, WEBGL_BOOT_JS, ORB_JS) if part)
 
 ORB_CSS = """
 html, body {
@@ -1227,8 +1249,14 @@ html, body {
 #orb-settings-panel [data-testid="color-picker"] {
   min-height: 32px !important;
 }
-#energy-orb-host canvas {
+#energy-orb-host canvas,
+#energy-orb-host #orb-webgl-host canvas {
   display: block;
+  margin: 0 auto;
+}
+#orb-webgl-host {
+  display: none;
+  margin: 0 auto;
 }
 #energy-orb-host .orb-state {
   margin-top: 2px;
@@ -1412,7 +1440,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 gr.HTML(
                     ORB_HTML,
                     elem_id="energy-orb-host",
-                    js_on_load=ORB_JS,
+                    js_on_load=ORB_JS_FULL,
                     apply_default_css=False,
                     padding=False,
                     container=False,

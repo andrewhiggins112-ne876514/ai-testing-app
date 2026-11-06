@@ -48,16 +48,16 @@ Skeleton + substantial features exist:
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\settings.json` (incl. orb)
 - `main.py` — FastAPI `/chat` + `/health`
 - `ui/gradio_app.py` — Gradio UI + energy orb; **named presets** (UI-5); orb controls behind top-right gear panel (UI-6a)
+- **Orb styles:** classic four on canvas; **`mystic` / `aether` / `neural` on WebGL** via `ui/orb_webgl.js` + vendored `ui/vendor/three.min.js` (particle counts capped; see `docs/mockups/orb_styles.md`)
 - `reports/exporter.py` — run export
 - Tests under `tests/` for Jira, Playwright heal, orb config/presets, sessions, settings, reports
 - Architecture notes + AGENTS.md + this file
 - **Cursor ops:** `.cursor/rules`, agents (implementer/ui-orb on Grok 4.7; doc-keeper/verifier/explorer on Composer), skills, MCP template, `docs/ops/*`
 - Settings keys: `orb_presets` (map), `orb_active_preset` (string), still under local app data only
-- **Visual orb matching is unpaused.** Three styles approved. WebGL allowed for mystic/aether/neural. Coding agents handle git themselves.
 
 Not yet done:
 - Jira credentials in local store only when user has an account (none yet)
-- Movable panels (UI-6)
+- Movable panels (UI-6); mockup widgets as configurable panels
 - Document ingestion → settings proposal
 - Broader self-healing; security-level isolation (browser profiles + credential scopes)
 - Desktop .exe testing; customisable reporting polish; multi-sandbox orchestration
@@ -81,6 +81,6 @@ Not yet done:
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. Implement the three approved orb styles (Mystic, Aether, Neural) using WebGL / Three.js where it improves the look. Keep classic styles on canvas.
-2. In Cursor, prefer Auto / Composer for the first pass.
-3. Widgets from the mockups are future work (configurable panels).
+1. Visual polish / matching pass on mystic/aether/neural if needed (escalate model only if Composer pass is off).
+2. UI-6 movable/resizable panels; mockup widgets as configurable panels.
+3. Broader self-healing / security isolation / document ingestion as roadmap allows.

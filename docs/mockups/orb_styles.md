@@ -2,15 +2,19 @@
 
 Three styles approved for implementation. Widgets shown in the mockups are future configurable panels (add/remove/hide).
 
-## Mystic
-Cyan-blue filament sphere with soft halo, swirling arcs, bright core. Closest to the JARVIS video reference. Good but not pixel-perfect.
+| Id | Look | Renderer |
+|----|------|----------|
+| `mystic` | Cyan-blue filament sphere with soft halo, swirling arcs, bright core (JARVIS-style) | WebGL / Three.js |
+| `aether` | Orange-gold fiery plasma sphere with chaotic swirling arcs and ember particles | WebGL / Three.js |
+| `neural` | Translucent blue glass sphere with dark centre, bright cyan rim, sparkling particles | WebGL / Three.js |
 
-## Aether
-Orange-gold fiery plasma sphere with chaotic swirling arcs and ember particles.
+Classic styles (`lightning`, `mist`, `nebula`, `nebula+lightning`) stay on pure canvas.
 
-## Neural
-Translucent blue glass sphere with dark centre, bright cyan rim, sparkling particles.
+## Particle caps (home PC)
+- mystic points ≤ 280
+- aether points ≤ 400; arcs ≤ 24
+- neural points ≤ 360; panes ≤ 4
 
-All three use the same dark-void + floating HUD panel layout.
+Calm / thinking colours from the settings store still tint the active style.
 
-Implementation target: add these as selectable styles in the existing Gradio orb (ui/gradio_app.py or orb_webgl if present). Start with cheapest model (Composer). Visual matching may need stronger model if first attempt is off.
+All three use the same dark-void chat layout. Widgets from the mockups are out of scope for this slice.
