@@ -14,6 +14,15 @@ alwaysApply: true
 - Prefer small diffs; extend existing plugins — do not create parallel systems.
 - After a finished slice: update Current State in `PROJECT_MEMORY.md` if behaviour changed.
 
+# Git handling (agents do this, never ask the user)
+
+- You have terminal access. Run all git commands yourself.
+- At the start of a coding session: if not on `main`, stash any local changes, checkout `main`, and pull.
+- Before committing: `git status` and `git diff`. Only commit the files you intentionally changed.
+- Commit with a clear message, then `git push origin main` (or the current branch if explicitly working on one).
+- Never ask the user to run git, stash, pull, or push. Do it yourself.
+- If a pull would overwrite local work, stash first, pull, then decide whether to pop.
+
 # Ops pointers (do not paste full docs)
 
 - Workflow: `docs/ops/HOW_WE_WORK.md`
