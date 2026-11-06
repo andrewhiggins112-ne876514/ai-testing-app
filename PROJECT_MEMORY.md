@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-06 (Ollama-in-Cursor parked as token fallback)
+Last updated: 2026-11-06 (visual orb matching unpaused; three styles approved)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -38,6 +38,7 @@ Long-term goal: dominate the testing space for companies that want a capable loc
   - `scripts/next_prompt.py` — run locally to print a suggested prompt from PROJECT_MEMORY.
   - Use these instead of waking the Grok guide bot for day-to-day prompt hand-off.
 - **Ollama in Cursor (parked 2026-11-06):** possible via OpenAI Base URL override to localhost:11434, but unreliable for full Agent mode and requires tunnel for reliability. Revisit only when cloud tokens run out. App runtime already uses local Ollama.
+- **Orb styles approved (2026-11-06):** Mystic (cyan filament), Aether (orange plasma), Neural (blue glass bubble). See docs/mockups/orb_styles.md. Widgets in mockups are future configurable panels.
 
 ## Current State
 Skeleton + substantial features exist:
@@ -52,7 +53,7 @@ Skeleton + substantial features exist:
 - Architecture notes + AGENTS.md + this file
 - **Cursor ops:** `.cursor/rules`, agents (implementer/ui-orb on Grok 4.7; doc-keeper/verifier/explorer on Composer), skills, MCP template, `docs/ops/*`
 - Settings keys: `orb_presets` (map), `orb_active_preset` (string), still under local app data only
-- **Coding is paused** until process is solid. Visual orb matching is paused. Local helpers above are preferred for prompt hand-off.
+- **Visual orb matching is unpaused.** Three styles approved. Coding agents handle git themselves.
 
 Not yet done:
 - Jira credentials in local store only when user has an account (none yet)
@@ -80,6 +81,6 @@ Not yet done:
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. Use the local helpers (`docs/prompts/NEXT_PROMPT.md` or `scripts/next_prompt.py`) instead of the Grok bot for prompt hand-off.
-2. In Cursor, prefer Auto / Composer / free models for coding slices.
-3. When ready to unpause: visual orb matching against reference images (agent must look at the images).
+1. Implement the three approved orb styles (Mystic, Aether, Neural) as selectable options in the Gradio UI.
+2. In Cursor, prefer Auto / Composer for the first pass.
+3. Widgets from the mockups are future work (configurable panels).
