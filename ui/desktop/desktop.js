@@ -1,4 +1,9 @@
 (function () {
+  const LAYOUT_KEY = "desktop-shell-layout-v1";
+  const EDGE_PAD = 16;
+  const DRAG_THRESHOLD = 6;
+  const BTN = 42;
+
   const node = document.getElementById("orb-config");
   const host = document.getElementById("energy-orb-host");
   const chatPanel = document.getElementById("chat-panel");
@@ -21,6 +26,11 @@
     pulse: document.getElementById("ctrl-pulse"),
     glow: document.getElementById("ctrl-glow"),
   };
+
+  const toggleDrawerMap = new Map([
+    [appToggle, appDrawer],
+    [screenToggle, screenDrawer],
+  ]);
 
   function setOrbSizeVar(size) {
     document.documentElement.style.setProperty("--orb-size", String(size || 360));
@@ -143,17 +153,14 @@
     if (which !== "app") setDrawer(appDrawer, appToggle, false);
   }
 
-  screenToggle.addEventListener("click", function () {
-    const open = !screenDrawer.classList.contains("open");
-    if (open) closeOther("screen");
-    setDrawer(screenDrawer, screenToggle, open);
-  });
-
-  appToggle.addEventListener("click", function () {
-    const open = !appDrawer.classList.contains("open");
-    if (open) closeOther("app");
-    setDrawer(appDrawer, appToggle, open);
-  });
+  function toggleDrawerFor(toggle) {
+    const drawer = toggleDrawerMap.get(toggle);
+    if (!drawer) return;
+    const which = toggle === screenToggle ? "screen" : "app";
+    const open = !drawer.classList.contains("open");
+    if (open) closeOther(which);
+    setDrawer(drawer, toggle, open);
+  }
 
   screenDrawer.querySelectorAll("[data-action]").forEach(function (btn) {
     btn.addEventListener("click", function () {
@@ -170,6 +177,303 @@
     });
   });
 
+  /* ---- layout persistence ---- */
+
+  function loadLayout() {
+    try {
+      const raw = localStorage.getItem(LAYOUT_KEY);
+      if (!raw) return { toggles: {}, widgets: {} };
+      const data = JSON.parse(raw);
+      return {
+        toggles: data.toggles || {},
+        widgets: data.widgets || {},
+      };
+    } catch (err) {
+      return { toggles: {}, widgets: {} };
+    }
+  }
+
+  function saveLayout(layout) {
+    try {
+      localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout));
+    } catch (err) {
+      console.warn("layout save failed", err);
+    }
+  }
+
+  let layout = loadLayout();
+
+  function clearPos(el) {
+    el.style.left = "";
+    el.style.right = "";
+    el.style.top = "";
+    el.style.bottom = "";
+    el.style.transform = "";
+  }
+
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function nearestEdge(cx, cy, W, H) {
+    const dists = [
+      ["left", cx],
+      ["right", W - cx],
+      ["top", cy],
+      ["bottom", H - cy],
+    ];
+    dists.sort(function (a, b) {
+      return a[1] - b[1];
+    });
+    return dists[0][0];
+  }
+
+  function placeToggle(el, edge, along) {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    clearPos(el);
+    el.dataset.edge = edge;
+    el.classList.add("edge-snap");
+
+    if (edge === "left" || edge === "right") {
+      const y = clamp(
+        along != null ? along : (H - BTN) / 2,
+        EDGE_PAD,
+        H - EDGE_PAD - BTN
+      );
+      el.style.top = y + "px";
+      if (edge === "left") el.style.left = EDGE_PAD + "px";
+      else el.style.right = EDGE_PAD + "px";
+      return { edge: edge, along: y };
+    }
+
+    const x = clamp(
+      along != null ? along : (W - BTN) / 2,
+      EDGE_PAD,
+      W - EDGE_PAD - BTN
+    );
+    el.style.left = x + "px";
+    if (edge === "top") el.style.top = EDGE_PAD + "px";
+    else el.style.bottom = EDGE_PAD + "px";
+    return { edge: edge, along: x };
+  }
+
+  function syncDrawerEdge(toggle, drawer) {
+    const edge = toggle.dataset.edge || "left";
+    drawer.classList.remove("edge-left", "edge-right", "edge-top", "edge-bottom");
+    drawer.classList.add("edge-" + edge);
+    clearPos(drawer);
+
+    const tr = toggle.getBoundingClientRect();
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+
+    if (edge === "left" || edge === "right") {
+      const idealTop = clamp(tr.top - 40, 24, Math.max(24, H - 88 - 200));
+      drawer.style.top = idealTop + "px";
+      drawer.style.bottom = "88px";
+      if (edge === "left") drawer.style.left = "0";
+      else drawer.style.right = "0";
+    } else if (edge === "top") {
+      drawer.style.top = "0";
+      drawer.style.left = clamp(tr.left - 40, 24, Math.max(24, W - 280)) + "px";
+      drawer.style.right = "72px";
+    } else {
+      drawer.style.bottom = "80px";
+      drawer.style.left = clamp(tr.left - 40, 24, Math.max(24, W - 280)) + "px";
+      drawer.style.right = "72px";
+    }
+  }
+
+  function persistToggle(el) {
+    const along =
+      el.dataset.edge === "left" || el.dataset.edge === "right"
+        ? parseFloat(el.style.top) || 0
+        : parseFloat(el.style.left) || 0;
+    layout.toggles[el.id] = { edge: el.dataset.edge, along: along };
+    saveLayout(layout);
+  }
+
+  function placeWidget(el, left, top) {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const rect = el.getBoundingClientRect();
+    const w = rect.width || 320;
+    const h = rect.height || 280;
+    const x = clamp(left, 8, Math.max(8, W - w - 8));
+    const y = clamp(top, 8, Math.max(8, H - h - 8));
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    el.style.right = "auto";
+    el.style.bottom = "auto";
+    return { left: x, top: y };
+  }
+
+  function persistWidget(el) {
+    layout.widgets[el.dataset.widget || el.id] = {
+      left: parseFloat(el.style.left) || 0,
+      top: parseFloat(el.style.top) || 0,
+    };
+    saveLayout(layout);
+  }
+
+  function restoreLayout() {
+    [appToggle, screenToggle].forEach(function (el) {
+      const saved = layout.toggles[el.id];
+      const edge = (saved && saved.edge) || el.getAttribute("data-default-edge") || "left";
+      const along = saved && typeof saved.along === "number" ? saved.along : null;
+      placeToggle(el, edge, along);
+      syncDrawerEdge(el, toggleDrawerMap.get(el));
+    });
+
+    document.querySelectorAll("[data-widget]").forEach(function (el) {
+      const key = el.dataset.widget || el.id;
+      const saved = layout.widgets[key];
+      if (saved && typeof saved.left === "number" && typeof saved.top === "number") {
+        placeWidget(el, saved.left, saved.top);
+      }
+    });
+  }
+
+  /* ---- edge-snap drag for drawer toggles ---- */
+
+  function bindEdgeSnapToggle(el) {
+    let pointerId = null;
+    let startX = 0;
+    let startY = 0;
+    let originLeft = 0;
+    let originTop = 0;
+    let dragging = false;
+    let moved = false;
+
+    el.addEventListener("pointerdown", function (ev) {
+      if (ev.button != null && ev.button !== 0) return;
+      pointerId = ev.pointerId;
+      startX = ev.clientX;
+      startY = ev.clientY;
+      const rect = el.getBoundingClientRect();
+      originLeft = rect.left;
+      originTop = rect.top;
+      dragging = false;
+      moved = false;
+      el.classList.remove("edge-snap");
+      try {
+        el.setPointerCapture(pointerId);
+      } catch (err) { /* ignore */ }
+      ev.preventDefault();
+    });
+
+    el.addEventListener("pointermove", function (ev) {
+      if (pointerId == null || ev.pointerId !== pointerId) return;
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      if (!dragging && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+      if (!dragging) {
+        dragging = true;
+        moved = true;
+        el.classList.add("dragging");
+        clearPos(el);
+        el.style.left = originLeft + "px";
+        el.style.top = originTop + "px";
+        el.style.right = "auto";
+        el.style.bottom = "auto";
+      }
+      el.style.left = originLeft + dx + "px";
+      el.style.top = originTop + dy + "px";
+    });
+
+    function endDrag(ev) {
+      if (pointerId == null || (ev && ev.pointerId !== pointerId)) return;
+      const wasDrag = moved;
+      const cx = ev ? ev.clientX : startX;
+      const cy = ev ? ev.clientY : startY;
+      pointerId = null;
+      el.classList.remove("dragging");
+
+      if (wasDrag) {
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        const edge = nearestEdge(cx, cy, W, H);
+        let along;
+        if (edge === "left" || edge === "right") {
+          along = cy - BTN / 2;
+        } else {
+          along = cx - BTN / 2;
+        }
+        placeToggle(el, edge, along);
+        syncDrawerEdge(el, toggleDrawerMap.get(el));
+        persistToggle(el);
+      } else {
+        el.classList.add("edge-snap");
+        toggleDrawerFor(el);
+      }
+    }
+
+    el.addEventListener("pointerup", endDrag);
+    el.addEventListener("pointercancel", endDrag);
+  }
+
+  /* ---- free drag for widgets ---- */
+
+  function bindWidgetDrag(el) {
+    const handle = el.querySelector(".widget-drag-handle") || el;
+    let pointerId = null;
+    let startX = 0;
+    let startY = 0;
+    let originLeft = 0;
+    let originTop = 0;
+    let dragging = false;
+
+    handle.addEventListener("pointerdown", function (ev) {
+      if (ev.button != null && ev.button !== 0) return;
+      if (ev.target.closest && ev.target.closest("button, a, input, textarea, select")) return;
+      pointerId = ev.pointerId;
+      startX = ev.clientX;
+      startY = ev.clientY;
+      const rect = el.getBoundingClientRect();
+      originLeft = rect.left;
+      originTop = rect.top;
+      dragging = false;
+      try {
+        handle.setPointerCapture(pointerId);
+      } catch (err) { /* ignore */ }
+      ev.preventDefault();
+    });
+
+    handle.addEventListener("pointermove", function (ev) {
+      if (pointerId == null || ev.pointerId !== pointerId) return;
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      if (!dragging && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+      if (!dragging) {
+        dragging = true;
+        el.classList.add("dragging");
+      }
+      placeWidget(el, originLeft + dx, originTop + dy);
+    });
+
+    function endDrag(ev) {
+      if (pointerId == null || (ev && ev.pointerId !== pointerId)) return;
+      pointerId = null;
+      if (dragging) {
+        el.classList.remove("dragging");
+        persistWidget(el);
+      }
+      dragging = false;
+    }
+
+    handle.addEventListener("pointerup", endDrag);
+    handle.addEventListener("pointercancel", endDrag);
+  }
+
+  bindEdgeSnapToggle(appToggle);
+  bindEdgeSnapToggle(screenToggle);
+  document.querySelectorAll("[data-widget]").forEach(bindWidgetDrag);
+
+  window.addEventListener("resize", function () {
+    restoreLayout();
+  });
+
   async function boot() {
     try {
       const res = await fetch("/api/orb");
@@ -184,6 +488,7 @@
       applyConfigToNode({ style: "mystic" });
     }
     syncControlsFromNode();
+    restoreLayout();
     if (window.__orbWebGL && host) {
       window.__orbWebGL.attach(host);
     }

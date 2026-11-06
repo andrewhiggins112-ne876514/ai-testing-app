@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk4" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk5" />
 </head>
 <body>
   <div id="app">
@@ -28,7 +28,8 @@
 
     <p class="app-title">AI Testing Agent</p>
 
-    <section id="chat-panel" class="glass-panel chat-panel" aria-label="Chat">
+    <section id="chat-panel" class="glass-panel chat-panel movable-widget" data-widget="chat-panel" aria-label="Chat">
+      <div class="widget-drag-handle" title="Drag panel" aria-hidden="true"></div>
       <div id="chat-log" class="chat-log"></div>
     </section>
 
@@ -38,8 +39,9 @@
     </form>
 
     <button id="app-drawer-toggle" class="icon-btn drawer-toggle app-drawer-toggle" type="button"
-      aria-label="Open app menu" aria-expanded="false" aria-controls="app-drawer" title="App">▦</button>
-    <aside id="app-drawer" class="side-drawer app-drawer" aria-hidden="true">
+      data-edge-snap="1" data-default-edge="left"
+      aria-label="Open app menu" aria-expanded="false" aria-controls="app-drawer" title="App (drag to edge)">▦</button>
+    <aside id="app-drawer" class="side-drawer app-drawer edge-left" aria-hidden="true">
       <div class="drawer-inner glass-panel">
         <h2 class="panel-title">App</h2>
         <nav class="app-nav" aria-label="Application sections">
@@ -51,8 +53,9 @@
     </aside>
 
     <button id="screen-drawer-toggle" class="icon-btn drawer-toggle screen-drawer-toggle" type="button"
-      aria-label="Open screen panel" aria-expanded="false" aria-controls="screen-drawer" title="Screen">☰</button>
-    <aside id="screen-drawer" class="side-drawer screen-drawer" aria-hidden="true">
+      data-edge-snap="1" data-default-edge="right"
+      aria-label="Open screen panel" aria-expanded="false" aria-controls="screen-drawer" title="Screen (drag to edge)">☰</button>
+    <aside id="screen-drawer" class="side-drawer screen-drawer edge-right" aria-hidden="true">
       <div class="drawer-inner glass-panel">
         <div class="icon-rail" role="toolbar" aria-label="Screen widgets">
           <button type="button" class="icon-btn active" data-action="toggle-chat" title="Chat panel">💬</button>
@@ -81,7 +84,7 @@
   </div>
 
   <script src="/ui/vendor/three.min.js"></script>
-  <script src="/ui/orb_webgl.js?v=desk4"></script>
-  <script src="/ui/desktop/desktop.js?v=desk4"></script>
+  <script src="/ui/orb_webgl.js?v=desk5"></script>
+  <script src="/ui/desktop/desktop.js?v=desk5"></script>
 </body>
 </html>
