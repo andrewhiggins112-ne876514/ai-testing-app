@@ -20,6 +20,15 @@ alwaysApply: true
 - If you escalate, state why in one sentence before switching.
 - Prefer the model picker to stay on Composer/Auto unless escalation is justified.
 
+# Mode transitions (reduce token use)
+
+- Auto-approve mode transitions are enabled. Use them.
+- Start in **Ask** or **Plan** for exploration, design, or understanding the current code. These modes are lighter.
+- Switch to **Agent** only when you are ready to make the actual edit.
+- Use **Debug** mode for investigating failures instead of long free-form exploration in Agent mode.
+- Prefer short Plan → Agent cycles over one long Agent session.
+- If a task is purely investigative, stay in Ask/Plan and do not switch to Agent.
+
 # Git handling (agents do this, never ask the user)
 
 - You have terminal access. Run all git commands yourself.
