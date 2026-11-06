@@ -12,6 +12,7 @@ alwaysApply: true
 - Confirm before: security-level changes, deletes, credential updates, Jira writes.
 - Prefer small diffs; extend existing plugins — do not create parallel systems.
 - After a finished slice: update Current State in `PROJECT_MEMORY.md` if behaviour changed.
+- Classic orb styles stay pure canvas. **WebGL / Three.js is allowed** for the three new styles (mystic, aether, neural) only. Vendor Three.js under ui/vendor/ is acceptable for those styles.
 
 # Model selection (cheapest first)
 
