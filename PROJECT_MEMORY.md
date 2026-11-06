@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-06 (visual orb matching unpaused; three styles approved)
+Last updated: 2026-11-06 (WebGL allowed for mystic/aether/neural styles)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -31,14 +31,14 @@ Long-term goal: dominate the testing space for companies that want a capable loc
 - **PM-owned workflow:** human speaks only in the PM chat. PM implements or delegates agents; human pulls/runs — no paste of coding prompts into other chats.
 - Coding models: **prefer free / Auto / Composer** in Cursor. Escalate to stronger models only when needed. Product runtime stays on local Ollama (free).
 - Token efficiency matters: prefer targeted reads, compact slices, avoid re-sending full file contents.
-- Pure canvas energy orb (no Three.js / CDN) for the Gradio UI centrepiece.
+- Classic orb styles stay pure canvas. **WebGL / Three.js is allowed** for the three new styles (mystic, aether, neural) only. Vendor Three.js under ui/vendor/ is acceptable for those styles.
 - Jira writes are two-step confirm; no Jira account yet — do not solicit credentials until the user says one exists.
 - **Local zero-token helpers (2026-11-06):**
   - `docs/prompts/NEXT_PROMPT.md` — edit and copy into a fresh Cursor chat.
   - `scripts/next_prompt.py` — run locally to print a suggested prompt from PROJECT_MEMORY.
   - Use these instead of waking the Grok guide bot for day-to-day prompt hand-off.
 - **Ollama in Cursor (parked 2026-11-06):** possible via OpenAI Base URL override to localhost:11434, but unreliable for full Agent mode and requires tunnel for reliability. Revisit only when cloud tokens run out. App runtime already uses local Ollama.
-- **Orb styles approved (2026-11-06):** Mystic (cyan filament), Aether (orange plasma), Neural (blue glass bubble). See docs/mockups/orb_styles.md. Widgets in mockups are future configurable panels.
+- **Orb styles approved (2026-11-06):** Mystic (cyan filament), Aether (orange plasma), Neural (blue glass bubble). See docs/mockups/orb_styles.md. Widgets in mockups are future configurable panels. WebGL preferred for these three.
 
 ## Current State
 Skeleton + substantial features exist:
@@ -53,7 +53,7 @@ Skeleton + substantial features exist:
 - Architecture notes + AGENTS.md + this file
 - **Cursor ops:** `.cursor/rules`, agents (implementer/ui-orb on Grok 4.7; doc-keeper/verifier/explorer on Composer), skills, MCP template, `docs/ops/*`
 - Settings keys: `orb_presets` (map), `orb_active_preset` (string), still under local app data only
-- **Visual orb matching is unpaused.** Three styles approved. Coding agents handle git themselves.
+- **Visual orb matching is unpaused.** Three styles approved. WebGL allowed for mystic/aether/neural. Coding agents handle git themselves.
 
 Not yet done:
 - Jira credentials in local store only when user has an account (none yet)
@@ -81,6 +81,6 @@ Not yet done:
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. Implement the three approved orb styles (Mystic, Aether, Neural) as selectable options in the Gradio UI.
+1. Implement the three approved orb styles (Mystic, Aether, Neural) using WebGL / Three.js where it improves the look. Keep classic styles on canvas.
 2. In Cursor, prefer Auto / Composer for the first pass.
 3. Widgets from the mockups are future work (configurable panels).
