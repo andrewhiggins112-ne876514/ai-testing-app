@@ -648,16 +648,16 @@
     "  float lonW = lon + (wLon - 0.5) * 2.4 + t * 0.18 + uPhase;",
     "  float latW = lat + (wLat - 0.5) * 1.15 + 0.28 * sin(lon * 2.0 - t * 0.65);",
     "  lonW += 0.42 * sin(latW * 2.6 + t);",
-    "  float aArc = crest(latW * 6.4 + lonW * 0.42 + wLon * 3.2);",
-    "  float bArc = crest(lonW * 5.1 + latW * 1.25 + wLat * 2.6);",
-    "  float cArc = crest((latW + lonW) * 4.6 + wLon * 2.4);",
-    "  float dArc = crest((latW * 1.7 - lonW) * 3.5 + wLat * 4.0);",
+    "  float aArc = crest(latW * 5.7 + lonW * 0.42 + wLon * 3.2);",
+    "  float bArc = crest(lonW * 4.55 + latW * 1.25 + wLat * 2.6);",
+    "  float cArc = crest((latW + lonW) * 4.1 + wLon * 2.4);",
+    "  float dArc = crest((latW * 1.7 - lonW) * 3.15 + wLat * 4.0);",
     "  vec3 rp = vec3(lonW * 1.15, latW * 2.05, t * 0.12);",
     "  float ridge = pow(clamp(1.0 - abs(fbm(rp) * 2.0 - 1.0), 0.0, 1.0), 11.0);",
-    "  float knots = clamp((aArc * bArc + bArc * cArc + aArc * cArc) * 5.0, 0.0, 1.0);",
-    "  float lines = max(max(aArc, bArc), max(cArc, dArc * 0.85));",
+    "  float knots = clamp((aArc * bArc + bArc * cArc + aArc * cArc) * 4.2, 0.0, 1.0);",
+    "  float lines = max(max(aArc, bArc), max(cArc, dArc * 0.75));",
     "  lines = max(lines, ridge);",
-    "  lines = max(lines, knots);",
+    "  lines = max(lines, knots * 0.88);",
     "  lines *= 0.32 + 0.68 * smoothstep(0.0, 0.2, facing);",
     "  float front = step(0.5, uPower);",
     "  float core = front * exp(-dot(vObj.xy, vObj.xy) * 7.2) * pow(facing, 0.55);",
@@ -742,34 +742,11 @@ function createMystic(scene, color) {
     streakMesh.scale.set(2.15, 0.16, 1);
     streakMesh.renderOrder = 5;
 
-    const hud = new THREE.Mesh(
-      bucket.geo(dashedRingGeometry(1.4, 0.01, 48, 0.35)),
-      basicMat(bucket, color, { opacity: 0.28, white: 0.15, mood: 0.02, glow: false })
-    );
-    hud.rotation.x = 0.1;
-    hud.renderOrder = 6;
-    group.add(hud);
-
     const pedestal = new THREE.Group();
     pedestal.position.y = -1.38;
-    for (let ring = 0; ring < 5; ring++) {
-      const radius = 0.22 + ring * 0.2;
-      const mesh = new THREE.Mesh(
-        bucket.geo(new THREE.RingGeometry(radius, radius + 0.01, 72)),
-        basicMat(bucket, color, { opacity: 0.34 - ring * 0.05, white: 0.08, mood: 0.02 })
-      );
-      mesh.rotation.x = -Math.PI / 2;
-      pedestal.add(mesh);
-    }
-    const beam = new THREE.Mesh(
-      bucket.geo(new THREE.CylinderGeometry(0.035, 0.08, 0.55, 12)),
-      basicMat(bucket, color, { opacity: 0.42, white: 0.12, mood: 0.04 })
-    );
-    beam.position.y = 0.32;
-    pedestal.add(beam);
     const floor = new THREE.Mesh(
       bucket.geo(new THREE.CircleGeometry(1.05, 48)),
-      shaderMat(bucket, FRAG_DISC, { color: color, opacity: 0.32, power: 1.55, white: 0.06, mood: 0.03 })
+      shaderMat(bucket, FRAG_DISC, { color: color, opacity: 0.28, power: 1.55, white: 0.06, mood: 0.03 })
     );
     floor.rotation.x = -Math.PI / 2;
     pedestal.add(floor);
