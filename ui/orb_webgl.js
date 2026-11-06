@@ -588,116 +588,166 @@
     "}",
   ].join("\n");
 
+  // Mystic only. Thin swirling arcs via warped sin-ridges + FBM ridge extraction.
+  // Colour lift is capped so the core cannot mix out to pure white. Do not point aether here.
+  const FRAG_MYSTIC = [
+    "uniform vec3 uColor;",
+    "uniform float uOpacity;",
+    "uniform float uTime;",
+    "uniform float uPhase;",
+    "uniform float uPower;",
+    "varying vec3 vObj;",
+    "varying vec3 vNormal;",
+    "varying vec3 vView;",
+    "float hash13(vec3 p) {",
+    "  p = fract(p * 0.1031);",
+    "  p += dot(p, p.yzx + 33.33);",
+    "  return fract((p.x + p.y) * p.z);",
+    "}",
+    "float noise(vec3 p) {",
+    "  vec3 i = floor(p);",
+    "  vec3 f = fract(p);",
+    "  f = f * f * (3.0 - 2.0 * f);",
+    "  return mix(",
+    "    mix(mix(hash13(i), hash13(i + vec3(1.0, 0.0, 0.0)), f.x),",
+    "        mix(hash13(i + vec3(0.0, 1.0, 0.0)), hash13(i + vec3(1.0, 1.0, 0.0)), f.x), f.y),",
+    "    mix(mix(hash13(i + vec3(0.0, 0.0, 1.0)), hash13(i + vec3(1.0, 0.0, 1.0)), f.x),",
+    "        mix(hash13(i + vec3(0.0, 1.0, 1.0)), hash13(i + vec3(1.0, 1.0, 1.0)), f.x), f.y),",
+    "    f.z);",
+    "}",
+    "float fbm(vec3 p) {",
+    "  float v = 0.0;",
+    "  float a = 0.5;",
+    "  for (int i = 0; i < 4; i++) {",
+    "    v += a * noise(p);",
+    "    p = p * 2.03 + vec3(1.7, 9.2, 3.4);",
+    "    a *= 0.5;",
+    "  }",
+    "  return v;",
+    "}",
+    "float crest(float x) {",
+    "  return pow(1.0 - abs(sin(x)), 9.0);",
+    "}",
+    "void main() {",
+    "  vec3 N = normalize(vNormal);",
+    "  vec3 V = normalize(vView);",
+    "  float facing = abs(dot(N, V));",
+    "  if (uPower > 1.5) {",
+    "    float fres = pow(1.0 - facing, 2.15);",
+    "    float a = fres * fres * uOpacity;",
+    "    if (a < 0.02) discard;",
+    "    gl_FragColor = vec4(uColor, a);",
+    "    return;",
+    "  }",
+    "  vec3 sp = normalize(vObj);",
+    "  float lon = atan(sp.z, sp.x);",
+    "  float lat = asin(clamp(sp.y, -1.0, 1.0));",
+    "  float t = uTime * 0.32 + uPhase;",
+    "  float wLon = fbm(vec3(lon * 0.62, lat * 1.05, t * 0.22));",
+    "  float wLat = fbm(vec3(lat * 0.74 + 4.2, lon * 0.55, t * 0.16 + 2.0));",
+    "  float lonW = lon + (wLon - 0.5) * 2.4 + t * 0.18 + uPhase;",
+    "  float latW = lat + (wLat - 0.5) * 1.15 + 0.28 * sin(lon * 2.0 - t * 0.65);",
+    "  lonW += 0.42 * sin(latW * 2.6 + t);",
+    "  float aArc = crest(latW * 6.4 + lonW * 0.42 + wLon * 3.2);",
+    "  float bArc = crest(lonW * 5.1 + latW * 1.25 + wLat * 2.6);",
+    "  float cArc = crest((latW + lonW) * 4.6 + wLon * 2.4);",
+    "  float dArc = crest((latW * 1.7 - lonW) * 3.5 + wLat * 4.0);",
+    "  vec3 rp = vec3(lonW * 1.15, latW * 2.05, t * 0.12);",
+    "  float ridge = pow(clamp(1.0 - abs(fbm(rp) * 2.0 - 1.0), 0.0, 1.0), 11.0);",
+    "  float knots = clamp((aArc * bArc + bArc * cArc + aArc * cArc) * 5.0, 0.0, 1.0);",
+    "  float lines = max(max(aArc, bArc), max(cArc, dArc * 0.85));",
+    "  lines = max(lines, ridge);",
+    "  lines = max(lines, knots);",
+    "  lines *= 0.32 + 0.68 * smoothstep(0.0, 0.2, facing);",
+    "  float front = step(0.5, uPower);",
+    "  float core = front * exp(-dot(vObj.xy, vObj.xy) * 7.2) * pow(facing, 0.55);",
+    "  float streak = front * exp(-pow(vObj.y * 30.0, 2.0)) * exp(-pow(vObj.x * 0.72, 2.0));",
+    "  streak *= smoothstep(0.04, 0.32, facing);",
+    "  float fres = pow(1.0 - facing, 1.85);",
+    "  float body = 0.075 * (0.5 + 0.5 * facing);",
+    "  float feat = max(lines, max(core * 0.95, streak * 0.7));",
+    "  float alpha = body + fres * 0.2 + feat * 0.8;",
+    "  alpha *= uOpacity;",
+    "  if (alpha < 0.02) discard;",
+    "  vec3 hot = mix(uColor, vec3(1.0), 0.48);",
+    "  float lift = clamp(core * 0.7 + streak * 0.22 + knots * 0.16, 0.0, 0.58);",
+    "  vec3 col = mix(uColor * (0.42 + 0.58 * lines), hot, lift);",
+    "  col = min(col, mix(uColor, vec3(1.0), 0.62));",
+    "  gl_FragColor = vec4(col, min(alpha, 0.86));",
+    "}",
+  ].join("\n");
+
+  // Horizontal reach past the shell. Cyan-clamped — FRAG_FLARE mixes to pure white.
+  const FRAG_MYSTIC_STREAK = [
+    "uniform vec3 uColor;",
+    "uniform float uOpacity;",
+    "varying vec2 vUv;",
+    "void main() {",
+    "  float x = (vUv.x - 0.5) * 2.0;",
+    "  float y = (vUv.y - 0.5) * 2.0;",
+    "  float line = exp(-pow(y * 3.4, 2.0)) * exp(-pow(x * 0.92, 2.0));",
+    "  float a = min(line * uOpacity, 0.4);",
+    "  if (a < 0.02) discard;",
+    "  vec3 col = min(mix(uColor, vec3(1.0), 0.36), mix(uColor, vec3(1.0), 0.58));",
+    "  gl_FragColor = vec4(col, a);",
+    "}",
+  ].join("\n");
+
 function createMystic(scene, color) {
-    // Cyan filament / JARVIS volume: bright plasma shell, dense swirling filaments, hot core + flare, pedestal.
+    // Filament sphere: FBM-warped ridges on two shells, soft halo, clamped core. No ribbon fill.
     const bucket = makeBucket();
     const group = new THREE.Group();
     group.name = "mystic";
-    const sprite = softSprite(bucket);
-    const filRng = mulberry32(4242);
 
-    addDisc(bucket, group, 1.95, FRAG_DISC, {
-      color: color, opacity: 0.28, power: 2.35, white: 0.05, z: -0.32, mood: 0.04,
+    addDisc(bucket, group, 1.72, FRAG_DISC, {
+      color: color, opacity: 0.2, power: 2.7, white: 0.0, z: -0.36, mood: 0.04,
     });
-    addDisc(bucket, group, 1.35, FRAG_HALO_RING, {
-      color: color, opacity: 0.55, white: 0.1, z: -0.08, mood: 0.03, glow: false,
-    });
+    group.children[group.children.length - 1].renderOrder = 0;
 
-    const plasmaMat = shaderMat(bucket, FRAG_PLASMA, {
-      color: color, opacity: 1.05, white: 0.08, mood: 0.06, glow: false,
+    const haloMat = shaderMat(bucket, FRAG_MYSTIC, {
+      color: color, opacity: 0.62, power: 2.0, white: 0.0, mood: 0.04,
       vertex: VERT_ENERGY, side: THREE.FrontSide,
     });
-    const plasma = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(1.0, 80, 64)), plasmaMat);
-    group.add(plasma);
-
-    const halo = new THREE.Mesh(
-      bucket.geo(new THREE.SphereGeometry(1.14, 48, 36)),
-      shaderMat(bucket, FRAG_BUBBLE, {
-        color: color, opacity: 0.42, vertex: VERT_ENERGY, side: THREE.FrontSide, mood: 0.04, glow: false,
-      })
-    );
+    const halo = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(1.2, 48, 36)), haloMat);
+    halo.renderOrder = 1;
     group.add(halo);
 
-    const filaments = new THREE.Group();
-    // Prefer smooth orbital ribbons; keep a few thin surface threads for density.
-    for (let i = 0; i < 14; i++) {
-      const ribbon = new THREE.Mesh(
-        bucket.geo(buildRibbonGeometry({
-          radius: 0.72 + filRng() * 0.34,
-          waves: 2 + Math.floor(filRng() * 3),
-          phase: filRng() * 6.28,
-          radAmp: 0.04 + filRng() * 0.09,
-          zAmp: 0.18 + filRng() * 0.32,
-          width: 0.028 + filRng() * 0.045,
-          zWaves: 2 + Math.floor(filRng() * 2),
-          segments: 160,
-        })),
-        shaderMat(bucket, FRAG_RIBBON, {
-          color: color,
-          opacity: 0.62 + filRng() * 0.32,
-          white: 0.28,
-          streaks: 3 + Math.floor(filRng() * 4),
-          phase: filRng() * 6.28,
-          mood: 0.05,
-          timeScale: 0.85 + filRng() * 0.55,
-          glow: false,
-        })
-      );
-      ribbon.rotation.set(filRng() * 0.9 - 0.45, filRng() * 6.28, filRng() * 0.7 - 0.35);
-      filaments.add(ribbon);
-    }
-    for (let i = 0; i < 18; i++) {
-      const pts = surfaceFilament(filRng);
-      const width = 0.008 + filRng() * 0.016;
-      const mesh = new THREE.Mesh(
-        bucket.geo(buildStrip(pts, width)),
-        basicMat(bucket, color, {
-          opacity: 0.28 + filRng() * 0.4,
-          white: 0.35 + filRng() * 0.45,
-          mood: 0.05,
-          glow: false,
-        })
-      );
-      filaments.add(mesh);
-    }
-    group.add(filaments);
-
-    const rings = new THREE.Group();
-    const ringSpecs = [
-      { r: 0.58, rx: 0.72, op: 0.42 },
-      { r: 0.82, rx: 1.15, op: 0.32 },
-      { r: 1.02, rx: 0.35, op: 0.22 },
-    ];
-    ringSpecs.forEach(function (spec) {
-      const mesh = new THREE.Mesh(
-        bucket.geo(new THREE.TorusGeometry(spec.r, 0.005, 8, 140)),
-        shaderMat(bucket, FRAG_RING, { color: color, opacity: spec.op, white: 0.4, mood: 0.04, timeScale: 0.45 })
-      );
-      mesh.rotation.x = spec.rx;
-      rings.add(mesh);
+    const backMat = shaderMat(bucket, FRAG_MYSTIC, {
+      color: color, opacity: 0.78, power: 0.0, phase: 1.85, white: 0.02, mood: 0.05,
+      vertex: VERT_ENERGY, side: THREE.BackSide,
     });
-    group.add(rings);
+    const back = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(0.96, 64, 48)), backMat);
+    back.renderOrder = 2;
+    group.add(back);
+
+    const frontMat = shaderMat(bucket, FRAG_MYSTIC, {
+      color: color, opacity: 0.96, power: 1.0, phase: 0.15, white: 0.04, mood: 0.06,
+      vertex: VERT_ENERGY, side: THREE.FrontSide,
+    });
+    const front = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(1.0, 72, 56)), frontMat);
+    front.renderOrder = 3;
+    group.add(front);
 
     const core = new THREE.Group();
-    const coreMat = addDisc(bucket, core, 0.22, FRAG_DISC, {
-      color: color, opacity: 1, power: 0.7, white: 0.95, z: 0.05, mood: 0.02, glow: false,
+    const coreMat = addDisc(bucket, core, 0.13, FRAG_DISC, {
+      color: color, opacity: 0.48, power: 1.35, white: 0.18, z: 0.05, mood: 0.02,
     });
-    addDisc(bucket, core, 0.42, FRAG_DISC, {
-      color: color, opacity: 0.55, power: 1.4, white: 0.55, z: 0.02, mood: 0.03, glow: false,
-    });
+    core.renderOrder = 4;
     group.add(core);
 
-    const flareMat = addDisc(bucket, group, 1, FRAG_FLARE, {
-      color: color, opacity: 1.05, white: 0.88, z: 0.14, mood: 0.02, glow: false,
+    const streakMat = addDisc(bucket, group, 1, FRAG_MYSTIC_STREAK, {
+      color: color, opacity: 0.48, white: 0.04, z: 0.12, mood: 0.02,
     });
-    const flareMesh = group.children[group.children.length - 1];
-    flareMesh.scale.set(3.05, 0.13, 1);
+    const streakMesh = group.children[group.children.length - 1];
+    streakMesh.scale.set(2.15, 0.16, 1);
+    streakMesh.renderOrder = 5;
 
     const hud = new THREE.Mesh(
       bucket.geo(dashedRingGeometry(1.4, 0.01, 48, 0.35)),
       basicMat(bucket, color, { opacity: 0.28, white: 0.15, mood: 0.02, glow: false })
     );
     hud.rotation.x = 0.1;
+    hud.renderOrder = 6;
     group.add(hud);
 
     const pedestal = new THREE.Group();
@@ -726,21 +776,6 @@ function createMystic(scene, color) {
     group.add(pedestal);
     group.position.y = 0.22;
 
-    const sparkPos = [];
-    const sparkRng = mulberry32(77);
-    for (let i = 0; i < MAX_MYSTIC_POINTS; i++) {
-      const dir = new THREE.Vector3(sparkRng() - 0.5, sparkRng() - 0.5, sparkRng() - 0.5).normalize();
-      const radius = 0.92 + sparkRng() * 0.14;
-      sparkPos.push(dir.x * radius, dir.y * radius, dir.z * radius);
-    }
-    const sparkGeo = bucket.geo(new THREE.BufferGeometry());
-    sparkGeo.setAttribute("position", new THREE.Float32BufferAttribute(sparkPos, 3));
-    const sparks = new THREE.Points(
-      sparkGeo,
-      pointsMat(bucket, color, sprite, { opacity: 0.95, white: 0.7, size: 0.028, mood: 0.05, glow: false })
-    );
-    group.add(sparks);
-
     scene.add(group);
     return {
       group: group,
@@ -750,21 +785,12 @@ function createMystic(scene, color) {
         const speed = 0.25 + state.cfg.spin * 0.35;
         applyPaint(group, state.color, state.mood, state.cfg);
         group.scale.setScalar(1 + 0.018 * Math.sin(state.now * 0.0014) * state.cfg.pulse);
-        plasma.rotation.y += state.dt * 0.07 * speed;
-        filaments.rotation.y += state.dt * 0.09 * speed;
-        filaments.rotation.x = Math.sin(state.now * 0.00025) * 0.08;
-        rings.rotation.z += state.dt * 0.05 * speed;
-        sparks.rotation.y -= state.dt * 0.05 * speed;
-        plasmaMat.uniforms.uTime.value = state.now * 0.0012;
-        filaments.children.forEach(function (child) {
-          if (child.material && child.material.uniforms && child.material.uniforms.uTime) {
-            const scale = (child.material.userData && child.material.userData.timeScale) || 1;
-            child.material.uniforms.uTime.value = state.now * 0.0015 * scale;
-          }
-        });
-        core.scale.setScalar(1 + 0.1 * Math.sin(state.now * 0.0028) * state.cfg.pulse);
-        if (coreMat.uniforms) coreMat.uniforms.uOpacity.value *= 0.9 + 0.1 * Math.sin(state.now * 0.003);
-        if (flareMat.uniforms) flareMat.uniforms.uOpacity.value *= 0.85 + 0.15 * Math.sin(state.now * 0.0024);
+        const swirl = state.now * 0.001 * speed;
+        frontMat.uniforms.uTime.value = swirl;
+        backMat.uniforms.uTime.value = swirl * 0.82;
+        core.scale.setScalar(1 + 0.08 * Math.sin(state.now * 0.0028) * state.cfg.pulse);
+        if (coreMat.uniforms) coreMat.uniforms.uOpacity.value *= 0.92 + 0.08 * Math.sin(state.now * 0.003);
+        if (streakMat.uniforms) streakMat.uniforms.uOpacity.value *= 0.9 + 0.1 * Math.sin(state.now * 0.0024);
       },
     };
   }

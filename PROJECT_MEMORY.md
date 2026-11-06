@@ -48,7 +48,7 @@ Skeleton + substantial features exist:
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\settings.json` (incl. orb)
 - `main.py` — FastAPI `/chat` + `/health`
 - `ui/gradio_app.py` — Gradio UI + energy orb; **named presets** (UI-5); orb controls behind top-right gear panel (UI-6a)
-- **Orb styles:** classic four on canvas; **`mystic` / `aether` / `neural` on WebGL** via `ui/orb_webgl.js` + vendored `ui/vendor/three.min.js` (particle counts capped; see `docs/mockups/orb_styles.md`)
+- **Orb styles:** classic four on canvas; **`mystic` / `aether` / `neural` on WebGL** via `ui/orb_webgl.js` + vendored `ui/vendor/three.min.js` (particle counts capped; see `docs/mockups/orb_styles.md`). **Mystic** uses FBM / ridge-extracted filament fragment shaders (`FRAG_MYSTIC`), not ribbon meshes.
 - `reports/exporter.py` — run export
 - Tests under `tests/` for Jira, Playwright heal, orb config/presets, sessions, settings, reports
 - Architecture notes + AGENTS.md + this file
