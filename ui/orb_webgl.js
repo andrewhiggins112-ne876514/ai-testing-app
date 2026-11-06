@@ -569,13 +569,14 @@
     "}",
   ].join("\n");
 
-  // Neural only: wide fresnel glass shell — dark hollow centre, thick limb band with volume.
-  // No face fill, no MeshPhysical transmission, no atan (seam-safe). Turbulence = rim shimmer.
+  // Neural only: torus glass. Thick translucent body, soft limb lip, dark hollow centre.
+  // No MeshPhysical transmission, no hash noise (that read as jagged). Turbulence = slow shimmer.
   const FRAG_BUBBLE = [
     "uniform vec3 uColor;",
     "uniform float uOpacity;",
     "uniform float uTime;",
     "uniform float uTurbulence;",
+    "uniform float uPower;",
     "varying vec3 vObj;",
     "varying vec3 vNormal;",
     "varying vec3 vView;",
@@ -583,33 +584,25 @@
     "  vec3 N = normalize(vNormal);",
     "  vec3 V = normalize(vView);",
     "  float ndv = clamp(abs(dot(N, V)), 0.0, 1.0);",
-    // Lower power → wider rim band (glass shell thickness, not a thin neon line).
-    "  float fresWide = pow(1.0 - ndv, 1.45);",
-    "  float fresEdge = pow(1.0 - ndv, 2.65);",
-    "  float F0 = 0.045;",
-    "  float schlick = F0 + (1.0 - F0) * pow(1.0 - ndv, 4.2);",
-    // Soft translucent volume + brighter outer lip.
-    "  float volume = smoothstep(0.08, 0.72, fresWide);",
-    "  float softVol = pow(volume, 0.78);",
-    "  float lip = smoothstep(0.22, 0.95, fresEdge);",
-    "  float rimCore = pow(lip, 1.55);",
-    "  float crescent = pow(max(dot(N, normalize(vec3(-0.72, 0.42, 0.35))), 0.0), 2.2);",
-    "  float gloss = pow(max(dot(N, normalize(vec3(-0.55, 0.82, 0.22))), 0.0), 22.0);",
-    "  float gloss2 = pow(max(dot(N, normalize(vec3(0.62, 0.55, 0.4))), 0.0), 40.0);",
+    "  float skin = smoothstep(0.15, 0.85, uPower);",
     "  float turb = clamp(uTurbulence, 0.0, 2.0);",
-    "  float nDot = dot(N, vec3(0.31, 0.67, 0.22));",
-    "  float shimmer = 0.5 + 0.5 * sin(nDot * (4.6 + turb * 1.2) + uTime * (0.34 + 0.16 * turb) + vObj.y * 1.25);",
-    "  float shell = softVol * (0.42 + schlick * 0.95) * (0.88 + crescent * 0.32);",
-    "  shell += rimCore * 0.62;",
-    "  shell += softVol * shimmer * (0.035 + 0.055 * turb);",
-    "  shell += gloss * 0.72 + gloss2 * 0.28;",
-    // Keep the face a dark void; allow a thicker shell band than a knife-edge.
-    "  shell *= smoothstep(0.1, 0.42, fresWide);",
-    "  float alpha = shell * uOpacity;",
+    "  float fresPow = mix(1.65, 2.85, skin) - turb * 0.1;",
+    "  float fres = pow(1.0 - ndv, max(fresPow, 1.2));",
+    "  float lip = fres * mix(0.34, 0.72, skin);",
+    "  float body = mix(0.36, 0.24, skin) * (0.7 + 0.3 * pow(ndv, 0.5));",
+    "  vec3 key = normalize(vec3(-0.46, 0.7, 0.54));",
+    "  float ndk = max(dot(N, key), 0.0);",
+    "  float sheen = pow(ndk, 1.85) * 0.26 * skin;",
+    "  float spec = pow(ndk, 14.0) * 0.42 * skin;",
+    "  float shim = sin(vObj.x * 2.2 + vObj.y * 1.6 + uTime * (0.32 + 0.26 * turb));",
+    "  float wobble = 1.0 + shim * (0.02 + 0.045 * turb);",
+    "  float up = clamp(N.y * 0.5 + 0.5, 0.0, 1.0);",
+    "  float glass = (body + lip + sheen + spec) * wobble * (0.84 + 0.16 * up);",
+    "  float alpha = glass * uOpacity;",
     "  if (alpha < 0.012) discard;",
-    "  vec3 col = mix(uColor * 0.55, uColor, softVol);",
-    "  col = mix(col, vec3(0.58, 0.9, 1.0), clamp(crescent * 0.16 + gloss * 0.5 + gloss2 * 0.3, 0.0, 0.52));",
-    "  gl_FragColor = vec4(col, min(alpha, 0.9));",
+    "  vec3 col = mix(uColor * 0.58, uColor, clamp(fres * 0.85 + 0.15, 0.0, 1.0));",
+    "  col = mix(col, vec3(0.78, 0.95, 1.0), clamp(spec * 0.7 + sheen * 0.28, 0.0, 0.42));",
+    "  gl_FragColor = vec4(col, min(alpha, 0.62));",
     "}",
   ].join("\n");
 
@@ -733,7 +726,8 @@
     "}",
   ].join("\n");
 
-  // Neural only: additive bloom around the bubble — peak near the limb, dark inside.
+  // Neural only: soft haze around the bubble. Monotonic falloff — no peaked ring
+  // (stacked peaks read as hard concentric bands). Centre stays dark.
   const FRAG_NEURAL_ATMOS = [
     "uniform vec3 uColor;",
     "uniform float uOpacity;",
@@ -741,12 +735,12 @@
     "varying vec2 vUv;",
     "void main() {",
     "  float d = length(vUv - vec2(0.5)) * 2.0;",
-    "  float ring = exp(-pow((d - 0.56) * uPower, 2.0));",
-    "  float halo = exp(-pow(max(d - 0.48, 0.0) * (uPower * 0.55), 2.0));",
-    "  float a = (ring * 0.95 + halo * 0.55) * uOpacity;",
-    "  a *= smoothstep(0.22, 0.5, d);",
-    "  a *= smoothstep(1.12, 0.55, d);",
-    "  if (a < 0.003) discard;",
+    "  float reach = max(d - 0.28, 0.0) * (1.15 + uPower * 0.7);",
+    "  float lobe = exp(-reach * reach);",
+    "  float hollow = smoothstep(0.22, 0.58, d);",
+    "  float fade = smoothstep(1.2, 0.66, d);",
+    "  float a = lobe * hollow * fade * uOpacity;",
+    "  if (a < 0.004) discard;",
     "  gl_FragColor = vec4(uColor, a);",
     "}",
   ].join("\n");
@@ -834,31 +828,27 @@ function createMystic(scene, color) {
   }
 
 function createNeural(scene, color) {
-    // Fresnel rim-only glass bubble: dark hollow centre, soft limb glow, ring atmos bloom,
-    // sparse sparkles. Soft occlusion core keeps bloom from filling the void. No transmission.
+    // Glass torus: thick hollow shell (front skin + far wall), dark void, soft haze,
+    // sparse sparkles in the glass. No MeshPhysical transmission. Glow/turbulence stay live.
     const bucket = makeBucket();
     const group = new THREE.Group();
     group.name = "neural";
     const sprite = softSprite(bucket);
     const cyanBias = color.clone().lerp(new THREE.Color("#6ee8ff"), 0.38);
+    const major = 0.78;
+    const tube = 0.24;
 
-    // Soft atmospheric bloom around the bubble (additive; centre killed in shader).
-    addDisc(bucket, group, 3.7, FRAG_NEURAL_ATMOS, {
-      color: cyanBias, opacity: 0.54, power: 1.05, white: 0.0, z: -0.58, mood: 0.04,
+    addDisc(bucket, group, 2.15, FRAG_NEURAL_ATMOS, {
+      color: cyanBias, opacity: 0.16, power: 1.2, white: 0.0, z: -0.42, mood: 0.03,
     });
     group.children[group.children.length - 1].renderOrder = 0;
 
-    addDisc(bucket, group, 2.75, FRAG_NEURAL_ATMOS, {
-      color: cyanBias, opacity: 0.38, power: 1.4, white: 0.0, z: -0.4, mood: 0.04,
+    addDisc(bucket, group, 1.46, FRAG_NEURAL_ATMOS, {
+      color: cyanBias, opacity: 0.12, power: 1.85, white: 0.0, z: -0.2, mood: 0.02,
     });
     group.children[group.children.length - 1].renderOrder = 1;
 
-    addDisc(bucket, group, 2.05, FRAG_NEURAL_ATMOS, {
-      color: cyanBias, opacity: 0.18, power: 1.85, white: 0.0, z: -0.24, mood: 0.03,
-    });
-    group.children[group.children.length - 1].renderOrder = 1;
-
-    // Soft occlusion so the hollow reads black (not bloom leaking through the open shell).
+    // Occlude the hole so haze cannot fill the void. Stays inside the inner rim.
     const voidMat = bucket.mat(new THREE.MeshBasicMaterial({
       color: new THREE.Color("#000000"),
       transparent: true,
@@ -868,61 +858,63 @@ function createNeural(scene, color) {
       side: THREE.FrontSide,
       blending: THREE.NormalBlending,
     }));
-    const voidCore = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(0.88, 64, 48)), voidMat);
+    const voidCore = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(major - tube - 0.02, 48, 32)), voidMat);
     voidCore.renderOrder = 2;
     group.add(voidCore);
 
-    const shellMat = shaderMat(bucket, FRAG_BUBBLE, {
-      color: cyanBias, opacity: 1.72, vertex: VERT_ENERGY, side: THREE.FrontSide, mood: 0.05,
-    });
-    const shell = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(1.0, 96, 72)), shellMat);
-    shell.renderOrder = 4;
-    // Backface for glass-wall thickness at the limb without filling the void.
-    const innerMat = shaderMat(bucket, FRAG_BUBBLE, {
-      color: cyanBias, opacity: 0.55, vertex: VERT_ENERGY, side: THREE.BackSide, mood: 0.03,
-    });
-    const innerShell = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(0.955, 72, 56)), innerMat);
-    innerShell.renderOrder = 3;
-    group.add(innerShell);
-    group.add(shell);
+    const torusGeo = bucket.geo(new THREE.TorusGeometry(major, tube, 64, 160));
+    const spin = new THREE.Group();
+    group.add(spin);
 
-    // Sparse sparkles near the glass limb / bloom field.
+    // Far wall of the tube — soft fill so the shell has thickness, not a second neon ring.
+    const innerMat = shaderMat(bucket, FRAG_BUBBLE, {
+      color: cyanBias, opacity: 0.46, power: 0.0, vertex: VERT_ENERGY, side: THREE.BackSide, mood: 0.03,
+    });
+    const innerShell = new THREE.Mesh(torusGeo, innerMat);
+    innerShell.renderOrder = 3;
+    spin.add(innerShell);
+
+    const shellMat = shaderMat(bucket, FRAG_BUBBLE, {
+      color: cyanBias, opacity: 0.88, power: 1.0, vertex: VERT_ENERGY, side: THREE.FrontSide, mood: 0.04,
+    });
+    const shell = new THREE.Mesh(torusGeo, shellMat);
+    shell.renderOrder = 4;
+    spin.add(shell);
+
     const dustRng = mulberry32(4401);
     const dustPos = [];
-    let guard = 0;
-    const dustCap = Math.min(16, MAX_NEURAL_POINTS);
-    while (dustPos.length / 3 < dustCap && guard < dustCap * 14) {
-      guard += 1;
-      const dir = new THREE.Vector3(dustRng() - 0.5, dustRng() - 0.5, dustRng() - 0.5).normalize();
-      if (Math.abs(dir.z) < 0.32 && dustRng() < 0.7) continue;
-      const radius = 0.98 + dustRng() * 0.34;
-      dustPos.push(dir.x * radius, dir.y * radius, dir.z * radius);
+    const dustCap = 16;
+    for (let i = 0; i < dustCap; i++) {
+      const u = dustRng() * Math.PI * 2;
+      const v = dustRng() * Math.PI * 2;
+      const tr = tube * (0.18 + dustRng() * 0.7);
+      const arm = major + tr * Math.cos(v);
+      dustPos.push(arm * Math.cos(u), arm * Math.sin(u), tr * Math.sin(v));
     }
     const dustGeo = bucket.geo(new THREE.BufferGeometry());
     dustGeo.setAttribute("position", new THREE.Float32BufferAttribute(dustPos, 3));
     const dust = new THREE.Points(
       dustGeo,
-      pointsMat(bucket, cyanBias, sprite, { opacity: 0.48, white: 0.3, size: 0.01, mood: 0.02 })
+      pointsMat(bucket, cyanBias, sprite, { opacity: 0.7, white: 0.58, size: 0.016, mood: 0.02 })
     );
     dust.renderOrder = 5;
-    group.add(dust);
+    spin.add(dust);
 
     const bokehRng = mulberry32(808);
     const bokehPos = [];
-    const bokehCount = Math.min(3, MAX_NEURAL_POINTS - dustPos.length / 3);
-    for (let i = 0; i < bokehCount; i++) {
-      const dir = new THREE.Vector3(bokehRng() - 0.5, bokehRng() - 0.5, bokehRng() - 0.5).normalize();
-      const radius = 1.2 + bokehRng() * 0.36;
-      bokehPos.push(dir.x * radius, dir.y * radius, dir.z * radius);
+    for (let i = 0; i < 4; i++) {
+      const u = bokehRng() * Math.PI * 2;
+      const arm = major + tube + 0.05 + bokehRng() * 0.2;
+      bokehPos.push(arm * Math.cos(u), arm * Math.sin(u), (bokehRng() - 0.5) * 0.16);
     }
     const bokehGeo = bucket.geo(new THREE.BufferGeometry());
     bokehGeo.setAttribute("position", new THREE.Float32BufferAttribute(bokehPos, 3));
     const bokeh = new THREE.Points(
       bokehGeo,
-      pointsMat(bucket, cyanBias, sprite, { opacity: 0.09, white: 0.04, size: 0.038, mood: 0.015 })
+      pointsMat(bucket, cyanBias, sprite, { opacity: 0.12, white: 0.06, size: 0.03, mood: 0.01 })
     );
     bokeh.renderOrder = 4;
-    group.add(bokeh);
+    spin.add(bokeh);
 
     scene.add(group);
     return {
@@ -945,10 +937,7 @@ function createNeural(scene, color) {
           innerMat.uniforms.uTime.value = t * 0.85;
           innerMat.uniforms.uTurbulence.value = turb;
         }
-        shell.rotation.y += state.dt * 0.05 * (0.35 + speed);
-        innerShell.rotation.y -= state.dt * 0.03 * (0.35 + speed);
-        dust.rotation.y += state.dt * 0.04 * (0.35 + speed);
-        bokeh.rotation.z += state.dt * 0.022 * (0.35 + speed);
+        spin.rotation.z += state.dt * 0.055 * (0.35 + speed);
       },
     };
   }
