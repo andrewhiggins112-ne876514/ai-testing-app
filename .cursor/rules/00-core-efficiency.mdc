@@ -10,9 +10,15 @@ alwaysApply: true
 - Never store real credentials in the repo or chat. Local settings store only.
 - No Jira writes / credential prompts until the user says a Jira account exists.
 - Confirm before: security-level changes, deletes, credential updates, Jira writes.
-- Prefer Composer / Auto for implementation. Reserve frontier models for architecture.
 - Prefer small diffs; extend existing plugins — do not create parallel systems.
 - After a finished slice: update Current State in `PROJECT_MEMORY.md` if behaviour changed.
+
+# Model selection (cheapest first)
+
+- Always start with the cheapest capable model: **Composer 2.5** or **Auto** (if available). Gemini 2.5 Flash is also acceptable for simple work.
+- Do not use Grok 4.7, Claude Opus, or other frontier models unless the cheaper model has failed twice on the same task, or the task is explicitly marked as requiring a stronger model (e.g. visual orb matching against reference images).
+- If you escalate, state why in one sentence before switching.
+- Prefer the model picker to stay on Composer/Auto unless escalation is justified.
 
 # Git handling (agents do this, never ask the user)
 
