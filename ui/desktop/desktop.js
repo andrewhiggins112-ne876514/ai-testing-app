@@ -37,7 +37,7 @@
       glow: 1,
     },
     neural: {
-      calm_color: "#5ce1ff",
+      calm_color: "#50cdff",
       thinking_color: "#b388ff",
       size: 360,
       spin_speed: 1,
