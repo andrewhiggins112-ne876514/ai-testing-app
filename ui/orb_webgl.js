@@ -588,22 +588,23 @@
     "  float turb = clamp(uTurbulence, 0.0, 2.0);",
     "  float fresPow = mix(1.65, 2.85, skin) - turb * 0.1;",
     "  float fres = pow(1.0 - ndv, max(fresPow, 1.2));",
-    "  float lip = fres * mix(0.26, 0.5, skin);",
-    "  float body = mix(0.36, 0.26, skin) * (0.72 + 0.28 * pow(ndv, 0.5));",
+    "  float lip = fres * mix(0.22, 0.42, skin);",
+    "  float body = mix(0.58, 0.48, skin) * (0.8 + 0.2 * pow(ndv, 0.42));",
     "  vec3 L = normalize(vec3(-0.5, 0.78, 0.64));",
     "  vec3 H = normalize(L + V);",
     "  float ndh = max(dot(N, H), 0.0);",
-    "  float sheen = pow(ndh, 5.0) * 0.3 * skin;",
-    "  float catch = pow(ndh, 24.0) * skin;",
+    "  float sheen = pow(ndh, 5.0) * 0.32 * skin;",
+    "  float catch = pow(ndh, 22.0) * skin;",
     "  float shim = sin(vObj.x * 2.2 + vObj.y * 1.6 + uTime * (0.32 + 0.26 * turb));",
     "  float wobble = 1.0 + shim * (0.02 + 0.045 * turb);",
     "  float up = clamp(N.y * 0.5 + 0.5, 0.0, 1.0);",
-    "  float glass = (body + lip + sheen * 0.55) * wobble * (0.84 + 0.16 * up);",
-    "  float alpha = min(glass * uOpacity, 0.44) + catch * 0.7;",
+    "  float glass = (body + lip + sheen * 0.5) * wobble * (0.86 + 0.14 * up);",
+    "  float alpha = min(glass * uOpacity, 0.58) + catch * 0.72;",
     "  if (alpha < 0.012) discard;",
-    "  vec3 col = mix(uColor * 0.5, uColor, clamp(fres * 0.72 + 0.2, 0.0, 1.0));",
-    "  col = mix(col, vec3(0.8, 0.95, 1.0), clamp(fres * 0.14 + sheen * 0.9, 0.0, 0.4));",
-    "  col = mix(col, vec3(0.96, 0.99, 1.0), clamp(catch, 0.0, 0.95));",
+    "  vec3 glowCyan = vec3(0.45, 0.93, 1.0);",
+    "  vec3 col = mix(uColor, glowCyan, 0.62);",
+    "  col = mix(col, vec3(0.72, 0.97, 1.0), clamp(fres * 0.16 + sheen * 0.8, 0.0, 0.48));",
+    "  col = mix(col, vec3(0.97, 0.99, 1.0), clamp(catch, 0.0, 0.95));",
     "  gl_FragColor = vec4(col, min(alpha, 0.9));",
     "}",
   ].join("\n");
@@ -737,13 +738,46 @@
     "varying vec2 vUv;",
     "void main() {",
     "  float d = length(vUv - vec2(0.5)) * 2.0;",
-    "  float reach = max(d - 0.24, 0.0) * (0.78 + uPower * 0.4);",
+    "  float reach = max(d - 0.16, 0.0) * (0.46 + uPower * 0.2);",
     "  float lobe = exp(-reach * reach);",
-    "  float hollow = smoothstep(0.2, 0.56, d);",
-    "  float fade = smoothstep(1.34, 0.5, d);",
+    "  float hollow = smoothstep(0.16, 0.62, d);",
+    "  float fade = smoothstep(1.62, 0.36, d);",
     "  float a = lobe * hollow * fade * uOpacity;",
     "  if (a < 0.004) discard;",
-    "  gl_FragColor = vec4(uColor, a);",
+    "  vec3 col = mix(uColor, vec3(0.62, 0.95, 1.0), 0.4);",
+    "  gl_FragColor = vec4(col, a);",
+    "}",
+  ].join("\n");
+
+  // Neural sparkles only. Per-point phase so the field twinkles instead of flashing together.
+  const VERT_NEURAL_SPARK = [
+    "attribute float aPhase;",
+    "attribute float aGain;",
+    "uniform float uTime;",
+    "uniform float uSize;",
+    "varying float vTw;",
+    "void main() {",
+    "  vec4 mv = modelViewMatrix * vec4(position, 1.0);",
+    "  float tw = 0.84 + 0.16 * sin(uTime * 0.55 + aPhase);",
+    "  vTw = tw;",
+    "  gl_PointSize = clamp(uSize * aGain * tw * (980.0 / max(0.3, -mv.z)), 2.0, 34.0);",
+    "  gl_Position = projectionMatrix * mv;",
+    "}",
+  ].join("\n");
+
+  const FRAG_NEURAL_SPARK = [
+    "uniform vec3 uColor;",
+    "uniform float uOpacity;",
+    "varying float vTw;",
+    "void main() {",
+    "  vec2 p = gl_PointCoord - vec2(0.5);",
+    "  float d = length(p);",
+    "  float core = smoothstep(0.16, 0.0, d);",
+    "  float halo = smoothstep(0.5, 0.08, d);",
+    "  float a = (core * 0.9 + halo * 0.42) * uOpacity * vTw;",
+    "  if (a < 0.03) discard;",
+    "  vec3 col = mix(uColor, vec3(0.92, 0.98, 1.0), 0.72);",
+    "  gl_FragColor = vec4(col, a);",
     "}",
   ].join("\n");
 
@@ -829,38 +863,59 @@ function createMystic(scene, color) {
     };
   }
 
+  function neuralSparkMat(bucket, color, opts) {
+    const mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uColor: { value: color.clone() },
+        uOpacity: { value: opts.opacity },
+        uTime: { value: 0 },
+        uSize: { value: opts.size },
+      },
+      vertexShader: VERT_NEURAL_SPARK,
+      fragmentShader: FRAG_NEURAL_SPARK,
+      transparent: true,
+      depthWrite: false,
+      depthTest: false,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false,
+    });
+    return bucket.mat(tagPaint(mat, opts));
+  }
+
+  function fillSparkGeo(bucket, rng, count, place) {
+    const pos = [];
+    const phase = [];
+    const gain = [];
+    for (let i = 0; i < count; i++) {
+      const p = place(rng);
+      pos.push(p[0], p[1], p[2]);
+      phase.push(rng() * Math.PI * 2);
+      gain.push(0.62 + rng() * 0.7);
+    }
+    const geo = bucket.geo(new THREE.BufferGeometry());
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    geo.setAttribute("aPhase", new THREE.Float32BufferAttribute(phase, 1));
+    geo.setAttribute("aGain", new THREE.Float32BufferAttribute(gain, 1));
+    return geo;
+  }
+
 function createNeural(scene, color) {
-    // Glass torus: thick hollow shell (front skin + far wall), dark void, soft haze,
-    // sparse sparkles in the glass. No MeshPhysical transmission. Glow/turbulence stay live.
+    // Glass torus: one thick hollow shell (front skin + far wall), dark void,
+    // wider cyan haze, a sparkle field in the glass. No MeshPhysical transmission.
     const bucket = makeBucket();
     const group = new THREE.Group();
     group.name = "neural";
-    const sparkCanvas = document.createElement("canvas");
-    sparkCanvas.width = 64;
-    sparkCanvas.height = 64;
-    const sparkG = sparkCanvas.getContext("2d");
-    const sparkGrd = sparkG.createRadialGradient(32, 32, 0, 32, 32, 32);
-    sparkGrd.addColorStop(0, "rgba(255,255,255,1)");
-    sparkGrd.addColorStop(0.1, "rgba(255,255,255,1)");
-    sparkGrd.addColorStop(0.26, "rgba(255,255,255,0.45)");
-    sparkGrd.addColorStop(0.55, "rgba(255,255,255,0.06)");
-    sparkGrd.addColorStop(1, "rgba(255,255,255,0)");
-    sparkG.fillStyle = sparkGrd;
-    sparkG.fillRect(0, 0, 64, 64);
-    const sparkTex = new THREE.CanvasTexture(sparkCanvas);
-    sparkTex.needsUpdate = true;
-    bucket.tex(sparkTex);
-    const cyanBias = color.clone().lerp(new THREE.Color("#6ee8ff"), 0.38);
+    const cyanBias = color.clone().lerp(new THREE.Color("#8ef7ff"), 0.74);
     const major = 0.78;
     const tube = 0.24;
 
-    addDisc(bucket, group, 2.42, FRAG_NEURAL_ATMOS, {
-      color: cyanBias, opacity: 0.2, power: 1.0, white: 0.0, z: -0.42, mood: 0.03,
+    addDisc(bucket, group, 2.9, FRAG_NEURAL_ATMOS, {
+      color: cyanBias, opacity: 0.32, power: 0.62, white: 0.1, z: -0.5, mood: 0.04,
     });
     group.children[group.children.length - 1].renderOrder = 0;
 
-    addDisc(bucket, group, 1.46, FRAG_NEURAL_ATMOS, {
-      color: cyanBias, opacity: 0.12, power: 1.85, white: 0.0, z: -0.2, mood: 0.02,
+    addDisc(bucket, group, 1.78, FRAG_NEURAL_ATMOS, {
+      color: cyanBias, opacity: 0.16, power: 1.15, white: 0.05, z: -0.22, mood: 0.03,
     });
     group.children[group.children.length - 1].renderOrder = 1;
 
@@ -884,58 +939,41 @@ function createNeural(scene, color) {
 
     // Far wall of the tube — soft fill so the shell has thickness, not a second neon ring.
     const innerMat = shaderMat(bucket, FRAG_BUBBLE, {
-      color: cyanBias, opacity: 0.4, power: 0.0, vertex: VERT_ENERGY, side: THREE.BackSide, mood: 0.03,
+      color: cyanBias, opacity: 0.48, power: 0.0, vertex: VERT_ENERGY, side: THREE.BackSide, mood: 0.03,
     });
     const innerShell = new THREE.Mesh(torusGeo, innerMat);
     innerShell.renderOrder = 3;
     spin.add(innerShell);
 
     const shellMat = shaderMat(bucket, FRAG_BUBBLE, {
-      color: cyanBias, opacity: 0.76, power: 1.0, vertex: VERT_ENERGY, side: THREE.FrontSide, mood: 0.04,
+      color: cyanBias, opacity: 0.82, power: 1.0, vertex: VERT_ENERGY, side: THREE.FrontSide, mood: 0.04,
     });
     const shell = new THREE.Mesh(torusGeo, shellMat);
     shell.renderOrder = 4;
     spin.add(shell);
 
     const sparkRng = mulberry32(4401);
-    const sparkPos = [];
-    for (let i = 0; i < 12; i++) {
-      const u = sparkRng() * Math.PI * 2;
-      const v = sparkRng() * Math.PI * 2;
-      const tr = tube * (0.22 + sparkRng() * 0.62);
+    const sparkGeo = fillSparkGeo(bucket, sparkRng, 78, function (rng) {
+      const u = rng() * Math.PI * 2;
+      const v = rng() * Math.PI * 2;
+      const tr = tube * (0.16 + Math.sqrt(rng()) * 0.72);
       const arm = major + tr * Math.cos(v);
-      sparkPos.push(arm * Math.cos(u), arm * Math.sin(u), tr * Math.sin(v) + 0.04);
-    }
-    const sparkGeo = bucket.geo(new THREE.BufferGeometry());
-    sparkGeo.setAttribute("position", new THREE.Float32BufferAttribute(sparkPos, 3));
-    const sparks = new THREE.Points(
-      sparkGeo,
-      pointsMat(bucket, cyanBias, sparkTex, { opacity: 1, white: 0.98, size: 0.11, mood: 0.02 })
-    );
+      return [arm * Math.cos(u), arm * Math.sin(u), tr * Math.sin(v)];
+    });
+    const sparkMat = neuralSparkMat(bucket, cyanBias, { opacity: 0.95, white: 0.9, size: 0.072, mood: 0.02 });
+    const sparks = new THREE.Points(sparkGeo, sparkMat);
     sparks.renderOrder = 6;
-    sparks.material.depthTest = false;
     spin.add(sparks);
 
     const hazeRng = mulberry32(808);
-    const hazePos = [];
-    for (let i = 0; i < 8; i++) {
-      const u = hazeRng() * Math.PI * 2;
-      const arm = major + tube + 0.08 + hazeRng() * 0.46;
-      hazePos.push(arm * Math.cos(u), arm * Math.sin(u), (hazeRng() - 0.5) * 0.34);
-    }
-    for (let i = 0; i < 4; i++) {
-      const u = hazeRng() * Math.PI * 2;
-      const arm = 0.06 + hazeRng() * 0.28;
-      hazePos.push(arm * Math.cos(u), arm * Math.sin(u), (hazeRng() - 0.5) * 0.08);
-    }
-    const hazeGeo = bucket.geo(new THREE.BufferGeometry());
-    hazeGeo.setAttribute("position", new THREE.Float32BufferAttribute(hazePos, 3));
-    const hazeSparks = new THREE.Points(
-      hazeGeo,
-      pointsMat(bucket, cyanBias, sparkTex, { opacity: 0.9, white: 0.82, size: 0.12, mood: 0.01 })
-    );
+    const hazeGeo = fillSparkGeo(bucket, hazeRng, 28, function (rng) {
+      const u = rng() * Math.PI * 2;
+      const radial = major + tube * 0.15 + rng() * 0.52;
+      return [radial * Math.cos(u), radial * Math.sin(u), (rng() - 0.5) * 0.42];
+    });
+    const hazeMat = neuralSparkMat(bucket, cyanBias, { opacity: 0.72, white: 0.78, size: 0.058, mood: 0.02 });
+    const hazeSparks = new THREE.Points(hazeGeo, hazeMat);
     hazeSparks.renderOrder = 5;
-    hazeSparks.material.depthTest = false;
     spin.add(hazeSparks);
 
     scene.add(group);
@@ -947,7 +985,7 @@ function createNeural(scene, color) {
         const speed = state.cfg.spin * 0.45;
         const pulse = state.cfg.pulse;
         const turb = state.cfg.turbulence;
-        const live = state.color.clone().lerp(new THREE.Color("#6ee8ff"), 0.28);
+        const live = state.color.clone().lerp(new THREE.Color("#7af6ff"), 0.66);
         applyPaint(group, live, state.mood, state.cfg);
         group.scale.setScalar(1 + 0.016 * Math.sin(state.now * 0.0012) * pulse);
         const t = state.now * 0.001 * (0.55 + 0.45 * turb);
@@ -959,6 +997,8 @@ function createNeural(scene, color) {
           innerMat.uniforms.uTime.value = t * 0.85;
           innerMat.uniforms.uTurbulence.value = turb;
         }
+        if (sparkMat.uniforms) sparkMat.uniforms.uTime.value = t;
+        if (hazeMat.uniforms) hazeMat.uniforms.uTime.value = t * 0.92 + 1.4;
         spin.rotation.z += state.dt * 0.055 * (0.35 + speed);
       },
     };
