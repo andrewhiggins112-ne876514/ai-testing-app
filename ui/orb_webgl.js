@@ -1082,13 +1082,13 @@ function createNeural(scene, color) {
     "  vec3 N = normalize(vNormal);",
     "  vec3 V = normalize(vView);",
     "  float facing = abs(dot(N, V));",
-    "  float fres = pow(1.0 - facing, 2.4);",
-    "  float body = pow(facing, 0.42);",
-    "  float alpha = (body * 0.62 + fres * 0.38) * uOpacity;",
+    "  float fres = pow(1.0 - facing, 2.1);",
+    "  float body = pow(facing, 0.34);",
+    "  float alpha = (body * 0.68 + fres * 0.32) * uOpacity;",
     "  if (alpha < 0.02) discard;",
-    "  vec3 champagne = mix(uColor, vec3(1.0, 0.96, 0.86), 0.55 + uWhite * 0.25);",
-    "  vec3 col = mix(champagne, vec3(1.0), clamp(fres * 0.55 + body * 0.35, 0.0, 0.72));",
-    "  gl_FragColor = vec4(col, min(alpha, 0.92));",
+    "  vec3 champagne = mix(uColor, vec3(1.0, 0.97, 0.88), 0.62 + uWhite * 0.22);",
+    "  vec3 col = mix(champagne, vec3(1.0, 0.98, 0.92), clamp(fres * 0.42 + body * 0.48, 0.0, 0.78));",
+    "  gl_FragColor = vec4(col, min(alpha, 0.96));",
     "}",
   ].join("\n");
 
@@ -1100,14 +1100,15 @@ function createNeural(scene, color) {
     "varying vec2 vUv;",
     "void main() {",
     "  float across = abs(vUv.y - 0.5) * 2.0;",
-    "  float edge = pow(clamp(1.0 - across, 0.0, 1.0), 2.8);",
-    "  float tip = smoothstep(0.0, 0.08, vUv.x) * smoothstep(1.0, 0.68, vUv.x);",
-    "  float dash = 0.48 + 0.52 * pow(0.5 + 0.5 * sin(vUv.x * 24.0 - uTime * 0.65 + uPhase), 1.05);",
-    "  float pulse = 0.65 + 0.35 * sin(vUv.x * 9.0 + uPhase * 1.7 - uTime * 0.9);",
+    "  float edge = pow(clamp(1.0 - across, 0.0, 1.0), 2.4);",
+    "  float tip = smoothstep(0.0, 0.05, vUv.x) * smoothstep(1.0, 0.74, vUv.x);",
+    "  float dashWave = 0.5 + 0.5 * sin(vUv.x * 14.0 - uTime * 0.55 + uPhase);",
+    "  float dash = 0.84 + 0.16 * pow(dashWave, 0.65);",
+    "  float pulse = 0.82 + 0.18 * sin(vUv.x * 7.0 + uPhase * 1.3 - uTime * 0.75);",
     "  float a = edge * tip * dash * pulse * uOpacity;",
-    "  if (a < 0.012) discard;",
-    "  vec3 col = mix(uColor, vec3(1.0, 0.95, 0.82), clamp(edge * 0.5 + pulse * 0.25, 0.0, 1.0));",
-    "  gl_FragColor = vec4(col, a);",
+    "  if (a < 0.01) discard;",
+    "  vec3 col = mix(uColor, vec3(1.0, 0.96, 0.84), clamp(edge * 0.55 + pulse * 0.22, 0.0, 1.0));",
+    "  gl_FragColor = vec4(col, min(a, 0.88));",
     "}",
   ].join("\n");
 
@@ -1132,25 +1133,25 @@ function createNeural(scene, color) {
 
     const warm = apexTint(color);
 
-    addDisc(bucket, group, 0.72, FRAG_MYSTIC_ATMOS, {
-      color: warm, opacity: 0.28, power: 2.2, white: 0.08, z: -0.12, mood: 0.04,
+    addDisc(bucket, group, 1.05, FRAG_MYSTIC_ATMOS, {
+      color: warm, opacity: 0.38, power: 2.05, white: 0.14, z: -0.12, mood: 0.05,
     });
     group.children[group.children.length - 1].renderOrder = 0;
 
-    addDisc(bucket, group, 0.42, FRAG_DISC, {
-      color: warm, opacity: 0.38, power: 1.25, white: 0.22, z: -0.06, mood: 0.03,
+    addDisc(bucket, group, 0.62, FRAG_DISC, {
+      color: warm, opacity: 0.52, power: 1.18, white: 0.3, z: -0.06, mood: 0.04,
     });
     group.children[group.children.length - 1].renderOrder = 1;
 
     const coreMat = shaderMat(bucket, FRAG_APEX_CORE, {
-      color: warm, opacity: 0.88, white: 0.12, mood: 0.04, vertex: VERT_GLASS,
+      color: warm, opacity: 0.94, white: 0.2, mood: 0.05, vertex: VERT_GLASS,
     });
-    const coreSphere = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(0.19, 48, 40)), coreMat);
+    const coreSphere = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(0.265, 48, 40)), coreMat);
     coreSphere.renderOrder = 3;
     group.add(coreSphere);
 
-    const coreGlowMat = addDisc(bucket, group, 0.16, FRAG_DISC, {
-      color: warm, opacity: 0.55, power: 1.1, white: 0.35, z: 0.04, mood: 0.05,
+    const coreGlowMat = addDisc(bucket, group, 0.3, FRAG_DISC, {
+      color: warm, opacity: 0.62, power: 1.05, white: 0.42, z: 0.04, mood: 0.06,
     });
     group.children[group.children.length - 1].renderOrder = 4;
 
@@ -1168,16 +1169,16 @@ function createNeural(scene, color) {
       const tilt = { x: (rng() - 0.5) * 1.4, y: rng() * Math.PI * 2, z: (rng() - 0.5) * 0.65 };
       const phase = rng() * 6.2832;
       const wobble = 0.02 + rng() * 0.05;
-      const width = 0.003 + rng() * 0.004;
+      const width = 0.0042 + rng() * 0.0028;
       const pts = sampleArcPath(major, minor, start, span, tilt, 96, wobble, phase, 0);
       const mesh = new THREE.Mesh(
         bucket.geo(buildStrip(pts, width)),
         shaderMat(bucket, FRAG_APEX_STREAM, {
           color: warm,
-          opacity: 0.22 + rng() * 0.18,
-          white: 0.08,
+          opacity: 0.5 + rng() * 0.22,
+          white: 0.14,
           phase: phase,
-          mood: 0.04,
+          mood: 0.05,
           timeScale: 0.7 + rng() * 0.8,
         })
       );
@@ -1205,10 +1206,10 @@ function createNeural(scene, color) {
           bucket.geo(buildStrip([pts[mid], branch], width * 0.85)),
           shaderMat(bucket, FRAG_APEX_STREAM, {
             color: warm,
-            opacity: 0.16 + rng() * 0.12,
-            white: 0.06,
+            opacity: 0.38 + rng() * 0.16,
+            white: 0.1,
             phase: phase + 1.2,
-            mood: 0.03,
+            mood: 0.04,
             timeScale: 1.1,
           })
         );
@@ -1223,7 +1224,7 @@ function createNeural(scene, color) {
     nodeGeo.setAttribute("position", new THREE.Float32BufferAttribute(nodePos.slice(0, nodeCount * 3), 3));
     const nodes = new THREE.Points(
       nodeGeo,
-      pointsMat(bucket, warm, sprite, { opacity: 0.72, white: 0.25, size: 0.045, mood: 0.06 })
+      pointsMat(bucket, warm, sprite, { opacity: 0.82, white: 0.32, size: 0.052, mood: 0.06 })
     );
     nodes.renderOrder = 3;
     group.add(nodes);
@@ -1246,12 +1247,12 @@ function createNeural(scene, color) {
           (1 + 0.06 * Math.sin(state.now * 0.0016) * pulse) * (0.94 + state.mood * 0.08)
         );
         if (coreMat.uniforms) {
-          coreMat.uniforms.uWhite.value = 0.12 + state.mood * 0.18 + (pulse > 0 ? 0.04 * Math.sin(state.now * 0.002) : 0);
-          coreMat.uniforms.uOpacity.value = 0.82 + state.mood * 0.12;
+          coreMat.uniforms.uWhite.value = 0.2 + state.mood * 0.14 + (pulse > 0 ? 0.035 * Math.sin(state.now * 0.002) : 0);
+          coreMat.uniforms.uOpacity.value = 0.9 + state.mood * 0.08;
         }
         if (coreGlowMat.uniforms) {
           const breath = pulse <= 0 ? 1 : 0.9 + 0.1 * Math.sin(state.now * 0.0024) * Math.min(pulse, 1.35);
-          coreGlowMat.uniforms.uOpacity.value = (0.5 + state.mood * 0.15) * breath;
+          coreGlowMat.uniforms.uOpacity.value = (0.58 + state.mood * 0.12) * breath;
         }
 
         streams.rotation.y += state.dt * 0.04 * (0.35 + speed) * streamBoost;
