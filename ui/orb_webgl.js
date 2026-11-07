@@ -588,8 +588,8 @@
     "  float turb = clamp(uTurbulence, 0.0, 2.0);",
     "  float fresPow = mix(1.65, 2.85, skin) - turb * 0.1;",
     "  float fres = pow(1.0 - ndv, max(fresPow, 1.2));",
-    "  float lip = fres * mix(0.34, 0.72, skin);",
-    "  float body = mix(0.36, 0.24, skin) * (0.7 + 0.3 * pow(ndv, 0.5));",
+    "  float lip = fres * mix(0.26, 0.5, skin);",
+    "  float body = mix(0.36, 0.26, skin) * (0.72 + 0.28 * pow(ndv, 0.5));",
     "  vec3 key = normalize(vec3(-0.46, 0.7, 0.54));",
     "  float ndk = max(dot(N, key), 0.0);",
     "  float sheen = pow(ndk, 1.85) * 0.26 * skin;",
@@ -600,9 +600,9 @@
     "  float glass = (body + lip + sheen + spec) * wobble * (0.84 + 0.16 * up);",
     "  float alpha = glass * uOpacity;",
     "  if (alpha < 0.012) discard;",
-    "  vec3 col = mix(uColor * 0.58, uColor, clamp(fres * 0.85 + 0.15, 0.0, 1.0));",
-    "  col = mix(col, vec3(0.78, 0.95, 1.0), clamp(spec * 0.7 + sheen * 0.28, 0.0, 0.42));",
-    "  gl_FragColor = vec4(col, min(alpha, 0.62));",
+    "  vec3 col = mix(uColor * 0.5, uColor, clamp(fres * 0.72 + 0.2, 0.0, 1.0));",
+    "  col = mix(col, vec3(0.82, 0.96, 1.0), clamp(fres * 0.2 + spec * 0.5 + sheen * 0.18, 0.0, 0.34));",
+    "  gl_FragColor = vec4(col, min(alpha, 0.46));",
     "}",
   ].join("\n");
 
@@ -735,10 +735,10 @@
     "varying vec2 vUv;",
     "void main() {",
     "  float d = length(vUv - vec2(0.5)) * 2.0;",
-    "  float reach = max(d - 0.28, 0.0) * (1.15 + uPower * 0.7);",
+    "  float reach = max(d - 0.24, 0.0) * (0.78 + uPower * 0.4);",
     "  float lobe = exp(-reach * reach);",
-    "  float hollow = smoothstep(0.22, 0.58, d);",
-    "  float fade = smoothstep(1.2, 0.66, d);",
+    "  float hollow = smoothstep(0.2, 0.56, d);",
+    "  float fade = smoothstep(1.34, 0.5, d);",
     "  float a = lobe * hollow * fade * uOpacity;",
     "  if (a < 0.004) discard;",
     "  gl_FragColor = vec4(uColor, a);",
@@ -838,8 +838,8 @@ function createNeural(scene, color) {
     const major = 0.78;
     const tube = 0.24;
 
-    addDisc(bucket, group, 2.15, FRAG_NEURAL_ATMOS, {
-      color: cyanBias, opacity: 0.16, power: 1.2, white: 0.0, z: -0.42, mood: 0.03,
+    addDisc(bucket, group, 2.42, FRAG_NEURAL_ATMOS, {
+      color: cyanBias, opacity: 0.2, power: 1.0, white: 0.0, z: -0.42, mood: 0.03,
     });
     group.children[group.children.length - 1].renderOrder = 0;
 
@@ -868,53 +868,59 @@ function createNeural(scene, color) {
 
     // Far wall of the tube — soft fill so the shell has thickness, not a second neon ring.
     const innerMat = shaderMat(bucket, FRAG_BUBBLE, {
-      color: cyanBias, opacity: 0.46, power: 0.0, vertex: VERT_ENERGY, side: THREE.BackSide, mood: 0.03,
+      color: cyanBias, opacity: 0.4, power: 0.0, vertex: VERT_ENERGY, side: THREE.BackSide, mood: 0.03,
     });
     const innerShell = new THREE.Mesh(torusGeo, innerMat);
     innerShell.renderOrder = 3;
     spin.add(innerShell);
 
     const shellMat = shaderMat(bucket, FRAG_BUBBLE, {
-      color: cyanBias, opacity: 0.88, power: 1.0, vertex: VERT_ENERGY, side: THREE.FrontSide, mood: 0.04,
+      color: cyanBias, opacity: 0.76, power: 1.0, vertex: VERT_ENERGY, side: THREE.FrontSide, mood: 0.04,
     });
     const shell = new THREE.Mesh(torusGeo, shellMat);
     shell.renderOrder = 4;
     spin.add(shell);
 
-    const dustRng = mulberry32(4401);
-    const dustPos = [];
-    const dustCap = 16;
-    for (let i = 0; i < dustCap; i++) {
-      const u = dustRng() * Math.PI * 2;
-      const v = dustRng() * Math.PI * 2;
-      const tr = tube * (0.18 + dustRng() * 0.7);
+    const sparkRng = mulberry32(4401);
+    const sparkPos = [];
+    for (let i = 0; i < 12; i++) {
+      const u = sparkRng() * Math.PI * 2;
+      const v = sparkRng() * Math.PI * 2;
+      const tr = tube * (0.22 + sparkRng() * 0.62);
       const arm = major + tr * Math.cos(v);
-      dustPos.push(arm * Math.cos(u), arm * Math.sin(u), tr * Math.sin(v));
+      sparkPos.push(arm * Math.cos(u), arm * Math.sin(u), tr * Math.sin(v) + 0.04);
     }
-    const dustGeo = bucket.geo(new THREE.BufferGeometry());
-    dustGeo.setAttribute("position", new THREE.Float32BufferAttribute(dustPos, 3));
-    const dust = new THREE.Points(
-      dustGeo,
-      pointsMat(bucket, cyanBias, sprite, { opacity: 0.7, white: 0.58, size: 0.016, mood: 0.02 })
+    const sparkGeo = bucket.geo(new THREE.BufferGeometry());
+    sparkGeo.setAttribute("position", new THREE.Float32BufferAttribute(sparkPos, 3));
+    const sparks = new THREE.Points(
+      sparkGeo,
+      pointsMat(bucket, cyanBias, sprite, { opacity: 0.95, white: 0.82, size: 0.078, mood: 0.02 })
     );
-    dust.renderOrder = 5;
-    spin.add(dust);
+    sparks.renderOrder = 6;
+    sparks.material.depthTest = false;
+    spin.add(sparks);
 
-    const bokehRng = mulberry32(808);
-    const bokehPos = [];
-    for (let i = 0; i < 4; i++) {
-      const u = bokehRng() * Math.PI * 2;
-      const arm = major + tube + 0.05 + bokehRng() * 0.2;
-      bokehPos.push(arm * Math.cos(u), arm * Math.sin(u), (bokehRng() - 0.5) * 0.16);
+    const hazeRng = mulberry32(808);
+    const hazePos = [];
+    for (let i = 0; i < 8; i++) {
+      const u = hazeRng() * Math.PI * 2;
+      const arm = major + tube + 0.08 + hazeRng() * 0.46;
+      hazePos.push(arm * Math.cos(u), arm * Math.sin(u), (hazeRng() - 0.5) * 0.34);
     }
-    const bokehGeo = bucket.geo(new THREE.BufferGeometry());
-    bokehGeo.setAttribute("position", new THREE.Float32BufferAttribute(bokehPos, 3));
-    const bokeh = new THREE.Points(
-      bokehGeo,
-      pointsMat(bucket, cyanBias, sprite, { opacity: 0.12, white: 0.06, size: 0.03, mood: 0.01 })
+    for (let i = 0; i < 4; i++) {
+      const u = hazeRng() * Math.PI * 2;
+      const arm = 0.06 + hazeRng() * 0.28;
+      hazePos.push(arm * Math.cos(u), arm * Math.sin(u), (hazeRng() - 0.5) * 0.08);
+    }
+    const hazeGeo = bucket.geo(new THREE.BufferGeometry());
+    hazeGeo.setAttribute("position", new THREE.Float32BufferAttribute(hazePos, 3));
+    const hazeSparks = new THREE.Points(
+      hazeGeo,
+      pointsMat(bucket, cyanBias, sprite, { opacity: 0.62, white: 0.55, size: 0.1, mood: 0.01 })
     );
-    bokeh.renderOrder = 4;
-    spin.add(bokeh);
+    hazeSparks.renderOrder = 5;
+    hazeSparks.material.depthTest = false;
+    spin.add(hazeSparks);
 
     scene.add(group);
     return {
