@@ -1,12 +1,14 @@
 /* WebGL hero orb (Three.js r160). Expects global THREE. Attaches to window.__orbWebGL.
-   Styles: mystic = cyan filament sphere, aether = fiery plasma, neural = glass bubble. */
+   Styles: mystic = cyan filament sphere, aether = fiery plasma, neural = glass bubble, apex = gold data streams. */
 (function () {
-  const HERO = { mystic: 1, aether: 1, neural: 1 };
+  const HERO = { mystic: 1, aether: 1, neural: 1, apex: 1 };
   const MAX_MYSTIC_POINTS = 280;
   const MAX_AETHER_POINTS = 400;
   const MAX_NEURAL_POINTS = 360;
   const MAX_AETHER_ARCS = 24;
   const MAX_NEURAL_PANES = 4;
+  const MAX_APEX_STREAMS = 12;
+  const MAX_APEX_NODES = 72;
   const WHITE = new THREE.Color("#ffffff");
 
   function hexToColor(hex, fallback) {
@@ -409,6 +411,26 @@
     geo.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
     geo.setIndex(indices);
     return geo;
+  }
+
+  function sampleArcPath(major, minor, start, span, tilt, count, wobble, phase, wobbleT) {
+    const points = [];
+    const rot = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(tilt.x, tilt.y, tilt.z));
+    const p = new THREE.Vector3();
+    const wt = wobbleT || 0;
+    for (let i = 0; i < count; i++) {
+      const u = i / Math.max(1, count - 1);
+      const ang = start + span * u;
+      const wob = Math.sin(ang * 3.0 + phase + wt * 0.35) * wobble;
+      p.set(
+        Math.cos(ang) * (major + wob),
+        Math.sin(ang) * (minor + wob * 0.6),
+        Math.sin(ang * 1.35 + phase) * minor * 0.22
+      );
+      p.applyMatrix4(rot);
+      points.push(p.clone());
+    }
+    return points;
   }
 
   function dashedRingGeometry(radius, width, dashes, gap) {
@@ -1050,6 +1072,209 @@ function createNeural(scene, color) {
     };
   }
 
+  const FRAG_APEX_CORE = [
+    "uniform vec3 uColor;",
+    "uniform float uOpacity;",
+    "uniform float uWhite;",
+    "varying vec3 vNormal;",
+    "varying vec3 vView;",
+    "void main() {",
+    "  vec3 N = normalize(vNormal);",
+    "  vec3 V = normalize(vView);",
+    "  float facing = abs(dot(N, V));",
+    "  float fres = pow(1.0 - facing, 2.4);",
+    "  float body = pow(facing, 0.42);",
+    "  float alpha = (body * 0.62 + fres * 0.38) * uOpacity;",
+    "  if (alpha < 0.02) discard;",
+    "  vec3 champagne = mix(uColor, vec3(1.0, 0.96, 0.86), 0.55 + uWhite * 0.25);",
+    "  vec3 col = mix(champagne, vec3(1.0), clamp(fres * 0.55 + body * 0.35, 0.0, 0.72));",
+    "  gl_FragColor = vec4(col, min(alpha, 0.92));",
+    "}",
+  ].join("\n");
+
+  const FRAG_APEX_STREAM = [
+    "uniform vec3 uColor;",
+    "uniform float uOpacity;",
+    "uniform float uTime;",
+    "uniform float uPhase;",
+    "varying vec2 vUv;",
+    "void main() {",
+    "  float across = abs(vUv.y - 0.5) * 2.0;",
+    "  float edge = pow(clamp(1.0 - across, 0.0, 1.0), 2.8);",
+    "  float tip = smoothstep(0.0, 0.08, vUv.x) * smoothstep(1.0, 0.68, vUv.x);",
+    "  float dash = 0.48 + 0.52 * pow(0.5 + 0.5 * sin(vUv.x * 24.0 - uTime * 0.65 + uPhase), 1.05);",
+    "  float pulse = 0.65 + 0.35 * sin(vUv.x * 9.0 + uPhase * 1.7 - uTime * 0.9);",
+    "  float a = edge * tip * dash * pulse * uOpacity;",
+    "  if (a < 0.012) discard;",
+    "  vec3 col = mix(uColor, vec3(1.0, 0.95, 0.82), clamp(edge * 0.5 + pulse * 0.25, 0.0, 1.0));",
+    "  gl_FragColor = vec4(col, a);",
+    "}",
+  ].join("\n");
+
+  function createApex(scene, color) {
+    const bucket = makeBucket();
+    const group = new THREE.Group();
+    group.name = "apex";
+    const rng = mulberry32(4141);
+    const sprite = softSprite(bucket);
+
+    function apexTint(user) {
+      const gold = new THREE.Color("#e6cfa0").lerp(new THREE.Color("#fff0cc"), 0.35);
+      const base = { h: 0, s: 0, l: 0 };
+      const hue = { h: 0, s: 0, l: 0 };
+      gold.getHSL(base);
+      (user || gold).getHSL(hue);
+      let dh = hue.h - base.h;
+      if (dh > 0.5) dh -= 1;
+      if (dh < -0.5) dh += 1;
+      return new THREE.Color().setHSL((base.h + dh * 0.12 + 1) % 1, Math.min(0.55, base.s * 0.35 + 0.18), 0.72);
+    }
+
+    const warm = apexTint(color);
+
+    addDisc(bucket, group, 0.72, FRAG_MYSTIC_ATMOS, {
+      color: warm, opacity: 0.28, power: 2.2, white: 0.08, z: -0.12, mood: 0.04,
+    });
+    group.children[group.children.length - 1].renderOrder = 0;
+
+    addDisc(bucket, group, 0.42, FRAG_DISC, {
+      color: warm, opacity: 0.38, power: 1.25, white: 0.22, z: -0.06, mood: 0.03,
+    });
+    group.children[group.children.length - 1].renderOrder = 1;
+
+    const coreMat = shaderMat(bucket, FRAG_APEX_CORE, {
+      color: warm, opacity: 0.88, white: 0.12, mood: 0.04, vertex: VERT_GLASS,
+    });
+    const coreSphere = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(0.19, 48, 40)), coreMat);
+    coreSphere.renderOrder = 3;
+    group.add(coreSphere);
+
+    const coreGlowMat = addDisc(bucket, group, 0.16, FRAG_DISC, {
+      color: warm, opacity: 0.55, power: 1.1, white: 0.35, z: 0.04, mood: 0.05,
+    });
+    group.children[group.children.length - 1].renderOrder = 4;
+
+    const streams = new THREE.Group();
+    streams.renderOrder = 2;
+    const streamList = [];
+    const nodePos = [];
+    const streamCount = Math.min(10, MAX_APEX_STREAMS);
+
+    for (let i = 0; i < streamCount; i++) {
+      const major = 0.52 + rng() * 0.72;
+      const minor = major * (0.78 + rng() * 0.22);
+      const start = rng() * Math.PI * 2;
+      const span = (0.45 + rng() * 0.42) * Math.PI;
+      const tilt = { x: (rng() - 0.5) * 1.4, y: rng() * Math.PI * 2, z: (rng() - 0.5) * 0.65 };
+      const phase = rng() * 6.2832;
+      const wobble = 0.02 + rng() * 0.05;
+      const width = 0.003 + rng() * 0.004;
+      const pts = sampleArcPath(major, minor, start, span, tilt, 96, wobble, phase, 0);
+      const mesh = new THREE.Mesh(
+        bucket.geo(buildStrip(pts, width)),
+        shaderMat(bucket, FRAG_APEX_STREAM, {
+          color: warm,
+          opacity: 0.22 + rng() * 0.18,
+          white: 0.08,
+          phase: phase,
+          mood: 0.04,
+          timeScale: 0.7 + rng() * 0.8,
+        })
+      );
+      streams.add(mesh);
+      const entry = {
+        mesh: mesh,
+        phase: phase,
+        speed: (rng() - 0.5) * 0.55,
+        spin: 0.3 + rng() * 0.7,
+      };
+      streamList.push(entry);
+
+      const nodes = 3 + Math.floor(rng() * 4);
+      for (let n = 0; n < nodes; n++) {
+        const idx = Math.floor(rng() * (pts.length - 1));
+        nodePos.push(pts[idx].x, pts[idx].y, pts[idx].z);
+      }
+
+      if (rng() > 0.55) {
+        const mid = Math.floor(pts.length * (0.35 + rng() * 0.3));
+        const branch = pts[mid].clone();
+        branch.lerp(pts[Math.min(pts.length - 1, mid + 8)], 0.35);
+        branch.add(new THREE.Vector3((rng() - 0.5) * 0.08, (rng() - 0.5) * 0.08, (rng() - 0.5) * 0.05));
+        const spurMesh = new THREE.Mesh(
+          bucket.geo(buildStrip([pts[mid], branch], width * 0.85)),
+          shaderMat(bucket, FRAG_APEX_STREAM, {
+            color: warm,
+            opacity: 0.16 + rng() * 0.12,
+            white: 0.06,
+            phase: phase + 1.2,
+            mood: 0.03,
+            timeScale: 1.1,
+          })
+        );
+        streams.add(spurMesh);
+        streamList.push({ mesh: spurMesh, phase: phase, speed: entry.speed * 0.8, spur: true });
+      }
+    }
+    group.add(streams);
+
+    const nodeCount = Math.min(Math.floor(nodePos.length / 3), MAX_APEX_NODES);
+    const nodeGeo = bucket.geo(new THREE.BufferGeometry());
+    nodeGeo.setAttribute("position", new THREE.Float32BufferAttribute(nodePos.slice(0, nodeCount * 3), 3));
+    const nodes = new THREE.Points(
+      nodeGeo,
+      pointsMat(bucket, warm, sprite, { opacity: 0.72, white: 0.25, size: 0.045, mood: 0.06 })
+    );
+    nodes.renderOrder = 3;
+    group.add(nodes);
+
+    scene.add(group);
+    return {
+      group: group,
+      bucket: bucket,
+      cameraZ: 4.35,
+      animate: function (state) {
+        const speed = state.cfg.spin * 0.55;
+        const pulse = state.cfg.pulse;
+        const turb = state.cfg.turbulence;
+        const live = apexTint(state.color);
+        applyPaint(group, live, state.mood, state.cfg);
+        const streamBoost = 1 + state.mood * 0.85;
+        const t = state.now * 0.001;
+
+        coreSphere.scale.setScalar(
+          (1 + 0.06 * Math.sin(state.now * 0.0016) * pulse) * (0.94 + state.mood * 0.08)
+        );
+        if (coreMat.uniforms) {
+          coreMat.uniforms.uWhite.value = 0.12 + state.mood * 0.18 + (pulse > 0 ? 0.04 * Math.sin(state.now * 0.002) : 0);
+          coreMat.uniforms.uOpacity.value = 0.82 + state.mood * 0.12;
+        }
+        if (coreGlowMat.uniforms) {
+          const breath = pulse <= 0 ? 1 : 0.9 + 0.1 * Math.sin(state.now * 0.0024) * Math.min(pulse, 1.35);
+          coreGlowMat.uniforms.uOpacity.value = (0.5 + state.mood * 0.15) * breath;
+        }
+
+        streams.rotation.y += state.dt * 0.04 * (0.35 + speed) * streamBoost;
+        streams.rotation.x = Math.sin(state.now * 0.00025) * 0.12 * turb;
+        streams.rotation.z = Math.cos(state.now * 0.00018) * 0.08 * turb;
+
+        streamList.forEach(function (s) {
+          s.mesh.rotation.y += state.dt * s.speed * (0.3 + speed) * streamBoost;
+          s.mesh.rotation.x += state.dt * s.spin * 0.12 * turb;
+          if (s.mesh.material.uniforms) {
+            const scale = (s.mesh.material.userData && s.mesh.material.userData.timeScale) || 1;
+            if (s.mesh.material.uniforms.uTime) {
+              s.mesh.material.uniforms.uTime.value = t * scale * streamBoost;
+            }
+          }
+        });
+
+        nodes.rotation.y += state.dt * 0.05 * (0.35 + speed) * streamBoost;
+        nodes.rotation.z -= state.dt * 0.03 * (0.3 + speed);
+      },
+    };
+  }
+
   // Aether only. Fire filament sphere — ridge crests + warm body; do not route through FRAG_PLASMA.
   const FRAG_AETHER = [
     "uniform vec3 uColor;",
@@ -1459,6 +1684,7 @@ function createAether(scene, color) {
       if (style === "mystic") parts = createMystic(scene, color);
       else if (style === "aether") parts = createAether(scene, color);
       else if (style === "neural") parts = createNeural(scene, color);
+      else if (style === "apex") parts = createApex(scene, color);
       if (parts && parts.cameraZ) camera.position.z = parts.cameraZ;
     }
 
@@ -1524,13 +1750,14 @@ function createAether(scene, color) {
     };
   }
 
-  window.__orbBuild = "webgl-mystic-aether-neural";
+  window.__orbBuild = "webgl-mystic-aether-neural-apex";
   window.__orbWebGL = {
     HERO: HERO,
     MAX: {
       mystic: MAX_MYSTIC_POINTS,
       aether: MAX_AETHER_POINTS,
       neural: MAX_NEURAL_POINTS,
+      apex: { streams: MAX_APEX_STREAMS, nodes: MAX_APEX_NODES },
       arcs: MAX_AETHER_ARCS,
       panes: MAX_NEURAL_PANES,
     },

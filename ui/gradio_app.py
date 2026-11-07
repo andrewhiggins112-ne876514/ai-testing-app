@@ -23,8 +23,8 @@ WEBGL_BOOT_JS = _WEBGL_BOOT_PATH.read_text(encoding="utf-8") if _WEBGL_BOOT_PATH
 CHAT_URL = "http://127.0.0.1:8000/chat"
 LEVELS = ("OFFICIAL", "SECRET")
 VOID = "#05070d"
-ORB_STYLES = ("lightning", "mist", "nebula", "nebula+lightning", "mystic", "aether", "neural")
-ORB_WEBGL_STYLES = ("mystic", "aether", "neural")
+ORB_STYLES = ("lightning", "mist", "nebula", "nebula+lightning", "mystic", "aether", "neural", "apex")
+ORB_WEBGL_STYLES = ("mystic", "aether", "neural", "apex")
 ORB_SHAPES = ("sphere", "oval", "ring")
 ORB_DEFAULTS = {
     "style": "lightning",
@@ -380,7 +380,7 @@ function readConfig() {
   if (size > 480) size = 480;
   if (
     style !== "lightning" && style !== "mist" && style !== "nebula" && style !== "nebula+lightning"
-    && style !== "mystic" && style !== "aether" && style !== "neural"
+    && style !== "mystic" && style !== "aether" && style !== "neural" && style !== "apex"
   ) {
     style = "lightning";
   }
@@ -967,7 +967,7 @@ const drawStyle = {
 };
 
 function isWebGLStyle(style) {
-  return style === "mystic" || style === "aether" || style === "neural";
+  return style === "mystic" || style === "aether" || style === "neural" || style === "apex";
 }
 
 function draw() {

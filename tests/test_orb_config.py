@@ -107,7 +107,7 @@ class OrbConfigTests(unittest.TestCase):
         self.assertEqual(allowed["glow"], 0.25)
 
     def test_webgl_styles_in_orb_styles(self):
-        for style in ("mystic", "aether", "neural"):
+        for style in ("mystic", "aether", "neural", "apex"):
             self.assertIn(style, gradio_app.ORB_STYLES)
             self.assertIn(style, gradio_app.ORB_WEBGL_STYLES)
             cfg = gradio_app.normalize_orb_config({"style": style, "size": 320})

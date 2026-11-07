@@ -1,7 +1,7 @@
 (function () {
   const LAYOUT_KEY = "desktop-shell-layout-v1";
   const ORB_STYLES_KEY = "desktop-orb-styles-v1";
-  const WEBGL_STYLES = ["mystic", "aether", "neural"];
+  const WEBGL_STYLES = ["mystic", "aether", "neural", "apex"];
   const EDGE_PAD = 16;
   const DRAG_THRESHOLD = 6;
   const BTN = 42;
@@ -15,6 +15,7 @@
     mystic: "#50cdff",
     aether: "#ff8a2b",
     neural: "#5ce1ff",
+    apex: "#e8d4a0",
   };
 
   const STYLE_ORB_DEFAULTS = {
@@ -39,6 +40,15 @@
     neural: {
       calm_color: "#50cdff",
       thinking_color: "#b388ff",
+      size: 360,
+      spin_speed: 1,
+      turbulence: 1,
+      pulse: 1,
+      glow: 1,
+    },
+    apex: {
+      calm_color: "#e8d4a0",
+      thinking_color: "#fff4d6",
       size: 360,
       spin_speed: 1,
       turbulence: 1,
