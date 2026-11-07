@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-07 (desktop per-style orb colour/settings in localStorage; mystic/aether/neural binding)
+Last updated: 2026-11-07 (neural orb follows colour picker; desktop per-style settings)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.

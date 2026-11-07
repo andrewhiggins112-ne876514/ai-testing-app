@@ -644,11 +644,11 @@
     "  rimA *= clamp(uOpacity / 0.82, 0.3, 1.08);",
     "  alpha += rimA;",
     "  if (alpha < 0.012) discard;",
-    "  vec3 cyan = vec3(0.20, 0.75, 1.0);",
-    "  vec3 hot = mix(cyan, vec3(1.0), 0.48);",
+    "  vec3 filBase = uColor;",
+    "  vec3 hot = mix(filBase, vec3(1.0), 0.48);",
     "  float lift = clamp(smoothstep(0.25, 0.85, flow) * 0.7, 0.0, 0.62);",
-    "  vec3 filCol = mix(cyan, hot, lift);",
-    "  filCol = min(filCol, mix(cyan, vec3(1.0), 0.62));",
+    "  vec3 filCol = mix(filBase, hot, lift);",
+    "  filCol = min(filCol, mix(filBase, vec3(1.0), 0.62));",
     "  vec3 glassCol = uColor;",
     "  glassCol = mix(glassCol, vec3(0.72, 0.97, 1.0), clamp(sheen, 0.0, 0.42));",
     "  glassCol = mix(glassCol, vec3(0.97, 0.99, 1.0), clamp(catch, 0.0, 0.95));",
@@ -792,8 +792,7 @@
     "  float fade = smoothstep(1.48, 0.22, d);",
     "  float a = lobe * hollow * fade * uOpacity;",
     "  if (a < 0.004) discard;",
-    "  vec3 col = mix(uColor, vec3(0.28, 0.7, 1.0), 0.7);",
-    "  gl_FragColor = vec4(col, a);",
+    "  gl_FragColor = vec4(uColor, a);",
     "}",
   ].join("\n");
 
@@ -1033,8 +1032,7 @@ function createNeural(scene, color) {
         const speed = state.cfg.spin * 0.45;
         const pulse = state.cfg.pulse;
         const turb = state.cfg.turbulence;
-        const live = state.color.clone().lerp(new THREE.Color("#3eeaff"), 0.8);
-        applyPaint(group, live, state.mood, state.cfg);
+        applyPaint(group, state.color, state.mood, state.cfg);
         group.scale.setScalar(1 + 0.016 * Math.sin(state.now * 0.0012) * pulse);
         const t = state.now * 0.001 * (0.55 + 0.45 * turb);
         if (shellMat.uniforms) {
