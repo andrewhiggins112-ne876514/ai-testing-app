@@ -590,19 +590,21 @@
     "  float fres = pow(1.0 - ndv, max(fresPow, 1.2));",
     "  float lip = fres * mix(0.26, 0.5, skin);",
     "  float body = mix(0.36, 0.26, skin) * (0.72 + 0.28 * pow(ndv, 0.5));",
-    "  vec3 key = normalize(vec3(-0.46, 0.7, 0.54));",
-    "  float ndk = max(dot(N, key), 0.0);",
-    "  float sheen = pow(ndk, 1.85) * 0.26 * skin;",
-    "  float spec = pow(ndk, 14.0) * 0.42 * skin;",
+    "  vec3 L = normalize(vec3(-0.5, 0.78, 0.64));",
+    "  vec3 H = normalize(L + V);",
+    "  float ndh = max(dot(N, H), 0.0);",
+    "  float sheen = pow(ndh, 5.0) * 0.3 * skin;",
+    "  float catch = pow(ndh, 24.0) * skin;",
     "  float shim = sin(vObj.x * 2.2 + vObj.y * 1.6 + uTime * (0.32 + 0.26 * turb));",
     "  float wobble = 1.0 + shim * (0.02 + 0.045 * turb);",
     "  float up = clamp(N.y * 0.5 + 0.5, 0.0, 1.0);",
-    "  float glass = (body + lip + sheen + spec) * wobble * (0.84 + 0.16 * up);",
-    "  float alpha = glass * uOpacity;",
+    "  float glass = (body + lip + sheen * 0.55) * wobble * (0.84 + 0.16 * up);",
+    "  float alpha = min(glass * uOpacity, 0.44) + catch * 0.7;",
     "  if (alpha < 0.012) discard;",
     "  vec3 col = mix(uColor * 0.5, uColor, clamp(fres * 0.72 + 0.2, 0.0, 1.0));",
-    "  col = mix(col, vec3(0.82, 0.96, 1.0), clamp(fres * 0.2 + spec * 0.5 + sheen * 0.18, 0.0, 0.34));",
-    "  gl_FragColor = vec4(col, min(alpha, 0.46));",
+    "  col = mix(col, vec3(0.8, 0.95, 1.0), clamp(fres * 0.14 + sheen * 0.9, 0.0, 0.4));",
+    "  col = mix(col, vec3(0.96, 0.99, 1.0), clamp(catch, 0.0, 0.95));",
+    "  gl_FragColor = vec4(col, min(alpha, 0.9));",
     "}",
   ].join("\n");
 
@@ -833,7 +835,21 @@ function createNeural(scene, color) {
     const bucket = makeBucket();
     const group = new THREE.Group();
     group.name = "neural";
-    const sprite = softSprite(bucket);
+    const sparkCanvas = document.createElement("canvas");
+    sparkCanvas.width = 64;
+    sparkCanvas.height = 64;
+    const sparkG = sparkCanvas.getContext("2d");
+    const sparkGrd = sparkG.createRadialGradient(32, 32, 0, 32, 32, 32);
+    sparkGrd.addColorStop(0, "rgba(255,255,255,1)");
+    sparkGrd.addColorStop(0.1, "rgba(255,255,255,1)");
+    sparkGrd.addColorStop(0.26, "rgba(255,255,255,0.45)");
+    sparkGrd.addColorStop(0.55, "rgba(255,255,255,0.06)");
+    sparkGrd.addColorStop(1, "rgba(255,255,255,0)");
+    sparkG.fillStyle = sparkGrd;
+    sparkG.fillRect(0, 0, 64, 64);
+    const sparkTex = new THREE.CanvasTexture(sparkCanvas);
+    sparkTex.needsUpdate = true;
+    bucket.tex(sparkTex);
     const cyanBias = color.clone().lerp(new THREE.Color("#6ee8ff"), 0.38);
     const major = 0.78;
     const tube = 0.24;
@@ -894,7 +910,7 @@ function createNeural(scene, color) {
     sparkGeo.setAttribute("position", new THREE.Float32BufferAttribute(sparkPos, 3));
     const sparks = new THREE.Points(
       sparkGeo,
-      pointsMat(bucket, cyanBias, sprite, { opacity: 0.95, white: 0.82, size: 0.078, mood: 0.02 })
+      pointsMat(bucket, cyanBias, sparkTex, { opacity: 1, white: 0.98, size: 0.11, mood: 0.02 })
     );
     sparks.renderOrder = 6;
     sparks.material.depthTest = false;
@@ -916,7 +932,7 @@ function createNeural(scene, color) {
     hazeGeo.setAttribute("position", new THREE.Float32BufferAttribute(hazePos, 3));
     const hazeSparks = new THREE.Points(
       hazeGeo,
-      pointsMat(bucket, cyanBias, sprite, { opacity: 0.62, white: 0.55, size: 0.1, mood: 0.01 })
+      pointsMat(bucket, cyanBias, sparkTex, { opacity: 0.9, white: 0.82, size: 0.12, mood: 0.01 })
     );
     hazeSparks.renderOrder = 5;
     hazeSparks.material.depthTest = false;
