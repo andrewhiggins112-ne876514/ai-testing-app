@@ -1,0 +1,18 @@
+---
+description: Orb visual passes — mockup comparison gate before commit
+globs: ui/orb_webgl.js, docs/mockups/screenshots/**
+alwaysApply: false
+---
+
+# Orb visual pass
+
+When adjusting mystic, aether, neural, or **apex** orb rendering:
+
+1. Open the **approved style mockup** (user attachment or `docs/mockups/` reference) and the new screenshot side by side.
+2. Describe **concrete** differences:
+   - Core: relative size, white-gold brightness, bloom radius (core-only vs wash-out).
+   - Streams: count, **continuity** (full arcs vs dashes/segments), thickness, visibility on black.
+   - Density: calm/sparse vs noisy/tangled; no extra fire, glass, or shells unless the style brief allows it.
+3. **Commit only** if the new screenshot is clearly closer to the mockup on the goals of that pass. If density spikes or the core blows out white, revert — do not commit.
+4. Optional check: `python scripts/compare_orb.py <mockup> <screenshot>` — lower score is closer (average RGB distance after resize). Use as a sanity check, not a substitute for visual review.
+5. Touch **only** the style named in the task unless the user widens scope.

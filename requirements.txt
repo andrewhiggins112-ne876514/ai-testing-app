@@ -8,6 +8,7 @@ gradio
 python-dotenv
 pydantic
 pywebview
+Pillow
 # Optional: langgraph if we expand the agent loop later
 # langgraph
 

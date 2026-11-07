@@ -413,6 +413,19 @@
     return geo;
   }
 
+  function sampleApexOrbit(major, minor, start, tilt, count) {
+    const points = [];
+    const rot = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(tilt.x, tilt.y, tilt.z));
+    const p = new THREE.Vector3();
+    for (let i = 0; i < count; i++) {
+      const ang = start + (Math.PI * 2 * i) / count;
+      p.set(Math.cos(ang) * major, Math.sin(ang) * minor, 0);
+      p.applyMatrix4(rot);
+      points.push(p.clone());
+    }
+    return points;
+  }
+
   function sampleArcPath(major, minor, start, span, tilt, count, wobble, phase, wobbleT) {
     const points = [];
     const rot = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(tilt.x, tilt.y, tilt.z));
@@ -1100,15 +1113,12 @@ function createNeural(scene, color) {
     "varying vec2 vUv;",
     "void main() {",
     "  float across = abs(vUv.y - 0.5) * 2.0;",
-    "  float edge = pow(clamp(1.0 - across, 0.0, 1.0), 2.4);",
-    "  float tip = smoothstep(0.0, 0.05, vUv.x) * smoothstep(1.0, 0.74, vUv.x);",
-    "  float dashWave = 0.5 + 0.5 * sin(vUv.x * 14.0 - uTime * 0.55 + uPhase);",
-    "  float dash = 0.84 + 0.16 * pow(dashWave, 0.65);",
-    "  float pulse = 0.82 + 0.18 * sin(vUv.x * 7.0 + uPhase * 1.3 - uTime * 0.75);",
-    "  float a = edge * tip * dash * pulse * uOpacity;",
-    "  if (a < 0.01) discard;",
-    "  vec3 col = mix(uColor, vec3(1.0, 0.96, 0.84), clamp(edge * 0.55 + pulse * 0.22, 0.0, 1.0));",
-    "  gl_FragColor = vec4(col, min(a, 0.88));",
+    "  float edge = pow(clamp(1.0 - across, 0.0, 1.0), 1.65);",
+    "  float pulse = 0.9 + 0.1 * sin(vUv.x * 6.283 + uPhase * 1.05 - uTime * 0.38);",
+    "  float a = edge * pulse * uOpacity;",
+    "  if (a < 0.008) discard;",
+    "  vec3 col = mix(uColor, vec3(1.0, 0.97, 0.86), clamp(edge * 0.62 + pulse * 0.12, 0.0, 1.0));",
+    "  gl_FragColor = vec4(col, min(a, 0.92));",
     "}",
   ].join("\n");
 
@@ -1159,62 +1169,34 @@ function createNeural(scene, color) {
     streams.renderOrder = 2;
     const streamList = [];
     const nodePos = [];
-    const streamCount = Math.min(10, MAX_APEX_STREAMS);
+    const streamCount = 8 + Math.floor(rng() * 3);
 
     for (let i = 0; i < streamCount; i++) {
-      const major = 0.52 + rng() * 0.72;
-      const minor = major * (0.78 + rng() * 0.22);
+      const major = 0.62 + rng() * 0.58;
+      const minor = major * (0.84 + rng() * 0.12);
       const start = rng() * Math.PI * 2;
-      const span = (0.45 + rng() * 0.42) * Math.PI;
-      const tilt = { x: (rng() - 0.5) * 1.4, y: rng() * Math.PI * 2, z: (rng() - 0.5) * 0.65 };
+      const tilt = { x: (rng() - 0.5) * 1.05, y: rng() * Math.PI * 2, z: (rng() - 0.5) * 0.42 };
       const phase = rng() * 6.2832;
-      const wobble = 0.02 + rng() * 0.05;
-      const width = 0.0042 + rng() * 0.0028;
-      const pts = sampleArcPath(major, minor, start, span, tilt, 96, wobble, phase, 0);
+      const width = 0.0028 + rng() * 0.0012;
+      const pts = sampleApexOrbit(major, minor, start, tilt, 160);
       const mesh = new THREE.Mesh(
         bucket.geo(buildStrip(pts, width)),
         shaderMat(bucket, FRAG_APEX_STREAM, {
           color: warm,
-          opacity: 0.5 + rng() * 0.22,
-          white: 0.14,
+          opacity: 0.66 + rng() * 0.16,
+          white: 0.16,
           phase: phase,
           mood: 0.05,
-          timeScale: 0.7 + rng() * 0.8,
+          timeScale: 0.55 + rng() * 0.45,
         })
       );
       streams.add(mesh);
-      const entry = {
-        mesh: mesh,
-        phase: phase,
-        speed: (rng() - 0.5) * 0.55,
-        spin: 0.3 + rng() * 0.7,
-      };
-      streamList.push(entry);
+      streamList.push({ mesh: mesh, phase: phase });
 
-      const nodes = 3 + Math.floor(rng() * 4);
+      const nodes = 1 + Math.floor(rng() * 2);
       for (let n = 0; n < nodes; n++) {
         const idx = Math.floor(rng() * (pts.length - 1));
         nodePos.push(pts[idx].x, pts[idx].y, pts[idx].z);
-      }
-
-      if (rng() > 0.55) {
-        const mid = Math.floor(pts.length * (0.35 + rng() * 0.3));
-        const branch = pts[mid].clone();
-        branch.lerp(pts[Math.min(pts.length - 1, mid + 8)], 0.35);
-        branch.add(new THREE.Vector3((rng() - 0.5) * 0.08, (rng() - 0.5) * 0.08, (rng() - 0.5) * 0.05));
-        const spurMesh = new THREE.Mesh(
-          bucket.geo(buildStrip([pts[mid], branch], width * 0.85)),
-          shaderMat(bucket, FRAG_APEX_STREAM, {
-            color: warm,
-            opacity: 0.38 + rng() * 0.16,
-            white: 0.1,
-            phase: phase + 1.2,
-            mood: 0.04,
-            timeScale: 1.1,
-          })
-        );
-        streams.add(spurMesh);
-        streamList.push({ mesh: spurMesh, phase: phase, speed: entry.speed * 0.8, spur: true });
       }
     }
     group.add(streams);
@@ -1260,8 +1242,6 @@ function createNeural(scene, color) {
         streams.rotation.z = Math.cos(state.now * 0.00018) * 0.08 * turb;
 
         streamList.forEach(function (s) {
-          s.mesh.rotation.y += state.dt * s.speed * (0.3 + speed) * streamBoost;
-          s.mesh.rotation.x += state.dt * s.spin * 0.12 * turb;
           if (s.mesh.material.uniforms) {
             const scale = (s.mesh.material.userData && s.mesh.material.userData.timeScale) || 1;
             if (s.mesh.material.uniforms.uTime) {
