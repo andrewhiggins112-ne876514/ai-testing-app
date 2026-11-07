@@ -1118,28 +1118,31 @@ function createNeural(scene, color) {
     "  vec3 rp = vec3(lonW * 1.45, latW * 2.4, t * 0.18);",
     "  float ridgePow = mix(14.0, 8.0, clamp(turb * 0.5, 0.0, 1.0));",
     "  float ridge = pow(clamp(1.0 - abs(fbm(rp) * 2.0 - 1.0), 0.0, 1.0), ridgePow);",
-    "  float knots = clamp((aArc * bArc + bArc * cArc) * 4.4, 0.0, 1.0);",
+    "  float knots = clamp((aArc * bArc + bArc * cArc) * 2.6, 0.0, 1.0);",
     "  float lines = max(max(aArc, bArc), max(cArc, dArc * 0.85));",
-    "  lines = max(lines, ridge);",
-    "  lines = max(lines, knots * 0.95);",
+    "  lines = max(lines, ridge * 0.9);",
+    "  lines = max(lines, knots * 0.38);",
+    "  lines = pow(clamp(lines, 0.0, 1.0), 1.28);",
     "  lines *= 0.22 + 0.78 * smoothstep(0.0, 0.2, facing);",
     "  float front = step(0.5, uPower);",
-    "  float core = front * exp(-dot(vObj.xy, vObj.xy) * 4.8) * pow(facing, 0.42);",
-    "  float body = 0.12 + 0.18 * facing + 0.12 * rim;",
-    "  float feat = max(lines * 1.15, core * 1.2);",
+    "  float coreRad = dot(vObj.xy, vObj.xy);",
+    "  float core = front * exp(-coreRad * 7.2) * pow(facing, 0.58);",
+    "  core *= 0.55 + 0.45 * exp(-coreRad * 22.0);",
+    "  float body = 0.04 + 0.12 * facing + 0.07 * rim;",
+    "  float feat = max(lines * 1.02, core * 0.52);",
     "  float limb = smoothstep(0.0, 0.36, facing);",
-    "  float alpha = (body + feat * 0.95) * mix(0.22, 1.0, limb);",
+    "  float alpha = (body + feat * 0.82) * mix(0.18, 1.0, limb);",
     "  alpha *= uOpacity;",
     "  if (alpha < 0.02) discard;",
-    "  vec3 deep = vec3(0.92, 0.22, 0.0);",
-    "  vec3 gold = vec3(1.0, 0.58, 0.08);",
-    "  vec3 whiteHot = vec3(1.0, 0.96, 0.88);",
-    "  vec3 tint = mix(deep, max(uColor, deep), 0.65);",
-    "  vec3 col = mix(tint, gold, clamp(0.12 + lines * 0.72 + rim * 0.12, 0.0, 1.0));",
-    "  float lift = clamp(core * 0.95 + knots * 0.12 + uWhite * 0.55, 0.0, 0.9);",
-    "  col = mix(col, whiteHot, lift);",
-    "  col = min(col, mix(tint, whiteHot, 0.92));",
-    "  gl_FragColor = vec4(col, min(alpha, 0.94));",
+    "  vec3 deep = vec3(0.72, 0.14, 0.0);",
+    "  vec3 gold = vec3(1.0, 0.5, 0.05);",
+    "  vec3 solar = vec3(1.0, 0.58, 0.04);",
+    "  vec3 tint = mix(deep, max(uColor, deep), 0.62);",
+    "  vec3 col = mix(tint, gold, clamp(0.06 + lines * 0.85 + rim * 0.08, 0.0, 1.0));",
+    "  float lift = clamp(core * 0.58 + knots * 0.05 + uWhite * 0.18, 0.0, 0.46);",
+    "  col = mix(col, solar, lift);",
+    "  col = min(col, mix(tint, solar, 0.68));",
+    "  gl_FragColor = vec4(col, min(alpha, 0.84));",
     "}",
   ].join("\n");
 
@@ -1188,12 +1191,12 @@ function createAether(scene, color) {
     const warm = aetherTint(color);
 
     addDisc(bucket, group, 2.85, FRAG_MYSTIC_ATMOS, {
-      color: warm, opacity: 0.42, power: 1.05, white: 0.0, z: -0.48, mood: 0.05,
+      color: warm, opacity: 0.34, power: 1.05, white: 0.0, z: -0.48, mood: 0.05,
     });
     group.children[group.children.length - 1].renderOrder = 0;
 
     addDisc(bucket, group, 2.2, FRAG_MYSTIC_ATMOS, {
-      color: warm, opacity: 0.48, power: 1.45, white: 0.0, z: -0.32, mood: 0.05,
+      color: warm, opacity: 0.38, power: 1.45, white: 0.0, z: -0.32, mood: 0.05,
     });
     group.children[group.children.length - 1].renderOrder = 1;
 
@@ -1203,7 +1206,7 @@ function createAether(scene, color) {
     group.children[group.children.length - 1].renderOrder = 1;
 
     const backMat = shaderMat(bucket, FRAG_AETHER, {
-      color: warm, opacity: 0.82, power: 0.0, phase: 1.7, white: 0.02, mood: 0.05,
+      color: warm, opacity: 0.68, power: 0.0, phase: 1.7, white: 0.02, mood: 0.05,
       vertex: VERT_ENERGY, side: THREE.BackSide,
     });
     const back = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(0.96, 64, 48)), backMat);
@@ -1211,7 +1214,7 @@ function createAether(scene, color) {
     group.add(back);
 
     const plasmaMat = shaderMat(bucket, FRAG_AETHER, {
-      color: warm, opacity: 0.98, power: 1.0, phase: 0.2, white: 0.12, mood: 0.06,
+      color: warm, opacity: 0.82, power: 1.0, phase: 0.2, white: 0.03, mood: 0.06,
       vertex: VERT_ENERGY, side: THREE.FrontSide,
     });
     const plasma = new THREE.Mesh(bucket.geo(new THREE.SphereGeometry(1.02, 72, 56)), plasmaMat);
@@ -1237,19 +1240,19 @@ function createAether(scene, color) {
     fineGeo.setAttribute("position", new THREE.Float32BufferAttribute(shellPoints(fineCount, 0.22, 1.02, 1.05), 3));
     const fine = new THREE.Points(
       fineGeo,
-      pointsMat(bucket, warm, sprite, { opacity: 0.5, white: 0.06, size: 0.018, mood: 0.04 })
+      pointsMat(bucket, warm, sprite, { opacity: 0.38, white: 0.02, size: 0.018, mood: 0.04 })
     );
     const emberGeo = bucket.geo(new THREE.BufferGeometry());
     emberGeo.setAttribute("position", new THREE.Float32BufferAttribute(shellPoints(emberCount, 0.72, 1.28, 0.4), 3));
     const embers = new THREE.Points(
       emberGeo,
-      pointsMat(bucket, warm, sprite, { opacity: 0.92, white: 0.18, size: 0.055, mood: 0.05 })
+      pointsMat(bucket, warm, sprite, { opacity: 0.62, white: 0.06, size: 0.055, mood: 0.05 })
     );
     const sparkGeo = bucket.geo(new THREE.BufferGeometry());
     sparkGeo.setAttribute("position", new THREE.Float32BufferAttribute(shellPoints(sparkCount, 0.9, 1.44, 0.28), 3));
     const sparks = new THREE.Points(
       sparkGeo,
-      pointsMat(bucket, warm, sprite, { opacity: 1, white: 0.4, size: 0.068, mood: 0.05 })
+      pointsMat(bucket, warm, sprite, { opacity: 0.72, white: 0.1, size: 0.068, mood: 0.05 })
     );
     fine.renderOrder = 4;
     embers.renderOrder = 5;
@@ -1294,11 +1297,8 @@ function createAether(scene, color) {
 
     const core = new THREE.Group();
     core.renderOrder = 6;
-    const coreMat = addDisc(bucket, core, 0.16, FRAG_DISC, {
-      color: warm, opacity: 1.0, power: 0.65, white: 0.92, z: 0.06, mood: 0.02,
-    });
-    addDisc(bucket, core, 0.34, FRAG_DISC, {
-      color: warm, opacity: 0.55, power: 1.35, white: 0.28, z: 0.03, mood: 0.03,
+    const coreMat = addDisc(bucket, core, 0.22, FRAG_DISC, {
+      color: warm, opacity: 0.52, power: 1.08, white: 0.1, z: 0.05, mood: 0.02,
     });
     group.add(core);
 
