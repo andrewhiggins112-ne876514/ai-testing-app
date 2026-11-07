@@ -588,8 +588,8 @@
     "  float turb = clamp(uTurbulence, 0.0, 2.0);",
     "  float fresPow = mix(1.65, 2.85, skin) - turb * 0.1;",
     "  float fres = pow(1.0 - ndv, max(fresPow, 1.2));",
-    "  float lip = fres * mix(0.22, 0.42, skin);",
-    "  float body = mix(0.58, 0.48, skin) * (0.8 + 0.2 * pow(ndv, 0.42));",
+    "  float lip = fres * mix(0.24, 0.46, skin);",
+    "  float body = mix(0.66, 0.6, skin) * (0.84 + 0.16 * pow(ndv, 0.45));",
     "  vec3 L = normalize(vec3(-0.5, 0.78, 0.64));",
     "  vec3 H = normalize(L + V);",
     "  float ndh = max(dot(N, H), 0.0);",
@@ -599,11 +599,11 @@
     "  float wobble = 1.0 + shim * (0.02 + 0.045 * turb);",
     "  float up = clamp(N.y * 0.5 + 0.5, 0.0, 1.0);",
     "  float glass = (body + lip + sheen * 0.5) * wobble * (0.86 + 0.14 * up);",
-    "  float alpha = min(glass * uOpacity, 0.58) + catch * 0.72;",
+    "  float alpha = min(glass * uOpacity, 0.74) + catch * 0.72;",
     "  if (alpha < 0.012) discard;",
-    "  vec3 glowCyan = vec3(0.45, 0.93, 1.0);",
-    "  vec3 col = mix(uColor, glowCyan, 0.62);",
-    "  col = mix(col, vec3(0.72, 0.97, 1.0), clamp(fres * 0.16 + sheen * 0.8, 0.0, 0.48));",
+    "  vec3 glowCyan = vec3(0.16, 0.78, 1.0);",
+    "  vec3 col = mix(uColor, glowCyan, 0.84);",
+    "  col = mix(col, vec3(0.58, 0.96, 1.0), clamp(0.38 + fres * 0.14 + sheen * 0.7, 0.0, 0.72));",
     "  col = mix(col, vec3(0.97, 0.99, 1.0), clamp(catch, 0.0, 0.95));",
     "  gl_FragColor = vec4(col, min(alpha, 0.9));",
     "}",
@@ -738,13 +738,13 @@
     "varying vec2 vUv;",
     "void main() {",
     "  float d = length(vUv - vec2(0.5)) * 2.0;",
-    "  float reach = max(d - 0.16, 0.0) * (0.46 + uPower * 0.2);",
+    "  float reach = max(d - 0.12, 0.0) * (0.32 + uPower * 0.14);",
     "  float lobe = exp(-reach * reach);",
-    "  float hollow = smoothstep(0.16, 0.62, d);",
-    "  float fade = smoothstep(1.62, 0.36, d);",
+    "  float hollow = smoothstep(0.14, 0.58, d);",
+    "  float fade = smoothstep(1.48, 0.22, d);",
     "  float a = lobe * hollow * fade * uOpacity;",
     "  if (a < 0.004) discard;",
-    "  vec3 col = mix(uColor, vec3(0.62, 0.95, 1.0), 0.4);",
+    "  vec3 col = mix(uColor, vec3(0.28, 0.7, 1.0), 0.7);",
     "  gl_FragColor = vec4(col, a);",
     "}",
   ].join("\n");
@@ -774,9 +774,9 @@
     "  float d = length(p);",
     "  float core = smoothstep(0.16, 0.0, d);",
     "  float halo = smoothstep(0.5, 0.08, d);",
-    "  float a = (core * 0.9 + halo * 0.42) * uOpacity * vTw;",
-    "  if (a < 0.03) discard;",
-    "  vec3 col = mix(uColor, vec3(0.92, 0.98, 1.0), 0.72);",
+    "  float a = (core * 1.0 + halo * 0.55) * uOpacity * vTw;",
+    "  if (a < 0.02) discard;",
+    "  vec3 col = mix(uColor, vec3(0.96, 0.99, 1.0), 0.9);",
     "  gl_FragColor = vec4(col, a);",
     "}",
   ].join("\n");
@@ -890,7 +890,7 @@ function createMystic(scene, color) {
       const p = place(rng);
       pos.push(p[0], p[1], p[2]);
       phase.push(rng() * Math.PI * 2);
-      gain.push(0.62 + rng() * 0.7);
+      gain.push(0.8 + rng() * 0.45);
     }
     const geo = bucket.geo(new THREE.BufferGeometry());
     geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
@@ -909,13 +909,13 @@ function createNeural(scene, color) {
     const major = 0.78;
     const tube = 0.24;
 
-    addDisc(bucket, group, 2.9, FRAG_NEURAL_ATMOS, {
-      color: cyanBias, opacity: 0.32, power: 0.62, white: 0.1, z: -0.5, mood: 0.04,
+    addDisc(bucket, group, 3.4, FRAG_NEURAL_ATMOS, {
+      color: cyanBias, opacity: 0.5, power: 0.42, white: 0.08, z: -0.5, mood: 0.04,
     });
     group.children[group.children.length - 1].renderOrder = 0;
 
-    addDisc(bucket, group, 1.78, FRAG_NEURAL_ATMOS, {
-      color: cyanBias, opacity: 0.16, power: 1.15, white: 0.05, z: -0.22, mood: 0.03,
+    addDisc(bucket, group, 2.15, FRAG_NEURAL_ATMOS, {
+      color: cyanBias, opacity: 0.22, power: 0.7, white: 0.04, z: -0.22, mood: 0.03,
     });
     group.children[group.children.length - 1].renderOrder = 1;
 
@@ -953,14 +953,14 @@ function createNeural(scene, color) {
     spin.add(shell);
 
     const sparkRng = mulberry32(4401);
-    const sparkGeo = fillSparkGeo(bucket, sparkRng, 78, function (rng) {
+    const sparkGeo = fillSparkGeo(bucket, sparkRng, 164, function (rng) {
       const u = rng() * Math.PI * 2;
       const v = rng() * Math.PI * 2;
       const tr = tube * (0.16 + Math.sqrt(rng()) * 0.72);
       const arm = major + tr * Math.cos(v);
       return [arm * Math.cos(u), arm * Math.sin(u), tr * Math.sin(v)];
     });
-    const sparkMat = neuralSparkMat(bucket, cyanBias, { opacity: 0.95, white: 0.9, size: 0.072, mood: 0.02 });
+    const sparkMat = neuralSparkMat(bucket, cyanBias, { opacity: 1.0, white: 0.92, size: 0.08, mood: 0.02 });
     const sparks = new THREE.Points(sparkGeo, sparkMat);
     sparks.renderOrder = 6;
     spin.add(sparks);
@@ -985,7 +985,7 @@ function createNeural(scene, color) {
         const speed = state.cfg.spin * 0.45;
         const pulse = state.cfg.pulse;
         const turb = state.cfg.turbulence;
-        const live = state.color.clone().lerp(new THREE.Color("#7af6ff"), 0.66);
+        const live = state.color.clone().lerp(new THREE.Color("#3eeaff"), 0.8);
         applyPaint(group, live, state.mood, state.cfg);
         group.scale.setScalar(1 + 0.016 * Math.sin(state.now * 0.0012) * pulse);
         const t = state.now * 0.001 * (0.55 + 0.45 * turb);
