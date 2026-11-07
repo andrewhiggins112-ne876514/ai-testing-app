@@ -1113,12 +1113,15 @@ function createNeural(scene, color) {
     "varying vec2 vUv;",
     "void main() {",
     "  float across = abs(vUv.y - 0.5) * 2.0;",
-    "  float edge = pow(clamp(1.0 - across, 0.0, 1.0), 1.65);",
-    "  float pulse = 0.9 + 0.1 * sin(vUv.x * 6.283 + uPhase * 1.05 - uTime * 0.38);",
-    "  float a = edge * pulse * uOpacity;",
-    "  if (a < 0.008) discard;",
-    "  vec3 col = mix(uColor, vec3(1.0, 0.97, 0.86), clamp(edge * 0.62 + pulse * 0.12, 0.0, 1.0));",
-    "  gl_FragColor = vec4(col, min(a, 0.92));",
+    "  float edge = pow(clamp(1.0 - across, 0.0, 1.0), 1.28);",
+    "  float hair = exp(-pow(across * 18.0, 2.0));",
+    "  float pulse = 0.86 + 0.14 * sin(vUv.x * 6.283 + uPhase * 1.05 - uTime * 0.38);",
+    "  float grain = 0.82 + 0.18 * sin(vUv.x * 48.0 + uPhase * 1.8 + uTime * 0.55);",
+    "  float body = (edge * 0.32 + hair * 0.78) * pulse * grain * uOpacity;",
+    "  float a = max(body, hair * 0.26 * uOpacity * grain);",
+    "  if (a < 0.0025) discard;",
+    "  vec3 col = mix(uColor, vec3(1.0, 0.97, 0.86), clamp(hair * 0.48 + edge * 0.38 + pulse * 0.1, 0.0, 1.0));",
+    "  gl_FragColor = vec4(col, min(a, 0.94));",
     "}",
   ].join("\n");
 
@@ -1183,10 +1186,11 @@ function createNeural(scene, color) {
         bucket.geo(buildStrip(pts, width)),
         shaderMat(bucket, FRAG_APEX_STREAM, {
           color: warm,
-          opacity: 0.66 + rng() * 0.16,
-          white: 0.16,
+          opacity: 0.86 + rng() * 0.1,
+          white: 0.24,
           phase: phase,
           mood: 0.05,
+          glow: false,
           timeScale: 0.55 + rng() * 0.45,
         })
       );

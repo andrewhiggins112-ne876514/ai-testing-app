@@ -21,9 +21,6 @@ def load_rgb(path: Path, size: tuple[int, int] = (256, 256)) -> Image.Image:
 
 
 def pixel_list(img: Image.Image) -> list[tuple[int, int, int]]:
-    if hasattr(img, "get_flattened_data"):
-        flat = img.get_flattened_data()
-        return [(flat[i], flat[i + 1], flat[i + 2]) for i in range(0, len(flat), 3)]
     return list(img.getdata())
 
 
