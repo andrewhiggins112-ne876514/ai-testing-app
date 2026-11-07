@@ -1,5 +1,7 @@
 (function () {
   const LAYOUT_KEY = "desktop-shell-layout-v1";
+  const ORB_STYLES_KEY = "desktop-orb-styles-v1";
+  const WEBGL_STYLES = ["mystic", "aether", "neural"];
   const EDGE_PAD = 16;
   const DRAG_THRESHOLD = 6;
   const BTN = 42;
@@ -14,6 +16,39 @@
     aether: "#ff8a2b",
     neural: "#5ce1ff",
   };
+
+  const STYLE_ORB_DEFAULTS = {
+    mystic: {
+      calm_color: "#50cdff",
+      thinking_color: "#b388ff",
+      size: 360,
+      spin_speed: 1,
+      turbulence: 1,
+      pulse: 1,
+      glow: 1,
+    },
+    aether: {
+      calm_color: "#ff8a2b",
+      thinking_color: "#ffb347",
+      size: 360,
+      spin_speed: 1,
+      turbulence: 1,
+      pulse: 1,
+      glow: 1,
+    },
+    neural: {
+      calm_color: "#5ce1ff",
+      thinking_color: "#b388ff",
+      size: 360,
+      spin_speed: 1,
+      turbulence: 1,
+      pulse: 1,
+      glow: 1,
+    },
+  };
+
+  const styleConfigs = {};
+  let suppressControlLive = false;
 
   const node = document.getElementById("orb-config");
   const host = document.getElementById("energy-orb-host");
@@ -53,6 +88,99 @@
 
   let lastAppliedStyle = null;
 
+  function defaultStyleConfig(style) {
+    const base = STYLE_ORB_DEFAULTS[style] || STYLE_ORB_DEFAULTS.mystic;
+    return {
+      style: style,
+      calm_color: base.calm_color,
+      thinking_color: base.thinking_color,
+      size: base.size,
+      shape: "sphere",
+      spin_speed: base.spin_speed,
+      turbulence: base.turbulence,
+      pulse: base.pulse,
+      glow: base.glow,
+    };
+  }
+
+  function orbConfigFromApi(raw) {
+    if (!raw) return null;
+    return {
+      style: raw.style,
+      calm_color: raw.calm_color,
+      thinking_color: raw.thinking_color,
+      size: parseInt(raw.size, 10) || 360,
+      shape: raw.shape || "sphere",
+      spin_speed: parseFloat(raw.spin_speed ?? 1),
+      turbulence: parseFloat(raw.turbulence ?? 1),
+      pulse: parseFloat(raw.pulse ?? 1),
+      glow: parseFloat(raw.glow ?? 1),
+    };
+  }
+
+  function loadStyleConfigs() {
+    WEBGL_STYLES.forEach(function (s) {
+      styleConfigs[s] = defaultStyleConfig(s);
+    });
+    let activeStyle = "mystic";
+    try {
+      const raw = localStorage.getItem(ORB_STYLES_KEY);
+      if (!raw) return activeStyle;
+      const parsed = JSON.parse(raw);
+      WEBGL_STYLES.forEach(function (s) {
+        if (parsed[s] && typeof parsed[s] === "object") {
+          styleConfigs[s] = Object.assign(defaultStyleConfig(s), parsed[s], { style: s });
+        }
+      });
+      if (WEBGL_STYLES.includes(parsed.activeStyle)) {
+        activeStyle = parsed.activeStyle;
+      }
+    } catch (err) {
+      console.warn("orb style store load failed", err);
+    }
+    return activeStyle;
+  }
+
+  function saveStyleConfigs(activeStyle) {
+    try {
+      const payload = { activeStyle: activeStyle };
+      WEBGL_STYLES.forEach(function (s) {
+        payload[s] = styleConfigs[s] || defaultStyleConfig(s);
+      });
+      localStorage.setItem(ORB_STYLES_KEY, JSON.stringify(payload));
+    } catch (err) {
+      console.warn("orb style store save failed", err);
+    }
+  }
+
+  function captureFromControls() {
+    return {
+      style: ctrls.style.value,
+      calm_color: ctrls.calm.value,
+      thinking_color: ctrls.thinking.value,
+      size: parseInt(ctrls.size.value, 10),
+      shape: "sphere",
+      spin_speed: parseFloat(ctrls.spin.value),
+      turbulence: parseFloat(ctrls.turbulence.value),
+      pulse: parseFloat(ctrls.pulse.value),
+      glow: parseFloat(ctrls.glow.value),
+    };
+  }
+
+  function applyControlsFromConfig(cfg) {
+    if (!cfg) return;
+    suppressControlLive = true;
+    ctrls.style.value = cfg.style || "mystic";
+    ctrls.calm.value = cfg.calm_color || STYLE_ORB_DEFAULTS.mystic.calm_color;
+    ctrls.thinking.value = cfg.thinking_color || STYLE_ORB_DEFAULTS.mystic.thinking_color;
+    ctrls.size.value = String(cfg.size ?? 360);
+    ctrls.spin.value = String(cfg.spin_speed ?? 1);
+    ctrls.turbulence.value = String(cfg.turbulence ?? 1);
+    ctrls.pulse.value = String(cfg.pulse ?? 1);
+    ctrls.glow.value = String(cfg.glow ?? 1);
+    suppressControlLive = false;
+  }
+
   function applyConfigToNode(cfg) {
     if (!node || !cfg) return;
     const style = cfg.style || "mystic";
@@ -87,17 +215,21 @@
   }
 
   function liveFromControls() {
-    applyConfigToNode({
-      style: ctrls.style.value,
-      calm_color: ctrls.calm.value,
-      thinking_color: ctrls.thinking.value,
-      size: parseInt(ctrls.size.value, 10),
-      shape: "sphere",
-      spin_speed: parseFloat(ctrls.spin.value),
-      turbulence: parseFloat(ctrls.turbulence.value),
-      pulse: parseFloat(ctrls.pulse.value),
-      glow: parseFloat(ctrls.glow.value),
-    });
+    if (suppressControlLive) return;
+    const curStyle = ctrls.style.value;
+    if (lastAppliedStyle !== null && curStyle !== lastAppliedStyle) {
+      styleConfigs[lastAppliedStyle] = Object.assign(
+        { style: lastAppliedStyle },
+        captureFromControls(),
+        { style: lastAppliedStyle }
+      );
+      const next = styleConfigs[curStyle] || defaultStyleConfig(curStyle);
+      applyControlsFromConfig(next);
+    }
+    const cfg = captureFromControls();
+    styleConfigs[curStyle] = Object.assign({}, cfg, { style: curStyle });
+    saveStyleConfigs(curStyle);
+    applyConfigToNode(cfg);
   }
 
   Object.values(ctrls).forEach(function (el) {
@@ -107,17 +239,7 @@
 
   document.getElementById("ctrl-save").addEventListener("click", async function () {
     liveFromControls();
-    const body = {
-      style: ctrls.style.value,
-      calm_color: ctrls.calm.value,
-      thinking_color: ctrls.thinking.value,
-      size: parseInt(ctrls.size.value, 10),
-      shape: "sphere",
-      spin_speed: parseFloat(ctrls.spin.value),
-      turbulence: parseFloat(ctrls.turbulence.value),
-      pulse: parseFloat(ctrls.pulse.value),
-      glow: parseFloat(ctrls.glow.value),
-    };
+    const body = captureFromControls();
     try {
       await fetch("/api/orb", {
         method: "POST",
@@ -659,19 +781,30 @@
   });
 
   async function boot() {
+    const hadStyleStore = !!localStorage.getItem(ORB_STYLES_KEY);
+    let activeStyle = loadStyleConfigs();
     try {
       const res = await fetch("/api/orb");
       if (res.ok) {
-        const cfg = await res.json();
-        if (cfg.style !== "mystic" && cfg.style !== "aether" && cfg.style !== "neural") {
-          cfg.style = "mystic";
+        const apiCfg = orbConfigFromApi(await res.json());
+        if (apiCfg && WEBGL_STYLES.includes(apiCfg.style)) {
+          activeStyle = apiCfg.style;
+          if (!hadStyleStore) {
+            styleConfigs[apiCfg.style] = Object.assign(
+              defaultStyleConfig(apiCfg.style),
+              apiCfg,
+              { style: apiCfg.style }
+            );
+          }
         }
-        applyConfigToNode(cfg);
       }
     } catch (err) {
-      applyConfigToNode({ style: "mystic" });
+      /* use store defaults */
     }
-    syncControlsFromNode();
+    const cfg = styleConfigs[activeStyle] || defaultStyleConfig(activeStyle);
+    applyControlsFromConfig(cfg);
+    applyConfigToNode(cfg);
+    saveStyleConfigs(activeStyle);
     restoreLayout();
     if (window.__orbWebGL && host) {
       window.__orbWebGL.attach(host);
