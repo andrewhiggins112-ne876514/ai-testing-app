@@ -569,8 +569,10 @@
     "}",
   ].join("\n");
 
-  // Neural only: torus glass. Thick translucent body, soft limb lip, dark hollow centre.
-  // No MeshPhysical transmission, no hash noise (that read as jagged). Turbulence = slow shimmer.
+  // Neural only: one thick torus. Facing body is a veil so the dark centre
+  // shows through; inner and outer limbs glow brighter cyan. Broad fresnel
+  // keeps a continuous shell (a tight edge reads as two rings).
+  // No MeshPhysical transmission. Turbulence = slow shimmer.
   const FRAG_BUBBLE = [
     "uniform vec3 uColor;",
     "uniform float uOpacity;",
@@ -586,26 +588,29 @@
     "  float ndv = clamp(abs(dot(N, V)), 0.0, 1.0);",
     "  float skin = smoothstep(0.15, 0.85, uPower);",
     "  float turb = clamp(uTurbulence, 0.0, 2.0);",
-    "  float fresPow = mix(1.65, 2.85, skin) - turb * 0.1;",
-    "  float fres = pow(1.0 - ndv, max(fresPow, 1.2));",
-    "  float lip = fres * mix(0.24, 0.46, skin);",
-    "  float body = mix(0.66, 0.6, skin) * (0.84 + 0.16 * pow(ndv, 0.45));",
+    "  float fres = pow(1.0 - ndv, mix(1.4, 1.85, skin));",
+    "  float edge = pow(1.0 - ndv, mix(2.5, 3.4, skin));",
+    "  float body = mix(0.18, 0.26, skin) * (0.55 + 0.45 * pow(ndv, 0.5));",
+    "  float lip = fres * mix(0.36, 0.58, skin);",
+    "  float rim = edge * mix(0.2, 0.52, skin);",
     "  vec3 L = normalize(vec3(-0.5, 0.78, 0.64));",
     "  vec3 H = normalize(L + V);",
     "  float ndh = max(dot(N, H), 0.0);",
-    "  float sheen = pow(ndh, 5.0) * 0.32 * skin;",
+    "  float sheen = pow(ndh, 5.0) * 0.3 * skin;",
     "  float catch = pow(ndh, 22.0) * skin;",
     "  float shim = sin(vObj.x * 2.2 + vObj.y * 1.6 + uTime * (0.32 + 0.26 * turb));",
     "  float wobble = 1.0 + shim * (0.02 + 0.045 * turb);",
     "  float up = clamp(N.y * 0.5 + 0.5, 0.0, 1.0);",
-    "  float glass = (body + lip + sheen * 0.5) * wobble * (0.86 + 0.14 * up);",
-    "  float alpha = min(glass * uOpacity, 0.74) + catch * 0.72;",
+    "  float glass = (body + lip * 0.7 + sheen * 0.35) * wobble * (0.9 + 0.1 * up);",
+    "  float alpha = min(glass * uOpacity, mix(0.26, 0.36, skin)) + rim * uOpacity;",
+    "  alpha += catch * 0.64;",
     "  if (alpha < 0.012) discard;",
-    "  vec3 glowCyan = vec3(0.16, 0.78, 1.0);",
-    "  vec3 col = mix(uColor, glowCyan, 0.84);",
-    "  col = mix(col, vec3(0.58, 0.96, 1.0), clamp(0.38 + fres * 0.14 + sheen * 0.7, 0.0, 0.72));",
+    "  vec3 rimCol = vec3(0.36, 0.94, 1.0);",
+    "  float rimMix = clamp(fres * 0.88 + edge * 0.7, 0.0, 1.0);",
+    "  vec3 col = mix(uColor, rimCol, rimMix);",
+    "  col = mix(col, vec3(0.72, 0.97, 1.0), clamp(sheen, 0.0, 0.42));",
     "  col = mix(col, vec3(0.97, 0.99, 1.0), clamp(catch, 0.0, 0.95));",
-    "  gl_FragColor = vec4(col, min(alpha, 0.9));",
+    "  gl_FragColor = vec4(col, min(alpha, 0.84));",
     "}",
   ].join("\n");
 
