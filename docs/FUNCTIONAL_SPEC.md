@@ -178,7 +178,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Document ingestion → settings proposal (**KAN-45** — done 2026-11-15).
 - Security-level isolation browser profiles + credential scopes (**KAN-15** — done 2026-11-15).
 - Desktop `.exe` testing plugin (**KAN-47** — done 2026-11-15).
-- Multi-sandbox orchestration stub (**KAN-55** — now).
+- Multi-sandbox orchestration stub (**KAN-55** — done 2026-11-15).
 - Voice input (later — not ticketed as now).
 
 ---

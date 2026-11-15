@@ -89,6 +89,8 @@ def _defaults() -> dict:
         "api_endpoint": "",
         # FR-PLUG-2: desktop .exe smoke plugin (KAN-47)
         "plugin_desktop_enabled": True,
+        # FR-PLUG-2: multi-sandbox orchestration stub (KAN-55) — default off
+        "plugin_multi_sandbox_enabled": False,
     }
 
 

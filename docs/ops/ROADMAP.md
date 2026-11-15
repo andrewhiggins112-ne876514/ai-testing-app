@@ -42,7 +42,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | ID | Item | Notes |
 |----|------|-------|
 | DESK-1 | Desktop `.exe` testing plugin | **done** — KAN-47; `plugins/desktop_runner.py` smoke + toggle |
-| MULTI-1 | Multi-sandbox orchestration | **now** — KAN-55; keep as plugin |
+| MULTI-1 | Multi-sandbox orchestration | **done** — KAN-55; `plugins/multi_sandbox.py` + registry stub |
 | VOICE-1 | Voice input | After text UX is solid |
 | SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
 
@@ -65,5 +65,5 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**[KAN-55](https://ai-testing-lab.atlassian.net/browse/KAN-55)** — Multi-sandbox orchestration plugin (MULTI-1).  
-Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.
+Optional UX: fuller desktop Settings form beyond Security / App drawer panels.  
+VOICE-1 later. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

@@ -1008,12 +1008,22 @@
   const desktopNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="desktop"]')
     : null;
+  const sandboxesNav = appDrawer
+    ? appDrawer.querySelector('.app-nav-item[data-section="sandboxes"]')
+    : null;
   const deskEnabled = document.getElementById("desk-enabled");
   const deskPath = document.getElementById("desk-path");
   const deskExe = document.getElementById("desk-exe");
   const deskSave = document.getElementById("desk-save");
   const deskSmoke = document.getElementById("desk-smoke");
   const deskStatus = document.getElementById("desk-status");
+  const msEnabled = document.getElementById("ms-enabled");
+  const msPlugins = document.getElementById("ms-plugins");
+  const msAction = document.getElementById("ms-action");
+  const msSave = document.getElementById("ms-save");
+  const msRun = document.getElementById("ms-run");
+  const msStatus = document.getElementById("ms-status");
+  const sandboxesSection = document.getElementById("app-section-sandboxes");
   const rptStatus = document.getElementById("rpt-status");
   const rptChecks = {
     summary: document.getElementById("rpt-summary"),
@@ -1110,12 +1120,56 @@
     }
   }
 
+  function applyMultiSandboxPlugin(payload) {
+    if (!payload) return;
+    if (msEnabled) {
+      msEnabled.checked = !!payload.plugin_multi_sandbox_enabled;
+    }
+  }
+
+  async function loadPluginRegistry() {
+    try {
+      const res = await fetch("/api/plugins");
+      if (!res.ok) return;
+      const payload = await res.json();
+      const plugins = payload.plugins || [];
+      const ms = plugins.find(function (p) {
+        return p.id === "multi_sandbox";
+      });
+      if (msPlugins) {
+        const parts = plugins.map(function (p) {
+          return p.id + ":" + (p.enabled ? "on" : "off");
+        });
+        msPlugins.textContent =
+          "Plugins: " + (parts.length ? parts.join(", ") : "—");
+      }
+      if (ms && msEnabled) {
+        msEnabled.checked = !!ms.enabled;
+      }
+    } catch (err) {
+      if (msPlugins) msPlugins.textContent = "Plugins: (could not load)";
+    }
+  }
+
+  async function loadMultiSandboxPlugin() {
+    try {
+      const res = await fetch("/api/multi-sandbox-plugin");
+      if (!res.ok) return;
+      applyMultiSandboxPlugin(await res.json());
+      await loadPluginRegistry();
+      if (msStatus) msStatus.textContent = "Ready";
+    } catch (err) {
+      if (msStatus) msStatus.textContent = "Could not load multi-sandbox plugin.";
+    }
+  }
+
   function showAppSection(name) {
     const map = {
       security: { section: securitySection, nav: securityNav },
       reports: { section: reportsSection, nav: reportsNav },
       documents: { section: documentsSection, nav: documentsNav },
       desktop: { section: desktopSection, nav: desktopNav },
+      sandboxes: { section: sandboxesSection, nav: sandboxesNav },
     };
     Object.keys(map).forEach(function (key) {
       const entry = map[key];
@@ -1137,6 +1191,9 @@
     if (name === "desktop" && desktopSection && !desktopSection.hidden) {
       loadDesktopPlugin();
     }
+    if (name === "sandboxes" && sandboxesSection && !sandboxesSection.hidden) {
+      loadMultiSandboxPlugin();
+    }
   }
 
   if (securityNav) {
@@ -1157,6 +1214,83 @@
   if (desktopNav) {
     desktopNav.addEventListener("click", function () {
       showAppSection("desktop");
+    });
+  }
+  if (sandboxesNav) {
+    sandboxesNav.addEventListener("click", function () {
+      showAppSection("sandboxes");
+    });
+  }
+
+  if (msSave) {
+    msSave.addEventListener("click", async function () {
+      if (msStatus) msStatus.textContent = "Saving…";
+      try {
+        const res = await fetch("/api/multi-sandbox-plugin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            plugin_multi_sandbox_enabled: !!(msEnabled && msEnabled.checked),
+          }),
+        });
+        const payload = await res.json();
+        if (!res.ok) {
+          if (msStatus) msStatus.textContent = "Save failed.";
+          return;
+        }
+        applyMultiSandboxPlugin(payload);
+        await loadPluginRegistry();
+        if (msStatus) {
+          msStatus.textContent = payload.plugin_multi_sandbox_enabled
+            ? "Multi-sandbox plugin enabled."
+            : "Multi-sandbox plugin disabled.";
+        }
+      } catch (err) {
+        if (msStatus) msStatus.textContent = "Could not reach multi-sandbox API.";
+      }
+    });
+  }
+
+  if (msRun) {
+    msRun.addEventListener("click", async function () {
+      if (msStatus) msStatus.textContent = "Orchestrating…";
+      try {
+        const action =
+          msAction && msAction.value ? msAction.value.trim() : "list";
+        const res = await fetch("/api/multi-sandbox/orchestrate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: action }),
+        });
+        const payload = await res.json();
+        if (!res.ok) {
+          if (msStatus) msStatus.textContent = "Orchestrate request failed.";
+          return;
+        }
+        if (payload.status === "disabled") {
+          if (msStatus) {
+            msStatus.textContent =
+              payload.message ||
+              payload.error ||
+              "Plugin disabled — enable and Save.";
+          }
+          return;
+        }
+        if (payload.status === "ok") {
+          const n = (payload.sandboxes || []).length;
+          if (msStatus) {
+            msStatus.textContent =
+              (payload.message || "OK") + " (" + n + " sandbox(es))";
+          }
+          return;
+        }
+        if (msStatus) {
+          msStatus.textContent =
+            payload.error || payload.message || "Orchestration failed.";
+        }
+      } catch (err) {
+        if (msStatus) msStatus.textContent = "Could not reach orchestrate API.";
+      }
     });
   }
 

@@ -48,6 +48,7 @@
           <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
           <button type="button" class="app-nav-item" data-section="documents" aria-pressed="false">Documents</button>
           <button type="button" class="app-nav-item" data-section="desktop" aria-pressed="false">Desktop</button>
+          <button type="button" class="app-nav-item" data-section="sandboxes" aria-pressed="false">Sandboxes</button>
         </nav>
         <div id="app-section-security" class="app-section" hidden>
           <h3 class="orb-section-label">Security level</h3>
@@ -108,7 +109,24 @@
           </div>
           <p id="desk-status" class="drawer-hint" role="status">Ready</p>
         </div>
-        <p class="drawer-hint" id="app-drawer-hint">Choose Security, Reports, Documents, or Desktop.</p>
+        <div id="app-section-sandboxes" class="app-section" hidden>
+          <h3 class="orb-section-label">Multi-sandbox plugin</h3>
+          <p class="drawer-hint">Stub orchestration for parallel environments. Default off. No real grid launches.</p>
+          <label class="check-row"><input type="checkbox" id="ms-enabled" /> Enable multi-sandbox plugin</label>
+          <p id="ms-plugins" class="drawer-hint">Plugins: —</p>
+          <label class="stack-label">Action
+            <select id="ms-action">
+              <option value="list">list</option>
+              <option value="plan">plan</option>
+            </select>
+          </label>
+          <div class="btn-row">
+            <button type="button" id="ms-save" class="save-btn">Save plugin</button>
+            <button type="button" id="ms-run" class="save-btn secondary">Orchestrate</button>
+          </div>
+          <p id="ms-status" class="drawer-hint" role="status">Ready</p>
+        </div>
+        <p class="drawer-hint" id="app-drawer-hint">Choose Security, Reports, Documents, Desktop, or Sandboxes.</p>
       </div>
     </aside>
 

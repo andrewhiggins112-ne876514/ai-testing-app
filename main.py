@@ -14,8 +14,18 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from agent.agent import Agent
-from plugins.desktop_runner import plugin_status, run_desktop, set_plugin_enabled
+from plugins.desktop_runner import (
+    plugin_status as desktop_plugin_status,
+    run_desktop,
+    set_plugin_enabled as set_desktop_plugin_enabled,
+)
 from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
+from plugins.multi_sandbox import (
+    orchestrate as multi_sandbox_orchestrate,
+    plugin_status as multi_sandbox_plugin_status,
+    set_plugin_enabled as set_multi_sandbox_plugin_enabled,
+)
+from plugins.registry import list_plugins
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.store import (
     load_settings,
@@ -85,6 +95,14 @@ class DesktopPluginRequest(BaseModel):
 class DesktopSmokeRequest(BaseModel):
     exe_path: str = ""
     timeout_s: float = 1.5
+
+
+class MultiSandboxPluginRequest(BaseModel):
+    plugin_multi_sandbox_enabled: bool = False
+
+
+class MultiSandboxOrchestrateRequest(BaseModel):
+    action: str = "list"
 
 
 def _orb_from_settings() -> dict:
@@ -189,17 +207,37 @@ async def api_doc_ingest_decline(req: DocIngestDeclineRequest):
 
 @app.get("/api/desktop-plugin")
 async def get_desktop_plugin():
-    return plugin_status()
+    return desktop_plugin_status()
 
 
 @app.post("/api/desktop-plugin")
 async def post_desktop_plugin(req: DesktopPluginRequest):
-    return set_plugin_enabled(bool(req.plugin_desktop_enabled))
+    return set_desktop_plugin_enabled(bool(req.plugin_desktop_enabled))
 
 
 @app.post("/api/desktop-smoke")
 async def post_desktop_smoke(req: DesktopSmokeRequest):
     return run_desktop(exe_path=req.exe_path or "", timeout_s=float(req.timeout_s or 1.5))
+
+
+@app.get("/api/plugins")
+async def get_plugins():
+    return list_plugins()
+
+
+@app.get("/api/multi-sandbox-plugin")
+async def get_multi_sandbox_plugin():
+    return multi_sandbox_plugin_status()
+
+
+@app.post("/api/multi-sandbox-plugin")
+async def post_multi_sandbox_plugin(req: MultiSandboxPluginRequest):
+    return set_multi_sandbox_plugin_enabled(bool(req.plugin_multi_sandbox_enabled))
+
+
+@app.post("/api/multi-sandbox/orchestrate")
+async def post_multi_sandbox_orchestrate(req: MultiSandboxOrchestrateRequest):
+    return multi_sandbox_orchestrate(action=req.action or "list")
 
 
 app.mount("/ui", StaticFiles(directory=str(_UI_DIR)), name="ui")

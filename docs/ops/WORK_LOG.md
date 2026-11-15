@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | [KAN-55](https://ai-testing-lab.atlassian.net/browse/KAN-55) — Multi-sandbox orchestration plugin |
-| **Epic** | MULTI-1 / KAN backlog |
-| **Roadmap ID** | MULTI-1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` plugins / multi-sandbox |
-| **Next action** | Stub multi-sandbox orchestration as a separate toggleable plugin |
+| **Jira story** | (backlog) optional desktop Settings polish / PW-1 stronger Playwright evidence |
+| **Epic** | — |
+| **Roadmap ID** | UI-CHAT follow-on / PW-1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` |
+| **Next action** | Pick next open KAN story (VOICE-1 later; optional fuller App Settings) |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-55 — Multi-sandbox orchestration stub
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** `plugins/multi_sandbox.py` stub (list/plan mock) + `plugins/registry.py` manifests; toggle `plugin_multi_sandbox_enabled` default off (FR-PLUG-2). Disabled → not-enabled message. Agent tools `list_plugins` / `orchestrate_sandboxes`. API `GET /api/plugins`, `GET/POST /api/multi-sandbox-plugin`, `POST /api/multi-sandbox/orchestrate`. Gradio Settings + App drawer → Sandboxes.
+- **Files:** `plugins/multi_sandbox.py`, `plugins/registry.py`, `settings/store.py`, `agent/agent.py`, `main.py`, `ui/gradio_app.py`, `ui/desktop/*`, `desktop_app.py` (desk15), `tests/test_multi_sandbox.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_multi_sandbox.py -v` (4 passed). Desktop: App ▦ → Sandboxes → Orchestrate while off → enable message; enable + Save → list/plan OK; Plugins line shows multi_sandbox.
+- **Jira:** story Agent completion comment + KAN-56 test evidence/Done + KAN-55 Done (yes).
+- **Next:** optional desktop Settings polish / PW-1.
 
 ### 2026-11-15 — OPS — Jira agent-completion comments + test Task evidence
 - **Agent/chat:** Cursor IDE Agent (Composer)

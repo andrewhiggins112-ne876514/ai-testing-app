@@ -22,6 +22,7 @@ Rules:
 - Security context is important: respect the current level (OFFICIAL / SECRET).
 - For a browse request, call run_playwright with steps, a list of {action, selector?, value?}; action is goto, click, fill, expect_text, or expect_url, and click a visible label with selector text=Label.
 - For a Windows .exe / desktop smoke test, call run_desktop with optional exe_path (or rely on target_app_path in settings). If the plugin is disabled, tell the user to enable plugin_desktop_enabled.
+- To list registered plugins and toggles, call list_plugins. For multi-sandbox planning, call orchestrate_sandboxes (action list or plan). If disabled, tell the user to enable plugin_multi_sandbox_enabled.
 - When the user asks to list Jira issues or stories, call list_stories with the project key and do not invent issues. Set issue_types only when the user names types. "list issues in KAN" omits issue_types.
 - When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
 - To link a Jira issue to an epic, call set_parent with the issue key and epic key, then wait for the user to reply yes. Do not answer yes for the user.
@@ -222,6 +223,37 @@ class Agent:
                     },
                 },
             },
+            {
+                "type": "function",
+                "function": {
+                    "name": "list_plugins",
+                    "description": (
+                        "List registered plugins with enabled flags and toggle keys "
+                        "(FR-PLUG-1 / FR-PLUG-2). Includes multi-sandbox (default off)."
+                    ),
+                    "parameters": {"type": "object", "properties": {}},
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "orchestrate_sandboxes",
+                    "description": (
+                        "Multi-sandbox orchestration stub: list or mock-plan sandbox slots "
+                        "(URLs, profiles, credential scopes). Does not launch parallel browsers. "
+                        "Fails gracefully if plugin_multi_sandbox_enabled is false."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "action": {
+                                "type": "string",
+                                "description": "list or plan (default list)",
+                            },
+                        },
+                    },
+                },
+            },
         ]
 
     async def chat(self, user_message: str, session_id: str = "default") -> str:
@@ -311,6 +343,8 @@ class Agent:
             "jira_action",
             "run_playwright",
             "run_desktop",
+            "list_plugins",
+            "orchestrate_sandboxes",
             "update_settings",
             "list_stories",
             "create_issue",
@@ -345,6 +379,13 @@ class Agent:
             from plugins.desktop_runner import run_desktop
             allowed = {"exe_path", "timeout_s"}
             return run_desktop(**{k: v for k, v in args.items() if k in allowed})
+        elif name == "list_plugins":
+            from plugins.registry import list_plugins
+            return list_plugins()
+        elif name == "orchestrate_sandboxes":
+            from plugins.multi_sandbox import orchestrate
+            action = args.get("action") if isinstance(args.get("action"), str) else "list"
+            return orchestrate(action=action or "list")
         elif name == "jira_action":
             from plugins.jira_plugin import jira_action
             allowed = {"action", "project", "summary", "status"}

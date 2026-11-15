@@ -11,7 +11,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import gradio as gr
 import httpx
-from plugins.desktop_runner import plugin_status, run_desktop, set_plugin_enabled
+from plugins.desktop_runner import (
+    plugin_status as desktop_plugin_status,
+    run_desktop,
+    set_plugin_enabled as set_desktop_plugin_enabled,
+)
+from plugins.multi_sandbox import (
+    orchestrate as multi_sandbox_orchestrate,
+    plugin_status as multi_sandbox_plugin_status,
+    set_plugin_enabled as set_multi_sandbox_plugin_enabled,
+)
+from plugins.registry import list_plugins
 from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
 from reports.exporter import reports_dir
 from reports.sections import (
@@ -1460,17 +1470,19 @@ def settings_store_summary():
         creds = "Jira credentials: not set (edit local settings file — never commit tokens)"
     profile = browser_profile_dir(level)
     desk_on = "on" if data.get("plugin_desktop_enabled", True) else "off"
+    multi_on = "on" if data.get("plugin_multi_sandbox_enabled", False) else "off"
     app_path = (data.get("target_app_path") or "").strip() or "(not set)"
     return (
         f"Local store: {settings_path()}\n"
         f"Level: {level} | Browser profile: {profile}\n"
         f"{creds}\n"
-        f"Desktop plugin: {desk_on} | target_app_path: {app_path}"
+        f"Desktop plugin: {desk_on} | target_app_path: {app_path}\n"
+        f"Multi-sandbox plugin: {multi_on}"
     )
 
 
 def save_desktop_plugin(enabled: bool):
-    status = set_plugin_enabled(bool(enabled))
+    status = set_desktop_plugin_enabled(bool(enabled))
     flag = "enabled" if status.get("plugin_desktop_enabled") else "disabled"
     return f"Desktop plugin {flag}.", settings_store_summary()
 
@@ -1482,6 +1494,32 @@ def run_desktop_smoke_ui(exe_path: str = ""):
     if result.get("status") == "pass":
         return f"Pass: {result.get('exe_path')} (pid {result.get('pid')})"
     return result.get("error") or result.get("message") or "Smoke failed."
+
+
+def save_multi_sandbox_plugin(enabled: bool):
+    status = set_multi_sandbox_plugin_enabled(bool(enabled))
+    flag = "enabled" if status.get("plugin_multi_sandbox_enabled") else "disabled"
+    return f"Multi-sandbox plugin {flag}.", settings_store_summary()
+
+
+def run_multi_sandbox_ui(action: str = "list"):
+    result = multi_sandbox_orchestrate(action=(action or "list").strip() or "list")
+    if result.get("status") == "disabled":
+        return result.get("message") or result.get("error") or "Plugin disabled."
+    if result.get("status") == "ok":
+        n = len(result.get("sandboxes") or [])
+        return result.get("message") or f"OK ({n} sandbox(es))."
+    return result.get("error") or result.get("message") or "Orchestration failed."
+
+
+def plugins_list_summary() -> str:
+    payload = list_plugins()
+    lines = []
+    for p in payload.get("plugins") or []:
+        flag = "on" if p.get("enabled") else "off"
+        toggle = p.get("toggle_key") or "(always on)"
+        lines.append(f"- {p.get('id')}: {flag} [{toggle}]")
+    return "Registered plugins:\n" + ("\n".join(lines) if lines else "(none)")
 
 
 def save_settings(level, jira_base_url, confirm_level: bool = False):
@@ -1854,7 +1892,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                         confirm_security_level, [level, jira_base_url], [status, store_info]
                     )
                 gr.HTML('<div class="orb-section-label">Desktop plugin</div>')
-                _desk = plugin_status()
+                _desk = desktop_plugin_status()
                 desk_enabled = gr.Checkbox(
                     value=bool(_desk.get("plugin_desktop_enabled", True)),
                     label="Enable desktop .exe smoke plugin (FR-TEST-3)",
@@ -1876,6 +1914,39 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     )
                     gr.Button("Run desktop smoke", variant="primary").click(
                         run_desktop_smoke_ui, [desk_exe], [desk_status]
+                    )
+                gr.HTML('<div class="orb-section-label">Multi-sandbox plugin</div>')
+                _ms = multi_sandbox_plugin_status()
+                ms_enabled = gr.Checkbox(
+                    value=bool(_ms.get("plugin_multi_sandbox_enabled", False)),
+                    label="Enable multi-sandbox orchestration stub (KAN-55, default off)",
+                )
+                ms_action = gr.Dropdown(
+                    choices=["list", "plan"],
+                    value="list",
+                    label="Orchestrate action",
+                )
+                ms_status = gr.Textbox(
+                    value="Ready",
+                    label="Multi-sandbox",
+                    interactive=False,
+                    max_lines=3,
+                )
+                plugins_box = gr.Textbox(
+                    value=plugins_list_summary(),
+                    label="Plugin registry",
+                    interactive=False,
+                    lines=6,
+                )
+                with gr.Row():
+                    gr.Button("Save multi-sandbox plugin").click(
+                        save_multi_sandbox_plugin, [ms_enabled], [status, store_info]
+                    )
+                    gr.Button("Orchestrate (stub)", variant="primary").click(
+                        run_multi_sandbox_ui, [ms_action], [ms_status]
+                    )
+                    gr.Button("Refresh plugins").click(
+                        plugins_list_summary, outputs=[plugins_box]
                     )
         with gr.Tab("Reports"):
             _report_choices = list_report_choices()
