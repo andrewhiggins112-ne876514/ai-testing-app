@@ -14,6 +14,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from agent.agent import Agent
+from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.store import load_settings, settings_path, update_setting
 
 _UI_DIR = Path(__file__).resolve().parent / "ui"
@@ -36,6 +37,13 @@ class OrbConfigRequest(BaseModel):
     turbulence: float = 1.0
     pulse: float = 1.0
     glow: float = 1.0
+
+
+class ReportSectionsRequest(BaseModel):
+    summary: bool = True
+    stories: bool = True
+    bugs: bool = True
+    evidence: bool = True
 
 
 def _orb_from_settings() -> dict:
@@ -89,6 +97,16 @@ async def set_orb(req: OrbConfigRequest):
     update_setting("orb_pulse", req.pulse, confirm=True)
     update_setting("orb_glow", req.glow, confirm=True)
     return _orb_from_settings()
+
+
+@app.get("/api/report-sections")
+async def get_report_sections():
+    return load_report_sections()
+
+
+@app.post("/api/report-sections")
+async def set_report_sections(req: ReportSectionsRequest):
+    return save_report_sections(normalize_sections(req.model_dump()))
 
 
 app.mount("/ui", StaticFiles(directory=str(_UI_DIR)), name="ui")

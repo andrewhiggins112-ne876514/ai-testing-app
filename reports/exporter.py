@@ -4,6 +4,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+from reports.sections import build_sections, load_report_sections, render_markdown
+
 _REPO = Path(__file__).resolve().parents[1]
 
 
@@ -34,39 +36,30 @@ def _pair(folder: Path, stamp: str):
     return folder / f"{stamp}-{number}.json", folder / f"{stamp}-{number}.md"
 
 
-def _markdown(result: dict) -> str:
-    title = result.get("title") or "Playwright run"
-    status = result.get("status") or "fail"
-    lines = [
-        f"# {title}",
-        "",
-        f"Overall: {status}",
-        "",
-        "| action | status |",
-        "| --- | --- |",
-    ]
-    for step in result.get("steps") or []:
-        lines.append(f"| {step.get('action', '')} | {step.get('status', '')} |")
-    lines.append("")
-    lines.append(f"Screenshot: {result.get('screenshot') or ''}")
-    return "\n".join(lines) + "\n"
-
-
-def export_run(result, request_text: str = "", session_id: str = "default"):
+def export_run(
+    result,
+    request_text: str = "",
+    session_id: str = "default",
+    sections: dict | None = None,
+):
+    """Export JSON + Markdown. ``sections`` overrides the saved report profile when provided."""
     try:
         folder = reports_dir()
         folder.mkdir(parents=True, exist_ok=True)
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         json_path, md_path = _pair(folder, stamp)
+        body = result if isinstance(result, dict) else {}
+        enabled = sections if sections is not None else load_report_sections()
+        section_payload = build_sections(body, request_text, enabled)
         payload = {
             "timestamp": datetime.now().isoformat(timespec="seconds"),
             "request": request_text or "",
             "session_id": session_id or "default",
             "result": result,
+            "sections": section_payload,
         }
         json_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-        body = result if isinstance(result, dict) else {}
-        md_path.write_text(_markdown(body), encoding="utf-8")
+        md_path.write_text(render_markdown(section_payload), encoding="utf-8")
     except Exception:
         return result
     return result

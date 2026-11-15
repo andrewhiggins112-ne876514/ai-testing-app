@@ -992,6 +992,78 @@
   });
   [appDrawer, screenDrawer].forEach(bindDrawerResize);
 
+  const reportsSection = document.getElementById("app-section-reports");
+  const reportsNav = appDrawer
+    ? appDrawer.querySelector('.app-nav-item[data-section="reports"]')
+    : null;
+  const rptStatus = document.getElementById("rpt-status");
+  const rptChecks = {
+    summary: document.getElementById("rpt-summary"),
+    stories: document.getElementById("rpt-stories"),
+    bugs: document.getElementById("rpt-bugs"),
+    evidence: document.getElementById("rpt-evidence"),
+  };
+  const rptSave = document.getElementById("rpt-save");
+  const appDrawerHint = document.getElementById("app-drawer-hint");
+
+  function applyReportSections(flags) {
+    Object.keys(rptChecks).forEach(function (key) {
+      if (rptChecks[key]) rptChecks[key].checked = !!flags[key];
+    });
+  }
+
+  async function loadReportSections() {
+    try {
+      const res = await fetch("/api/report-sections");
+      if (!res.ok) return;
+      applyReportSections(await res.json());
+    } catch (err) {
+      /* keep checkbox defaults */
+    }
+  }
+
+  if (reportsNav && reportsSection) {
+    reportsNav.addEventListener("click", function () {
+      const open = reportsSection.hidden;
+      reportsSection.hidden = !open;
+      reportsNav.setAttribute("aria-pressed", open ? "true" : "false");
+      if (appDrawerHint) appDrawerHint.hidden = open;
+      if (open) loadReportSections();
+    });
+  }
+
+  if (rptSave) {
+    rptSave.addEventListener("click", async function () {
+      const body = {
+        summary: !!(rptChecks.summary && rptChecks.summary.checked),
+        stories: !!(rptChecks.stories && rptChecks.stories.checked),
+        bugs: !!(rptChecks.bugs && rptChecks.bugs.checked),
+        evidence: !!(rptChecks.evidence && rptChecks.evidence.checked),
+      };
+      try {
+        const res = await fetch("/api/report-sections", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error("save failed");
+        const saved = await res.json();
+        applyReportSections(saved);
+        const enabled = Object.keys(saved).filter(function (k) {
+          return saved[k];
+        });
+        if (rptStatus) {
+          rptStatus.textContent =
+            "Saved. Next export includes: " +
+            (enabled.length ? enabled.join(", ") : "(none)") +
+            ".";
+        }
+      } catch (err) {
+        if (rptStatus) rptStatus.textContent = "Could not save section profile.";
+      }
+    });
+  }
+
   window.addEventListener("resize", function () {
     restoreLayout();
   });
@@ -1025,6 +1097,7 @@
     if (window.__orbWebGL && host) {
       window.__orbWebGL.attach(host);
     }
+    loadReportSections();
   }
 
   boot();

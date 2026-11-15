@@ -50,9 +50,13 @@ class ReportExportTests(unittest.TestCase):
         self.assertIn("timestamp", saved)
         text = saved_path.with_suffix(".md").read_text(encoding="utf-8")
         self.assertIn("# Example Domain", text)
+        self.assertIn("## Summary", text)
         self.assertIn("Overall: pass", text)
         self.assertIn("| goto | pass |", text)
+        self.assertIn("## Evidence", text)
         self.assertIn("Screenshot: C:/shot.png", text)
+        self.assertIn("summary", saved["sections"])
+        self.assertIn("evidence", saved["sections"])
         for path in json_files + md_files:
             self.assertNotEqual(ROOT.resolve(), path.resolve())
             self.assertNotIn(ROOT.resolve(), path.resolve().parents)

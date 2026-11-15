@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | [KAN-51](https://ai-testing-lab.atlassian.net/browse/KAN-51) — Customisable reporting sections |
-| **Epic** | [KAN-26](https://ai-testing-lab.atlassian.net/browse/KAN-26) — Reporting |
-| **Roadmap ID** | REP-1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-REP-* |
-| **Next action** | Section toggles + exporter respect; verify via desktop app if UI-facing |
+| **Jira story** | [KAN-45](https://ai-testing-lab.atlassian.net/browse/KAN-45) — Document ingestion → settings proposals |
+| **Epic** | [KAN-21](https://ai-testing-lab.atlassian.net/browse/KAN-21) — Learning Inputs and Document Ingestion |
+| **Roadmap ID** | DOC-1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR related to document → settings |
+| **Next action** | Propose settings from docs with explicit consent before store |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-51 — Customisable reporting sections
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** FR-REP-2 section profile (`summary` / `stories` / `bugs` / `evidence`) in local settings; `reports/sections.py` builds only enabled blocks; exporter Markdown/JSON omit disabled sections; defaults all on. Gradio Reports toggles + Save; desktop App drawer → Reports + `GET/POST /api/report-sections`.
+- **Files:** `reports/sections.py`, `reports/exporter.py`, `settings/store.py`, `main.py`, `ui/gradio_app.py`, `ui/desktop/*`, `desktop_app.py` (desk11), `tests/test_report_sections.py`, `tests/test_report_export.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC §5.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_report_sections.py tests/test_report_export.py tests/test_reports_tab.py -v` (9 passed). API round-trip on `:8765/api/report-sections`. Desktop: `desktop_app.py` → App ▦ → Reports → Save sections.
+- **Jira:** comment + Done on KAN-51 (REST).
+- **Next:** KAN-45 document ingestion → settings proposals (DOC-1).
 
 ### 2026-11-15 — KAN-49 — Enforce self-healing guardrails
 - **Agent/chat:** Cursor IDE Agent (Composer)

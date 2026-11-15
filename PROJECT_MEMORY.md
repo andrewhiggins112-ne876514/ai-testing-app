@@ -48,12 +48,12 @@ Skeleton + substantial features exist:
 - `plugins/playwright_runner.py` — steps, click + fill locator self-heal via heal_policy (assertions never healed), screenshots/evidence path
 - `plugins/jira_plugin.py` — list/create/transition/comment/epic link; writes need confirm
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\settings.json` (incl. orb)
-- `main.py` — FastAPI `/chat` + `/health` + `/api/orb` + static `/ui`
+- `main.py` — FastAPI `/chat` + `/health` + `/api/orb` + `/api/report-sections` + static `/ui`
 - `desktop_app.py` — **native Windows window** (pywebview + Edge WebView2) hosting mystic shell at `/ui/desktop/`; Gradio remains available via `run_ui.py`
-- `ui/desktop/` — full-window mystic orb on pure black `#000000`; shared **shell-surface** style for chat widget, both drawers, and chat input; **app drawer** + **screen drawer** (chat / orb / widget-settings icons); bottom chat bar; no top nav. **UI-6 done:** edge-snap drawer toggles; free-drag widgets; **resize handles** (E/S/SE on widgets; drawer edge resize); Widget Settings (transparency + border/background colour) apply live to all shell surfaces; layout (position + size) in `localStorage` (`desktop-shell-layout-v1`). **Orb controls:** per-style mystic/aether/neural/apex settings in `localStorage` (`desktop-orb-styles-v1`); style switch loads that style’s colours/sliders; edits persist only to the active style. See `docs/mockups/screenshots/widget_settings_desk7.png`.
-- `ui/gradio_app.py` — Gradio UI + energy orb; **named presets** (UI-5); orb controls behind top-right gear panel (UI-6a); gear panel **resizable** with size in `localStorage` (`gradio-orb-panel-size-v1`); **Settings/Reports polish (KAN-10):** human Settings labels + local-store summary (no secret echo); Reports picker (newest first) + details path
+- `ui/desktop/` — full-window mystic orb on pure black `#000000`; shared **shell-surface** style for chat widget, both drawers, and chat input; **app drawer** + **screen drawer** (chat / orb / widget-settings icons); bottom chat bar; no top nav. **UI-6 done:** edge-snap drawer toggles; free-drag widgets; **resize handles** (E/S/SE on widgets; drawer edge resize); Widget Settings (transparency + border/background colour) apply live to all shell surfaces; layout (position + size) in `localStorage` (`desktop-shell-layout-v1`). **Reports (KAN-51):** App drawer → Reports section toggles (persist via `/api/report-sections`). Settings nav still Coming soon. **Orb controls:** per-style mystic/aether/neural/apex settings in `localStorage` (`desktop-orb-styles-v1`); style switch loads that style’s colours/sliders; edits persist only to the active style. See `docs/mockups/screenshots/widget_settings_desk7.png`.
+- `ui/gradio_app.py` — Gradio UI + energy orb; **named presets** (UI-5); orb controls behind top-right gear panel (UI-6a); gear panel **resizable** with size in `localStorage` (`gradio-orb-panel-size-v1`); **Settings/Reports polish (KAN-10):** human Settings labels + local-store summary (no secret echo); Reports picker (newest first) + details path; **section toggles (KAN-51)** on Reports tab
 - **Orb styles:** classic four on canvas; **`mystic` / `aether` / `neural` / `apex` on WebGL** via `ui/orb_webgl.js` + vendored `ui/vendor/three.min.js` (particle counts capped; see `docs/mockups/orb_styles.md`). **Mystic** uses FBM / ridge-extracted filament fragment shaders (`FRAG_MYSTIC`), not ribbon meshes; soft atmospheric bloom replaces hard rim; equatorial streak removed; floor glow kept (see `docs/mockups/screenshots/mystic_final_*.png`). **Aether** mockup pass (`aether_mid_v4.png`): single orange-gold plasma sphere — solar core in `FRAG_AETHER` (no white blowout), unchanged flare filament motion, FBM fire wisps on paths plus high-frequency crest **flame licks** (additive colour/alpha on filaments only), thinner ribbon arcs, soft bloom; no MeshPhysical transmission; glow/turbulence live. Mystic/neural untouched. **Neural** glass-torus bubble (`neural_mid_v16.png`): same single thick hollow shell in `FRAG_BUBBLE`. The facing body is a translucent veil so the dark centre shows through the glass. Inner and outer rims carry a thin filament that travels along the ring: cyan, with white on the bright crests (same hot-lift idea as mystic). Turbulence warps that travel. Front-skin specular catch, far wall, no MeshPhysical transmission, dark void, soft `FRAG_NEURAL_ATMOS` bloom, sparkle field kept in the glass; glow/turbulence live. Mystic/aether untouched. **Apex** (`apex_v4.png`): white-gold core (`FRAG_APEX_CORE`) with soft core-only bloom unchanged; 8–10 full elliptical orbit streams (`sampleApexOrbit` + `FRAG_APEX_STREAM` hairline floor for legibility on black, thin width); sparse node points; group rotation only; no shell, rings, fire, or glass; thinking brightens core; glow/turbulence live; desktop accent `#e8d4a0`. Visual gate: `.cursor/rules/orb-visual.mdc`; `scripts/compare_orb.py`. **Desktop UI theme follows style:** mystic `#50cdff`, aether `#ff8a2b`, neural `#5ce1ff`, apex `#e8d4a0`; neural orb calm default matches mystic `#50cdff`. **Live controls (2026-11-06):** slider `0` applies; glow mid=`1`; turbulence warps filaments (mystic/aether) and shell shimmer (neural); spin `0` stops swirl. Shots: `mystic_glow_*.png`, `aether_mid_v4.png`, `neural_mid_v16.png`, `apex_v4.png`, `style_theme_switch.png`.
-- `reports/exporter.py` — run export
+- `reports/exporter.py` + `reports/sections.py` — JSON/Markdown export with FR-REP-2 section toggles (`summary` / `stories` / `bugs` / `evidence`; local `report_sections`)
 - Tests under `tests/` for Jira, Playwright heal, orb config/presets, sessions, settings, reports
 - Architecture notes + AGENTS.md + this file
 - **Cursor ops:** `.cursor/rules`, agents (implementer/ui-orb on Grok 4.7; doc-keeper/verifier/explorer on Composer), skills, MCP template, `docs/ops/*`
@@ -64,9 +64,8 @@ Skeleton + substantial features exist:
 - **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); **product UI = `desktop_app.py` + Computer Use** (not browser shell); IronBee for AUT/Gradio only; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
 
 Not yet done:
-- **Next build slice:** [KAN-51](https://ai-testing-lab.atlassian.net/browse/KAN-51) customisable reporting sections (see WORK_LOG Active slice)
-- Desktop app-drawer Settings/Reports still “Coming soon” (optional UX follow-on; no open Story)
-- Document ingestion → settings proposal (KAN-45)
+- **Next build slice:** [KAN-45](https://ai-testing-lab.atlassian.net/browse/KAN-45) document ingestion → settings proposals (see WORK_LOG Active slice)
+- Desktop app-drawer Settings still “Coming soon” (optional UX follow-on; no open Story)
 - Security isolation (KAN-15)
 - Desktop .exe testing (KAN-47); multi-sandbox (KAN-55)
 
@@ -89,6 +88,6 @@ Not yet done:
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-51** — Customisable reporting sections (Active slice).
-2. Optional: wire Settings/Reports from the desktop app drawer (buttons still “Coming soon”).
-3. Security isolation / document ingestion as KAN backlog allows.
+1. **KAN-45** — Document ingestion → settings proposals (Active slice).
+2. Optional: wire Settings from the desktop app drawer (still “Coming soon”).
+3. Security isolation (KAN-15) as backlog allows.

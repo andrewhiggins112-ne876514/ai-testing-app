@@ -33,6 +33,13 @@ def _defaults() -> dict:
         "orb_glow": 1.0,
         "orb_presets": {},
         "orb_active_preset": "",
+        # FR-REP-2: which report blocks to include on export (all on by default)
+        "report_sections": {
+            "summary": True,
+            "stories": True,
+            "bugs": True,
+            "evidence": True,
+        },
     }
 
 def _hidden(key: str, value: Any) -> Any:

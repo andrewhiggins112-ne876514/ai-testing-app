@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk10" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk11" />
 </head>
 <body>
   <div id="app">
@@ -45,9 +45,19 @@
         <h2 class="panel-title">App</h2>
         <nav class="app-nav" aria-label="Application sections">
           <button type="button" class="app-nav-item" data-section="settings" disabled title="Coming soon">Settings</button>
-          <button type="button" class="app-nav-item" data-section="reports" disabled title="Coming soon">Reports</button>
+          <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
         </nav>
-        <p class="drawer-hint">More sections will appear here.</p>
+        <div id="app-section-reports" class="app-section" hidden>
+          <h3 class="orb-section-label">Report sections</h3>
+          <p class="drawer-hint">Choose which blocks appear in the next JSON/Markdown export.</p>
+          <label class="check-row"><input type="checkbox" id="rpt-summary" checked /> Summary</label>
+          <label class="check-row"><input type="checkbox" id="rpt-stories" checked /> Stories</label>
+          <label class="check-row"><input type="checkbox" id="rpt-bugs" checked /> Bugs</label>
+          <label class="check-row"><input type="checkbox" id="rpt-evidence" checked /> Evidence</label>
+          <button type="button" id="rpt-save" class="save-btn">Save sections</button>
+          <p id="rpt-status" class="drawer-hint" role="status">Ready</p>
+        </div>
+        <p class="drawer-hint" id="app-drawer-hint">Settings coming soon.</p>
       </div>
     </aside>
 
@@ -94,6 +104,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk10"></script>
+  <script src="/ui/desktop/desktop.js?v=desk11"></script>
 </body>
 </html>

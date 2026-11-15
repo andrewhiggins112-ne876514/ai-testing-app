@@ -467,6 +467,43 @@ html, body {
   color: var(--muted);
 }
 
+.app-nav-item[aria-pressed="true"] {
+  border-color: var(--cyan-border);
+  background: rgba(80, 205, 255, 0.12);
+}
+
+.app-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.app-section[hidden] {
+  display: none !important;
+}
+
+.app-section .orb-section-label {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.check-row input {
+  accent-color: var(--cyan);
+}
+
 .drawer-hint {
   margin: 0;
   font-size: 11px;

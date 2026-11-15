@@ -165,17 +165,17 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Jira plugin (list/create/transition/comment; writes need confirm) against live project **KAN**.
 - Local settings store (`%LOCALAPPDATA%\ai_testing_app\`).
 - FastAPI backend + Gradio UI + native desktop window with WebGL hero orbs (mystic/aether/neural/apex).
-- Reports exporter (baseline JSON/Markdown).
+- Reports exporter with customisable sections (summary / stories / bugs / evidence; KAN-51).
 - Cursor ops (rules, agents, skills), `docs/ops/WORK_LOG.md` handoff, multi-audience KAN backlog (epics KAN-20…29).
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next** (track in KAN; Active slice = **KAN-51**)
+**Still open / next** (track in KAN; Active slice = **KAN-45**)
 - Gradio Settings/Reports polish (**KAN-10** — done 2026-11-15).
 - UI-6 movable/resizable panels (**KAN-53** — done 2026-11-15).
 - Broader self-healing (**KAN-14** — done 2026-11-15); guardrail enforcement (**KAN-49** — done 2026-11-15).
-- Customisable reporting polish (**KAN-51** — now).
-- Document ingestion → settings proposal (**KAN-45**).
+- Customisable reporting polish (**KAN-51** — done 2026-11-15).
+- Document ingestion → settings proposal (**KAN-45** — now).
 - Security-level isolation browser profiles + credential scopes (**KAN-15**).
 - Desktop `.exe` testing plugin (**KAN-47**).
 - Multi-sandbox orchestration stub (**KAN-55**).

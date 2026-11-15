@@ -12,6 +12,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import gradio as gr
 import httpx
 from reports.exporter import reports_dir
+from reports.sections import (
+    SECTION_KEYS,
+    load_report_sections,
+    normalize_sections,
+    save_report_sections,
+)
 from settings.store import load_settings, settings_path, update_setting, write_settings
 
 _UI_DIR = Path(__file__).resolve().parent
@@ -1530,6 +1536,27 @@ def refresh_report():
     return text, shot, payload
 
 
+def current_report_sections():
+    flags = load_report_sections()
+    return [flags[key] for key in SECTION_KEYS]
+
+
+def save_report_section_toggles(summary: bool, stories: bool, bugs: bool, evidence: bool):
+    saved = save_report_sections(
+        normalize_sections(
+            {
+                "summary": summary,
+                "stories": stories,
+                "bugs": bugs,
+                "evidence": evidence,
+            }
+        )
+    )
+    enabled = [key for key in SECTION_KEYS if saved[key]]
+    label = ", ".join(enabled) if enabled else "(none)"
+    return f"Saved. Next export includes: {label}."
+
+
 def refresh_reports_ui(selected: str | None = None):
     choices = list_report_choices()
     preferred = (selected or "").strip()
@@ -1732,11 +1759,29 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 )
         with gr.Tab("Reports"):
             _report_choices = list_report_choices()
+            _sec = load_report_sections()
             with gr.Column(elem_id="reports-panel"):
                 gr.HTML('<div class="panel-title">Reports</div>')
                 gr.HTML(
                     '<div class="panel-hint">Run exports land outside the repo under the local reports '
-                    "folder. Pick a report or refresh after a test run.</div>"
+                    "folder. Pick a report or refresh after a test run. Section toggles apply to the "
+                    "next export (JSON and Markdown).</div>"
+                )
+                gr.HTML('<div class="orb-section-label">Sections</div>')
+                sec_summary = gr.Checkbox(value=_sec["summary"], label="Summary (status, counts, steps)")
+                sec_stories = gr.Checkbox(value=_sec["stories"], label="Stories (Jira keys)")
+                sec_bugs = gr.Checkbox(value=_sec["bugs"], label="Bugs")
+                sec_evidence = gr.Checkbox(value=_sec["evidence"], label="Evidence (screenshot links)")
+                sections_status = gr.Textbox(
+                    value="Ready",
+                    label="Section profile",
+                    interactive=False,
+                    max_lines=1,
+                )
+                gr.Button("Save sections", variant="primary").click(
+                    save_report_section_toggles,
+                    [sec_summary, sec_stories, sec_bugs, sec_evidence],
+                    [sections_status],
                 )
                 gr.HTML('<div class="orb-section-label">Library</div>')
                 report_pick = gr.Dropdown(
@@ -1770,6 +1815,10 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
     demo.load(
         refresh_reports_ui,
         outputs=[report_pick, report_md, report_image, report_json, report_meta],
+    )
+    demo.load(
+        current_report_sections,
+        outputs=[sec_summary, sec_stories, sec_bugs, sec_evidence],
     )
     demo.load(current_orb_inputs, outputs=orb_inputs)
 
