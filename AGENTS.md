@@ -20,6 +20,7 @@
   3. Description must include: clear symptom, expected vs actual, environment, and **numbered replication steps**.
   4. When fixed: post a **Fix comment** (root cause, what changed, files, how verified), then transition the Bug to **Done**.
   Template: `docs/ops/JIRA_TICKET_TEMPLATE.md` (Bug section). Skill: `.cursor/skills/jira-safe/SKILL.md`.
+- **FR coverage:** Every `FR-*` in `docs/FUNCTIONAL_SPEC.md` must map to a KAN Story (see §5 matrix). If a Story is Done but FR text is unfinished, keep/create open gap Stories (do not pretend Done = full FR). Reconcile with `python scripts/jira_kan_seed_backlog.py`.
 - **User change requests (CRs):** When the human changes product intent, scope, AC, or behaviour (including informal “actually do X instead”), update **all** of: `docs/FUNCTIONAL_SPEC.md` (canonical), affected KAN epic/story/test descriptions (re-enrich or edit), `PROJECT_MEMORY.md` / `ROADMAP.md` / `docs/ops/WORK_LOG.md` as needed, and any mockups/rules that contradict the CR. Do not leave Jira or the spec stale relative to what the user just decided.
 
 ## Cursor workflow (PM-managed; replaces Grok browser + AFK Pilot)

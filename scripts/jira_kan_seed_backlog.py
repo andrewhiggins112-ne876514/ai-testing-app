@@ -526,7 +526,285 @@ BACKLOG: List[Dict[str, Any]] = [
         "technical_notes": ["desktop shell chat bar", "optional local STT", "ROADMAP VOICE-1"],
         "roadmap": "Later — VOICE-1 after text UX is solid.",
     },
+    # --- Gap pass 2: FRs incomplete under Done parents (2026-11-15 audit) ---
+    {
+        "area": "test",
+        "summary": "Playwright headed/headless mode setting",
+        "fr_ids": ["FR-TEST-2"],
+        "user_story": (
+            "As a tester, I want to choose headed or headless Playwright runs "
+            "so that I can watch runs on a laptop or run quieter headless checks."
+        ),
+        "intro": (
+            "KAN-9 shipped headed-only (headless=False hardcoded). FR-TEST-2 requires headed or headless."
+        ),
+        "behaviour": (
+            "Settings (and optionally run args) expose headed/headless. Runner uses the preference. "
+            "Default may remain headed for the product laptop UX."
+        ),
+        "acceptance": [
+            "Given headless enabled in settings, When a Playwright run starts, Then Chromium launches headless.",
+            "Given headed mode, When a run starts, Then a visible browser window is used.",
+            "Given invalid/missing preference, When run starts, Then a safe default applies and is documented.",
+        ],
+        "out_of_scope": ["Cloud grid browsers.", "Importing external suites (KAN-59)."],
+        "technical_notes": [
+            "plugins/playwright_runner.py launch_persistent_context headless=",
+            "settings/store.py",
+            "Parent Done story KAN-9 remains Done; this ticket covers remaining FR-TEST-2.",
+        ],
+        "roadmap": "Gap under Done KAN-9.",
+    },
+    {
+        "area": "test",
+        "summary": "Generate Playwright steps from Jira story acceptance criteria",
+        "fr_ids": ["FR-TEST-1", "FR-JIRA-1"],
+        "user_story": (
+            "As a tester, I want the agent to generate Playwright steps from a Jira story’s acceptance criteria "
+            "so that coverage starts from the backlog, not only free-text chat."
+        ),
+        "intro": (
+            "FR-TEST-1 includes generation from Jira stories. KAN-57 covers stronger chat/spec step gen; "
+            "this story covers reading a story key and turning AC into steps."
+        ),
+        "behaviour": (
+            "User names a Jira issue key. Agent fetches description/AC (depends on read-AC story), "
+            "proposes a step list with real assertions, then runs only after normal clarification rules."
+        ),
+        "acceptance": [
+            "Given a story key with AC text, When generation is requested, Then a step list with at least one expect_* is proposed.",
+            "Given fetch failure, When generation is requested, Then a clear error is shown (no invented AC).",
+        ],
+        "out_of_scope": ["Silent Jira writes.", "Full Xray sync."],
+        "technical_notes": [
+            "plugins/jira_plugin.py read issue fields",
+            "agent/agent.py",
+            "Coordinate with KAN-57 and read-AC story.",
+        ],
+        "roadmap": "Gap — FR-TEST-1 from Jira.",
+    },
+    {
+        "area": "test",
+        "summary": "Expand desktop .exe plugin beyond smoke harness",
+        "fr_ids": ["FR-TEST-3"],
+        "user_story": (
+            "As a tester, I want structured desktop test steps beyond a launch smoke "
+            "so that Windows apps can be exercised meaningfully without forking Playwright."
+        ),
+        "intro": (
+            "KAN-47 shipped a smoke harness only. FR-TEST-3 calls for desktop test execution via a separate plugin."
+        ),
+        "behaviour": (
+            "Extend desktop_runner with additional step types (e.g. wait for window title, basic input) "
+            "while remaining a separate plugin from Playwright. Toggle still applies."
+        ),
+        "acceptance": [
+            "Given plugin enabled and a supported step list, When run, Then steps execute and pass/fail is reported.",
+            "Given plugin disabled, When run, Then the enable message is returned (no crash).",
+        ],
+        "out_of_scope": ["Full UI Automation framework parity.", "Playwright Electron."],
+        "technical_notes": [
+            "plugins/desktop_runner.py",
+            "Parent Done story KAN-47 remains Done; this covers remaining FR-TEST-3 depth.",
+        ],
+        "roadmap": "Gap under Done KAN-47.",
+    },
+    {
+        "area": "jira",
+        "summary": "Read Jira story descriptions and acceptance criteria",
+        "fr_ids": ["FR-JIRA-1"],
+        "user_story": (
+            "As a tester, I want the agent to read story descriptions and acceptance criteria "
+            "so that generation and reporting use real backlog text, not summaries only."
+        ),
+        "intro": (
+            "KAN-12 list_stories returns summary/status/type only. FR-JIRA-1 requires reading acceptance criteria."
+        ),
+        "behaviour": (
+            "Add a read-only tool/API to fetch issue description (and AC section when present) by key. "
+            "list_stories may gain an optional include_description flag. Never log tokens."
+        ),
+        "acceptance": [
+            "Given a valid issue key, When read is called, Then description/AC text is returned without credentials.",
+            "Given unauthorized/missing issue, When read is called, Then a clear human-readable error is returned.",
+        ],
+        "out_of_scope": ["Write paths.", "Xray custom field mapping beyond description text."],
+        "technical_notes": [
+            "plugins/jira_plugin.py fields currently summary,status,issuetype only",
+            "Parent Done story KAN-12; remaining FR-JIRA-1.",
+        ],
+        "roadmap": "Gap under Done KAN-12.",
+    },
+    {
+        "area": "jira",
+        "summary": "Jira rate-limit backoff and human-readable 429/auth errors",
+        "fr_ids": ["FR-JIRA-6"],
+        "user_story": (
+            "As a user, I want Jira calls to back off on rate limits and show clear auth/429 messages "
+            "so that the agent does not burst-fail or show opaque errors."
+        ),
+        "intro": (
+            "FR-JIRA-6 and NFR §4.3/4.6 require 429 Retry-After backoff and human-readable rate-limit/auth errors. "
+            "Product jira_plugin currently raise_for_status without 429 handling."
+        ),
+        "behaviour": (
+            "All product Jira HTTP helpers retry/backoff on 429 using Retry-After. "
+            "401/403/429 surface clear messages to the agent/UI. Avoid burst patterns."
+        ),
+        "acceptance": [
+            "Given a 429 with Retry-After, When a Jira call is made, Then the client waits and retries without crashing.",
+            "Given 401/403, When a call fails, Then the user-visible message is human-readable (no token echo).",
+        ],
+        "out_of_scope": ["Changing Jira Cloud quotas.", "Cursor scripts-only backoff (already present)."],
+        "technical_notes": ["plugins/jira_plugin.py", "tests for mocked 429"],
+        "roadmap": "Gap — FR-JIRA-6 never ticketed.",
+    },
+    {
+        "area": "learn",
+        "summary": "First-class jira_project default for agent Jira reads",
+        "fr_ids": ["FR-LEARN-4"],
+        "user_story": (
+            "As a user, I want a saved Jira project key used as the default when listing/reading stories "
+            "so that I do not re-type the project every session."
+        ),
+        "intro": (
+            "FR-LEARN-4: accept Jira URL + project key so the agent can read epics and stories. "
+            "jira_project exists in settings/doc-ingest but is not a first-class agent default / desktop field."
+        ),
+        "behaviour": (
+            "Settings + desktop/Gradio expose jira_project. list_stories/read tools default to it when the user "
+            "omits a project. Still confirm before writes."
+        ),
+        "acceptance": [
+            "Given jira_project=KAN in settings, When the user asks to list stories without a key, Then KAN is used.",
+            "Given empty jira_project, When list is requested without a key, Then the agent asks for the project key.",
+        ],
+        "out_of_scope": ["Multi-project dashboards."],
+        "technical_notes": [
+            "settings/store.py jira_project",
+            "agent/agent.py list_stories",
+            "Coordinate with KAN-73/KAN-77 UI settings.",
+        ],
+        "roadmap": "Gap — FR-LEARN-4.",
+    },
+    {
+        "area": "plug",
+        "summary": "Multi-sandbox real orchestration beyond stub",
+        "fr_ids": ["FR-PLUG-1"],
+        "user_story": (
+            "As a power user, I want real multi-sandbox orchestration beyond the mock list/plan stub "
+            "so that parallel environments can actually be planned and tracked."
+        ),
+        "intro": (
+            "KAN-55 shipped an intentional stub (mock list/plan). Remaining FR-PLUG-1 multi-sandbox capability "
+            "needs a follow-on story so Done stub is not mistaken for finished orchestration."
+        ),
+        "behaviour": (
+            "Replace or extend mock orchestration with real environment records, status, and safe local limits. "
+            "Keep plugin toggle. No rewrite of core agent loop."
+        ),
+        "acceptance": [
+            "Given plugin enabled, When orchestrate runs, Then results reflect real configured sandboxes (not only hardcoded mock).",
+            "Given plugin disabled, When orchestrate runs, Then the not-enabled message is returned.",
+        ],
+        "out_of_scope": ["Cloud device farms.", "Performance/security plugin products (separate stubs if needed)."],
+        "technical_notes": [
+            "plugins/multi_sandbox.py",
+            "Parent Done stub KAN-55; this is the remaining work.",
+        ],
+        "roadmap": "Later follow-on to KAN-55 stub.",
+    },
+    {
+        "area": "agent",
+        "summary": "Busy and long-run UX while agent or tests execute",
+        "fr_ids": ["FR-AGENT-5"],
+        "user_story": (
+            "As a user, I want the UI to stay usable and show busy/progress state during long agent or test runs "
+            "so that the app does not look frozen (NFR §4.6)."
+        ),
+        "intro": (
+            "NFR §4.6: UI must remain usable when the agent is thinking or a long test is running. "
+            "Orb thinking exists; desktop chat needs clearer busy/cancel/status for long Playwright runs."
+        ),
+        "behaviour": (
+            "Desktop (and Gradio if touched) show in-progress status for chat/tool/test runs, keep secondary "
+            "panels usable, and surface failures clearly when the run ends."
+        ),
+        "acceptance": [
+            "Given a long Playwright run, When started from chat, Then a busy/progress state is visible before completion.",
+            "Given a tool/agent failure, When the run ends, Then the error is visible in chat (no silent success).",
+        ],
+        "out_of_scope": ["Distributed job queue.", "Voice."],
+        "technical_notes": ["ui/desktop/desktop.js chat send", "orb thinking state", "NFR §4.6"],
+        "roadmap": "UX reliability gap.",
+    },
+    {
+        "area": "jira",
+        "summary": "Audit log for Jira write operations",
+        "fr_ids": ["FR-JIRA-5"],
+        "user_story": (
+            "As a QA lead, I want Jira writes logged locally with action and issue key "
+            "so that side effects are auditable (NFR §4.3)."
+        ),
+        "intro": (
+            "NFR §4.3 requires logging of all heals and Jira writes. Heal audit exists; Jira write audit does not."
+        ),
+        "behaviour": (
+            "After confirmed create/transition/comment/bug/test writes, append a local audit line "
+            "(timestamp, action, issue key, session) under LOCALAPPDATA — never store tokens."
+        ),
+        "acceptance": [
+            "Given a confirmed Jira create, When it succeeds, Then an audit line is written locally without secrets.",
+            "Given a declined confirm, When aborted, Then no write audit success line is written.",
+        ],
+        "out_of_scope": ["Shipping logs to cloud SIEM."],
+        "technical_notes": ["plugins/jira_plugin.py", "mirror heal_audit.jsonl pattern"],
+        "roadmap": "NFR §4.3 gap.",
+    },
 ]
+
+# Comments posted on Done parents when --comment-done-gaps is set (idempotent enough via dated header).
+DONE_GAP_COMMENTS: Dict[str, str] = {
+    "KAN-9": (
+        "FR coverage gap (2026-11-15 audit): KAN-9 remains Done for the baseline Playwright runner + heal hooks, "
+        "but FR-TEST-1/2/4/5/6 are not fully complete. Remaining work: KAN-57 (step gen/evidence/negatives), "
+        "KAN-59 (suite import), plus gap Stories for headed/headless and generate-from-Jira-AC "
+        "(see scripts/jira_kan_seed_backlog.py). Do not treat KAN-9 Done as full FR-TEST-* coverage."
+    ),
+    "KAN-12": (
+        "FR coverage gap (2026-11-15 audit): KAN-12 remains Done for list + create_issue with confirm, "
+        "but FR-JIRA-1 (read AC/descriptions), FR-JIRA-2/3/4 (test/bug lifecycle), and FR-JIRA-6 (429 backoff) "
+        "are incomplete. Remaining: KAN-63, KAN-65, plus gap Stories for read-AC and rate-limit handling."
+    ),
+    "KAN-11": (
+        "FR coverage gap (2026-11-15 audit): KAN-11 Done for baseline JSON/Markdown export. "
+        "FR-REP-1 richer metrics remain under KAN-67. FR-REP-2 section toggles shipped as KAN-51."
+    ),
+    "KAN-15": (
+        "FR coverage gap (2026-11-15 audit): KAN-15 Done for OFFICIAL/SECRET credential + profile isolation + confirm. "
+        "FR-SEC-2 (GDPR deletion) → KAN-69; FR-SEC-4 (prompt-injection) → KAN-71."
+    ),
+    "KAN-49": (
+        "FR coverage gap (2026-11-15 audit): KAN-49 Done for central heal_policy guardrails + audit log. "
+        "FR-HEAL-2 present-for-review UI remains KAN-75 (pending_review is log-only today)."
+    ),
+    "KAN-8": (
+        "FR coverage gap (2026-11-15 audit): KAN-8 Done for chat/sessions/clarify/confirm. "
+        "FR-AGENT-6 tool-call reliability hardening remains KAN-61; busy/long-run UX is a separate gap Story."
+    ),
+    "KAN-45": (
+        "FR coverage gap (2026-11-15 audit): KAN-45 Done for ingest propose+confirm (FR-LEARN-1/5, FR-SET-2). "
+        "FR-LEARN-2/3 first-class settings/UI → KAN-77; FR-LEARN-4 jira_project default → dedicated gap Story."
+    ),
+    "KAN-47": (
+        "FR coverage gap (2026-11-15 audit): KAN-47 Done for smoke harness + toggle. "
+        "Deeper FR-TEST-3 desktop steps are tracked under the expand-beyond-smoke gap Story."
+    ),
+    "KAN-55": (
+        "FR coverage gap (2026-11-15 audit): KAN-55 Done for intentional stub only. "
+        "Real multi-sandbox orchestration is a separate open Story — stub Done ≠ finished FR-PLUG-1 sandbox capability."
+    ),
+}
 
 
 class Jira:
@@ -678,6 +956,11 @@ def main() -> int:
         action="store_true",
         help="Comment + Done on orphan open test Tasks for Done stories",
     )
+    parser.add_argument(
+        "--comment-done-gaps",
+        action="store_true",
+        help="Comment Done parent Stories with FR gap pointers (does not reopen)",
+    )
     args = parser.parse_args()
 
     frs = parse_frs(SPEC_PATH.read_text(encoding="utf-8"))
@@ -745,11 +1028,20 @@ def main() -> int:
             if j.transition_done(key):
                 closed_orphans.append(key)
 
-    active = created[0]["story"] if created else existing.get(BACKLOG[0]["summary"], "")
+    gap_comments: List[str] = []
+    if args.comment_done_gaps:
+        for key, body in DONE_GAP_COMMENTS.items():
+            j.comment(key, body)
+            gap_comments.append(key)
+
+    active = existing.get(BACKLOG[0]["summary"], "") or (
+        created[0]["story"] if created else ""
+    )
     result = {
         "created": created,
         "skipped_existing": skipped,
         "closed_orphan_tests": closed_orphans,
+        "done_gap_comments": gap_comments,
         "active_slice_candidate": active,
         "failures": j.failures,
     }

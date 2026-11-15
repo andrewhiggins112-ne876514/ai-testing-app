@@ -46,7 +46,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | VOICE-1 | Voice input | **KAN-81** (test KAN-82) — after text UX is solid |
 | SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
 
-Open FR Stories also seeded 2026-11-15: KAN-59 (Playwright suite import), KAN-61 (tool-call fallback), KAN-63/65 (Jira bugs/tests), KAN-67 (report metrics), KAN-69/71 (GDPR / prompt-injection), KAN-73 (desktop Settings), KAN-75 (heal review UI), KAN-77 (learn inputs), KAN-79 (framework stub).
+Open FR Stories seeded 2026-11-15: KAN-59…KAN-81 (first pass), plus gap pass KAN-83 (headless), KAN-85 (steps from Jira AC), KAN-87 (desktop beyond smoke), KAN-89 (read AC), KAN-91 (429 backoff), KAN-93 (jira_project), KAN-95 (sandbox beyond stub), KAN-97 (busy UX), KAN-99 (Jira write audit). Full FR→ticket matrix: `docs/FUNCTIONAL_SPEC.md` §5.
 
 ## Blocked / waiting on you
 

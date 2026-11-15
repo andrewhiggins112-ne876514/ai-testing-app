@@ -34,6 +34,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-15 — OPS — FR coverage audit gap pass (Done ≠ complete FR)
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** Audited every FR-* against code. Created 9 more Stories + tests for work still incomplete under Done parents (headless, Jira AC read, 429 backoff, desktop beyond smoke, LEARN-4, sandbox beyond stub, busy UX, Jira write audit, generate-from-Jira-AC). Commented gap pointers on Done KAN-8/9/11/12/15/45/47/49/55. Added FR→ticket matrix to FUNCTIONAL_SPEC §5.
+- **Files:** `scripts/jira_kan_seed_backlog.py`, `docs/FUNCTIONAL_SPEC.md`, `docs/ops/ROADMAP.md`, `docs/ops/WORK_LOG.md`, `PROJECT_MEMORY.md`, `scripts/jira_kan_slice_closeout.py`.
+- **Verify:** Open Stories include KAN-83…KAN-99; Active still KAN-57.
+- **Jira:** created KAN-83–100; Done parents commented (not reopened — remainder is ticketed).
+- **Next:** KAN-57 PW-1.
+
 ### 2026-11-15 — OPS — Seed unfinished FR backlog + Bug process
 - **Agent/chat:** Cursor IDE Agent (Composer)
 - **Done:** Seeded 13 open Stories + linked test Tasks from unfinished FUNCTIONAL_SPEC FRs (`scripts/jira_kan_seed_backlog.py`). Closed orphan open test Tasks for Done parents (KAN-30/31/33/34/35/38/40/42/44). Encoded mandatory Bug ticket workflow (replication steps + Fix comment) in AGENTS / HOW_WE_WORK / JIRA_TICKET_TEMPLATE / work-log-handoff / jira-safe.

@@ -171,22 +171,46 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
 **Still open / next** (track in KAN; Active slice = **KAN-57**)
-- Stronger Playwright step gen + screenshot evidence — **KAN-57** / test **KAN-58** (PW-1; FR-TEST-1/4/6).
-- Import/run existing Playwright suites — **KAN-59** / **KAN-60** (FR-TEST-5).
-- Tool-calling reliability + JSON-in-text fallback — **KAN-61** / **KAN-62** (FR-AGENT-6).
-- Raise Bug tickets from failed runs — **KAN-63** / **KAN-64** (FR-JIRA-4).
-- Create linked test tickets + mark Done when covered — **KAN-65** / **KAN-66** (FR-JIRA-2/3).
-- Richer report metrics (stories/bugs) — **KAN-67** / **KAN-68** (FR-REP-1).
-- GDPR local data deletion + consent — **KAN-69** / **KAN-70** (FR-SEC-2).
-- Prompt-injection mitigations — **KAN-71** / **KAN-72** (FR-SEC-4).
-- Desktop App Settings panel — **KAN-73** / **KAN-74** (FR-UI-1 / FR-SET-1).
-- Heal proposal review UI — **KAN-75** / **KAN-76** (FR-HEAL-2).
-- First-class URL / exe / messaging endpoints — **KAN-77** / **KAN-78** (FR-LEARN-2/3).
-- Dynamic framework switching stub — **KAN-79** / **KAN-80** (FR-PLUG-3).
-- Voice input (later) — **KAN-81** / **KAN-82** (VOICE-1).
 
-**Recently done (2026-11-15)**
-- Gradio Settings/Reports polish (**KAN-10**); UI-6 resize (**KAN-53**); self-heal (**KAN-14**); heal guardrails (**KAN-49**); report sections (**KAN-51**); doc ingest (**KAN-45**); OFFICIAL/SECRET (**KAN-15**); desktop plugin (**KAN-47**); multi-sandbox stub (**KAN-55**).
+Rule: a Done Story covers only what it actually shipped. Remaining FR text must stay on open Stories (seed/reconcile via `scripts/jira_kan_seed_backlog.py`). Done parents have gap comments where needed.
+
+### FR → ticket coverage matrix
+
+| FR | Implementation status | Primary ticket(s) |
+|----|----------------------|-------------------|
+| FR-AGENT-1…5 | Shipped (chat/sessions/clarify/confirm/errors baseline) | **Done** KAN-8; busy UX remainder **KAN-97** |
+| FR-AGENT-6 | Open | **KAN-61** |
+| FR-LEARN-1, FR-LEARN-5, FR-SET-2 | Shipped (ingest propose+confirm) | **Done** KAN-45 |
+| FR-LEARN-2, FR-LEARN-3 | Open (settings keys exist; first-class UI/agent use incomplete) | **KAN-77** |
+| FR-LEARN-4 | Open | **KAN-93** |
+| FR-TEST-1 | Open | **KAN-57**, **KAN-85** (from Jira AC) |
+| FR-TEST-2 | Partial (headed only today) | **Done** KAN-9 baseline; headless **KAN-83** |
+| FR-TEST-3 | Partial (smoke only) | **Done** KAN-47 smoke; expand **KAN-87** |
+| FR-TEST-4, FR-TEST-6 | Open / partial | **KAN-57** |
+| FR-TEST-5 | Open | **KAN-59** |
+| FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |
+| FR-HEAL-2 | Open (audit log only; no review UI) | **KAN-75** |
+| FR-JIRA-1 | Partial (list summary only) | **Done** KAN-12 list; read AC **KAN-89** |
+| FR-JIRA-2, FR-JIRA-3 | Open | **KAN-65** |
+| FR-JIRA-4 | Open | **KAN-63** |
+| FR-JIRA-5, FR-JIRA-7 | Shipped confirm + local creds | **Done** KAN-12, **KAN-16**; write audit **KAN-99** |
+| FR-JIRA-6 | Open (no product 429 backoff) | **KAN-91** |
+| FR-REP-1 | Open | **KAN-67** |
+| FR-REP-2 | Shipped | **Done** KAN-51 |
+| FR-REP-3 | Shipped baseline export | **Done** KAN-11 |
+| FR-SEC-1, FR-SEC-3, FR-SEC-5 | Shipped isolation + confirm + secrets scoping | **Done** KAN-15, **KAN-16** |
+| FR-SEC-2 | Open | **KAN-69** |
+| FR-SEC-4 | Open | **KAN-71** |
+| FR-UI-1…5 | Mostly shipped; Settings panel + voice open | **Done** KAN-10/41/53; Settings **KAN-73**; Voice **KAN-81** |
+| FR-PLUG-1 | Partial (registry + stubs) | **Done** KAN-55 stub; real sandboxes **KAN-95** |
+| FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |
+| FR-PLUG-3 | Open | **KAN-79** |
+| FR-SET-1 | Shipped local store | **Done** KAN-16 |
+
+**Open Stories (To Do):** KAN-57…KAN-81 (first seed), KAN-83…KAN-99 (FR gap pass). Each has a linked `test` Task (KAN-58…KAN-100).
+
+**Recently done (2026-11-15)** — baseline only; see matrix for remainder  
+Gradio Settings/Reports (**KAN-10**); UI-6 (**KAN-53**); heal (**KAN-14**/**KAN-49**); report sections (**KAN-51**); doc ingest (**KAN-45**); OFFICIAL/SECRET (**KAN-15**); desktop smoke (**KAN-47**); multi-sandbox stub (**KAN-55**).
 
 ---
 
@@ -196,10 +220,10 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 |------|--------|-------|
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN** (QA Testing). Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
-| Model tool-calling reliability | Needs validation | Prefer models / configs that emit structured calls; implement fallback parser |
-| Self-healing guardrails | **Done** (KAN-49) — `plugins/heal_policy.py` + runner | Locator-only; classification mandatory; forbidden transforms refused |
-| Security isolation | **Done** (KAN-15) | Level-scoped credentials + Playwright profiles + confirm gate |
-| Document ingestion | **Done** (KAN-45) | Propose settings + test ideas; confirm before store |
+| Model tool-calling reliability | Open | **KAN-61** |
+| Self-healing guardrails (policy) | **Done** (KAN-49) | Review UI still **KAN-75** |
+| Security isolation | **Done** (KAN-15) | GDPR delete **KAN-69**; prompt-injection **KAN-71** |
+| Document ingestion | **Done** (KAN-45) | LEARN-2/3/4 remain open Stories |
 
 ---
 
