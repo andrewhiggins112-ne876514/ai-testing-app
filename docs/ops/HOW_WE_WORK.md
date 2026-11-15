@@ -4,11 +4,11 @@
 
 ## Your job (human)
 
-1. Tell the PM what you want (goals, preferences, approvals).  
-2. Confirm when asked (credentials, Jira writes, deletes, security).  
-3. On your PC when told: `git pull`, then prefer double‑click / one script `scripts\restart_ui.ps1` (PM cannot type into your Windows terminal from the cloud).  
-4. Do **not** paste prompts into other AIs unless the PM explicitly asks (rare).  
-5. Prefer **Cursor IDE**, not VS Code + AFK Pilot, for this project.
+1. Prefer a **fresh Cursor IDE Agent chat** and say **“pick up where we left off”** (or paste `python scripts/next_prompt.py` output).  
+2. Confirm when asked (credentials, Jira writes, deletes, security, browser logins).  
+3. On your PC when told: `git pull`, then prefer `scripts\restart_ui.ps1` / desktop app.  
+4. Do **not** paste coding prompts into browser Grok / AFK Pilot.  
+5. Workspace folder must be `D:\Projects\ai_testing_app`.
 
 ## PM job (this chat)
 

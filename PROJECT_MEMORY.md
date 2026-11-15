@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-15 (D: paths; WORK_LOG handoff; KAN multi-audience tickets)
+Last updated: 2026-11-15 (tooling verified; clean handoff to KAN-53)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -60,6 +60,7 @@ Skeleton + substantial features exist:
 - **Jira KAN backlog (2026-11-15):** Ten FR-area epics **KAN-20…KAN-29** from `docs/FUNCTIONAL_SPEC.md`; stories/tests enriched via `scripts/jira_kan_enrich.py` (multi-audience template in `docs/ops/JIRA_TICKET_TEMPLATE.md`). Rebuild: `scripts/jira_kan_rebuild.py`.
 - **Product spec:** `docs/FUNCTIONAL_SPEC.md`. **Work log:** `docs/ops/WORK_LOG.md` (pointer also at `D:\Projects\WORK_LOG.md`).
 - **Ollama models:** `qwen2.5-coder:7b` (app default), `qwen3:8b`, `llama3.2`, plus optional 14b/16b — one loaded at a time on 1080 Ti.
+- **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); IronBee browser OK; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
 
 Not yet done:
 - **Next build slice:** [KAN-53](https://ai-testing-lab.atlassian.net/browse/KAN-53) UI-6 resizable panels (see WORK_LOG Active slice)
@@ -86,7 +87,6 @@ Not yet done:
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **You:** Supermemory login — `docs/ops/IDE_CAPABILITIES.md` (IDE-2).
-2. **KAN-53 / UI-6** — resizable panels (Active slice).
-3. Wire Settings/Reports screens from the app drawer; refine hideable chat panel UX.
-4. Broader self-healing / security isolation / document ingestion as KAN backlog allows.
+1. **KAN-53 / UI-6** — resizable panels (Active slice).
+2. Wire Settings/Reports screens from the app drawer; refine hideable chat panel UX.
+3. Broader self-healing / security isolation / document ingestion as KAN backlog allows.

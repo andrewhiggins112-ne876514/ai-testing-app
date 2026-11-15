@@ -63,19 +63,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 5. No secrets in git  
 6. Append `docs/ops/WORK_LOG.md` + Jira story comment  
 
-## Ops / IDE (capability plan)
-
-| ID | Item | Status | Notes |
-|----|------|--------|-------|
-| IDE-1 | Capability inventory + setup walkthrough | **done** | `docs/ops/IDE_CAPABILITIES.md` |
-| IDE-2 | Supermemory login | next (you) | `cursor-supermemory login` — cuts long-chat amnesia |
-| IDE-3 | Prefer GitHub plugin; empty workspace mcp.json | **done** | Broken npx GitHub MCP disabled |
-| IDE-4 | Jira MCP fail → REST fallback documented | **done** | `jira-safe` skill |
-| IDE-5 | Context7 reconnect | later | Optional library docs |
-| IDE-6 | IronBee browser only | **done** | Node/Backend stay off |
-
 ## Next slice (PM-owned — human does not paste prompts)
 
 **[KAN-53](https://ai-testing-lab.atlassian.net/browse/KAN-53) / UI-6** — resizable panels (remainder).  
-Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.  
-IDE setup: follow `docs/ops/IDE_CAPABILITIES.md` (Supermemory login first).
+Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

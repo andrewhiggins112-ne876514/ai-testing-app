@@ -13,8 +13,6 @@ Legend: **H** = you must do (account/installer). **A** = PM/agent can do once lo
 | Cursor CLI + My Machines worker | H | Do next — see `MY_MACHINES.md` |
 | Node.js LTS | H | Needed only for GitHub/Atlassian MCP (`npx`) |
 | GitHub MCP + PAT env var | H | Prefer **GitHub plugin** MCP; workspace npx MCP disabled |
-| Supermemory login | H | `cursor-supermemory login` — see `IDE_CAPABILITIES.md` |
-| IDE capabilities walkthrough | A shipped | `docs/ops/IDE_CAPABILITIES.md` |
 | Atlassian / Jira MCP | H | Site live; MCP may need scoped token; REST via local settings works |
 | App Jira credentials in local settings | H | `%LOCALAPPDATA%\ai_testing_app\settings.json` — never in git; project **KAN** |
 | Cursor Teams Jira @Cursor assign | Later | Not for solo Grok Premium |

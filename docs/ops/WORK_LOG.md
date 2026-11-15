@@ -34,13 +34,21 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
-### 2026-11-15 — OPS — git sync prep + IDE capabilities walkthrough
+### 2026-11-15 — OPS — clean tree + agent instructions for verified IDE tooling
 - **Agent/chat:** Cursor PM chat
-- **Done:** Added `docs/ops/IDE_CAPABILITIES.md` (MCP/plugin login steps for IDE + Agent window); emptied workspace `.cursor/mcp.json` (broken GitHub npx); ROADMAP IDE-1…6; committed + pushed to `origin/main` (`9668e49`).
-- **Files:** `IDE_CAPABILITIES.md`, `.cursor/mcp.json`, `.cursor/mcp.json.example`, CONNECTORS, INSTALL, ROADMAP, plus full sync set.
-- **Verify:** `git status` clean vs origin/main; open IDE_CAPABILITIES; run Supermemory login when ready.
+- **Done:** Removed IDE_CAPABILITIES walkthrough from repo; updated AGENTS/HOW_WE_WORK/CONNECTORS/work-log-handoff for verified tooling (GitHub plugin, Jira REST fallback, IronBee, Supermemory, Context7 optional); handoff remains KAN-53.
+- **Files:** `AGENTS.md`, `.cursor/rules/work-log-handoff.mdc`, `docs/ops/*`, deleted `docs/ops/IDE_CAPABILITIES.md`.
+- **Verify:** `git status` clean after commit; Active slice still KAN-53.
 - **Jira:** n/a.
-- **Next:** User: Supermemory login (IDE-2); then KAN-53.
+- **Next:** KAN-53 UI-6 resizable panels — user starts fresh IDE Agent chat with “pick up where we left off”.
+
+### 2026-11-15 — OPS — remove IDE_CAPABILITIES walkthrough from repo
+- **Agent/chat:** Cursor PM chat
+- **Done:** Deleted `docs/ops/IDE_CAPABILITIES.md` and references; login/config walkthrough stays in chat only. Short tooling preference list kept in `AGENTS.md`.
+- **Files:** deleted IDE_CAPABILITIES; CONNECTORS/INSTALL/ROADMAP/PROJECT_MEMORY/WORK_LOG cleaned.
+- **Verify:** no IDE_CAPABILITIES path in repo.
+- **Jira:** n/a.
+- **Next:** KAN-53 UI-6 resizable panels.
 
 ### 2026-11-15 — OPS — document Jira MCP → REST fallback
 - **Agent/chat:** Cursor PM chat

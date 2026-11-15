@@ -1,7 +1,5 @@
 # Connectors (MCP and integrations)
 
-**Full walkthrough (IDE + Agent window):** [`IDE_CAPABILITIES.md`](IDE_CAPABILITIES.md)
-
 ## Workspace `.cursor/mcp.json`
 
 Kept **empty** so the broken `npx` GitHub MCP does not error. Prefer the **GitHub Cursor plugin** MCP (`plugin-github-github`).
@@ -28,11 +26,18 @@ Never commit tokens. Product Jira stays on local settings + `plugins/jira_plugin
 
 ### Agent fallback when MCP is blocked
 
-If Cursor Atlassian MCP errors with **permission / API token** (common on this site):
+If Cursor Atlassian MCP errors with **permission / API token** (common on this site; verified 2026-11-15):
 
 - **Do not give up.** Use Jira REST + `%LOCALAPPDATA%\ai_testing_app\settings.json` instead.
 - Helpers: `scripts/jira_kan_enrich.py`, `scripts/jira_kan_progress_sync.py`, `scripts/jira_kan_rebuild.py`.
 - Full rules: `.cursor/skills/jira-safe/SKILL.md`.
+
+### Verified preferences (2026-11-15)
+
+- GitHub: **plugin-github-github** (workspace npx MCP disabled).
+- App UI: **IronBee browser** only; Node/Backend off.
+- Supermemory: authenticated for this machine; use when available.
+- Context7: optional (Cloud Connected OK; Local error ignorable).
 
 ## Add when ready (do not rush)
 

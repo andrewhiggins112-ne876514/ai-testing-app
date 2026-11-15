@@ -12,12 +12,13 @@
 - **User change requests (CRs):** When the human changes product intent, scope, AC, or behaviour (including informal “actually do X instead”), update **all** of: `docs/FUNCTIONAL_SPEC.md` (canonical), affected KAN epic/story/test descriptions (re-enrich or edit), `PROJECT_MEMORY.md` / `ROADMAP.md` / `docs/ops/WORK_LOG.md` as needed, and any mockups/rules that contradict the CR. Do not leave Jira or the spec stale relative to what the user just decided.
 
 ## Cursor workflow (PM-managed; replaces Grok browser + AFK Pilot)
-- Primary home is Cursor. The human speaks in the **PM chat only**. Do not ask them to paste coding prompts into other tools or chats.
-- The old Grok guide bot is retired as daily driver; do not revive AFK Pilot prompt loops.
+- Primary home is **Cursor IDE**. Prefer a **fresh IDE Agent chat** per slice; say **“pick up where we left off”** (reads `docs/ops/WORK_LOG.md`).
+- Do not ask the human to paste coding prompts into browser Grok / AFK Pilot / other tools.
 - Ops docs: `docs/ops/HOW_WE_WORK.md`, `docs/ops/TEAM.md`, `docs/ops/ROADMAP.md`.
 - Custom agents: `.cursor/agents/` — **Grok family only** (`implementer`/`ui-orb`/`architect` → 4.7; `doc-keeper`/`verifier`/`explorer-cheap` → 4.5). User pays Grok Premium; do not assign Composer/Claude/GPT/Copilot as “free”.
-- Skills: `.cursor/skills/` (`slice-workflow`, `run-local-stack`, `jira-safe`, `orb-slice`, `update-memory`).
+- Skills: `.cursor/skills/` (`jira-safe`, `slice-workflow`, `run-local-stack`, `orb-slice`, `update-memory`).
 - Local Ollama is for the *product* runtime (actually free). Cursor coding agents are not free.
+- Prefer short chats + WORK_LOG / Supermemory over re-explaining history in long threads.
 
 ## Token budget
 Premium plan only. Do not assume more tokens can be bought. Token use in long agent threads is much higher than short chats.
@@ -57,13 +58,22 @@ This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 M
 - Modular plugin design: new capabilities (desktop testing, richer reporting, multi-sandbox, etc.) should be addable without rewriting the core.
 
 ## Tech stack (current)
-- Python 3.11+ (this PC is on 3.15 — watch for compatibility)
+- Python 3.11+ (this PC is on 3.15 — watch for compatibility; D: venv uses 3.13)
 - FastAPI
 - Ollama (recommended start model: qwen3:8b; installed default often `qwen2.5-coder:7b`)
 - Playwright (Python)
 - Gradio UI with pure-canvas energy orb
 - Local settings store
 - Target OS: Windows (home development machine first, then work Dell XPS 15s)
+
+## Cursor tooling preferences (verified 2026-11-15 — no login how-tos here)
+- **Jira:** try **user-atlassian** first; expect frequent MCP API-token errors → **always** fall back to REST + local settings / `scripts/jira_kan_*.py` (never print tokens).
+- **GitHub:** **plugin-github-github** only. Keep `.cursor/mcp.json` empty (do not revive workspace npx GitHub MCP).
+- **UI verify:** **IronBee browser** MCP only for this app (not cursor-ide-browser). IronBee Node/Backend stay **off** unless the user asks.
+- **Supermemory:** use when authenticated for cross-chat recall (`workspaceRoot` = repo root). If MCP add/search fails but CLI/auth works, still treat memories as available; do not block the slice.
+- **Context7:** optional; Cloud Connected is enough; ignore Local Error·terminated.
+- **Skip unless asked:** plugin-atlassian (duplicate), cursor-origin (GitHub remotes only), enabling IronBee Node/Backend.
+- **Computer Use / native cursor tools:** OK for desktop/OS UI; prefer IronBee for in-app web.
 
 ## When stuck
 - Re-read the “Original Vision” and “Key Decisions” sections of PROJECT_MEMORY.md.

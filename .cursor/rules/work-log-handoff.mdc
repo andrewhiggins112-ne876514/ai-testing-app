@@ -10,9 +10,11 @@ alwaysApply: true
 When the user says **pick up where we left off**, **continue**, **next slice**, or equivalent:
 
 1. Read `docs/ops/WORK_LOG.md` **Active slice** table (do not re-scan the whole repo first).
-2. Read that Jira story’s description (REST or MCP) for Requirements + AC.
-3. Start implementing that story immediately. One slice only.
-4. Prefer free/Auto/Composer unless the slice needs a stronger model.
+2. Optionally `supermemory_search` for this workspace if Supermemory is authenticated (do not block if MCP search fails).
+3. Read that Jira story’s description (**REST fallback** if Atlassian MCP fails) for Requirements + AC.
+4. Start implementing that story immediately. One slice only.
+5. Prefer free/Auto/Composer unless the slice needs a stronger model.
+6. Verify UI with **IronBee browser** when the change is visible in the app.
 
 ## After every finished (or paused) slice
 
