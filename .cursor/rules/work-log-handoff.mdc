@@ -23,9 +23,14 @@ When the user says **pick up where we left off**, **continue**, **next slice**, 
 2. Update the **Active slice** table to the next open story (or mark blocked).
 3. Update `PROJECT_MEMORY.md` Current State if behaviour changed.
 4. Update `docs/ops/ROADMAP.md` status for the roadmap ID.
-5. Add a **Jira comment** on the story summarising what was done, files touched, and how to verify (REST if MCP fails).
+5. **Jira close-out (required — REST if MCP fails):**
+   - Post a **story comment** titled like “Agent completion …” that states **what the agent implemented** to finish the story (not a vague “done”), plus files and verify steps.
+   - Update the **linked test Task** (`label=test`, Relates): comment with pytest/unit evidence (command + pass count) or recorded manual steps; transition that test Task to **Done**.
+   - If no test Task is linked, **create** one (Task + `test` label + Relates to story), then comment + Done.
+   - Transition the **story** to Done only after the story comment exists.
+   - Helper: `python scripts/jira_kan_slice_closeout.py --story KAN-XX --done "…" --files "…" --verify "…" --pytest-cmd "…" --mark-done`
 6. **`supermemory_add`** (container project): one short note of what shipped, key files, and next Active slice — no secrets.
-7. Do not leave “see WORK_LOG” as the only record on the ticket — put the substance in the comment.
+7. Do not leave “see WORK_LOG” as the only record on the ticket — the Jira story comment must carry the substance.
 8. **Land on `main`:** `git status` / `git diff` → commit only intentional files (no secrets) with a clear message → **`git push origin main`**. Finished slice work must be pushed before the human opens a new chat to pick up. Never ask the human to commit or push.
 
 ## Ticket quality

@@ -207,6 +207,8 @@ A slice is done when:
 6. Side-effecting actions still require confirmation.
 7. Self-healing (if touched) still obeys the “how not what” rule and requires approval.
 8. Errors are logged and surfaced rather than swallowed.
+9. A Jira **story comment** states what the **agent did** to complete the story (implementation + files + verify).
+10. The linked **test Task** (`label=test`, Relates) has verification evidence (e.g. pytest command + result) and is marked Done.
 
 ---
 

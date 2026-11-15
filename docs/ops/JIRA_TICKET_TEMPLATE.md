@@ -59,7 +59,10 @@ Copied into tickets from `docs/FUNCTIONAL_SPEC.md` §7:
 7. Self-healing (if touched) obeys “how not what” + approval  
 8. Errors logged and surfaced (not swallowed)  
 9. Entry appended to `docs/ops/WORK_LOG.md`  
-10. Jira comment on the story summarising what shipped  
+10. **Jira story comment** stating what **the agent did** to complete the story (implementation + files + verify) — not a one-liner “done”  
+11. **Linked test Task** (`label=test`, Relates) has a verification comment (pytest command + result or manual evidence) and is marked **Done**
+
+Helper: `python scripts/jira_kan_slice_closeout.py --story KAN-XX --done "…" --files "…" --verify "…" --pytest-cmd "…" --mark-done`  
 
 ## Hierarchy reminder
 

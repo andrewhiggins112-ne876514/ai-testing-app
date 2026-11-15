@@ -24,7 +24,8 @@ Always pass `workspaceRoot` = `D:\Projects\ai_testing_app` (or the active worksp
 ## Jira
 
 - Try user-atlassian; on API-token / permission errors → REST + local settings / `scripts/jira_kan_*.py` immediately.
-- After slices: comment on the story with what shipped + how to verify.
+- After slices: **required** close-out via `scripts/jira_kan_slice_closeout.py` (or equivalent REST) —
+  story comment stating what the agent implemented, plus linked test Task evidence + Done.
 
 ## GitHub
 

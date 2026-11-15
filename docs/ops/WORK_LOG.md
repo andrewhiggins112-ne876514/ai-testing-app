@@ -26,13 +26,21 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 - **Done:** …
 - **Files:** …
 - **Verify:** …
-- **Jira:** comment on KAN-XX (yes/no)
+- **Jira:** story agent-completion comment + linked test Task evidence/Done (yes/no; note test key)
 - **Next:** next story key + one line
 ```
 
 ---
 
 ## Log
+
+### 2026-11-15 — OPS — Jira agent-completion comments + test Task evidence
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** Backfilled “Agent completion” comments on recent Done stories (KAN-10/14/15/45/47/49/51/53) and closed linked test Tasks (KAN-32/36/37/46/48/50/52/54) with unit/manual evidence. Added `scripts/jira_kan_slice_closeout.py`. Hardened AGENTS, work-log-handoff, jira-safe, slice-workflow, update-memory, HOW_WE_WORK, JIRA_TICKET_TEMPLATE, tooling-use.
+- **Files:** `scripts/jira_kan_slice_closeout.py`, `AGENTS.md`, `.cursor/rules/work-log-handoff.mdc`, `.cursor/rules/tooling-use.mdc`, `.cursor/skills/*`, `docs/ops/*`, WORK_LOG.
+- **Verify:** Open e.g. KAN-47 Activity for “Agent completion …” comment; KAN-48 Done with pytest evidence comment.
+- **Jira:** backfill via closeout script (yes).
+- **Next:** KAN-55 (Active slice unchanged).
 
 ### 2026-11-15 — KAN-47 — Desktop `.exe` testing plugin
 - **Agent/chat:** Cursor IDE Agent (Composer)

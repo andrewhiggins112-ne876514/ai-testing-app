@@ -9,7 +9,11 @@
 - Keep changes small and reviewable. One logical improvement at a time.
 - If a requirement is ambiguous, stop and ask rather than guessing.
 - Never store real credentials in code or in this repository. Use the local settings store only.
-- After every finished or paused slice: append `docs/ops/WORK_LOG.md`, update Active slice, add a Jira comment on the story (what changed + how to verify), then **commit and `git push origin main`** so the next chat can pick up cleanly. Do not leave finished slice work unpushed.
+- After every finished or paused slice: append `docs/ops/WORK_LOG.md`, update Active slice, then **Jira close-out is mandatory** (not optional):
+  1. **Story comment** that states clearly what **the agent did** to complete the story (implementation summary + files + how to verify). Prefer `python scripts/jira_kan_slice_closeout.py --story KAN-XX --done "…" --files "…" --verify "…" --pytest-cmd "…" --mark-done` (REST; never print tokens). Do not leave a Done story with only WORK_LOG and no Jira comment.
+  2. **Linked test Task** (`label=test`, Relates → story): comment with unit-test / verification evidence (exact pytest command + pass count), then transition that test Task to **Done**. If no Relates test Task exists, create a Task labelled `test`, Relates-link it, comment evidence, then Done.
+  3. Transition the **story** to Done only after the story comment is posted.
+  Then **commit and `git push origin main`**. Do not leave finished slice work unpushed.
 - **User change requests (CRs):** When the human changes product intent, scope, AC, or behaviour (including informal “actually do X instead”), update **all** of: `docs/FUNCTIONAL_SPEC.md` (canonical), affected KAN epic/story/test descriptions (re-enrich or edit), `PROJECT_MEMORY.md` / `ROADMAP.md` / `docs/ops/WORK_LOG.md` as needed, and any mockups/rules that contradict the CR. Do not leave Jira or the spec stale relative to what the user just decided.
 
 ## Cursor workflow (PM-managed; replaces Grok browser + AFK Pilot)

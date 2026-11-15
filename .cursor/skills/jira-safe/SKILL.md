@@ -10,7 +10,11 @@ description: Safe Jira work for this app — local settings, confirmation gates,
 - Credentials only in local settings store (`jira_url`, `jira_api_token`, `jira_email` for Cloud).
 - Site live: `https://ai-testing-lab.atlassian.net` project **KAN**.
 - Reads OK when configured. Writes stay two-step confirm (`yes` / `confirm`) for the product agent.
-- After a coding slice: comment on the story (what shipped + how to verify).
+- After a coding slice: **required** Jira close-out (not optional):
+  1. Story comment stating **what the agent did** to complete the story (implementation + files + verify).
+  2. Linked **test Task** (`label=test`, Relates): comment with unit-test evidence; mark test Task **Done**.
+  3. Mark story **Done** only after the story comment is posted.
+  Prefer: `python scripts/jira_kan_slice_closeout.py --story KAN-XX --done "…" --files "…" --verify "…" --pytest-cmd "…" --mark-done`
 - Never log tokens. Never commit settings.
 - Ticket layout: `docs/ops/JIRA_TICKET_TEMPLATE.md`; enrich with `scripts/jira_kan_enrich.py`.
 
@@ -22,6 +26,7 @@ Atlassian MCP (`user-atlassian` / plugin) often fails with **“You don't have p
 
 1. Use **Jira Cloud REST** with Basic auth from `%LOCALAPPDATA%\ai_testing_app\settings.json` (`jira_url` + `jira_email` + `jira_api_token`).
 2. Prefer existing helpers (they never print the token):
+   - `python scripts/jira_kan_slice_closeout.py` — **slice close-out**: agent completion comment + linked test Task evidence + Done
    - `python scripts/jira_kan_enrich.py` — descriptions
    - `python scripts/jira_kan_progress_sync.py` — comments + epic status
    - `python scripts/jira_kan_rebuild.py` — backlog structure
