@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | [KAN-15](https://ai-testing-lab.atlassian.net/browse/KAN-15) — OFFICIAL / SECRET isolation |
-| **Epic** | [KAN-26](https://ai-testing-lab.atlassian.net/browse/KAN-26) — Security and Isolation |
-| **Roadmap ID** | SEC-1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-SEC-1…5 |
-| **Next action** | Isolate credentials + browser profiles by security level (confirm before coding) |
+| **Jira story** | [KAN-47](https://ai-testing-lab.atlassian.net/browse/KAN-47) — Desktop `.exe` testing plugin |
+| **Epic** | DESK-1 / KAN backlog — Desktop `.exe` testing |
+| **Roadmap ID** | DESK-1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` desktop testing |
+| **Next action** | Add desktop `.exe` testing as a separate plugin (do not fork Playwright runner) |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-15 — OFFICIAL / SECRET isolation
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** Level-scoped credentials under `%LOCALAPPDATA%\ai_testing_app\levels\{LEVEL}\credentials.json`; shared UI prefs stay in `settings.json`. Flat legacy keys migrate into OFFICIAL on load. `set_security_level` requires confirm (FR-SEC-3). Playwright uses `launch_persistent_context` per `browser_profiles\{LEVEL}`. API `GET/POST /api/security-level`; Gradio two-step Confirm level switch; desktop App → Security. Secrets never echoed in status/API.
+- **Files:** `settings/store.py`, `plugins/playwright_runner.py`, `main.py`, `ui/gradio_app.py`, `ui/desktop/*`, `desktop_app.py` (desk13), `tests/test_security_isolation.py`, `tests/test_settings_tab.py`, `tests/test_doc_ingest.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_security_isolation.py tests/test_settings_tab.py tests/test_settings_bom.py tests/test_doc_ingest.py -v` (16 passed). API on `:8765`: propose SECRET → `confirmation_required`; confirm → `SECRET` profile path; restore OFFICIAL. Desktop: App ▦ → Security → Switch → Confirm.
+- **Jira:** comment + Done on KAN-15 (REST).
+- **Next:** KAN-47 desktop `.exe` testing plugin (DESK-1).
 
 ### 2026-11-15 — KAN-45 — Document ingestion → settings proposals
 - **Agent/chat:** Cursor IDE Agent (Composer)

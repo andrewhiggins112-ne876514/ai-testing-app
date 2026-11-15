@@ -992,8 +992,12 @@
   });
   [appDrawer, screenDrawer].forEach(bindDrawerResize);
 
+  const securitySection = document.getElementById("app-section-security");
   const reportsSection = document.getElementById("app-section-reports");
   const documentsSection = document.getElementById("app-section-documents");
+  const securityNav = appDrawer
+    ? appDrawer.querySelector('.app-nav-item[data-section="security"]')
+    : null;
   const reportsNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="reports"]')
     : null;
@@ -1009,6 +1013,12 @@
   };
   const rptSave = document.getElementById("rpt-save");
   const appDrawerHint = document.getElementById("app-drawer-hint");
+  const secLevel = document.getElementById("sec-level");
+  const secProfile = document.getElementById("sec-profile");
+  const secPropose = document.getElementById("sec-propose");
+  const secConfirm = document.getElementById("sec-confirm");
+  const secStatus = document.getElementById("sec-status");
+  let pendingSecurityLevel = "";
   const docText = document.getElementById("doc-text");
   const docParse = document.getElementById("doc-parse");
   const docProposal = document.getElementById("doc-proposal");
@@ -1035,8 +1045,42 @@
     }
   }
 
+  function applySecurityStatus(payload) {
+    if (!payload) return;
+    if (secLevel && payload.security_level) {
+      secLevel.value = payload.security_level;
+    }
+    if (secProfile) {
+      secProfile.textContent =
+        "Browser profile: " + (payload.browser_profile || "—");
+    }
+  }
+
+  async function loadSecurityStatus() {
+    try {
+      const res = await fetch("/api/security-level");
+      if (!res.ok) return;
+      applySecurityStatus(await res.json());
+      pendingSecurityLevel = "";
+      if (secConfirm) secConfirm.disabled = true;
+      if (secStatus) secStatus.textContent = "Ready";
+    } catch (err) {
+      if (secStatus) secStatus.textContent = "Could not load security level.";
+    }
+  }
+
+  async function postSecurityLevel(level, confirm) {
+    const res = await fetch("/api/security-level", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ security_level: level, confirm: !!confirm }),
+    });
+    return { ok: res.ok, payload: await res.json() };
+  }
+
   function showAppSection(name) {
     const map = {
+      security: { section: securitySection, nav: securityNav },
       reports: { section: reportsSection, nav: reportsNav },
       documents: { section: documentsSection, nav: documentsNav },
     };
@@ -1054,8 +1098,16 @@
     if (name === "reports" && reportsSection && !reportsSection.hidden) {
       loadReportSections();
     }
+    if (name === "security" && securitySection && !securitySection.hidden) {
+      loadSecurityStatus();
+    }
   }
 
+  if (securityNav) {
+    securityNav.addEventListener("click", function () {
+      showAppSection("security");
+    });
+  }
   if (reportsNav) {
     reportsNav.addEventListener("click", function () {
       showAppSection("reports");
@@ -1064,6 +1116,71 @@
   if (documentsNav) {
     documentsNav.addEventListener("click", function () {
       showAppSection("documents");
+    });
+  }
+
+  if (secPropose) {
+    secPropose.addEventListener("click", async function () {
+      const level = secLevel ? secLevel.value : "";
+      if (!level) return;
+      if (secStatus) secStatus.textContent = "Proposing switch…";
+      try {
+        const { ok, payload } = await postSecurityLevel(level, false);
+        if (!ok) {
+          if (secStatus) secStatus.textContent = "Switch request failed.";
+          return;
+        }
+        if (payload.status === "unchanged") {
+          applySecurityStatus(payload);
+          pendingSecurityLevel = "";
+          if (secConfirm) secConfirm.disabled = true;
+          if (secStatus) secStatus.textContent = "Already on " + level + ".";
+          return;
+        }
+        if (payload.status === "confirmation_required") {
+          pendingSecurityLevel = (payload.proposed && payload.proposed.security_level) || level;
+          if (secConfirm) secConfirm.disabled = false;
+          if (secProfile && payload.browser_profile) {
+            secProfile.textContent =
+              "Proposed browser profile: " + payload.browser_profile;
+          }
+          if (secStatus) {
+            secStatus.textContent =
+              payload.message || "Confirm to apply the security level switch.";
+          }
+          return;
+        }
+        applySecurityStatus(payload);
+        if (secStatus) secStatus.textContent = "Updated.";
+      } catch (err) {
+        if (secStatus) secStatus.textContent = "Could not reach security API.";
+      }
+    });
+  }
+
+  if (secConfirm) {
+    secConfirm.addEventListener("click", async function () {
+      const level = pendingSecurityLevel || (secLevel ? secLevel.value : "");
+      if (!level) return;
+      if (secStatus) secStatus.textContent = "Confirming switch…";
+      try {
+        const { ok, payload } = await postSecurityLevel(level, true);
+        if (!ok || payload.status === "error") {
+          if (secStatus) {
+            secStatus.textContent = (payload && payload.message) || "Confirm failed.";
+          }
+          return;
+        }
+        applySecurityStatus(payload);
+        pendingSecurityLevel = "";
+        if (secConfirm) secConfirm.disabled = true;
+        if (secStatus) {
+          secStatus.textContent =
+            "Switched to " + (payload.security_level || level) + ".";
+        }
+      } catch (err) {
+        if (secStatus) secStatus.textContent = "Could not confirm switch.";
+      }
     });
   }
 

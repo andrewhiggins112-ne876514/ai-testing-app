@@ -19,7 +19,14 @@ from reports.sections import (
     normalize_sections,
     save_report_sections,
 )
-from settings.store import load_settings, settings_path, update_setting, write_settings
+from settings.store import (
+    browser_profile_dir,
+    load_settings,
+    set_security_level,
+    settings_path,
+    update_setting,
+    write_settings,
+)
 
 _UI_DIR = Path(__file__).resolve().parent
 _THREE_PATH = _UI_DIR / "vendor" / "three.min.js"
@@ -1441,6 +1448,7 @@ def current_settings():
 def settings_store_summary():
     """Non-secret status line for the Settings tab (never echoes tokens)."""
     data = load_settings()
+    level = data.get("security_level") or "OFFICIAL"
     email_set = bool((data.get("jira_email") or "").strip())
     token_set = bool((data.get("jira_api_token") or "").strip())
     if email_set and token_set:
@@ -1449,19 +1457,38 @@ def settings_store_summary():
         creds = "Jira credentials: incomplete (need both email and API token in local store)"
     else:
         creds = "Jira credentials: not set (edit local settings file — never commit tokens)"
-    return f"Local store: {settings_path()}\n{creds}"
+    profile = browser_profile_dir(level)
+    return (
+        f"Local store: {settings_path()}\n"
+        f"Level: {level} | Browser profile: {profile}\n"
+        f"{creds}"
+    )
 
 
-def save_settings(level, jira_base_url):
-    level = (level or "").strip()
+def save_settings(level, jira_base_url, confirm_level: bool = False):
+    """Save Jira URL; level switch requires a second confirm (FR-SEC-3)."""
+    level = (level or "").strip().upper()
     url = (jira_base_url or "").strip()
     if level not in LEVELS:
         return "Invalid security level.", settings_store_summary()
     if url and not (url.startswith("https://") or url.startswith("http://")):
         return "Jira URL must start with http:// or https://.", settings_store_summary()
-    update_setting("security_level", level, confirm=True)
+    current = (load_settings().get("security_level") or "OFFICIAL").strip().upper()
+    if level != current and not confirm_level:
+        result = set_security_level(level, confirm=False)
+        msg = result.get("message") or f"Confirm switch to {level}?"
+        return f"{msg} Click Confirm level switch.", settings_store_summary()
+    if level != current:
+        result = set_security_level(level, confirm=True)
+        if result.get("status") == "error":
+            return result.get("message") or "Level switch failed.", settings_store_summary()
     update_setting("jira_url", url, confirm=True)
     return "Saved.", settings_store_summary()
+
+
+def confirm_security_level(level, jira_base_url):
+    """Second step for OFFICIAL/SECRET switch."""
+    return save_settings(level, jira_base_url, confirm_level=True)
 
 
 def _format_doc_proposal(result: dict) -> tuple[str, str, str]:
@@ -1800,9 +1827,13 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     lines=2,
                 )
                 status = gr.Textbox(value="Ready", label="Status", interactive=False, max_lines=1)
-                gr.Button("Save", variant="primary").click(
-                    save_settings, [level, jira_base_url], [status, store_info]
-                )
+                with gr.Row():
+                    gr.Button("Save", variant="primary").click(
+                        save_settings, [level, jira_base_url], [status, store_info]
+                    )
+                    gr.Button("Confirm level switch").click(
+                        confirm_security_level, [level, jira_base_url], [status, store_info]
+                    )
         with gr.Tab("Reports"):
             _report_choices = list_report_choices()
             _sec = load_report_sections()

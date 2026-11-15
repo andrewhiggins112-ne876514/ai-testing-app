@@ -324,12 +324,27 @@ async def run_playwright(
             result["steps"] = []
             return export_run(result, request_text, session_id)
 
+    from settings.store import browser_profile_dir, get_security_level
+
+    level = (security_level or "").strip().upper() or get_security_level()
+    result["security_level"] = level
     started = None
+    context = None
     try:
         if browser is None:
+            # FR-SEC-1: isolated persistent profile per OFFICIAL / SECRET level.
             started = await async_playwright().start()
-            browser = await started.chromium.launch(headless=False)  # headed for visibility on laptop
-        page = await (await browser.new_context()).new_page()
+            profile = browser_profile_dir(level)
+            profile.mkdir(parents=True, exist_ok=True)
+            result["browser_profile"] = str(profile)
+            context = await started.chromium.launch_persistent_context(
+                str(profile),
+                headless=False,  # headed for visibility on laptop
+            )
+        else:
+            # Injected browser (tests): ephemeral context, caller owns lifecycle.
+            context = await browser.new_context()
+        page = await context.new_page()
         try:
             if steps:
                 result["steps"] = []
@@ -375,14 +390,13 @@ async def run_playwright(
                 await _save_screenshot(page, result)
                 result["status"] = "pass"
         finally:
-            await page.context.close()
+            if context is not None:
+                await context.close()
     except Exception as e:
         result["status"] = "fail"
         if not result.get("error"):
             result["error"] = str(e)
     finally:
         if started is not None:
-            if browser is not None:
-                await browser.close()
             await started.stop()
     return export_run(result, request_text, session_id)

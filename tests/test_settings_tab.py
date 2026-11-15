@@ -19,27 +19,35 @@ from settings.store import load_settings  # noqa: E402
 class SettingsTabTests(unittest.TestCase):
     def setUp(self):
         self._old = os.environ.get("AI_TESTING_SETTINGS")
-        self.path = Path(tempfile.gettempdir()) / "ai_testing_app_settings_tab_test.json"
-        if self.path.exists():
-            self.path.unlink()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.path = Path(self.tmp.name) / "settings.json"
         os.environ["AI_TESTING_SETTINGS"] = str(self.path)
 
     def tearDown(self):
-        if self.path.exists():
-            self.path.unlink()
         if self._old is None:
             os.environ.pop("AI_TESTING_SETTINGS", None)
         else:
             os.environ["AI_TESTING_SETTINGS"] = self._old
+        self.tmp.cleanup()
 
     def test_save_reload_and_reject_invalid_level(self):
-        status, summary = gradio_app.save_settings("SECRET", "https://jira.example.com")
+        status, summary = gradio_app.save_settings("OFFICIAL", "https://jira.example.com")
         self.assertEqual(status, "Saved.")
         self.assertIn("Local store:", summary)
+        self.assertEqual(gradio_app.current_settings(), ("OFFICIAL", "https://jira.example.com"))
+
+        status, summary = gradio_app.save_settings("SECRET", "https://jira.example.com")
+        self.assertIn("Confirm", status)
+        self.assertEqual(load_settings()["security_level"], "OFFICIAL")
+
+        status, summary = gradio_app.confirm_security_level("SECRET", "https://jira.example.com")
+        self.assertEqual(status, "Saved.")
         self.assertEqual(gradio_app.current_settings(), ("SECRET", "https://jira.example.com"))
         saved = load_settings()
         self.assertEqual(saved["security_level"], "SECRET")
         self.assertEqual(saved["jira_url"], "https://jira.example.com")
+        self.assertIn("Browser profile:", summary)
+
         status, _ = gradio_app.save_settings("PUBLIC", "https://other.example.com")
         self.assertEqual(status, "Invalid security level.")
         reloaded = load_settings()

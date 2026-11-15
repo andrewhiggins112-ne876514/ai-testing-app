@@ -44,10 +44,26 @@
       <div class="drawer-inner shell-surface">
         <h2 class="panel-title">App</h2>
         <nav class="app-nav" aria-label="Application sections">
-          <button type="button" class="app-nav-item" data-section="settings" disabled title="Coming soon">Settings</button>
+          <button type="button" class="app-nav-item" data-section="security" aria-pressed="false">Security</button>
           <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
           <button type="button" class="app-nav-item" data-section="documents" aria-pressed="false">Documents</button>
         </nav>
+        <div id="app-section-security" class="app-section" hidden>
+          <h3 class="orb-section-label">Security level</h3>
+          <p class="drawer-hint">OFFICIAL and SECRET isolate credentials and browser profiles. Switching requires confirmation.</p>
+          <label class="stack-label">Level
+            <select id="sec-level">
+              <option value="OFFICIAL">OFFICIAL</option>
+              <option value="SECRET">SECRET</option>
+            </select>
+          </label>
+          <p id="sec-profile" class="drawer-hint">Browser profile: —</p>
+          <div class="btn-row">
+            <button type="button" id="sec-propose" class="save-btn">Switch level</button>
+            <button type="button" id="sec-confirm" class="save-btn secondary" disabled>Confirm switch</button>
+          </div>
+          <p id="sec-status" class="drawer-hint" role="status">Ready</p>
+        </div>
         <div id="app-section-reports" class="app-section" hidden>
           <h3 class="orb-section-label">Report sections</h3>
           <p class="drawer-hint">Choose which blocks appear in the next JSON/Markdown export.</p>
@@ -77,7 +93,7 @@
           </div>
           <p id="doc-status" class="drawer-hint" role="status">Ready</p>
         </div>
-        <p class="drawer-hint" id="app-drawer-hint">Settings coming soon.</p>
+        <p class="drawer-hint" id="app-drawer-hint">Choose Security, Reports, or Documents.</p>
       </div>
     </aside>
 
@@ -124,6 +140,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk12"></script>
+  <script src="/ui/desktop/desktop.js?v=desk13"></script>
 </body>
 </html>

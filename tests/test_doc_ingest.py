@@ -40,7 +40,8 @@ class DocIngestTests(unittest.TestCase):
         self.settings = Path(self.tmp.name) / "settings.json"
         self._old = os.environ.get("AI_TESTING_SETTINGS")
         os.environ["AI_TESTING_SETTINGS"] = str(self.settings)
-        self.settings.write_text(json.dumps({"jira_url": ""}), encoding="utf-8")
+        # Shared file only — scoped keys live under levels/ after KAN-15.
+        self.settings.write_text("{}", encoding="utf-8")
 
     def tearDown(self):
         doc_ingest.clear_pending()

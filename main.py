@@ -16,7 +16,13 @@ from pydantic import BaseModel, Field
 from agent.agent import Agent
 from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
-from settings.store import load_settings, settings_path, update_setting
+from settings.store import (
+    load_settings,
+    security_status,
+    set_security_level,
+    settings_path,
+    update_setting,
+)
 
 _UI_DIR = Path(__file__).resolve().parent / "ui"
 
@@ -64,6 +70,11 @@ class DocIngestApplyRequest(BaseModel):
 class DocIngestDeclineRequest(BaseModel):
     proposal_id: str
     session_id: str = "desktop"
+
+
+class SecurityLevelRequest(BaseModel):
+    security_level: str
+    confirm: bool = False
 
 
 def _orb_from_settings() -> dict:
@@ -127,6 +138,16 @@ async def get_report_sections():
 @app.post("/api/report-sections")
 async def set_report_sections(req: ReportSectionsRequest):
     return save_report_sections(normalize_sections(req.model_dump()))
+
+
+@app.get("/api/security-level")
+async def get_security_level_api():
+    return security_status()
+
+
+@app.post("/api/security-level")
+async def post_security_level_api(req: SecurityLevelRequest):
+    return set_security_level(req.security_level, confirm=bool(req.confirm))
 
 
 @app.post("/api/doc-ingest")

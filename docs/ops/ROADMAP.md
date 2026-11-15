@@ -31,7 +31,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Notes |
 |----|------|-------|
-| SEC-1 | OFFICIAL / SECRET isolation | **now** — KAN-15; confirm before coding |
+| SEC-1 | OFFICIAL / SECRET isolation | **done** — KAN-15; level-scoped creds + Playwright profiles + confirm gate |
 | DOC-1 | Document ingestion → settings proposals | **done** — KAN-45; propose + consent before store |
 | REP-1 | Customisable reporting | **done** — KAN-51; section toggles + exporter |
 | HEAL-1 | Broader locator self-heal | **done** — KAN-14; click + fill heal; assertions stay red |
@@ -41,7 +41,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Notes |
 |----|------|-------|
-| DESK-1 | Desktop `.exe` testing plugin | Separate plugin; do not fork Playwright runner |
+| DESK-1 | Desktop `.exe` testing plugin | **now** — KAN-47; separate plugin; do not fork Playwright runner |
 | MULTI-1 | Multi-sandbox orchestration | Desired earlier; keep as plugin |
 | VOICE-1 | Voice input | After text UX is solid |
 | SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
@@ -65,5 +65,5 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**[KAN-15](https://ai-testing-lab.atlassian.net/browse/KAN-15)** — OFFICIAL / SECRET isolation (SEC-1).  
+**[KAN-47](https://ai-testing-lab.atlassian.net/browse/KAN-47)** — Desktop `.exe` testing plugin (DESK-1).  
 Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.
