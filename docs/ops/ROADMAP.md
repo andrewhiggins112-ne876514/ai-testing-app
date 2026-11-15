@@ -47,7 +47,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | VOICE-1 | Voice input | **KAN-81** (test KAN-82) — after text UX is solid |
 | SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
 
-Open FR Stories: KAN-61…KAN-81 (first seed remainder), plus gap pass KAN-83…KAN-99. Full FR→ticket matrix: `docs/FUNCTIONAL_SPEC.md` §5.
+Open FR Stories: KAN-63…KAN-81 (first seed remainder), plus gap pass KAN-83…KAN-99. Full FR→ticket matrix: `docs/FUNCTIONAL_SPEC.md` §5.
 
 ## Blocked / waiting on you
 
@@ -68,5 +68,5 @@ Open FR Stories: KAN-61…KAN-81 (first seed remainder), plus gap pass KAN-83…
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-61** — Tool-calling reliability + JSON-in-text fallback (FR-AGENT-6; test KAN-62).  
+**KAN-63** — Raise user-friendly Bug tickets from failed runs (FR-JIRA-4/5; test KAN-64).  
 Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

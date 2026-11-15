@@ -2,14 +2,54 @@
 Core agent loop.
 Uses Ollama for local tool-calling.
 Forces clarification on ambiguous or side-effecting requests.
+FR-AGENT-6: robust JSON-in-text tool fallback; never claim tool success without a validated result.
 """
 import json
 import os
+import re
 from typing import Any, Dict, List, Optional
 import httpx
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b")  # installed locally; qwen3:8b also fine
+OLLAMA_NUM_CTX = int(os.getenv("OLLAMA_NUM_CTX", "8192"))
+# Thinking traces interfere with tool calls on some models (FR-AGENT-6).
+_OLLAMA_THINK_RAW = os.getenv("OLLAMA_THINK", "false").strip().lower()
+OLLAMA_THINK = _OLLAMA_THINK_RAW in {"1", "true", "yes", "on"}
+
+TOOL_NAMES = frozenset({
+    "jira_action",
+    "run_playwright",
+    "generate_playwright_steps",
+    "run_desktop",
+    "run_playwright_suite",
+    "list_plugins",
+    "orchestrate_sandboxes",
+    "update_settings",
+    "list_stories",
+    "create_issue",
+    "set_parent",
+    "transition_issue",
+    "add_comment",
+    "ingest_document",
+})
+
+_FAIL_STATUSES = frozenset({
+    "fail",
+    "failed",
+    "error",
+    "reject",
+    "rejected",
+    "unconfigured",
+    "unauthorized",
+    "disabled",
+    "not_enabled",
+    "cancelled",
+})
+_SUCCESS_CLAIM = re.compile(
+    r"\b(success(?:fully)?|succeeded|passed|completed successfully|all (?:tests )?passed)\b",
+    re.I,
+)
 
 SYSTEM_PROMPT = """You are a local AI testing agent.
 You help testers by reasoning about requests and calling tools.
@@ -17,7 +57,8 @@ You help testers by reasoning about requests and calling tools.
 Rules:
 - Always clarify ambiguous requests before acting (e.g. "use the new strategy or the existing one?"). A Jira request that names a project key and a summary is not ambiguous.
 - Never update credentials, create Jira tickets, or run destructive actions without explicit confirmation.
-- Prefer structured tool calls over guessing.
+- Prefer structured tool calls over guessing. If you must emit JSON in text, use {"name":"<tool>","arguments":{...}}.
+- Never claim a tool action succeeded unless you received and read the tool result. Report failures clearly.
 - Report results clearly, including failures and suggested next steps.
 - Security context is important: respect the current level (OFFICIAL / SECRET).
 - For a browse/test request, prefer generate_playwright_steps first (happy path + negatives), then run_playwright. Steps use action goto, click, fill, expect_text, expect_url, or expect_visible; click a visible label with selector text=Label. Non-trivial flows MUST include expect_text or expect_url (visibility-only is incomplete). Include at least one negative/edge draft when generating.
@@ -31,6 +72,196 @@ Rules:
 - To comment on a Jira issue, call add_comment with the issue key and body, then wait for the user to reply yes. Do not answer yes for the user. Pass report_path only when the user names a report file.
 - When the user pastes or names a functional spec to ingest, call ingest_document with the text (or path). Show the settings diff and test ideas. Do not write settings until the user replies yes or confirm. If they say no/decline, discard the proposal.
 """
+
+
+def _chat_payload(messages: List[Dict], tools: Optional[List[Dict]] = None) -> Dict[str, Any]:
+    body: Dict[str, Any] = {
+        "model": MODEL,
+        "messages": messages,
+        "stream": False,
+        "think": OLLAMA_THINK,
+        "options": {"num_ctx": OLLAMA_NUM_CTX},
+    }
+    if tools is not None:
+        body["tools"] = tools
+    return body
+
+
+def _strip_fences(content: str) -> str:
+    text = content.strip()
+    if text.startswith("```"):
+        lines = text.splitlines()
+        if lines and lines[0].strip().startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+    return text
+
+
+def _iter_json_blobs(text: str) -> List[str]:
+    """Yield top-level JSON object/array substrings (brace/bracket balanced)."""
+    blobs: List[str] = []
+    i = 0
+    n = len(text)
+    while i < n:
+        ch = text[i]
+        if ch not in "{[":
+            i += 1
+            continue
+        open_ch, close_ch = ("{", "}") if ch == "{" else ("[", "]")
+        depth = 0
+        in_str = False
+        esc = False
+        for j in range(i, n):
+            c = text[j]
+            if in_str:
+                if esc:
+                    esc = False
+                elif c == "\\":
+                    esc = True
+                elif c == '"':
+                    in_str = False
+                continue
+            if c == '"':
+                in_str = True
+                continue
+            if c == open_ch:
+                depth += 1
+            elif c == close_ch:
+                depth -= 1
+                if depth == 0:
+                    blobs.append(text[i : j + 1])
+                    i = j + 1
+                    break
+        else:
+            break
+    return blobs
+
+
+def _as_args(value: Any) -> Dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, str) and value.strip():
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+    return {}
+
+
+def _normalize_tool_fn(name: Any, arguments: Any) -> Optional[Dict[str, Any]]:
+    if not isinstance(name, str) or name not in TOOL_NAMES:
+        return None
+    return {"name": name, "arguments": _as_args(arguments)}
+
+
+def _calls_from_obj(data: Any) -> List[Dict[str, Any]]:
+    """Normalize common JSON-in-text tool shapes into [{name, arguments}, ...]."""
+    found: List[Dict[str, Any]] = []
+    if isinstance(data, list):
+        for item in data:
+            found.extend(_calls_from_obj(item))
+        return found
+    if not isinstance(data, dict):
+        return found
+
+    if "tool_calls" in data and isinstance(data["tool_calls"], list):
+        for item in data["tool_calls"]:
+            found.extend(_calls_from_obj(item))
+        return found
+
+    if "function" in data and isinstance(data["function"], dict):
+        fn = data["function"]
+        normalized = _normalize_tool_fn(
+            fn.get("name"),
+            fn.get("arguments", fn.get("parameters", fn.get("args"))),
+        )
+        if normalized:
+            found.append(normalized)
+        return found
+
+    name = data.get("name") or data.get("tool") or data.get("function_name")
+    args = data.get("arguments", data.get("parameters", data.get("args", data.get("input"))))
+    normalized = _normalize_tool_fn(name, args)
+    if normalized:
+        found.append(normalized)
+    return found
+
+
+def parse_tool_calls_from_text(content: str) -> List[Dict[str, Any]]:
+    """
+    Parse tool calls embedded in model text when structured tool_calls are missing.
+    Supports whole-JSON replies, fenced blocks, and JSON objects mixed with prose.
+    """
+    if not content or not content.strip():
+        return []
+    text = _strip_fences(content)
+    candidates: List[Any] = []
+    try:
+        candidates.append(json.loads(text))
+    except json.JSONDecodeError:
+        pass
+    for blob in _iter_json_blobs(text):
+        try:
+            candidates.append(json.loads(blob))
+        except json.JSONDecodeError:
+            continue
+
+    out: List[Dict[str, Any]] = []
+    seen: set = set()
+    for data in candidates:
+        for call in _calls_from_obj(data):
+            key = (call["name"], json.dumps(call["arguments"], sort_keys=True))
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(call)
+    return out
+
+
+def tool_result_failed(result: Any) -> bool:
+    if not isinstance(result, dict):
+        return True
+    if result.get("error"):
+        return True
+    if result.get("rejected") is True:
+        return True
+    status = str(result.get("status") or "").strip().lower()
+    if status in _FAIL_STATUSES:
+        return True
+    enabled = result.get("enabled")
+    if enabled is False and status in {"", "ok"}:
+        # list-style payloads may include enabled flags without fail status
+        pass
+    return False
+
+
+def grounded_tool_reply(tool_results: List[Dict], model_content: str) -> str:
+    """Never claim success when any tool result failed validation (FR-AGENT-6)."""
+    failures = [r for r in tool_results if tool_result_failed(r)]
+    content = (model_content or "").strip() or "Done."
+    if not failures:
+        return content
+    bits: List[str] = []
+    for result in failures:
+        detail = (
+            result.get("message")
+            or result.get("error")
+            or result.get("note")
+            or result.get("status")
+            or "failed"
+        )
+        bits.append(str(detail))
+    summary = "Tool action did not succeed. " + " ".join(bits)
+    if _SUCCESS_CLAIM.search(content) or content.lower() in {"done.", "done", "ok", "ok."}:
+        return summary
+    # Model already discusses failure — keep it, but ensure failure signal is present.
+    lower = content.lower()
+    if any(token in lower for token in ("fail", "error", "could not", "unable", "did not", "not succeed")):
+        return content
+    return summary + "\n" + content
 
 class Agent:
     def __init__(self):
@@ -344,46 +575,48 @@ class Agent:
         async with httpx.AsyncClient(timeout=120.0) as client:
             resp = await client.post(
                 f"{OLLAMA_URL}/api/chat",
-                json={
-                    "model": MODEL,
-                    "messages": history,
-                    "tools": self.tools,
-                    "stream": False
-                }
+                json=_chat_payload(history, tools=self.tools),
             )
             data = resp.json()
             message = data.get("message", {})
-            tool_calls = message.get("tool_calls") or []
+            tool_calls = list(message.get("tool_calls") or [])
             if not tool_calls:
-                parsed = self._tool_from_text(message.get("content") or "")
-                if parsed:
-                    tool_calls = [{"function": parsed}]
-                    message = {**message, "tool_calls": tool_calls}
+                parsed_list = parse_tool_calls_from_text(message.get("content") or "")
+                if parsed_list:
+                    tool_calls = [
+                        {"id": f"text_call_{i + 1}", "function": parsed}
+                        for i, parsed in enumerate(parsed_list)
+                    ]
+                    message = {
+                        **message,
+                        "tool_calls": tool_calls,
+                        # Keep content for history, but mark fallback so final grounding still applies.
+                        "content": message.get("content") or "",
+                    }
             history.append(message)
 
             # Handle tool calls
             if tool_calls:
-                tool_results = []
+                tool_messages = []
+                executed: List[Dict] = []
                 for call in tool_calls:
                     result = await self._execute_tool(call, user_message, session_id)
-                    tool_results.append({
+                    executed.append(result if isinstance(result, dict) else {"error": "invalid tool result"})
+                    tool_messages.append({
                         "role": "tool",
-                        "content": json.dumps(result),
-                        "tool_call_id": call.get("id", "call_1")
+                        "content": json.dumps(executed[-1]),
+                        "tool_call_id": call.get("id", "call_1"),
                     })
-                history.extend(tool_results)
+                history.extend(tool_messages)
                 self._cap(history)
 
                 # Second call to get final response
                 resp2 = await client.post(
                     f"{OLLAMA_URL}/api/chat",
-                    json={
-                        "model": MODEL,
-                        "messages": history,
-                        "stream": False
-                    }
+                    json=_chat_payload(history),
                 )
-                final = resp2.json().get("message", {}).get("content", "Done.")
+                raw_final = resp2.json().get("message", {}).get("content", "Done.")
+                final = grounded_tool_reply(executed, raw_final or "Done.")
                 history.append({"role": "assistant", "content": final})
                 self._cap(history)
                 return final
@@ -392,33 +625,9 @@ class Agent:
             return message.get("content", "No response.")
 
     def _tool_from_text(self, content: str):
-        text = content.strip()
-        if text.startswith("```"):
-            lines = [line for line in text.splitlines() if not line.strip().startswith("```")]
-            text = "\n".join(lines).strip()
-        try:
-            data = json.loads(text)
-        except json.JSONDecodeError:
-            return None
-        name = data.get("name") if isinstance(data, dict) else None
-        if name not in {
-            "jira_action",
-            "run_playwright",
-            "generate_playwright_steps",
-            "run_desktop",
-            "run_playwright_suite",
-            "list_plugins",
-            "orchestrate_sandboxes",
-            "update_settings",
-            "list_stories",
-            "create_issue",
-            "set_parent",
-            "transition_issue",
-            "add_comment",
-            "ingest_document",
-        }:
-            return None
-        return {"name": name, "arguments": data.get("arguments") or {}}
+        """Backward-compatible: first parsed tool call, or None."""
+        parsed = parse_tool_calls_from_text(content)
+        return parsed[0] if parsed else None
 
     def _parse_call(self, call: Dict):
         function = call.get("function") or {}

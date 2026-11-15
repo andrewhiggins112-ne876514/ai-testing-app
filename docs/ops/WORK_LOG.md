@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | KAN-61 — Tool-calling reliability + JSON-in-text fallback |
-| **Epic** | KAN-21 (Conversational Agent) |
-| **Roadmap ID** | (FR-AGENT-6) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-AGENT-6 |
-| **Next action** | Implement KAN-61; test Task KAN-62 |
+| **Jira story** | KAN-63 — Raise user-friendly Bug tickets from failed runs |
+| **Epic** | KAN-23 (Jira / Xray) |
+| **Roadmap ID** | (FR-JIRA-4 / FR-JIRA-5) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-JIRA-4, FR-JIRA-5 |
+| **Next action** | Implement KAN-63; test Task KAN-64 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-61 — Tool-calling reliability + JSON-in-text fallback
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** Hardened Ollama chat loop for FR-AGENT-6: `parse_tool_calls_from_text` recovers JSON-in-text / fenced / prose-embedded tool calls (`name`+`arguments|parameters`, `function`, `tool_calls`); chat sends `think: false` + `options.num_ctx` (env `OLLAMA_NUM_CTX`, default 8192); `grounded_tool_reply` blocks success claims when any tool result fails validation.
+- **Files:** `agent/agent.py`, `tests/test_tool_calling.py`, FUNCTIONAL_SPEC §5, PROJECT_MEMORY, ROADMAP, WORK_LOG.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_tool_calling.py -v` (8 passed); sessions + mocked LLM step regression also OK.
+- **Jira:** story Agent completion + KAN-62 test evidence/Done + KAN-61 Done (via closeout script).
+- **Next:** KAN-63 raise user-friendly Bug tickets from failed runs (FR-JIRA-4/5).
 
 ### 2026-11-15 — KAN-59 — Import and run existing Playwright suites
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)
