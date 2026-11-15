@@ -21,6 +21,12 @@ from plugins.multi_sandbox import (
     plugin_status as multi_sandbox_plugin_status,
     set_plugin_enabled as set_multi_sandbox_plugin_enabled,
 )
+from plugins.playwright_suite import (
+    discover_suite,
+    run_suite as run_playwright_suite,
+    set_suite_path,
+    suite_status as playwright_suite_status,
+)
 from plugins.registry import list_plugins
 from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
 from reports.exporter import reports_dir
@@ -1472,11 +1478,13 @@ def settings_store_summary():
     desk_on = "on" if data.get("plugin_desktop_enabled", True) else "off"
     multi_on = "on" if data.get("plugin_multi_sandbox_enabled", False) else "off"
     app_path = (data.get("target_app_path") or "").strip() or "(not set)"
+    suite_path = (data.get("playwright_suite_path") or "").strip() or "(not set)"
     return (
         f"Local store: {settings_path()}\n"
         f"Level: {level} | Browser profile: {profile}\n"
         f"{creds}\n"
         f"Desktop plugin: {desk_on} | target_app_path: {app_path}\n"
+        f"Playwright suite path: {suite_path}\n"
         f"Multi-sandbox plugin: {multi_on}"
     )
 
@@ -1510,6 +1518,27 @@ def run_multi_sandbox_ui(action: str = "list"):
         n = len(result.get("sandboxes") or [])
         return result.get("message") or f"OK ({n} sandbox(es))."
     return result.get("error") or result.get("message") or "Orchestration failed."
+
+
+def discover_playwright_suite_ui(suite_path: str = ""):
+    result = discover_suite(suite_path=(suite_path or "").strip())
+    if result.get("status") == "ok":
+        return result.get("message") or "Discovered.", settings_store_summary()
+    return result.get("error") or "Discover failed.", settings_store_summary()
+
+
+def import_playwright_suite_ui(suite_path: str = ""):
+    result = set_suite_path((suite_path or "").strip(), confirm=True)
+    if result.get("status") == "ok":
+        return result.get("message") or "Imported.", settings_store_summary()
+    return result.get("error") or "Import failed.", settings_store_summary()
+
+
+def run_playwright_suite_ui(suite_path: str = ""):
+    result = run_playwright_suite(suite_path=(suite_path or "").strip())
+    if result.get("status") == "pass":
+        return result.get("message") or "Suite passed."
+    return result.get("error") or result.get("message") or "Suite run failed."
 
 
 def plugins_list_summary() -> str:
@@ -1914,6 +1943,33 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     )
                     gr.Button("Run desktop smoke", variant="primary").click(
                         run_desktop_smoke_ui, [desk_exe], [desk_status]
+                    )
+                gr.HTML('<div class="orb-section-label">Playwright suites (FR-TEST-5)</div>')
+                _suite = playwright_suite_status()
+                suite_path_box = gr.Textbox(
+                    value=_suite.get("playwright_suite_path") or "",
+                    label="Playwright project path",
+                    placeholder=r"D:\path\to\playwright-project",
+                )
+                suite_status = gr.Textbox(
+                    value="Ready",
+                    label="Suite status",
+                    interactive=False,
+                    max_lines=3,
+                )
+                with gr.Row():
+                    gr.Button("Discover suite").click(
+                        discover_playwright_suite_ui,
+                        [suite_path_box],
+                        [suite_status, store_info],
+                    )
+                    gr.Button("Import suite path").click(
+                        import_playwright_suite_ui,
+                        [suite_path_box],
+                        [suite_status, store_info],
+                    )
+                    gr.Button("Run suite", variant="primary").click(
+                        run_playwright_suite_ui, [suite_path_box], [suite_status]
                     )
                 gr.HTML('<div class="orb-section-label">Multi-sandbox plugin</div>')
                 _ms = multi_sandbox_plugin_status()

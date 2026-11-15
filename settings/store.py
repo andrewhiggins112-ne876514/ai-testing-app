@@ -23,6 +23,7 @@ _SCOPED_KEYS = (
     "target_url",
     "target_app_path",
     "api_endpoint",
+    "playwright_suite_path",
 )
 
 
@@ -87,6 +88,8 @@ def _defaults() -> dict:
         "target_url": "",
         "target_app_path": "",
         "api_endpoint": "",
+        # FR-TEST-5: path to an existing Playwright project (level-scoped)
+        "playwright_suite_path": "",
         # FR-PLUG-2: desktop .exe smoke plugin (KAN-47)
         "plugin_desktop_enabled": True,
         # FR-PLUG-2: multi-sandbox orchestration stub (KAN-55) — default off

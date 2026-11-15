@@ -996,6 +996,7 @@
   const reportsSection = document.getElementById("app-section-reports");
   const documentsSection = document.getElementById("app-section-documents");
   const desktopSection = document.getElementById("app-section-desktop");
+  const suitesSection = document.getElementById("app-section-suites");
   const securityNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="security"]')
     : null;
@@ -1008,6 +1009,9 @@
   const desktopNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="desktop"]')
     : null;
+  const suitesNav = appDrawer
+    ? appDrawer.querySelector('.app-nav-item[data-section="suites"]')
+    : null;
   const sandboxesNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="sandboxes"]')
     : null;
@@ -1017,6 +1021,12 @@
   const deskSave = document.getElementById("desk-save");
   const deskSmoke = document.getElementById("desk-smoke");
   const deskStatus = document.getElementById("desk-status");
+  const suiteSaved = document.getElementById("suite-saved");
+  const suitePath = document.getElementById("suite-path");
+  const suiteDiscover = document.getElementById("suite-discover");
+  const suiteImport = document.getElementById("suite-import");
+  const suiteRun = document.getElementById("suite-run");
+  const suiteStatus = document.getElementById("suite-status");
   const msEnabled = document.getElementById("ms-enabled");
   const msPlugins = document.getElementById("ms-plugins");
   const msAction = document.getElementById("ms-action");
@@ -1120,6 +1130,28 @@
     }
   }
 
+  function applyPlaywrightSuite(payload) {
+    if (!payload) return;
+    const saved = payload.playwright_suite_path || "";
+    if (suiteSaved) {
+      suiteSaved.textContent = "Saved path: " + (saved || "(not set)");
+    }
+    if (suitePath && saved && !suitePath.value) {
+      suitePath.value = saved;
+    }
+  }
+
+  async function loadPlaywrightSuite() {
+    try {
+      const res = await fetch("/api/playwright-suite");
+      if (!res.ok) return;
+      applyPlaywrightSuite(await res.json());
+      if (suiteStatus) suiteStatus.textContent = "Ready";
+    } catch (err) {
+      if (suiteStatus) suiteStatus.textContent = "Could not load Playwright suite settings.";
+    }
+  }
+
   function applyMultiSandboxPlugin(payload) {
     if (!payload) return;
     if (msEnabled) {
@@ -1169,6 +1201,7 @@
       reports: { section: reportsSection, nav: reportsNav },
       documents: { section: documentsSection, nav: documentsNav },
       desktop: { section: desktopSection, nav: desktopNav },
+      suites: { section: suitesSection, nav: suitesNav },
       sandboxes: { section: sandboxesSection, nav: sandboxesNav },
     };
     Object.keys(map).forEach(function (key) {
@@ -1190,6 +1223,9 @@
     }
     if (name === "desktop" && desktopSection && !desktopSection.hidden) {
       loadDesktopPlugin();
+    }
+    if (name === "suites" && suitesSection && !suitesSection.hidden) {
+      loadPlaywrightSuite();
     }
     if (name === "sandboxes" && sandboxesSection && !sandboxesSection.hidden) {
       loadMultiSandboxPlugin();
@@ -1216,9 +1252,109 @@
       showAppSection("desktop");
     });
   }
+  if (suitesNav) {
+    suitesNav.addEventListener("click", function () {
+      showAppSection("suites");
+    });
+  }
   if (sandboxesNav) {
     sandboxesNav.addEventListener("click", function () {
       showAppSection("sandboxes");
+    });
+  }
+
+  function suitePathValue() {
+    return suitePath && suitePath.value ? suitePath.value.trim() : "";
+  }
+
+  if (suiteDiscover) {
+    suiteDiscover.addEventListener("click", async function () {
+      if (suiteStatus) suiteStatus.textContent = "Discovering…";
+      try {
+        const res = await fetch("/api/playwright-suite/discover", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ suite_path: suitePathValue() }),
+        });
+        const payload = await res.json();
+        if (!res.ok || payload.status !== "ok") {
+          if (suiteStatus) {
+            suiteStatus.textContent =
+              payload.error || payload.message || "Discover failed.";
+          }
+          return;
+        }
+        if (suiteStatus) {
+          suiteStatus.textContent =
+            payload.message ||
+            "OK — " + (payload.spec_count || 0) + " spec file(s).";
+        }
+      } catch (err) {
+        if (suiteStatus) suiteStatus.textContent = "Could not reach suite discover API.";
+      }
+    });
+  }
+
+  if (suiteImport) {
+    suiteImport.addEventListener("click", async function () {
+      if (suiteStatus) suiteStatus.textContent = "Importing…";
+      try {
+        const res = await fetch("/api/playwright-suite/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ suite_path: suitePathValue(), confirm: true }),
+        });
+        const payload = await res.json();
+        if (!res.ok || payload.status === "fail") {
+          if (suiteStatus) {
+            suiteStatus.textContent =
+              payload.error || payload.message || "Import failed.";
+          }
+          return;
+        }
+        applyPlaywrightSuite(payload);
+        if (suiteStatus) {
+          suiteStatus.textContent = payload.message || "Suite path saved.";
+        }
+      } catch (err) {
+        if (suiteStatus) suiteStatus.textContent = "Could not reach suite import API.";
+      }
+    });
+  }
+
+  if (suiteRun) {
+    suiteRun.addEventListener("click", async function () {
+      if (suiteStatus) suiteStatus.textContent = "Running suite…";
+      try {
+        const res = await fetch("/api/playwright-suite/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ suite_path: suitePathValue(), timeout_s: 300 }),
+        });
+        const payload = await res.json();
+        if (!res.ok) {
+          if (suiteStatus) suiteStatus.textContent = "Suite run request failed.";
+          return;
+        }
+        if (payload.status === "pass") {
+          if (suiteStatus) {
+            suiteStatus.textContent =
+              payload.message ||
+              "Pass: " +
+                (payload.passed || 0) +
+                " passed, " +
+                (payload.failed || 0) +
+                " failed.";
+          }
+          return;
+        }
+        if (suiteStatus) {
+          suiteStatus.textContent =
+            payload.error || payload.message || "Suite run failed.";
+        }
+      } catch (err) {
+        if (suiteStatus) suiteStatus.textContent = "Could not reach suite run API.";
+      }
     });
   }
 

@@ -26,6 +26,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | JIRA-R | Richer tickets (AC + test steps) | — | **done** (2026-11-15) — multi-audience template + enrich script |
 | JIRA-B | Backlog structure (epics/stories/tests/bugs) | JIRA-R | **done** (2026-11-15) — KAN-20…29; Story→Task+`test`+Relates |
 | PW-1 | Stronger step gen + screenshot evidence | — | **done** — **KAN-57** (test KAN-58) |
+| PW-2 | Import/run existing Playwright suites | — | **done** — **KAN-59** (test KAN-60) |
 
 ## Mid term
 
@@ -46,7 +47,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | VOICE-1 | Voice input | **KAN-81** (test KAN-82) — after text UX is solid |
 | SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
 
-Open FR Stories seeded 2026-11-15: KAN-59…KAN-81 (first pass), plus gap pass KAN-83 (headless), KAN-85 (steps from Jira AC), KAN-87 (desktop beyond smoke), KAN-89 (read AC), KAN-91 (429 backoff), KAN-93 (jira_project), KAN-95 (sandbox beyond stub), KAN-97 (busy UX), KAN-99 (Jira write audit). Full FR→ticket matrix: `docs/FUNCTIONAL_SPEC.md` §5.
+Open FR Stories: KAN-61…KAN-81 (first seed remainder), plus gap pass KAN-83…KAN-99. Full FR→ticket matrix: `docs/FUNCTIONAL_SPEC.md` §5.
 
 ## Blocked / waiting on you
 
@@ -67,5 +68,5 @@ Open FR Stories seeded 2026-11-15: KAN-59…KAN-81 (first pass), plus gap pass K
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-59** — Import and run existing Playwright suites (FR-TEST-5; test KAN-60).  
-Then KAN-61… as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.
+**KAN-61** — Tool-calling reliability + JSON-in-text fallback (FR-AGENT-6; test KAN-62).  
+Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

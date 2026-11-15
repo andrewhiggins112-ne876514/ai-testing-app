@@ -22,6 +22,7 @@ Rules:
 - Security context is important: respect the current level (OFFICIAL / SECRET).
 - For a browse/test request, prefer generate_playwright_steps first (happy path + negatives), then run_playwright. Steps use action goto, click, fill, expect_text, expect_url, or expect_visible; click a visible label with selector text=Label. Non-trivial flows MUST include expect_text or expect_url (visibility-only is incomplete). Include at least one negative/edge draft when generating.
 - For a Windows .exe / desktop smoke test, call run_desktop with optional exe_path (or rely on target_app_path in settings). If the plugin is disabled, tell the user to enable plugin_desktop_enabled.
+- To import or run an existing Playwright project suite (not JSON steps), call run_playwright_suite with action discover, import, list, or run and optional suite_path (or settings playwright_suite_path).
 - To list registered plugins and toggles, call list_plugins. For multi-sandbox planning, call orchestrate_sandboxes (action list or plan). If disabled, tell the user to enable plugin_multi_sandbox_enabled.
 - When the user asks to list Jira issues or stories, call list_stories with the project key and do not invent issues. Set issue_types only when the user names types. "list issues in KAN" omits issue_types.
 - When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
@@ -259,6 +260,34 @@ class Agent:
             {
                 "type": "function",
                 "function": {
+                    "name": "run_playwright_suite",
+                    "description": (
+                        "Import/list/run an existing Playwright project suite (FR-TEST-5). "
+                        "action: discover, import, list, or run. Uses suite_path or "
+                        "settings playwright_suite_path. Does not use JSON step runner."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "action": {
+                                "type": "string",
+                                "description": "discover | import | list | run (default run)",
+                            },
+                            "suite_path": {
+                                "type": "string",
+                                "description": "Path to Playwright project directory (optional if saved)",
+                            },
+                            "grep": {
+                                "type": "string",
+                                "description": "Optional Playwright --grep filter when action=run",
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
                     "name": "list_plugins",
                     "description": (
                         "List registered plugins with enabled flags and toggle keys "
@@ -377,6 +406,7 @@ class Agent:
             "run_playwright",
             "generate_playwright_steps",
             "run_desktop",
+            "run_playwright_suite",
             "list_plugins",
             "orchestrate_sandboxes",
             "update_settings",
@@ -431,6 +461,24 @@ class Agent:
             from plugins.desktop_runner import run_desktop
             allowed = {"exe_path", "timeout_s"}
             return run_desktop(**{k: v for k, v in args.items() if k in allowed})
+        elif name == "run_playwright_suite":
+            from plugins.playwright_suite import (
+                discover_suite,
+                list_suite_tests,
+                run_suite,
+                set_suite_path,
+            )
+            action = (args.get("action") if isinstance(args.get("action"), str) else "run") or "run"
+            action = action.strip().lower()
+            suite_path = args.get("suite_path") if isinstance(args.get("suite_path"), str) else ""
+            if action == "discover":
+                return discover_suite(suite_path=suite_path or "")
+            if action == "import":
+                return set_suite_path(suite_path or "", confirm=True)
+            if action == "list":
+                return list_suite_tests(suite_path=suite_path or "")
+            grep = args.get("grep") if isinstance(args.get("grep"), str) else ""
+            return run_suite(suite_path=suite_path or "", grep=grep or "")
         elif name == "list_plugins":
             from plugins.registry import list_plugins
             return list_plugins()

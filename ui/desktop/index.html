@@ -48,6 +48,7 @@
           <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
           <button type="button" class="app-nav-item" data-section="documents" aria-pressed="false">Documents</button>
           <button type="button" class="app-nav-item" data-section="desktop" aria-pressed="false">Desktop</button>
+          <button type="button" class="app-nav-item" data-section="suites" aria-pressed="false">Suites</button>
           <button type="button" class="app-nav-item" data-section="sandboxes" aria-pressed="false">Sandboxes</button>
         </nav>
         <div id="app-section-security" class="app-section" hidden>
@@ -109,6 +110,20 @@
           </div>
           <p id="desk-status" class="drawer-hint" role="status">Ready</p>
         </div>
+        <div id="app-section-suites" class="app-section" hidden>
+          <h3 class="orb-section-label">Playwright suites</h3>
+          <p class="drawer-hint">Import an existing Playwright project path and run it with npx (FR-TEST-5). Separate from JSON step runs.</p>
+          <p id="suite-saved" class="drawer-hint">Saved path: —</p>
+          <label class="stack-label">Project path
+            <input type="text" id="suite-path" placeholder="D:\path\to\playwright-project" />
+          </label>
+          <div class="btn-row">
+            <button type="button" id="suite-discover" class="save-btn">Discover</button>
+            <button type="button" id="suite-import" class="save-btn secondary">Import</button>
+            <button type="button" id="suite-run" class="save-btn secondary">Run suite</button>
+          </div>
+          <p id="suite-status" class="drawer-hint" role="status">Ready</p>
+        </div>
         <div id="app-section-sandboxes" class="app-section" hidden>
           <h3 class="orb-section-label">Multi-sandbox plugin</h3>
           <p class="drawer-hint">Stub orchestration for parallel environments. Default off. No real grid launches.</p>
@@ -126,7 +141,7 @@
           </div>
           <p id="ms-status" class="drawer-hint" role="status">Ready</p>
         </div>
-        <p class="drawer-hint" id="app-drawer-hint">Choose Security, Reports, Documents, Desktop, or Sandboxes.</p>
+        <p class="drawer-hint" id="app-drawer-hint">Choose Security, Reports, Documents, Desktop, Suites, or Sandboxes.</p>
       </div>
     </aside>
 
@@ -173,6 +188,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk14"></script>
+  <script src="/ui/desktop/desktop.js?v=desk16"></script>
 </body>
 </html>

@@ -25,6 +25,13 @@ from plugins.multi_sandbox import (
     plugin_status as multi_sandbox_plugin_status,
     set_plugin_enabled as set_multi_sandbox_plugin_enabled,
 )
+from plugins.playwright_suite import (
+    discover_suite,
+    list_suite_tests,
+    run_suite as run_playwright_suite,
+    set_suite_path,
+    suite_status as playwright_suite_status,
+)
 from plugins.registry import list_plugins
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.store import (
@@ -103,6 +110,17 @@ class MultiSandboxPluginRequest(BaseModel):
 
 class MultiSandboxOrchestrateRequest(BaseModel):
     action: str = "list"
+
+
+class PlaywrightSuitePathRequest(BaseModel):
+    suite_path: str = ""
+    confirm: bool = True
+
+
+class PlaywrightSuiteRunRequest(BaseModel):
+    suite_path: str = ""
+    grep: str = ""
+    timeout_s: float = 300.0
 
 
 def _orb_from_settings() -> dict:
@@ -238,6 +256,35 @@ async def post_multi_sandbox_plugin(req: MultiSandboxPluginRequest):
 @app.post("/api/multi-sandbox/orchestrate")
 async def post_multi_sandbox_orchestrate(req: MultiSandboxOrchestrateRequest):
     return multi_sandbox_orchestrate(action=req.action or "list")
+
+
+@app.get("/api/playwright-suite")
+async def get_playwright_suite():
+    return playwright_suite_status()
+
+
+@app.post("/api/playwright-suite/discover")
+async def post_playwright_suite_discover(req: PlaywrightSuitePathRequest):
+    return discover_suite(suite_path=req.suite_path or "")
+
+
+@app.post("/api/playwright-suite/import")
+async def post_playwright_suite_import(req: PlaywrightSuitePathRequest):
+    return set_suite_path(req.suite_path or "", confirm=bool(req.confirm))
+
+
+@app.post("/api/playwright-suite/list")
+async def post_playwright_suite_list(req: PlaywrightSuitePathRequest):
+    return list_suite_tests(suite_path=req.suite_path or "")
+
+
+@app.post("/api/playwright-suite/run")
+async def post_playwright_suite_run(req: PlaywrightSuiteRunRequest):
+    return run_playwright_suite(
+        suite_path=req.suite_path or "",
+        grep=req.grep or "",
+        timeout_s=float(req.timeout_s or 300.0),
+    )
 
 
 app.mount("/ui", StaticFiles(directory=str(_UI_DIR)), name="ui")

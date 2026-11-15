@@ -188,7 +188,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-TEST-2 | Partial (headed only today) | **Done** KAN-9 baseline; headless **KAN-83** |
 | FR-TEST-3 | Partial (smoke only) | **Done** KAN-47 smoke; expand **KAN-87** |
 | FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
-| FR-TEST-5 | Open | **KAN-59** |
+| FR-TEST-5 | Shipped | **Done** **KAN-59** |
 | FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |
 | FR-HEAL-2 | Open (audit log only; no review UI) | **KAN-75** |
 | FR-JIRA-1 | Partial (list summary only) | **Done** KAN-12 list; read AC **KAN-89** |

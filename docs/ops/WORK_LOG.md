@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | KAN-59 — Import and run existing Playwright suites |
-| **Epic** | KAN-22 (Test Generation and Execution) |
-| **Roadmap ID** | (FR-TEST-5) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-TEST-5 |
-| **Next action** | Implement KAN-59; test Task KAN-60 |
+| **Jira story** | KAN-61 — Tool-calling reliability + JSON-in-text fallback |
+| **Epic** | KAN-21 (Conversational Agent) |
+| **Roadmap ID** | (FR-AGENT-6) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-AGENT-6 |
+| **Next action** | Implement KAN-61; test Task KAN-62 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-59 — Import and run existing Playwright suites
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** `plugins/playwright_suite.py` discovers/imports/lists/runs existing Playwright projects via `npx playwright test` (JSON reporter). Settings key `playwright_suite_path` (level-scoped). Agent tool `run_playwright_suite`; API `/api/playwright-suite*`; desktop App → Suites; Gradio Settings suite controls; registry entry.
+- **Files:** `plugins/playwright_suite.py`, `plugins/registry.py`, `settings/store.py`, `agent/agent.py`, `main.py`, `ui/desktop/*`, `desktop_app.py` (desk16), `ui/gradio_app.py`, `tests/test_playwright_suite.py`, FUNCTIONAL_SPEC, PROJECT_MEMORY, ROADMAP, WORK_LOG.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_playwright_suite.py -v` (7 passed); API discover OK + invalid path fails; desktop Suites nav present (desk16 cache-bust).
+- **Jira:** story Agent completion + KAN-60 test evidence/Done + KAN-59 Done (via closeout script).
+- **Next:** KAN-61 tool-calling reliability + JSON-in-text fallback (FR-AGENT-6).
 
 ### 2026-11-15 — KAN-57 — Stronger Playwright step gen + screenshot evidence
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)

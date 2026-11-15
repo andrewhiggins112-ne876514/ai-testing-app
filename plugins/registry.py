@@ -32,6 +32,13 @@ _MANIFESTS: list[dict[str, Any]] = [
         "default_enabled": True,
     },
     {
+        "id": "playwright_suite",
+        "name": "Playwright suite import",
+        "description": "Import and run existing Playwright project suites (FR-TEST-5).",
+        "toggle_key": None,
+        "default_enabled": True,
+    },
+    {
         "id": "doc_ingest",
         "name": "Document ingestion",
         "description": "Parse specs into settings proposals (confirm before write).",
