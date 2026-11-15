@@ -36,9 +36,9 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ### 2026-11-15 — OPS — git sync prep + IDE capabilities walkthrough
 - **Agent/chat:** Cursor PM chat
-- **Done:** Added `docs/ops/IDE_CAPABILITIES.md` (MCP/plugin login steps for IDE + Agent window); emptied workspace `.cursor/mcp.json` (broken GitHub npx); ROADMAP IDE-1…6; commit/push of local drift pending in same slice.
-- **Files:** `IDE_CAPABILITIES.md`, `.cursor/mcp.json`, `.cursor/mcp.json.example`, CONNECTORS, INSTALL, ROADMAP.
-- **Verify:** Open IDE_CAPABILITIES; run Supermemory login when ready.
+- **Done:** Added `docs/ops/IDE_CAPABILITIES.md` (MCP/plugin login steps for IDE + Agent window); emptied workspace `.cursor/mcp.json` (broken GitHub npx); ROADMAP IDE-1…6; committed + pushed to `origin/main` (`9668e49`).
+- **Files:** `IDE_CAPABILITIES.md`, `.cursor/mcp.json`, `.cursor/mcp.json.example`, CONNECTORS, INSTALL, ROADMAP, plus full sync set.
+- **Verify:** `git status` clean vs origin/main; open IDE_CAPABILITIES; run Supermemory login when ready.
 - **Jira:** n/a.
 - **Next:** User: Supermemory login (IDE-2); then KAN-53.
 
