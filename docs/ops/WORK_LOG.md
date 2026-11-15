@@ -34,6 +34,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-15 — OPS — Raised KAN-102 App area nav UX (screens/popups + orb idea)
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** Bug **KAN-102** — App nav areas should open separate screens or full-window popups (not inline drawer sections). Includes designer discussion note: orb as clickable settings hub with particle/neural links. Relates KAN-73/74/101. Needs product decision before implement.
+- **Files:** WORK_LOG only (Jira ticket).
+- **Verify:** https://ai-testing-lab.atlassian.net/browse/KAN-102
+- **Jira:** KAN-102 Bug created + Relates + comment on KAN-73.
+- **Next:** Active remains KAN-75; decide KAN-102 UX before coding.
+
 ### 2026-11-15 — OPS — KAN Bug + test issue types enabled; migrate + docs
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)
 - **Done:** User enabled Jira **Bug** and **`test`** issue types on KAN. Migrated 40 Task+label=test → `test` (41 total), KAN-101 Task+label=bug → Bug. Updated agent instructions + `create_test` / closeout / seed / rebuild to use `test` and Bug. **Task** reserved for development work under a Story (e.g. one Task per FR). Added `scripts/jira_kan_migrate_issue_types.py`.
