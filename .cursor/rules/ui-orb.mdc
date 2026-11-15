@@ -5,7 +5,7 @@ alwaysApply: false
 
 # Gradio UI and orb
 
-- **Hero styles** (`mystic`, `aether`, `neural`) use **vendored Three.js / WebGL** (`ui/orb_webgl.js` + `ui/vendor/three.min.js`). No CDN.
+- **Hero styles** (`mystic`, `aether`, `neural`, `apex`) use **vendored Three.js / WebGL** (`ui/orb_webgl.js` + `ui/vendor/three.min.js`). No CDN.
 - **Classic styles** (`lightning`, `mist`, `nebula`, `nebula+lightning`) stay pure canvas JS.
 - Persist orb config via the settings store; preserve calm ↔ thinking transitions.
 - Keep particle counts capped (see `docs/mockups/orb_styles.md`).

@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-07 (neural orb follows colour picker; desktop per-style settings)
+Last updated: 2026-11-15 (D: paths; WORK_LOG handoff; KAN multi-audience tickets)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -32,11 +32,12 @@ Long-term goal: dominate the testing space for companies that want a capable loc
 - Coding models: **prefer free / Auto / Composer** in Cursor. Escalate to stronger models only when needed. Product runtime stays on local Ollama (free).
 - Token efficiency matters: prefer targeted reads, compact slices, avoid re-sending full file contents.
 - Classic orb styles stay pure canvas. **WebGL / Three.js is allowed** for hero styles (mystic, aether, neural, apex). Vendor Three.js under ui/vendor/ is acceptable for those styles.
-- Jira writes are two-step confirm; no Jira account yet — do not solicit credentials until the user says one exists.
-- **Local zero-token helpers (2026-11-06):**
-  - `docs/prompts/NEXT_PROMPT.md` — edit and copy into a fresh Cursor chat.
-  - `scripts/next_prompt.py` — run locally to print a suggested prompt from PROJECT_MEMORY.
-  - Use these instead of waking the Grok guide bot for day-to-day prompt hand-off.
+- Jira writes are two-step confirm. **Jira is live:** [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net) project **KAN**; API token + email in local settings only.
+- **Canonical paths:** repo `D:\Projects\ai_testing_app`; Ollama `D:\Program Files\Ollama` + `OLLAMA_MODELS`; settings `%LOCALAPPDATA%\ai_testing_app\`.
+- **Product spec:** `docs/FUNCTIONAL_SPEC.md` (**canonical in repo**; Jira KAN inlines FR text — keep both in sync on user CRs). **Ticket template:** `docs/ops/JIRA_TICKET_TEMPLATE.md`. **Handoff:** `docs/ops/WORK_LOG.md` + `.cursor/rules/work-log-handoff.mdc`.
+- **Local zero-token helpers:**
+  - Say “pick up where we left off”, or `python scripts/next_prompt.py`, or copy `docs/prompts/NEXT_PROMPT.md`.
+  - Prefer these over waking the Grok guide bot.
 - **Ollama in Cursor (parked 2026-11-06):** possible via OpenAI Base URL override to localhost:11434, but unreliable for full Agent mode and requires tunnel for reliability. Revisit only when cloud tokens run out. App runtime already uses local Ollama.
 - **Orb styles approved (2026-11-06):** Mystic (cyan filament), Aether (orange plasma), Neural (blue glass bubble), Apex (white-gold core + data streams). See docs/mockups/orb_styles.md. Widgets in mockups are future configurable panels. WebGL preferred for these four.
 
@@ -56,13 +57,15 @@ Skeleton + substantial features exist:
 - Architecture notes + AGENTS.md + this file
 - **Cursor ops:** `.cursor/rules`, agents (implementer/ui-orb on Grok 4.7; doc-keeper/verifier/explorer on Composer), skills, MCP template, `docs/ops/*`
 - Settings keys: `orb_presets` (map), `orb_active_preset` (string), still under local app data only
+- **Jira KAN backlog (2026-11-15):** Ten FR-area epics **KAN-20…KAN-29** from `docs/FUNCTIONAL_SPEC.md`; stories/tests enriched via `scripts/jira_kan_enrich.py` (multi-audience template in `docs/ops/JIRA_TICKET_TEMPLATE.md`). Rebuild: `scripts/jira_kan_rebuild.py`.
+- **Product spec:** `docs/FUNCTIONAL_SPEC.md`. **Work log:** `docs/ops/WORK_LOG.md` (pointer also at `D:\Projects\WORK_LOG.md`).
+- **Ollama models:** `qwen2.5-coder:7b` (app default), `qwen3:8b`, `llama3.2`, plus optional 14b/16b — one loaded at a time on 1080 Ti.
 
 Not yet done:
-- Jira credentials in local store only when user has an account (none yet)
-- UI-6 remainder: resizable panels; more mockup widgets as configurable panels (desktop drag/snap + transparency landed)
-- Document ingestion → settings proposal
-- Broader self-healing; security-level isolation (browser profiles + credential scopes)
-- Desktop .exe testing; customisable reporting polish; multi-sandbox orchestration
+- **Next build slice:** [KAN-53](https://ai-testing-lab.atlassian.net/browse/KAN-53) UI-6 resizable panels (see WORK_LOG Active slice)
+- Document ingestion → settings proposal (KAN-45)
+- Broader self-healing / guardrails (KAN-14, KAN-49); security isolation (KAN-15)
+- Desktop .exe testing (KAN-47); customisable reporting (KAN-51); multi-sandbox (KAN-55)
 
 ## Important Context from Earlier Conversations
 - User is a senior test engineer (~£40k) wanting automated income / ability to leave traditional work.
@@ -76,13 +79,14 @@ Not yet done:
 - **Grok guide bot — use sparingly.** Prefer the local helpers (`docs/prompts/NEXT_PROMPT.md` and `scripts/next_prompt.py`) for day-to-day work. Wake the bot only for permanent state updates.
 
 ## How to Use This File
-- At the start of a coding session: “Read PROJECT_MEMORY.md and AGENTS.md, then continue from the Current State. Keep tool use targeted.”
+- Prefer: say **“pick up where we left off”** — agents read `docs/ops/WORK_LOG.md` Active slice and start that Jira story.
 - Or run: `python scripts/next_prompt.py` and copy the output.
 - Or edit `docs/prompts/NEXT_PROMPT.md` and copy that.
-- After meaningful progress, update the “Current State” and “Key Decisions” sections (or ask the agent to propose the update).
+- After meaningful progress: update Current State here, append WORK_LOG, comment on the Jira story.
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. Wire Settings/Reports screens from the app drawer; refine hideable chat panel UX.
-2. UI-6 resize + more mockup widgets as configurable panels (drag/snap already on desktop).
-3. Broader self-healing / security isolation / document ingestion as roadmap allows.
+1. **You:** Supermemory login — `docs/ops/IDE_CAPABILITIES.md` (IDE-2).
+2. **KAN-53 / UI-6** — resizable panels (Active slice).
+3. Wire Settings/Reports screens from the app drawer; refine hideable chat panel UX.
+4. Broader self-healing / security isolation / document ingestion as KAN backlog allows.

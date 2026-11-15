@@ -52,5 +52,12 @@ See `docs/ops/CONNECTORS.md`. Customize/MCP is in the **Agents** window, not the
 - [ ] One logical change  
 - [ ] Tests or clear manual check  
 - [ ] Memory/roadmap updated  
-- [ ] Merged / pushed when possible  
+- [ ] `docs/ops/WORK_LOG.md` entry + Active slice advanced  
+- [ ] Jira comment on the story (what / verify)  
+- [ ] Merged / pushed when user asks  
 - [ ] Human told: `git pull` + how to verify  
+
+## Continue next time
+
+Human (or you) says **“pick up where we left off”** → read WORK_LOG Active slice → implement that KAN story.  
+Or: `python scripts/next_prompt.py`.

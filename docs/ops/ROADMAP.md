@@ -8,8 +8,8 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
-| UI-6a | Orb settings behind top-right gear (clean chat dash) | now | Chatbot/input settings icons later |
-| UI-6 | Movable/resizable panels | partial | Desktop drag/snap + transparency done; resize still open |
+| UI-6a | Orb settings behind top-right gear (clean chat dash) | done | Chatbot/input settings icons later |
+| UI-6 | Movable/resizable panels | **now** | Desktop drag/snap + transparency done; **resize = KAN-53** |
 | OPS-1 | Cursor ops (rules, agents, skills, HOW_WE_WORK) | done | Merged to main via PR #1 |
 | OPS-2 | Beginner Cursor setup + PM-owned workflow | done | Human talks only to PM; Grok guide bot retired |
 | UI-5 | Orb presets (save/load/delete named configs) | done | Settings `orb_presets` + Gradio accordion controls |
@@ -23,8 +23,8 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | ID | Item | Depends | Notes |
 |----|------|---------|-------|
 | UI-6 | Movable/resizable panels | UI-5 | Keep Gradio; avoid rewrite |
-| JIRA-R | Richer tickets (AC + test steps) | — | Structured description; still two-step confirm |
-| JIRA-B | Backlog structure (epics/stories/tests/bugs) | JIRA-R | Resume when Jira account exists |
+| JIRA-R | Richer tickets (AC + test steps) | — | **done** (2026-11-15) — multi-audience template + enrich script |
+| JIRA-B | Backlog structure (epics/stories/tests/bugs) | JIRA-R | **done** (2026-11-15) — KAN-20…29; Story→Task+`test`+Relates |
 | PW-1 | Stronger step gen + screenshot evidence | — | Extend `playwright_runner` |
 | UI-CHAT | Minimal chat UX polish | UI-6 | Still Gradio-first |
 
@@ -50,8 +50,9 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Blocker |
 |----|---------|
-| JIRA-LIVE | No Jira account yet — do not ask for URL/token until you say one exists |
 | CRED-1 | Real credentials only in local settings store, never chat/repo |
+
+**Resolved (2026-11-15):** **JIRA-LIVE** — site `https://ai-testing-lab.atlassian.net`, project **KAN**. Token in local settings; agent Jira writes remain two-step confirm.
 
 ## Definition of done (every slice)
 
@@ -60,7 +61,21 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 3. Human review of meaningful diffs  
 4. `PROJECT_MEMORY.md` Current State updated when behaviour changes  
 5. No secrets in git  
+6. Append `docs/ops/WORK_LOG.md` + Jira story comment  
+
+## Ops / IDE (capability plan)
+
+| ID | Item | Status | Notes |
+|----|------|--------|-------|
+| IDE-1 | Capability inventory + setup walkthrough | **done** | `docs/ops/IDE_CAPABILITIES.md` |
+| IDE-2 | Supermemory login | next (you) | `cursor-supermemory login` — cuts long-chat amnesia |
+| IDE-3 | Prefer GitHub plugin; empty workspace mcp.json | **done** | Broken npx GitHub MCP disabled |
+| IDE-4 | Jira MCP fail → REST fallback documented | **done** | `jira-safe` skill |
+| IDE-5 | Context7 reconnect | later | Optional library docs |
+| IDE-6 | IronBee browser only | **done** | Node/Backend stay off |
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**UI-6** movable/resizable panels. PM implements or delegates; human only pulls and checks the UI.
+**[KAN-53](https://ai-testing-lab.atlassian.net/browse/KAN-53) / UI-6** — resizable panels (remainder).  
+Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.  
+IDE setup: follow `docs/ops/IDE_CAPABILITIES.md` (Supermemory login first).

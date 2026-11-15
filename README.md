@@ -6,7 +6,7 @@ Local-first AI testing agent with a local chat UI.
 
 1. Install dependencies (PowerShell):
    ```powershell
-   cd C:\Users\User\ai_testing_app
+   cd D:\Projects\ai_testing_app
    py -3 -m pip install -r requirements.txt
    py -3 -m playwright install chromium
    ```

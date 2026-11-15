@@ -1,0 +1,44 @@
+---
+description: Work log, Jira comments, and “pick up where we left off” handoff
+alwaysApply: true
+---
+
+# Work log and handoff
+
+## Pick up where we left off
+
+When the user says **pick up where we left off**, **continue**, **next slice**, or equivalent:
+
+1. Read `docs/ops/WORK_LOG.md` **Active slice** table (do not re-scan the whole repo first).
+2. Read that Jira story’s description (REST or MCP) for Requirements + AC.
+3. Start implementing that story immediately. One slice only.
+4. Prefer free/Auto/Composer unless the slice needs a stronger model.
+
+## After every finished (or paused) slice
+
+1. Append an entry to `docs/ops/WORK_LOG.md` using the Entry format in that file.
+2. Update the **Active slice** table to the next open story (or mark blocked).
+3. Update `PROJECT_MEMORY.md` Current State if behaviour changed.
+4. Update `docs/ops/ROADMAP.md` status for the roadmap ID.
+5. Add a **Jira comment** on the story summarising what was done, files touched, and how to verify (use local settings credentials; two-step confirm still applies for product-agent writes — Cursor ops may write comments when the user asked for ticket maintenance in this chat).
+6. Do not leave “see WORK_LOG” as the only record on the ticket — put the substance in the comment.
+
+## Ticket quality
+
+Descriptions follow `docs/ops/JIRA_TICKET_TEMPLATE.md`. Never leave “see functional spec” placeholders — inline FR text.
+
+## Canonical product spec
+
+- **Repo (source of truth):** `docs/FUNCTIONAL_SPEC.md`
+- **Jira:** FR text is **copied into** KAN epic/story/test descriptions (not a separate Jira Spec issue). Refresh with `python scripts/jira_kan_enrich.py` after spec edits, or edit the affected tickets directly.
+
+## User change requests (CRs)
+
+When the human changes requirements, scope, AC, UX, or priorities (a CR — even if they don’t say “CR”):
+
+1. Update `docs/FUNCTIONAL_SPEC.md` first (add/change FR/NFR text).
+2. Update related KAN tickets (epic + stories + test Tasks) so descriptions match — no stale “old” AC.
+3. Update `PROJECT_MEMORY.md`, `docs/ops/ROADMAP.md`, and `docs/ops/WORK_LOG.md` if the active slice or current state changed.
+4. Update mockups/rules/skills only if they contradict the CR.
+5. Comment on affected Jira stories noting the CR and what was revised.
+6. If Atlassian MCP fails, use Jira REST + local settings / `scripts/jira_kan_*.py` — do not abandon Jira updates (see `.cursor/skills/jira-safe/SKILL.md`).

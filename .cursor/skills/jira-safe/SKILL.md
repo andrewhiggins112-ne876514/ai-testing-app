@@ -1,6 +1,6 @@
 ---
 name: jira-safe
-description: Safe Jira work for this app — local settings, confirmation gates, no secrets in git. Use when editing jira_plugin or discussing Atlassian MCP.
+description: Safe Jira work for this app — local settings, confirmation gates, REST fallback when MCP fails. Use when editing jira_plugin or discussing Atlassian MCP.
 ---
 
 # Jira safe handling
@@ -8,13 +8,34 @@ description: Safe Jira work for this app — local settings, confirmation gates,
 ## Product path (preferred)
 
 - Credentials only in local settings store (`jira_url`, `jira_api_token`, `jira_email` for Cloud).
-- Reads OK when configured. Writes stay two-step confirm (`yes` / `confirm`).
-- Do not ask for URL/token until the user says a Jira account exists.
+- Site live: `https://ai-testing-lab.atlassian.net` project **KAN**.
+- Reads OK when configured. Writes stay two-step confirm (`yes` / `confirm`) for the product agent.
+- After a coding slice: comment on the story (what shipped + how to verify).
 - Never log tokens. Never commit settings.
+- Ticket layout: `docs/ops/JIRA_TICKET_TEMPLATE.md`; enrich with `scripts/jira_kan_enrich.py`.
+
+## Cursor agents: MCP failure → REST fallback (do not give up)
+
+Atlassian MCP (`user-atlassian` / plugin) often fails with **“You don't have permission to connect via API token”** even when Jira is configured. That is **not** “no Jira access”.
+
+**Required fallback:**
+
+1. Use **Jira Cloud REST** with Basic auth from `%LOCALAPPDATA%\ai_testing_app\settings.json` (`jira_url` + `jira_email` + `jira_api_token`).
+2. Prefer existing helpers (they never print the token):
+   - `python scripts/jira_kan_enrich.py` — descriptions
+   - `python scripts/jira_kan_progress_sync.py` — comments + epic status
+   - `python scripts/jira_kan_rebuild.py` — backlog structure
+3. Or a short `httpx` script in `scripts/` following those patterns (`ssl.create_default_context()`, rate-limit backoff on 429).
+4. **Never** echo/log the API token. **Never** paste credentials into chat.
+5. Only stop if REST also fails (401/403 after valid settings) — then tell the human settings need fixing.
+
+`getAccessibleAtlassianResources` succeeding does **not** mean search/create will work; always fall back to REST on MCP tool errors.
 
 ## Cursor MCP (optional, IDE only)
 
-- Use env-based auth in `.cursor/mcp.json` — no secrets in the file.
+- Prefer API-token MCP over Marketplace OAuth when OAuth hangs after browser consent.
+- Setup: `scripts/setup_atlassian_mcp_auth.ps1` → user `%USERPROFILE%\.cursor\mcp.json` only (secret stays out of git).
+- Use a Rovo MCP **scoped** token (`agent-interface`); classic Jira tokens often 401 on `mcp.atlassian.com`.
 - MCP is for coding assistance; the product must still work local-first without Cursor.
 - Disable the server when unused (tool schemas cost tokens).
 

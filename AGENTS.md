@@ -2,11 +2,14 @@
 # Rules for any AI coding agent working on this project
 
 ## Core behaviour
-- Read PROJECT_MEMORY.md at the start of any non-trivial session.
+- Read `docs/ops/WORK_LOG.md` **Active slice** first when the user says “pick up where we left off” / “continue”, then start that Jira story immediately.
+- Otherwise read PROJECT_MEMORY.md (and AGENTS.md) at the start of any non-trivial session.
 - Prefer Plan mode (or an explicit plan in chat) before editing more than one file.
 - Keep changes small and reviewable. One logical improvement at a time.
 - If a requirement is ambiguous, stop and ask rather than guessing.
 - Never store real credentials in code or in this repository. Use the local settings store only.
+- After every finished or paused slice: append `docs/ops/WORK_LOG.md`, update Active slice, and add a Jira comment on the story (what changed + how to verify).
+- **User change requests (CRs):** When the human changes product intent, scope, AC, or behaviour (including informal “actually do X instead”), update **all** of: `docs/FUNCTIONAL_SPEC.md` (canonical), affected KAN epic/story/test descriptions (re-enrich or edit), `PROJECT_MEMORY.md` / `ROADMAP.md` / `docs/ops/WORK_LOG.md` as needed, and any mockups/rules that contradict the CR. Do not leave Jira or the spec stale relative to what the user just decided.
 
 ## Cursor workflow (PM-managed; replaces Grok browser + AFK Pilot)
 - Primary home is Cursor. The human speaks in the **PM chat only**. Do not ask them to paste coding prompts into other tools or chats.
@@ -32,7 +35,9 @@ This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 M
 - Prefer 7B–8B local models. Those fit in the 11 GB GPU. 14B is the ceiling and may spill onto the CPU. Do not pull 32B or larger models, and do not run two models at once.
 - Leave RAM for Windows and one headed browser. Do not start extra browsers, stacks, or background jobs unless asked.
 - Disk space is enough for one or two models. Do not download a collection of models.
-- There is no Jira account yet. Do not block other work on a live Jira call, and do not ask for a URL or token until the user says an account exists.
+- Jira is live: `https://ai-testing-lab.atlassian.net` project **KAN**. Credentials only in `%LOCALAPPDATA%\ai_testing_app\settings.json`. Product-agent Jira writes stay two-step confirm.
+- **If Atlassian MCP fails** (“permission to connect via API token”): do **not** stop — use Jira REST via local settings or `scripts/jira_kan_*.py` (see `.cursor/skills/jira-safe/SKILL.md`). Never print the token.
+- Repo path: `D:\Projects\ai_testing_app`. Ollama: `D:\Program Files\Ollama` with models under `OLLAMA_MODELS`.
 
 ## Safety and confirmation
 - Always confirm before:

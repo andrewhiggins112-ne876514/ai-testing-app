@@ -38,7 +38,7 @@ You want signed-in / your email.
 ## 2. Start the worker (leave window open)
 
 ```powershell
-cd C:\Users\User\ai_testing_app
+cd D:\Projects\ai_testing_app
 $CursorAgent = "$env:LOCALAPPDATA\cursor-agent\agent.cmd"
 & $CursorAgent worker start --name "home-pc"
 ```
