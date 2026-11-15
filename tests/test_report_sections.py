@@ -117,6 +117,91 @@ class ReportSectionsTests(unittest.TestCase):
         payload = json.loads(list(self.reports.glob("*.json"))[0].read_text(encoding="utf-8"))
         self.assertEqual(set(payload["sections"]), {"stories", "bugs"})
 
+    def test_richer_metrics_stories_covered_and_bugs_by_story_area(self):
+        """FR-REP-1: story coverage + bugs raised per story/area in enabled sections."""
+        result = {
+            "status": "fail",
+            "title": "Coverage report",
+            "functional_area": "reporting",
+            "jira_keys": ["KAN-67"],
+            "steps": [
+                {"action": "goto", "status": "pass"},
+                {
+                    "action": "expect_text",
+                    "status": "fail",
+                    "classification": "product_bug",
+                    "error": "missing metrics",
+                    "story_key": "KAN-67",
+                },
+            ],
+            "bugs": [
+                {
+                    "key": "KAN-101",
+                    "summary": "Export omits story counts",
+                    "story_key": "KAN-67",
+                    "area": "reporting",
+                },
+                {
+                    "key": "KAN-102",
+                    "summary": "Login flash",
+                    "relates_to": "KAN-12",
+                    "functional_area": "auth",
+                },
+            ],
+        }
+        sections = build_sections(result, "cover KAN-67 and KAN-12", default_sections())
+        summary = sections["summary"]
+        self.assertEqual(summary["tests_passed"], 1)
+        self.assertEqual(summary["tests_failed"], 1)
+        self.assertEqual(summary["pass_rate_percent"], 50.0)
+        self.assertEqual(summary["stories_covered"], 2)
+        self.assertEqual(summary["bugs_raised"], 3)
+        self.assertEqual(summary["progress"]["stories_covered"], 2)
+
+        stories = sections["stories"]
+        self.assertEqual(stories["covered_count"], 2)
+        self.assertEqual(set(stories["covered"]), {"KAN-67", "KAN-12"})
+        self.assertTrue(stories["by_key"]["KAN-67"]["covered"])
+        self.assertEqual(stories["by_key"]["KAN-67"]["bugs_raised"], 2)
+
+        bugs = sections["bugs"]
+        self.assertEqual(bugs["raised_count"], 3)
+        self.assertEqual(set(bugs["keys"]), {"KAN-101", "KAN-102"})
+        self.assertEqual(bugs["counts_by_story"]["KAN-67"], 2)
+        self.assertEqual(bugs["counts_by_story"]["KAN-12"], 1)
+        self.assertEqual(bugs["counts_by_area"]["reporting"], 2)
+        self.assertEqual(bugs["counts_by_area"]["auth"], 1)
+
+        text = render_markdown(sections)
+        self.assertIn("Stories covered: 2", text)
+        self.assertIn("Bugs raised: 3", text)
+        self.assertIn("Covered: 2", text)
+        self.assertIn("By story:", text)
+        self.assertIn("- KAN-67: 2", text)
+        self.assertIn("By area:", text)
+        self.assertIn("- reporting: 2", text)
+        self.assertIn("Bug keys: KAN-101, KAN-102", text)
+
+    def test_richer_metrics_respect_section_toggles(self):
+        result = {
+            "status": "fail",
+            "jira_keys": ["KAN-67"],
+            "bugs": [{"key": "KAN-101", "story_key": "KAN-67", "summary": "x"}],
+            "steps": [],
+        }
+        flags = normalize_sections(
+            {"summary": True, "stories": False, "bugs": False, "evidence": False}
+        )
+        sections = build_sections(result, "KAN-67", flags)
+        self.assertEqual(set(sections), {"summary"})
+        self.assertEqual(sections["summary"]["stories_covered"], 1)
+        self.assertEqual(sections["summary"]["bugs_raised"], 1)
+        text = render_markdown(sections)
+        self.assertIn("## Summary", text)
+        self.assertNotIn("## Stories", text)
+        self.assertNotIn("## Bugs", text)
+        self.assertNotIn("By story:", text)
+
 
 if __name__ == "__main__":
     unittest.main()

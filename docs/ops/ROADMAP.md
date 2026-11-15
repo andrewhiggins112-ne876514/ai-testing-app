@@ -68,5 +68,5 @@ Open FR Stories: KAN-67…KAN-81 (first seed remainder), plus gap pass KAN-83…
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-67** — Richer report metrics — stories covered and bugs raised (FR-REP-1; test KAN-68).  
+**KAN-69** — GDPR easy local data deletion and consent surfaces (FR-SEC-2; test KAN-70).  
 Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

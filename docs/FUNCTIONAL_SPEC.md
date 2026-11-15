@@ -196,7 +196,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-JIRA-4 | Shipped (create_bug + confirm) | **Done** KAN-63 |
 | FR-JIRA-5, FR-JIRA-7 | Shipped confirm + local creds | **Done** KAN-12, **KAN-16**; write audit **KAN-99** |
 | FR-JIRA-6 | Open (no product 429 backoff) | **KAN-91** |
-| FR-REP-1 | Open | **KAN-67** |
+| FR-REP-1 | Shipped (stories covered + bugs by story/area) | **Done** **KAN-67** |
 | FR-REP-2 | Shipped | **Done** KAN-51 |
 | FR-REP-3 | Shipped baseline export | **Done** KAN-11 |
 | FR-SEC-1, FR-SEC-3, FR-SEC-5 | Shipped isolation + confirm + secrets scoping | **Done** KAN-15, **KAN-16** |

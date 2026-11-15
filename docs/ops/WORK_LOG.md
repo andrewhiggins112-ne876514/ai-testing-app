@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | KAN-67 — Richer report metrics — stories covered and bugs raised |
-| **Epic** | KAN-25 (Reporting) |
-| **Roadmap ID** | (FR-REP-1 / FR-REP-3) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-REP-1 |
-| **Next action** | Implement KAN-67; test Task KAN-68 |
+| **Jira story** | KAN-69 — GDPR easy local data deletion and consent surfaces |
+| **Epic** | KAN-26 (Security / GDPR) |
+| **Roadmap ID** | (FR-SEC-2) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-SEC-2 |
+| **Next action** | Implement KAN-69; test Task KAN-70 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-67 — Richer report metrics — stories covered and bugs raised
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** FR-REP-1 richer export metrics in `reports/sections.py`: summary progress (tests passed/failed, pass rate, stories covered, bugs raised); stories section with covered keys + per-story bugs_raised; bugs section with keys, counts/items by story and functional area. Markdown mirrors metrics. Section toggles still omit disabled blocks (FR-REP-2).
+- **Files:** `reports/sections.py`, `tests/test_report_sections.py`, FUNCTIONAL_SPEC §5, PROJECT_MEMORY, ROADMAP, WORK_LOG.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_report_sections.py tests/test_report_export.py tests/test_reports_tab.py -v` (11 passed).
+- **Jira:** story Agent completion + KAN-68 test evidence/Done + KAN-67 Done (via closeout script).
+- **Next:** KAN-69 GDPR easy local data deletion and consent surfaces (FR-SEC-2).
 
 ### 2026-11-15 — KAN-65 — Create linked test tickets and mark Done when covered
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)
