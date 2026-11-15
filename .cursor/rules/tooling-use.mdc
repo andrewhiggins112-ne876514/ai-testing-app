@@ -24,10 +24,13 @@ Always pass `workspaceRoot` = `D:\Projects\ai_testing_app` (or the active worksp
 
 - Use **plugin-github-github** for PRs/issues/repo. Do not enable workspace npx GitHub MCP.
 
-## UI verification
+## UI verification (desktop app first)
 
-- App UI: **IronBee browser** only. IronBee Node/Backend stay off unless asked.
-- Desktop/OS UI (Ollama Settings, etc.): computer-use OK.
+- **Primary product UI** is the **native desktop window**: `.\venv\Scripts\python.exe desktop_app.py` (pywebview + Edge WebView2). Run and verify it **as an application**, not by opening the shell URL in Chrome/Edge/IronBee.
+- **Verify desktop UI** with **Computer Use** (`cursor-computer-use`) against that native window. Do **not** treat `http://127.0.0.1:…/ui/desktop/` in a browser tab as the product.
+- **Gradio** (`run_ui.py` / port 7860) only when the slice explicitly targets Gradio. Then IronBee browser is OK for Gradio only.
+- **IronBee browser:** for the *application under test* (Playwright AUT pages) or Gradio-only checks — never as the default way to “open our app”. IronBee Node/Backend stay off unless asked.
+- OS dialogs / Ollama Settings: Computer Use OK.
 
 ## Context7
 

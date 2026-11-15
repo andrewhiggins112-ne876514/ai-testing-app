@@ -35,7 +35,8 @@ If Cursor Atlassian MCP errors with **permission / API token** (common on this s
 ### Verified preferences (2026-11-15)
 
 - GitHub: **plugin-github-github** (workspace npx MCP disabled).
-- App UI: **IronBee browser** only; Node/Backend off.
+- Product UI: run **`desktop_app.py`** and verify with **Computer Use** (native window). Do not open the desktop shell in a browser.
+- IronBee browser: AUT pages or Gradio-only; Node/Backend off.
 - Supermemory: authenticated for this machine; use when available.
 - Context7: optional (Cloud Connected OK; Local error ignorable).
 

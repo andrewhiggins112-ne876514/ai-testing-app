@@ -10,7 +10,7 @@ description: PM-owned development slice with zero human copy-paste between tools
 2. **Discover** — explorer-cheap or targeted reads (PM/agents — not the human).  
 3. **Plan** — architect if multi-file or security-sensitive.  
 4. **Implement** — PM edits directly, or delegates implementer / ui-orb (Grok 4.7).  
-5. **Verify** — verifier. Run focused tests.  
+5. **Verify** — verifier. Run focused tests. Visible product UI: **`desktop_app.py` + Computer Use** (not browser). IronBee only for AUT/Gradio.  
 6. **Memory** — update `PROJECT_MEMORY.md` / `ROADMAP.md`; append `docs/ops/WORK_LOG.md`; set next Active slice.  
 7. **Jira** — comment on the story with what shipped + verify steps; transition when Done.  
 8. **Land** — after handoff docs + Jira: commit intentional files, then **`git push origin main`**. Do this on every finished (or paused) slice so the next chat can pick up; do not wait for the human to ask.  

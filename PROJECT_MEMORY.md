@@ -44,7 +44,8 @@ Long-term goal: dominate the testing space for companies that want a capable loc
 ## Current State
 Skeleton + substantial features exist:
 - `agent/agent.py` — Ollama tool-calling loop with clarification rules and sessions
-- `plugins/playwright_runner.py` — steps, click + fill locator self-heal (assertions never healed), heal proposals + local `heal_audit.jsonl`, screenshots/evidence path
+- `plugins/heal_policy.py` — central FR-HEAL-1…5 guardrails (classify; refuse weaken/skip/timeout/AUT; locator-only pending review + audit)
+- `plugins/playwright_runner.py` — steps, click + fill locator self-heal via heal_policy (assertions never healed), screenshots/evidence path
 - `plugins/jira_plugin.py` — list/create/transition/comment/epic link; writes need confirm
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\settings.json` (incl. orb)
 - `main.py` — FastAPI `/chat` + `/health` + `/api/orb` + static `/ui`
@@ -60,14 +61,14 @@ Skeleton + substantial features exist:
 - **Jira KAN backlog (2026-11-15):** Ten FR-area epics **KAN-20…KAN-29** from `docs/FUNCTIONAL_SPEC.md`; stories/tests enriched via `scripts/jira_kan_enrich.py` (multi-audience template in `docs/ops/JIRA_TICKET_TEMPLATE.md`). Rebuild: `scripts/jira_kan_rebuild.py`.
 - **Product spec:** `docs/FUNCTIONAL_SPEC.md`. **Work log:** `docs/ops/WORK_LOG.md` (pointer also at `D:\Projects\WORK_LOG.md`).
 - **Ollama models:** `qwen2.5-coder:7b` (app default), `qwen3:8b`, `llama3.2`, plus optional 14b/16b — one loaded at a time on 1080 Ti.
-- **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); IronBee browser OK; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
+- **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); **product UI = `desktop_app.py` + Computer Use** (not browser shell); IronBee for AUT/Gradio only; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
 
 Not yet done:
-- **Next build slice:** [KAN-49](https://ai-testing-lab.atlassian.net/browse/KAN-49) enforce full FR-HEAL guardrails (see WORK_LOG Active slice)
+- **Next build slice:** [KAN-51](https://ai-testing-lab.atlassian.net/browse/KAN-51) customisable reporting sections (see WORK_LOG Active slice)
 - Desktop app-drawer Settings/Reports still “Coming soon” (optional UX follow-on; no open Story)
 - Document ingestion → settings proposal (KAN-45)
 - Security isolation (KAN-15)
-- Desktop .exe testing (KAN-47); customisable reporting (KAN-51); multi-sandbox (KAN-55)
+- Desktop .exe testing (KAN-47); multi-sandbox (KAN-55)
 
 ## Important Context from Earlier Conversations
 - User is a senior test engineer (~£40k) wanting automated income / ability to leave traditional work.
@@ -88,6 +89,6 @@ Not yet done:
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-49** — Enforce self-healing guardrails (Active slice).
+1. **KAN-51** — Customisable reporting sections (Active slice).
 2. Optional: wire Settings/Reports from the desktop app drawer (buttons still “Coming soon”).
-3. Security isolation / document ingestion / reporting polish as KAN backlog allows.
+3. Security isolation / document ingestion as KAN backlog allows.

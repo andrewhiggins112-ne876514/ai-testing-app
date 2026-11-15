@@ -13,6 +13,7 @@
 
 ## Cursor workflow (PM-managed; replaces Grok browser + AFK Pilot)
 - Primary home is **Cursor IDE**. Prefer a **fresh IDE Agent chat** per slice; say **“pick up where we left off”** (reads `docs/ops/WORK_LOG.md`).
+- **Product UI = desktop app** (`desktop_app.py`). Run and test it as a native window (Computer Use). Do not fall back to browser tabs of the shell or Gradio unless the slice says so.
 - Do not ask the human to paste coding prompts into browser Grok / AFK Pilot / other tools.
 - Ops docs: `docs/ops/HOW_WE_WORK.md`, `docs/ops/TEAM.md`, `docs/ops/ROADMAP.md`.
 - Custom agents: `.cursor/agents/` — **Grok family only** (`implementer`/`ui-orb`/`architect` → 4.7; `doc-keeper`/`verifier`/`explorer-cheap` → 4.5). User pays Grok Premium; do not assign Composer/Claude/GPT/Copilot as “free”.
@@ -35,7 +36,7 @@ Premium plan only. Do not assume more tokens can be bought. Token use in long ag
 ## Home PC limits
 This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 MHz, GTX 1080 Ti with 11 GB VRAM, 1.16 TB disk with about 900 GB free. It is a 2017 desktop, not a modern AI workstation.
 - Prefer 7B–8B local models. Those fit in the 11 GB GPU. 14B is the ceiling and may spill onto the CPU. Do not pull 32B or larger models, and do not run two models at once.
-- Leave RAM for Windows and one headed browser. Do not start extra browsers, stacks, or background jobs unless asked.
+- Leave RAM for Windows, the **desktop app window**, and at most one headed browser (for AUT/Playwright). Do not start extra browsers, stacks, or background jobs unless asked.
 - Disk space is enough for one or two models. Do not download a collection of models.
 - Jira is live: `https://ai-testing-lab.atlassian.net` project **KAN**. Credentials only in `%LOCALAPPDATA%\ai_testing_app\settings.json`. Product-agent Jira writes stay two-step confirm.
 - **If Atlassian MCP fails** (“permission to connect via API token”): do **not** stop — use Jira REST via local settings or `scripts/jira_kan_*.py` (see `.cursor/skills/jira-safe/SKILL.md`). Never print the token.
@@ -70,11 +71,12 @@ This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 M
 ## Cursor tooling preferences (verified 2026-11-15 — no login how-tos here)
 - **Jira:** try **user-atlassian** first; expect frequent MCP API-token errors → **always** fall back to REST + local settings / `scripts/jira_kan_*.py` (never print tokens).
 - **GitHub:** **plugin-github-github** only. Keep `.cursor/mcp.json` empty (do not revive workspace npx GitHub MCP).
-- **UI verify:** **IronBee browser** MCP only for this app (not cursor-ide-browser). IronBee Node/Backend stay **off** unless the user asks.
+- **Run / verify product UI as a desktop app:** `.\venv\Scripts\python.exe desktop_app.py` (pywebview). Use **Computer Use** on that native window. Do **not** open `/ui/desktop/` in a browser tab as the product, and do not default to Gradio/`run_ui.py` unless the slice is Gradio-specific.
+- **IronBee browser:** only for Playwright AUT pages or Gradio-only slices — not for verifying the desktop shell. Never use cursor-ide-browser. IronBee Node/Backend stay **off** unless the user asks.
 - **Supermemory:** **always try** search at pick-up and add after meaningful decisions/slices (`workspaceRoot` = repo root; `container` project for codebase facts). If MCP add/search fails, retry once then continue — do not block the slice.
 - **Context7:** optional; Cloud Connected is enough; ignore Local Error·terminated.
 - **Skip unless asked:** plugin-atlassian (duplicate), cursor-origin (GitHub remotes only), enabling IronBee Node/Backend.
-- **Computer Use / native cursor tools:** OK for desktop/OS UI; prefer IronBee for in-app web.
+- **Computer Use:** preferred for our desktop app + OS UI (Ollama Settings, etc.).
 
 ## When stuck
 - Re-read the “Original Vision” and “Key Decisions” sections of PROJECT_MEMORY.md.

@@ -33,9 +33,9 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 |----|------|-------|
 | SEC-1 | OFFICIAL / SECRET isolation | Browser profiles + credential scopes — confirm before coding |
 | DOC-1 | Document ingestion → settings proposals | Explicit consent; no silent store |
-| REP-1 | Customisable reporting | Build on `reports/exporter.py` |
+| REP-1 | Customisable reporting | **now** — KAN-51; section toggles + exporter |
 | HEAL-1 | Broader locator self-heal | **done** — KAN-14; click + fill heal; assertions stay red |
-| HEAL-2 | Full FR-HEAL guardrails | **now** — KAN-49; classification mandatory; refuse weaken/skip/timeout games |
+| HEAL-2 | Full FR-HEAL guardrails | **done** — KAN-49; `plugins/heal_policy.py` + runner hooks |
 
 ## Later
 
@@ -65,5 +65,5 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**[KAN-49](https://ai-testing-lab.atlassian.net/browse/KAN-49)** — Enforce self-healing guardrails (FR-HEAL).  
+**[KAN-51](https://ai-testing-lab.atlassian.net/browse/KAN-51)** — Customisable reporting sections (FR-REP).  
 Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

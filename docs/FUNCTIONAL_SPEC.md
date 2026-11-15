@@ -170,14 +170,14 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next** (track in KAN; Active slice = **KAN-49**)
+**Still open / next** (track in KAN; Active slice = **KAN-51**)
 - Gradio Settings/Reports polish (**KAN-10** — done 2026-11-15).
 - UI-6 movable/resizable panels (**KAN-53** — done 2026-11-15).
-- Broader self-healing (**KAN-14** — done 2026-11-15); guardrail enforcement (**KAN-49** — now).
+- Broader self-healing (**KAN-14** — done 2026-11-15); guardrail enforcement (**KAN-49** — done 2026-11-15).
+- Customisable reporting polish (**KAN-51** — now).
 - Document ingestion → settings proposal (**KAN-45**).
 - Security-level isolation browser profiles + credential scopes (**KAN-15**).
 - Desktop `.exe` testing plugin (**KAN-47**).
-- Customisable reporting polish (**KAN-51**).
 - Multi-sandbox orchestration stub (**KAN-55**).
 - Voice input (later — not ticketed as now).
 
@@ -190,7 +190,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN** (QA Testing). Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
 | Model tool-calling reliability | Needs validation | Prefer models / configs that emit structured calls; implement fallback parser |
-| Self-healing guardrails | Partial (KAN-14 locator-only + assertion refuse); full enforcement KAN-49 | Must finish KAN-49 before broad self-heal is trusted |
+| Self-healing guardrails | **Done** (KAN-49) — `plugins/heal_policy.py` + runner | Locator-only; classification mandatory; forbidden transforms refused |
 | Security isolation | Later | Confirm before coding |
 | Document ingestion | Later | Explicit consent required |
 

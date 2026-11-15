@@ -9,10 +9,8 @@ from playwright.async_api import async_playwright
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from plugins.playwright_runner import (  # noqa: E402
-    _heal_proposal,
-    run_playwright,
-)
+from plugins.heal_policy import locator_diff  # noqa: E402
+from plugins.playwright_runner import run_playwright  # noqa: E402
 
 pytestmark = pytest.mark.browser
 
@@ -94,13 +92,13 @@ def test_expect_text_failure_stays_red_no_heal(browser):
     assert result["status"] == "fail"
     assert step["status"] == "fail"
     assert step.get("healed") is False
-    assert step["heal_refused"] == "assertion_unchanged"
+    assert step["heal_refused"] in {"assertion_unchanged", "product_bug_stays_red", "assertion_weaken"}
     assert step["classification"] == "product_bug"
     assert "goodbye" in step["error"]
 
 
 def test_heal_proposal_never_mentions_value_change():
-    text = _heal_proposal("fill", "Email", "Email address", value="keep-me")
+    text = locator_diff("Email", "role/name exact → Email address", value="keep-me")
     assert "locator only" in text
     assert "value unchanged: 'keep-me'" in text
     assert "auto-committed" in text

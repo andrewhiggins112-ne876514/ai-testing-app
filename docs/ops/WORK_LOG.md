@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | [KAN-49](https://ai-testing-lab.atlassian.net/browse/KAN-49) — Enforce self-healing guardrails |
-| **Epic** | [KAN-23](https://ai-testing-lab.atlassian.net/browse/KAN-23) — Self-Healing Tests |
-| **Roadmap ID** | HEAL-2 (guardrails) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-HEAL-* |
-| **Next action** | Full FR-HEAL classification + refuse assertion weakening / timeout inflation before broader trust |
+| **Jira story** | [KAN-51](https://ai-testing-lab.atlassian.net/browse/KAN-51) — Customisable reporting sections |
+| **Epic** | [KAN-26](https://ai-testing-lab.atlassian.net/browse/KAN-26) — Reporting |
+| **Roadmap ID** | REP-1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-REP-* |
+| **Next action** | Section toggles + exporter respect; verify via desktop app if UI-facing |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-49 — Enforce self-healing guardrails
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** Central `plugins/heal_policy.py` (FR-HEAL-1…5): mandatory classification; refuse assertion weaken (toHaveText→toBeVisible), value change, skip/fixme, timeout inflation, AUT patch; product bugs stay red; locator-only allowed pending review + audit log. Playwright runner hooks into policy. Agent guides CR: product UI = `desktop_app.py` + Computer Use (not browser shell).
+- **Files:** `plugins/heal_policy.py`, `plugins/playwright_runner.py`, `tests/test_heal_policy.py`, `tests/test_locator_heal.py`, AGENTS + `.cursor/rules|skills|agents` + CONNECTORS/HOW_WE_WORK, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC §5/§6.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_heal_policy.py tests/test_locator_heal.py tests/test_click_heal.py -v` (14 passed). UI slices: `desktop_app.py` + Computer Use (not browser).
+- **Jira:** comment + Done on KAN-49 (REST).
+- **Next:** KAN-51 customisable reporting sections.
 
 ### 2026-11-15 — KAN-14 — Self-healing selector improvements
 - **Agent/chat:** Cursor IDE Agent (Composer)

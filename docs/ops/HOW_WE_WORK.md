@@ -6,7 +6,7 @@
 
 1. Prefer a **fresh Cursor IDE Agent chat** and say **“pick up where we left off”** (or paste `python scripts/next_prompt.py` output).  
 2. Confirm when asked (credentials, Jira writes, deletes, security, browser logins).  
-3. On your PC when told: `git pull`, then prefer `scripts\restart_ui.ps1` / desktop app.  
+3. On your PC when told: `git pull`, then run the **desktop app** (`python desktop_app.py`). Agents must verify that native window (Computer Use), not a browser tab of `/ui/desktop/`.  
 4. Do **not** paste coding prompts into browser Grok / AFK Pilot.  
 5. Workspace folder must be `D:\Projects\ai_testing_app`.
 

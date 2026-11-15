@@ -14,7 +14,7 @@ When the user says **pick up where we left off**, **continue**, **next slice**, 
 3. Read that Jira story’s description (**REST fallback** if Atlassian MCP fails) for Requirements + AC.
 4. Start implementing that story immediately. One slice only.
 5. Prefer free/Auto/Composer unless the slice needs a stronger model.
-6. Verify UI with **IronBee browser** when the change is visible in the app.
+6. Verify visible product UI via **`desktop_app.py` + Computer Use** (native window). Do not open the desktop shell in a browser. IronBee browser only for AUT pages or Gradio-only slices.
 
 ## After every finished (or paused) slice
 

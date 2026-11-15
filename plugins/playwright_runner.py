@@ -4,16 +4,15 @@ Supports browser testing and basic headed mode.
 Locator self-heal may change *how* an element is found, never *what* is asserted (FR-HEAL-1).
 """
 import difflib
-import json
 import os
 import time
-from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Dict, Any, Tuple
 
 from playwright.async_api import TimeoutError as PlaywrightTimeout
 from playwright.async_api import async_playwright
 
+from plugins.heal_policy import HealProposal, evaluate_and_log, locator_diff
 from reports.exporter import export_run
 
 _ACTIONS = {"goto", "click", "fill", "expect_text", "expect_url"}
@@ -124,11 +123,13 @@ class _NoHeal(Exception):
         score: float = 0.0,
         candidates: Optional[List[Dict[str, Any]]] = None,
         classification: str = "test_defect",
+        heal_refused: Optional[str] = None,
     ):
         super().__init__(message)
         self.score = score
         self.candidates = candidates or []
         self.classification = classification
+        self.heal_refused = heal_refused
 
 
 def _best_control(intended: str, controls: List[Tuple[str, str]]):
@@ -146,54 +147,44 @@ def _best_control(intended: str, controls: List[Tuple[str, str]]):
     return scored[0], scored
 
 
-def _heal_proposal(action: str, original: str, used: str, value: Optional[str] = None) -> str:
-    lines = [
-        f"Heal proposal ({action}): locator only (FR-HEAL-1).",
-        f"- original locator intent: {original}",
-        f"- proposed locator: role/name exact → {used}",
-    ]
-    if value is not None:
-        lines.append(f"- value unchanged: {value!r}")
-    lines.append("- suite file not auto-committed (FR-HEAL-2).")
-    return "\n".join(lines)
-
-
-def _heal_log_path() -> Path:
-    base = os.environ.get("LOCALAPPDATA")
-    root = Path(base) / "ai_testing_app" if base else Path.home() / ".ai_testing_app"
-    return root / "heal_audit.jsonl"
-
-
-def _append_heal_log(entry: Dict[str, Any]) -> None:
-    path = _heal_log_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(entry, ensure_ascii=True) + "\n")
-
-
 def _record_heal(action: str, payload: Dict[str, Any], value: Optional[str] = None) -> Dict[str, Any]:
-    proposal = _heal_proposal(action, payload["original"], payload["used"], value)
-    logged = {
-        "timestamp": datetime.now().isoformat(timespec="seconds"),
-        "action": action,
-        "classification": "test_defect",
-        "evidence": {
-            "original": payload["original"],
-            "used": payload["used"],
-            "score": payload["score"],
-            "candidates": payload.get("candidates") or [],
-        },
-        "approver": "pending_review",
-        "proposal": proposal,
-        "value_unchanged": value,
-    }
-    try:
-        _append_heal_log(logged)
-    except Exception:
-        pass
+    """Locator-only heal via central policy (FR-HEAL). Refuses if classification missing."""
+    used = payload["used"]
+    original = payload["original"]
+    proposal_text = locator_diff(
+        original,
+        f"role/name exact → {used}",
+        value=value,
+    )
+    decision = evaluate_and_log(
+        HealProposal(
+            kind="locator",
+            original=original,
+            proposed=f"role/name exact → {used}",
+            classification="test_defect",
+            value_unchanged=value,
+            evidence={
+                "action": action,
+                "original": original,
+                "used": used,
+                "score": payload["score"],
+                "candidates": payload.get("candidates") or [],
+                "value_unchanged": value,
+            },
+        ),
+        approver="pending_review",
+    )
+    if not decision.allowed:
+        raise _NoHeal(
+            decision.message,
+            score=payload.get("score") or 0.0,
+            candidates=payload.get("candidates") or [],
+            classification=decision.classification or "test_defect",
+            heal_refused=decision.reason or "policy_refused",
+        )
     out = dict(payload)
-    out["proposal"] = proposal
-    out["classification"] = "test_defect"
+    out["proposal"] = decision.proposal_diff or proposal_text
+    out["classification"] = decision.classification or "test_defect"
     out["approver"] = "pending_review"
     return out
 
@@ -273,15 +264,35 @@ async def _run_step(page, step: Dict[str, Any], click_timeout: int = 10000, retr
     elif action == "expect_text":
         # Assertions are never self-healed (FR-HEAL-1 / FR-HEAL-3); stay red.
         if value not in await page.content():
+            decision = evaluate_and_log(
+                HealProposal(
+                    kind="assertion",
+                    original="toHaveText / expect_text",
+                    proposed="toBeVisible",
+                    classification="product_bug",
+                    evidence={"action": "expect_text", "expected": value},
+                )
+            )
             raise _NoHeal(
                 f"text not found: {value}",
                 classification="product_bug",
+                heal_refused=decision.reason or "assertion_unchanged",
             )
     elif action == "expect_url":
         if value not in page.url:
+            decision = evaluate_and_log(
+                HealProposal(
+                    kind="assertion",
+                    original="toHaveURL / expect_url",
+                    proposed="toBeVisible",
+                    classification="product_bug",
+                    evidence={"action": "expect_url", "expected": value},
+                )
+            )
             raise _NoHeal(
                 f"url does not contain: {value}",
                 classification="product_bug",
+                heal_refused=decision.reason or "assertion_unchanged",
             )
     return None
 
@@ -337,9 +348,13 @@ async def run_playwright(
                         if getattr(e, "classification", None):
                             failed["classification"] = e.classification
                         # FR-HEAL-3/4: product bugs and assertion failures stay red — no heal.
+                        refused = getattr(e, "heal_refused", None)
                         if step.get("action") in _ASSERT_ACTIONS:
                             failed["healed"] = False
-                            failed["heal_refused"] = "assertion_unchanged"
+                            failed["heal_refused"] = refused or "assertion_unchanged"
+                        elif refused:
+                            failed["healed"] = False
+                            failed["heal_refused"] = refused
                         result["steps"].append(failed)
                         result["error"] = str(e)
                         break
