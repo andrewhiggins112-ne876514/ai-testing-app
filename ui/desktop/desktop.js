@@ -992,11 +992,15 @@
   });
   [appDrawer, screenDrawer].forEach(bindDrawerResize);
 
+  const settingsSection = document.getElementById("app-section-settings");
   const securitySection = document.getElementById("app-section-security");
   const reportsSection = document.getElementById("app-section-reports");
   const documentsSection = document.getElementById("app-section-documents");
   const desktopSection = document.getElementById("app-section-desktop");
   const suitesSection = document.getElementById("app-section-suites");
+  const settingsNav = appDrawer
+    ? appDrawer.querySelector('.app-nav-item[data-section="settings"]')
+    : null;
   const securityNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="security"]')
     : null;
@@ -1015,6 +1019,12 @@
   const sandboxesNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="sandboxes"]')
     : null;
+  const setJiraUrl = document.getElementById("set-jira-url");
+  const setStorePath = document.getElementById("set-store-path");
+  const setCreds = document.getElementById("set-creds");
+  const setSummary = document.getElementById("set-summary");
+  const setSave = document.getElementById("set-save");
+  const setStatus = document.getElementById("set-status");
   const deskEnabled = document.getElementById("desk-enabled");
   const deskPath = document.getElementById("desk-path");
   const deskExe = document.getElementById("desk-exe");
@@ -1085,6 +1095,43 @@
       applyReportSections(await res.json());
     } catch (err) {
       /* keep checkbox defaults */
+    }
+  }
+
+  function applyAppSettings(payload) {
+    if (!payload) return;
+    if (setJiraUrl) {
+      setJiraUrl.value = payload.jira_url || "";
+    }
+    if (setStorePath) {
+      setStorePath.textContent =
+        "Local store: " + (payload.settings_path || "—");
+    }
+    if (setCreds) {
+      setCreds.textContent =
+        payload.jira_credentials_label ||
+        "Jira credentials: " + (payload.jira_credentials_status || "—");
+    }
+    if (setSummary) {
+      const lines = (payload.summary || "")
+        .split("\n")
+        .filter(function (line) {
+          return line && line.indexOf("Local store:") !== 0;
+        });
+      setSummary.textContent = lines.length
+        ? lines.join(" · ")
+        : "Summary: —";
+    }
+  }
+
+  async function loadAppSettings() {
+    try {
+      const res = await fetch("/api/app-settings");
+      if (!res.ok) return;
+      applyAppSettings(await res.json());
+      if (setStatus) setStatus.textContent = "Ready";
+    } catch (err) {
+      if (setStatus) setStatus.textContent = "Could not load app settings.";
     }
   }
 
@@ -1256,6 +1303,7 @@
 
   function showAppSection(name) {
     const map = {
+      settings: { section: settingsSection, nav: settingsNav },
       security: { section: securitySection, nav: securityNav },
       reports: { section: reportsSection, nav: reportsNav },
       documents: { section: documentsSection, nav: documentsNav },
@@ -1274,6 +1322,9 @@
       return map[key].section && !map[key].section.hidden;
     });
     if (appDrawerHint) appDrawerHint.hidden = anyOpen;
+    if (name === "settings" && settingsSection && !settingsSection.hidden) {
+      loadAppSettings();
+    }
     if (name === "reports" && reportsSection && !reportsSection.hidden) {
       loadReportSections();
     }
@@ -1292,6 +1343,11 @@
     }
   }
 
+  if (settingsNav) {
+    settingsNav.addEventListener("click", function () {
+      showAppSection("settings");
+    });
+  }
   if (securityNav) {
     securityNav.addEventListener("click", function () {
       showAppSection("security");
@@ -1320,6 +1376,30 @@
   if (sandboxesNav) {
     sandboxesNav.addEventListener("click", function () {
       showAppSection("sandboxes");
+    });
+  }
+
+  if (setSave) {
+    setSave.addEventListener("click", async function () {
+      if (setStatus) setStatus.textContent = "Saving…";
+      try {
+        const res = await fetch("/api/app-settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jira_url: setJiraUrl && setJiraUrl.value ? setJiraUrl.value.trim() : "",
+          }),
+        });
+        const payload = await res.json();
+        applyAppSettings(payload);
+        if (setStatus) {
+          setStatus.textContent =
+            payload.message ||
+            (payload.status === "updated" ? "Saved." : "Save failed.");
+        }
+      } catch (err) {
+        if (setStatus) setStatus.textContent = "Could not save app settings.";
+      }
     });
   }
 

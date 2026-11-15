@@ -202,7 +202,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-SEC-1, FR-SEC-3, FR-SEC-5 | Shipped isolation + confirm + secrets scoping | **Done** KAN-15, **KAN-16** |
 | FR-SEC-2 | Done | **KAN-69** |
 | FR-SEC-4 | Done | **KAN-71** |
-| FR-UI-1…5 | Mostly shipped; Settings panel + voice open | **Done** KAN-10/41/53; Settings **KAN-73**; Voice **KAN-81** |
+| FR-UI-1…5 | Mostly shipped; voice still open | **Done** KAN-10/41/53/73; Voice **KAN-81** |
 | FR-PLUG-1 | Partial (registry + stubs) | **Done** KAN-55 stub; real sandboxes **KAN-95** |
 | FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |
 | FR-PLUG-3 | Open | **KAN-79** |

@@ -229,6 +229,86 @@ def security_status() -> dict:
     }
 
 
+def _jira_credentials_label(email_set: bool, token_set: bool) -> tuple[str, str]:
+    """Return (status_key, human label) — never includes email/token values."""
+    if email_set and token_set:
+        return (
+            "configured",
+            "Jira email + API token: configured (values stay in local store)",
+        )
+    if email_set or token_set:
+        return (
+            "incomplete",
+            "Jira credentials: incomplete (need both email and API token in local store)",
+        )
+    return (
+        "not_set",
+        "Jira credentials: not set (edit local settings file — never commit tokens)",
+    )
+
+
+def app_settings_status() -> dict:
+    """Desktop/Gradio App Settings payload (FR-UI-1 / FR-SET-1). Never echoes secrets."""
+    data = load_settings()
+    level = str(data.get("security_level") or "OFFICIAL").strip().upper()
+    if level not in SECURITY_LEVELS:
+        level = "OFFICIAL"
+    email_set = bool((data.get("jira_email") or "").strip())
+    token_set = bool((data.get("jira_api_token") or "").strip())
+    creds_status, creds_label = _jira_credentials_label(email_set, token_set)
+    desk_on = bool(data.get("plugin_desktop_enabled", True))
+    multi_on = bool(data.get("plugin_multi_sandbox_enabled", False))
+    app_path = (data.get("target_app_path") or "").strip()
+    suite_path = (data.get("playwright_suite_path") or "").strip()
+    telem = bool(data.get("telemetry_enabled", False))
+    summary = "\n".join(
+        [
+            f"Local store: {settings_path()}",
+            f"Level: {level} | Browser profile: {browser_profile_dir(level)}",
+            creds_label,
+            f"Desktop plugin: {'on' if desk_on else 'off'} | target_app_path: {app_path or '(not set)'}",
+            f"Playwright suite path: {suite_path or '(not set)'}",
+            f"Multi-sandbox plugin: {'on' if multi_on else 'off'}",
+            f"Telemetry: {'on' if telem else 'off (default)'} | Extracted-data consent required",
+        ]
+    )
+    return {
+        "settings_path": str(settings_path()),
+        "security_level": level,
+        "browser_profile": str(browser_profile_dir(level)),
+        "jira_url": (data.get("jira_url") or "").strip(),
+        "jira_credentials_status": creds_status,
+        "jira_credentials_label": creds_label,
+        "jira_credentials_configured": creds_status == "configured",
+        "plugin_desktop_enabled": desk_on,
+        "target_app_path": app_path,
+        "playwright_suite_path": suite_path,
+        "plugin_multi_sandbox_enabled": multi_on,
+        "telemetry_enabled": telem,
+        "summary": summary,
+    }
+
+
+def save_jira_url(url: str) -> dict:
+    """Persist Jira base URL for the active security level. Never returns secrets."""
+    cleaned = (url or "").strip()
+    if cleaned and not (
+        cleaned.startswith("https://") or cleaned.startswith("http://")
+    ):
+        payload = app_settings_status()
+        payload.update(
+            {
+                "status": "error",
+                "message": "Jira URL must start with http:// or https://.",
+            }
+        )
+        return payload
+    update_setting("jira_url", cleaned, confirm=True)
+    payload = app_settings_status()
+    payload.update({"status": "updated", "message": "Saved."})
+    return payload
+
+
 def load_settings() -> dict:
     shared = _load_shared_raw()
     shared = _migrate_flat_credentials(dict(shared))

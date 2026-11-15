@@ -1465,31 +1465,9 @@ def current_settings():
 
 def settings_store_summary():
     """Non-secret status line for the Settings tab (never echoes tokens)."""
-    data = load_settings()
-    level = data.get("security_level") or "OFFICIAL"
-    email_set = bool((data.get("jira_email") or "").strip())
-    token_set = bool((data.get("jira_api_token") or "").strip())
-    if email_set and token_set:
-        creds = "Jira email + API token: configured (values stay in local store)"
-    elif email_set or token_set:
-        creds = "Jira credentials: incomplete (need both email and API token in local store)"
-    else:
-        creds = "Jira credentials: not set (edit local settings file — never commit tokens)"
-    profile = browser_profile_dir(level)
-    desk_on = "on" if data.get("plugin_desktop_enabled", True) else "off"
-    multi_on = "on" if data.get("plugin_multi_sandbox_enabled", False) else "off"
-    app_path = (data.get("target_app_path") or "").strip() or "(not set)"
-    suite_path = (data.get("playwright_suite_path") or "").strip() or "(not set)"
-    telem = "on" if telemetry_enabled() else "off (default)"
-    return (
-        f"Local store: {settings_path()}\n"
-        f"Level: {level} | Browser profile: {profile}\n"
-        f"{creds}\n"
-        f"Desktop plugin: {desk_on} | target_app_path: {app_path}\n"
-        f"Playwright suite path: {suite_path}\n"
-        f"Multi-sandbox plugin: {multi_on}\n"
-        f"Telemetry: {telem} | Extracted-data consent required"
-    )
+    from settings.store import app_settings_status
+
+    return app_settings_status().get("summary") or ""
 
 
 def privacy_panel_summary():

@@ -44,6 +44,7 @@
       <div class="drawer-inner shell-surface">
         <h2 class="panel-title">App</h2>
         <nav class="app-nav" aria-label="Application sections">
+          <button type="button" class="app-nav-item" data-section="settings" aria-pressed="false">Settings</button>
           <button type="button" class="app-nav-item" data-section="security" aria-pressed="false">Security</button>
           <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
           <button type="button" class="app-nav-item" data-section="documents" aria-pressed="false">Documents</button>
@@ -51,6 +52,18 @@
           <button type="button" class="app-nav-item" data-section="suites" aria-pressed="false">Suites</button>
           <button type="button" class="app-nav-item" data-section="sandboxes" aria-pressed="false">Sandboxes</button>
         </nav>
+        <div id="app-section-settings" class="app-section" hidden>
+          <h3 class="orb-section-label">App settings</h3>
+          <p class="drawer-hint">Chat stays primary. Edit Jira base URL here; credentials stay in the local store and are never shown.</p>
+          <label class="stack-label">Jira base URL
+            <input type="url" id="set-jira-url" placeholder="https://your-site.atlassian.net" autocomplete="off" />
+          </label>
+          <p id="set-store-path" class="drawer-hint">Local store: —</p>
+          <p id="set-creds" class="drawer-hint">Jira credentials: —</p>
+          <p id="set-summary" class="drawer-hint">Summary: —</p>
+          <button type="button" id="set-save" class="save-btn">Save</button>
+          <p id="set-status" class="drawer-hint" role="status">Ready</p>
+        </div>
         <div id="app-section-security" class="app-section" hidden>
           <h3 class="orb-section-label">Security level</h3>
           <p class="drawer-hint">OFFICIAL and SECRET isolate credentials and browser profiles. Switching requires confirmation.</p>
@@ -159,7 +172,7 @@
           </div>
           <p id="ms-status" class="drawer-hint" role="status">Ready</p>
         </div>
-        <p class="drawer-hint" id="app-drawer-hint">Choose Security, Reports, Documents, Desktop, Suites, or Sandboxes.</p>
+        <p class="drawer-hint" id="app-drawer-hint">Choose Settings, Security, Reports, Documents, Desktop, Suites, or Sandboxes.</p>
       </div>
     </aside>
 
@@ -206,6 +219,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk16"></script>
+  <script src="/ui/desktop/desktop.js?v=desk18"></script>
 </body>
 </html>

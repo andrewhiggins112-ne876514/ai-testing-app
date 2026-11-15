@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | KAN-73 — Desktop App Settings panel (Jira URL and local-store summary) |
-| **Epic** | KAN-27 (UI / Desktop) |
-| **Roadmap ID** | (FR-UI-1 / FR-SET-1) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-1 / FR-SET-1 |
-| **Next action** | Implement KAN-73; test Task KAN-74 |
+| **Jira story** | KAN-75 — Heal proposal review UI (approve or reject pending heals) |
+| **Epic** | KAN-23 (Self-healing) |
+| **Roadmap ID** | (FR-HEAL-2 / FR-HEAL-5) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-HEAL-2 / FR-HEAL-5 |
+| **Next action** | Implement KAN-75; test Task KAN-76 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-73 — Desktop App Settings panel (Jira URL and local-store summary)
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** FR-UI-1/FR-SET-1 desktop App drawer Settings: Jira base URL edit + Save, local store path, credential configured/incomplete/not-set label (never echoes email/token). Shared `app_settings_status` / `save_jira_url` in settings store; GET/POST `/api/app-settings`; Gradio summary uses same helper; desk18 cache-bust.
+- **Files:** `settings/store.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_app_settings.py`, PROJECT_MEMORY, ROADMAP, WORK_LOG.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_app_settings.py tests/test_settings_tab.py -v` (5 passed). Live `/api/app-settings` returns no secrets; desktop App drawer shows Settings nav (desk18).
+- **Jira:** story Agent completion + KAN-74 test evidence/Done + KAN-73 Done (via closeout script).
+- **Next:** KAN-75 heal proposal review UI (FR-HEAL-2/5; test KAN-76).
 
 ### 2026-11-15 — KAN-71 — Prompt-injection mitigations for untrusted inputs
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)

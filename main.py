@@ -36,7 +36,9 @@ from plugins.registry import list_plugins
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.privacy import delete_local_data, privacy_status, telemetry_enabled
 from settings.store import (
+    app_settings_status,
     load_settings,
+    save_jira_url,
     security_status,
     set_security_level,
     settings_path,
@@ -99,6 +101,10 @@ class SecurityLevelRequest(BaseModel):
 class DeleteLocalDataRequest(BaseModel):
     categories: list[str] | None = None
     confirm: bool = False
+
+
+class AppSettingsRequest(BaseModel):
+    jira_url: str = ""
 
 
 class DesktopPluginRequest(BaseModel):
@@ -211,6 +217,16 @@ async def get_privacy_api():
 @app.post("/api/privacy/delete")
 async def post_privacy_delete_api(req: DeleteLocalDataRequest):
     return delete_local_data(req.categories, confirm=bool(req.confirm))
+
+
+@app.get("/api/app-settings")
+async def get_app_settings_api():
+    return app_settings_status()
+
+
+@app.post("/api/app-settings")
+async def post_app_settings_api(req: AppSettingsRequest):
+    return save_jira_url(req.jira_url or "")
 
 
 @app.post("/api/doc-ingest")
