@@ -13,6 +13,7 @@
 | **Roadmap ID** | (FR-HEAL-2 / FR-HEAL-5) |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-HEAL-2 / FR-HEAL-5 |
 | **Next action** | Implement KAN-75; test Task KAN-76 |
+| **Backlog (UX CR)** | **KAN-103** (+ test KAN-104, Tasks KAN-106…110). Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md`. Pick up after KAN-75 unless re-prioritized. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +34,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — OPS — KAN-102 CR: nav model, widgets, App vs Orb settings (PM sync)
+- **Agent/chat:** Cursor IDE Agent (PM slice — docs + Jira only, no UI code)
+- **Done:** Product decision locked per Designer CR: agent home = chat + orb; mockup side panels = HUD widgets (Screen drawer toggles); App areas = dedicated surfaces; App Settings ≠ Orb settings. Updated FUNCTIONAL_SPEC (FR-UI-6/7, FR-SET-3), PROJECT_MEMORY, ROADMAP (UI-DESK-4), orb_styles.md, `docs/ops/KAN102_NAV_WIDGETS_PLAN.md`. Jira: KAN-102 description + comment; parent Story under KAN-27 + Tasks + test ticket; comments on KAN-73/74/101. Helper: `scripts/jira_kan102_pm_cr.py` (re-runnable).
+- **Files:** docs/FUNCTIONAL_SPEC.md, PROJECT_MEMORY.md, docs/ops/ROADMAP.md, docs/ops/WORK_LOG.md, docs/ops/KAN102_NAV_WIDGETS_PLAN.md, docs/mockups/orb_styles.md, scripts/jira_kan102_pm_cr.py
+- **Verify:** Jira browse KAN-102 Relates; read plan doc; spec §3.8/3.10
+- **Jira:** KAN-102 updated; **KAN-103** Story, **KAN-104** test, Tasks **KAN-106–110**; comments KAN-73/74/101; duplicate **KAN-105** marked do-not-use
+- **Next:** Active remains **KAN-75**; then **KAN-103** (start KAN-106)
 
 ### 2026-11-15 — OPS — Raised KAN-102 App area nav UX (screens/popups + orb idea)
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)

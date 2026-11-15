@@ -1,6 +1,6 @@
 # Approved Orb Style Mockups (2026-11-06)
 
-Three styles approved for implementation. Widgets shown in the mockups are future configurable panels (add/remove/hide).
+Three styles approved for implementation. **Side panels / HUD layers** in mystic and neural mockups are **optional agent-home widgets** (toggle from Screen drawer widget settings) — not the content of App areas such as Settings or Reports. Widgets are add/remove/hide on the home canvas only.
 
 | Id | Look | Renderer |
 |----|------|----------|
