@@ -34,6 +34,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-15 — OPS — Mandatory Bug tickets during development (agent instructions)
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** Strengthened standing rule: any bug found during development must be raised on Jira and Relates-linked to the Story (+ test Task). Documented KAN createmeta has no Bug type → use Task + `label=bug` + `[Bug] …` until Bug type enabled. Raised KAN-101 for App drawer toggle overlapping Settings (found during KAN-73 verify; Relates KAN-73/KAN-74).
+- **Files:** AGENTS.md, `.cursor/rules/work-log-handoff.mdc`, `.cursor/rules/00-core-efficiency.mdc`, `.cursor/skills/slice-workflow/SKILL.md`, `.cursor/skills/jira-safe/SKILL.md`, `.cursor/agents/implementer.md`, `.cursor/agents/verifier.md`, `docs/ops/HOW_WE_WORK.md`, `docs/ops/JIRA_TICKET_TEMPLATE.md`, WORK_LOG.
+- **Verify:** KAN-101 created + Relates; instruction text present in AGENTS / skills / rules.
+- **Jira:** KAN-101 (Task+bug); comment on KAN-73.
+- **Next:** Active remains KAN-75 heal proposal review UI.
+
 ### 2026-11-15 — KAN-73 — Desktop App Settings panel (Jira URL and local-store summary)
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)
 - **Done:** FR-UI-1/FR-SET-1 desktop App drawer Settings: Jira base URL edit + Save, local store path, credential configured/incomplete/not-set label (never echoes email/token). Shared `app_settings_status` / `save_jira_url` in settings store; GET/POST `/api/app-settings`; Gradio summary uses same helper; desk18 cache-bust.

@@ -9,8 +9,9 @@ alwaysApply: true
 - Prefer Ask or Plan before multi-file edits. One logical slice per chat when possible.
 - Targeted reads and greps only. No whole-repo dumps. Prefer `/explorer-cheap` for discovery.
 - Never store real credentials in the repo or chat. Local settings store only.
-- No Jira writes / credential prompts until the user says a Jira account exists.
-- Confirm before: security-level changes, deletes, credential updates, Jira writes.
+- No Jira writes / credential prompts until the user says a Jira account exists (KAN is live).
+- Confirm before: security-level changes, deletes, credential updates, and non-routine Jira writes.
+- **Exception (standing):** bugs found during development **must** be raised on Jira and Relates-linked to the relevant Story (+ test Task) without waiting for a separate confirm. Prefer Bug type; **KAN today:** Task + `label=bug` + `[Bug] …`. See AGENTS.md / work-log-handoff.
 - Prefer small diffs; extend existing plugins — do not create parallel systems.
 - After a finished slice: update Current State in `PROJECT_MEMORY.md` if behaviour changed.
 - Classic orb styles stay pure canvas. **WebGL / Three.js is allowed** for the three new styles (mystic, aether, neural) only. Vendor Three.js under ui/vendor/ is acceptable for those styles.

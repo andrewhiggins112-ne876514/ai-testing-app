@@ -74,7 +74,7 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-75** Heal proposal review UI (Active)
 - KAN-77…KAN-81 first FR seed remainder; KAN-83…KAN-99 gap pass (headless, Jira AC read, 429 backoff, desktop beyond smoke, LEARN-4, sandbox beyond stub, busy UX, Jira write audit, steps from Jira AC)
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
-- Cursor agents must raise Jira **Bug** tickets (replication steps + Fix comment) when defects are found — see AGENTS.md / JIRA_TICKET_TEMPLATE
+- Cursor agents must raise Jira defect tickets when bugs are found during development (Relates to Story + test Task; replication steps + Fix comment). **KAN has no Bug issue type** → Task + `label=bug` + `[Bug] …` until enabled. See AGENTS.md / JIRA_TICKET_TEMPLATE. Open example: **KAN-101** (App drawer toggle overlaps Settings)
 
 ## Important Context from Earlier Conversations
 - User is a senior test engineer (~£40k) wanting automated income / ability to leave traditional work.

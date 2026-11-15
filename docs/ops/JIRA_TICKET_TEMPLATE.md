@@ -48,17 +48,20 @@ Audiences that must be able to read every ticket without opening other docs:
 
 ## Bug structure (Cursor agents — mandatory when defects are found)
 
+**Standing instruction:** any bug found during development of a slice (implement, pytest, Computer Use, AUT, review) **must** be raised as a Jira **Bug** and **Relates**-linked to the relevant Story. Do not silently fix-only; do not leave it only in chat or WORK_LOG.
+
 When a product/regression bug is found during implementation, pytest, Computer Use, or AUT runs:
 
-1. Create a Jira **Bug** (not a Story or silent fix-only).  
+1. Create the defect ticket immediately (not a silent fix-only). Standing authorization — no extra human confirm.  
+   - Prefer issue type **Bug** when the project supports it.  
+   - **KAN today:** createmeta has no Bug type — create a **Task** with **`label=bug`** and summary `[Bug] …`.  
 2. **Relates**-link to the relevant **Story** and **test Task** (create the test Task if missing).  
 3. Description sections:
    - **Symptom** — what went wrong  
    - **Expected** vs **Actual**  
    - **Environment** — OS, desktop vs Gradio, security level if relevant (never paste secrets)  
    - **Replication steps** — numbered; must be enough for another agent or human to reproduce  
-4. When fixed: add a **Fix comment** with root cause, what changed, files, and how verified; then transition the Bug to **Done**.  
-5. Do not silently fix user-visible or FR-breaking defects without a Bug ticket.
+4. When fixed: add a **Fix comment** with root cause, what changed, files, and how verified; then transition the Bug to **Done**.
 
 ## Definition of done (team — every Story)
 

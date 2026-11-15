@@ -15,10 +15,11 @@ description: Safe Jira work for this app — local settings, confirmation gates,
   2. Linked **test Task** (`label=test`, Relates): comment with unit-test evidence; mark test Task **Done**.
   3. Mark story **Done** only after the story comment is posted.
   Prefer: `python scripts/jira_kan_slice_closeout.py --story KAN-XX --done "…" --files "…" --verify "…" --pytest-cmd "…" --mark-done`
-- **Bugs found while coding/verifying:** raise a Jira **Bug** (not a silent fix-only):
-  1. Create Bug with symptom, expected vs actual, environment, **numbered replication steps**.
-  2. Relates-link to the Story and test Task (create test Task if missing).
-  3. When fixed: **Fix comment** (root cause, files, verify) then transition Bug to **Done**.
+- **Bugs found during development (mandatory):** Any bug found while implementing or verifying a slice **must** be raised on KAN and **Relates**-linked to the relevant Story + test Task (create test Task if missing). Standing authorization — no extra human confirm. Not a silent fix-only; not chat/WORK_LOG-only.
+  1. Prefer issue type Bug; **KAN currently has no Bug type** → create **Task** + **`label=bug`** + summary `[Bug] …`.
+  2. Include symptom, expected vs actual, environment, **numbered replication steps**.
+  3. Relates-link to the Story and test Task.
+  4. When fixed: **Fix comment** (root cause, files, verify) then transition to **Done**.
   See Bug section in `docs/ops/JIRA_TICKET_TEMPLATE.md`.
 - Seed unfinished FR backlog: `python scripts/jira_kan_seed_backlog.py` (idempotent; `--dry-run` / `--close-orphan-tests`).
 - Never log tokens. Never commit settings.

@@ -14,11 +14,11 @@
   2. **Linked test Task** (`label=test`, Relates → story): comment with unit-test / verification evidence (exact pytest command + pass count), then transition that test Task to **Done**. If no Relates test Task exists, create a Task labelled `test`, Relates-link it, comment evidence, then Done.
   3. Transition the **story** to Done only after the story comment is posted.
   Then **commit and `git push origin main`**. Do not leave finished slice work unpushed.
-- **Bugs found while coding or verifying (mandatory):** Do **not** silently fix user-visible or FR-breaking defects without a Jira **Bug**.
-  1. Create a **Bug** issue on project **KAN** (REST if Atlassian MCP fails).
-  2. **Relates**-link the Bug to the relevant **Story** and **test Task** (create the test Task if missing).
+- **Bugs found during development (mandatory — standing instruction):** Any bug found while implementing, testing, verifying (pytest / Computer Use / AUT), or reviewing a slice **must** be raised on project **KAN** and **Relates**-linked to the relevant **Story** (and its linked **test Task**; create the test Task if missing). Do **not** silently fix and move on; do **not** leave the defect only in chat or WORK_LOG.
+  1. Create the ticket immediately when found (REST if Atlassian MCP fails). Standing authorization — no extra human confirm.
+  2. **Issue type on KAN today:** project createmeta has Epic/Story/Task/Subtask only (no Bug type). Create a **Task** with **`label=bug`** and summary prefixed `[Bug] …` until a Bug issue type is enabled. Prefer true Bug type if/when available.
   3. Description must include: clear symptom, expected vs actual, environment, and **numbered replication steps**.
-  4. When fixed: post a **Fix comment** (root cause, what changed, files, how verified), then transition the Bug to **Done**.
+  4. When fixed: post a **Fix comment** (root cause, what changed, files, how verified), then transition the ticket to **Done**.
   Template: `docs/ops/JIRA_TICKET_TEMPLATE.md` (Bug section). Skill: `.cursor/skills/jira-safe/SKILL.md`.
 - **FR coverage:** Every `FR-*` in `docs/FUNCTIONAL_SPEC.md` must map to a KAN Story (see §5 matrix). If a Story is Done but FR text is unfinished, keep/create open gap Stories (do not pretend Done = full FR). Reconcile with `python scripts/jira_kan_seed_backlog.py`.
 - **User change requests (CRs):** When the human changes product intent, scope, AC, or behaviour (including informal “actually do X instead”), update **all** of: `docs/FUNCTIONAL_SPEC.md` (canonical), affected KAN epic/story/test descriptions (re-enrich or edit), `PROJECT_MEMORY.md` / `ROADMAP.md` / `docs/ops/WORK_LOG.md` as needed, and any mockups/rules that contradict the CR. Do not leave Jira or the spec stale relative to what the user just decided.

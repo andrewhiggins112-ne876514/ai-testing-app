@@ -11,6 +11,7 @@ description: PM-owned development slice with zero human copy-paste between tools
 3. **Plan** — architect if multi-file or security-sensitive.  
 4. **Implement** — PM edits directly, or delegates implementer / ui-orb (Grok 4.7).  
 5. **Verify** — verifier. Run focused tests. Visible product UI: **`desktop_app.py` + Computer Use** (not browser). IronBee only for AUT/Gradio.  
+5b. **Bugs found (mandatory)** — Any defect found during implement/verify **must** be raised on Jira and **Relates**-linked to the Story + test Task (create test Task if missing), with symptom / expected vs actual / environment / numbered replication steps. Prefer Bug type; **KAN today:** Task + `label=bug` + `[Bug] …` summary. Standing authorization (no extra confirm). Do not silently fix-only. When fixed: Fix comment + Done. See `docs/ops/JIRA_TICKET_TEMPLATE.md` Bug section.  
 6. **Memory** — update `PROJECT_MEMORY.md` / `ROADMAP.md`; append `docs/ops/WORK_LOG.md`; set next Active slice.  
 7. **Jira close-out (required)** — run `scripts/jira_kan_slice_closeout.py` (or equivalent REST):
    - Story comment: **what the agent did** to complete the story + files + verify.

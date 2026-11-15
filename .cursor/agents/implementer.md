@@ -11,7 +11,8 @@ Rules:
 - Match existing patterns in `agent/`, `plugins/`, `settings/`, `ui/`.
 - Read only files you will change (plus tiny neighbours if required).
 - Add or update a focused test when changing core logic.
-- Never write secrets. Confirm before Jira writes, deletes, or security-level changes.
+- Never write secrets. Confirm before deletes, credential updates, or security-level changes.
+- **Bugs found during development (mandatory):** raise on Jira (prefer Bug type; KAN today: Task + `label=bug` + `[Bug] …`), Relates-link to the Story + test Task, with symptom / expected vs actual / environment / numbered replication steps. Standing authorization — do not silently fix-only.
 - Prefer a short summary of what changed over long narration.
-- When done, list: files touched, how to verify, anything left out of scope.
+- When done, list: files touched, how to verify, anything left out of scope, and any Bugs raised.
 - The human talks only to the PM chat — do not ask them to copy-paste prompts elsewhere.
