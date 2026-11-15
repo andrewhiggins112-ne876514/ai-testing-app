@@ -250,7 +250,11 @@ def _store_pending(
         "format": format_name,
         "settings_diff": _public_diff(diff),
         "test_ideas": test_ideas,
-        "note": "Nothing was written. Reply yes/confirm to apply all proposed keys, or decline to discard.",
+        "note": (
+            "Nothing was written. Explicit consent required (GDPR / FR-SEC-2): "
+            "reply yes/confirm to store extracted settings, or decline to discard."
+        ),
+        "consent_required": True,
     }
 
 
@@ -354,7 +358,11 @@ def apply_proposal(
             "status": "confirmation_required",
             "proposal_id": record.get("proposal_id"),
             "proposed": shown,
-            "note": "Pass confirm=true or reply yes to write these keys.",
+            "note": (
+                "Explicit consent required before storing extracted data. "
+                "Pass confirm=true or reply yes to write these keys."
+            ),
+            "consent_required": True,
         }
     result = apply_settings_diff(payload, confirm=True)
     _drop(record)

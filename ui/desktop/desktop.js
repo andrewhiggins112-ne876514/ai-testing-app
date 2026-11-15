@@ -1049,6 +1049,19 @@
   const secConfirm = document.getElementById("sec-confirm");
   const secStatus = document.getElementById("sec-status");
   let pendingSecurityLevel = "";
+  const privTelemetry = document.getElementById("priv-telemetry");
+  const privInventory = document.getElementById("priv-inventory");
+  const privChecks = {
+    reports: document.getElementById("priv-reports"),
+    screenshots: document.getElementById("priv-screenshots"),
+    heal_audit: document.getElementById("priv-heal"),
+    sessions: document.getElementById("priv-sessions"),
+    browser_profiles: document.getElementById("priv-profiles"),
+  };
+  const privPropose = document.getElementById("priv-propose");
+  const privConfirm = document.getElementById("priv-confirm");
+  const privStatus = document.getElementById("priv-status");
+  let pendingPrivacyCategories = null;
   const docText = document.getElementById("doc-text");
   const docParse = document.getElementById("doc-parse");
   const docProposal = document.getElementById("doc-proposal");
@@ -1097,6 +1110,52 @@
     } catch (err) {
       if (secStatus) secStatus.textContent = "Could not load security level.";
     }
+  }
+
+  function selectedPrivacyCategories() {
+    return Object.keys(privChecks).filter(function (key) {
+      return privChecks[key] && privChecks[key].checked;
+    });
+  }
+
+  function applyPrivacyStatus(payload) {
+    if (!payload) return;
+    if (privTelemetry) {
+      privTelemetry.textContent =
+        "Telemetry: " +
+        (payload.telemetry_enabled ? "on" : "off (default)") +
+        ". Consent required for extracted data.";
+    }
+    if (privInventory && payload.categories) {
+      const parts = Object.keys(payload.categories).map(function (key) {
+        const info = payload.categories[key] || {};
+        if (!info.exists) return key + ": none";
+        return key + ": " + (info.items || 0) + " item(s)";
+      });
+      privInventory.textContent = "Local artifacts: " + parts.join("; ");
+    }
+  }
+
+  async function loadPrivacyStatus() {
+    try {
+      const res = await fetch("/api/privacy");
+      if (!res.ok) return;
+      applyPrivacyStatus(await res.json());
+      pendingPrivacyCategories = null;
+      if (privConfirm) privConfirm.disabled = true;
+      if (privStatus) privStatus.textContent = "Ready";
+    } catch (err) {
+      if (privStatus) privStatus.textContent = "Could not load privacy status.";
+    }
+  }
+
+  async function postPrivacyDelete(categories, confirm) {
+    const res = await fetch("/api/privacy/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ categories: categories, confirm: !!confirm }),
+    });
+    return { ok: res.ok, payload: await res.json() };
   }
 
   async function postSecurityLevel(level, confirm) {
@@ -1220,6 +1279,7 @@
     }
     if (name === "security" && securitySection && !securitySection.hidden) {
       loadSecurityStatus();
+      loadPrivacyStatus();
     }
     if (name === "desktop" && desktopSection && !desktopSection.hidden) {
       loadDesktopPlugin();
@@ -1557,6 +1617,84 @@
         }
       } catch (err) {
         if (secStatus) secStatus.textContent = "Could not confirm switch.";
+      }
+    });
+  }
+
+  if (privPropose) {
+    privPropose.addEventListener("click", async function () {
+      const categories = selectedPrivacyCategories();
+      if (!categories.length) {
+        if (privStatus) privStatus.textContent = "Select at least one category.";
+        return;
+      }
+      if (privStatus) privStatus.textContent = "Proposing delete…";
+      try {
+        const { ok, payload } = await postPrivacyDelete(categories, false);
+        if (!ok) {
+          if (privStatus) privStatus.textContent = "Delete request failed.";
+          return;
+        }
+        if (payload.status === "confirmation_required") {
+          pendingPrivacyCategories =
+            (payload.proposed && payload.proposed.categories) || categories;
+          if (privConfirm) privConfirm.disabled = false;
+          if (payload.inventory) {
+            applyPrivacyStatus({
+              telemetry_enabled: false,
+              categories: payload.inventory,
+            });
+          }
+          if (privStatus) {
+            privStatus.textContent =
+              payload.message ||
+              "Confirm to permanently delete: " +
+                (pendingPrivacyCategories || []).join(", ");
+          }
+          return;
+        }
+        if (privStatus) {
+          privStatus.textContent = payload.message || payload.status || "Done.";
+        }
+      } catch (err) {
+        if (privStatus) privStatus.textContent = "Could not reach privacy API.";
+      }
+    });
+  }
+
+  if (privConfirm) {
+    privConfirm.addEventListener("click", async function () {
+      const categories = pendingPrivacyCategories || selectedPrivacyCategories();
+      if (!categories || !categories.length) {
+        if (privStatus) privStatus.textContent = "Nothing pending to delete.";
+        return;
+      }
+      if (privStatus) privStatus.textContent = "Deleting…";
+      try {
+        const { ok, payload } = await postPrivacyDelete(categories, true);
+        if (!ok || payload.status === "error") {
+          if (privStatus) {
+            privStatus.textContent =
+              (payload && payload.message) || "Delete failed.";
+          }
+          return;
+        }
+        pendingPrivacyCategories = null;
+        if (privConfirm) privConfirm.disabled = true;
+        if (payload.inventory_after) {
+          applyPrivacyStatus({
+            telemetry_enabled: false,
+            categories: payload.inventory_after,
+          });
+        } else {
+          await loadPrivacyStatus();
+        }
+        if (privStatus) {
+          privStatus.textContent =
+            payload.message || "Local artifacts deleted.";
+        }
+      } catch (err) {
+        if (privStatus) privStatus.textContent = "Could not confirm delete.";
       }
     });
   }

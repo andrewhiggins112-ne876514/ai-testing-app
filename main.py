@@ -34,6 +34,7 @@ from plugins.playwright_suite import (
 )
 from plugins.registry import list_plugins
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
+from settings.privacy import delete_local_data, privacy_status, telemetry_enabled
 from settings.store import (
     load_settings,
     security_status,
@@ -92,6 +93,11 @@ class DocIngestDeclineRequest(BaseModel):
 
 class SecurityLevelRequest(BaseModel):
     security_level: str
+    confirm: bool = False
+
+
+class DeleteLocalDataRequest(BaseModel):
+    categories: list[str] | None = None
     confirm: bool = False
 
 
@@ -154,6 +160,7 @@ async def health():
         "model": "local-ollama",
         "jira_configured": configured,
         "settings_path": str(settings_path()),
+        "telemetry_enabled": telemetry_enabled(),
     }
 
 
@@ -194,6 +201,16 @@ async def get_security_level_api():
 @app.post("/api/security-level")
 async def post_security_level_api(req: SecurityLevelRequest):
     return set_security_level(req.security_level, confirm=bool(req.confirm))
+
+
+@app.get("/api/privacy")
+async def get_privacy_api():
+    return privacy_status()
+
+
+@app.post("/api/privacy/delete")
+async def post_privacy_delete_api(req: DeleteLocalDataRequest):
+    return delete_local_data(req.categories, confirm=bool(req.confirm))
 
 
 @app.post("/api/doc-ingest")

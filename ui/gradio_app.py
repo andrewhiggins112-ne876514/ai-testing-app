@@ -36,6 +36,7 @@ from reports.sections import (
     normalize_sections,
     save_report_sections,
 )
+from settings.privacy import delete_local_data, privacy_status, telemetry_enabled
 from settings.store import (
     browser_profile_dir,
     load_settings,
@@ -1479,13 +1480,70 @@ def settings_store_summary():
     multi_on = "on" if data.get("plugin_multi_sandbox_enabled", False) else "off"
     app_path = (data.get("target_app_path") or "").strip() or "(not set)"
     suite_path = (data.get("playwright_suite_path") or "").strip() or "(not set)"
+    telem = "on" if telemetry_enabled() else "off (default)"
     return (
         f"Local store: {settings_path()}\n"
         f"Level: {level} | Browser profile: {profile}\n"
         f"{creds}\n"
         f"Desktop plugin: {desk_on} | target_app_path: {app_path}\n"
         f"Playwright suite path: {suite_path}\n"
-        f"Multi-sandbox plugin: {multi_on}"
+        f"Multi-sandbox plugin: {multi_on}\n"
+        f"Telemetry: {telem} | Extracted-data consent required"
+    )
+
+
+def privacy_panel_summary():
+    status = privacy_status()
+    cats = status.get("categories") or {}
+    lines = [
+        f"Telemetry: {'on' if status.get('telemetry_enabled') else 'off (default)'}",
+        status.get("consent_note") or "",
+        f"App data: {status.get('app_data_dir') or ''}",
+    ]
+    for name, info in cats.items():
+        if not info.get("exists"):
+            lines.append(f"{name}: none")
+        else:
+            lines.append(f"{name}: {info.get('items', 0)} item(s), {info.get('bytes', 0)} bytes")
+    return "\n".join(lines)
+
+
+def propose_delete_local_data(reports, screenshots, heal_audit, sessions, browser_profiles):
+    categories = []
+    if reports:
+        categories.append("reports")
+    if screenshots:
+        categories.append("screenshots")
+    if heal_audit:
+        categories.append("heal_audit")
+    if sessions:
+        categories.append("sessions")
+    if browser_profiles:
+        categories.append("browser_profiles")
+    result = delete_local_data(categories or None, confirm=False)
+    if result.get("status") == "confirmation_required":
+        msg = result.get("message") or "Confirm to delete."
+        return msg, privacy_panel_summary(), settings_store_summary()
+    return result.get("message") or str(result.get("status")), privacy_panel_summary(), settings_store_summary()
+
+
+def confirm_delete_local_data(reports, screenshots, heal_audit, sessions, browser_profiles):
+    categories = []
+    if reports:
+        categories.append("reports")
+    if screenshots:
+        categories.append("screenshots")
+    if heal_audit:
+        categories.append("heal_audit")
+    if sessions:
+        categories.append("sessions")
+    if browser_profiles:
+        categories.append("browser_profiles")
+    result = delete_local_data(categories or None, confirm=True)
+    return (
+        result.get("message") or result.get("status") or "Done.",
+        privacy_panel_summary(),
+        settings_store_summary(),
     )
 
 
@@ -1919,6 +1977,35 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     )
                     gr.Button("Confirm level switch").click(
                         confirm_security_level, [level, jira_base_url], [status, store_info]
+                    )
+                gr.HTML('<div class="orb-section-label">Privacy &amp; local data (GDPR)</div>')
+                gr.HTML(
+                    '<div class="panel-hint">No telemetry by default. Wipe reports/screenshots/'
+                    "heal audit/sessions/browser profiles with confirmation. Credentials stay. "
+                    "Document ingestion still requires explicit consent before storing extracted data.</div>"
+                )
+                privacy_info = gr.Textbox(
+                    value=privacy_panel_summary(),
+                    label="Privacy status",
+                    interactive=False,
+                    lines=6,
+                )
+                with gr.Row():
+                    priv_reports = gr.Checkbox(value=True, label="Reports")
+                    priv_shots = gr.Checkbox(value=True, label="Screenshots")
+                    priv_heal = gr.Checkbox(value=True, label="Heal audit")
+                    priv_sessions = gr.Checkbox(value=True, label="Sessions")
+                    priv_profiles = gr.Checkbox(value=False, label="Browser profiles")
+                with gr.Row():
+                    gr.Button("Delete local data…").click(
+                        propose_delete_local_data,
+                        [priv_reports, priv_shots, priv_heal, priv_sessions, priv_profiles],
+                        [status, privacy_info, store_info],
+                    )
+                    gr.Button("Confirm delete").click(
+                        confirm_delete_local_data,
+                        [priv_reports, priv_shots, priv_heal, priv_sessions, priv_profiles],
+                        [status, privacy_info, store_info],
                     )
                 gr.HTML('<div class="orb-section-label">Desktop plugin</div>')
                 _desk = desktop_plugin_status()

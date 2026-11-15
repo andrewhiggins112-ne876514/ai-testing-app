@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | KAN-69 — GDPR easy local data deletion and consent surfaces |
+| **Jira story** | KAN-71 — Prompt-injection mitigations for untrusted inputs |
 | **Epic** | KAN-26 (Security / GDPR) |
-| **Roadmap ID** | (FR-SEC-2) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-SEC-2 |
-| **Next action** | Implement KAN-69; test Task KAN-70 |
+| **Roadmap ID** | (FR-SEC-4) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-SEC-4 / FR-AGENT-4 |
+| **Next action** | Implement KAN-71; test Task KAN-72 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-69 — GDPR easy local data deletion and consent surfaces
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** FR-SEC-2: `settings/privacy.py` inventory + confirm-gated `delete_local_data` (reports/screenshots/heal_audit/sessions/browser_profiles; never credentials/settings.json). `telemetry_enabled` default false; `/health` + `/api/privacy` expose status; agent tool `delete_local_data`; App → Security Privacy UI (desk17) + Gradio Privacy section; doc ingest consent language reinforced.
+- **Files:** `settings/privacy.py`, `settings/store.py`, `main.py`, `agent/agent.py`, `plugins/doc_ingest.py`, `ui/desktop/*`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_privacy_gdpr.py`, FUNCTIONAL_SPEC, PROJECT_MEMORY, ROADMAP, WORK_LOG.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_privacy_gdpr.py tests/test_security_isolation.py -v` (9 passed). Live `/health` telemetry false; `/api/privacy/delete` confirm gate; desk17 Privacy markup served.
+- **Jira:** story Agent completion + KAN-70 test evidence/Done + KAN-69 Done (via closeout script).
+- **Next:** KAN-71 prompt-injection mitigations (FR-SEC-4; test KAN-72).
 
 ### 2026-11-15 — KAN-67 — Richer report metrics — stories covered and bugs raised
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)

@@ -66,6 +66,24 @@
             <button type="button" id="sec-confirm" class="save-btn secondary" disabled>Confirm switch</button>
           </div>
           <p id="sec-status" class="drawer-hint" role="status">Ready</p>
+          <h3 class="orb-section-label">Privacy &amp; local data</h3>
+          <p class="drawer-hint">
+            No telemetry by default. Extracted document data needs explicit consent before storage.
+            Wipe local artifacts (reports, screenshots, heal audit, sessions, browser profiles) with confirmation.
+            Credentials and settings.json are not deleted here.
+          </p>
+          <p id="priv-telemetry" class="drawer-hint">Telemetry: —</p>
+          <p id="priv-inventory" class="drawer-hint">Local artifacts: —</p>
+          <label class="check-row"><input type="checkbox" id="priv-reports" checked /> Reports</label>
+          <label class="check-row"><input type="checkbox" id="priv-screenshots" checked /> Screenshots</label>
+          <label class="check-row"><input type="checkbox" id="priv-heal" checked /> Heal audit</label>
+          <label class="check-row"><input type="checkbox" id="priv-sessions" checked /> Sessions</label>
+          <label class="check-row"><input type="checkbox" id="priv-profiles" /> Browser profiles</label>
+          <div class="btn-row">
+            <button type="button" id="priv-propose" class="save-btn">Delete local data…</button>
+            <button type="button" id="priv-confirm" class="save-btn secondary" disabled>Confirm delete</button>
+          </div>
+          <p id="priv-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-reports" class="app-section" hidden>
           <h3 class="orb-section-label">Report sections</h3>
@@ -79,7 +97,7 @@
         </div>
         <div id="app-section-documents" class="app-section" hidden>
           <h3 class="orb-section-label">Document ingestion</h3>
-          <p class="drawer-hint">Paste a Markdown/text spec. Proposed settings are never stored until you confirm.</p>
+          <p class="drawer-hint">Paste a Markdown/text spec. Explicit consent required before storing extracted settings (GDPR). Decline leaves the settings file unchanged.</p>
           <label class="stack-label">Spec text
             <textarea id="doc-text" rows="8" placeholder="# Spec&#10;Target: https://example.com&#10;Jira project: KAN"></textarea>
           </label>

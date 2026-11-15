@@ -96,6 +96,8 @@ def _defaults() -> dict:
         "plugin_multi_sandbox_enabled": False,
         # FR-TEST-4: capture final screenshot on successful Playwright runs (failures always)
         "playwright_success_evidence": True,
+        # FR-SEC-2: no telemetry by default (GDPR)
+        "telemetry_enabled": False,
     }
 
 

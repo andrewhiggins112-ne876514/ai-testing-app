@@ -35,6 +35,7 @@ TOOL_NAMES = frozenset({
     "transition_issue",
     "add_comment",
     "ingest_document",
+    "delete_local_data",
 })
 
 _FAIL_STATUSES = frozenset({
@@ -76,7 +77,8 @@ Rules:
 - To link a Jira issue to an epic, call set_parent with the issue key and epic key, then wait for the user to reply yes. Do not answer yes for the user.
 - To change a Jira issue's status, call transition_issue with the issue key and target status, then wait for the user to reply yes. Do not answer yes for the user.
 - To comment on a Jira issue, call add_comment with the issue key and body, then wait for the user to reply yes. Do not answer yes for the user. Pass report_path only when the user names a report file.
-- When the user pastes or names a functional spec to ingest, call ingest_document with the text (or path). Show the settings diff and test ideas. Do not write settings until the user replies yes or confirm. If they say no/decline, discard the proposal.
+- When the user pastes or names a functional spec to ingest, call ingest_document with the text (or path). Show the settings diff and test ideas. Do not write settings until the user replies yes or confirm (explicit GDPR consent). If they say no/decline, discard the proposal.
+- When the user asks to delete local app data / wipe reports or screenshots (GDPR), call delete_local_data with optional categories. Do not answer yes for the user — wait for yes or confirm. Telemetry stays off by default.
 """
 
 
@@ -589,7 +591,8 @@ class Agent:
                     "name": "ingest_document",
                     "description": (
                         "Parse a functional spec (Markdown/text/PDF path or pasted text). "
-                        "Returns a settings diff and test ideas. Does not write settings until the user confirms."
+                        "Returns a settings diff and test ideas. Does not write settings until the user "
+                        "explicitly consents (GDPR / FR-SEC-2)."
                     ),
                     "parameters": {
                         "type": "object",
@@ -597,6 +600,34 @@ class Agent:
                             "text": {"type": "string", "description": "Pasted document body"},
                             "path": {"type": "string", "description": "Local file path to a .md/.txt/.pdf"},
                             "filename": {"type": "string", "description": "Optional display name"},
+                        },
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "delete_local_data",
+                    "description": (
+                        "Propose or execute deletion of local app artifacts (reports, screenshots, "
+                        "heal_audit, sessions, browser_profiles). Requires confirm=true. "
+                        "Does not delete credentials or settings.json. Telemetry is off by default."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "categories": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": (
+                                    "Optional subset of reports, screenshots, heal_audit, "
+                                    "sessions, browser_profiles"
+                                ),
+                            },
+                            "confirm": {
+                                "type": "boolean",
+                                "description": "Must be true to delete; omit/false to preview",
+                            },
                         },
                     },
                 },
@@ -900,6 +931,11 @@ class Agent:
             kwargs = {k: v for k, v in args.items() if k in allowed}
             kwargs["session_id"] = session_id
             return ingest_document(**kwargs)
+        elif name == "delete_local_data":
+            from settings.privacy import delete_local_data
+            allowed = {"categories", "confirm"}
+            kwargs = {k: v for k, v in args.items() if k in allowed}
+            return delete_local_data(**kwargs)
         return {"error": "Unknown tool"}
 
 
