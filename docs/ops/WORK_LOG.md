@@ -7,13 +7,13 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | ready |
-| **Jira story** | KAN-75 — Heal proposal review UI (approve or reject pending heals) |
-| **Epic** | KAN-23 (Self-healing) |
-| **Roadmap ID** | (FR-HEAL-2 / FR-HEAL-5) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-HEAL-2 / FR-HEAL-5 |
-| **Next action** | Implement KAN-75; test Task KAN-76 |
-| **Backlog (UX CR)** | **KAN-103** (+ test KAN-104, Tasks KAN-106…110). Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md`. Pick up after KAN-75 unless re-prioritized. |
+| **Status** | blocked on design |
+| **Jira story** | **KAN-103** — Desktop nav: dedicated area screens + agent-home widgets + App Settings split |
+| **Epic** | KAN-27 (Desktop shell) |
+| **Roadmap ID** | UI-DESK-4 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-6/7, FR-SET-3 |
+| **Next action** | Designer picks mockup **A / B / C** (`docs/mockups/kan103_nav/`); then implement **Task KAN-106** (area screens) |
+| **Deferred** | **KAN-75** heal proposal review UI — after KAN-103 nav shell to stop drawer-inline defects (KAN-101 class). Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -34,6 +34,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — OPS — Active slice → KAN-103; nav mockups A/B/C (design gate)
+- **Agent/chat:** Cursor IDE Agent (PM + Designer slice — docs, mockups, Jira; no `ui/desktop/` code)
+- **Done:** Reprioritized Active slice to **KAN-103** (start **KAN-106** after mockup pick). **KAN-75** deferred. Added mockup pack `docs/mockups/kan103_nav/` (HTML + PNG for options A/B/C), README, `scripts/render_kan103_mockup_png.py`, `scripts/jira_kan103_mockup_gate.py`. Updated WORK_LOG, KAN102 plan, ROADMAP Now, PROJECT_MEMORY.
+- **Files:** docs/mockups/kan103_nav/**, docs/ops/WORK_LOG.md, docs/ops/KAN102_NAV_WIDGETS_PLAN.md, docs/ops/ROADMAP.md, PROJECT_MEMORY.md, scripts/render_kan103_mockup_png.py, scripts/jira_kan103_mockup_gate.py
+- **Verify:** Open `docs/mockups/kan103_nav/index.html`; browse PNGs under `png/`; Jira comments on KAN-103/102/75
+- **Jira:** descriptions prepended on KAN-103/106/107/108; comments KAN-103/102/75 (yes)
+- **Next:** User selects **A**, **B**, **C**, or hybrid → lock design → KAN-106 implementation
 
 ### 2026-11-15 — OPS — KAN-102 CR: nav model, widgets, App vs Orb settings (PM sync)
 - **Agent/chat:** Cursor IDE Agent (PM slice — docs + Jira only, no UI code)

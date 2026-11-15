@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-15 (KAN-102 CR locked; Active → KAN-75; nav Story backlog-ready)
+Last updated: 2026-11-15 (Active → KAN-103; nav mockups A/B/C pending; KAN-75 deferred)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -72,8 +72,8 @@ Skeleton + substantial features exist:
 - **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); **product UI = `desktop_app.py` + Computer Use** (not browser shell); IronBee for AUT/Gradio only; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
 
 Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
-- **KAN-75** Heal proposal review UI (Active)
-- **Desktop nav (KAN-102 CR)** — **KAN-103** Story (+ test KAN-104, Tasks KAN-106…110); see `docs/ops/KAN102_NAV_WIDGETS_PLAN.md`
+- **KAN-103** Desktop nav area screens + HUD widgets (**Active**; mockup choice A/B/C in `docs/mockups/kan103_nav/` → then KAN-106)
+- **KAN-75** Heal proposal review UI (deferred until KAN-103 nav shell)
 - KAN-77…KAN-81 first FR seed remainder; KAN-83…KAN-99 gap pass (headless, Jira AC read, 429 backoff, desktop beyond smoke, LEARN-4, sandbox beyond stub, busy UX, Jira write audit, steps from Jira AC)
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. Open example: **KAN-101** (App drawer toggle overlaps Settings)

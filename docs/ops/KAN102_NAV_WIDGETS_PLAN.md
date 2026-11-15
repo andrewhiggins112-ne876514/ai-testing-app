@@ -1,6 +1,6 @@
 # KAN-102 CR — Desktop nav, agent widgets, App vs Orb settings
 
-**Status:** Product decision locked (2026-11-15). Docs + Jira synced; **no UI code in the PM slice.**
+**Status:** Product model locked (2026-11-15). **Navigation shell design pending** — mockups A/B/C in `docs/mockups/kan103_nav/` (user must pick before KAN-106 coding). **Active slice = KAN-103** (KAN-75 deferred).
 
 **Canonical spec:** `docs/FUNCTIONAL_SPEC.md` — FR-UI-1/3/6/7, FR-SET-3.
 
@@ -105,5 +105,5 @@ flowchart TB
 
 ## PM notes
 
-- **Active slice** remains **KAN-75** (heal UI) unless product re-prioritizes; this Story is backlog-ready after KAN-75 or in parallel if assigned.
+- **Active slice (2026-11-15 PM):** **KAN-103** — implement **KAN-106** after Designer locks mockup **A/B/C** (see `docs/mockups/kan103_nav/README.md`). **KAN-75** deferred behind this UX fix.
 - KAN-73 **Done** delivered Settings **behaviour**; this Story delivers correct **navigation shell** per CR.
