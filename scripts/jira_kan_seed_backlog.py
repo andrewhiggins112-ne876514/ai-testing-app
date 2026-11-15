@@ -67,7 +67,7 @@ TEAM_DOD = [
     "Errors are logged and surfaced rather than swallowed.",
     "docs/ops/WORK_LOG.md has an entry for this slice.",
     "A Jira story comment states what the agent implemented (files + verify).",
-    "Linked test Task (label=test Relates) has evidence comment and is marked Done.",
+    "Linked test ticket (issuetype=test Relates) has evidence comment and is marked Done.",
 ]
 
 
@@ -1011,7 +1011,7 @@ def main() -> int:
         existing[summary] = sk
         test_summary = f"Test: {summary[:60]}"
         td = test_description(summary, item["acceptance"])
-        tk = j.create_issue(test_summary, "Task", td, labels=["test"])
+        tk = j.create_issue(test_summary, "test", td, labels=["test"])
         if tk:
             j.link_relates(sk, tk)
         created.append({"story": sk, "test": tk or "", "summary": summary, "epic": epic})

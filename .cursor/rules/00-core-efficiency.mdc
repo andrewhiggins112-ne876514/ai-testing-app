@@ -11,7 +11,7 @@ alwaysApply: true
 - Never store real credentials in the repo or chat. Local settings store only.
 - No Jira writes / credential prompts until the user says a Jira account exists (KAN is live).
 - Confirm before: security-level changes, deletes, credential updates, and non-routine Jira writes.
-- **Exception (standing):** bugs found during development **must** be raised on Jira and Relates-linked to the relevant Story (+ test Task) without waiting for a separate confirm. Prefer Bug type; **KAN today:** Task + `label=bug` + `[Bug] …`. See AGENTS.md / work-log-handoff.
+- **Exception (standing):** bugs found during development **must** be raised as Jira **Bug** tickets and Relates-linked to the relevant Story (+ test ticket) without waiting for a separate confirm. KAN types: Task=dev work, `test`=verification, Bug=defects. See AGENTS.md / work-log-handoff.
 - Prefer small diffs; extend existing plugins — do not create parallel systems.
 - After a finished slice: update Current State in `PROJECT_MEMORY.md` if behaviour changed.
 - Classic orb styles stay pure canvas. **WebGL / Three.js is allowed** for the three new styles (mystic, aether, neural) only. Vendor Three.js under ui/vendor/ is acceptable for those styles.

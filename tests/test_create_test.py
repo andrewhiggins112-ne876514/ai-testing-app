@@ -118,7 +118,7 @@ class CreateTestUpdateStatusTests(unittest.TestCase):
             )
         self.assertEqual(result["status"], "confirmation_required")
         self.assertTrue(result["confirm_id"])
-        self.assertEqual(result["preview"]["issue_type"], "Task")
+        self.assertEqual(result["preview"]["issue_type"], "test")
         self.assertEqual(result["preview"]["labels"], ["test"])
         self.assertEqual(result["preview"]["relates_to"], "KAN-65")
         self.assertEqual(result["preview"]["project"], "KAN")
@@ -153,7 +153,7 @@ class CreateTestUpdateStatusTests(unittest.TestCase):
         create_call = client.post.await_args_list[0]
         self.assertTrue(create_call.args[0].endswith("/rest/api/3/issue"))
         fields = create_call.kwargs["json"]["fields"]
-        self.assertEqual(fields["issuetype"]["name"], "Task")
+        self.assertEqual(fields["issuetype"]["name"], "test")
         self.assertEqual(fields["labels"], ["test"])
         self.assertEqual(fields["project"]["key"], "KAN")
         link_call = client.post.await_args_list[1]
@@ -173,7 +173,9 @@ class CreateTestUpdateStatusTests(unittest.TestCase):
         self.assertEqual(cancelled["status"], "cancelled")
         client.post.assert_not_called()
 
-    def _update_gets(self, labels=("test",), current="To Do", transitions=None):
+    def _update_gets(
+        self, labels=("test",), current="To Do", transitions=None, issue_type="test"
+    ):
         if transitions is None:
             transitions = [
                 {"id": "31", "name": "Done", "to": {"name": "Done"}},
@@ -188,7 +190,7 @@ class CreateTestUpdateStatusTests(unittest.TestCase):
                     "fields": {
                         "labels": list(labels),
                         "status": {"name": current},
-                        "issuetype": {"name": "Task"},
+                        "issuetype": {"name": issue_type},
                         "summary": "Test: cover KAN-65",
                     }
                 }
@@ -225,7 +227,9 @@ class CreateTestUpdateStatusTests(unittest.TestCase):
 
     def test_update_status_rejects_non_test_label(self):
         self._configure()
-        client = _client(get_side_effect=self._update_gets(labels=["other"]))
+        client = _client(
+            get_side_effect=self._update_gets(labels=["other"], issue_type="Task")
+        )
         with patch("plugins.jira_plugin.httpx.AsyncClient", return_value=client):
             result = asyncio.run(
                 update_status(
@@ -235,7 +239,7 @@ class CreateTestUpdateStatusTests(unittest.TestCase):
                 )
             )
         self.assertEqual(result["status"], "error")
-        self.assertIn("labelled", result["message"].casefold())
+        self.assertIn("test ticket", result["message"].casefold())
         client.post.assert_not_called()
 
     def test_update_status_yes_comments_and_transitions(self):

@@ -381,7 +381,7 @@ def main() -> int:
             j.transition(key)
         test_key = j.create_issue(
             f"Test: {key} acceptance",
-            "Task",
+            "test",
             story_description(
                 f"Verify {key}",
                 "Automated / manual verification steps for parent story.",
@@ -404,7 +404,7 @@ def main() -> int:
             j.transition(sk)
             tk = j.create_issue(
                 f"Test: {summary[:50]}",
-                "Task",
+                "test",
                 story_description("Verification", "Run manual/automated checks.", ac, trace),
                 labels=["test"],
             )
@@ -422,7 +422,7 @@ def main() -> int:
             open_keys.append(sk)
             tk = j.create_issue(
                 f"Test: {summary[:50]}",
-                "Task",
+                "test",
                 story_description("Verification steps", body, ac, trace),
                 labels=["test"],
             )

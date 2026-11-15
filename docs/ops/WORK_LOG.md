@@ -34,6 +34,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-15 — OPS — KAN Bug + test issue types enabled; migrate + docs
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** User enabled Jira **Bug** and **`test`** issue types on KAN. Migrated 40 Task+label=test → `test` (41 total), KAN-101 Task+label=bug → Bug. Updated agent instructions + `create_test` / closeout / seed / rebuild to use `test` and Bug. **Task** reserved for development work under a Story (e.g. one Task per FR). Added `scripts/jira_kan_migrate_issue_types.py`.
+- **Files:** plugins/jira_plugin.py, agent/agent.py, tests/test_create_test.py, scripts/jira_kan_*.py, AGENTS.md, JIRA_TICKET_TEMPLATE, skills/rules, PROJECT_MEMORY, WORK_LOG.
+- **Verify:** `issuetype=test` count 41; `issuetype=Bug` includes KAN-101; pytest tests/test_create_test.py (+ related).
+- **Jira:** types migrated in place (no recreate/close needed).
+- **Next:** Active remains KAN-75 heal proposal review UI.
+
 ### 2026-11-15 — OPS — Mandatory Bug tickets during development (agent instructions)
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)
 - **Done:** Strengthened standing rule: any bug found during development must be raised on Jira and Relates-linked to the Story (+ test Task). Documented KAN createmeta has no Bug type → use Task + `label=bug` + `[Bug] …` until Bug type enabled. Raised KAN-101 for App drawer toggle overlapping Settings (found during KAN-73 verify; Relates KAN-73/KAN-74).

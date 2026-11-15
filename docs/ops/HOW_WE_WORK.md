@@ -54,9 +54,9 @@ See `docs/ops/CONNECTORS.md`. Customize/MCP is in the **Agents** window, not the
 - [ ] Memory/roadmap updated  
 - [ ] `docs/ops/WORK_LOG.md` entry + Active slice advanced  
 - [ ] Jira **story comment**: what the **agent did** to complete the story + files + verify  
-- [ ] Linked **test Task** (`label=test` Relates): unit-test evidence comment + Done (create/link if missing)  
+- [ ] Linked **test** ticket (`issuetype=test` Relates): unit-test evidence comment + Done (create/link if missing)  
 - [ ] Prefer `python scripts/jira_kan_slice_closeout.py --story KAN-XX … --mark-done`  
-- [ ] **Bugs found during development (mandatory):** raise on Jira immediately (symptom + expected/actual + environment + numbered replication steps), Relates-link to the relevant Story + test Task; prefer Bug type — **KAN today:** Task + `label=bug` + `[Bug] …`; when fixed, Fix comment then Done — never silently fix-only or leave the defect only in chat/WORK_LOG  
+- [ ] **Bugs found during development (mandatory):** raise a **Bug** immediately (symptom + expected/actual + environment + numbered replication steps), Relates-link to Story + test ticket; when fixed, Fix comment then Done — never silently fix-only or leave the defect only in chat/WORK_LOG. **Task** = development work under a Story (e.g. per-FR); **`test`** = verification; **Bug** = defects  
 - [ ] **Commit + `git push origin main`** (required; do not leave finished work unpushed)  
 - [ ] Human told how to verify the app if useful — **never** told to `git pull` (next Agent chat pulls)  
 

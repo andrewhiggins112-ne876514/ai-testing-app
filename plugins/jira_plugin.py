@@ -19,10 +19,14 @@ _TYPE_JQL = {
     "story": "Story",
     "task": "Task",
     "bug": "Bug",
+    "test": "test",  # KAN custom type name is lowercase "test"
     "epic": "Epic",
     "subtask": "Sub-task",
     "sub-task": "Sub-task",
 }
+# KAN issue types (createmeta): Epic, Story, Task, Bug, test, Subtask
+TEST_ISSUE_TYPE = "test"
+BUG_ISSUE_TYPE = "Bug"
 _ISSUE_TYPE = re.compile(r"[A-Za-z][A-Za-z0-9 ]{0,39}")
 _WRITE = {"create_test", "update_status", "create_bug"}
 _CONFIRM_WORDS = {"yes", "confirm"}
@@ -748,6 +752,15 @@ def _project_from_issue_key(issue_key: str) -> str:
     return text.split("-", 1)[0]
 
 
+def _is_test_ticket(issue_type: str = "", labels: Any = None) -> bool:
+    """True when issue is the KAN test type and/or labelled test (legacy)."""
+    type_name = str(issue_type or "").strip().lower()
+    label_list = labels if isinstance(labels, list) else []
+    return type_name == TEST_ISSUE_TYPE.lower() or "test" in {
+        str(item).lower() for item in label_list
+    }
+
+
 async def create_test(
     story_key: str,
     summary: Optional[str] = None,
@@ -757,7 +770,7 @@ async def create_test(
     project: Optional[str] = None,
     session_id: str = "default",
 ) -> Dict[str, Any]:
-    """Propose a linked test Task (label=test, Relates). POST only after yes/confirm (FR-JIRA-2/5)."""
+    """Propose a linked test issue (type=test, Relates). POST only after yes/confirm (FR-JIRA-2/5)."""
     story = _issue_key(story_key)
     if not story:
         return {"status": "error", "message": "story_key must look like KEY-123"}
@@ -796,7 +809,7 @@ async def create_test(
     if len(description) > 20000:
         return {"status": "error", "message": "test description is too long"}
 
-    preview = _valid_create(key, summary_text, description, "Task")
+    preview = _valid_create(key, summary_text, description, TEST_ISSUE_TYPE)
     if preview.get("status"):
         return preview
     preview["labels"] = ["test"]
@@ -812,7 +825,7 @@ async def create_test(
     shown = {
         "project": preview["project"],
         "summary": preview["summary"],
-        "issue_type": "Task",
+        "issue_type": TEST_ISSUE_TYPE,
         "labels": ["test"],
         "relates_to": story,
         "description_preview": description[:500],
@@ -1166,12 +1179,13 @@ async def update_status(
     if looked.get("status") != "ok":
         return looked
     labels = looked.get("labels") or []
-    if "test" not in labels:
+    issue_type = str(looked.get("issue_type") or "")
+    if not _is_test_ticket(issue_type, labels):
         return {
             "status": "error",
             "message": (
-                f"{issue} is not labelled 'test'. "
-                "update_status only marks linked test Tasks Done (FR-JIRA-3)."
+                f"{issue} is not a test ticket (issuetype '{TEST_ISSUE_TYPE}' or label=test). "
+                "update_status only marks linked test tickets Done (FR-JIRA-3)."
             ),
         }
 

@@ -8,7 +8,7 @@ Audiences that must be able to read every ticket without opening other docs:
 |----------|--------|
 | Management | Outcome, value, scope boundary, success measure |
 | Developers | Requirements, behaviour, technical notes, paths |
-| Testers | Acceptance criteria + test procedure (test Tasks) |
+| Testers | Acceptance criteria + test procedure (test tickets) |
 | Cursor agents | Self-contained FR text, DoD, next-slice pointers |
 | AI Testing App | Machine-usable FR-IDs and explicit AC for later ingestion |
 
@@ -38,7 +38,7 @@ Audiences that must be able to read every ticket without opening other docs:
 10. **Technical notes** — repo paths  
 11. **Mockups**
 
-## Test Task structure (`label = test`, Relates → Story)
+## Test ticket structure (issuetype = `test`, Relates → Story)
 
 1. **Intro** — which story this verifies  
 2. **Who this is for** (testers + agents primary)  
@@ -46,16 +46,26 @@ Audiences that must be able to read every ticket without opening other docs:
 4. **Acceptance criteria** — slim copy of parent AC  
 5. **Evidence** — screenshots/logs required  
 
-## Bug structure (Cursor agents — mandatory when defects are found)
+Optional `label=test` may still appear on older tickets; **issuetype `test` is authoritative**.
+
+## Development Task structure (issuetype = Task, Relates / child of Story)
+
+Use **Task** for implementation work under a Story — not for verification and not for defects.
+
+Typical pattern: one Task per FR (or logical work item) on the Story so agents/humans can check them off before the Story is Done.
+
+1. **Intro** — which Story / FR this implements  
+2. **Scope** — what code/docs change  
+3. **Done when** — concrete completion check  
+
+## Bug structure (issuetype = Bug — mandatory when defects are found)
 
 **Standing instruction:** any bug found during development of a slice (implement, pytest, Computer Use, AUT, review) **must** be raised as a Jira **Bug** and **Relates**-linked to the relevant Story. Do not silently fix-only; do not leave it only in chat or WORK_LOG.
 
 When a product/regression bug is found during implementation, pytest, Computer Use, or AUT runs:
 
-1. Create the defect ticket immediately (not a silent fix-only). Standing authorization — no extra human confirm.  
-   - Prefer issue type **Bug** when the project supports it.  
-   - **KAN today:** createmeta has no Bug type — create a **Task** with **`label=bug`** and summary `[Bug] …`.  
-2. **Relates**-link to the relevant **Story** and **test Task** (create the test Task if missing).  
+1. Create a **Bug** immediately (not a Story, not a silent fix-only). Standing authorization — no extra human confirm.  
+2. **Relates**-link to the relevant **Story** and **test** ticket (create the test ticket if missing).  
 3. Description sections:
    - **Symptom** — what went wrong  
    - **Expected** vs **Actual**  
@@ -77,15 +87,20 @@ Copied into tickets from `docs/FUNCTIONAL_SPEC.md` §7:
 8. Errors logged and surfaced (not swallowed)  
 9. Entry appended to `docs/ops/WORK_LOG.md`  
 10. **Jira story comment** stating what **the agent did** to complete the story (implementation + files + verify) — not a one-liner “done”  
-11. **Linked test Task** (`label=test`, Relates) has a verification comment (pytest command + result or manual evidence) and is marked **Done**
+11. **Linked test ticket** (`issuetype=test`, Relates) has a verification comment (pytest command + result or manual evidence) and is marked **Done**
 
 Helper: `python scripts/jira_kan_slice_closeout.py --story KAN-XX --done "…" --files "…" --verify "…" --pytest-cmd "…" --mark-done`  
 
-## Hierarchy reminder
+## Hierarchy reminder (KAN)
 
-- **Epic** = multi-slice outcome (FR area)  
-- **Story** = one sprintable slice of user/product value  
-- **Task** + `test` = verification linked with Relates (KAN has no Test issue type)  
+| Type | Use for |
+|------|---------|
+| **Epic** | Multi-slice outcome (FR area) |
+| **Story** | One sprintable slice of user/product value |
+| **Task** | Development work under a Story (e.g. one Task per FR to check off) |
+| **test** | Verification ticket Relates-linked to a Story (KAN type name is lowercase `test`) |
+| **Bug** | Defects found during development or from failed runs |
+| **Subtask** | Optional fine-grained split under Task/Story |
 
 ## Spec vs Jira
 

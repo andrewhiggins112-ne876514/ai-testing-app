@@ -25,8 +25,8 @@ When the user says **pick up where we left off**, **continue**, **next slice**, 
 4. Update `docs/ops/ROADMAP.md` status for the roadmap ID.
 5. **Jira close-out (required — REST if MCP fails):**
    - Post a **story comment** titled like “Agent completion …” that states **what the agent implemented** to finish the story (not a vague “done”), plus files and verify steps.
-   - Update the **linked test Task** (`label=test`, Relates): comment with pytest/unit evidence (command + pass count) or recorded manual steps; transition that test Task to **Done**.
-   - If no test Task is linked, **create** one (Task + `test` label + Relates to story), then comment + Done.
+   - Update the **linked test ticket** (`issuetype=test`, Relates): comment with pytest/unit evidence (command + pass count) or recorded manual steps; transition that test ticket to **Done**.
+   - If no test ticket is linked, **create** one (`issuetype=test` + Relates to story), then comment + Done.
    - Transition the **story** to Done only after the story comment exists.
    - Helper: `python scripts/jira_kan_slice_closeout.py --story KAN-XX --done "…" --files "…" --verify "…" --pytest-cmd "…" --mark-done`
 6. **`supermemory_add`** (container project): one short note of what shipped, key files, and next Active slice — no secrets.
@@ -35,12 +35,14 @@ When the user says **pick up where we left off**, **continue**, **next slice**, 
 
 ## Bugs found during a slice (mandatory)
 
-Any bug found during development of a slice (implement, pytest, Computer Use, AUT, review) **must** be raised on Jira and **Relates**-linked to the relevant **Story** and **test Task** (create the test Task if missing). Standing authorization — do not wait for a separate confirm. Do not silently fix-only; do not leave the defect only in chat or WORK_LOG.
+Any bug found during development of a slice (implement, pytest, Computer Use, AUT, review) **must** be raised as a Jira **Bug** and **Relates**-linked to the relevant **Story** and **test** ticket (create the test ticket if missing). Standing authorization — do not wait for a separate confirm. Do not silently fix-only; do not leave the defect only in chat or WORK_LOG.
 
-1. Create the defect ticket immediately (REST if Atlassian MCP fails). Prefer Bug type; **KAN has no Bug type today** → **Task** + **`label=bug`** + summary `[Bug] …`.
-2. **Relates**-link it to the relevant **Story** and **test Task**.
+1. Create a **Bug** immediately (REST if Atlassian MCP fails).
+2. **Relates**-link it to the relevant **Story** and **test** ticket.
 3. Description must include symptom, expected vs actual, environment, and **numbered replication steps**.
-4. When fixed: post a **Fix comment** (root cause, files, verify), then transition to **Done**.
+4. When fixed: post a **Fix comment** (root cause, files, verify), then transition the Bug to **Done**.
+
+**KAN types:** Task = development work under a Story (e.g. one Task per FR). `test` = verification. Bug = defects. Never use Task for tests or bugs.
 
 See `docs/ops/JIRA_TICKET_TEMPLATE.md` (Bug section) and `.cursor/skills/jira-safe/SKILL.md`.
 

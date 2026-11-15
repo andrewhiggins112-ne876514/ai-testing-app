@@ -75,8 +75,8 @@ Rules:
 - When the user asks to list Jira issues or stories, call list_stories with the project key and do not invent issues. Set issue_types only when the user names types. "list issues in KAN" omits issue_types.
 - When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
 - When a failed run is classified as product_bug (or the user asks to raise a Bug), call create_bug with project (or settings jira_project), symptom, expected, actual, environment, numbered replication_steps, and optional evidence_paths / report_path / relates_to. Do not file Bugs for test_defect, intended_change, or environment. Do not answer yes for the user — wait for yes or confirm.
-- When the user asks to create a linked Jira test ticket for a story, call create_test with story_key and steps (and/or acceptance). It creates a Task labelled test and Relates-links it. Do not answer yes for the user — wait for yes or confirm.
-- When coverage is proven for a test Task (pytest/report/evidence), call update_status with issue_key and coverage_evidence (or pytest_cmd / report_path) to propose Done. Only for issues labelled test. Do not answer yes for the user.
+- When the user asks to create a linked Jira test ticket for a story, call create_test with story_key and steps (and/or acceptance). It creates a test-type issue (Relates-linked). Do not answer yes for the user — wait for yes or confirm.
+- When coverage is proven for a test ticket (pytest/report/evidence), call update_status with issue_key and coverage_evidence (or pytest_cmd / report_path) to propose Done. Only for issuetype=test (or legacy label=test). Do not answer yes for the user.
 - To link a Jira issue to an epic, call set_parent with the issue key and epic key, then wait for the user to reply yes. Do not answer yes for the user.
 - To change a Jira issue's status, call transition_issue with the issue key and target status, then wait for the user to reply yes. Do not answer yes for the user.
 - To comment on a Jira issue, call add_comment with the issue key and body, then wait for the user to reply yes. Do not answer yes for the user. Pass report_path only when the user names a report file.
@@ -456,7 +456,7 @@ class Agent:
                 "function": {
                     "name": "create_test",
                     "description": (
-                        "Propose a linked Jira test Task for a story (label=test, Relates). "
+                        "Propose a linked Jira test ticket for a story (issuetype=test, Relates). "
                         "Structured Test procedure / Acceptance / Evidence. "
                         "Returns a preview only — does not POST until the user replies yes or confirm."
                     ),
@@ -469,7 +469,7 @@ class Agent:
                             },
                             "summary": {
                                 "type": "string",
-                                "description": "Optional test Task summary (defaults to Test: cover KEY)",
+                                "description": "Optional test ticket summary (defaults to Test: cover KEY)",
                             },
                             "steps": {
                                 "type": "array",
@@ -479,7 +479,7 @@ class Agent:
                             "acceptance": {
                                 "type": "array",
                                 "items": {"type": "string"},
-                                "description": "Acceptance criteria lines for the test Task",
+                                "description": "Acceptance criteria lines for the test ticket",
                             },
                             "notes": {"type": "string", "description": "Optional notes"},
                             "project": {
@@ -496,7 +496,7 @@ class Agent:
                 "function": {
                     "name": "update_status",
                     "description": (
-                        "Propose marking a labelled test Task Done when coverage evidence exists. "
+                        "Propose marking a test ticket (issuetype=test) Done when coverage evidence exists. "
                         "Posts a coverage comment then transitions. Preview only until yes/confirm."
                     ),
                     "parameters": {
@@ -504,7 +504,7 @@ class Agent:
                         "properties": {
                             "issue_key": {
                                 "type": "string",
-                                "description": "Test Task key labelled test, like KAN-66",
+                                "description": "Test ticket key (issuetype=test), like KAN-66",
                             },
                             "coverage_evidence": {
                                 "type": "string",

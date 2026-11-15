@@ -12,7 +12,7 @@ Usage:
     --verify "pytest … (N passed)" \\
     [--test-key KAN-48] [--mark-done] [--pytest-cmd "…"]
 
-If --test-key is omitted, uses Relates links with label=test, then TEST_PARENT map.
+If --test-key is omitted, uses Relates links with issuetype=test (or legacy label=test), then TEST_PARENT map.
 """
 from __future__ import annotations
 
@@ -180,7 +180,8 @@ class Jira:
             if not detail:
                 continue
             labels = detail.get("fields", {}).get("labels") or []
-            if "test" in labels:
+            itype = ((detail.get("fields") or {}).get("issuetype") or {}).get("name") or ""
+            if str(itype).lower() == "test" or "test" in labels:
                 found.append(key)
         mapped = STORY_TO_TEST.get(story_key)
         if mapped and mapped not in found:
@@ -199,12 +200,12 @@ def story_comment_paragraphs(done: str, files: str, verify: str, test_keys: List
         paras.append(f"How to verify: {verify.strip()}")
     if test_keys:
         paras.append(
-            "Linked test Task(s) updated with unit/manual evidence: "
+            "Linked test ticket(s) updated with unit/manual evidence: "
             + ", ".join(test_keys)
         )
     else:
         paras.append(
-            "No linked test Task found (label=test Relates). Create one and Relates-link it."
+            "No linked test ticket found (issuetype=test Relates). Create one and Relates-link it."
         )
     return paras
 
