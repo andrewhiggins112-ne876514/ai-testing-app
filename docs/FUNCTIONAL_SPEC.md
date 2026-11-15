@@ -193,7 +193,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-HEAL-2 | Open (audit log only; no review UI) | **KAN-75** |
 | FR-JIRA-1 | Partial (list summary only) | **Done** KAN-12 list; read AC **KAN-89** |
 | FR-JIRA-2, FR-JIRA-3 | Open | **KAN-65** |
-| FR-JIRA-4 | Open | **KAN-63** |
+| FR-JIRA-4 | Shipped (create_bug + confirm) | **Done** KAN-63 |
 | FR-JIRA-5, FR-JIRA-7 | Shipped confirm + local creds | **Done** KAN-12, **KAN-16**; write audit **KAN-99** |
 | FR-JIRA-6 | Open (no product 429 backoff) | **KAN-91** |
 | FR-REP-1 | Open | **KAN-67** |

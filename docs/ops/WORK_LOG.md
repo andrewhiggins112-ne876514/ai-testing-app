@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | KAN-63 — Raise user-friendly Bug tickets from failed runs |
+| **Jira story** | KAN-65 — Create linked test tickets and mark Done when covered |
 | **Epic** | KAN-23 (Jira / Xray) |
-| **Roadmap ID** | (FR-JIRA-4 / FR-JIRA-5) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-JIRA-4, FR-JIRA-5 |
-| **Next action** | Implement KAN-63; test Task KAN-64 |
+| **Roadmap ID** | (FR-JIRA-2 / FR-JIRA-3 / FR-JIRA-5) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-JIRA-2, FR-JIRA-3, FR-JIRA-5 |
+| **Next action** | Implement KAN-65; test Task KAN-66 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-63 — Raise user-friendly Bug tickets from failed runs
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** `create_bug` proposes Jira Bugs with Symptom / Expected / Actual / Environment / Replication steps / Evidence (from fields or local `reports/*.json`); only `product_bug`; masks token-like strings; optional Relates link after create; POST only on yes/confirm. Agent tool + system prompt. `jira_action create_bug` points at the real tool.
+- **Files:** `plugins/jira_plugin.py`, `agent/agent.py`, `tests/test_create_bug.py`, FUNCTIONAL_SPEC §5, PROJECT_MEMORY, ROADMAP, WORK_LOG.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_create_bug.py tests/test_create_issue.py tests/test_jira_readonly.py tests/test_add_comment.py -v` (23 passed).
+- **Jira:** story Agent completion + KAN-64 test evidence/Done + KAN-63 Done (via closeout script).
+- **Next:** KAN-65 create linked test tickets + mark Done when covered (FR-JIRA-2/3).
 
 ### 2026-11-15 — KAN-61 — Tool-calling reliability + JSON-in-text fallback
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)

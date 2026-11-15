@@ -1,6 +1,7 @@
 """Jira tools. list_stories is read-only. create_issue POSTs only after the user's own confirmation."""
 import json
 import os
+import platform
 import re
 import time
 import uuid
@@ -87,6 +88,12 @@ async def jira_action(
     summary: Optional[str] = None,
     status: Optional[str] = None,
 ) -> Dict[str, Any]:
+    if action == "create_bug":
+        return {
+            "status": "confirmation_required",
+            "action": action,
+            "note": "Use the create_bug tool with failed-run fields; Jira writes need an explicit yes/confirm.",
+        }
     if action in _WRITE:
         return {
             "status": "confirmation_required",
@@ -298,7 +305,7 @@ async def _post_issue(preview: Dict[str, str]) -> Dict[str, Any]:
         "issuetype": {"name": preview["issue_type"]},
     }
     if preview.get("description"):
-        fields["description"] = _adf(preview["description"])
+        fields["description"] = _adf_comment(preview["description"])
     if preview.get("parent_key"):
         fields["parent"] = {"key": preview["parent_key"]}
     headers, auth = _auth(creds)
@@ -310,18 +317,21 @@ async def _post_issue(preview: Dict[str, str]) -> Dict[str, Any]:
                 auth=auth,
                 headers=headers,
             )
-        if response.status_code in (401, 403):
-            return {"status": "unauthorized", "message": "Jira rejected the credentials"}
-        if response.status_code >= 400:
-            return {"status": "error", "message": "jira_request_failed"}
-        try:
-            data = response.json()
-        except ValueError:
-            return {"status": "error", "message": "jira_request_failed"}
+            if response.status_code in (401, 403):
+                return {"status": "unauthorized", "message": "Jira rejected the credentials"}
+            if response.status_code >= 400:
+                return {"status": "error", "message": "jira_request_failed"}
+            try:
+                data = response.json()
+            except ValueError:
+                return {"status": "error", "message": "jira_request_failed"}
+            key = data.get("key") or ""
+            relates = str(preview.get("relates_to") or "").strip()
+            if key and relates:
+                await _post_relates_link(client, creds["url"], headers, auth, key, relates)
     except httpx.HTTPError:
         return {"status": "error", "message": "jira_request_failed"}
-    return {"status": "created", "key": data.get("key") or ""}
-
+    return {"status": "created", "key": key}
 
 async def create_issue(
     project: str,
@@ -361,8 +371,318 @@ async def resolve_create(session_id: str, user_message: str) -> Optional[Dict[st
         return await _post_transition(record["preview"])
     if record.get("action") == "comment":
         return await _post_comment(record["preview"])
+    # create / create_bug share the same POST path
     return await _post_issue(record["preview"])
 
+
+async def _post_relates_link(
+    client: Any,
+    url: str,
+    headers: Dict[str, str],
+    auth: Any,
+    bug_key: str,
+    other_key: str,
+) -> None:
+    """Best-effort Relates link. Never raises into the caller; create already succeeded."""
+    try:
+        await client.post(
+            f"{url}/rest/api/3/issueLink",
+            json={
+                "type": {"name": "Relates"},
+                "inwardIssue": {"key": bug_key},
+                "outwardIssue": {"key": other_key},
+            },
+            auth=auth,
+            headers=headers,
+        )
+    except httpx.HTTPError:
+        return
+
+
+def _as_lines(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return []
+        return [line.strip() for line in text.splitlines() if line.strip()]
+    if isinstance(value, (list, tuple)):
+        lines = []
+        for item in value:
+            text = str(item or "").strip()
+            if text:
+                lines.append(text)
+        return lines
+    text = str(value).strip()
+    return [text] if text else []
+
+
+def _mask_secrets(text: str) -> str:
+    """Strip common credential patterns from bug text. Never echo tokens."""
+    cleaned = text or ""
+    cleaned = re.sub(
+        r"(?i)(api[_-]?token|password|secret|authorization)\s*[:=]\s*\S+",
+        r"\1=***",
+        cleaned,
+    )
+    cleaned = re.sub(r"(?i)Bearer\s+[A-Za-z0-9._\-]+", "Bearer ***", cleaned)
+    return cleaned
+
+
+def build_bug_description(
+    *,
+    symptom: str = "",
+    expected: str = "",
+    actual: str = "",
+    environment: str = "",
+    replication_steps: Any = None,
+    evidence_paths: Any = None,
+) -> str:
+    """Human-readable Bug body (FR-JIRA-4 template sections)."""
+    steps = _as_lines(replication_steps)
+    evidence = _as_lines(evidence_paths)
+    blocks = [
+        "Symptom",
+        _mask_secrets((symptom or "").strip() or "(not provided)"),
+        "",
+        "Expected",
+        _mask_secrets((expected or "").strip() or "(not provided)"),
+        "",
+        "Actual",
+        _mask_secrets((actual or "").strip() or "(not provided)"),
+        "",
+        "Environment",
+        _mask_secrets((environment or "").strip() or "(not provided)"),
+        "",
+        "Replication steps",
+    ]
+    if steps:
+        for index, step in enumerate(steps, start=1):
+            blocks.append(f"{index}. {_mask_secrets(step)}")
+    else:
+        blocks.append("(not provided)")
+    blocks.append("")
+    blocks.append("Evidence")
+    if evidence:
+        for path in evidence:
+            blocks.append(f"- {_mask_secrets(path)}")
+    else:
+        blocks.append("(none)")
+    return "\n".join(blocks)
+
+
+def _fields_from_run(run: Dict[str, Any]) -> Dict[str, Any]:
+    """Map a Playwright/desktop/suite run result into bug draft fields."""
+    error = str(run.get("error") or "").strip()
+    title = str(run.get("title") or "").strip()
+    status = str(run.get("status") or "").strip() or "fail"
+    level = str(run.get("security_level") or "").strip()
+    plugin = str(run.get("plugin") or "").strip()
+    url = str(run.get("url") or "").strip()
+    symptom = error or title or f"Test run ended with status {status}"
+    actual = error or f"Run status: {status}"
+    if title:
+        actual = f"{actual}\nPage title: {title}" if actual else f"Page title: {title}"
+    env_bits = []
+    if level:
+        env_bits.append(f"Security level: {level}")
+    if plugin:
+        env_bits.append(f"Plugin: {plugin}")
+    if url:
+        env_bits.append(f"URL: {url}")
+    env_bits.append(f"OS: {platform.platform()}")
+    steps_out: list[str] = []
+    raw_steps = run.get("steps")
+    if isinstance(raw_steps, list) and raw_steps:
+        for index, step in enumerate(raw_steps, start=1):
+            if not isinstance(step, dict):
+                continue
+            action = step.get("action") or "step"
+            selector = step.get("selector") or ""
+            step_status = step.get("status") or ""
+            detail = f"{action}"
+            if selector:
+                detail += f" ({selector})"
+            if step_status:
+                detail += f" → {step_status}"
+            steps_out.append(f"Run recorded step {index}: {detail}")
+            if str(step_status).casefold() in {"fail", "failed", "error"}:
+                break
+    else:
+        steps_out = [
+            "Reproduce the failing scenario in the application under test.",
+            "Observe the failure matching Actual below.",
+        ]
+    evidence: list[str] = []
+    shot = str(run.get("screenshot") or "").strip()
+    if shot:
+        evidence.append(shot)
+    for item in run.get("evidence") or []:
+        if isinstance(item, dict):
+            path = str(item.get("path") or "").strip()
+            if path and path not in evidence:
+                evidence.append(path)
+        elif isinstance(item, str) and item.strip() and item.strip() not in evidence:
+            evidence.append(item.strip())
+    classification = str(run.get("classification") or "").strip().casefold()
+    return {
+        "symptom": symptom,
+        "expected": "The scenario passes with the asserted outcome.",
+        "actual": actual,
+        "environment": "; ".join(env_bits) if env_bits else "",
+        "replication_steps": steps_out,
+        "evidence_paths": evidence,
+        "classification": classification or "product_bug",
+        "summary": (symptom[:200] if symptom else "Product bug from failed test run"),
+    }
+
+
+def _load_run_from_report(report_path: str) -> Dict[str, Any]:
+    root = _local_reports_dir()
+    if root is None:
+        return {"status": "error", "message": "report path must be inside the local reports folder"}
+    try:
+        path = Path(report_path).expanduser().resolve()
+    except (OSError, RuntimeError, ValueError):
+        return {"status": "error", "message": "report path must be inside the local reports folder"}
+    if path.suffix.lower() != ".json" or root not in path.parents:
+        return {"status": "error", "message": "report path must be inside the local reports folder"}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, UnicodeError):
+        return {"status": "error", "message": "report could not be read"}
+    if not isinstance(payload, dict):
+        return {"status": "error", "message": "report could not be read"}
+    result = payload.get("result") if isinstance(payload.get("result"), dict) else payload
+    if not isinstance(result, dict):
+        return {"status": "error", "message": "report could not be read"}
+    return {"status": "ok", "run": result}
+
+
+async def create_bug(
+    project: Optional[str] = None,
+    summary: Optional[str] = None,
+    symptom: Optional[str] = None,
+    expected: Optional[str] = None,
+    actual: Optional[str] = None,
+    environment: Optional[str] = None,
+    replication_steps: Any = None,
+    evidence_paths: Any = None,
+    classification: Optional[str] = None,
+    relates_to: Optional[str] = None,
+    report_path: Optional[str] = None,
+    session_id: str = "default",
+) -> Dict[str, Any]:
+    """Propose a user-friendly Bug from a failed run. POST only after yes/confirm (FR-JIRA-4/5)."""
+    draft: Dict[str, Any] = {
+        "symptom": str(symptom or "").strip(),
+        "expected": str(expected or "").strip(),
+        "actual": str(actual or "").strip(),
+        "environment": str(environment or "").strip(),
+        "replication_steps": replication_steps,
+        "evidence_paths": evidence_paths,
+        "classification": str(classification or "").strip().casefold(),
+        "summary": str(summary or "").strip(),
+    }
+    path = str(report_path or "").strip()
+    if path:
+        loaded = _load_run_from_report(path)
+        if loaded.get("status") != "ok":
+            return loaded
+        from_run = _fields_from_run(loaded["run"])
+        for key in (
+            "symptom",
+            "expected",
+            "actual",
+            "environment",
+            "replication_steps",
+            "evidence_paths",
+            "classification",
+            "summary",
+        ):
+            if not draft.get(key):
+                draft[key] = from_run.get(key)
+
+    class_name = str(draft.get("classification") or "").strip().casefold()
+    if class_name and class_name != "product_bug":
+        return {
+            "status": "error",
+            "message": (
+                f"Refusing Bug ticket: classification is {class_name!r}. "
+                "Only product_bug failures may be filed (FR-HEAL-4 / FR-JIRA-4)."
+            ),
+        }
+    if not class_name:
+        draft["classification"] = "product_bug"
+
+    settings = load_settings()
+    key = str(project or "").strip().upper() or str(settings.get("jira_project") or "").strip().upper()
+    if not _LIST_KEY.fullmatch(key):
+        return {
+            "status": "error",
+            "message": "project key required (argument or jira_project in settings), 1-10 characters A-Z/0-9",
+        }
+
+    steps = _as_lines(draft.get("replication_steps"))
+    if not draft.get("symptom") and not draft.get("actual"):
+        return {
+            "status": "error",
+            "message": "Provide symptom/actual, or a failed-run report_path under the local reports folder.",
+        }
+    if not steps:
+        return {
+            "status": "error",
+            "message": "replication_steps are required (numbered steps a human can follow).",
+        }
+
+    summary_text = str(draft.get("summary") or "").strip()
+    if not summary_text:
+        summary_text = str(draft.get("symptom") or "Product bug from failed test run").strip()
+    summary_text = _mask_secrets(summary_text)[:255]
+
+    relates = ""
+    raw_relates = str(relates_to or "").strip()
+    if raw_relates:
+        relates = _issue_key(raw_relates)
+        if not relates:
+            return {"status": "error", "message": "relates_to must look like KEY-123"}
+
+    description = build_bug_description(
+        symptom=str(draft.get("symptom") or ""),
+        expected=str(draft.get("expected") or ""),
+        actual=str(draft.get("actual") or ""),
+        environment=str(draft.get("environment") or ""),
+        replication_steps=steps,
+        evidence_paths=draft.get("evidence_paths"),
+    )
+    if len(description) > 20000:
+        return {"status": "error", "message": "bug description is too long"}
+
+    preview = _valid_create(key, summary_text, description, "Bug")
+    if preview.get("status"):
+        return preview
+    if relates:
+        preview["relates_to"] = relates
+    preview["classification"] = "product_bug"
+
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+
+    confirm_id = _store_pending(session_id, preview, "create_bug")
+    shown = {
+        "project": preview["project"],
+        "summary": preview["summary"],
+        "issue_type": "Bug",
+        "classification": "product_bug",
+        "description_preview": description[:500],
+    }
+    if relates:
+        shown["relates_to"] = relates
+    return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": shown}
 
 async def _read_error(response: Any) -> Optional[Dict[str, str]]:
     if response.status_code in (401, 403):

@@ -51,7 +51,7 @@ Skeleton + substantial features exist:
 - `plugins/desktop_runner.py` — Windows `.exe` smoke plugin (KAN-47); stdlib launch; toggle `plugin_desktop_enabled`; does not fork Playwright
 - `plugins/multi_sandbox.py` — multi-sandbox orchestration stub (KAN-55); toggle `plugin_multi_sandbox_enabled` default off; mock list/plan only
 - `plugins/registry.py` — lightweight plugin manifests + `list_plugins()` (FR-PLUG-1/2)
-- `plugins/jira_plugin.py` — list/create/transition/comment/epic link; writes need confirm
+- `plugins/jira_plugin.py` — list/create/transition/comment/epic link; **create_bug** (KAN-63 / FR-JIRA-4) builds Symptom/Expected/Actual/Environment/Replication/Evidence from failed runs or report_path; product_bug only; Relates optional; writes need confirm
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\`; shared UI prefs in `settings.json`; **OFFICIAL/SECRET isolation (KAN-15):** credentials in `levels\{LEVEL}\credentials.json`; Playwright profiles in `browser_profiles\{LEVEL}\`; level switch needs confirm; `plugin_desktop_enabled`; `plugin_multi_sandbox_enabled` (default false); `playwright_success_evidence` (default true); `playwright_suite_path` (level-scoped)
 - `main.py` — FastAPI `/chat` + `/health` + `/api/orb` + `/api/report-sections` + `/api/security-level` + `/api/desktop-plugin` + `/api/desktop-smoke` + `/api/plugins` + `/api/multi-sandbox-plugin` + `/api/multi-sandbox/orchestrate` + `/api/playwright-suite*` + static `/ui`
 - `desktop_app.py` — **native Windows window** (pywebview + Edge WebView2) hosting mystic shell at `/ui/desktop/`; Gradio remains available via `run_ui.py`
@@ -69,8 +69,8 @@ Skeleton + substantial features exist:
 - **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); **product UI = `desktop_app.py` + Computer Use** (not browser shell); IronBee for AUT/Gradio only; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
 
 Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
-- **KAN-63** Raise user-friendly Bug tickets from failed runs (Active)
-- KAN-65…KAN-81 first FR seed remainder; KAN-83…KAN-99 gap pass (headless, Jira AC read, 429 backoff, desktop beyond smoke, LEARN-4, sandbox beyond stub, busy UX, Jira write audit, steps from Jira AC)
+- **KAN-65** Create linked test tickets and mark Done when covered (Active)
+- KAN-67…KAN-81 first FR seed remainder; KAN-83…KAN-99 gap pass (headless, Jira AC read, 429 backoff, desktop beyond smoke, LEARN-4, sandbox beyond stub, busy UX, Jira write audit, steps from Jira AC)
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets (replication steps + Fix comment) when defects are found — see AGENTS.md / JIRA_TICKET_TEMPLATE
 

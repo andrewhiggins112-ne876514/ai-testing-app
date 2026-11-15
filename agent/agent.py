@@ -28,6 +28,7 @@ TOOL_NAMES = frozenset({
     "update_settings",
     "list_stories",
     "create_issue",
+    "create_bug",
     "set_parent",
     "transition_issue",
     "add_comment",
@@ -67,6 +68,7 @@ Rules:
 - To list registered plugins and toggles, call list_plugins. For multi-sandbox planning, call orchestrate_sandboxes (action list or plan). If disabled, tell the user to enable plugin_multi_sandbox_enabled.
 - When the user asks to list Jira issues or stories, call list_stories with the project key and do not invent issues. Set issue_types only when the user names types. "list issues in KAN" omits issue_types.
 - When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
+- When a failed run is classified as product_bug (or the user asks to raise a Bug), call create_bug with project (or settings jira_project), symptom, expected, actual, environment, numbered replication_steps, and optional evidence_paths / report_path / relates_to. Do not file Bugs for test_defect, intended_change, or environment. Do not answer yes for the user — wait for yes or confirm.
 - To link a Jira issue to an epic, call set_parent with the issue key and epic key, then wait for the user to reply yes. Do not answer yes for the user.
 - To change a Jira issue's status, call transition_issue with the issue key and target status, then wait for the user to reply yes. Do not answer yes for the user.
 - To comment on a Jira issue, call add_comment with the issue key and body, then wait for the user to reply yes. Do not answer yes for the user. Pass report_path only when the user names a report file.
@@ -391,6 +393,57 @@ class Agent:
             {
                 "type": "function",
                 "function": {
+                    "name": "create_bug",
+                    "description": (
+                        "Propose a user-friendly Jira Bug from a failed product_bug run. "
+                        "Builds Symptom / Expected / Actual / Environment / Replication steps / Evidence. "
+                        "Returns a preview only — does not POST until the user replies yes or confirm. "
+                        "Refuse non-product_bug classifications."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "project": {
+                                "type": "string",
+                                "description": "Jira project key. Optional if jira_project is set in settings.",
+                            },
+                            "summary": {"type": "string", "description": "Bug summary (defaults from symptom)"},
+                            "symptom": {"type": "string", "description": "What went wrong"},
+                            "expected": {"type": "string", "description": "Expected behaviour"},
+                            "actual": {"type": "string", "description": "Actual behaviour"},
+                            "environment": {
+                                "type": "string",
+                                "description": "OS, desktop vs Gradio, security level (no secrets)",
+                            },
+                            "replication_steps": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Numbered steps a human can follow to reproduce",
+                            },
+                            "evidence_paths": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Optional local screenshot/report paths",
+                            },
+                            "classification": {
+                                "type": "string",
+                                "description": "Must be product_bug to file. Other values are refused.",
+                            },
+                            "relates_to": {
+                                "type": "string",
+                                "description": "Optional story/test key to Relates-link after create",
+                            },
+                            "report_path": {
+                                "type": "string",
+                                "description": "Optional local reports/*.json to fill fields from a failed run",
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
                     "name": "set_parent",
                     "description": "Preview linking a Jira issue to an epic. Does not change Jira until the user replies yes.",
                     "parameters": {
@@ -709,6 +762,24 @@ class Agent:
             kwargs = {k: v for k, v in args.items() if k in allowed}
             kwargs["session_id"] = session_id
             return await create_issue(**kwargs)
+        elif name == "create_bug":
+            from plugins.jira_plugin import create_bug
+            allowed = {
+                "project",
+                "summary",
+                "symptom",
+                "expected",
+                "actual",
+                "environment",
+                "replication_steps",
+                "evidence_paths",
+                "classification",
+                "relates_to",
+                "report_path",
+            }
+            kwargs = {k: v for k, v in args.items() if k in allowed}
+            kwargs["session_id"] = session_id
+            return await create_bug(**kwargs)
         elif name == "set_parent":
             from plugins.jira_plugin import set_parent
             allowed = {"issue_key", "epic_key"}
