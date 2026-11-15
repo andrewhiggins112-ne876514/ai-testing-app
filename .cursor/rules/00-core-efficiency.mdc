@@ -34,10 +34,10 @@ alwaysApply: true
 # Git handling (agents do this, never ask the user)
 
 - You have terminal access. Run all git commands yourself.
-- At the start of a coding session: if not on `main`, stash any local changes, checkout `main`, and pull.
+- **Best moment to pull:** at the **start of a new Agent chat** / “pick up where we left off”, **before** reading tickets or coding. If not on `main`, stash, checkout `main`, then `git pull origin main`.
 - Before committing: `git status` and `git diff`. Only commit the files you intentionally changed.
 - **After every finished or paused slice:** commit with a clear message, then **`git push origin main`** (or the current branch if explicitly working on one). Unpushed finished work blocks the next pick-up chat.
-- Never ask the user to run git, stash, pull, push, or “should I commit?”. Do it yourself as part of slice close-out.
+- Never ask the user to run git, stash, pull, push, or “should I commit?” — including never ending a reply with “please `git pull`”. Agents sync the tree; the human only runs the desktop app when they want to look at it.
 - If a pull would overwrite local work, stash first, pull, then decide whether to pop.
 
 # Ops pointers (do not paste full docs)

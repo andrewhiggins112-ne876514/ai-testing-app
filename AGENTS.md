@@ -3,6 +3,7 @@
 
 ## Core behaviour
 - Read `docs/ops/WORK_LOG.md` **Active slice** first when the user says “pick up where we left off” / “continue”, then start that Jira story immediately.
+- **Git sync is the agent’s job:** at pick-up / start of a new coding Agent chat — before implementing — ensure `main`, then `git pull origin main` (stash local WIP first if needed). Never ask the human to `git pull`, stash, commit, or push.
 - Otherwise read PROJECT_MEMORY.md (and AGENTS.md) at the start of any non-trivial session.
 - Prefer Plan mode (or an explicit plan in chat) before editing more than one file.
 - Keep changes small and reviewable. One logical improvement at a time.

@@ -6,7 +6,7 @@
 
 1. Prefer a **fresh Cursor IDE Agent chat** and say **“pick up where we left off”** (or paste `python scripts/next_prompt.py` output).  
 2. Confirm when asked (credentials, Jira writes, deletes, security, browser logins).  
-3. On your PC when told: `git pull`, then run the **desktop app** (`python desktop_app.py`). Agents must verify that native window (Computer Use), not a browser tab of `/ui/desktop/`.  
+3. You do **not** need to run git. The new Agent chat **pulls `main` itself** at pick-up, and the finishing agent **commits + pushes**. Optionally run the **desktop app** (`python desktop_app.py`) when you want to look; agents verify that native window (Computer Use), not a browser tab of `/ui/desktop/`.  
 4. Do **not** paste coding prompts into browser Grok / AFK Pilot.  
 5. Workspace folder must be `D:\Projects\ai_testing_app`.
 
@@ -55,7 +55,7 @@ See `docs/ops/CONNECTORS.md`. Customize/MCP is in the **Agents** window, not the
 - [ ] `docs/ops/WORK_LOG.md` entry + Active slice advanced  
 - [ ] Jira comment on the story (what / verify)  
 - [ ] **Commit + `git push origin main`** (required; do not leave finished work unpushed)  
-- [ ] Human told: `git pull` + how to verify  
+- [ ] Human told how to verify the app if useful — **never** told to `git pull` (next Agent chat pulls)  
 
 ## Continue next time
 

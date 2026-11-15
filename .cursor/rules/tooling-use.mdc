@@ -7,6 +7,12 @@ alwaysApply: true
 
 Always pass `workspaceRoot` = `D:\Projects\ai_testing_app` (or the active workspace root) to Supermemory tools.
 
+## Git sync (agent, not human)
+
+- At **new Agent chat / pick-up**, before coding: `git pull origin main` (on `main`; stash if needed).
+- At **slice close-out**: commit + `git push origin main`.
+- Never ask the human to pull, commit, or push.
+
 ## Supermemory — use by default
 
 - **Session start / pick-up:** `supermemory_search` with the user goal + “KAN Active slice” / architecture before long rediscovery. Prefer `container: "both"` or `"project"`.

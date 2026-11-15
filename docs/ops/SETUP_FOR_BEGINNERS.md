@@ -98,14 +98,11 @@ If you still want MCP after Node is installed:
 
 UI-5 (orb presets) was implemented by the PM chat — you do **not** paste prompts into a second coding agent.
 
-When the PM says a slice landed:
+When a slice lands: you do **not** need to `git pull` yourself. Open a fresh Agent chat and say **“pick up where we left off”** — that agent pulls `main` before coding. To look at the UI yourself, run the **desktop app**:
 
 ```powershell
-git checkout main
-git pull origin main
+.\venv\Scripts\python.exe desktop_app.py
 ```
-
-Then run the Gradio UI and check the change (for UI-5: Orb accordion → Save / Load / Delete preset).
 
 **Do not start Cursor Cloud Agents** unless the PM asks.
 

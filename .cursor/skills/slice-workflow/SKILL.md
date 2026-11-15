@@ -5,7 +5,7 @@ description: PM-owned development slice with zero human copy-paste between tools
 
 # Slice workflow (PM-owned)
 
-0. **Handoff** — If user says continue / pick up where we left off: read `docs/ops/WORK_LOG.md` Active slice + that Jira story, then skip to Implement.  
+0. **Handoff** — If user says continue / pick up where we left off: **`git pull origin main`** first (agent does this), then read `docs/ops/WORK_LOG.md` Active slice + that Jira story, then skip to Implement.  
 1. **Scope** — One roadmap ID / one KAN Story. List out-of-scope.  
 2. **Discover** — explorer-cheap or targeted reads (PM/agents — not the human).  
 3. **Plan** — architect if multi-file or security-sensitive.  
@@ -14,4 +14,4 @@ description: PM-owned development slice with zero human copy-paste between tools
 6. **Memory** — update `PROJECT_MEMORY.md` / `ROADMAP.md`; append `docs/ops/WORK_LOG.md`; set next Active slice.  
 7. **Jira** — comment on the story with what shipped + verify steps; transition when Done.  
 8. **Land** — after handoff docs + Jira: commit intentional files, then **`git push origin main`**. Do this on every finished (or paused) slice so the next chat can pick up; do not wait for the human to ask.  
-9. **Human** — tell them only: `git pull` + how to check the app. Never ask them to paste a coding prompt into another chat.
+9. **Human** — tell them only how to check the app if useful (e.g. `desktop_app.py`). Never ask them to `git pull`, commit, push, or paste a coding prompt into another chat.
