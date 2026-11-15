@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | KAN-71 — Prompt-injection mitigations for untrusted inputs |
-| **Epic** | KAN-26 (Security / GDPR) |
-| **Roadmap ID** | (FR-SEC-4) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-SEC-4 / FR-AGENT-4 |
-| **Next action** | Implement KAN-71; test Task KAN-72 |
+| **Jira story** | KAN-73 — Desktop App Settings panel (Jira URL and local-store summary) |
+| **Epic** | KAN-27 (UI / Desktop) |
+| **Roadmap ID** | (FR-UI-1 / FR-SET-1) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-1 / FR-SET-1 |
+| **Next action** | Implement KAN-73; test Task KAN-74 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-71 — Prompt-injection mitigations for untrusted inputs
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** FR-SEC-4: `agent/prompt_guard.py` — wrap untrusted data fences, injection heuristics, SECRET tool narrowing (hide `run_desktop` / `orchestrate_sandboxes`; always refuse shell/network/fs-outside tools). Agent system prompt + tool-result fencing; `confirm` from model args ignored for settings/delete (only exact user yes/confirm). Doc ingest marks untrusted + redacts secrets in model excerpts. Ollama `temperature: 0.2` for smaller local models.
+- **Files:** `agent/prompt_guard.py`, `agent/agent.py`, `plugins/doc_ingest.py`, `tests/test_prompt_injection.py`, FUNCTIONAL_SPEC, PROJECT_MEMORY, ROADMAP, WORK_LOG.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_prompt_injection.py tests/test_doc_ingest.py tests/test_privacy_gdpr.py tests/test_tool_calling.py -v` (34 passed).
+- **Jira:** story Agent completion + KAN-72 test evidence/Done + KAN-71 Done (via closeout script).
+- **Next:** KAN-73 desktop App Settings panel (FR-UI-1/FR-SET-1; test KAN-74).
 
 ### 2026-11-15 — KAN-69 — GDPR easy local data deletion and consent surfaces
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)

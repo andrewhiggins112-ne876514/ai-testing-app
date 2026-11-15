@@ -265,10 +265,14 @@ def ingest_document(
     filename: Optional[str] = None,
     session_id: str = "default",
 ) -> Dict[str, Any]:
+    from agent.prompt_guard import injection_meta, redact_secrets_for_model, wrap_untrusted
+
     loaded = read_document(text=text, path=path, filename=filename)
     if loaded.get("status") != "ok":
         return loaded
     body = loaded["text"]
+    meta = injection_meta(body)
+    excerpt = wrap_untrusted("document", redact_secrets_for_model(body[:2000]))
     proposed = extract_settings_proposals(body)
     ideas = extract_test_ideas(body)
     diff = _diff_against_store(proposed)
@@ -277,6 +281,8 @@ def ingest_document(
             "status": "empty",
             "filename": loaded["filename"],
             "message": "No settings hints or test ideas found in the document.",
+            **meta,
+            "excerpt_for_model": excerpt,
         }
     if not diff:
         return {
@@ -286,14 +292,19 @@ def ingest_document(
             "settings_diff": {},
             "test_ideas": ideas,
             "note": "No settings changes proposed; settings file unchanged.",
+            **meta,
+            "excerpt_for_model": excerpt,
         }
-    return _store_pending(
+    result = _store_pending(
         session_id,
         filename=loaded["filename"],
         format_name=loaded["format"],
         diff=diff,
         test_ideas=ideas,
     )
+    result.update(meta)
+    result["excerpt_for_model"] = excerpt
+    return result
 
 
 def _get_record(proposal_id: Optional[str], session_id: Optional[str]) -> Optional[Dict[str, Any]]:

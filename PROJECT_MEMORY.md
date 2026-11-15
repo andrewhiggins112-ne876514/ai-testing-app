@@ -43,7 +43,8 @@ Long-term goal: dominate the testing space for companies that want a capable loc
 
 ## Current State
 Skeleton + substantial features exist:
-- `agent/agent.py` — Ollama tool-calling loop with clarification rules and sessions; **FR-AGENT-6 (KAN-61):** JSON-in-text tool fallback parser, `think: false` + `num_ctx`, grounded replies that never claim success on failed tool results
+- `agent/agent.py` — Ollama tool-calling loop with clarification rules and sessions; **FR-AGENT-6 (KAN-61):** JSON-in-text tool fallback parser, `think: false` + `num_ctx`, grounded replies that never claim success on failed tool results; **FR-SEC-4 (KAN-71):** system prompt + tool-result untrusted fencing, `temperature: 0.2`, confirm args ignored for settings/delete (exact user yes/confirm only), SECRET-narrowed tool surface
+- `agent/prompt_guard.py` — prompt-injection mitigations (wrap untrusted, injection heuristics, high-privilege refuse, SECRET filter)
 - `plugins/heal_policy.py` — central FR-HEAL-1…5 guardrails (classify; refuse weaken/skip/timeout/AUT; locator-only pending review + audit)
 - `plugins/playwright_steps.py` — generate happy + negative/edge drafts; assess/reject visibility-only flows (FR-TEST-6); used by agent `generate_playwright_steps` (KAN-57)
 - `plugins/playwright_runner.py` — steps (+ `expect_visible`), click + fill locator self-heal via heal_policy (assertions never healed), failure screenshots always + success via `playwright_success_evidence`; **persistent browser profile per security level** (KAN-15)
@@ -70,8 +71,8 @@ Skeleton + substantial features exist:
 - **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); **product UI = `desktop_app.py` + Computer Use** (not browser shell); IronBee for AUT/Gradio only; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
 
 Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
-- **KAN-71** Prompt-injection mitigations for untrusted inputs (Active)
-- KAN-73…KAN-81 first FR seed remainder; KAN-83…KAN-99 gap pass (headless, Jira AC read, 429 backoff, desktop beyond smoke, LEARN-4, sandbox beyond stub, busy UX, Jira write audit, steps from Jira AC)
+- **KAN-73** Desktop App Settings panel (Active)
+- KAN-75…KAN-81 first FR seed remainder; KAN-83…KAN-99 gap pass (headless, Jira AC read, 429 backoff, desktop beyond smoke, LEARN-4, sandbox beyond stub, busy UX, Jira write audit, steps from Jira AC)
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets (replication steps + Fix comment) when defects are found — see AGENTS.md / JIRA_TICKET_TEMPLATE
 

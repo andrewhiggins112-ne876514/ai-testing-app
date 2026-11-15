@@ -201,7 +201,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-REP-3 | Shipped baseline export | **Done** KAN-11 |
 | FR-SEC-1, FR-SEC-3, FR-SEC-5 | Shipped isolation + confirm + secrets scoping | **Done** KAN-15, **KAN-16** |
 | FR-SEC-2 | Done | **KAN-69** |
-| FR-SEC-4 | Open | **KAN-71** |
+| FR-SEC-4 | Done | **KAN-71** |
 | FR-UI-1…5 | Mostly shipped; Settings panel + voice open | **Done** KAN-10/41/53; Settings **KAN-73**; Voice **KAN-81** |
 | FR-PLUG-1 | Partial (registry + stubs) | **Done** KAN-55 stub; real sandboxes **KAN-95** |
 | FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |
@@ -223,7 +223,7 @@ Gradio Settings/Reports (**KAN-10**); UI-6 (**KAN-53**); heal (**KAN-14**/**KAN-
 | Real credentials | Local store only | Never in chat or repo |
 | Model tool-calling reliability | Open | **KAN-61** |
 | Self-healing guardrails (policy) | **Done** (KAN-49) | Review UI still **KAN-75** |
-| Security isolation | **Done** (KAN-15) | GDPR delete **Done** (KAN-69); prompt-injection **KAN-71** |
+| Security isolation | **Done** (KAN-15) | GDPR delete **Done** (KAN-69); prompt-injection **Done** (KAN-71) |
 | Document ingestion | **Done** (KAN-45) | LEARN-2/3/4 remain open Stories |
 
 ---
