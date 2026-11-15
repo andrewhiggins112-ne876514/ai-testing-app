@@ -170,16 +170,23 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next** (track in KAN; Active slice = **KAN-55**)
-- Gradio Settings/Reports polish (**KAN-10** — done 2026-11-15).
-- UI-6 movable/resizable panels (**KAN-53** — done 2026-11-15).
-- Broader self-healing (**KAN-14** — done 2026-11-15); guardrail enforcement (**KAN-49** — done 2026-11-15).
-- Customisable reporting polish (**KAN-51** — done 2026-11-15).
-- Document ingestion → settings proposal (**KAN-45** — done 2026-11-15).
-- Security-level isolation browser profiles + credential scopes (**KAN-15** — done 2026-11-15).
-- Desktop `.exe` testing plugin (**KAN-47** — done 2026-11-15).
-- Multi-sandbox orchestration stub (**KAN-55** — done 2026-11-15).
-- Voice input (later — not ticketed as now).
+**Still open / next** (track in KAN; Active slice = **KAN-57**)
+- Stronger Playwright step gen + screenshot evidence — **KAN-57** / test **KAN-58** (PW-1; FR-TEST-1/4/6).
+- Import/run existing Playwright suites — **KAN-59** / **KAN-60** (FR-TEST-5).
+- Tool-calling reliability + JSON-in-text fallback — **KAN-61** / **KAN-62** (FR-AGENT-6).
+- Raise Bug tickets from failed runs — **KAN-63** / **KAN-64** (FR-JIRA-4).
+- Create linked test tickets + mark Done when covered — **KAN-65** / **KAN-66** (FR-JIRA-2/3).
+- Richer report metrics (stories/bugs) — **KAN-67** / **KAN-68** (FR-REP-1).
+- GDPR local data deletion + consent — **KAN-69** / **KAN-70** (FR-SEC-2).
+- Prompt-injection mitigations — **KAN-71** / **KAN-72** (FR-SEC-4).
+- Desktop App Settings panel — **KAN-73** / **KAN-74** (FR-UI-1 / FR-SET-1).
+- Heal proposal review UI — **KAN-75** / **KAN-76** (FR-HEAL-2).
+- First-class URL / exe / messaging endpoints — **KAN-77** / **KAN-78** (FR-LEARN-2/3).
+- Dynamic framework switching stub — **KAN-79** / **KAN-80** (FR-PLUG-3).
+- Voice input (later) — **KAN-81** / **KAN-82** (VOICE-1).
+
+**Recently done (2026-11-15)**
+- Gradio Settings/Reports polish (**KAN-10**); UI-6 resize (**KAN-53**); self-heal (**KAN-14**); heal guardrails (**KAN-49**); report sections (**KAN-51**); doc ingest (**KAN-45**); OFFICIAL/SECRET (**KAN-15**); desktop plugin (**KAN-47**); multi-sandbox stub (**KAN-55**).
 
 ---
 

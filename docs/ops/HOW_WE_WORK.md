@@ -56,6 +56,7 @@ See `docs/ops/CONNECTORS.md`. Customize/MCP is in the **Agents** window, not the
 - [ ] Jira **story comment**: what the **agent did** to complete the story + files + verify  
 - [ ] Linked **test Task** (`label=test` Relates): unit-test evidence comment + Done (create/link if missing)  
 - [ ] Prefer `python scripts/jira_kan_slice_closeout.py --story KAN-XX … --mark-done`  
+- [ ] **Bugs found:** raise a Jira **Bug** (symptom + expected/actual + numbered replication steps), Relates-link to Story + test Task; when fixed, post a Fix comment then Done — do not silently fix user-visible/FR-breaking defects  
 - [ ] **Commit + `git push origin main`** (required; do not leave finished work unpushed)  
 - [ ] Human told how to verify the app if useful — **never** told to `git pull` (next Agent chat pulls)  
 

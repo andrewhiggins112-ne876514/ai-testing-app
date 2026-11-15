@@ -25,7 +25,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | UI-CHAT | Minimal chat UX polish / Gradio Settings+Reports gaps | UI-6 | **done** — KAN-10 Settings/Reports polish (2026-11-15) |
 | JIRA-R | Richer tickets (AC + test steps) | — | **done** (2026-11-15) — multi-audience template + enrich script |
 | JIRA-B | Backlog structure (epics/stories/tests/bugs) | JIRA-R | **done** (2026-11-15) — KAN-20…29; Story→Task+`test`+Relates |
-| PW-1 | Stronger step gen + screenshot evidence | — | Extend `playwright_runner` |
+| PW-1 | Stronger step gen + screenshot evidence | — | **now** — **KAN-57** (test KAN-58); Active slice |
 
 ## Mid term
 
@@ -43,8 +43,10 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 |----|------|-------|
 | DESK-1 | Desktop `.exe` testing plugin | **done** — KAN-47; `plugins/desktop_runner.py` smoke + toggle |
 | MULTI-1 | Multi-sandbox orchestration | **done** — KAN-55; `plugins/multi_sandbox.py` + registry stub |
-| VOICE-1 | Voice input | After text UX is solid |
+| VOICE-1 | Voice input | **KAN-81** (test KAN-82) — after text UX is solid |
 | SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
+
+Open FR Stories also seeded 2026-11-15: KAN-59 (Playwright suite import), KAN-61 (tool-call fallback), KAN-63/65 (Jira bugs/tests), KAN-67 (report metrics), KAN-69/71 (GDPR / prompt-injection), KAN-73 (desktop Settings), KAN-75 (heal review UI), KAN-77 (learn inputs), KAN-79 (framework stub).
 
 ## Blocked / waiting on you
 
@@ -65,5 +67,5 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-Optional UX: fuller desktop Settings form beyond Security / App drawer panels.  
-VOICE-1 later. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.
+**KAN-57** — Stronger Playwright step generation + screenshot evidence (PW-1).  
+Then KAN-59… as listed above. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

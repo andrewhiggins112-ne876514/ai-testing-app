@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-15 (KAN-10 Gradio Settings/Reports polish shipped; Active → KAN-14)
+Last updated: 2026-11-15 (FR backlog seeded KAN-57…81; Active → KAN-57 PW-1)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -66,13 +66,10 @@ Skeleton + substantial features exist:
 - **Ollama models:** `qwen2.5-coder:7b` (app default), `qwen3:8b`, `llama3.2`, plus optional 14b/16b — one loaded at a time on 1080 Ti.
 - **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); **product UI = `desktop_app.py` + Computer Use** (not browser shell); IronBee for AUT/Gradio only; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
 
-Not yet done:
-- Multi-sandbox orchestration stub (**KAN-55** — done 2026-11-15): `plugins/multi_sandbox.py` + `plugins/registry.py` + toggle default off
-- Desktop `.exe` testing (**KAN-47** — done 2026-11-15): `plugins/desktop_runner.py` + toggle
-- OFFICIAL/SECRET isolation (**KAN-15** — done 2026-11-15): level-scoped credentials + Playwright profiles + confirm gate
-- Document ingestion → settings proposals (**KAN-45** — done 2026-11-15): `plugins/doc_ingest.py` + confirm gate
-- Full desktop Settings form beyond Security (optional UX follow-on)
-- Voice input (later)
+Not yet done (open Stories seeded 2026-11-15):
+- **KAN-57** PW-1 stronger Playwright step gen + evidence (Active)
+- KAN-59 Playwright suite import; KAN-61 tool-call fallback; KAN-63/65 Jira bugs/tests; KAN-67 report metrics; KAN-69/71 GDPR / prompt-injection; KAN-73 desktop Settings; KAN-75 heal review UI; KAN-77 learn inputs; KAN-79 framework stub; KAN-81 voice (later)
+- Cursor agents must raise Jira **Bug** tickets (replication steps + Fix comment) when defects are found — see AGENTS.md / JIRA_TICKET_TEMPLATE
 
 ## Important Context from Earlier Conversations
 - User is a senior test engineer (~£40k) wanting automated income / ability to leave traditional work.
@@ -93,5 +90,5 @@ Not yet done:
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. Optional: fuller desktop Settings form beyond Security.
-2. Voice input (VOICE-1) when text UX is solid.
+1. **KAN-57** — Stronger Playwright step generation + screenshot evidence (PW-1).
+2. Continue open FR Stories in WORK_LOG / FUNCTIONAL_SPEC §5 order.

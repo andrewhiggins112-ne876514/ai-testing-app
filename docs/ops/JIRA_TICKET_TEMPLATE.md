@@ -46,6 +46,20 @@ Audiences that must be able to read every ticket without opening other docs:
 4. **Acceptance criteria** — slim copy of parent AC  
 5. **Evidence** — screenshots/logs required  
 
+## Bug structure (Cursor agents — mandatory when defects are found)
+
+When a product/regression bug is found during implementation, pytest, Computer Use, or AUT runs:
+
+1. Create a Jira **Bug** (not a Story or silent fix-only).  
+2. **Relates**-link to the relevant **Story** and **test Task** (create the test Task if missing).  
+3. Description sections:
+   - **Symptom** — what went wrong  
+   - **Expected** vs **Actual**  
+   - **Environment** — OS, desktop vs Gradio, security level if relevant (never paste secrets)  
+   - **Replication steps** — numbered; must be enough for another agent or human to reproduce  
+4. When fixed: add a **Fix comment** with root cause, what changed, files, and how verified; then transition the Bug to **Done**.  
+5. Do not silently fix user-visible or FR-breaking defects without a Bug ticket.
+
 ## Definition of done (team — every Story)
 
 Copied into tickets from `docs/FUNCTIONAL_SPEC.md` §7:

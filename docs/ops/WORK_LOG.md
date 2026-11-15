@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | (backlog) optional desktop Settings polish / PW-1 stronger Playwright evidence |
-| **Epic** | — |
-| **Roadmap ID** | UI-CHAT follow-on / PW-1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` |
-| **Next action** | Pick next open KAN story (VOICE-1 later; optional fuller App Settings) |
+| **Jira story** | KAN-57 — Stronger Playwright step generation + screenshot evidence |
+| **Epic** | KAN-22 (Test Generation and Execution) |
+| **Roadmap ID** | PW-1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-TEST-1/4/6 |
+| **Next action** | Implement KAN-57; test Task KAN-58 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — OPS — Seed unfinished FR backlog + Bug process
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** Seeded 13 open Stories + linked test Tasks from unfinished FUNCTIONAL_SPEC FRs (`scripts/jira_kan_seed_backlog.py`). Closed orphan open test Tasks for Done parents (KAN-30/31/33/34/35/38/40/42/44). Encoded mandatory Bug ticket workflow (replication steps + Fix comment) in AGENTS / HOW_WE_WORK / JIRA_TICKET_TEMPLATE / work-log-handoff / jira-safe.
+- **Files:** `scripts/jira_kan_seed_backlog.py`, `AGENTS.md`, `docs/ops/HOW_WE_WORK.md`, `docs/ops/JIRA_TICKET_TEMPLATE.md`, `.cursor/rules/work-log-handoff.mdc`, `.cursor/skills/jira-safe/SKILL.md`, `docs/FUNCTIONAL_SPEC.md`, `docs/ops/ROADMAP.md`, `docs/ops/WORK_LOG.md`, `PROJECT_MEMORY.md`.
+- **Verify:** Jira open Stories KAN-57…KAN-81 with tests KAN-58…KAN-82; Active = KAN-57.
+- **Jira:** created KAN-57–82; orphans closed; no product story Done this slice.
+- **Next:** KAN-57 PW-1 step gen + screenshot evidence.
 
 ### 2026-11-15 — KAN-55 — Multi-sandbox orchestration stub
 - **Agent/chat:** Cursor IDE Agent (Composer)

@@ -33,6 +33,18 @@ When the user says **pick up where we left off**, **continue**, **next slice**, 
 7. Do not leave “see WORK_LOG” as the only record on the ticket — the Jira story comment must carry the substance.
 8. **Land on `main`:** `git status` / `git diff` → commit only intentional files (no secrets) with a clear message → **`git push origin main`**. Finished slice work must be pushed before the human opens a new chat to pick up. Never ask the human to commit or push.
 
+## Bugs found during a slice
+
+When a product/regression bug is found (manual verify, pytest, Computer Use, or AUT):
+
+1. Create a Jira **Bug** (REST if Atlassian MCP fails).
+2. **Relates**-link it to the relevant **Story** and **test Task** (create the test Task if missing).
+3. Description must include symptom, expected vs actual, environment, and **numbered replication steps**.
+4. When fixed: post a **Fix comment** (root cause, files, verify), then transition the Bug to **Done**.
+5. Do not silently fix user-visible or FR-breaking defects without a Bug ticket.
+
+See `docs/ops/JIRA_TICKET_TEMPLATE.md` (Bug section) and `.cursor/skills/jira-safe/SKILL.md`.
+
 ## Ticket quality
 
 Descriptions follow `docs/ops/JIRA_TICKET_TEMPLATE.md`. Never leave “see functional spec” placeholders — inline FR text.
