@@ -10,7 +10,7 @@ alwaysApply: true
 When the user says **pick up where we left off**, **continue**, **next slice**, or equivalent:
 
 1. Read `docs/ops/WORK_LOG.md` **Active slice** table (do not re-scan the whole repo first).
-2. Optionally `supermemory_search` for this workspace if Supermemory is authenticated (do not block if MCP search fails).
+2. **`supermemory_search`** (`workspaceRoot` = repo root, container project/both) for the Active slice / related decisions — then proceed even if search errors.
 3. Read that Jira story’s description (**REST fallback** if Atlassian MCP fails) for Requirements + AC.
 4. Start implementing that story immediately. One slice only.
 5. Prefer free/Auto/Composer unless the slice needs a stronger model.
@@ -22,8 +22,9 @@ When the user says **pick up where we left off**, **continue**, **next slice**, 
 2. Update the **Active slice** table to the next open story (or mark blocked).
 3. Update `PROJECT_MEMORY.md` Current State if behaviour changed.
 4. Update `docs/ops/ROADMAP.md` status for the roadmap ID.
-5. Add a **Jira comment** on the story summarising what was done, files touched, and how to verify (use local settings credentials; two-step confirm still applies for product-agent writes — Cursor ops may write comments when the user asked for ticket maintenance in this chat).
-6. Do not leave “see WORK_LOG” as the only record on the ticket — put the substance in the comment.
+5. Add a **Jira comment** on the story summarising what was done, files touched, and how to verify (REST if MCP fails).
+6. **`supermemory_add`** (container project): one short note of what shipped, key files, and next Active slice — no secrets.
+7. Do not leave “see WORK_LOG” as the only record on the ticket — put the substance in the comment.
 
 ## Ticket quality
 

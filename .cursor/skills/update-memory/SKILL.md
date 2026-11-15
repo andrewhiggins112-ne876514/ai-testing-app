@@ -10,6 +10,7 @@ description: After a finished slice, update PROJECT_MEMORY Current State and ROA
 3. Set roadmap IDs to `done` / `now` / `next` in `docs/ops/ROADMAP.md`.  
 4. Append `docs/ops/WORK_LOG.md` and advance the **Active slice** table to the next open story.  
 5. Add a Jira comment on the story (what shipped + how to verify).  
-6. If the human issued a **CR** (requirement/scope/AC change): update `docs/FUNCTIONAL_SPEC.md` first, then related KAN tickets, then memory/roadmap/work log.  
-7. Do not paste long chat logs into memory.  
-8. No secrets.  
+6. `supermemory_add` (project, workspaceRoot = repo): short durable note of the change + next slice.  
+7. If the human issued a **CR**: update `docs/FUNCTIONAL_SPEC.md` first, then related KAN tickets, then memory/roadmap/work log + supermemory.  
+8. Do not paste long chat logs or secrets into memory.  
+

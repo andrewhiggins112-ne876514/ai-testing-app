@@ -34,6 +34,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-15 — OPS — proactive Supermemory + tooling-use rule
+- **Agent/chat:** Cursor PM chat
+- **Done:** Added `.cursor/rules/tooling-use.mdc` (always apply): supermemory_search at pick-up, supermemory_add after slices/CRs; Jira REST fallback; GitHub plugin; IronBee UI. Wired into AGENTS, work-log-handoff, update-memory. MCP add from this chat may still connection-error — IDE Agent should add memories on next pick-up.
+- **Files:** `.cursor/rules/tooling-use.mdc`, `AGENTS.md`, work-log-handoff, update-memory skill, WORK_LOG.
+- **Verify:** rule alwaysApply; Active slice KAN-53.
+- **Jira:** n/a.
+- **Next:** Fresh IDE Agent: “pick up where we left off” (will search Supermemory + implement KAN-53).
+
 ### 2026-11-15 — OPS — clean tree + agent instructions for verified IDE tooling
 - **Agent/chat:** Cursor PM chat
 - **Done:** Removed IDE_CAPABILITIES walkthrough from repo; updated AGENTS/HOW_WE_WORK/CONNECTORS/work-log-handoff for verified tooling (GitHub plugin, Jira REST fallback, IronBee, Supermemory, Context7 optional); handoff remains KAN-53.

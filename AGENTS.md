@@ -19,6 +19,7 @@
 - Skills: `.cursor/skills/` (`jira-safe`, `slice-workflow`, `run-local-stack`, `orb-slice`, `update-memory`).
 - Local Ollama is for the *product* runtime (actually free). Cursor coding agents are not free.
 - Prefer short chats + WORK_LOG / Supermemory over re-explaining history in long threads.
+- **Proactive tools:** at pick-up / session start, `supermemory_search` (project+user) before broad repo scans; after slices and CRs, `supermemory_add` (project). See `.cursor/rules/tooling-use.mdc`.
 
 ## Token budget
 Premium plan only. Do not assume more tokens can be bought. Token use in long agent threads is much higher than short chats.
@@ -70,7 +71,7 @@ This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 M
 - **Jira:** try **user-atlassian** first; expect frequent MCP API-token errors → **always** fall back to REST + local settings / `scripts/jira_kan_*.py` (never print tokens).
 - **GitHub:** **plugin-github-github** only. Keep `.cursor/mcp.json` empty (do not revive workspace npx GitHub MCP).
 - **UI verify:** **IronBee browser** MCP only for this app (not cursor-ide-browser). IronBee Node/Backend stay **off** unless the user asks.
-- **Supermemory:** use when authenticated for cross-chat recall (`workspaceRoot` = repo root). If MCP add/search fails but CLI/auth works, still treat memories as available; do not block the slice.
+- **Supermemory:** **always try** search at pick-up and add after meaningful decisions/slices (`workspaceRoot` = repo root; `container` project for codebase facts). If MCP add/search fails, retry once then continue — do not block the slice.
 - **Context7:** optional; Cloud Connected is enough; ignore Local Error·terminated.
 - **Skip unless asked:** plugin-atlassian (duplicate), cursor-origin (GitHub remotes only), enabling IronBee Node/Backend.
 - **Computer Use / native cursor tools:** OK for desktop/OS UI; prefer IronBee for in-app web.

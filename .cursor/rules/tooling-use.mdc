@@ -1,0 +1,34 @@
+---
+description: Use verified Cursor tools proactively (Supermemory, Jira REST, GitHub, IronBee)
+alwaysApply: true
+---
+
+# Tooling use (verified for this machine)
+
+Always pass `workspaceRoot` = `D:\Projects\ai_testing_app` (or the active workspace root) to Supermemory tools.
+
+## Supermemory — use by default
+
+- **Session start / pick-up:** `supermemory_search` with the user goal + “KAN Active slice” / architecture before long rediscovery. Prefer `container: "both"` or `"project"`.
+- **After decisions:** `supermemory_add` for CRs, path moves, tooling gotchas, and “what shipped” on a slice (`container: "project"`). Also `container: "user"` for durable personal prefs (token thrift, IDE Agent handoff).
+- **After hard bugs:** save root cause + fix in project memory.
+- Do **not** block the slice if a Supermemory MCP call fails (known flaky Node fetch); retry once, then continue with WORK_LOG / PROJECT_MEMORY.
+- Never store secrets, tokens, or full settings.json in Supermemory.
+
+## Jira
+
+- Try user-atlassian; on API-token / permission errors → REST + local settings / `scripts/jira_kan_*.py` immediately.
+- After slices: comment on the story with what shipped + how to verify.
+
+## GitHub
+
+- Use **plugin-github-github** for PRs/issues/repo. Do not enable workspace npx GitHub MCP.
+
+## UI verification
+
+- App UI: **IronBee browser** only. IronBee Node/Backend stay off unless asked.
+- Desktop/OS UI (Ollama Settings, etc.): computer-use OK.
+
+## Context7
+
+- Use when unsure about a library API. Optional; ignore Local Error·terminated if Cloud works.
