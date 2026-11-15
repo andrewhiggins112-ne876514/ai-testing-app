@@ -72,6 +72,20 @@ class ReportsTabTests(unittest.TestCase):
         self.assertIsNone(image)
         self.assertEqual(payload, {"request": "new", "status": "pass"})
 
+    def test_report_picker_lists_newest_first_and_loads_named(self):
+        older = self.folder / "old.md"
+        newer = self.folder / "new.md"
+        older.write_text("# Old\n", encoding="utf-8")
+        newer.write_text("# New\n", encoding="utf-8")
+        os.utime(older, (1_000_000, 1_000_000))
+        os.utime(newer, (2_000_000, 2_000_000))
+        self.assertEqual(gradio_app.list_report_choices(), ["new", "old"])
+        text, image, payload, meta = gradio_app.load_report_by_name("old")
+        self.assertIn("# Old", text)
+        self.assertIsNone(image)
+        self.assertEqual(payload, "No JSON found")
+        self.assertIn("old.md", meta)
+
 
 if __name__ == "__main__":
     unittest.main()

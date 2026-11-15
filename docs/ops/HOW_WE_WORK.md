@@ -54,7 +54,7 @@ See `docs/ops/CONNECTORS.md`. Customize/MCP is in the **Agents** window, not the
 - [ ] Memory/roadmap updated  
 - [ ] `docs/ops/WORK_LOG.md` entry + Active slice advanced  
 - [ ] Jira comment on the story (what / verify)  
-- [ ] Merged / pushed when user asks  
+- [ ] **Commit + `git push origin main`** (required; do not leave finished work unpushed)  
 - [ ] Human told: `git pull` + how to verify  
 
 ## Continue next time

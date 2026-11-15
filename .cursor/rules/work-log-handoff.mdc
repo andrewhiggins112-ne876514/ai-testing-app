@@ -25,6 +25,7 @@ When the user says **pick up where we left off**, **continue**, **next slice**, 
 5. Add a **Jira comment** on the story summarising what was done, files touched, and how to verify (REST if MCP fails).
 6. **`supermemory_add`** (container project): one short note of what shipped, key files, and next Active slice — no secrets.
 7. Do not leave “see WORK_LOG” as the only record on the ticket — put the substance in the comment.
+8. **Land on `main`:** `git status` / `git diff` → commit only intentional files (no secrets) with a clear message → **`git push origin main`**. Finished slice work must be pushed before the human opens a new chat to pick up. Never ask the human to commit or push.
 
 ## Ticket quality
 

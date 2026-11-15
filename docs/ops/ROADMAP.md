@@ -9,7 +9,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
 | UI-6a | Orb settings behind top-right gear (clean chat dash) | done | Chatbot/input settings icons later |
-| UI-6 | Movable/resizable panels | **now** | Desktop drag/snap + transparency done; **resize = KAN-53** |
+| UI-6 | Movable/resizable panels | done | Desktop resize + persist (KAN-53); Gradio orb panel resize parity |
 | OPS-1 | Cursor ops (rules, agents, skills, HOW_WE_WORK) | done | Merged to main via PR #1 |
 | OPS-2 | Beginner Cursor setup + PM-owned workflow | done | Human talks only to PM; Grok guide bot retired |
 | UI-5 | Orb presets (save/load/delete named configs) | done | Settings `orb_presets` + Gradio accordion controls |
@@ -22,11 +22,10 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Depends | Notes |
 |----|------|---------|-------|
-| UI-6 | Movable/resizable panels | UI-5 | Keep Gradio; avoid rewrite |
+| UI-CHAT | Minimal chat UX polish / Gradio Settings+Reports gaps | UI-6 | **done** — KAN-10 Settings/Reports polish (2026-11-15) |
 | JIRA-R | Richer tickets (AC + test steps) | — | **done** (2026-11-15) — multi-audience template + enrich script |
 | JIRA-B | Backlog structure (epics/stories/tests/bugs) | JIRA-R | **done** (2026-11-15) — KAN-20…29; Story→Task+`test`+Relates |
 | PW-1 | Stronger step gen + screenshot evidence | — | Extend `playwright_runner` |
-| UI-CHAT | Minimal chat UX polish | UI-6 | Still Gradio-first |
 
 ## Mid term
 
@@ -35,7 +34,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | SEC-1 | OFFICIAL / SECRET isolation | Browser profiles + credential scopes — confirm before coding |
 | DOC-1 | Document ingestion → settings proposals | Explicit consent; no silent store |
 | REP-1 | Customisable reporting | Build on `reports/exporter.py` |
-| HEAL-1 | Broader locator self-heal | Beyond current click heal |
+| HEAL-1 | Broader locator self-heal | **now** — KAN-14; beyond current click heal |
 
 ## Later
 
@@ -65,5 +64,5 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**[KAN-53](https://ai-testing-lab.atlassian.net/browse/KAN-53) / UI-6** — resizable panels (remainder).  
+**[KAN-14](https://ai-testing-lab.atlassian.net/browse/KAN-14)** — Self-healing selector improvements (FR-HEAL).  
 Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

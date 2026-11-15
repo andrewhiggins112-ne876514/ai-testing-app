@@ -33,15 +33,31 @@ class SettingsTabTests(unittest.TestCase):
             os.environ["AI_TESTING_SETTINGS"] = self._old
 
     def test_save_reload_and_reject_invalid_level(self):
-        self.assertEqual(gradio_app.save_settings("SECRET", "https://jira.example.com"), "Saved.")
+        status, summary = gradio_app.save_settings("SECRET", "https://jira.example.com")
+        self.assertEqual(status, "Saved.")
+        self.assertIn("Local store:", summary)
         self.assertEqual(gradio_app.current_settings(), ("SECRET", "https://jira.example.com"))
         saved = load_settings()
         self.assertEqual(saved["security_level"], "SECRET")
         self.assertEqual(saved["jira_url"], "https://jira.example.com")
-        self.assertEqual(gradio_app.save_settings("PUBLIC", "https://other.example.com"), "Invalid security level.")
+        status, _ = gradio_app.save_settings("PUBLIC", "https://other.example.com")
+        self.assertEqual(status, "Invalid security level.")
         reloaded = load_settings()
         self.assertEqual(reloaded["security_level"], "SECRET")
         self.assertEqual(reloaded["jira_url"], "https://jira.example.com")
+
+    def test_store_summary_hides_secrets(self):
+        from settings.store import write_settings
+
+        data = load_settings()
+        data["jira_email"] = "agent@example.com"
+        data["jira_api_token"] = "super-secret-token-value"
+        write_settings(data)
+        summary = gradio_app.settings_store_summary()
+        self.assertIn("Local store:", summary)
+        self.assertIn("configured", summary.lower())
+        self.assertNotIn("super-secret-token-value", summary)
+        self.assertNotIn("agent@example.com", summary)
 
 
 if __name__ == "__main__":

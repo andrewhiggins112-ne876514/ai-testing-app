@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | [KAN-53](https://ai-testing-lab.atlassian.net/browse/KAN-53) — UI-6 resizable panels (remainder) |
-| **Epic** | [KAN-27](https://ai-testing-lab.atlassian.net/browse/KAN-27) — UI and Desktop Experience |
-| **Roadmap ID** | UI-6 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-4 |
-| **Next action** | Implement resizable panels on desktop shell; keep Gradio; verify with screenshot |
+| **Jira story** | [KAN-14](https://ai-testing-lab.atlassian.net/browse/KAN-14) — Self-healing selector improvements |
+| **Epic** | [KAN-23](https://ai-testing-lab.atlassian.net/browse/KAN-23) — Self-Healing Tests |
+| **Roadmap ID** | HEAL-1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-HEAL-* |
+| **Next action** | Extend heal beyond click-only; keep FR-HEAL guardrails (no assertion weakening) |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,30 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — OPS — commit + push required on slice close-out
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** Agent guide CR — finished/paused slices must `git commit` + `git push origin main` before the human opens a new pick-up chat. Updated AGENTS, work-log-handoff, 00-core-efficiency, slice-workflow, update-memory, HOW_WE_WORK.
+- **Files:** `AGENTS.md`, `.cursor/rules/work-log-handoff.mdc`, `.cursor/rules/00-core-efficiency.mdc`, `.cursor/skills/slice-workflow/SKILL.md`, `.cursor/skills/update-memory/SKILL.md`, `docs/ops/HOW_WE_WORK.md`, WORK_LOG.
+- **Verify:** rules say push on slice close-out; this session lands KAN-53+KAN-10 on `origin/main`.
+- **Jira:** n/a (process).
+- **Next:** KAN-14 after push.
+
+### 2026-11-15 — KAN-10 — Gradio Settings/Reports polish
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** Settings tab: human labels, FR-UI-1 hint, local-store path + credential configured/not-set (never echoes secrets), Save → status. Reports tab: newest-first picker, details path, markdown/screenshot/JSON, Refresh. Theme CSS aligned with orb panels. Tests updated/added.
+- **Files:** `ui/gradio_app.py`, `tests/test_settings_tab.py`, `tests/test_reports_tab.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC §5.
+- **Verify:** `python run_ui.py` → http://127.0.0.1:7860 → Settings Save; Reports picker + Refresh. `python -m unittest tests.test_settings_tab tests.test_reports_tab`.
+- **Jira:** yes — comment + Done on KAN-10 (REST).
+- **Next:** KAN-14 self-healing selector improvements (desktop Settings/Reports drawer still “Coming soon” if you want that first).
+
+### 2026-11-15 — KAN-53 — UI-6 resizable panels
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** Desktop shell resize handles (E/S/SE) on movable widgets; drawer edge resize; persist width/height in `desktop-shell-layout-v1`. Gradio orb settings panel `resize: both` + `gradio-orb-panel-size-v1`. IronBee: live resize grew chat 440→500×340 and restored after reload.
+- **Files:** `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `ui/desktop/index.html`, `ui/gradio_app.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC §5.
+- **Verify:** `http://127.0.0.1:8000/ui/desktop/index.html` — drag SE handle on chat, reload; open Gradio gear panel and drag native resize corner.
+- **Jira:** yes — comment + Done on KAN-53 (REST).
+- **Next:** KAN-10 Gradio Settings/Reports polish (remaining UX).
 
 ### 2026-11-15 — OPS — proactive Supermemory + tooling-use rule
 - **Agent/chat:** Cursor PM chat

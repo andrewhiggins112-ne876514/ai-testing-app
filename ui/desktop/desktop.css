@@ -131,6 +131,84 @@ html, body {
   z-index: 9;
 }
 
+.movable-widget.resizing {
+  cursor: default;
+  z-index: 9;
+}
+
+.resize-handle {
+  position: absolute;
+  z-index: 4;
+  background: transparent;
+  touch-action: none;
+}
+
+.resize-handle-e {
+  top: 10px;
+  right: -3px;
+  width: 8px;
+  bottom: 18px;
+  cursor: ew-resize;
+}
+
+.resize-handle-s {
+  left: 10px;
+  right: 18px;
+  bottom: -3px;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.resize-handle-se {
+  right: -2px;
+  bottom: -2px;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  border-radius: 2px 0 10px 0;
+  background: linear-gradient(
+    135deg,
+    transparent 45%,
+    var(--shell-border) 45%,
+    var(--shell-border) 55%,
+    transparent 55%
+  );
+}
+
+.side-drawer .drawer-resize-handle {
+  position: absolute;
+  z-index: 5;
+  background: transparent;
+  touch-action: none;
+  pointer-events: auto;
+}
+
+.side-drawer.edge-left .drawer-resize-handle,
+.side-drawer.edge-right .drawer-resize-handle {
+  top: 12px;
+  bottom: 12px;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.side-drawer.edge-left .drawer-resize-handle { right: 0; }
+.side-drawer.edge-right .drawer-resize-handle { left: 0; }
+
+.side-drawer.edge-top .drawer-resize-handle,
+.side-drawer.edge-bottom .drawer-resize-handle {
+  left: 12px;
+  right: 12px;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.side-drawer.edge-top .drawer-resize-handle { bottom: 0; }
+.side-drawer.edge-bottom .drawer-resize-handle { top: 0; }
+
+.side-drawer.resizing {
+  transition: none !important;
+}
+
 .chat-log {
   flex: 1;
   overflow-y: auto;
@@ -288,7 +366,7 @@ html, body {
 
 .side-drawer.edge-left.open,
 .side-drawer.edge-right.open {
-  width: 220px;
+  width: var(--drawer-size, 220px);
 }
 
 .side-drawer.edge-top,
@@ -305,17 +383,19 @@ html, body {
 
 .side-drawer.edge-top.open,
 .side-drawer.edge-bottom.open {
-  height: min(280px, 42vh);
+  height: var(--drawer-size, min(280px, 42vh));
 }
 
 .drawer-inner {
-  width: 204px;
+  width: calc(100% - 16px);
+  max-width: 100%;
   height: 100%;
   border-radius: 12px;
   padding: 14px 12px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  box-sizing: border-box;
 }
 
 .side-drawer.edge-left .drawer-inner {

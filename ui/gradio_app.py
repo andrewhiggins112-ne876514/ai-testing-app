@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import gradio as gr
 import httpx
 from reports.exporter import reports_dir
-from settings.store import load_settings, update_setting, write_settings
+from settings.store import load_settings, settings_path, update_setting, write_settings
 
 _UI_DIR = Path(__file__).resolve().parent
 _THREE_PATH = _UI_DIR / "vendor" / "three.min.js"
@@ -1063,7 +1063,51 @@ if (window.__orbWebGL) window.__orbWebGL.attach(element);
 draw();
 """
 
-ORB_JS_FULL = "\n".join(part for part in (THREE_JS, WEBGL_BOOT_JS, ORB_JS) if part)
+GRADIO_PANEL_RESIZE_JS = r"""
+(function () {
+  var KEY = "gradio-orb-panel-size-v1";
+  function apply(el) {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      if (data && typeof data.width === "number") el.style.width = data.width + "px";
+      if (data && typeof data.height === "number") el.style.height = data.height + "px";
+    } catch (err) {}
+  }
+  function persist(el) {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        width: Math.round(el.offsetWidth),
+        height: Math.round(el.offsetHeight)
+      }));
+    } catch (err) {}
+  }
+  function bind(el) {
+    if (!el || el.dataset.resizeBound === "1") return;
+    el.dataset.resizeBound = "1";
+    apply(el);
+    var timer = null;
+    el.addEventListener("mouseup", function () { persist(el); });
+    if (typeof ResizeObserver !== "undefined") {
+      var ro = new ResizeObserver(function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () { persist(el); }, 120);
+      });
+      ro.observe(el);
+    }
+  }
+  function boot() {
+    bind(document.getElementById("orb-settings-panel"));
+  }
+  boot();
+  setInterval(boot, 1500);
+})();
+"""
+
+ORB_JS_FULL = "\n".join(
+    part for part in (THREE_JS, WEBGL_BOOT_JS, ORB_JS, GRADIO_PANEL_RESIZE_JS) if part
+)
 
 ORB_CSS = """
 html, body {
@@ -1178,9 +1222,14 @@ html, body {
   right: 12px;
   z-index: 60;
   width: min(420px, calc(100% - 24px));
-  max-height: min(78vh, 640px);
+  min-width: 280px;
+  min-height: 200px;
+  max-width: calc(100% - 24px);
+  max-height: min(90vh, 720px);
+  height: auto;
   overflow-x: hidden;
   overflow-y: auto;
+  resize: both;
   padding: 14px 14px 10px !important;
   border: 1px solid #1f6f8f !important;
   border-radius: 14px !important;
@@ -1266,6 +1315,44 @@ html, body {
   color: #7ee7ff;
 }
 #agent-chat { background: transparent !important; }
+#settings-panel,
+#reports-panel {
+  max-width: 720px;
+  padding: 8px 4px 16px !important;
+}
+#settings-panel .panel-title,
+#reports-panel .panel-title {
+  margin: 0 0 6px 0 !important;
+  font-size: 13px !important;
+  font-weight: 600;
+  color: #d7eaf6 !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+#settings-panel .panel-hint,
+#reports-panel .panel-hint {
+  margin: 0 0 14px 0 !important;
+  font-size: 13px !important;
+  color: #8fb4c9 !important;
+  line-height: 1.45;
+}
+#settings-panel .orb-section-label,
+#reports-panel .orb-section-label {
+  margin: 12px 0 4px 0 !important;
+  font-size: 11px !important;
+  color: #67e8f9 !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+#settings-panel label,
+#settings-panel .label-wrap span,
+#reports-panel label,
+#reports-panel .label-wrap span {
+  font-size: 11px !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #7eb7d4 !important;
+}
 """
 
 ORB_THEME = gr.themes.Base(
@@ -1336,21 +1423,38 @@ ORB_THEME = gr.themes.Base(
 
 
 
+_NONE_REPORT = "(none yet)"
+
+
 def current_settings():
     data = load_settings()
     return data.get("security_level") or "OFFICIAL", data.get("jira_url") or ""
+
+
+def settings_store_summary():
+    """Non-secret status line for the Settings tab (never echoes tokens)."""
+    data = load_settings()
+    email_set = bool((data.get("jira_email") or "").strip())
+    token_set = bool((data.get("jira_api_token") or "").strip())
+    if email_set and token_set:
+        creds = "Jira email + API token: configured (values stay in local store)"
+    elif email_set or token_set:
+        creds = "Jira credentials: incomplete (need both email and API token in local store)"
+    else:
+        creds = "Jira credentials: not set (edit local settings file — never commit tokens)"
+    return f"Local store: {settings_path()}\n{creds}"
 
 
 def save_settings(level, jira_base_url):
     level = (level or "").strip()
     url = (jira_base_url or "").strip()
     if level not in LEVELS:
-        return "Invalid security level."
+        return "Invalid security level.", settings_store_summary()
     if url and not (url.startswith("https://") or url.startswith("http://")):
-        return "Jira URL must start with http:// or https://."
+        return "Jira URL must start with http:// or https://.", settings_store_summary()
     update_setting("security_level", level, confirm=True)
     update_setting("jira_url", url, confirm=True)
-    return "Saved."
+    return "Saved.", settings_store_summary()
 
 
 def _report_json(md_path: Path):
@@ -1363,18 +1467,18 @@ def _report_json(md_path: Path):
         return "No JSON found"
 
 
-def latest_report():
+def _report_files():
     try:
         folder = reports_dir()
     except Exception:
-        return "No reports yet", None, "No JSON found"
+        return []
     if not folder.exists():
-        return "No reports yet", None, "No JSON found"
-    files = sorted(folder.glob("*.md"), key=lambda path: path.stat().st_mtime)
-    if not files:
-        return "No reports yet", None, "No JSON found"
-    newest = files[-1]
-    text = newest.read_text(encoding="utf-8")
+        return []
+    return sorted(folder.glob("*.md"), key=lambda path: path.stat().st_mtime)
+
+
+def _read_report_md(md_path: Path):
+    text = md_path.read_text(encoding="utf-8")
     shot = None
     for line in text.splitlines():
         if line.startswith("Screenshot:"):
@@ -1382,7 +1486,40 @@ def latest_report():
             if candidate.is_file():
                 shot = str(candidate)
             break
-    return text, shot, _report_json(newest)
+    return text, shot, _report_json(md_path)
+
+
+def list_report_choices():
+    files = _report_files()
+    if not files:
+        return [_NONE_REPORT]
+    # Newest first for the picker.
+    return [path.stem for path in reversed(files)]
+
+
+def latest_report():
+    files = _report_files()
+    if not files:
+        return "No reports yet", None, "No JSON found"
+    return _read_report_md(files[-1])
+
+
+def load_report_by_name(name: str):
+    name = (name or "").strip()
+    if not name or name == _NONE_REPORT:
+        return "No reports yet", None, "No JSON found", "No reports in the local reports folder."
+    files = {path.stem: path for path in _report_files()}
+    md_path = files.get(name)
+    if md_path is None:
+        return "No reports yet", None, "No JSON found", f"Report “{name}” not found."
+    text, shot, payload = _read_report_md(md_path)
+    try:
+        folder = reports_dir()
+        folder_note = str(folder)
+    except Exception:
+        folder_note = "(reports path unavailable)"
+    meta = f"Selected: {md_path.name}\nFolder: {folder_note}"
+    return text, shot, payload, meta
 
 
 def refresh_report():
@@ -1391,6 +1528,19 @@ def refresh_report():
     if isinstance(payload, str):
         payload = {"message": payload}
     return text, shot, payload
+
+
+def refresh_reports_ui(selected: str | None = None):
+    choices = list_report_choices()
+    preferred = (selected or "").strip()
+    if preferred in choices and preferred != _NONE_REPORT:
+        chosen = preferred
+    else:
+        chosen = choices[0]
+    text, shot, payload, meta = load_report_by_name(chosen)
+    if isinstance(payload, str):
+        payload = {"message": payload}
+    return gr.update(choices=choices, value=chosen), text, shot, payload, meta
 
 
 def new_session_id():
@@ -1550,17 +1700,77 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 )
         with gr.Tab("Settings"):
             loaded_level, loaded_url = current_settings()
-            level = gr.Dropdown(choices=list(LEVELS), value=loaded_level, label="security_level")
-            jira_base_url = gr.Textbox(value=loaded_url, label="jira_base_url")
-            status = gr.Textbox(label="Status", interactive=False)
-            gr.Button("Save").click(save_settings, [level, jira_base_url], status)
+            with gr.Column(elem_id="settings-panel"):
+                gr.HTML('<div class="panel-title">Settings</div>')
+                gr.HTML(
+                    '<div class="panel-hint">Chat stays primary. Security and Jira URL live here as '
+                    "secondary controls — credentials never appear in this UI.</div>"
+                )
+                gr.HTML('<div class="orb-section-label">Security</div>')
+                level = gr.Dropdown(
+                    choices=list(LEVELS),
+                    value=loaded_level,
+                    label="Security level",
+                    info="OFFICIAL and SECRET isolate credentials and browser profiles (FR-SEC-1).",
+                )
+                gr.HTML('<div class="orb-section-label">Jira</div>')
+                jira_base_url = gr.Textbox(
+                    value=loaded_url,
+                    label="Jira base URL",
+                    placeholder="https://your-site.atlassian.net",
+                    info="Site root only. Email and API token stay in the local settings file.",
+                )
+                store_info = gr.Textbox(
+                    value=settings_store_summary(),
+                    label="Local store",
+                    interactive=False,
+                    lines=2,
+                )
+                status = gr.Textbox(value="Ready", label="Status", interactive=False, max_lines=1)
+                gr.Button("Save", variant="primary").click(
+                    save_settings, [level, jira_base_url], [status, store_info]
+                )
         with gr.Tab("Reports"):
-            report_md = gr.Markdown("No reports yet")
-            report_image = gr.Image(label="Screenshot")
-            with gr.Accordion("Raw JSON", open=False):
-                report_json = gr.JSON(value={"message": "No JSON found"})
-            gr.Button("Refresh").click(refresh_report, outputs=[report_md, report_image, report_json])
+            _report_choices = list_report_choices()
+            with gr.Column(elem_id="reports-panel"):
+                gr.HTML('<div class="panel-title">Reports</div>')
+                gr.HTML(
+                    '<div class="panel-hint">Run exports land outside the repo under the local reports '
+                    "folder. Pick a report or refresh after a test run.</div>"
+                )
+                gr.HTML('<div class="orb-section-label">Library</div>')
+                report_pick = gr.Dropdown(
+                    choices=_report_choices,
+                    value=_report_choices[0],
+                    label="Report",
+                    interactive=True,
+                )
+                report_meta = gr.Textbox(
+                    value="No reports in the local reports folder.",
+                    label="Details",
+                    interactive=False,
+                    lines=2,
+                )
+                report_md = gr.Markdown("No reports yet")
+                report_image = gr.Image(label="Screenshot")
+                with gr.Accordion("Raw JSON", open=False):
+                    report_json = gr.JSON(value={"message": "No JSON found"})
+                gr.Button("Refresh", variant="secondary").click(
+                    refresh_reports_ui,
+                    [report_pick],
+                    [report_pick, report_md, report_image, report_json, report_meta],
+                )
+                report_pick.change(
+                    refresh_reports_ui,
+                    [report_pick],
+                    [report_pick, report_md, report_image, report_json, report_meta],
+                )
     demo.load(current_settings, outputs=[level, jira_base_url])
+    demo.load(settings_store_summary, outputs=[store_info])
+    demo.load(
+        refresh_reports_ui,
+        outputs=[report_pick, report_md, report_image, report_json, report_meta],
+    )
     demo.load(current_orb_inputs, outputs=orb_inputs)
 
 if __name__ == "__main__":

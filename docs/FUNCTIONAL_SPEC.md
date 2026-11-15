@@ -170,11 +170,11 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next** (track in KAN; Active slice = **KAN-53**)
-- UI-6 resizable panels remainder (**KAN-53** — now).
-- Gradio Settings/Reports polish gaps (**KAN-10** still open for remaining UX; core Gradio/presets shipped).
+**Still open / next** (track in KAN; Active slice = **KAN-14**)
+- Gradio Settings/Reports polish (**KAN-10** — done 2026-11-15).
+- UI-6 movable/resizable panels (**KAN-53** — done 2026-11-15).
+- Broader self-healing + guardrail enforcement (**KAN-14** — now; **KAN-49**).
 - Document ingestion → settings proposal (**KAN-45**).
-- Broader self-healing + guardrail enforcement (**KAN-14**, **KAN-49**).
 - Security-level isolation browser profiles + credential scopes (**KAN-15**).
 - Desktop `.exe` testing plugin (**KAN-47**).
 - Customisable reporting polish (**KAN-51**).

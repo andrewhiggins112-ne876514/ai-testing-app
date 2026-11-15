@@ -5,6 +5,12 @@
   const EDGE_PAD = 16;
   const DRAG_THRESHOLD = 6;
   const BTN = 42;
+  const WIDGET_MIN_W = 220;
+  const WIDGET_MIN_H = 160;
+  const DRAWER_MIN = 160;
+  const DRAWER_MAX_LR = 420;
+  const DRAWER_DEFAULT_LR = 220;
+  const DRAWER_DEFAULT_TB = 280;
   const DEFAULT_APPEARANCE = {
     transparency: 90,
     border: "#50cdff",
@@ -386,7 +392,7 @@
     try {
       const raw = localStorage.getItem(LAYOUT_KEY);
       if (!raw) {
-        return { toggles: {}, widgets: {}, appearance: defaultAppearance() };
+        return { toggles: {}, widgets: {}, drawers: {}, appearance: defaultAppearance() };
       }
       const data = JSON.parse(raw);
       const appearanceSrc = data.appearance || {
@@ -400,10 +406,11 @@
       return {
         toggles: data.toggles || {},
         widgets: data.widgets || {},
+        drawers: data.drawers || {},
         appearance: normalizeAppearance(appearanceSrc),
       };
     } catch (err) {
-      return { toggles: {}, widgets: {}, appearance: defaultAppearance() };
+      return { toggles: {}, widgets: {}, drawers: {}, appearance: defaultAppearance() };
     }
   }
 
@@ -571,6 +578,10 @@
     const tr = toggle.getBoundingClientRect();
     const W = window.innerWidth;
     const H = window.innerHeight;
+    const saved = layout.drawers && layout.drawers[drawer.id];
+    const size =
+      saved && typeof saved.size === "number" ? saved.size : defaultDrawerSize(edge);
+    applyDrawerSize(drawer, edge, size);
 
     if (edge === "left" || edge === "right") {
       const idealTop = clamp(tr.top - 40, 24, Math.max(24, H - 88 - 200));
@@ -598,27 +609,92 @@
     saveLayout(layout);
   }
 
-  function placeWidget(el, left, top) {
+  function placeWidget(el, left, top, width, height) {
     const W = window.innerWidth;
     const H = window.innerHeight;
     const rect = el.getBoundingClientRect();
-    const w = rect.width || 320;
-    const h = rect.height || 280;
-    const x = clamp(left, 8, Math.max(8, W - w - 8));
-    const y = clamp(top, 8, Math.max(8, H - h - 8));
+    const maxW = Math.max(WIDGET_MIN_W, W - 16);
+    const maxH = Math.max(WIDGET_MIN_H, H - 16);
+    const w =
+      width != null
+        ? clamp(width, WIDGET_MIN_W, maxW)
+        : rect.width || Math.min(360, Math.floor(W * 0.32));
+    const h =
+      height != null
+        ? clamp(height, WIDGET_MIN_H, maxH)
+        : rect.height || Math.min(420, Math.floor(H * 0.55));
+    if (width != null) el.style.width = w + "px";
+    if (height != null) el.style.height = h + "px";
+    const useW = width != null ? w : rect.width || w;
+    const useH = height != null ? h : rect.height || h;
+    const x = clamp(left, 8, Math.max(8, W - useW - 8));
+    const y = clamp(top, 8, Math.max(8, H - useH - 8));
     el.style.left = x + "px";
     el.style.top = y + "px";
     el.style.right = "auto";
     el.style.bottom = "auto";
-    return { left: x, top: y };
+    return { left: x, top: y, width: useW, height: useH };
   }
 
   function persistWidget(el) {
+    const rect = el.getBoundingClientRect();
     layout.widgets[el.dataset.widget || el.id] = {
-      left: parseFloat(el.style.left) || 0,
-      top: parseFloat(el.style.top) || 0,
+      left: parseFloat(el.style.left) || rect.left || 0,
+      top: parseFloat(el.style.top) || rect.top || 0,
+      width: Math.round(rect.width),
+      height: Math.round(rect.height),
     };
     saveLayout(layout);
+  }
+
+  function defaultDrawerSize(edge) {
+    if (edge === "top" || edge === "bottom") {
+      return Math.min(DRAWER_DEFAULT_TB, Math.floor(window.innerHeight * 0.42));
+    }
+    return DRAWER_DEFAULT_LR;
+  }
+
+  function applyDrawerSize(drawer, edge, size) {
+    const isTB = edge === "top" || edge === "bottom";
+    const max = isTB
+      ? Math.max(DRAWER_MIN, window.innerHeight - 120)
+      : Math.min(DRAWER_MAX_LR, Math.max(DRAWER_MIN, window.innerWidth - 80));
+    const next = clamp(
+      size != null ? size : defaultDrawerSize(edge),
+      DRAWER_MIN,
+      max
+    );
+    drawer.style.setProperty("--drawer-size", next + "px");
+    return next;
+  }
+
+  function persistDrawer(drawer) {
+    if (!drawer || !drawer.id) return;
+    const edge = (drawer.className.match(/edge-(left|right|top|bottom)/) || [])[1] || "left";
+    const raw = drawer.style.getPropertyValue("--drawer-size");
+    const size = parseFloat(raw) || defaultDrawerSize(edge);
+    if (!layout.drawers) layout.drawers = {};
+    layout.drawers[drawer.id] = { size: size };
+    saveLayout(layout);
+  }
+
+  function ensureResizeHandles(el) {
+    if (el.querySelector(".resize-handle")) return;
+    ["e", "s", "se"].forEach(function (dir) {
+      const handle = document.createElement("div");
+      handle.className = "resize-handle resize-handle-" + dir;
+      handle.dataset.resize = dir;
+      handle.setAttribute("aria-hidden", "true");
+      el.appendChild(handle);
+    });
+  }
+
+  function ensureDrawerResizeHandle(drawer) {
+    if (drawer.querySelector(".drawer-resize-handle")) return;
+    const handle = document.createElement("div");
+    handle.className = "drawer-resize-handle";
+    handle.setAttribute("aria-hidden", "true");
+    drawer.appendChild(handle);
   }
 
   function restoreLayout() {
@@ -627,14 +703,28 @@
       const edge = (saved && saved.edge) || el.getAttribute("data-default-edge") || "left";
       const along = saved && typeof saved.along === "number" ? saved.along : null;
       placeToggle(el, edge, along);
-      syncDrawerEdge(el, toggleDrawerMap.get(el));
+      const drawer = toggleDrawerMap.get(el);
+      syncDrawerEdge(el, drawer);
+      const drawerSaved = layout.drawers && layout.drawers[drawer.id];
+      applyDrawerSize(
+        drawer,
+        edge,
+        drawerSaved && typeof drawerSaved.size === "number" ? drawerSaved.size : null
+      );
     });
 
     document.querySelectorAll("[data-widget]").forEach(function (el) {
+      ensureResizeHandles(el);
       const key = el.dataset.widget || el.id;
       const saved = layout.widgets[key];
       if (saved && typeof saved.left === "number" && typeof saved.top === "number") {
-        placeWidget(el, saved.left, saved.top);
+        placeWidget(
+          el,
+          saved.left,
+          saved.top,
+          typeof saved.width === "number" ? saved.width : null,
+          typeof saved.height === "number" ? saved.height : null
+        );
       }
     });
 
@@ -741,7 +831,12 @@
 
     el.addEventListener("pointerdown", function (ev) {
       if (ev.button != null && ev.button !== 0) return;
-      if (ev.target.closest && ev.target.closest("button, a, input, textarea, select")) return;
+      if (
+        ev.target.closest &&
+        ev.target.closest("button, a, input, textarea, select, .resize-handle")
+      ) {
+        return;
+      }
       pointerId = ev.pointerId;
       startX = ev.clientX;
       startY = ev.clientY;
@@ -782,9 +877,120 @@
     el.addEventListener("pointercancel", endDrag);
   }
 
+  /* ---- resize handles for movable widgets ---- */
+
+  function bindWidgetResize(el) {
+    ensureResizeHandles(el);
+    el.querySelectorAll(".resize-handle").forEach(function (handle) {
+      let pointerId = null;
+      let startX = 0;
+      let startY = 0;
+      let originW = 0;
+      let originH = 0;
+      let originLeft = 0;
+      let originTop = 0;
+      let dir = "se";
+
+      handle.addEventListener("pointerdown", function (ev) {
+        if (ev.button != null && ev.button !== 0) return;
+        pointerId = ev.pointerId;
+        dir = handle.dataset.resize || "se";
+        startX = ev.clientX;
+        startY = ev.clientY;
+        const rect = el.getBoundingClientRect();
+        originW = rect.width;
+        originH = rect.height;
+        originLeft = rect.left;
+        originTop = rect.top;
+        el.classList.add("resizing");
+        try {
+          handle.setPointerCapture(pointerId);
+        } catch (err) { /* ignore */ }
+        ev.preventDefault();
+        ev.stopPropagation();
+      });
+
+      handle.addEventListener("pointermove", function (ev) {
+        if (pointerId == null || ev.pointerId !== pointerId) return;
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        let nextW = originW;
+        let nextH = originH;
+        if (dir.indexOf("e") !== -1) nextW = originW + dx;
+        if (dir.indexOf("s") !== -1) nextH = originH + dy;
+        placeWidget(el, originLeft, originTop, nextW, nextH);
+        ev.preventDefault();
+      });
+
+      function endResize(ev) {
+        if (pointerId == null || (ev && ev.pointerId !== pointerId)) return;
+        pointerId = null;
+        el.classList.remove("resizing");
+        persistWidget(el);
+      }
+
+      handle.addEventListener("pointerup", endResize);
+      handle.addEventListener("pointercancel", endResize);
+    });
+  }
+
+  /* ---- drawer edge resize ---- */
+
+  function bindDrawerResize(drawer) {
+    ensureDrawerResizeHandle(drawer);
+    const handle = drawer.querySelector(".drawer-resize-handle");
+    if (!handle) return;
+
+    let pointerId = null;
+    let startPos = 0;
+    let originSize = 0;
+
+    handle.addEventListener("pointerdown", function (ev) {
+      if (ev.button != null && ev.button !== 0) return;
+      if (!drawer.classList.contains("open")) return;
+      const edge = (drawer.className.match(/edge-(left|right|top|bottom)/) || [])[1] || "left";
+      pointerId = ev.pointerId;
+      startPos = edge === "left" || edge === "right" ? ev.clientX : ev.clientY;
+      const raw = drawer.style.getPropertyValue("--drawer-size");
+      originSize = parseFloat(raw) || defaultDrawerSize(edge);
+      drawer.classList.add("resizing");
+      try {
+        handle.setPointerCapture(pointerId);
+      } catch (err) { /* ignore */ }
+      ev.preventDefault();
+      ev.stopPropagation();
+    });
+
+    handle.addEventListener("pointermove", function (ev) {
+      if (pointerId == null || ev.pointerId !== pointerId) return;
+      const edge = (drawer.className.match(/edge-(left|right|top|bottom)/) || [])[1] || "left";
+      let delta = 0;
+      if (edge === "left") delta = ev.clientX - startPos;
+      else if (edge === "right") delta = startPos - ev.clientX;
+      else if (edge === "top") delta = ev.clientY - startPos;
+      else delta = startPos - ev.clientY;
+      applyDrawerSize(drawer, edge, originSize + delta);
+      ev.preventDefault();
+    });
+
+    function endResize(ev) {
+      if (pointerId == null || (ev && ev.pointerId !== pointerId)) return;
+      pointerId = null;
+      drawer.classList.remove("resizing");
+      persistDrawer(drawer);
+    }
+
+    handle.addEventListener("pointerup", endResize);
+    handle.addEventListener("pointercancel", endResize);
+  }
+
   bindEdgeSnapToggle(appToggle);
   bindEdgeSnapToggle(screenToggle);
-  document.querySelectorAll("[data-widget]").forEach(bindWidgetDrag);
+  document.querySelectorAll("[data-widget]").forEach(function (el) {
+    bindWidgetDrag(el);
+    bindWidgetResize(el);
+  });
+  [appDrawer, screenDrawer].forEach(bindDrawerResize);
 
   window.addEventListener("resize", function () {
     restoreLayout();

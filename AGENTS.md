@@ -8,7 +8,7 @@
 - Keep changes small and reviewable. One logical improvement at a time.
 - If a requirement is ambiguous, stop and ask rather than guessing.
 - Never store real credentials in code or in this repository. Use the local settings store only.
-- After every finished or paused slice: append `docs/ops/WORK_LOG.md`, update Active slice, and add a Jira comment on the story (what changed + how to verify).
+- After every finished or paused slice: append `docs/ops/WORK_LOG.md`, update Active slice, add a Jira comment on the story (what changed + how to verify), then **commit and `git push origin main`** so the next chat can pick up cleanly. Do not leave finished slice work unpushed.
 - **User change requests (CRs):** When the human changes product intent, scope, AC, or behaviour (including informal “actually do X instead”), update **all** of: `docs/FUNCTIONAL_SPEC.md` (canonical), affected KAN epic/story/test descriptions (re-enrich or edit), `PROJECT_MEMORY.md` / `ROADMAP.md` / `docs/ops/WORK_LOG.md` as needed, and any mockups/rules that contradict the CR. Do not leave Jira or the spec stale relative to what the user just decided.
 
 ## Cursor workflow (PM-managed; replaces Grok browser + AFK Pilot)

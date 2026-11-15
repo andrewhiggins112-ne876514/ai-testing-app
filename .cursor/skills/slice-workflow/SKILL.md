@@ -13,5 +13,5 @@ description: PM-owned development slice with zero human copy-paste between tools
 5. **Verify** — verifier. Run focused tests.  
 6. **Memory** — update `PROJECT_MEMORY.md` / `ROADMAP.md`; append `docs/ops/WORK_LOG.md`; set next Active slice.  
 7. **Jira** — comment on the story with what shipped + verify steps; transition when Done.  
-8. **Land** — commit when the user asks.  
+8. **Land** — after handoff docs + Jira: commit intentional files, then **`git push origin main`**. Do this on every finished (or paused) slice so the next chat can pick up; do not wait for the human to ask.  
 9. **Human** — tell them only: `git pull` + how to check the app. Never ask them to paste a coding prompt into another chat.
