@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | KAN-65 — Create linked test tickets and mark Done when covered |
-| **Epic** | KAN-23 (Jira / Xray) |
-| **Roadmap ID** | (FR-JIRA-2 / FR-JIRA-3 / FR-JIRA-5) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-JIRA-2, FR-JIRA-3, FR-JIRA-5 |
-| **Next action** | Implement KAN-65; test Task KAN-66 |
+| **Jira story** | KAN-67 — Richer report metrics — stories covered and bugs raised |
+| **Epic** | KAN-25 (Reporting) |
+| **Roadmap ID** | (FR-REP-1 / FR-REP-3) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-REP-1 |
+| **Next action** | Implement KAN-67; test Task KAN-68 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-65 — Create linked test tickets and mark Done when covered
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** `create_test` proposes Task + `label=test` + Relates to story with structured Test procedure / Acceptance / Evidence (confirm gate). `update_status` requires coverage evidence (text / pytest_cmd / report_path), refuses non-test labels, comments coverage then transitions to Done on yes/confirm. Agent tools + system prompt; `jira_action` points at real tools. `_post_issue` supports labels.
+- **Files:** `plugins/jira_plugin.py`, `agent/agent.py`, `tests/test_create_test.py`, FUNCTIONAL_SPEC §5, PROJECT_MEMORY, ROADMAP, WORK_LOG.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_create_test.py tests/test_create_bug.py tests/test_create_issue.py tests/test_transition_issue.py tests/test_add_comment.py -v` (37 passed).
+- **Jira:** story Agent completion + KAN-66 test evidence/Done + KAN-65 Done (via closeout script).
+- **Next:** KAN-67 richer report metrics — stories covered and bugs raised (FR-REP-1).
 
 ### 2026-11-15 — KAN-63 — Raise user-friendly Bug tickets from failed runs
 - **Agent/chat:** Cursor IDE Agent (Composer / Auto)

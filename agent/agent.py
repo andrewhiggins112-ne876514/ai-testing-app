@@ -29,6 +29,8 @@ TOOL_NAMES = frozenset({
     "list_stories",
     "create_issue",
     "create_bug",
+    "create_test",
+    "update_status",
     "set_parent",
     "transition_issue",
     "add_comment",
@@ -69,6 +71,8 @@ Rules:
 - When the user asks to list Jira issues or stories, call list_stories with the project key and do not invent issues. Set issue_types only when the user names types. "list issues in KAN" omits issue_types.
 - When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
 - When a failed run is classified as product_bug (or the user asks to raise a Bug), call create_bug with project (or settings jira_project), symptom, expected, actual, environment, numbered replication_steps, and optional evidence_paths / report_path / relates_to. Do not file Bugs for test_defect, intended_change, or environment. Do not answer yes for the user — wait for yes or confirm.
+- When the user asks to create a linked Jira test ticket for a story, call create_test with story_key and steps (and/or acceptance). It creates a Task labelled test and Relates-links it. Do not answer yes for the user — wait for yes or confirm.
+- When coverage is proven for a test Task (pytest/report/evidence), call update_status with issue_key and coverage_evidence (or pytest_cmd / report_path) to propose Done. Only for issues labelled test. Do not answer yes for the user.
 - To link a Jira issue to an epic, call set_parent with the issue key and epic key, then wait for the user to reply yes. Do not answer yes for the user.
 - To change a Jira issue's status, call transition_issue with the issue key and target status, then wait for the user to reply yes. Do not answer yes for the user.
 - To comment on a Jira issue, call add_comment with the issue key and body, then wait for the user to reply yes. Do not answer yes for the user. Pass report_path only when the user names a report file.
@@ -444,6 +448,82 @@ class Agent:
             {
                 "type": "function",
                 "function": {
+                    "name": "create_test",
+                    "description": (
+                        "Propose a linked Jira test Task for a story (label=test, Relates). "
+                        "Structured Test procedure / Acceptance / Evidence. "
+                        "Returns a preview only — does not POST until the user replies yes or confirm."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "story_key": {
+                                "type": "string",
+                                "description": "Story to Relates-link, like KAN-65",
+                            },
+                            "summary": {
+                                "type": "string",
+                                "description": "Optional test Task summary (defaults to Test: cover KEY)",
+                            },
+                            "steps": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Test procedure steps",
+                            },
+                            "acceptance": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Acceptance criteria lines for the test Task",
+                            },
+                            "notes": {"type": "string", "description": "Optional notes"},
+                            "project": {
+                                "type": "string",
+                                "description": "Optional project key; defaults from story key or jira_project",
+                            },
+                        },
+                        "required": ["story_key"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "update_status",
+                    "description": (
+                        "Propose marking a labelled test Task Done when coverage evidence exists. "
+                        "Posts a coverage comment then transitions. Preview only until yes/confirm."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "issue_key": {
+                                "type": "string",
+                                "description": "Test Task key labelled test, like KAN-66",
+                            },
+                            "coverage_evidence": {
+                                "type": "string",
+                                "description": "What was verified (pytest summary, manual steps, etc.)",
+                            },
+                            "pytest_cmd": {
+                                "type": "string",
+                                "description": "Optional pytest command that passed",
+                            },
+                            "report_path": {
+                                "type": "string",
+                                "description": "Optional local reports/*.json coverage summary",
+                            },
+                            "target": {
+                                "type": "string",
+                                "description": "Target status. Default Done.",
+                            },
+                        },
+                        "required": ["issue_key"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
                     "name": "set_parent",
                     "description": "Preview linking a Jira issue to an epic. Does not change Jira until the user replies yes.",
                     "parameters": {
@@ -780,6 +860,18 @@ class Agent:
             kwargs = {k: v for k, v in args.items() if k in allowed}
             kwargs["session_id"] = session_id
             return await create_bug(**kwargs)
+        elif name == "create_test":
+            from plugins.jira_plugin import create_test
+            allowed = {"story_key", "summary", "steps", "acceptance", "notes", "project"}
+            kwargs = {k: v for k, v in args.items() if k in allowed}
+            kwargs["session_id"] = session_id
+            return await create_test(**kwargs)
+        elif name == "update_status":
+            from plugins.jira_plugin import update_status
+            allowed = {"issue_key", "coverage_evidence", "report_path", "pytest_cmd", "target"}
+            kwargs = {k: v for k, v in args.items() if k in allowed}
+            kwargs["session_id"] = session_id
+            return await update_status(**kwargs)
         elif name == "set_parent":
             from plugins.jira_plugin import set_parent
             allowed = {"issue_key", "epic_key"}

@@ -94,6 +94,18 @@ async def jira_action(
             "action": action,
             "note": "Use the create_bug tool with failed-run fields; Jira writes need an explicit yes/confirm.",
         }
+    if action == "create_test":
+        return {
+            "status": "confirmation_required",
+            "action": action,
+            "note": "Use the create_test tool with story_key and steps; Jira writes need an explicit yes/confirm.",
+        }
+    if action == "update_status":
+        return {
+            "status": "confirmation_required",
+            "action": action,
+            "note": "Use the update_status tool with issue_key and coverage_evidence; Jira writes need an explicit yes/confirm.",
+        }
     if action in _WRITE:
         return {
             "status": "confirmation_required",
@@ -308,6 +320,9 @@ async def _post_issue(preview: Dict[str, str]) -> Dict[str, Any]:
         fields["description"] = _adf_comment(preview["description"])
     if preview.get("parent_key"):
         fields["parent"] = {"key": preview["parent_key"]}
+    labels = preview.get("labels")
+    if isinstance(labels, (list, tuple)) and labels:
+        fields["labels"] = [str(item).strip() for item in labels if str(item or "").strip()]
     headers, auth = _auth(creds)
     try:
         async with httpx.AsyncClient(timeout=20.0) as client:
@@ -369,9 +384,11 @@ async def resolve_create(session_id: str, user_message: str) -> Optional[Dict[st
         return await _put_parent(record["preview"])
     if record.get("action") == "transition":
         return await _post_transition(record["preview"])
+    if record.get("action") == "update_status":
+        return await _post_update_status(record["preview"])
     if record.get("action") == "comment":
         return await _post_comment(record["preview"])
-    # create / create_bug share the same POST path
+    # create / create_bug / create_test share the same POST path
     return await _post_issue(record["preview"])
 
 
@@ -684,6 +701,125 @@ async def create_bug(
         shown["relates_to"] = relates
     return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": shown}
 
+
+def build_test_description(
+    *,
+    story_key: str,
+    steps: Any = None,
+    acceptance: Any = None,
+    notes: str = "",
+) -> str:
+    """Structured test Task body (FR-JIRA-2 / JIRA_TICKET_TEMPLATE test Task)."""
+    step_lines = _as_lines(steps)
+    ac_lines = _as_lines(acceptance)
+    blocks = [
+        f"Intro — verifies story {story_key}",
+        "",
+        "Who this is for",
+        "Testers and Cursor agents verifying the linked story.",
+        "",
+        "Test procedure",
+    ]
+    if step_lines:
+        for index, step in enumerate(step_lines, start=1):
+            blocks.append(f"{index}. {_mask_secrets(step)}")
+    else:
+        blocks.append("(not provided — add steps before marking Done)")
+    blocks.append("")
+    blocks.append("Acceptance criteria")
+    if ac_lines:
+        for line in ac_lines:
+            blocks.append(f"- {_mask_secrets(line)}")
+    else:
+        blocks.append("- Cover the linked story acceptance criteria.")
+    blocks.append("")
+    blocks.append("Evidence")
+    blocks.append("(pending until coverage is proven and update_status is confirmed)")
+    note = _mask_secrets((notes or "").strip())
+    if note:
+        blocks.extend(["", "Notes", note])
+    return "\n".join(blocks)
+
+
+def _project_from_issue_key(issue_key: str) -> str:
+    text = str(issue_key or "").strip().upper()
+    if "-" not in text:
+        return ""
+    return text.split("-", 1)[0]
+
+
+async def create_test(
+    story_key: str,
+    summary: Optional[str] = None,
+    steps: Any = None,
+    acceptance: Any = None,
+    notes: Optional[str] = None,
+    project: Optional[str] = None,
+    session_id: str = "default",
+) -> Dict[str, Any]:
+    """Propose a linked test Task (label=test, Relates). POST only after yes/confirm (FR-JIRA-2/5)."""
+    story = _issue_key(story_key)
+    if not story:
+        return {"status": "error", "message": "story_key must look like KEY-123"}
+
+    settings = load_settings()
+    key = (
+        str(project or "").strip().upper()
+        or _project_from_issue_key(story)
+        or str(settings.get("jira_project") or "").strip().upper()
+    )
+    if not _LIST_KEY.fullmatch(key):
+        return {
+            "status": "error",
+            "message": "project key required (argument, story prefix, or jira_project in settings)",
+        }
+
+    step_lines = _as_lines(steps)
+    ac_lines = _as_lines(acceptance)
+    if not step_lines and not ac_lines:
+        return {
+            "status": "error",
+            "message": "Provide steps and/or acceptance criteria for the test ticket.",
+        }
+
+    summary_text = _mask_secrets(str(summary or "").strip())
+    if not summary_text:
+        summary_text = f"Test: cover {story}"
+    summary_text = summary_text[:255]
+
+    description = build_test_description(
+        story_key=story,
+        steps=step_lines,
+        acceptance=ac_lines,
+        notes=str(notes or ""),
+    )
+    if len(description) > 20000:
+        return {"status": "error", "message": "test description is too long"}
+
+    preview = _valid_create(key, summary_text, description, "Task")
+    if preview.get("status"):
+        return preview
+    preview["labels"] = ["test"]
+    preview["relates_to"] = story
+
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+
+    confirm_id = _store_pending(session_id, preview, "create_test")
+    shown = {
+        "project": preview["project"],
+        "summary": preview["summary"],
+        "issue_type": "Task",
+        "labels": ["test"],
+        "relates_to": story,
+        "description_preview": description[:500],
+    }
+    return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": shown}
+
+
 async def _read_error(response: Any) -> Optional[Dict[str, str]]:
     if response.status_code in (401, 403):
         return {"status": "unauthorized", "message": "Jira rejected the credentials"}
@@ -921,6 +1057,157 @@ async def transition_issue(issue_key: str, target: str, session_id: str = "defau
     }
     confirm_id = _store_pending(session_id, stored, "transition")
     shown = {key: stored[key] for key in ("issue_key", "current_status", "target")}
+    return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": shown}
+
+
+async def _load_issue_labels(key: str) -> Dict[str, Any]:
+    """GET labels + status for one issue. Result never includes credentials."""
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    headers, auth = _auth(creds)
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            response = await client.get(
+                f"{creds['url']}/rest/api/3/issue/{key}",
+                params={"fields": "labels,status,issuetype,summary"},
+                auth=auth,
+                headers=headers,
+            )
+        failed = _status_failure(response, "issue not found")
+        if failed:
+            return failed
+        fields = response.json().get("fields") or {}
+        labels = fields.get("labels") or []
+        if not isinstance(labels, list):
+            labels = []
+        status = fields.get("status") or {}
+        current = status.get("name", "") if isinstance(status, dict) else ""
+        kind = fields.get("issuetype") or {}
+        type_name = kind.get("name", "") if isinstance(kind, dict) else ""
+        summary = str(fields.get("summary") or "")
+    except (httpx.HTTPError, ValueError):
+        return {"status": "error", "message": "jira_request_failed"}
+    return {
+        "status": "ok",
+        "labels": [str(item) for item in labels],
+        "current_status": current,
+        "issue_type": type_name,
+        "summary": summary,
+    }
+
+
+async def _post_update_status(preview: Dict[str, Any]) -> Dict[str, Any]:
+    """Optional coverage comment, then transition to Done. Never echoes credentials."""
+    body = str(preview.get("coverage_comment") or "").strip()
+    if body:
+        commented = await _post_comment({"issue_key": preview["issue_key"], "body": body})
+        if commented.get("status") != "commented":
+            return commented
+    transitioned = await _post_transition(
+        {
+            "issue_key": preview["issue_key"],
+            "target": preview["target"],
+            "transition_id": preview["transition_id"],
+        }
+    )
+    if transitioned.get("status") != "transitioned":
+        return transitioned
+    return {
+        "status": "updated",
+        "issue_key": preview["issue_key"],
+        "target": preview["target"],
+        "commented": bool(body),
+    }
+
+
+async def update_status(
+    issue_key: str,
+    coverage_evidence: Optional[str] = None,
+    report_path: Optional[str] = None,
+    pytest_cmd: Optional[str] = None,
+    target: str = "Done",
+    session_id: str = "default",
+) -> Dict[str, Any]:
+    """Propose marking a test ticket Done when coverage exists. POST only after yes/confirm (FR-JIRA-3/5)."""
+    issue = _issue_key(issue_key)
+    if not issue:
+        return {"status": "error", "message": "issue_key must look like KEY-123"}
+
+    wanted = str(target or "").strip() or "Done"
+    evidence_bits: list[str] = []
+    raw_evidence = str(coverage_evidence or "").strip()
+    if raw_evidence:
+        evidence_bits.append(_mask_secrets(raw_evidence))
+    cmd = str(pytest_cmd or "").strip()
+    if cmd:
+        evidence_bits.append(f"Pytest: {_mask_secrets(cmd)}")
+    path = str(report_path or "").strip()
+    if path:
+        summary = _report_summary(path)
+        if isinstance(summary, dict):
+            return summary
+        evidence_bits.append(_mask_secrets(str(summary)))
+    if not evidence_bits:
+        return {
+            "status": "error",
+            "message": "coverage_evidence, pytest_cmd, or a local report_path is required before marking Done.",
+        }
+
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+
+    looked = await _load_issue_labels(issue)
+    if looked.get("status") != "ok":
+        return looked
+    labels = looked.get("labels") or []
+    if "test" not in labels:
+        return {
+            "status": "error",
+            "message": (
+                f"{issue} is not labelled 'test'. "
+                "update_status only marks linked test Tasks Done (FR-JIRA-3)."
+            ),
+        }
+
+    loaded = await _load_transition(issue)
+    if loaded.get("status") != "ok":
+        return loaded
+    match = _pick_transition(loaded["transitions"], wanted)
+    if not match:
+        return {
+            "status": "error",
+            "message": "no matching transition",
+            "options": _option_names(loaded["transitions"]),
+        }
+    to = match.get("to") or {}
+    label = to.get("name") if isinstance(to, dict) and to.get("name") else (match.get("name") or wanted)
+
+    coverage_comment = "Coverage evidence\n\n" + "\n".join(f"- {bit}" for bit in evidence_bits)
+    if len(coverage_comment) > 5000:
+        return {"status": "error", "message": "coverage evidence is too long for a Jira comment"}
+
+    stored = {
+        "issue_key": issue,
+        "current_status": loaded["current_status"],
+        "target": label,
+        "transition_id": str(match.get("id")),
+        "coverage_comment": coverage_comment,
+        "labels": labels,
+    }
+    confirm_id = _store_pending(session_id, stored, "update_status")
+    shown = {
+        "issue_key": issue,
+        "current_status": loaded["current_status"],
+        "target": label,
+        "labels": labels,
+        "coverage_preview": coverage_comment[:400],
+    }
     return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": shown}
 
 
