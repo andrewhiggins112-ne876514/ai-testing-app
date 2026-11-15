@@ -44,7 +44,7 @@ Long-term goal: dominate the testing space for companies that want a capable loc
 ## Current State
 Skeleton + substantial features exist:
 - `agent/agent.py` — Ollama tool-calling loop with clarification rules and sessions
-- `plugins/playwright_runner.py` — steps, click self-heal, screenshots/evidence path
+- `plugins/playwright_runner.py` — steps, click + fill locator self-heal (assertions never healed), heal proposals + local `heal_audit.jsonl`, screenshots/evidence path
 - `plugins/jira_plugin.py` — list/create/transition/comment/epic link; writes need confirm
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\settings.json` (incl. orb)
 - `main.py` — FastAPI `/chat` + `/health` + `/api/orb` + static `/ui`
@@ -63,10 +63,10 @@ Skeleton + substantial features exist:
 - **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); IronBee browser OK; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
 
 Not yet done:
-- **Next build slice:** [KAN-14](https://ai-testing-lab.atlassian.net/browse/KAN-14) self-healing selector improvements (see WORK_LOG Active slice)
+- **Next build slice:** [KAN-49](https://ai-testing-lab.atlassian.net/browse/KAN-49) enforce full FR-HEAL guardrails (see WORK_LOG Active slice)
 - Desktop app-drawer Settings/Reports still “Coming soon” (optional UX follow-on; no open Story)
 - Document ingestion → settings proposal (KAN-45)
-- Broader heal guardrails (KAN-49); security isolation (KAN-15)
+- Security isolation (KAN-15)
 - Desktop .exe testing (KAN-47); customisable reporting (KAN-51); multi-sandbox (KAN-55)
 
 ## Important Context from Earlier Conversations
@@ -88,6 +88,6 @@ Not yet done:
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-14** — Self-healing selector improvements (Active slice).
+1. **KAN-49** — Enforce self-healing guardrails (Active slice).
 2. Optional: wire Settings/Reports from the desktop app drawer (buttons still “Coming soon”).
 3. Security isolation / document ingestion / reporting polish as KAN backlog allows.

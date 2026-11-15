@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | [KAN-14](https://ai-testing-lab.atlassian.net/browse/KAN-14) — Self-healing selector improvements |
+| **Jira story** | [KAN-49](https://ai-testing-lab.atlassian.net/browse/KAN-49) — Enforce self-healing guardrails |
 | **Epic** | [KAN-23](https://ai-testing-lab.atlassian.net/browse/KAN-23) — Self-Healing Tests |
-| **Roadmap ID** | HEAL-1 |
+| **Roadmap ID** | HEAL-2 (guardrails) |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-HEAL-* |
-| **Next action** | Extend heal beyond click-only; keep FR-HEAL guardrails (no assertion weakening) |
+| **Next action** | Full FR-HEAL classification + refuse assertion weakening / timeout inflation before broader trust |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-14 — Self-healing selector improvements
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** Extended locator self-heal beyond click to `fill` (value never changed). Assertion steps (`expect_text` / `expect_url`) stay red with `heal_refused` + `product_bug` classification. Heal proposals + `%LOCALAPPDATA%\ai_testing_app\heal_audit.jsonl` audit lines (`pending_review`). Word-subset scoring so `#email` can match “Email address”.
+- **Files:** `plugins/playwright_runner.py`, `tests/test_locator_heal.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC §5.
+- **Verify:** `$env:PLAYWRIGHT_BROWSERS_PATH='0'; .\venv\Scripts\python.exe -m pytest tests/test_click_heal.py tests/test_locator_heal.py -v`
+- **Jira:** comment + Done on KAN-14 (REST).
+- **Next:** KAN-49 enforce full FR-HEAL guardrails.
 
 ### 2026-11-15 — OPS — commit + push required on slice close-out
 - **Agent/chat:** Cursor IDE Agent (Composer)

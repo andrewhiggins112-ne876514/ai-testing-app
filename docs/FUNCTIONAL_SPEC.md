@@ -161,7 +161,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 
 **Already present (as of 2026-11-15)**
 - Ollama tool-calling agent with clarification and sessions (default `qwen2.5-coder:7b`; also `qwen3:8b` / `llama3.2` on D:).
-- Playwright runner with click self-heal and evidence.
+- Playwright runner with click + fill locator self-heal (assertions never auto-healed), heal proposals/audit log, and evidence.
 - Jira plugin (list/create/transition/comment; writes need confirm) against live project **KAN**.
 - Local settings store (`%LOCALAPPDATA%\ai_testing_app\`).
 - FastAPI backend + Gradio UI + native desktop window with WebGL hero orbs (mystic/aether/neural/apex).
@@ -170,10 +170,10 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next** (track in KAN; Active slice = **KAN-14**)
+**Still open / next** (track in KAN; Active slice = **KAN-49**)
 - Gradio Settings/Reports polish (**KAN-10** — done 2026-11-15).
 - UI-6 movable/resizable panels (**KAN-53** — done 2026-11-15).
-- Broader self-healing + guardrail enforcement (**KAN-14** — now; **KAN-49**).
+- Broader self-healing (**KAN-14** — done 2026-11-15); guardrail enforcement (**KAN-49** — now).
 - Document ingestion → settings proposal (**KAN-45**).
 - Security-level isolation browser profiles + credential scopes (**KAN-15**).
 - Desktop `.exe` testing plugin (**KAN-47**).
@@ -190,7 +190,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN** (QA Testing). Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
 | Model tool-calling reliability | Needs validation | Prefer models / configs that emit structured calls; implement fallback parser |
-| Self-healing guardrails | Spec’d, not fully implemented | Must be enforced before broad self-heal is trusted |
+| Self-healing guardrails | Partial (KAN-14 locator-only + assertion refuse); full enforcement KAN-49 | Must finish KAN-49 before broad self-heal is trusted |
 | Security isolation | Later | Confirm before coding |
 | Document ingestion | Later | Explicit consent required |
 
