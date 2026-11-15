@@ -993,8 +993,12 @@
   [appDrawer, screenDrawer].forEach(bindDrawerResize);
 
   const reportsSection = document.getElementById("app-section-reports");
+  const documentsSection = document.getElementById("app-section-documents");
   const reportsNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="reports"]')
+    : null;
+  const documentsNav = appDrawer
+    ? appDrawer.querySelector('.app-nav-item[data-section="documents"]')
     : null;
   const rptStatus = document.getElementById("rpt-status");
   const rptChecks = {
@@ -1005,6 +1009,15 @@
   };
   const rptSave = document.getElementById("rpt-save");
   const appDrawerHint = document.getElementById("app-drawer-hint");
+  const docText = document.getElementById("doc-text");
+  const docParse = document.getElementById("doc-parse");
+  const docProposal = document.getElementById("doc-proposal");
+  const docDiff = document.getElementById("doc-diff");
+  const docIdeas = document.getElementById("doc-ideas");
+  const docConfirm = document.getElementById("doc-confirm");
+  const docDecline = document.getElementById("doc-decline");
+  const docStatus = document.getElementById("doc-status");
+  let docProposalId = "";
 
   function applyReportSections(flags) {
     Object.keys(rptChecks).forEach(function (key) {
@@ -1022,13 +1035,192 @@
     }
   }
 
-  if (reportsNav && reportsSection) {
+  function showAppSection(name) {
+    const map = {
+      reports: { section: reportsSection, nav: reportsNav },
+      documents: { section: documentsSection, nav: documentsNav },
+    };
+    Object.keys(map).forEach(function (key) {
+      const entry = map[key];
+      if (!entry.section || !entry.nav) return;
+      const open = key === name && entry.section.hidden;
+      entry.section.hidden = !open;
+      entry.nav.setAttribute("aria-pressed", open ? "true" : "false");
+    });
+    const anyOpen = Object.keys(map).some(function (key) {
+      return map[key].section && !map[key].section.hidden;
+    });
+    if (appDrawerHint) appDrawerHint.hidden = anyOpen;
+    if (name === "reports" && reportsSection && !reportsSection.hidden) {
+      loadReportSections();
+    }
+  }
+
+  if (reportsNav) {
     reportsNav.addEventListener("click", function () {
-      const open = reportsSection.hidden;
-      reportsSection.hidden = !open;
-      reportsNav.setAttribute("aria-pressed", open ? "true" : "false");
-      if (appDrawerHint) appDrawerHint.hidden = open;
-      if (open) loadReportSections();
+      showAppSection("reports");
+    });
+  }
+  if (documentsNav) {
+    documentsNav.addEventListener("click", function () {
+      showAppSection("documents");
+    });
+  }
+
+  function renderDocProposal(payload) {
+    docProposalId = payload.proposal_id || "";
+    if (docDiff) {
+      docDiff.innerHTML = "";
+      const diff = payload.settings_diff || {};
+      const keys = Object.keys(diff);
+      if (!keys.length) {
+        docDiff.textContent = "No settings changes proposed.";
+      } else {
+        keys.forEach(function (key) {
+          const row = document.createElement("label");
+          row.className = "check-row doc-diff-row";
+          const box = document.createElement("input");
+          box.type = "checkbox";
+          box.checked = true;
+          box.dataset.key = key;
+          const span = document.createElement("span");
+          const entry = diff[key] || {};
+          span.textContent =
+            key + ": " + (entry.from || "(empty)") + " → " + (entry.to || "");
+          row.appendChild(box);
+          row.appendChild(span);
+          docDiff.appendChild(row);
+        });
+      }
+    }
+    if (docIdeas) {
+      docIdeas.innerHTML = "";
+      const ideas = payload.test_ideas || [];
+      if (!ideas.length) {
+        const li = document.createElement("li");
+        li.textContent = "None extracted.";
+        docIdeas.appendChild(li);
+      } else {
+        ideas.forEach(function (idea) {
+          const li = document.createElement("li");
+          li.textContent = idea;
+          docIdeas.appendChild(li);
+        });
+      }
+    }
+    if (docProposal) {
+      docProposal.hidden = !(payload.settings_diff && Object.keys(payload.settings_diff).length);
+      if (payload.test_ideas && payload.test_ideas.length && docProposal.hidden) {
+        docProposal.hidden = false;
+      }
+    }
+  }
+
+  if (docParse) {
+    docParse.addEventListener("click", async function () {
+      const text = (docText && docText.value) || "";
+      if (!text.trim()) {
+        if (docStatus) docStatus.textContent = "Paste a Markdown or text spec first.";
+        return;
+      }
+      if (docStatus) docStatus.textContent = "Parsing…";
+      try {
+        const res = await fetch("/api/doc-ingest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: text,
+            filename: "paste.md",
+            session_id: "desktop",
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error("parse failed");
+        if (data.status === "error" || data.status === "empty") {
+          if (docProposal) docProposal.hidden = true;
+          if (docStatus) docStatus.textContent = data.message || "Nothing to propose.";
+          return;
+        }
+        renderDocProposal(data);
+        if (docStatus) {
+          docStatus.textContent =
+            data.note ||
+            (data.status === "ideas_only"
+              ? "Test ideas only — settings unchanged."
+              : "Review the diff, then Confirm or Decline.");
+        }
+      } catch (err) {
+        if (docStatus) docStatus.textContent = "Could not parse the document.";
+      }
+    });
+  }
+
+  if (docConfirm) {
+    docConfirm.addEventListener("click", async function () {
+      if (!docProposalId) {
+        if (docStatus) docStatus.textContent = "Parse a document first.";
+        return;
+      }
+      const keys = [];
+      if (docDiff) {
+        docDiff.querySelectorAll("input[type=checkbox][data-key]").forEach(function (box) {
+          if (box.checked) keys.push(box.dataset.key);
+        });
+      }
+      if (!keys.length) {
+        if (docStatus) docStatus.textContent = "Select at least one proposed key, or Decline.";
+        return;
+      }
+      try {
+        const res = await fetch("/api/doc-ingest/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            proposal_id: docProposalId,
+            keys: keys,
+            confirm: true,
+            session_id: "desktop",
+          }),
+        });
+        const data = await res.json();
+        if (data.status !== "applied") {
+          if (docStatus) docStatus.textContent = data.message || "Could not apply.";
+          return;
+        }
+        docProposalId = "";
+        if (docProposal) docProposal.hidden = true;
+        if (docStatus) {
+          const updated = Object.keys(data.updated || {});
+          docStatus.textContent =
+            "Stored: " + (updated.length ? updated.join(", ") : "nothing") + ".";
+        }
+      } catch (err) {
+        if (docStatus) docStatus.textContent = "Could not apply settings.";
+      }
+    });
+  }
+
+  if (docDecline) {
+    docDecline.addEventListener("click", async function () {
+      if (!docProposalId) {
+        if (docStatus) docStatus.textContent = "Nothing to decline.";
+        return;
+      }
+      try {
+        await fetch("/api/doc-ingest/decline", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            proposal_id: docProposalId,
+            session_id: "desktop",
+          }),
+        });
+        docProposalId = "";
+        if (docProposal) docProposal.hidden = true;
+        if (docStatus) docStatus.textContent = "Declined. Settings file unchanged.";
+      } catch (err) {
+        if (docStatus) docStatus.textContent = "Could not decline proposal.";
+      }
     });
   }
 

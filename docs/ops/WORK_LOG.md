@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | [KAN-45](https://ai-testing-lab.atlassian.net/browse/KAN-45) — Document ingestion → settings proposals |
-| **Epic** | [KAN-21](https://ai-testing-lab.atlassian.net/browse/KAN-21) — Learning Inputs and Document Ingestion |
-| **Roadmap ID** | DOC-1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR related to document → settings |
-| **Next action** | Propose settings from docs with explicit consent before store |
+| **Jira story** | [KAN-15](https://ai-testing-lab.atlassian.net/browse/KAN-15) — OFFICIAL / SECRET isolation |
+| **Epic** | [KAN-26](https://ai-testing-lab.atlassian.net/browse/KAN-26) — Security and Isolation |
+| **Roadmap ID** | SEC-1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-SEC-1…5 |
+| **Next action** | Isolate credentials + browser profiles by security level (confirm before coding) |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-45 — Document ingestion → settings proposals
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** `plugins/doc_ingest.py` parses Markdown/text/baseline PDF; extracts URLs, Jira project/email/token placeholders, exe paths, messaging endpoints + test ideas; presents settings diff; writes only after confirm (decline = no change). Agent tool `ingest_document` + chat yes/decline; `settings.store.apply_settings_diff`; API `POST /api/doc-ingest` `/apply` `/decline`; desktop App → Documents; Gradio Documents tab. Secrets masked in proposals.
+- **Files:** `plugins/doc_ingest.py`, `settings/store.py`, `agent/agent.py`, `main.py`, `ui/desktop/*`, `desktop_app.py` (desk12), `ui/gradio_app.py`, `tests/test_doc_ingest.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC §5/§6.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_doc_ingest.py -v` (8 passed). API smoke on `:8765`. Desktop: `desktop_app.py` → App ▦ → Documents → Parse → Confirm/Decline.
+- **Jira:** comment + Done on KAN-45 (REST).
+- **Next:** KAN-15 OFFICIAL/SECRET isolation (SEC-1).
 
 ### 2026-11-15 — KAN-51 — Customisable reporting sections
 - **Agent/chat:** Cursor IDE Agent (Composer)

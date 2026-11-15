@@ -46,6 +46,7 @@
         <nav class="app-nav" aria-label="Application sections">
           <button type="button" class="app-nav-item" data-section="settings" disabled title="Coming soon">Settings</button>
           <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
+          <button type="button" class="app-nav-item" data-section="documents" aria-pressed="false">Documents</button>
         </nav>
         <div id="app-section-reports" class="app-section" hidden>
           <h3 class="orb-section-label">Report sections</h3>
@@ -56,6 +57,25 @@
           <label class="check-row"><input type="checkbox" id="rpt-evidence" checked /> Evidence</label>
           <button type="button" id="rpt-save" class="save-btn">Save sections</button>
           <p id="rpt-status" class="drawer-hint" role="status">Ready</p>
+        </div>
+        <div id="app-section-documents" class="app-section" hidden>
+          <h3 class="orb-section-label">Document ingestion</h3>
+          <p class="drawer-hint">Paste a Markdown/text spec. Proposed settings are never stored until you confirm.</p>
+          <label class="stack-label">Spec text
+            <textarea id="doc-text" rows="8" placeholder="# Spec&#10;Target: https://example.com&#10;Jira project: KAN"></textarea>
+          </label>
+          <button type="button" id="doc-parse" class="save-btn">Parse &amp; propose</button>
+          <div id="doc-proposal" class="doc-proposal" hidden>
+            <h3 class="orb-section-label">Proposed settings</h3>
+            <div id="doc-diff" class="doc-diff"></div>
+            <h3 class="orb-section-label">Test ideas</h3>
+            <ul id="doc-ideas" class="doc-ideas"></ul>
+            <div class="btn-row">
+              <button type="button" id="doc-confirm" class="save-btn">Confirm selected</button>
+              <button type="button" id="doc-decline" class="save-btn secondary">Decline</button>
+            </div>
+          </div>
+          <p id="doc-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <p class="drawer-hint" id="app-drawer-hint">Settings coming soon.</p>
       </div>
@@ -104,6 +124,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk11"></script>
+  <script src="/ui/desktop/desktop.js?v=desk12"></script>
 </body>
 </html>

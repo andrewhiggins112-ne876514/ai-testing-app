@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import gradio as gr
 import httpx
+from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
 from reports.exporter import reports_dir
 from reports.sections import (
     SECTION_KEYS,
@@ -1463,6 +1464,51 @@ def save_settings(level, jira_base_url):
     return "Saved.", settings_store_summary()
 
 
+def _format_doc_proposal(result: dict) -> tuple[str, str, str]:
+    """Return (status, markdown diff, proposal_id) for the Documents tab."""
+    status = result.get("status")
+    pid = result.get("proposal_id") or ""
+    if status in {"error", "empty"}:
+        return result.get("message") or "Nothing to propose.", "", ""
+    lines = []
+    diff = result.get("settings_diff") or {}
+    if diff:
+        lines.append("### Proposed settings")
+        for key, entry in diff.items():
+            lines.append(f"- `{key}`: `{entry.get('from') or '(empty)'}` → `{entry.get('to')}`")
+    else:
+        lines.append("_No settings changes proposed._")
+    ideas = result.get("test_ideas") or []
+    if ideas:
+        lines.append("\n### Test ideas")
+        for idea in ideas:
+            lines.append(f"- {idea}")
+    note = result.get("note") or "Review, then Confirm or Decline. Nothing is stored yet."
+    return note, "\n".join(lines), pid
+
+
+def parse_document(text: str):
+    result = ingest_document(text=text or "", filename="paste.md", session_id="gradio")
+    return _format_doc_proposal(result)
+
+
+def confirm_document(proposal_id: str):
+    if not (proposal_id or "").strip():
+        return "Parse a document first.", "", ""
+    result = apply_proposal(proposal_id, session_id="gradio", confirm=True)
+    if result.get("status") != "applied":
+        return result.get("message") or "Could not apply.", "", proposal_id
+    updated = ", ".join((result.get("updated") or {}).keys()) or "nothing"
+    return f"Stored: {updated}.", "", ""
+
+
+def decline_document(proposal_id: str):
+    if not (proposal_id or "").strip():
+        return "Nothing to decline.", "", ""
+    decline_proposal(proposal_id, session_id="gradio")
+    return "Declined. Settings file unchanged.", "", ""
+
+
 def _report_json(md_path: Path):
     path = md_path.with_suffix(".json")
     if not path.is_file():
@@ -1809,6 +1855,41 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     refresh_reports_ui,
                     [report_pick],
                     [report_pick, report_md, report_image, report_json, report_meta],
+                )
+        with gr.Tab("Documents"):
+            with gr.Column(elem_id="documents-panel"):
+                gr.HTML('<div class="panel-title">Documents</div>')
+                gr.HTML(
+                    '<div class="panel-hint">Paste a Markdown or text functional spec. '
+                    "Extracted URLs and credentials are proposed only — nothing is written "
+                    "until you confirm (FR-LEARN-5 / FR-SET-2).</div>"
+                )
+                doc_text = gr.Textbox(
+                    label="Spec text",
+                    lines=12,
+                    placeholder="# Spec\nTarget: https://example.com\nJira project: KAN",
+                )
+                doc_status = gr.Textbox(value="Ready", label="Status", interactive=False, max_lines=2)
+                doc_preview = gr.Markdown("_Parse a document to see the settings diff._")
+                doc_proposal_id = gr.Textbox(value="", visible=False)
+                with gr.Row():
+                    doc_parse_btn = gr.Button("Parse & propose", variant="primary")
+                    doc_confirm_btn = gr.Button("Confirm all", variant="secondary")
+                    doc_decline_btn = gr.Button("Decline", variant="secondary")
+                doc_parse_btn.click(
+                    parse_document,
+                    [doc_text],
+                    [doc_status, doc_preview, doc_proposal_id],
+                )
+                doc_confirm_btn.click(
+                    confirm_document,
+                    [doc_proposal_id],
+                    [doc_status, doc_preview, doc_proposal_id],
+                )
+                doc_decline_btn.click(
+                    decline_document,
+                    [doc_proposal_id],
+                    [doc_status, doc_preview, doc_proposal_id],
                 )
     demo.load(current_settings, outputs=[level, jira_base_url])
     demo.load(settings_store_summary, outputs=[store_info])

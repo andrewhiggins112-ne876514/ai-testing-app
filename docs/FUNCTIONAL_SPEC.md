@@ -170,13 +170,13 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next** (track in KAN; Active slice = **KAN-45**)
+**Still open / next** (track in KAN; Active slice = **KAN-15**)
 - Gradio Settings/Reports polish (**KAN-10** — done 2026-11-15).
 - UI-6 movable/resizable panels (**KAN-53** — done 2026-11-15).
 - Broader self-healing (**KAN-14** — done 2026-11-15); guardrail enforcement (**KAN-49** — done 2026-11-15).
 - Customisable reporting polish (**KAN-51** — done 2026-11-15).
-- Document ingestion → settings proposal (**KAN-45** — now).
-- Security-level isolation browser profiles + credential scopes (**KAN-15**).
+- Document ingestion → settings proposal (**KAN-45** — done 2026-11-15).
+- Security-level isolation browser profiles + credential scopes (**KAN-15** — now).
 - Desktop `.exe` testing plugin (**KAN-47**).
 - Multi-sandbox orchestration stub (**KAN-55**).
 - Voice input (later — not ticketed as now).
@@ -192,7 +192,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 | Model tool-calling reliability | Needs validation | Prefer models / configs that emit structured calls; implement fallback parser |
 | Self-healing guardrails | **Done** (KAN-49) — `plugins/heal_policy.py` + runner | Locator-only; classification mandatory; forbidden transforms refused |
 | Security isolation | Later | Confirm before coding |
-| Document ingestion | Later | Explicit consent required |
+| Document ingestion | **Done** (KAN-45) | Propose settings + test ideas; confirm before store |
 
 ---
 

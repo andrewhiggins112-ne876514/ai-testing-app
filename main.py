@@ -14,6 +14,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from agent.agent import Agent
+from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.store import load_settings, settings_path, update_setting
 
@@ -44,6 +45,25 @@ class ReportSectionsRequest(BaseModel):
     stories: bool = True
     bugs: bool = True
     evidence: bool = True
+
+
+class DocIngestRequest(BaseModel):
+    text: str = ""
+    path: str = ""
+    filename: str = ""
+    session_id: str = "desktop"
+
+
+class DocIngestApplyRequest(BaseModel):
+    proposal_id: str
+    keys: list[str] | None = None
+    confirm: bool = False
+    session_id: str = "desktop"
+
+
+class DocIngestDeclineRequest(BaseModel):
+    proposal_id: str
+    session_id: str = "desktop"
 
 
 def _orb_from_settings() -> dict:
@@ -107,6 +127,33 @@ async def get_report_sections():
 @app.post("/api/report-sections")
 async def set_report_sections(req: ReportSectionsRequest):
     return save_report_sections(normalize_sections(req.model_dump()))
+
+
+@app.post("/api/doc-ingest")
+async def api_doc_ingest(req: DocIngestRequest):
+    kwargs = {"session_id": req.session_id or "desktop"}
+    if (req.text or "").strip():
+        kwargs["text"] = req.text
+    if (req.path or "").strip():
+        kwargs["path"] = req.path
+    if (req.filename or "").strip():
+        kwargs["filename"] = req.filename
+    return ingest_document(**kwargs)
+
+
+@app.post("/api/doc-ingest/apply")
+async def api_doc_ingest_apply(req: DocIngestApplyRequest):
+    return apply_proposal(
+        req.proposal_id,
+        session_id=req.session_id or "desktop",
+        keys=req.keys,
+        confirm=bool(req.confirm),
+    )
+
+
+@app.post("/api/doc-ingest/decline")
+async def api_doc_ingest_decline(req: DocIngestDeclineRequest):
+    return decline_proposal(req.proposal_id, session_id=req.session_id or "desktop")
 
 
 app.mount("/ui", StaticFiles(directory=str(_UI_DIR)), name="ui")

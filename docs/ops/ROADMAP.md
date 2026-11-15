@@ -31,8 +31,8 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Notes |
 |----|------|-------|
-| SEC-1 | OFFICIAL / SECRET isolation | Browser profiles + credential scopes — confirm before coding |
-| DOC-1 | Document ingestion → settings proposals | **now** — KAN-45; consent before store |
+| SEC-1 | OFFICIAL / SECRET isolation | **now** — KAN-15; confirm before coding |
+| DOC-1 | Document ingestion → settings proposals | **done** — KAN-45; propose + consent before store |
 | REP-1 | Customisable reporting | **done** — KAN-51; section toggles + exporter |
 | HEAL-1 | Broader locator self-heal | **done** — KAN-14; click + fill heal; assertions stay red |
 | HEAL-2 | Full FR-HEAL guardrails | **done** — KAN-49; `plugins/heal_policy.py` + runner hooks |
@@ -65,5 +65,5 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**[KAN-45](https://ai-testing-lab.atlassian.net/browse/KAN-45)** — Document ingestion → settings proposals (DOC-1).  
+**[KAN-15](https://ai-testing-lab.atlassian.net/browse/KAN-15)** — OFFICIAL / SECRET isolation (SEC-1).  
 Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

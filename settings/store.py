@@ -40,6 +40,11 @@ def _defaults() -> dict:
             "bugs": True,
             "evidence": True,
         },
+        # Environment hints (also proposed via document ingestion — FR-LEARN / FR-SET-2)
+        "jira_project": "",
+        "target_url": "",
+        "target_app_path": "",
+        "api_endpoint": "",
     }
 
 def _hidden(key: str, value: Any) -> Any:
@@ -70,3 +75,17 @@ def update_setting(key: str, value: Any, confirm: bool = False) -> dict:
     settings[key] = value
     write_settings(settings)
     return {"status": "updated", "key": key, "value": shown}
+
+
+def apply_settings_diff(updates: dict, confirm: bool = False) -> dict:
+    """Apply multiple keys only after confirm=True (document ingestion / FR-SET-2)."""
+    if not isinstance(updates, dict) or not updates:
+        return {"status": "error", "message": "No settings to apply."}
+    shown = {key: _hidden(key, value) for key, value in updates.items()}
+    if not confirm:
+        return {"status": "confirmation_required", "proposed": shown}
+    settings = load_settings()
+    for key, value in updates.items():
+        settings[key] = value
+    write_settings(settings)
+    return {"status": "updated", "updated": shown}

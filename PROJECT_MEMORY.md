@@ -64,9 +64,9 @@ Skeleton + substantial features exist:
 - **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); **product UI = `desktop_app.py` + Computer Use** (not browser shell); IronBee for AUT/Gradio only; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
 
 Not yet done:
-- **Next build slice:** [KAN-45](https://ai-testing-lab.atlassian.net/browse/KAN-45) document ingestion → settings proposals (see WORK_LOG Active slice)
+- **Next build slice:** [KAN-15](https://ai-testing-lab.atlassian.net/browse/KAN-15) OFFICIAL/SECRET isolation (see WORK_LOG Active slice)
+- Document ingestion → settings proposals (**KAN-45** — done 2026-11-15): `plugins/doc_ingest.py` + confirm gate
 - Desktop app-drawer Settings still “Coming soon” (optional UX follow-on; no open Story)
-- Security isolation (KAN-15)
 - Desktop .exe testing (KAN-47); multi-sandbox (KAN-55)
 
 ## Important Context from Earlier Conversations
@@ -88,6 +88,6 @@ Not yet done:
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-45** — Document ingestion → settings proposals (Active slice).
+1. **KAN-15** — OFFICIAL / SECRET isolation (Active slice; confirm before coding).
 2. Optional: wire Settings from the desktop app drawer (still “Coming soon”).
-3. Security isolation (KAN-15) as backlog allows.
+3. Desktop `.exe` testing plugin (KAN-47) as backlog allows.

@@ -26,6 +26,7 @@ Rules:
 - To link a Jira issue to an epic, call set_parent with the issue key and epic key, then wait for the user to reply yes. Do not answer yes for the user.
 - To change a Jira issue's status, call transition_issue with the issue key and target status, then wait for the user to reply yes. Do not answer yes for the user.
 - To comment on a Jira issue, call add_comment with the issue key and body, then wait for the user to reply yes. Do not answer yes for the user. Pass report_path only when the user names a report file.
+- When the user pastes or names a functional spec to ingest, call ingest_document with the text (or path). Show the settings diff and test ideas. Do not write settings until the user replies yes or confirm. If they say no/decline, discard the proposal.
 """
 
 class Agent:
@@ -181,10 +182,29 @@ class Agent:
                         "required": ["key", "value"]
                     }
                 }
-            }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "ingest_document",
+                    "description": (
+                        "Parse a functional spec (Markdown/text/PDF path or pasted text). "
+                        "Returns a settings diff and test ideas. Does not write settings until the user confirms."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "text": {"type": "string", "description": "Pasted document body"},
+                            "path": {"type": "string", "description": "Local file path to a .md/.txt/.pdf"},
+                            "filename": {"type": "string", "description": "Optional display name"},
+                        },
+                    },
+                },
+            },
         ]
 
     async def chat(self, user_message: str, session_id: str = "default") -> str:
+        from plugins.doc_ingest import resolve_doc_ingest
         from plugins.jira_plugin import resolve_create
         history = self.histories.setdefault(
             session_id, [{"role": "system", "content": SYSTEM_PROMPT}]
@@ -192,6 +212,13 @@ class Agent:
         outcome = await resolve_create(session_id, user_message)
         if outcome is not None and outcome.get("status") != "cancelled":
             reply = _create_reply(outcome)
+            history.append({"role": "user", "content": user_message})
+            history.append({"role": "assistant", "content": reply})
+            self._cap(history)
+            return reply
+        doc_outcome = resolve_doc_ingest(session_id, user_message)
+        if doc_outcome is not None and doc_outcome.get("status") != "cancelled":
+            reply = _doc_reply(doc_outcome)
             history.append({"role": "user", "content": user_message})
             history.append({"role": "assistant", "content": reply})
             self._cap(history)
@@ -259,7 +286,17 @@ class Agent:
         except json.JSONDecodeError:
             return None
         name = data.get("name") if isinstance(data, dict) else None
-        if name not in {"jira_action", "run_playwright", "update_settings", "list_stories", "create_issue", "set_parent", "transition_issue", "add_comment"}:
+        if name not in {
+            "jira_action",
+            "run_playwright",
+            "update_settings",
+            "list_stories",
+            "create_issue",
+            "set_parent",
+            "transition_issue",
+            "add_comment",
+            "ingest_document",
+        }:
             return None
         return {"name": name, "arguments": data.get("arguments") or {}}
 
@@ -318,7 +355,27 @@ class Agent:
             from settings.store import update_setting
             allowed = {"key", "value", "confirm"}
             return update_setting(**{k: v for k, v in args.items() if k in allowed})
+        elif name == "ingest_document":
+            from plugins.doc_ingest import ingest_document
+            allowed = {"text", "path", "filename"}
+            kwargs = {k: v for k, v in args.items() if k in allowed}
+            kwargs["session_id"] = session_id
+            return ingest_document(**kwargs)
         return {"error": "Unknown tool"}
+
+
+def _doc_reply(result: Dict) -> str:
+    status = result.get("status")
+    if status == "applied":
+        keys = ", ".join((result.get("updated") or {}).keys()) or "approved keys"
+        return f"Applied settings from the document ({keys})."
+    if status == "declined":
+        return "Discarded the document proposal. Settings file unchanged."
+    if status == "expired":
+        return result.get("message") or "That document proposal expired. Ingest again."
+    if status == "error":
+        return result.get("message") or "Could not apply the document proposal."
+    return str(result.get("note") or result.get("message") or "Done.")
 
 
 def _create_reply(result: Dict) -> str:
