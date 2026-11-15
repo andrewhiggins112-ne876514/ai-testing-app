@@ -162,6 +162,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 **Already present (as of 2026-11-15)**
 - Ollama tool-calling agent with clarification and sessions (default `qwen2.5-coder:7b`; also `qwen3:8b` / `llama3.2` on D:).
 - Playwright runner with click + fill locator self-heal (assertions never auto-healed), heal proposals/audit log, and evidence.
+- Step generation + quality (KAN-57): `generate_playwright_steps` / `playwright_steps.py` builds happy + negative drafts with `expect_text`/`expect_url`; visibility-only drafts flagged/rejected; failure screenshots always; success evidence via `playwright_success_evidence`.
 - Jira plugin (list/create/transition/comment; writes need confirm) against live project **KAN**.
 - Local settings store (`%LOCALAPPDATA%\ai_testing_app\`).
 - FastAPI backend + Gradio UI + native desktop window with WebGL hero orbs (mystic/aether/neural/apex).
@@ -170,7 +171,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next** (track in KAN; Active slice = **KAN-57**)
+**Still open / next** (track in KAN; Active slice = **KAN-59**)
 
 Rule: a Done Story covers only what it actually shipped. Remaining FR text must stay on open Stories (seed/reconcile via `scripts/jira_kan_seed_backlog.py`). Done parents have gap comments where needed.
 
@@ -183,10 +184,10 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-LEARN-1, FR-LEARN-5, FR-SET-2 | Shipped (ingest propose+confirm) | **Done** KAN-45 |
 | FR-LEARN-2, FR-LEARN-3 | Open (settings keys exist; first-class UI/agent use incomplete) | **KAN-77** |
 | FR-LEARN-4 | Open | **KAN-93** |
-| FR-TEST-1 | Open | **KAN-57**, **KAN-85** (from Jira AC) |
+| FR-TEST-1 | Partial (chat/spec step gen) | **Done** KAN-57; from Jira AC **KAN-85** |
 | FR-TEST-2 | Partial (headed only today) | **Done** KAN-9 baseline; headless **KAN-83** |
 | FR-TEST-3 | Partial (smoke only) | **Done** KAN-47 smoke; expand **KAN-87** |
-| FR-TEST-4, FR-TEST-6 | Open / partial | **KAN-57** |
+| FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
 | FR-TEST-5 | Open | **KAN-59** |
 | FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |
 | FR-HEAL-2 | Open (audit log only; no review UI) | **KAN-75** |

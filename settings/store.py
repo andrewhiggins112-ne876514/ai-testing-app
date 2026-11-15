@@ -91,6 +91,8 @@ def _defaults() -> dict:
         "plugin_desktop_enabled": True,
         # FR-PLUG-2: multi-sandbox orchestration stub (KAN-55) — default off
         "plugin_multi_sandbox_enabled": False,
+        # FR-TEST-4: capture final screenshot on successful Playwright runs (failures always)
+        "playwright_success_evidence": True,
     }
 
 

@@ -20,7 +20,7 @@ Rules:
 - Prefer structured tool calls over guessing.
 - Report results clearly, including failures and suggested next steps.
 - Security context is important: respect the current level (OFFICIAL / SECRET).
-- For a browse request, call run_playwright with steps, a list of {action, selector?, value?}; action is goto, click, fill, expect_text, or expect_url, and click a visible label with selector text=Label.
+- For a browse/test request, prefer generate_playwright_steps first (happy path + negatives), then run_playwright. Steps use action goto, click, fill, expect_text, expect_url, or expect_visible; click a visible label with selector text=Label. Non-trivial flows MUST include expect_text or expect_url (visibility-only is incomplete). Include at least one negative/edge draft when generating.
 - For a Windows .exe / desktop smoke test, call run_desktop with optional exe_path (or rely on target_app_path in settings). If the plugin is disabled, tell the user to enable plugin_desktop_enabled.
 - To list registered plugins and toggles, call list_plugins. For multi-sandbox planning, call orchestrate_sandboxes (action list or plan). If disabled, tell the user to enable plugin_multi_sandbox_enabled.
 - When the user asks to list Jira issues or stories, call list_stories with the project key and do not invent issues. Set issue_types only when the user names types. "list issues in KAN" omits issue_types.
@@ -45,8 +45,27 @@ class Agent:
             {
                 "type": "function",
                 "function": {
+                    "name": "generate_playwright_steps",
+                    "description": "Generate Playwright step lists from a browse/test request or short spec. Returns happy_path with real outcome assertions plus negative/edge variants. Does not run the browser.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "text": {"type": "string", "description": "User request or spec excerpt"},
+                            "url": {"type": "string", "description": "Optional target URL override"},
+                            "include_negatives": {
+                                "type": "boolean",
+                                "description": "Include negative/edge drafts (default true)",
+                            },
+                        },
+                        "required": ["text"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
                     "name": "run_playwright",
-                    "description": "Run Playwright steps against a page. Returns status, title, screenshot, error, and per-step pass/fail.",
+                    "description": "Run Playwright steps against a page. Returns status, title, screenshot evidence, error, step_quality, and per-step pass/fail. Failures always capture a screenshot; success screenshots follow playwright_success_evidence.",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -54,17 +73,31 @@ class Agent:
                             "mode": {"type": "string", "enum": ["generate", "existing"], "description": "Generate new or run existing"},
                             "steps": {
                                 "type": "array",
-                                "description": "Ordered steps. Example: [{\"action\":\"goto\",\"value\":\"https://example.com\"},{\"action\":\"click\",\"selector\":\"text=More information\"},{\"action\":\"expect_url\",\"value\":\"iana\"}]. goto and expect_* need value. click needs selector. fill needs selector and value.",
+                                "description": "Ordered steps. Example: [{\"action\":\"goto\",\"value\":\"https://example.com\"},{\"action\":\"click\",\"selector\":\"text=More information\"},{\"action\":\"expect_url\",\"value\":\"iana\"}]. Non-trivial flows need expect_text or expect_url. goto/expect_text/expect_url need value. click/expect_visible need selector. fill needs selector and value.",
                                 "items": {
                                     "type": "object",
                                     "properties": {
-                                        "action": {"type": "string", "enum": ["goto", "click", "fill", "expect_text", "expect_url"]},
+                                        "action": {
+                                            "type": "string",
+                                            "enum": [
+                                                "goto",
+                                                "click",
+                                                "fill",
+                                                "expect_text",
+                                                "expect_url",
+                                                "expect_visible",
+                                            ],
+                                        },
                                         "selector": {"type": "string"},
                                         "value": {"type": "string"}
                                     },
                                     "required": ["action"]
                                 }
-                            }
+                            },
+                            "reject_incomplete": {
+                                "type": "boolean",
+                                "description": "If true, refuse visibility-only / no-outcome drafts (FR-TEST-6)",
+                            },
                         },
                         "required": ["url"]
                     }
@@ -342,6 +375,7 @@ class Agent:
         if name not in {
             "jira_action",
             "run_playwright",
+            "generate_playwright_steps",
             "run_desktop",
             "list_plugins",
             "orchestrate_sandboxes",
@@ -368,9 +402,27 @@ class Agent:
     async def _execute_tool(self, call: Dict, request_text: str = "", session_id: str = "default") -> Dict:
         name, args = self._parse_call(call)
 
+        if name == "generate_playwright_steps":
+            from plugins.playwright_steps import generate_steps_from_spec
+
+            text = args.get("text") if isinstance(args.get("text"), str) else request_text
+            url = args.get("url") if isinstance(args.get("url"), str) else ""
+            include = args.get("include_negatives")
+            return generate_steps_from_spec(
+                text or "",
+                url=url or "",
+                include_negatives=True if include is None else bool(include),
+            )
         if name == "run_playwright":
             from plugins.playwright_runner import run_playwright
-            allowed = {"url", "mode", "steps", "security_level"}
+            allowed = {
+                "url",
+                "mode",
+                "steps",
+                "security_level",
+                "reject_incomplete",
+                "success_evidence",
+            }
             kwargs = {k: v for k, v in args.items() if k in allowed}
             kwargs["request_text"] = request_text
             kwargs["session_id"] = session_id

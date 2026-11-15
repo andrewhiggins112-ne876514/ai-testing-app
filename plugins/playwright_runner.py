@@ -13,10 +13,15 @@ from playwright.async_api import TimeoutError as PlaywrightTimeout
 from playwright.async_api import async_playwright
 
 from plugins.heal_policy import HealProposal, evaluate_and_log, locator_diff
+from plugins.playwright_steps import (
+    assess_steps,
+    generate_steps_from_spec,
+    validate_steps_quality,
+)
 from reports.exporter import export_run
 
-_ACTIONS = {"goto", "click", "fill", "expect_text", "expect_url"}
-_ASSERT_ACTIONS = frozenset({"expect_text", "expect_url"})
+_ACTIONS = {"goto", "click", "fill", "expect_text", "expect_url", "expect_visible"}
+_ASSERT_ACTIONS = frozenset({"expect_text", "expect_url", "expect_visible"})
 _CLICK_ROLES = ("link", "button")
 _FILL_ROLES = ("textbox", "searchbox", "combobox", "spinbutton")
 
@@ -40,9 +45,20 @@ def _validate_steps(steps: Any) -> Optional[str]:
             return f"{action} requires value"
         if action == "click" and not selector:
             return "click requires selector"
-        if action == "fill" and not (selector and value):
+        if action == "fill" and not (selector and value is not None):
             return "fill requires selector and value"
+        if action == "expect_visible" and not selector:
+            return "expect_visible requires selector"
     return None
+
+
+def _success_evidence_enabled() -> bool:
+    try:
+        from settings.store import load_settings
+
+        return bool(load_settings().get("playwright_success_evidence", True))
+    except Exception:
+        return True
 
 
 def _intended_text(selector: str) -> str:
@@ -294,15 +310,40 @@ async def _run_step(page, step: Dict[str, Any], click_timeout: int = 10000, retr
                 classification="product_bug",
                 heal_refused=decision.reason or "assertion_unchanged",
             )
+    elif action == "expect_visible":
+        # Weak check only — FR-TEST-6 still requires expect_text/expect_url on the flow.
+        loc = page.locator(selector)
+        if await loc.count() == 0 or not await loc.first.is_visible():
+            decision = evaluate_and_log(
+                HealProposal(
+                    kind="assertion",
+                    original="toBeVisible / expect_visible",
+                    proposed="skip",
+                    classification="product_bug",
+                    evidence={"action": "expect_visible", "selector": selector},
+                )
+            )
+            raise _NoHeal(
+                f"element not visible: {selector}",
+                classification="product_bug",
+                heal_refused=decision.reason or "assertion_unchanged",
+            )
     return None
 
 
-async def _save_screenshot(page, result: Dict[str, Any]) -> None:
-    shot_dir = Path(os.environ["LOCALAPPDATA"]) / "ai_testing_app" / "screenshots"
+async def _save_screenshot(page, result: Dict[str, Any], *, kind: str) -> None:
+    base = os.environ.get("LOCALAPPDATA") or os.environ.get("HOME") or "."
+    shot_dir = Path(base) / "ai_testing_app" / "screenshots"
     shot_dir.mkdir(parents=True, exist_ok=True)
-    shot = shot_dir / f"{time.strftime('%Y%m%d-%H%M%S')}.png"
+    shot = shot_dir / f"{time.strftime('%Y%m%d-%H%M%S')}-{kind}.png"
     await page.screenshot(path=str(shot), full_page=True)
     result["screenshot"] = str(shot)
+    result["evidence_kind"] = kind
+    evidence = result.get("evidence")
+    if not isinstance(evidence, list):
+        evidence = []
+    evidence.append({"kind": "screenshot", "path": str(shot), "when": kind})
+    result["evidence"] = evidence
 
 
 async def run_playwright(
@@ -315,14 +356,41 @@ async def run_playwright(
     click_timeout: int = 10000,
     retry_timeout: int = 5000,
     browser=None,
+    reject_incomplete: bool = False,
+    success_evidence: Optional[bool] = None,
 ) -> Dict[str, Any]:
-    result: Dict[str, Any] = {"status": "fail", "title": None, "screenshot": None, "error": None}
+    result: Dict[str, Any] = {
+        "status": "fail",
+        "title": None,
+        "screenshot": None,
+        "error": None,
+        "evidence": [],
+    }
+    if steps is None and mode == "generate" and (request_text or "").strip():
+        generated = generate_steps_from_spec(request_text, url=url)
+        steps = list(generated.get("steps") or [])
+        result["generated"] = {
+            "url": generated.get("url"),
+            "negatives": generated.get("negatives") or [],
+            "notes": generated.get("notes"),
+        }
+        if not url:
+            url = str(generated.get("url") or "")
+
     if steps:
         invalid = _validate_steps(steps)
         if invalid:
             result["error"] = invalid
             result["steps"] = []
             return export_run(result, request_text, session_id)
+        quality = validate_steps_quality(steps, reject_incomplete=reject_incomplete)
+        result["step_quality"] = quality
+        if quality.get("rejected"):
+            result["error"] = quality.get("reason") or "incomplete steps rejected"
+            result["steps"] = []
+            return export_run(result, request_text, session_id)
+        # Always attach assessment (flag incomplete even when allowed to run).
+        result["step_quality"] = assess_steps(steps)
 
     from settings.store import browser_profile_dir, get_security_level
 
@@ -383,11 +451,27 @@ async def run_playwright(
                     result["title"] = await page.title()
                 except Exception:
                     pass
-                await _save_screenshot(page, result)
+                take_success = (
+                    _success_evidence_enabled()
+                    if success_evidence is None
+                    else bool(success_evidence)
+                )
+                if result.get("status") == "pass":
+                    if take_success:
+                        await _save_screenshot(page, result, kind="success")
+                else:
+                    # FR-TEST-4: always capture failure evidence under local app data.
+                    await _save_screenshot(page, result, kind="failure")
             else:
                 await page.goto(url)
                 result["title"] = await page.title()
-                await _save_screenshot(page, result)
+                take_success = (
+                    _success_evidence_enabled()
+                    if success_evidence is None
+                    else bool(success_evidence)
+                )
+                if take_success:
+                    await _save_screenshot(page, result, kind="success")
                 result["status"] = "pass"
         finally:
             if context is not None:

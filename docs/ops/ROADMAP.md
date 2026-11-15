@@ -25,7 +25,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | UI-CHAT | Minimal chat UX polish / Gradio Settings+Reports gaps | UI-6 | **done** — KAN-10 Settings/Reports polish (2026-11-15) |
 | JIRA-R | Richer tickets (AC + test steps) | — | **done** (2026-11-15) — multi-audience template + enrich script |
 | JIRA-B | Backlog structure (epics/stories/tests/bugs) | JIRA-R | **done** (2026-11-15) — KAN-20…29; Story→Task+`test`+Relates |
-| PW-1 | Stronger step gen + screenshot evidence | — | **now** — **KAN-57** (test KAN-58); Active slice |
+| PW-1 | Stronger step gen + screenshot evidence | — | **done** — **KAN-57** (test KAN-58) |
 
 ## Mid term
 
@@ -67,5 +67,5 @@ Open FR Stories seeded 2026-11-15: KAN-59…KAN-81 (first pass), plus gap pass K
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-57** — Stronger Playwright step generation + screenshot evidence (PW-1).  
-Then KAN-59… as listed above. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.
+**KAN-59** — Import and run existing Playwright suites (FR-TEST-5; test KAN-60).  
+Then KAN-61… as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

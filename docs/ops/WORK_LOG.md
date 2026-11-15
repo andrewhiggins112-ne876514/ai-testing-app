@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | KAN-57 — Stronger Playwright step generation + screenshot evidence |
+| **Jira story** | KAN-59 — Import and run existing Playwright suites |
 | **Epic** | KAN-22 (Test Generation and Execution) |
-| **Roadmap ID** | PW-1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-TEST-1/4/6 |
-| **Next action** | Implement KAN-57; test Task KAN-58 |
+| **Roadmap ID** | (FR-TEST-5) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-TEST-5 |
+| **Next action** | Implement KAN-59; test Task KAN-60 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-57 — Stronger Playwright step gen + screenshot evidence
+- **Agent/chat:** Cursor IDE Agent (Composer / Auto)
+- **Done:** `plugins/playwright_steps.py` generates happy-path + negative/edge drafts with `expect_text`/`expect_url`; assesses/rejects visibility-only flows (FR-TEST-6). Runner adds `expect_visible`, `step_quality`, failure screenshots always under local app data, success screenshots gated by `playwright_success_evidence`. Agent tool `generate_playwright_steps` + stronger `run_playwright` prompt/schema.
+- **Files:** `plugins/playwright_steps.py`, `plugins/playwright_runner.py`, `agent/agent.py`, `settings/store.py`, `tests/test_playwright_steps.py`, FUNCTIONAL_SPEC, PROJECT_MEMORY, ROADMAP, WORK_LOG.
+- **Verify:** `$env:PLAYWRIGHT_BROWSERS_PATH='0'; .\venv\Scripts\python.exe -m pytest tests/test_playwright_steps.py -v` (8 passed); heal regression 14 passed.
+- **Jira:** story Agent completion + KAN-58 test evidence/Done + KAN-57 Done (via closeout script).
+- **Next:** KAN-59 import/run existing Playwright suites (FR-TEST-5).
 
 ### 2026-11-15 — OPS — FR coverage audit gap pass (Done ≠ complete FR)
 - **Agent/chat:** Cursor IDE Agent (Composer)
