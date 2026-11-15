@@ -14,6 +14,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from agent.agent import Agent
+from plugins.desktop_runner import plugin_status, run_desktop, set_plugin_enabled
 from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.store import (
@@ -75,6 +76,15 @@ class DocIngestDeclineRequest(BaseModel):
 class SecurityLevelRequest(BaseModel):
     security_level: str
     confirm: bool = False
+
+
+class DesktopPluginRequest(BaseModel):
+    plugin_desktop_enabled: bool = True
+
+
+class DesktopSmokeRequest(BaseModel):
+    exe_path: str = ""
+    timeout_s: float = 1.5
 
 
 def _orb_from_settings() -> dict:
@@ -175,6 +185,21 @@ async def api_doc_ingest_apply(req: DocIngestApplyRequest):
 @app.post("/api/doc-ingest/decline")
 async def api_doc_ingest_decline(req: DocIngestDeclineRequest):
     return decline_proposal(req.proposal_id, session_id=req.session_id or "desktop")
+
+
+@app.get("/api/desktop-plugin")
+async def get_desktop_plugin():
+    return plugin_status()
+
+
+@app.post("/api/desktop-plugin")
+async def post_desktop_plugin(req: DesktopPluginRequest):
+    return set_plugin_enabled(bool(req.plugin_desktop_enabled))
+
+
+@app.post("/api/desktop-smoke")
+async def post_desktop_smoke(req: DesktopSmokeRequest):
+    return run_desktop(exe_path=req.exe_path or "", timeout_s=float(req.timeout_s or 1.5))
 
 
 app.mount("/ui", StaticFiles(directory=str(_UI_DIR)), name="ui")

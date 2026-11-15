@@ -47,6 +47,7 @@
           <button type="button" class="app-nav-item" data-section="security" aria-pressed="false">Security</button>
           <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
           <button type="button" class="app-nav-item" data-section="documents" aria-pressed="false">Documents</button>
+          <button type="button" class="app-nav-item" data-section="desktop" aria-pressed="false">Desktop</button>
         </nav>
         <div id="app-section-security" class="app-section" hidden>
           <h3 class="orb-section-label">Security level</h3>
@@ -93,7 +94,21 @@
           </div>
           <p id="doc-status" class="drawer-hint" role="status">Ready</p>
         </div>
-        <p class="drawer-hint" id="app-drawer-hint">Choose Security, Reports, or Documents.</p>
+        <div id="app-section-desktop" class="app-section" hidden>
+          <h3 class="orb-section-label">Desktop .exe plugin</h3>
+          <p class="drawer-hint">Separate smoke harness (not Playwright). Uses target_app_path from the active security level.</p>
+          <label class="check-row"><input type="checkbox" id="desk-enabled" checked /> Enable desktop plugin</label>
+          <p id="desk-path" class="drawer-hint">App path: —</p>
+          <label class="stack-label">Smoke path override
+            <input type="text" id="desk-exe" placeholder="C:\Path\To\App.exe" />
+          </label>
+          <div class="btn-row">
+            <button type="button" id="desk-save" class="save-btn">Save plugin</button>
+            <button type="button" id="desk-smoke" class="save-btn secondary">Run smoke</button>
+          </div>
+          <p id="desk-status" class="drawer-hint" role="status">Ready</p>
+        </div>
+        <p class="drawer-hint" id="app-drawer-hint">Choose Security, Reports, Documents, or Desktop.</p>
       </div>
     </aside>
 
@@ -140,6 +155,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk13"></script>
+  <script src="/ui/desktop/desktop.js?v=desk14"></script>
 </body>
 </html>

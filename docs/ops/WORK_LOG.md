@@ -8,11 +8,11 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | [KAN-47](https://ai-testing-lab.atlassian.net/browse/KAN-47) — Desktop `.exe` testing plugin |
-| **Epic** | DESK-1 / KAN backlog — Desktop `.exe` testing |
-| **Roadmap ID** | DESK-1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` desktop testing |
-| **Next action** | Add desktop `.exe` testing as a separate plugin (do not fork Playwright runner) |
+| **Jira story** | [KAN-55](https://ai-testing-lab.atlassian.net/browse/KAN-55) — Multi-sandbox orchestration plugin |
+| **Epic** | MULTI-1 / KAN backlog |
+| **Roadmap ID** | MULTI-1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` plugins / multi-sandbox |
+| **Next action** | Stub multi-sandbox orchestration as a separate toggleable plugin |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -33,6 +33,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-15 — KAN-47 — Desktop `.exe` testing plugin
+- **Agent/chat:** Cursor IDE Agent (Composer)
+- **Done:** Separate `plugins/desktop_runner.py` stdlib smoke harness (no Playwright fork). Toggle `plugin_desktop_enabled` (FR-PLUG-2); disabled → graceful enable message. Agent tool `run_desktop`; API `GET/POST /api/desktop-plugin` + `POST /api/desktop-smoke`. Gradio Settings desktop controls; App drawer → Desktop panel. Uses `target_app_path` or path override.
+- **Files:** `plugins/desktop_runner.py`, `settings/store.py`, `agent/agent.py`, `main.py`, `ui/gradio_app.py`, `ui/desktop/*`, `desktop_app.py` (desk14), `tests/test_desktop_runner.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC.
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_desktop_runner.py -v` (5 passed). Desktop: App ▦ → Desktop → toggle off → Run smoke → enable message; enable + path (e.g. notepad.exe) → pass.
+- **Jira:** comment + Done on KAN-47 (REST).
+- **Next:** KAN-55 multi-sandbox orchestration plugin (MULTI-1).
 
 ### 2026-11-15 — KAN-15 — OFFICIAL / SECRET isolation
 - **Agent/chat:** Cursor IDE Agent (Composer)

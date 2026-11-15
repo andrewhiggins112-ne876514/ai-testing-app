@@ -41,8 +41,8 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Notes |
 |----|------|-------|
-| DESK-1 | Desktop `.exe` testing plugin | **now** — KAN-47; separate plugin; do not fork Playwright runner |
-| MULTI-1 | Multi-sandbox orchestration | Desired earlier; keep as plugin |
+| DESK-1 | Desktop `.exe` testing plugin | **done** — KAN-47; `plugins/desktop_runner.py` smoke + toggle |
+| MULTI-1 | Multi-sandbox orchestration | **now** — KAN-55; keep as plugin |
 | VOICE-1 | Voice input | After text UX is solid |
 | SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
 
@@ -65,5 +65,5 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**[KAN-47](https://ai-testing-lab.atlassian.net/browse/KAN-47)** — Desktop `.exe` testing plugin (DESK-1).  
+**[KAN-55](https://ai-testing-lab.atlassian.net/browse/KAN-55)** — Multi-sandbox orchestration plugin (MULTI-1).  
 Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

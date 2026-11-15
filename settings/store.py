@@ -87,6 +87,8 @@ def _defaults() -> dict:
         "target_url": "",
         "target_app_path": "",
         "api_endpoint": "",
+        # FR-PLUG-2: desktop .exe smoke plugin (KAN-47)
+        "plugin_desktop_enabled": True,
     }
 
 

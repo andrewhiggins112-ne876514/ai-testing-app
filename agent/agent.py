@@ -21,6 +21,7 @@ Rules:
 - Report results clearly, including failures and suggested next steps.
 - Security context is important: respect the current level (OFFICIAL / SECRET).
 - For a browse request, call run_playwright with steps, a list of {action, selector?, value?}; action is goto, click, fill, expect_text, or expect_url, and click a visible label with selector text=Label.
+- For a Windows .exe / desktop smoke test, call run_desktop with optional exe_path (or rely on target_app_path in settings). If the plugin is disabled, tell the user to enable plugin_desktop_enabled.
 - When the user asks to list Jira issues or stories, call list_stories with the project key and do not invent issues. Set issue_types only when the user names types. "list issues in KAN" omits issue_types.
 - When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
 - To link a Jira issue to an epic, call set_parent with the issue key and epic key, then wait for the user to reply yes. Do not answer yes for the user.
@@ -201,6 +202,26 @@ class Agent:
                     },
                 },
             },
+            {
+                "type": "function",
+                "function": {
+                    "name": "run_desktop",
+                    "description": (
+                        "Smoke-launch a Windows desktop .exe (separate from Playwright). "
+                        "Uses exe_path or settings target_app_path. Returns status and logs. "
+                        "Fails gracefully if plugin_desktop_enabled is false."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "exe_path": {
+                                "type": "string",
+                                "description": "Absolute path to a Windows .exe (optional if target_app_path is set)",
+                            },
+                        },
+                    },
+                },
+            },
         ]
 
     async def chat(self, user_message: str, session_id: str = "default") -> str:
@@ -289,6 +310,7 @@ class Agent:
         if name not in {
             "jira_action",
             "run_playwright",
+            "run_desktop",
             "update_settings",
             "list_stories",
             "create_issue",
@@ -319,6 +341,10 @@ class Agent:
             kwargs["request_text"] = request_text
             kwargs["session_id"] = session_id
             return await run_playwright(**kwargs)
+        elif name == "run_desktop":
+            from plugins.desktop_runner import run_desktop
+            allowed = {"exe_path", "timeout_s"}
+            return run_desktop(**{k: v for k, v in args.items() if k in allowed})
         elif name == "jira_action":
             from plugins.jira_plugin import jira_action
             allowed = {"action", "project", "summary", "status"}

@@ -995,6 +995,7 @@
   const securitySection = document.getElementById("app-section-security");
   const reportsSection = document.getElementById("app-section-reports");
   const documentsSection = document.getElementById("app-section-documents");
+  const desktopSection = document.getElementById("app-section-desktop");
   const securityNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="security"]')
     : null;
@@ -1004,6 +1005,15 @@
   const documentsNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="documents"]')
     : null;
+  const desktopNav = appDrawer
+    ? appDrawer.querySelector('.app-nav-item[data-section="desktop"]')
+    : null;
+  const deskEnabled = document.getElementById("desk-enabled");
+  const deskPath = document.getElementById("desk-path");
+  const deskExe = document.getElementById("desk-exe");
+  const deskSave = document.getElementById("desk-save");
+  const deskSmoke = document.getElementById("desk-smoke");
+  const deskStatus = document.getElementById("desk-status");
   const rptStatus = document.getElementById("rpt-status");
   const rptChecks = {
     summary: document.getElementById("rpt-summary"),
@@ -1078,11 +1088,34 @@
     return { ok: res.ok, payload: await res.json() };
   }
 
+  function applyDesktopPlugin(payload) {
+    if (!payload) return;
+    if (deskEnabled) {
+      deskEnabled.checked = !!payload.plugin_desktop_enabled;
+    }
+    if (deskPath) {
+      deskPath.textContent =
+        "App path: " + (payload.target_app_path || "(not set — pass a path on Run smoke)");
+    }
+  }
+
+  async function loadDesktopPlugin() {
+    try {
+      const res = await fetch("/api/desktop-plugin");
+      if (!res.ok) return;
+      applyDesktopPlugin(await res.json());
+      if (deskStatus) deskStatus.textContent = "Ready";
+    } catch (err) {
+      if (deskStatus) deskStatus.textContent = "Could not load desktop plugin.";
+    }
+  }
+
   function showAppSection(name) {
     const map = {
       security: { section: securitySection, nav: securityNav },
       reports: { section: reportsSection, nav: reportsNav },
       documents: { section: documentsSection, nav: documentsNav },
+      desktop: { section: desktopSection, nav: desktopNav },
     };
     Object.keys(map).forEach(function (key) {
       const entry = map[key];
@@ -1101,6 +1134,9 @@
     if (name === "security" && securitySection && !securitySection.hidden) {
       loadSecurityStatus();
     }
+    if (name === "desktop" && desktopSection && !desktopSection.hidden) {
+      loadDesktopPlugin();
+    }
   }
 
   if (securityNav) {
@@ -1116,6 +1152,77 @@
   if (documentsNav) {
     documentsNav.addEventListener("click", function () {
       showAppSection("documents");
+    });
+  }
+  if (desktopNav) {
+    desktopNav.addEventListener("click", function () {
+      showAppSection("desktop");
+    });
+  }
+
+  if (deskSave) {
+    deskSave.addEventListener("click", async function () {
+      if (deskStatus) deskStatus.textContent = "Saving…";
+      try {
+        const res = await fetch("/api/desktop-plugin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            plugin_desktop_enabled: !!(deskEnabled && deskEnabled.checked),
+          }),
+        });
+        const payload = await res.json();
+        if (!res.ok) {
+          if (deskStatus) deskStatus.textContent = "Save failed.";
+          return;
+        }
+        applyDesktopPlugin(payload);
+        if (deskStatus) {
+          deskStatus.textContent = payload.plugin_desktop_enabled
+            ? "Desktop plugin enabled."
+            : "Desktop plugin disabled.";
+        }
+      } catch (err) {
+        if (deskStatus) deskStatus.textContent = "Could not reach desktop plugin API.";
+      }
+    });
+  }
+
+  if (deskSmoke) {
+    deskSmoke.addEventListener("click", async function () {
+      if (deskStatus) deskStatus.textContent = "Running smoke…";
+      try {
+        const override = deskExe && deskExe.value ? deskExe.value.trim() : "";
+        const res = await fetch("/api/desktop-smoke", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ exe_path: override, timeout_s: 1.5 }),
+        });
+        const payload = await res.json();
+        if (!res.ok) {
+          if (deskStatus) deskStatus.textContent = "Smoke request failed.";
+          return;
+        }
+        if (payload.status === "disabled") {
+          if (deskStatus) {
+            deskStatus.textContent =
+              payload.message || payload.error || "Plugin disabled — enable and Save.";
+          }
+          return;
+        }
+        if (payload.status === "pass") {
+          if (deskStatus) {
+            deskStatus.textContent =
+              "Pass: " + (payload.exe_path || "app") + " (pid " + (payload.pid || "—") + ")";
+          }
+          return;
+        }
+        if (deskStatus) {
+          deskStatus.textContent = payload.error || payload.message || "Smoke failed.";
+        }
+      } catch (err) {
+        if (deskStatus) deskStatus.textContent = "Could not reach desktop smoke API.";
+      }
     });
   }
 

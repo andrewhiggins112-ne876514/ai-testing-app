@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import gradio as gr
 import httpx
+from plugins.desktop_runner import plugin_status, run_desktop, set_plugin_enabled
 from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
 from reports.exporter import reports_dir
 from reports.sections import (
@@ -1458,11 +1459,29 @@ def settings_store_summary():
     else:
         creds = "Jira credentials: not set (edit local settings file — never commit tokens)"
     profile = browser_profile_dir(level)
+    desk_on = "on" if data.get("plugin_desktop_enabled", True) else "off"
+    app_path = (data.get("target_app_path") or "").strip() or "(not set)"
     return (
         f"Local store: {settings_path()}\n"
         f"Level: {level} | Browser profile: {profile}\n"
-        f"{creds}"
+        f"{creds}\n"
+        f"Desktop plugin: {desk_on} | target_app_path: {app_path}"
     )
+
+
+def save_desktop_plugin(enabled: bool):
+    status = set_plugin_enabled(bool(enabled))
+    flag = "enabled" if status.get("plugin_desktop_enabled") else "disabled"
+    return f"Desktop plugin {flag}.", settings_store_summary()
+
+
+def run_desktop_smoke_ui(exe_path: str = ""):
+    result = run_desktop(exe_path=(exe_path or "").strip())
+    if result.get("status") == "disabled":
+        return result.get("message") or result.get("error") or "Plugin disabled."
+    if result.get("status") == "pass":
+        return f"Pass: {result.get('exe_path')} (pid {result.get('pid')})"
+    return result.get("error") or result.get("message") or "Smoke failed."
 
 
 def save_settings(level, jira_base_url, confirm_level: bool = False):
@@ -1824,7 +1843,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     value=settings_store_summary(),
                     label="Local store",
                     interactive=False,
-                    lines=2,
+                    lines=3,
                 )
                 status = gr.Textbox(value="Ready", label="Status", interactive=False, max_lines=1)
                 with gr.Row():
@@ -1833,6 +1852,30 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     )
                     gr.Button("Confirm level switch").click(
                         confirm_security_level, [level, jira_base_url], [status, store_info]
+                    )
+                gr.HTML('<div class="orb-section-label">Desktop plugin</div>')
+                _desk = plugin_status()
+                desk_enabled = gr.Checkbox(
+                    value=bool(_desk.get("plugin_desktop_enabled", True)),
+                    label="Enable desktop .exe smoke plugin (FR-TEST-3)",
+                )
+                desk_exe = gr.Textbox(
+                    value=_desk.get("target_app_path") or "",
+                    label="Smoke exe path (optional override)",
+                    placeholder=r"C:\Path\To\App.exe",
+                )
+                desk_status = gr.Textbox(
+                    value="Ready",
+                    label="Desktop smoke",
+                    interactive=False,
+                    max_lines=2,
+                )
+                with gr.Row():
+                    gr.Button("Save desktop plugin").click(
+                        save_desktop_plugin, [desk_enabled], [status, store_info]
+                    )
+                    gr.Button("Run desktop smoke", variant="primary").click(
+                        run_desktop_smoke_ui, [desk_exe], [desk_status]
                     )
         with gr.Tab("Reports"):
             _report_choices = list_report_choices()
