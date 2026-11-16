@@ -1151,6 +1151,7 @@
   const setTargetExe = document.getElementById("set-target-exe");
   const setApiEndpoint = document.getElementById("set-api-endpoint");
   const setTestFramework = document.getElementById("set-test-framework");
+  const setPlaywrightMode = document.getElementById("set-playwright-mode");
   const setStorePath = document.getElementById("set-store-path");
   const setCreds = document.getElementById("set-creds");
   const setSummary = document.getElementById("set-summary");
@@ -1247,6 +1248,11 @@
       const fw = (payload.test_framework || "playwright").toLowerCase();
       setTestFramework.value =
         fw === "selenium" || fw === "cypress" ? fw : "playwright";
+    }
+    if (setPlaywrightMode) {
+      const mode = (payload.playwright_mode || "").toLowerCase();
+      setPlaywrightMode.value =
+        mode === "headless" || payload.playwright_headless ? "headless" : "headed";
     }
     if (setStorePath) {
       setStorePath.textContent =
@@ -1933,6 +1939,10 @@
               setTestFramework && setTestFramework.value
                 ? setTestFramework.value
                 : "playwright",
+            playwright_mode:
+              setPlaywrightMode && setPlaywrightMode.value
+                ? setPlaywrightMode.value
+                : "headed",
           }),
         });
         const payload = await res.json();

@@ -179,7 +179,16 @@ def run_suite(
         )
         return result
 
+    from settings.store import get_playwright_headless
+
+    use_headless = bool(get_playwright_headless())
+    result["headless"] = use_headless
+    result["playwright_mode"] = "headless" if use_headless else "headed"
+
     args = ["test", "--reporter=json"]
+    # CLI defaults to headless; pass --headed when product setting is headed.
+    if not use_headless:
+        args.append("--headed")
     grep_clean = (grep or "").strip()
     if grep_clean:
         args.extend(["--grep", grep_clean])

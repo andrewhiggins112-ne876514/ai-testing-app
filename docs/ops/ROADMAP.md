@@ -71,10 +71,10 @@ Open FR Stories: KAN-77…KAN-81 (first seed remainder), plus gap pass KAN-83…
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-83** — Playwright headed/headless mode setting (FR-TEST-2; test KAN-84).
+**KAN-85** — Generate Playwright steps from Jira acceptance criteria (FR-TEST-1 gap; test KAN-86).
 
 **Deferred:** **KAN-81/82** voice input — until a microphone is connected (do last).
 
-**Done this cycle:** **KAN-79/80** — Dynamic framework switching stub (FR-PLUG-3, desk25). Earlier: **KAN-77/78** target URL / exe / messaging; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
+**Done this cycle:** **KAN-83/84** — Playwright headed/headless mode (FR-TEST-2, desk26). Earlier: **KAN-79/80** framework switch; **KAN-77/78** targets; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
 
 Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

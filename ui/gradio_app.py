@@ -1462,6 +1462,7 @@ def current_settings():
     from plugins.framework_switch import normalize_framework
 
     data = load_settings()
+    pw_mode = "headless" if bool(data.get("playwright_headless", False)) else "headed"
     return (
         data.get("security_level") or "OFFICIAL",
         data.get("jira_url") or "",
@@ -1469,6 +1470,7 @@ def current_settings():
         data.get("target_app_path") or "",
         data.get("api_endpoint") or "",
         normalize_framework(data.get("test_framework")),
+        pw_mode,
     )
 
 
@@ -1603,6 +1605,7 @@ def save_settings(
     target_app_path="",
     api_endpoint="",
     test_framework="playwright",
+    playwright_mode="headed",
     confirm_level: bool = False,
 ):
     """Save target/Jira settings; level switch requires a second confirm (FR-SEC-3)."""
@@ -1626,6 +1629,7 @@ def save_settings(
         target_app_path=target_app_path or "",
         api_endpoint=api_endpoint or "",
         test_framework=test_framework or "playwright",
+        playwright_mode=playwright_mode or "headed",
     )
     if saved.get("status") == "error":
         return saved.get("message") or "Save failed.", settings_store_summary()
@@ -1639,6 +1643,7 @@ def confirm_security_level(
     target_app_path="",
     api_endpoint="",
     test_framework="playwright",
+    playwright_mode="headed",
 ):
     """Second step for OFFICIAL/SECRET switch."""
     return save_settings(
@@ -1648,6 +1653,7 @@ def confirm_security_level(
         target_app_path,
         api_endpoint,
         test_framework,
+        playwright_mode,
         confirm_level=True,
     )
 
@@ -1960,9 +1966,15 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     fill_height=False,
                 )
         with gr.Tab("Settings"):
-            loaded_level, loaded_url, loaded_target, loaded_exe, loaded_msg, loaded_fw = (
-                current_settings()
-            )
+            (
+                loaded_level,
+                loaded_url,
+                loaded_target,
+                loaded_exe,
+                loaded_msg,
+                loaded_fw,
+                loaded_pw_mode,
+            ) = current_settings()
             with gr.Column(elem_id="settings-panel"):
                 gr.HTML('<div class="panel-title">Settings</div>')
                 gr.HTML(
@@ -2006,6 +2018,12 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     label="Test framework (FR-PLUG-3)",
                     info="Playwright is ready. Selenium/Cypress are stubs — run returns not implemented.",
                 )
+                playwright_mode_dd = gr.Dropdown(
+                    choices=["headed", "headless"],
+                    value=loaded_pw_mode or "headed",
+                    label="Playwright browser mode (FR-TEST-2)",
+                    info="Headed shows Chromium (default). Headless runs without a window.",
+                )
                 store_info = gr.Textbox(
                     value=settings_store_summary(),
                     label="Local store",
@@ -2023,6 +2041,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                             target_exe_box,
                             api_endpoint_box,
                             test_framework_dd,
+                            playwright_mode_dd,
                         ],
                         [status, store_info],
                     )
@@ -2035,6 +2054,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                             target_exe_box,
                             api_endpoint_box,
                             test_framework_dd,
+                            playwright_mode_dd,
                         ],
                         [status, store_info],
                     )
@@ -2248,6 +2268,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
             target_exe_box,
             api_endpoint_box,
             test_framework_dd,
+            playwright_mode_dd,
         ],
     )
     demo.load(settings_store_summary, outputs=[store_info])

@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-83** — Playwright headed/headless mode setting |
-| **Start task** | **KAN-84** (`test`, Relates → KAN-83) |
+| **Jira story** | **KAN-85** — Generate Playwright steps from Jira AC |
+| **Start task** | **KAN-86** (`test`, Relates → KAN-85) |
 | **Epic** | (TEST) |
-| **Roadmap ID** | FR-TEST-2 gap |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-TEST-2 |
+| **Roadmap ID** | FR-TEST-1 gap |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-TEST-1 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-84** |
-| **Shipped** | **KAN-79** / **KAN-80** Done (framework switch stub, desk25) |
+| **Test ticket** | **KAN-86** |
+| **Shipped** | **KAN-83** / **KAN-84** Done (headed/headless, desk26) |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic connected |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-83 — Playwright headed/headless mode setting (FR-TEST-2)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-83
+- **Done:** Settings key `playwright_headless` (default headed). App Settings + Gradio expose headed/headless; runner `launch_persistent_context(headless=…)`; suite adds `--headed` when headed; optional `run_playwright(headless=)` override. Partial `POST /api/app-settings` no longer clears omitted fields (bug found+fixed during verify).
+- **Files:** `settings/store.py`, `plugins/playwright_runner.py`, `plugins/playwright_suite.py`, `main.py`, `agent/agent.py`, `ui/desktop/*`, `desktop_app.py` (desk26), `ui/gradio_app.py`, `tests/test_playwright_mode.py`, `tests/test_app_settings.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_playwright_mode.py tests/test_app_settings.py tests/test_framework_switch.py -v` (18 passed). Live desk26 API mode toggle + HTML `set-playwright-mode`; jira_url restored after accidental partial wipe then fixed.
+- **Jira:** story agent-completion + **KAN-84** evidence/Done; Bug **KAN-114** partial-settings wipe Fix+Done; **KAN-83** Done
+- **Next:** **KAN-85** generate Playwright steps from Jira AC (test KAN-86)
 
 ### 2026-11-16 — OPS — Defer KAN-81 voice until mic available
 - **Agent/chat:** Cursor IDE Agent — user CR / priority

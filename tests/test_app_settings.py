@@ -149,6 +149,32 @@ class AppSettingsTests(unittest.TestCase):
         self.assertEqual(again["target_url"], "https://aut.example.com")
         self.assertEqual(again["api_endpoint"], "wss://events.example.com/bus")
 
+    def test_partial_post_does_not_clear_other_fields(self):
+        from main import app
+
+        client = TestClient(app)
+        client.post(
+            "/api/app-settings",
+            json={
+                "jira_url": "https://keep.example.atlassian.net",
+                "target_url": "https://keep.example.com",
+            },
+        )
+        partial = client.post(
+            "/api/app-settings",
+            json={"playwright_mode": "headless"},
+        )
+        self.assertEqual(partial.status_code, 200)
+        body = partial.json()
+        self.assertEqual(body.get("status"), "updated")
+        self.assertEqual(body.get("playwright_mode"), "headless")
+        self.assertEqual(body.get("jira_url"), "https://keep.example.atlassian.net")
+        self.assertEqual(body.get("target_url"), "https://keep.example.com")
+        loaded = load_settings()
+        self.assertEqual(loaded["jira_url"], "https://keep.example.atlassian.net")
+        self.assertEqual(loaded["target_url"], "https://keep.example.com")
+        self.assertTrue(loaded.get("playwright_headless"))
+
 
 if __name__ == "__main__":
     unittest.main()

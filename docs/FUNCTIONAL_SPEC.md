@@ -194,7 +194,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-LEARN-2, FR-LEARN-3 | Shipped (Settings + API + agent; level-scoped) | **Done** **KAN-77** |
 | FR-LEARN-4 | Open | **KAN-93** |
 | FR-TEST-1 | Partial (chat/spec step gen) | **Done** KAN-57; from Jira AC **KAN-85** |
-| FR-TEST-2 | Partial (headed only today) | **Done** KAN-9 baseline; headless **KAN-83** |
+| FR-TEST-2 | Done (headed + headless setting) | **Done** KAN-9 baseline; **KAN-83** headless mode |
 | FR-TEST-3 | Partial (smoke only) | **Done** KAN-47 smoke; expand **KAN-87** |
 | FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
 | FR-TEST-5 | Shipped | **Done** **KAN-59** |

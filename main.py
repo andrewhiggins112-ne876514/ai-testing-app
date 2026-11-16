@@ -117,11 +117,13 @@ class DeleteLocalDataRequest(BaseModel):
 
 
 class AppSettingsRequest(BaseModel):
-    jira_url: str = ""
-    target_url: str = ""
-    target_app_path: str = ""
-    api_endpoint: str = ""
-    test_framework: str = ""
+    jira_url: str | None = None
+    target_url: str | None = None
+    target_app_path: str | None = None
+    api_endpoint: str | None = None
+    test_framework: str | None = None
+    playwright_mode: str | None = None
+    playwright_headless: bool | None = None
 
 
 class TestFrameworkRequest(BaseModel):
@@ -257,14 +259,21 @@ async def get_app_settings_api():
 
 @app.post("/api/app-settings")
 async def post_app_settings_api(req: AppSettingsRequest):
-    kwargs = {
-        "jira_url": req.jira_url or "",
-        "target_url": req.target_url or "",
-        "target_app_path": req.target_app_path or "",
-        "api_endpoint": req.api_endpoint or "",
-    }
-    if (req.test_framework or "").strip():
+    kwargs: dict = {}
+    if req.jira_url is not None:
+        kwargs["jira_url"] = req.jira_url
+    if req.target_url is not None:
+        kwargs["target_url"] = req.target_url
+    if req.target_app_path is not None:
+        kwargs["target_app_path"] = req.target_app_path
+    if req.api_endpoint is not None:
+        kwargs["api_endpoint"] = req.api_endpoint
+    if req.test_framework is not None and str(req.test_framework).strip():
         kwargs["test_framework"] = req.test_framework.strip()
+    if req.playwright_mode is not None and str(req.playwright_mode).strip():
+        kwargs["playwright_mode"] = req.playwright_mode.strip()
+    elif req.playwright_headless is not None:
+        kwargs["playwright_headless"] = req.playwright_headless
     return save_app_settings(**kwargs)
 
 

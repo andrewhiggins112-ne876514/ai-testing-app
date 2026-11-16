@@ -169,6 +169,13 @@
             </select>
           </label>
           <p class="drawer-hint">FR-PLUG-3 stub: Playwright runs tests; other frameworks return a clear not-implemented message.</p>
+          <label class="stack-label">Playwright browser mode
+            <select id="set-playwright-mode">
+              <option value="headed">Headed (visible browser, default)</option>
+              <option value="headless">Headless</option>
+            </select>
+          </label>
+          <p class="drawer-hint">FR-TEST-2: headed shows Chromium; headless runs quieter without a window.</p>
           <p id="set-store-path" class="drawer-hint">Local store: —</p>
           <p id="set-creds" class="drawer-hint">Jira credentials: —</p>
           <p id="set-summary" class="drawer-hint">Summary: —</p>
@@ -347,6 +354,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk25"></script>
+  <script src="/ui/desktop/desktop.js?v=desk26"></script>
 </body>
 </html>

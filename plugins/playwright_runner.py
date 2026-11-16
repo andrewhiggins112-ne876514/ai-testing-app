@@ -1,6 +1,6 @@
 """
 Playwright runner plugin.
-Supports browser testing and basic headed mode.
+Supports browser testing in headed or headless mode (FR-TEST-2 / KAN-83).
 Locator self-heal may change *how* an element is found, never *what* is asserted (FR-HEAL-1).
 """
 import difflib
@@ -59,6 +59,18 @@ def _success_evidence_enabled() -> bool:
         return bool(load_settings().get("playwright_success_evidence", True))
     except Exception:
         return True
+
+
+def _headless_enabled(override: Optional[bool] = None) -> bool:
+    """Prefer explicit run override; else settings (default headed = False)."""
+    if override is not None:
+        return bool(override)
+    try:
+        from settings.store import get_playwright_headless
+
+        return bool(get_playwright_headless())
+    except Exception:
+        return False
 
 
 def _intended_text(selector: str) -> str:
@@ -358,6 +370,7 @@ async def run_playwright(
     browser=None,
     reject_incomplete: bool = False,
     success_evidence: Optional[bool] = None,
+    headless: Optional[bool] = None,
 ) -> Dict[str, Any]:
     result: Dict[str, Any] = {
         "status": "fail",
@@ -366,6 +379,9 @@ async def run_playwright(
         "error": None,
         "evidence": [],
     }
+    use_headless = _headless_enabled(headless)
+    result["headless"] = use_headless
+    result["playwright_mode"] = "headless" if use_headless else "headed"
     if steps is None and mode == "generate" and (request_text or "").strip():
         generated = generate_steps_from_spec(request_text, url=url)
         steps = list(generated.get("steps") or [])
@@ -407,7 +423,7 @@ async def run_playwright(
             result["browser_profile"] = str(profile)
             context = await started.chromium.launch_persistent_context(
                 str(profile),
-                headless=False,  # headed for visibility on laptop
+                headless=use_headless,
             )
         else:
             # Injected browser (tests): ephemeral context, caller owns lifecycle.

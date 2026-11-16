@@ -98,6 +98,8 @@ def _defaults() -> dict:
         "test_framework": "playwright",
         # FR-TEST-4: capture final screenshot on successful Playwright runs (failures always)
         "playwright_success_evidence": True,
+        # FR-TEST-2: Playwright browser mode — False = headed (default laptop UX), True = headless
+        "playwright_headless": False,
         # FR-SEC-2: no telemetry by default (GDPR)
         "telemetry_enabled": False,
     }
@@ -274,6 +276,8 @@ def app_settings_status() -> dict:
     from plugins.framework_switch import DEFAULT_FRAMEWORK, list_frameworks, normalize_framework
 
     test_framework = normalize_framework(data.get("test_framework"))
+    playwright_headless = bool(data.get("playwright_headless", False))
+    playwright_mode = "headless" if playwright_headless else "headed"
     app_path = (data.get("target_app_path") or "").strip()
     target_url = (data.get("target_url") or "").strip()
     api_endpoint = (data.get("api_endpoint") or "").strip()
@@ -288,6 +292,7 @@ def app_settings_status() -> dict:
             f"Desktop plugin: {'on' if desk_on else 'off'} | target_app_path: {app_path or '(not set)'}",
             f"Playwright suite path: {suite_path or '(not set)'}",
             f"Test framework: {test_framework} (default {DEFAULT_FRAMEWORK})",
+            f"Playwright mode: {playwright_mode} (default headed)",
             f"Multi-sandbox plugin: {'on' if multi_on else 'off'}",
             f"Telemetry: {'on' if telem else 'off (default)'} | Extracted-data consent required",
         ]
@@ -307,59 +312,84 @@ def app_settings_status() -> dict:
         "playwright_suite_path": suite_path,
         "test_framework": test_framework,
         "frameworks": list_frameworks().get("frameworks") or [],
+        "playwright_headless": playwright_headless,
+        "playwright_mode": playwright_mode,
         "plugin_multi_sandbox_enabled": multi_on,
         "telemetry_enabled": telem,
         "summary": summary,
     }
 
 
+def normalize_playwright_mode(value: str | bool | None) -> bool:
+    """Return True for headless. Accepts bool or headed|headless strings."""
+    if isinstance(value, bool):
+        return value
+    key = str(value or "").strip().lower()
+    if key in {"1", "true", "yes", "headless"}:
+        return True
+    if key in {"0", "false", "no", "headed", ""}:
+        return False
+    return False
+
+
+def get_playwright_headless() -> bool:
+    return bool(load_settings().get("playwright_headless", False))
+
+
 def save_app_settings(
-    jira_url: str = "",
-    target_url: str = "",
-    target_app_path: str = "",
-    api_endpoint: str = "",
+    jira_url: str | None = None,
+    target_url: str | None = None,
+    target_app_path: str | None = None,
+    api_endpoint: str | None = None,
     test_framework: str | None = None,
+    playwright_headless: bool | str | None = None,
+    playwright_mode: str | None = None,
 ) -> dict:
-    """Persist App Settings targets for the active security level (FR-LEARN-2/3)."""
-    jira = (jira_url or "").strip()
-    target = (target_url or "").strip()
-    exe = (target_app_path or "").strip()
-    messaging = (api_endpoint or "").strip()
+    """Persist App Settings targets for the active security level (FR-LEARN-2/3).
 
-    if jira and not _http_url_ok(jira):
-        payload = app_settings_status()
-        payload.update(
-            {
-                "status": "error",
-                "message": "Jira URL must start with http:// or https://.",
-            }
-        )
-        return payload
-    if target and not _http_url_ok(target):
-        payload = app_settings_status()
-        payload.update(
-            {
-                "status": "error",
-                "message": "Target URL must start with http:// or https://.",
-            }
-        )
-        return payload
-    if messaging and not _messaging_url_ok(messaging):
-        payload = app_settings_status()
-        payload.update(
-            {
-                "status": "error",
-                "message": (
-                    "Messaging endpoint must start with http(s)://, amqp(s)://, or ws(s)://."
-                ),
-            }
-        )
-        return payload
-
-    update_setting("jira_url", jira, confirm=True)
-    update_setting("target_url", target, confirm=True)
-    update_setting("target_app_path", exe, confirm=True)
-    update_setting("api_endpoint", messaging, confirm=True)
+    None means leave the existing value unchanged (partial updates safe).
+    Explicit empty string clears a field.
+    """
+    if jira_url is not None:
+        jira = jira_url.strip()
+        if jira and not _http_url_ok(jira):
+            payload = app_settings_status()
+            payload.update(
+                {
+                    "status": "error",
+                    "message": "Jira URL must start with http:// or https://.",
+                }
+            )
+            return payload
+        update_setting("jira_url", jira, confirm=True)
+    if target_url is not None:
+        target = target_url.strip()
+        if target and not _http_url_ok(target):
+            payload = app_settings_status()
+            payload.update(
+                {
+                    "status": "error",
+                    "message": "Target URL must start with http:// or https://.",
+                }
+            )
+            return payload
+        update_setting("target_url", target, confirm=True)
+    if target_app_path is not None:
+        update_setting("target_app_path", target_app_path.strip(), confirm=True)
+    if api_endpoint is not None:
+        messaging = api_endpoint.strip()
+        if messaging and not _messaging_url_ok(messaging):
+            payload = app_settings_status()
+            payload.update(
+                {
+                    "status": "error",
+                    "message": (
+                        "Messaging endpoint must start with http(s)://, amqp(s)://, or ws(s)://."
+                    ),
+                }
+            )
+            return payload
+        update_setting("api_endpoint", messaging, confirm=True)
     if test_framework is not None and str(test_framework).strip():
         from plugins.framework_switch import set_framework
 
@@ -368,6 +398,31 @@ def save_app_settings(
             payload = app_settings_status()
             payload.update({"status": "error", "message": fw.get("message") or "Invalid framework."})
             return payload
+    mode_raw = playwright_mode if playwright_mode is not None else playwright_headless
+    if mode_raw is not None and str(mode_raw).strip() != "":
+        if isinstance(mode_raw, str) and mode_raw.strip().lower() not in {
+            "headed",
+            "headless",
+            "true",
+            "false",
+            "1",
+            "0",
+            "yes",
+            "no",
+        }:
+            payload = app_settings_status()
+            payload.update(
+                {
+                    "status": "error",
+                    "message": "Playwright mode must be headed or headless.",
+                }
+            )
+            return payload
+        update_setting(
+            "playwright_headless",
+            normalize_playwright_mode(mode_raw),
+            confirm=True,
+        )
     payload = app_settings_status()
     payload.update({"status": "updated", "message": "Saved."})
     return payload
