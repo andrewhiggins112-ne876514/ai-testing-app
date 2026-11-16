@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-125** — Test-all A1 — Local plan, suite, case, and run model |
-| **Start task** | **KAN-126** (`test`, Relates → KAN-125) |
+| **Jira story** | **KAN-127** — Test-all A2 — Connect-once checklist and health |
+| **Start task** | **KAN-128** (`test`, Relates → KAN-127) |
 | **Epic** | **KAN-117** — Test-all A — Usable lab (alpha) |
-| **Roadmap ID** | TESTALL-A / FR-PLAN-1/2 |
+| **Roadmap ID** | TESTALL-A / FR-CONN-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` §1 + FR-CONN/FR-PLAN; catalogue `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-126** |
-| **Shipped** | Prototype baselines through **KAN-99**/**KAN-100**; Test-all backlog seeded **KAN-117…KAN-246** |
+| **Test ticket** | **KAN-128** |
+| **Shipped** | Prototype baselines through **KAN-99**/**KAN-100**; Test-all backlog seeded **KAN-117…KAN-246**; **KAN-125** A1 plan model |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-125 — Local plan, suite, case, and run model (A1)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-125
+- **Done:** Level-scoped in-app plan store: plan → suite of cases → runs under `%LOCALAPPDATA%/ai_testing_app/plans/{LEVEL}/`. OFFICIAL/SECRET lists isolated. Create/add_case/add_run do not rewrite settings, reports, or Playwright project files. Thin API `/api/plans*`. Privacy wipe category `plans` added. No new UI (OOS).
+- **Files:** `plans/store.py`, `plans/__init__.py`, `main.py`, `settings/privacy.py`, `tests/test_plan_store.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, TEST_ALL_BACKLOG
+- **Verify:** `pytest tests/test_plan_store.py tests/test_privacy_gdpr.py tests/test_multi_sandbox.py tests/test_playwright_suite.py tests/test_security_isolation.py -v` (26 passed)
+- **Jira:** story agent-completion + **KAN-126** evidence/Done; **KAN-125** Done
+- **Next:** **KAN-127** A2 connect-once checklist and health (test **KAN-128**)
 
 ### 2026-11-16 — OPS — Test-all CR (docs + Jira catalogue)
 - **Agent/chat:** Council Room → option 2 after expanded catalogue + orb-home widgets amend

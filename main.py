@@ -39,6 +39,13 @@ from plugins.playwright_suite import (
     set_suite_path,
     suite_status as playwright_suite_status,
 )
+from plans.store import (
+    add_case as plan_add_case,
+    add_run as plan_add_run,
+    create_plan,
+    get_plan,
+    list_plans,
+)
 from plugins.registry import list_plugins
 from reports.exporter import latest_summary as latest_report_summary
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
@@ -172,6 +179,32 @@ class PlaywrightSuiteRunRequest(BaseModel):
 
 class JiraIssueRequest(BaseModel):
     issue_key: str = ""
+
+
+class PlanCreateRequest(BaseModel):
+    name: str = "Untitled plan"
+    intent: str = ""
+    jira_keys: list[str] | None = None
+    documents: list[str] | None = None
+
+
+class PlanCaseRequest(BaseModel):
+    name: str = "Untitled case"
+    jira_key: str = ""
+    tags: list[str] | None = None
+    priority: int = 0
+    note: str = ""
+    enabled: bool = True
+    source_kind: str = "manual-draft"
+    source_ref: str = ""
+
+
+class PlanRunRequest(BaseModel):
+    result: str = "pending"
+    duration_ms: int | None = None
+    failure_class: str | None = None
+    evidence: list[str] | None = None
+    note: str = ""
 
 
 def _orb_from_settings() -> dict:
@@ -467,6 +500,57 @@ async def post_playwright_suite_run(req: PlaywrightSuiteRunRequest):
         suite_path=req.suite_path or "",
         grep=req.grep or "",
         timeout_s=float(req.timeout_s or 300.0),
+    )
+
+
+@app.get("/api/plans")
+async def get_plans():
+    """List in-app plans for the active security level (KAN-125 / FR-PLAN-1/2)."""
+    return list_plans()
+
+
+@app.post("/api/plans")
+async def post_plan(req: PlanCreateRequest):
+    return create_plan(
+        name=req.name or "Untitled plan",
+        intent=req.intent or "",
+        sources={
+            "jira_keys": list(req.jira_keys or []),
+            "documents": list(req.documents or []),
+        },
+    )
+
+
+@app.get("/api/plans/{plan_id}")
+async def get_plan_by_id(plan_id: str):
+    return get_plan(plan_id)
+
+
+@app.post("/api/plans/{plan_id}/cases")
+async def post_plan_case(plan_id: str, req: PlanCaseRequest):
+    return plan_add_case(
+        plan_id,
+        req.name or "Untitled case",
+        jira_key=req.jira_key or "",
+        tags=list(req.tags or []),
+        priority=int(req.priority or 0),
+        note=req.note or "",
+        enabled=bool(req.enabled),
+        source_kind=req.source_kind or "manual-draft",
+        source_ref=req.source_ref or "",
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/runs")
+async def post_plan_run(plan_id: str, case_id: str, req: PlanRunRequest):
+    return plan_add_run(
+        plan_id,
+        case_id,
+        result=req.result or "pending",
+        duration_ms=req.duration_ms,
+        failure_class=req.failure_class,
+        evidence=list(req.evidence or []),
+        note=req.note or "",
     )
 
 

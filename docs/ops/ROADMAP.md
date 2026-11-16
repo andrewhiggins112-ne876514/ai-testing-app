@@ -78,7 +78,8 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**Test-all A1** — Local plan, suite, case, and run model (FR-PLAN-1/2). Then A2–A9. Do **not** start **KAN-81** while deferred.
+**Test-all A2** — Connect-once checklist and health (FR-CONN-1). Then A3–A9. Do **not** start **KAN-81** while deferred.  
+**Shipped:** A1 **KAN-125** — local plan/suite/case/run model (`plans/store.py`, `/api/plans*`).
 
 **Council CR (2026-11-16):** Test-all vision locked; 48-story catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
 

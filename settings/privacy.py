@@ -11,7 +11,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 from settings.store import app_data_dir, load_settings
 
-# Configurable local artifacts under app data (reports / screenshots / audit / sessions / profiles).
+# Configurable local artifacts under app data (reports / screenshots / audit / sessions / profiles / plans).
 DELETABLE_CATEGORIES = (
     "reports",
     "screenshots",
@@ -19,6 +19,7 @@ DELETABLE_CATEGORIES = (
     "jira_write_audit",
     "sessions",
     "browser_profiles",
+    "plans",
 )
 
 _DEFAULT_WIPE = ("reports", "screenshots", "heal_audit", "jira_write_audit", "sessions")
@@ -38,6 +39,7 @@ def _category_path(category: str) -> Path:
         "jira_write_audit": root / "jira_write_audit.jsonl",
         "sessions": root / "sessions",
         "browser_profiles": root / "browser_profiles",
+        "plans": root / "plans",
     }
     if category not in mapping:
         raise ValueError(f"Unknown category: {category!r}")
@@ -125,7 +127,7 @@ def _wipe_target(path: Path) -> Dict[str, Any]:
         return {"path": str(safe), "deleted": True, "kind": "file"}
     shutil.rmtree(safe)
     # Keep expected folder structure for later writers.
-    if safe.name in {"reports", "screenshots", "sessions", "browser_profiles"}:
+    if safe.name in {"reports", "screenshots", "sessions", "browser_profiles", "plans"}:
         safe.mkdir(parents=True, exist_ok=True)
     return {"path": str(safe), "deleted": True, "kind": "directory"}
 

@@ -200,7 +200,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Test-all catalogue — alpha **A1–A9** first (local plan/suite model → connect → draft → edit → single run). Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
+**Still open / next:** Test-all catalogue — alpha **A2–A9** (A1 plan model shipped **KAN-125**). Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -219,7 +219,8 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
 | FR-TEST-5 | Shipped baseline import/run; in-suite import deepen | **Done** **KAN-59**; Test-all **C8** |
 | FR-CONN-1 | Open (test-all) | Test-all **A2**, **A3**, **D3**, **D4** |
-| FR-PLAN-1…4 | Open (test-all) | Test-all epic **A** then **B–C** |
+| FR-PLAN-1…2 | Partial (A1 model) | **KAN-125** store + API; edit/run UI later A5/A7 |
+| FR-PLAN-3…4 | Open (test-all) | Test-all epic **A** then **B–C** |
 | FR-CI-1 | Future (design) | Test-all **H2** |
 | FR-MAN-1 | Future (design) | Test-all **H1** |
 | FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |
