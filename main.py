@@ -118,6 +118,7 @@ class DeleteLocalDataRequest(BaseModel):
 
 class AppSettingsRequest(BaseModel):
     jira_url: str | None = None
+    jira_project: str | None = None
     target_url: str | None = None
     target_app_path: str | None = None
     api_endpoint: str | None = None
@@ -268,6 +269,8 @@ async def post_app_settings_api(req: AppSettingsRequest):
     kwargs: dict = {}
     if req.jira_url is not None:
         kwargs["jira_url"] = req.jira_url
+    if req.jira_project is not None:
+        kwargs["jira_project"] = req.jira_project
     if req.target_url is not None:
         kwargs["target_url"] = req.target_url
     if req.target_app_path is not None:

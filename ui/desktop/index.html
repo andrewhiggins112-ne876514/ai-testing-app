@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk23" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk29" />
 </head>
 <body>
   <div id="app">
@@ -161,6 +161,10 @@
           <label class="stack-label">Jira base URL
             <input type="url" id="set-jira-url" placeholder="https://your-site.atlassian.net" autocomplete="off" />
           </label>
+          <label class="stack-label">Jira project key
+            <input type="text" id="set-jira-project" placeholder="KAN" autocomplete="off" maxlength="10" />
+          </label>
+          <p class="drawer-hint">FR-LEARN-4: default project for list/read when the agent or tools omit a key.</p>
           <h4 class="orb-section-label">Read Jira story</h4>
           <p class="drawer-hint">Fetch description and acceptance criteria by issue key (FR-JIRA-1). Credentials stay in the local store.</p>
           <label class="stack-label">Issue key
@@ -365,6 +369,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk28"></script>
+  <script src="/ui/desktop/desktop.js?v=desk29"></script>
 </body>
 </html>

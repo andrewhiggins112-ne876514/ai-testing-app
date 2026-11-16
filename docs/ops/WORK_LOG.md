@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-93** — First-class jira_project default for agent Jira reads |
-| **Start task** | **KAN-94** (`test`, Relates → KAN-93) |
-| **Epic** | (LEARN) |
-| **Roadmap ID** | FR-LEARN-4 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-LEARN-4 |
+| **Jira story** | **KAN-95** — Multi-sandbox real orchestration beyond stub |
+| **Start task** | **KAN-96** (`test`, Relates → KAN-95) |
+| **Epic** | (PLUG) |
+| **Roadmap ID** | FR-PLUG-1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-PLUG-1 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-94** |
-| **Shipped** | **KAN-91** / **KAN-92** Jira 429 backoff; **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
+| **Test ticket** | **KAN-96** |
+| **Shipped** | **KAN-93** / **KAN-94** jira_project default; **KAN-91** / **KAN-92** Jira 429 backoff; **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic connected |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-93 — First-class jira_project default for agent Jira reads (FR-LEARN-4)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-93
+- **Done:** `list_stories` / `jira_action` default to settings `jira_project` when project omitted; empty settings returns a clear “project key required” message. App Settings API + desktop (desk29 `set-jira-project`) + Gradio expose and save `jira_project`. Agent tool schemas make project optional and prompt asks for a key when the tool says required. Writes still confirm-gated.
+- **Files:** `plugins/jira_plugin.py`, `settings/store.py`, `main.py`, `agent/agent.py`, `ui/desktop/*`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_jira_project_default.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_jira_project_default.py tests/test_app_settings.py tests/test_jira_readonly.py tests/test_jira_read_ux.py -v` (22 passed). Live `list_stories()` with `jira_project=KAN` → ok + 50 stories. `POST /api/app-settings` jira_project=KAN → updated.
+- **Jira:** story agent-completion + **KAN-94** evidence/Done; **KAN-93** Done
+- **Next:** **KAN-95** multi-sandbox real orchestration beyond stub (test KAN-96)
 
 ### 2026-11-16 — KAN-91 — Jira rate-limit backoff and human-readable 429/auth errors (FR-JIRA-6)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-91

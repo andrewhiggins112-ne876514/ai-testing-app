@@ -227,8 +227,15 @@ async def jira_action(
         }
     if action != "list_stories":
         return {"error": "Unknown action"}
-    if not project or not _PROJECT.fullmatch(project):
-        return {"error": "project key required, for example PROJ"}
+    settings = load_settings()
+    key = (
+        str(project or "").strip().upper()
+        or str(settings.get("jira_project") or "").strip().upper()
+    )
+    if not key or not _LIST_KEY.fullmatch(key):
+        return {
+            "error": "project key required (argument or jira_project in settings), for example PROJ"
+        }
     creds = _creds()
     if not creds["url"] or not creds["token"]:
         return {
@@ -239,7 +246,7 @@ async def jira_action(
     if not _url_ok(creds["url"]):
         return {"error": "jira_url must start with https://"}
     try:
-        return await _search(creds["url"], creds["email"], creds["token"], project)
+        return await _search(creds["url"], creds["email"], creds["token"], key)
     except httpx.HTTPError as exc:
         detail = str(exc).replace(creds["token"], "***")[:200]
         return {"error": "jira_request_failed", "detail": detail}
@@ -343,13 +350,25 @@ async def _list_search(
 
 
 async def list_stories(
-    project: str,
+    project: Optional[str] = None,
     max: int = 50,
     issue_types: Any = None,
     include_description: bool = False,
 ) -> Dict[str, Any]:
-    """Read-only issue list. GET only. Missing URL or token returns unconfigured."""
-    key = str(project or "").strip().upper()
+    """Read-only issue list. GET only. Missing URL or token returns unconfigured.
+
+    Project defaults to settings jira_project when omitted (FR-LEARN-4).
+    """
+    settings = load_settings()
+    key = (
+        str(project or "").strip().upper()
+        or str(settings.get("jira_project") or "").strip().upper()
+    )
+    if not key:
+        return {
+            "status": "error",
+            "message": "project key required (argument or jira_project in settings)",
+        }
     if not _LIST_KEY.fullmatch(key):
         return {"status": "error", "message": "project key must be 1-10 characters, A-Z and 0-9"}
     clause = _type_clause(issue_types)

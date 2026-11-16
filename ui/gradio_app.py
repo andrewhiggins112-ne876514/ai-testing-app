@@ -1466,6 +1466,7 @@ def current_settings():
     return (
         data.get("security_level") or "OFFICIAL",
         data.get("jira_url") or "",
+        data.get("jira_project") or "",
         data.get("target_url") or "",
         data.get("target_app_path") or "",
         data.get("api_endpoint") or "",
@@ -1601,6 +1602,7 @@ def plugins_list_summary() -> str:
 def save_settings(
     level,
     jira_base_url,
+    jira_project="",
     target_url="",
     target_app_path="",
     api_endpoint="",
@@ -1625,6 +1627,7 @@ def save_settings(
             return result.get("message") or "Level switch failed.", settings_store_summary()
     saved = save_app_settings(
         jira_url=jira_base_url or "",
+        jira_project=jira_project or "",
         target_url=target_url or "",
         target_app_path=target_app_path or "",
         api_endpoint=api_endpoint or "",
@@ -1639,6 +1642,7 @@ def save_settings(
 def confirm_security_level(
     level,
     jira_base_url,
+    jira_project="",
     target_url="",
     target_app_path="",
     api_endpoint="",
@@ -1649,6 +1653,7 @@ def confirm_security_level(
     return save_settings(
         level,
         jira_base_url,
+        jira_project,
         target_url,
         target_app_path,
         api_endpoint,
@@ -1969,6 +1974,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
             (
                 loaded_level,
                 loaded_url,
+                loaded_project,
                 loaded_target,
                 loaded_exe,
                 loaded_msg,
@@ -1979,7 +1985,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 gr.HTML('<div class="panel-title">Settings</div>')
                 gr.HTML(
                     '<div class="panel-hint">Chat stays primary. Target URL, exe path, messaging '
-                    "endpoints, security, and Jira URL are first-class here — credentials never appear.</div>"
+                    "endpoints, security, and Jira URL/project are first-class here — credentials never appear.</div>"
                 )
                 gr.HTML('<div class="orb-section-label">Security</div>')
                 level = gr.Dropdown(
@@ -2012,6 +2018,12 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     placeholder="https://your-site.atlassian.net",
                     info="Site root only. Email and API token stay in the local settings file.",
                 )
+                jira_project_box = gr.Textbox(
+                    value=loaded_project,
+                    label="Jira project key (FR-LEARN-4)",
+                    placeholder="KAN",
+                    info="Default project for list/read when the agent omits a key.",
+                )
                 test_framework_dd = gr.Dropdown(
                     choices=["playwright", "selenium", "cypress"],
                     value=loaded_fw or "playwright",
@@ -2037,6 +2049,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                         [
                             level,
                             jira_base_url,
+                            jira_project_box,
                             target_url_box,
                             target_exe_box,
                             api_endpoint_box,
@@ -2050,6 +2063,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                         [
                             level,
                             jira_base_url,
+                            jira_project_box,
                             target_url_box,
                             target_exe_box,
                             api_endpoint_box,
@@ -2264,6 +2278,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
         outputs=[
             level,
             jira_base_url,
+            jira_project_box,
             target_url_box,
             target_exe_box,
             api_endpoint_box,

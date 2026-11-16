@@ -288,6 +288,7 @@ def app_settings_status() -> dict:
             f"Local store: {settings_path()}",
             f"Level: {level} | Browser profile: {browser_profile_dir(level)}",
             creds_label,
+            f"Jira project: {(data.get('jira_project') or '').strip() or '(not set)'}",
             f"Target URL: {target_url or '(not set)'} | Messaging: {api_endpoint or '(not set)'}",
             f"Desktop plugin: {'on' if desk_on else 'off'} | target_app_path: {app_path or '(not set)'}",
             f"Playwright suite path: {suite_path or '(not set)'}",
@@ -302,6 +303,7 @@ def app_settings_status() -> dict:
         "security_level": level,
         "browser_profile": str(browser_profile_dir(level)),
         "jira_url": (data.get("jira_url") or "").strip(),
+        "jira_project": (data.get("jira_project") or "").strip(),
         "jira_credentials_status": creds_status,
         "jira_credentials_label": creds_label,
         "jira_credentials_configured": creds_status == "configured",
@@ -336,8 +338,16 @@ def get_playwright_headless() -> bool:
     return bool(load_settings().get("playwright_headless", False))
 
 
+def _jira_project_ok(value: str) -> bool:
+    """True if empty (cleared) or 1–10 A-Z/0-9 characters."""
+    if not value:
+        return True
+    return bool(value.isalnum() and 1 <= len(value) <= 10 and value.upper() == value)
+
+
 def save_app_settings(
     jira_url: str | None = None,
+    jira_project: str | None = None,
     target_url: str | None = None,
     target_app_path: str | None = None,
     api_endpoint: str | None = None,
@@ -345,7 +355,7 @@ def save_app_settings(
     playwright_headless: bool | str | None = None,
     playwright_mode: str | None = None,
 ) -> dict:
-    """Persist App Settings targets for the active security level (FR-LEARN-2/3).
+    """Persist App Settings targets for the active security level (FR-LEARN-2/3/4).
 
     None means leave the existing value unchanged (partial updates safe).
     Explicit empty string clears a field.
@@ -362,6 +372,18 @@ def save_app_settings(
             )
             return payload
         update_setting("jira_url", jira, confirm=True)
+    if jira_project is not None:
+        project = jira_project.strip().upper()
+        if not _jira_project_ok(project):
+            payload = app_settings_status()
+            payload.update(
+                {
+                    "status": "error",
+                    "message": "Jira project key must be 1-10 characters, A-Z and 0-9.",
+                }
+            )
+            return payload
+        update_setting("jira_project", project, confirm=True)
     if target_url is not None:
         target = target_url.strip()
         if target and not _http_url_ok(target):

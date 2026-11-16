@@ -1147,6 +1147,7 @@
   const healStatus = document.getElementById("heal-status");
   const healRefresh = document.getElementById("heal-refresh");
   const setJiraUrl = document.getElementById("set-jira-url");
+  const setJiraProject = document.getElementById("set-jira-project");
   const jiraReadKey = document.getElementById("jira-read-key");
   const jiraReadBtn = document.getElementById("jira-read-btn");
   const jiraReadOut = document.getElementById("jira-read-out");
@@ -1239,6 +1240,9 @@
     if (!payload) return;
     if (setJiraUrl) {
       setJiraUrl.value = payload.jira_url || "";
+    }
+    if (setJiraProject) {
+      setJiraProject.value = payload.jira_project || "";
     }
     if (setTargetUrl) {
       setTargetUrl.value = payload.target_url || "";
@@ -1996,6 +2000,10 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             jira_url: setJiraUrl && setJiraUrl.value ? setJiraUrl.value.trim() : "",
+            jira_project:
+              setJiraProject && setJiraProject.value
+                ? setJiraProject.value.trim()
+                : "",
             target_url:
               setTargetUrl && setTargetUrl.value ? setTargetUrl.value.trim() : "",
             target_app_path:

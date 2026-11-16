@@ -71,10 +71,10 @@ Open FR Stories: KAN-77…KAN-81 (first seed remainder), plus gap pass KAN-83…
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-93** — First-class jira_project default for agent Jira reads (FR-LEARN-4; test KAN-94).
+**KAN-95** — Multi-sandbox real orchestration beyond stub (FR-PLUG-1; test KAN-96).
 
 **Deferred:** **KAN-81/82** voice input — until a microphone is connected (do last).
 
-**Done this cycle:** **KAN-91/92** — Jira 429 backoff / auth errors (FR-JIRA-6). **KAN-89/90** — Read story descriptions/AC (FR-JIRA-1). **KAN-87/88** desktop structured steps. **KAN-85/86** Jira AC → Playwright steps. **KAN-83/84** headed/headless. Earlier: **KAN-79/80** framework switch; **KAN-77/78** targets; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
+**Done this cycle:** **KAN-93/94** — jira_project default for agent reads (FR-LEARN-4). **KAN-91/92** — Jira 429 backoff / auth errors (FR-JIRA-6). **KAN-89/90** — Read story descriptions/AC (FR-JIRA-1). **KAN-87/88** desktop structured steps. **KAN-85/86** Jira AC → Playwright steps. **KAN-83/84** headed/headless. Earlier: **KAN-79/80** framework switch; **KAN-77/78** targets; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
 
 Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

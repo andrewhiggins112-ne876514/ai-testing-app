@@ -192,7 +192,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-AGENT-6 | Shipped (JSON-in-text fallback + grounded replies) | **Done** **KAN-61** |
 | FR-LEARN-1, FR-LEARN-5, FR-SET-2 | Shipped (ingest propose+confirm) | **Done** KAN-45 |
 | FR-LEARN-2, FR-LEARN-3 | Shipped (Settings + API + agent; level-scoped) | **Done** **KAN-77** |
-| FR-LEARN-4 | Open | **KAN-93** |
+| FR-LEARN-4 | Shipped (jira_project default + Settings field) | **Done** **KAN-93** |
 | FR-TEST-1 | Shipped (chat/spec + from Jira AC) | **Done** KAN-57; **Done** **KAN-85** |
 | FR-TEST-2 | Done (headed + headless setting) | **Done** KAN-9 baseline; **KAN-83** headless mode |
 | FR-TEST-3 | Done (smoke + structured steps) | **Done** KAN-47 smoke; **KAN-87** steps (`wait_window`/`type_text`/…) |
