@@ -17,7 +17,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | UI-DESK-1 | First native desktop window (pywebview mystic shell) | done | `desktop_app.py` + `ui/desktop/`; Gradio kept |
 | UI-DESK-2 | Desktop dual drawers + full-void orb canvas | done | App/screen drawers; no top nav; soft cyan glass |
 | UI-DESK-3 | Edge-snap drawer buttons + movable widgets | done | Shared shell surfaces; Widget Settings (opacity/border/bg) |
-| UI-DESK-4 | Dedicated App area screens + agent HUD widgets | now | **Active: KAN-103** — desk20: HUD widgets shipped (KAN-107); open KAN-109 hub, KAN-110 |
+| UI-DESK-4 | Dedicated App area screens + agent HUD widgets | now | **Active: KAN-103** — desk21b: hub polish shipped (KAN-109); open KAN-110 overlap, KAN-104 verify |
 
 ## Near term
 

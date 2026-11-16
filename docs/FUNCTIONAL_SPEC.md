@@ -180,7 +180,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next** (track in KAN; Active slice = **KAN-103** — hub polish **KAN-109**; **KAN-75** deferred)
+**Still open / next** (track in KAN; Active slice = **KAN-103** — overlap check **KAN-110**; **KAN-75** deferred)
 
 Rule: a Done Story covers only what it actually shipped. Remaining FR text must stay on open Stories (seed/reconcile via `scripts/jira_kan_seed_backlog.py`). Done parents have gap comments where needed.
 
@@ -213,7 +213,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-SEC-4 | Done | **KAN-71** |
 | FR-UI-1…5 | Baseline shipped | **Done** KAN-10/41/53/73; Voice **KAN-81** open |
 | FR-UI-6 | Done for Security + Reports mini panels (desk20); more widget types later | **KAN-103** / Task **KAN-107** Done; test **KAN-104** |
-| FR-UI-7 | Partial — dedicated surfaces + layout A–E shipped (desk19); hub polish open | **KAN-103**; Bug **KAN-102** Done; Tasks **KAN-106/112** Done; **KAN-109** open |
+| FR-UI-7 | Partial — dedicated surfaces + layout A–E + particle hub (desk21b); overlap verify open | **KAN-103**; Bug **KAN-102** Done; Tasks **KAN-106/109/112** Done; **KAN-110** open |
 | FR-SET-3 | Shipped — App Settings screen vs Orb settings (Screen drawer) | **Done** Task **KAN-108** under KAN-103 |
 | FR-PLUG-1 | Partial (registry + stubs) | **Done** KAN-55 stub; real sandboxes **KAN-95** |
 | FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |

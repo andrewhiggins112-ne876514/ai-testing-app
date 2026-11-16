@@ -765,6 +765,10 @@ html[data-area-open="true"] .hud-widget {
   outline: 1px solid var(--cyan);
 }
 
+.orb-hub-hit[aria-expanded="true"] {
+  box-shadow: 0 0 0 1px var(--cyan-border), var(--glow);
+}
+
 .orb-hub {
   position: absolute;
   left: 50%;
@@ -772,25 +776,112 @@ html[data-area-open="true"] .hud-widget {
   width: 0;
   height: 0;
   z-index: 5;
+  opacity: 0;
+  transform: scale(0.72);
+  transform-origin: center center;
+  transition: opacity 180ms ease, transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+
+.orb-hub.is-open {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.orb-hub.is-closing {
+  opacity: 0;
+  transform: scale(0.72);
+  pointer-events: none;
+}
+
+.hub-particle-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 520px;
+  height: 520px;
+  margin: -260px 0 0 -260px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.hub-line {
+  stroke: var(--cyan);
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  opacity: 0.42;
+  filter: drop-shadow(0 0 4px var(--cyan-dim));
+}
+
+.hub-node {
+  fill: var(--cyan);
+  opacity: 0.85;
+  filter: drop-shadow(0 0 6px var(--cyan));
+}
+
+.hub-particle {
+  fill: var(--cyan);
+  opacity: 0.55;
+  animation: hub-particle-drift 2.8s ease-in-out infinite;
+  animation-delay: calc(var(--p, 0) * 90ms);
+}
+
+@keyframes hub-particle-drift {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.95;
+  }
 }
 
 .hub-spoke {
   position: absolute;
   left: 0;
   top: 0;
-  transform: rotate(calc(var(--spoke) * 51.428deg)) translateY(-196px) rotate(calc(var(--spoke) * -51.428deg));
+  transform: rotate(calc(var(--spoke) * 51.428deg)) translateY(-210px) rotate(calc(var(--spoke) * -51.428deg)) scale(0.92);
   margin: -16px 0 0 -54px;
   min-width: 108px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid var(--cyan-border);
-  background: var(--shell-fill);
+  background: linear-gradient(180deg, var(--accent-soft-2), var(--shell-fill));
   color: var(--cyan);
   box-shadow: var(--glow);
   font: inherit;
   font-size: 12px;
   letter-spacing: 0.06em;
   cursor: pointer;
+  opacity: 0;
+  transition: opacity 160ms ease, transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), background 160ms ease, border-color 160ms ease;
+  transition-delay: calc(var(--spoke) * 28ms);
+}
+
+.orb-hub.is-open .hub-spoke {
+  opacity: 1;
+  transform: rotate(calc(var(--spoke) * 51.428deg)) translateY(-210px) rotate(calc(var(--spoke) * -51.428deg)) scale(1);
+}
+
+.hub-spoke:hover,
+.hub-spoke:focus-visible {
+  background: var(--accent-soft-2);
+  border-color: var(--cyan);
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb-hub,
+  .hub-spoke,
+  .hub-particle {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .orb-hub.is-open .hub-spoke {
+    opacity: 1;
+  }
 }
 
 .area-layer {

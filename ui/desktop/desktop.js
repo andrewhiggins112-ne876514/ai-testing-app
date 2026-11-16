@@ -1367,6 +1367,7 @@
   let areaLayout = "overlay";
   let openAreaName = "";
   let hudFlags = { security: false, reports: false };
+  let hubCloseTimer = 0;
 
   if (areaBody && sectionHost) {
     areaBody.appendChild(sectionHost);
@@ -1397,10 +1398,51 @@
     });
   }
 
+  function isHubOpen() {
+    return !!(orbHub && orbHub.classList.contains("is-open") && !orbHub.hidden);
+  }
+
+  function setHubOpen(open) {
+    if (!orbHub) return;
+    if (hubCloseTimer) {
+      window.clearTimeout(hubCloseTimer);
+      hubCloseTimer = 0;
+    }
+    if (open) {
+      orbHub.classList.remove("is-closing");
+      orbHub.hidden = false;
+      if (orbHubHit) {
+        orbHubHit.setAttribute("aria-expanded", "true");
+        orbHubHit.setAttribute("aria-label", "Close area hub");
+      }
+      window.requestAnimationFrame(function () {
+        orbHub.classList.add("is-open");
+      });
+      return;
+    }
+    const wasOpen = orbHub.classList.contains("is-open") && !orbHub.hidden;
+    orbHub.classList.remove("is-open");
+    if (orbHubHit) {
+      orbHubHit.setAttribute("aria-expanded", "false");
+      orbHubHit.setAttribute("aria-label", "Open area hub");
+    }
+    if (!wasOpen) {
+      orbHub.classList.remove("is-closing");
+      orbHub.hidden = true;
+      return;
+    }
+    orbHub.classList.add("is-closing");
+    hubCloseTimer = window.setTimeout(function () {
+      hubCloseTimer = 0;
+      orbHub.classList.remove("is-closing");
+      if (!orbHub.classList.contains("is-open")) orbHub.hidden = true;
+    }, 240);
+  }
+
   function syncHubAffordance() {
     const hubMode = areaLayout === "orb_hub" && !openAreaName;
     if (orbHubHit) orbHubHit.hidden = !hubMode;
-    if (!hubMode && orbHub) orbHub.hidden = true;
+    if (!hubMode) setHubOpen(false);
   }
 
   function clearSurfaceBox() {
@@ -1497,7 +1539,7 @@
     });
     if (areaTitle) areaTitle.textContent = AREA_LABELS[name] || name;
     if (areaLayer) areaLayer.hidden = false;
-    if (orbHub) orbHub.hidden = true;
+    setHubOpen(false);
     if (appDrawerHint) appDrawerHint.hidden = true;
     if (appDrawer && appDrawer.classList.contains("open")) {
       setDrawer(appDrawer, appToggle, false);
@@ -1526,7 +1568,7 @@
   if (orbHubHit) {
     orbHubHit.addEventListener("click", function () {
       if (areaLayout !== "orb_hub" || openAreaName) return;
-      if (orbHub) orbHub.hidden = !orbHub.hidden;
+      setHubOpen(!isHubOpen());
     });
   }
   document.querySelectorAll('input[name="area-layout"]').forEach(function (input) {
@@ -1537,13 +1579,13 @@
   });
   document.addEventListener("keydown", function (ev) {
     if (ev.key !== "Escape") return;
-    const hubOpen = orbHub && !orbHub.hidden;
+    const hubOpen = isHubOpen();
     if (!hubOpen && !openAreaName) return;
     if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA")) {
       ev.target.blur();
     }
     if (hubOpen) {
-      orbHub.hidden = true;
+      setHubOpen(false);
       ev.preventDefault();
       return;
     }

@@ -9,14 +9,14 @@
 |-------|--------|
 | **Status** | in progress |
 | **Jira story** | **KAN-103** — Desktop nav: dedicated area screens + agent-home widgets + App Settings split |
-| **Start task** | **KAN-109** — Orb hub particle polish (open Task; AC on Jira) |
+| **Start task** | **KAN-110** — KAN-101 drawer toggle vs Settings nav overlap check |
 | **Epic** | KAN-27 (Desktop shell) |
 | **Roadmap ID** | UI-DESK-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-6/7, FR-UI-3 accent coupling, FR-SET-3 |
-| **Git** | `main` (desk20 HUD) |
+| **Git** | `main` (desk21b hub) |
 | **Test ticket** | **KAN-104** (`test`, Relates → KAN-103) |
-| **Shipped (desk20)** | desk19 layouts + **KAN-107** HUD mini panels (Security / Reports), Screen drawer toggles, `GET /api/reports/latest-summary`; Tasks **KAN-106/107/108/112** Done |
-| **Still open** | **KAN-109** hub polish, **KAN-110** KAN-101 check, **KAN-104** full verify. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
+| **Shipped (desk21b)** | desk20 HUD + **KAN-109** particle orb hub (SVG spokes/nodes, open/close motion, accent vars); Tasks **KAN-106/107/108/109/112** Done |
+| **Still open** | **KAN-110** KAN-101 overlap, **KAN-104** full verify. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
 | **Deferred** | **KAN-75** heal proposal review UI — after **KAN-103** closes |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-109 — Orb hub particle polish (desk21b)
+- **Agent/chat:** Cursor IDE Agent (Composer) — desktop shell
+- **Done:** Particle hub for layout `orb_hub`: SVG spoke lines, node dots, drifting particles, accent CSS vars, open/close scale motion + `aria-expanded` on orb hit. App drawer remains a11y fallback. Cache-bust desk21b. Fixed hub `[hidden]` display override that could steal hits while closed.
+- **Files:** `ui/desktop/index.html`, `desktop.js`, `desktop.css`, `desktop_app.py`, `tests/test_orb_hub.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, KAN102 plan, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_orb_hub.py tests/test_area_layout.py tests/test_hud_widgets.py -v` (12 passed). Computer Use on `desktop_app.py` desk21b: App → Documents opens dedicated surface (Back returns home). Hub radial polish unit-covered; full orb-hub click path deferred to KAN-110 when App-toggle/chat overlap is cleared.
+- **Jira:** Task **KAN-109** Done + agent comment; progress on **KAN-103**; evidence on **KAN-104**; Bug **KAN-113** (App/chat nav hit conflict) Relates → KAN-103/104/110 (story stays In Progress)
+- **Next:** **KAN-110** KAN-101 drawer toggle vs Settings nav overlap under **KAN-103**
 
 ### 2026-11-16 — KAN-107 — Agent-home HUD widgets (desk20)
 - **Agent/chat:** Cursor IDE Agent (Composer) — desktop shell
