@@ -8,6 +8,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
+| TESTALL-A | Test-all alpha (A1–A9) — in-app plan/suite spine | now | Catalogue `docs/ops/test_all_catalogue.json`; first story A1; cut nothing |
 | UI-6a | Orb settings behind top-right gear (clean chat dash) | done | Chatbot/input settings icons later |
 | UI-6 | Movable/resizable panels | done | Desktop resize + persist (KAN-53); Gradio orb panel resize parity |
 | OPS-1 | Cursor ops (rules, agents, skills, HOW_WE_WORK) | done | Merged to main via PR #1 |
@@ -47,16 +48,22 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 |----|------|-------|
 | DESK-1 | Desktop `.exe` testing plugin | **done** — KAN-47; `plugins/desktop_runner.py` smoke + toggle |
 | MULTI-1 | Multi-sandbox orchestration | **done** — KAN-55 stub + **KAN-95** real local records/status/prepare |
-| VOICE-1 | Voice input | **KAN-81** (test KAN-82) — **deferred** until mic connected (last) |
-| SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
+| VOICE-1 | Voice input | **KAN-81** / Test-all **G10** — deferred until mic; stays in product |
+| SALES-1 | Installer / second PC | Test-all **G11** after alpha used |
+| TESTALL-B…F | Failures, project plan, run policy, privacy, role widgets | later | After A9; F = HUD packs on **orb home** (not separate homes) |
+| TESTALL-G | Plugins widen (desktop cases, API, a11y, …) | later | Stubs stay until deepened |
+| TESTALL-H | Manual capture + pipelines + multi-PC share | future | Design-only until later council |
 
-FR gap pass KAN-83…KAN-99 complete. Remaining open FR Story: **KAN-81** voice (deferred). Full FR→ticket matrix: `docs/FUNCTIONAL_SPEC.md` §5.
+FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product track: Test-all A–H. Voice **KAN-81** deferred. Matrix: `docs/FUNCTIONAL_SPEC.md` §5. Catalogue: `docs/ops/test_all_catalogue.json`.
+
+**Near/Mid “done” rows below are prototype baselines** — still in the product; deepen via Test-all, do not cut.
 
 ## Blocked / waiting on you
 
 | ID | Blocker |
 |----|---------|
 | CRED-1 | Real credentials only in local settings store, never chat/repo |
+| VOICE-MIC | Microphone before KAN-81 / G10 |
 
 **Resolved (2026-11-15):** **JIRA-LIVE** — site `https://ai-testing-lab.atlassian.net`, project **KAN**. Token in local settings; agent Jira writes remain two-step confirm.
 
@@ -71,8 +78,8 @@ FR gap pass KAN-83…KAN-99 complete. Remaining open FR Story: **KAN-81** voice 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-81** — Voice input (FR-UI voice; test KAN-82) — **deferred** until a microphone is connected (do last). No other open FR gap Stories from the KAN-83…99 pass.
+**Test-all A1** — Local plan, suite, case, and run model (FR-PLAN-1/2). Then A2–A9. Do **not** start **KAN-81** while deferred.
 
-**Done this cycle:** **KAN-99/100** — Jira write audit (`jira_write_audit.jsonl`). **KAN-97/98** — busy/long-run UX (desk31 busy bar + cancel + `/chat` ok flag). **KAN-95/96** — multi-sandbox real local orchestration (FR-PLUG-1). **KAN-93/94** — jira_project default for agent reads (FR-LEARN-4). **KAN-91/92** — Jira 429 backoff / auth errors (FR-JIRA-6). **KAN-89/90** — Read story descriptions/AC (FR-JIRA-1). **KAN-87/88** desktop structured steps. **KAN-85/86** Jira AC → Playwright steps. **KAN-83/84** headed/headless. Earlier: **KAN-79/80** framework switch; **KAN-77/78** targets; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
+**Council CR (2026-11-16):** Test-all vision locked; 48-story catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
 
-Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.
+Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

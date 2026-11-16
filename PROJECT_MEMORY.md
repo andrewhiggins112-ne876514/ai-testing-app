@@ -1,22 +1,16 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-16 (Advisory Council Room added; Build pick-up unchanged)
+Last updated: 2026-11-16 (Test-all CR — catalogue A–H; cut nothing; orb home + widgets)
 
 ## Original Vision
-A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
+A downloadable local-first **“test all”** application. The tester connects once (Jira, targets, docs, security level) and does testing work **inside the app**. Conversation (text first; voice later as a plugin) is the way in; the **orb + chat home is one home for everyone**; role needs are **HUD widgets**; App areas are full-window work.
 
-The tool should solve real testing pain for software companies:
-- Generate and run tests from functional specs, Jira stories, or existing Playwright suites
-- Self-heal when locators break
-- Bi-directional Jira/Xray integration (read, create tests, pass/fail, create bugs)
-- Test both large browser-based applications and desktop (.exe) applications
-- Support UK security levels (OFFICIAL / SECRET) with isolation
-- Stay local / on-prem capable (no mandatory API tokens)
-- Customisable reporting for management
-- Document ingestion that can propose settings (URLs, APIs, credentials) with confirmation
+Primary artifacts: **in-app test plan and suite** (view/run in-app). Import existing Playwright projects as input; pipelines are a later section; manual session recording is future design. Agent drafts from one story or a whole Jira project + uploaded docs; run single or selected cases; evidence; confirm-gated Jira; customisable reports.
 
-Long-term goal: dominate the testing space for companies that want a capable local/on-prem AI testing tool rather than another cloud SaaS.
+Also: self-heal with human review; browser + desktop AUTs; OFFICIAL/SECRET; local/on-prem; plugins for later widen (frameworks, sandboxes, voice, a11y, perf, …). **Cut nothing** already built — sequence and deepen.
+
+Long-term goal: the most-used local/on-prem testing hub for testers, developers, and managers — not another cloud SaaS.
 
 ## Key Decisions So Far
 - Local-first on high-end laptops (home machine for development, work Dell XPS 15s as target).
@@ -44,6 +38,8 @@ Long-term goal: dominate the testing space for companies that want a capable loc
 - **Desktop nav model (2026-11-15, KAN-102 CR):** Agent home = chat + orb primary. Mockup side panels = **toggleable HUD widgets** (Screen drawer), not App-area content. Each App nav area (Settings, Security, Reports, …) = **dedicated full-window surface** — not inline `app-section-*` in the App drawer. **App Settings** (connectors, Jira, creds) ≠ **Orb settings** (visual style/size/spin in Screen drawer). Orb-as-hub particle nav = optional later flourish. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md`.
 
 ## Current State
+**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (48 stories, epics A–H). Alpha stop line: A1–A9. Next Build: **A1** local plan/suite/case/run model (not KAN-81).
+
 Skeleton + substantial features exist:
 - `agent/agent.py` — Ollama tool-calling loop with clarification rules and sessions; **FR-AGENT-6 (KAN-61):** JSON-in-text tool fallback parser, `think: false` + `num_ctx`, grounded replies that never claim success on failed tool results; **FR-SEC-4 (KAN-71):** system prompt + tool-result untrusted fencing, `temperature: 0.2`, confirm args ignored for settings/delete (exact user yes/confirm only), SECRET-narrowed tool surface
 - `agent/prompt_guard.py` — prompt-injection mitigations (wrap untrusted, injection heuristics, high-privilege refuse, SECRET filter)
@@ -109,5 +105,6 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-99** — Audit log for Jira write operations (FR-JIRA-5; test KAN-100).
-2. Continue open FR Stories in WORK_LOG / FUNCTIONAL_SPEC §5 order; **KAN-81** voice last (needs mic).
+1. **Test-all A1** — Local plan, suite, case, and run model (first alpha story; see WORK_LOG Active slice / Jira).
+2. Continue **A2–A9** in order, then Epic B (failures for developers).
+3. **KAN-81** voice stays deferred (mic; catalogue G10) — do not pick up while deferred.

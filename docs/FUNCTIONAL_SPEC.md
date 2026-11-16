@@ -1,26 +1,34 @@
 # Functional Specification — AI Testing Application
 
-**Version:** 1.0  
-**Date:** 2026-11-15  
-**Status:** Draft for review  
-**Sources:** Original Grok share chats, `PROJECT_MEMORY.md`, `docs/ops/ROADMAP.md`, current codebase structure, and research into common failure modes of vibe-coded / AI-agent applications of similar nature.
+**Version:** 1.1  
+**Date:** 2026-11-16  
+**Status:** Living — prototype toward test-all (CR 2026-11-16)  
+**Sources:** Original vision, `PROJECT_MEMORY.md`, `docs/ops/ROADMAP.md`, Council CR catalogue `docs/ops/test_all_catalogue.json`, codebase, research into common failure modes of vibe-coded / AI-agent applications.
 
 ---
 
 ## 1. Purpose and Vision
 
-A local-first, conversational AI testing agent that helps senior test engineers and small teams generate, execute, self-heal, and report on tests for both browser-based and desktop applications. The primary interface is a natural-language conversation (text first; voice later). Everything else (settings, reports, Jira, orb visualiser, plugins) lives in secondary panels or drawers.
+A **downloadable, local-first “test all” application**. A tester installs it on Windows, enters connection details once (Jira, target URL / exe, documents, security level, Ollama model), and does their testing work **inside the app**.
+
+The **primary surface** is the desktop **orb + chat home** (one home for everyone). Role-specific needs (tester, manager, release, product owner) are **HUD widgets** on that home (Screen drawer), not separate homes. App areas (Plan/Suite, Settings, Heal, Reports, Security, Documents, Desktop, Suites, Sandboxes, …) are dedicated full-window surfaces opened from home.
+
+**Primary artifacts** are the **in-app test plan and suite** (viewed and run in the application). An existing Playwright git repo can be **imported** as an input; it is not the primary UX. Pipelines / CI are a **separate later section**. Manual session recording that updates tickets is **future** work (needs its own design pass).
+
+The agent is the way in: clarify before acting; draft plans from **one Jira story or a whole Jira project** (epics, stories, tests, bugs) plus **uploaded documentation**; run a **single case** or a selected set; show failures, evidence, metrics; export management reports with chosen sections. Jira writes stay human-confirmed. Start with common practice (Playwright, Jira, browser apps), then widen via **plugins** (desktop AUT, other frameworks, sandboxes-as-env, voice, a11y, perf, …). **Cut nothing** already in the product — sequence and deepen; park means later phase/plugin.
+
+**Maturity (2026-11-16):** the shipped tree is an honest **prototype** (baseline plugins + shell). Done KAN tickets are baselines toward this vision, not a finished product. Active product track: Test-all epics A–H in `docs/ops/test_all_catalogue.json`.
 
 **Core value proposition**
-- Generate and run tests from functional specifications, Jira stories/epics, or existing Playwright suites.
-- Self-heal broken locators without weakening the actual assertions.
-- Bi-directional Jira/Xray integration (read, create tests, update status, raise bugs) with explicit human confirmation on writes.
-- Support UK security classifications (OFFICIAL / SECRET) with isolation of credentials and browser profiles.
-- Stay fully local / on-prem capable (Ollama + no mandatory cloud tokens).
-- Customisable reporting.
-- Document ingestion that proposes settings with confirmation.
+- Connect once; work entirely in-app (plan → suite → run → evidence → report).
+- Generate and run tests from specs, Jira (story or project), or imported Playwright suites.
+- Self-heal broken locators without weakening assertions (human review).
+- Bi-directional Jira integration (read, create tests, update status, raise bugs) with confirm on writes; Xray-shaped sync later if needed.
+- UK OFFICIAL / SECRET isolation; local / on-prem (Ollama; no mandatory cloud).
+- Customisable reporting and role HUD widgets on the shared orb home.
+- Document ingestion that proposes settings **and** feeds plans, with confirmation.
 
-**Long-term goal:** A capable local/on-prem alternative to cloud SaaS testing tools, aimed at organisations that cannot or will not send test data or credentials to the cloud.
+**Long-term goal:** The most-used local/on-prem testing hub for testers, developers, and managers — a capable alternative to cloud SaaS testing tools.
 
 ---
 
@@ -59,8 +67,17 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - **FR-TEST-2:** Execute browser tests via Playwright (headed or headless). First-class support for Playwright; other frameworks as plugins later.
 - **FR-TEST-3:** Execute desktop tests via a separate plugin (do not fork the Playwright runner).
 - **FR-TEST-4:** Capture screenshots / evidence on failure and success where useful.
-- **FR-TEST-5:** Support existing Playwright suites (import and run).
+- **FR-TEST-5:** Support existing Playwright suites (import and run). Import can be shown as cases in the in-app suite (FR-PLAN-2); the external project files are not deleted; `npx` run remains available.
 - **FR-TEST-6:** Negative tests and edge cases must be first-class. The agent must not optimise only for the happy path. Generated tests that only check visibility or nearby elements without asserting the actual expected outcome are incomplete.
+
+### 3.3a Connection, in-app plan / suite (test-all)
+- **FR-CONN-1:** The person can save a connection profile: Jira site and project, target URL, optional desktop path and messaging endpoint, security level, optional documents, and the Ollama model to use. Stored only in the local level-scoped settings. Secrets never shown back in full. A health check reports whether Jira, Ollama, and the target are reachable without printing secrets.
+- **FR-PLAN-1:** The app holds a **test plan** (intent, sources, links to Jira keys and documents) that the person can view and edit before a run.
+- **FR-PLAN-2:** The app holds a **suite** of cases and runs them **inside the app**. The person can run one case or a selected set (e.g. by tag). Cases can be reordered, disabled, archived, tagged, and prioritised without deleting history.
+- **FR-PLAN-3:** The agent may draft or update a plan from one Jira issue or, in the project-scale phase, from the connected Jira project (epics, stories, tests, bugs) plus uploaded documents. Drafts are batched with a visible cap. The person reviews the plan before execution. Jira writes stay on FR-JIRA-5.
+- **FR-PLAN-4:** A run stores result, evidence, duration, and failure class on the case. Heal proposals and report sections can attach to that run. Traceability links case ↔ Jira key ↔ bugs ↔ known issues.
+- **FR-CI-1 (later):** Pipelines and CI live in a **separate section** of the app. They do not replace the in-app suite as the place tests are authored and reviewed. Design before build (catalogue H2).
+- **FR-MAN-1 (future):** A manual / exploratory session may be recorded and proposed as ticket updates after confirm. Requires a design pass before implementation (catalogue H1). Not in alpha.
 
 ### 3.4 Self-Healing (Critical Guardrails)
 - **FR-HEAL-1:** Self-healing may only change *how* an element is located (locator strategy, role-based selector, etc.). It must never change *what* is asserted or the expected values without explicit human approval.
@@ -75,7 +92,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - **FR-HEAL-5:** All heals are logged with classification, evidence, and approver.
 
 ### 3.5 Jira / Xray Integration
-- **FR-JIRA-1:** Read stories, epics, and acceptance criteria.
+- **FR-JIRA-1:** Read stories, epics, and acceptance criteria. Supports a single issue and, on the project-scale story, paged reads of the configured project with FR-JIRA-6 backoff.
 - **FR-JIRA-2:** Create linked test tickets (with structured description / steps where possible).
 - **FR-JIRA-3:** Update test ticket status to Done when criteria are covered.
 - **FR-JIRA-4:** Create user-friendly bug tickets when defects are found.
@@ -99,12 +116,12 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - **FR-SEC-5:** Secrets never leave the local settings store or are written to client-side code / logs.
 
 ### 3.8 UI and Desktop Experience
-- **FR-UI-1:** Conversational interface is primary on the **agent home screen** (chat + central orb). App drawer and screen drawer are secondary shells for navigation and layout — not replacements for the home canvas.
+- **FR-UI-1:** Conversational interface is primary on the **agent home screen** (chat + central orb). **One home for everyone** — there is no separate Tester/Manager/PO landing. App drawer and screen drawer are secondary shells for navigation and layout — not replacements for the home canvas.
 - **FR-UI-2:** Native Windows desktop window (pywebview + Edge WebView2) is the preferred experience. Gradio remains available.
 - **FR-UI-3:** Visual orb styles (Mystic, Aether, Neural, Apex and classic canvas styles) with per-style settings, live controls, and theme accent that follows the active style. **Orb settings** (style, size, spin, glow, colours) live in the **Screen drawer** only — not under App → Settings. The active style accent (CSS variables such as `--cyan`, border, glow, and muted text) also paints App nav, area surfaces (overlay, stage, split, floating), HUD chips, hub spokes, and the App Settings layout picker — not only the orb canvas. *(CR 2026-11-16 — layout modes × style theme.)*
 - **FR-UI-4:** Movable / resizable panels and widgets (UI-6). Layout persists in localStorage.
 - **FR-UI-5:** Widget settings (transparency, border, background) apply live to shell surfaces.
-- **FR-UI-6:** **Agent-home HUD widgets** — optional toggleable widgets on the agent home screen (status chips, mini panels, etc. as shown in mystic/neural mockup side layers). Visibility and layout controls sit alongside existing Screen drawer toggles (chat output widget, orb visibility, widget chrome) — not as App → Settings list content.
+- **FR-UI-6:** **Agent-home HUD widgets** — optional toggleable widgets on the agent home screen (status chips, mini panels, role packs for tester / manager / release / coverage, checklist, etc.). Visibility and layout controls sit alongside existing Screen drawer toggles (chat output widget, orb visibility, widget chrome) — not as App → Settings list content. Widgets summarise and deep-link into App areas; they do not replace Plan/Suite, Reports, Heal, or Settings surfaces.
 - **FR-UI-7:** **Dedicated area screens** — each App-nav area (Settings, Security, Reports, Documents, Desktop, Suites, Sandboxes, and future areas) opens its own **dedicated surface**. The App drawer is a navigation list only; it must **not** expand inline `app-section-*` blocks. **App area layout** (App Settings, not Orb settings) chooses how that surface appears, persisted in `localStorage` key `desktop-area-layout-v1`:
   - `overlay` — full-bleed glass over a dimmed home (mockup A)
   - `stage` — area stage with the orb scaled to a corner pip (mockup B)
@@ -168,21 +185,24 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 
 ## 5. Current State vs Target
 
-**Already present (as of 2026-11-15)**
+**Maturity:** Prototype (2026-11-16). Baseline plugins and desktop shell exist; in-app plan/suite and the daily test-all path are the active CR track (`docs/ops/test_all_catalogue.json`, epics A–H).
+
+**Already present (prototype baselines)**
 - Ollama tool-calling agent with clarification and sessions (default `qwen2.5-coder:7b`; also `qwen3:8b` / `llama3.2` on D:).
 - Playwright runner with click + fill locator self-heal (assertions never auto-healed), heal proposals/audit log, and evidence.
 - Step generation + quality (KAN-57): `generate_playwright_steps` / `playwright_steps.py` builds happy + negative drafts with `expect_text`/`expect_url`; visibility-only drafts flagged/rejected; failure screenshots always; success evidence via `playwright_success_evidence`.
-- Jira plugin (list/create/transition/comment; writes need confirm) against live project **KAN**.
-- Local settings store (`%LOCALAPPDATA%\ai_testing_app\`).
-- FastAPI backend + Gradio UI + native desktop window with WebGL hero orbs (mystic/aether/neural/apex).
+- Jira plugin (list/create/transition/comment; writes need confirm) against live project **KAN**; write audit; 429 backoff; jira_project default; read_issue.
+- Local settings store (`%LOCALAPPDATA%\ai_testing_app\`); OFFICIAL/SECRET isolation; GDPR wipe.
+- FastAPI backend + Gradio UI + native desktop window with WebGL hero orbs (mystic/aether/neural/apex); HUD widgets; App area layouts.
 - Reports exporter with customisable sections (summary / stories / bugs / evidence; KAN-51).
-- Cursor ops (rules, agents, skills), `docs/ops/WORK_LOG.md` handoff, multi-audience KAN backlog (epics KAN-20…29).
+- Desktop `.exe` plugin, multi-sandbox local records, framework switch stub, document ingest, busy/cancel UX.
+- Cursor ops (rules, agents, skills), Advisory Council Room, `docs/ops/WORK_LOG.md` handoff, multi-audience KAN backlog (epics KAN-20…29 + Test-all A–H).
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next** (track in KAN; Active slice = next open Story after **KAN-77**; **KAN-75** heal review + **KAN-77** LEARN-2/3 Done)
+**Still open / next:** Test-all catalogue — alpha **A1–A9** first (local plan/suite model → connect → draft → edit → single run). Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
 
-Rule: a Done Story covers only what it actually shipped. Remaining FR text must stay on open Stories (seed/reconcile via `scripts/jira_kan_seed_backlog.py`). Done parents have gap comments where needed.
+Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
 ### FR → ticket coverage matrix
 
@@ -197,7 +217,11 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-TEST-2 | Done (headed + headless setting) | **Done** KAN-9 baseline; **KAN-83** headless mode |
 | FR-TEST-3 | Done (smoke + structured steps) | **Done** KAN-47 smoke; **KAN-87** steps (`wait_window`/`type_text`/…) |
 | FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
-| FR-TEST-5 | Shipped | **Done** **KAN-59** |
+| FR-TEST-5 | Shipped baseline import/run; in-suite import deepen | **Done** **KAN-59**; Test-all **C8** |
+| FR-CONN-1 | Open (test-all) | Test-all **A2**, **A3**, **D3**, **D4** |
+| FR-PLAN-1…4 | Open (test-all) | Test-all epic **A** then **B–C** |
+| FR-CI-1 | Future (design) | Test-all **H2** |
+| FR-MAN-1 | Future (design) | Test-all **H1** |
 | FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |
 | FR-HEAL-2 | Shipped review UI (approve/reject; no auto-commit) | **Done** **KAN-75** |
 | FR-JIRA-1 | Shipped (list + read_issue + UX) | **Done** KAN-12 list; **KAN-85** `read_issue`/gen; **KAN-89** agent tool + `/api/jira-issue` + App Settings Read story |
@@ -212,18 +236,17 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-SEC-2 | Done | **KAN-69** |
 | FR-SEC-4 | Done | **KAN-71** |
 | FR-UI-1…5 | Baseline shipped | **Done** KAN-10/41/53/73; Voice **KAN-81** deferred (mic; last) |
-| FR-UI-6 | Done for Security + Reports mini panels (desk20); more widget types later | **KAN-103** / Task **KAN-107** Done; test **KAN-104** |
-| FR-UI-7 | Partial — dedicated surfaces + layout A–E + particle hub + overlap fix (desk22g); full verify open | **KAN-103**; Bug **KAN-102/101/113** Done; Tasks **KAN-106/109/110/112** Done; **KAN-104** open |
+| FR-UI-6 | Baseline Security + Reports widgets; role packs later | **Done** **KAN-103** / **KAN-107** / **KAN-104**; Test-all **F1–F7** |
+| FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix | **Done** **KAN-103** / **KAN-104** (desk22g) |
 | FR-SET-3 | Shipped — App Settings screen vs Orb settings (Screen drawer) | **Done** Task **KAN-108** under KAN-103 |
 | FR-PLUG-1 | Shipped registry + local multi-sandbox orchestration | **Done** KAN-55 stub + **KAN-95** (test **KAN-96**) |
 | FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |
 | FR-PLUG-3 | Stub shipped (Playwright default; others not-implemented) | **Done** **KAN-79** (test **KAN-80**) |
 | FR-SET-1 | Shipped local store | **Done** KAN-16 |
 
-**Open Stories (To Do):** KAN-57…KAN-81 (first seed), KAN-83…KAN-99 (FR gap pass). Each has a linked `test` Task (KAN-58…KAN-100).
+**Open product track:** Test-all Stories A1–H3 (see catalogue / Jira epics “Test-all A–H”). Voice **KAN-81** / **KAN-82** deferred. FR gap pass KAN-83…KAN-99 is **Done** as baselines.
 
-**Recently done (2026-11-15)** — baseline only; see matrix for remainder  
-Gradio Settings/Reports (**KAN-10**); UI-6 (**KAN-53**); heal (**KAN-14**/**KAN-49**); report sections (**KAN-51**); doc ingest (**KAN-45**); OFFICIAL/SECRET (**KAN-15**); desktop smoke (**KAN-47**); multi-sandbox stub (**KAN-55**).
+**Recently done** — prototype baselines (not product-complete). See matrix and WORK_LOG.
 
 ---
 
@@ -231,12 +254,14 @@ Gradio Settings/Reports (**KAN-10**); UI-6 (**KAN-53**); heal (**KAN-14**/**KAN-
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN** (QA Testing). Credentials in local settings only; agent writes still two-step confirm. |
+| Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN**. Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
-| Model tool-calling reliability | Open | **KAN-61** |
+| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; alpha A1–A9 first |
+| Voice input | Deferred | **KAN-81**; mic; later G10 |
+| Model tool-calling reliability | **Done** baseline | **KAN-61** |
 | Self-healing guardrails (policy) | **Done** (KAN-49) | Review UI **Done** (KAN-75) |
-| Security isolation | **Done** (KAN-15) | GDPR delete **Done** (KAN-69); prompt-injection **Done** (KAN-71) |
-| Document ingestion | **Done** (KAN-45) | LEARN-2/3/4 remain open Stories |
+| Security isolation | **Done** (KAN-15) | GDPR **KAN-69**; prompt-injection **KAN-71** |
+| Document ingestion | **Done** baseline (KAN-45) | Deepen via FR-PLAN-3 / E1 |
 
 ---
 

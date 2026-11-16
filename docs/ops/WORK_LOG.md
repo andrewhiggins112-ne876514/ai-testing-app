@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | deferred |
-| **Jira story** | **KAN-81** — Voice input (last) |
-| **Start task** | **KAN-82** (`test`, Relates → KAN-81) |
-| **Epic** | (UI) |
-| **Roadmap ID** | VOICE-1 / FR-UI voice |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI voice |
+| **Status** | ready |
+| **Jira story** | **KAN-125** — Test-all A1 — Local plan, suite, case, and run model |
+| **Start task** | **KAN-126** (`test`, Relates → KAN-125) |
+| **Epic** | **KAN-117** — Test-all A — Usable lab (alpha) |
+| **Roadmap ID** | TESTALL-A / FR-PLAN-1/2 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` §1 + FR-CONN/FR-PLAN; catalogue `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-82** |
-| **Shipped** | **KAN-99** / **KAN-100** Jira write audit; **KAN-97** / **KAN-98** busy/long-run UX; **KAN-95** / **KAN-96** multi-sandbox; **KAN-93** / **KAN-94** jira_project default; **KAN-91** / **KAN-92** Jira 429 backoff; **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
-| **Deferred** | **KAN-81** / **KAN-82** voice — until mic connected |
+| **Test ticket** | **KAN-126** |
+| **Shipped** | Prototype baselines through **KAN-99**/**KAN-100**; Test-all backlog seeded **KAN-117…KAN-246** |
+| **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
-When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
+When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
 ---
 
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — OPS — Test-all CR (docs + Jira catalogue)
+- **Agent/chat:** Council Room → option 2 after expanded catalogue + orb-home widgets amend
+- **Done:** Locked test-all vision (cut nothing; in-app plan/suite; one orb home + HUD widgets). Updated FUNCTIONAL_SPEC (FR-CONN/FR-PLAN/FR-CI/FR-MAN), PROJECT_MEMORY, ROADMAP, work-log-handoff deferred guard. Seeded Jira epics **KAN-117…124**, stories+tests **KAN-125…246**. Commented **KAN-81**. Active slice → **KAN-125** (A1).
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `docs/ops/test_all_catalogue.json`, `scripts/jira_kan_seed_test_all.py`, `PROJECT_MEMORY.md`, `docs/ops/ROADMAP.md`, `docs/ops/WORK_LOG.md`, `.cursor/rules/work-log-handoff.mdc`
+- **Verify:** Jira keys created; dry-run then seed exit 0; FIRST_ALPHA_STORY=KAN-125
+- **Jira:** backlog seed (not a product-feature close-out); KAN-81 comment posted
+- **Next:** Build chat pick-up **KAN-125** (A1 plan/suite model)
 
 ### 2026-11-16 — OPS — Advisory Council Room (separate from Build pick-up)
 - **Agent/chat:** Cursor IDE Agent — design + land council roster

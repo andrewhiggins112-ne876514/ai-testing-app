@@ -11,11 +11,12 @@ When the user says **pick up where we left off**, **continue**, **next slice**, 
 
 1. **`git pull origin main`** first (on `main`; stash local WIP if needed). Do this at the opening of a new Agent chat / pick-up — before coding. Never ask the human to pull.
 2. Read `docs/ops/WORK_LOG.md` **Active slice** table (do not re-scan the whole repo first).
-3. **`supermemory_search`** (`workspaceRoot` = repo root, container project/both) for the Active slice / related decisions — then proceed even if search errors.
-4. Read that Jira story’s description (**REST fallback** if Atlassian MCP fails) for Requirements + AC.
-5. Start implementing that story immediately. One slice only.
-6. Prefer free/Auto/Composer unless the slice needs a stronger model.
-7. Verify visible product UI via **`desktop_app.py` + Computer Use** (native window). Do not open the desktop shell in a browser. IronBee browser only for AUT pages or Gradio-only slices.
+3. If **Status** is **`deferred`**, do **not** implement that story. Stop and use the table’s **Next / Shipped** guidance (or the agreed Test-all Active story). Never start **KAN-81** voice while deferred.
+4. **`supermemory_search`** (`workspaceRoot` = repo root, container project/both) for the Active slice / related decisions — then proceed even if search errors.
+5. Read that Jira story’s description (**REST fallback** if Atlassian MCP fails) for Requirements + AC.
+6. Start implementing that story immediately. One slice only. While the Test-all track is active: add in-app plan/suite / widgets; **do not remove** Gradio, orb, layouts, voice, desktop plugin, sandboxes, or framework stubs.
+7. Prefer free/Auto/Composer unless the slice needs a stronger model.
+8. Verify visible product UI via **`desktop_app.py` + Computer Use** (native window). Do not open the desktop shell in a browser. IronBee browser only for AUT pages or Gradio-only slices.
 
 ## After every finished (or paused) slice
 
