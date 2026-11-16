@@ -23,13 +23,15 @@
 - **FR coverage:** Every `FR-*` in `docs/FUNCTIONAL_SPEC.md` must map to a KAN Story (see §5 matrix). If a Story is Done but FR text is unfinished, keep/create open gap Stories (do not pretend Done = full FR). Reconcile with `python scripts/jira_kan_seed_backlog.py`.
 - **User change requests (CRs):** When the human changes product intent, scope, AC, or behaviour (including informal “actually do X instead”), update **all** of: `docs/FUNCTIONAL_SPEC.md` (canonical), affected KAN epic/story/test descriptions (re-enrich or edit), `PROJECT_MEMORY.md` / `ROADMAP.md` / `docs/ops/WORK_LOG.md` as needed, and any mockups/rules that contradict the CR. Do not leave Jira or the spec stale relative to what the user just decided.
 
-## Cursor workflow (PM-managed; replaces Grok browser + AFK Pilot)
-- Primary home is **Cursor IDE**. Prefer a **fresh IDE Agent chat** per slice; say **“pick up where we left off”** (reads `docs/ops/WORK_LOG.md`).
+## Cursor workflow (two lanes; replaces Grok browser + AFK Pilot)
+- Primary home is **Cursor IDE**.
+- **Build lane (unchanged):** fresh default Agent chat → **“pick up where we left off”** (reads `docs/ops/WORK_LOG.md` Active slice) → implement that story.
+- **Council Room (review / creative):** fresh Agent chat → select **`council`**. Multi-persona debate; may update docs/Jira/`AGENTS.md`/rules after human agree. **No product feature coding.** Guide: `docs/ops/ADVISORY_COUNCIL.md`. Skill: `advisory-council`. Do **not** treat pick-up as a coding handoff inside the council chat.
 - **Product UI = desktop app** (`desktop_app.py`). Run and test it as a native window (Computer Use). Do not fall back to browser tabs of the shell or Gradio unless the slice says so.
 - Do not ask the human to paste coding prompts into browser Grok / AFK Pilot / other tools.
-- Ops docs: `docs/ops/HOW_WE_WORK.md`, `docs/ops/TEAM.md`, `docs/ops/ROADMAP.md`.
-- Custom agents: `.cursor/agents/` — **Grok family only** (`implementer`/`ui-orb`/`architect` → 4.7; `doc-keeper`/`verifier`/`explorer-cheap` → 4.5). User pays Grok Premium; do not assign Composer/Claude/GPT/Copilot as “free”.
-- Skills: `.cursor/skills/` (`jira-safe`, `slice-workflow`, `run-local-stack`, `orb-slice`, `update-memory`).
+- Ops docs: `docs/ops/HOW_WE_WORK.md`, `docs/ops/TEAM.md`, `docs/ops/ROADMAP.md`, `docs/ops/ADVISORY_COUNCIL.md`.
+- Custom agents: `.cursor/agents/` — **Grok family only** (Build: `implementer`/`ui-orb`/`architect` → 4.7; `doc-keeper`/`verifier`/`explorer-cheap` → 4.5. Council: `council` → 4.7; most `council-*` → 4.5). User pays Grok Premium; do not assign Composer/Claude/GPT/Copilot as “free”.
+- Skills: `.cursor/skills/` (`jira-safe`, `slice-workflow`, `run-local-stack`, `orb-slice`, `update-memory`, `advisory-council`).
 - Local Ollama is for the *product* runtime (actually free). Cursor coding agents are not free.
 - Prefer short chats + WORK_LOG / Supermemory over re-explaining history in long threads.
 - **Proactive tools:** at pick-up / session start, `supermemory_search` (project+user) before broad repo scans; after slices and CRs, `supermemory_add` (project). See `.cursor/rules/tooling-use.mdc`.

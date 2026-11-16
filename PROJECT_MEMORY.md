@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-16 (KAN-97 busy/long-run UX Done; Active → KAN-99)
+Last updated: 2026-11-16 (Advisory Council Room added; Build pick-up unchanged)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -28,7 +28,8 @@ Long-term goal: dominate the testing space for companies that want a capable loc
 - Agent must clarify ambiguous requests and confirm side-effecting actions.
 - Development machine: Windows home PC (i7-8700K, 32 GB RAM, GTX 1080 Ti, Ollama already installed). User is on Python 3.15 (venv notes also mention 3.13 — watch compatibility).
 - **Primary IDE workflow is Cursor** (rules, skills, custom agents). Browser Grok + AFK Pilot copy-paste is retired to save Premium credits.
-- **PM-owned workflow:** human speaks only in the PM chat. PM implements or delegates agents; human pulls/runs — no paste of coding prompts into other chats.
+- **Two Cursor chat lanes (build tooling only — not shipped in the app):** **Build** (default Agent + “pick up where we left off”) stays the coding path. **Council Room** (Agent **`council`**) is a separate chat for review, creative pivots, and multi-persona debate — may update docs/Jira/rules after confirm; does not implement product features and must never become an in-app feature. Guide: `docs/ops/ADVISORY_COUNCIL.md`. Eventual *product* is a company-wide local **“test all”** tool — council seats include future users (QA, devs, POs, release, security) as *personas for decisions*, not as app modules.
+- **PM-owned Build workflow:** in the Build chat, PM implements or delegates coding agents; no paste of coding prompts into browser Grok / AFK Pilot.
 - Coding models: **prefer free / Auto / Composer** in Cursor. Escalate to stronger models only when needed. Product runtime stays on local Ollama (free).
 - Token efficiency matters: prefer targeted reads, compact slices, avoid re-sending full file contents.
 - Classic orb styles stay pure canvas. **WebGL / Three.js is allowed** for hero styles (mystic, aether, neural, apex). Vendor Three.js under ui/vendor/ is acceptable for those styles.
@@ -65,7 +66,7 @@ Skeleton + substantial features exist:
 - `reports/exporter.py` + `reports/sections.py` — JSON/Markdown export with FR-REP-2 section toggles (`summary` / `stories` / `bugs` / `evidence`; local `report_sections`); **FR-REP-1 (KAN-67):** richer metrics — tests passed/failed + pass rate, stories covered by Jira key, bugs raised with counts by story and functional area
 - Tests under `tests/` for Jira, Playwright heal, orb config/presets, sessions, settings, reports
 - Architecture notes + AGENTS.md + this file
-- **Cursor ops:** `.cursor/rules`, agents (implementer/ui-orb on Grok 4.7; doc-keeper/verifier/explorer on Composer), skills, MCP template, `docs/ops/*`
+- **Cursor ops:** `.cursor/rules`, Build agents (implementer/ui-orb/architect 4.7; doc-keeper/verifier/explorer 4.5), Council agents (`council` + `council-*`), skills including `advisory-council`, MCP template, `docs/ops/*`
 - Settings keys: `orb_presets` (map), `orb_active_preset` (string), still under local app data only
 - **Jira KAN backlog (2026-11-15):** Ten FR-area epics **KAN-20…KAN-29** from `docs/FUNCTIONAL_SPEC.md`; stories/tests enriched via `scripts/jira_kan_enrich.py` (multi-audience template in `docs/ops/JIRA_TICKET_TEMPLATE.md`). Rebuild: `scripts/jira_kan_rebuild.py`.
 - **Product spec:** `docs/FUNCTIONAL_SPEC.md`. **Work log:** `docs/ops/WORK_LOG.md` (pointer also at `D:\Projects\WORK_LOG.md`).

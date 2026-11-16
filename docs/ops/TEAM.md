@@ -1,12 +1,19 @@
-# Agent Team (PM-managed)
+# Agent Team
 
-You talk only to the **PM**. Agents are workers the PM invokes — not separate chats you paste into.
+Cursor **build** agents only — nothing here ships in the product app.
 
-## Roster
+Two chat lanes. Do not mix their jobs.
+
+## Lane A — Build (normal IDE work)
+
+Open a **fresh default Agent chat** and say **“pick up where we left off”**.
+Behaviour stays as today: pull `main`, read Active slice, implement, verify, Jira close-out, commit/push.
+
+You talk to the **PM** in this lane. Coding agents are workers the PM invokes — not separate paste targets.
 
 | Agent | File | Model | When |
 |-------|------|--------|------|
-| PM | (this parent chat) | Grok 4.7 / Auto | Always — your only conversation |
+| PM | (Build parent chat) | Grok 4.7 / Auto | Build lane — implement or delegate |
 | implementer | `implementer.md` | Grok 4.7 | Backend / plugin / general code |
 | ui-orb | `ui-orb.md` | Grok 4.7 | Gradio + orb |
 | doc-keeper | `doc-keeper.md` | Grok 4.5 | Memory, roadmap, ops docs after a slice |
@@ -14,36 +21,48 @@ You talk only to the **PM**. Agents are workers the PM invokes — not separate 
 | explorer-cheap | `explorer-cheap.md` | Grok 4.5 | Discovery |
 | architect | `architect.md` | Grok 4.7 | Multi-file / security design |
 
-## Billing reality (important)
+## Lane B — Advisory Council Room (review & creative)
 
-There is **no free Claude/Copilot/Composer lane** inside Cursor agents on a Grok-Premium-only setup. “Cheap” previously meant Composer’s lower *rate*, still from the **same paid pool**. We therefore keep **all agents on Grok** (4.5 for light work, 4.7 for coding). **Ollama** remains free only for the local app.
+Open a **fresh Agent chat** and select custom agent **`council`**.
+Use for project review, creative pivots, multi-persona debate, and (after you agree) updates to docs, Jira, `AGENTS.md`, rules, and skills.
 
-## Why these (including ones you didn’t ask for)
+**Does not** replace pick-up. **Does not** implement product features.
 
-| Need | Agent |
-|------|--------|
-| Feature coding | implementer / ui-orb (Grok 4.7) |
-| Docs / review with less burn | doc-keeper / verifier (Grok 4.5) |
-| Stop re-reading the whole repo | explorer-cheap |
-| Hard design without coding yet | architect |
-| PM does ops/merges/small fixes directly | — no extra agent |
+Guide: `docs/ops/ADVISORY_COUNCIL.md` · Skill: `advisory-council`
 
-## Add later only if repeated pain
+| Agent | File | Model | When |
+|-------|------|--------|------|
+| council (Facilitator) | `council.md` | Grok 4.7 | **Open this chat for the room** |
+| council-creative-architect | `council-creative-architect.md` | Grok 4.5 | Vibes / path deviations |
+| council-delivery-auditor | `council-delivery-auditor.md` | Grok 4.5 | Jira↔repo / FR gaps |
+| council-quality-auditor | `council-quality-auditor.md` | Grok 4.5 | Coverage / heal / regression |
+| council-user-test-engineer | `council-user-test-engineer.md` | Grok 4.5 | ★ Primary daily user |
+| council-user-test-manager | `council-user-test-manager.md` | Grok 4.5 | ★ Buyer / QA lead |
+| council-user-developer | `council-user-developer.md` | Grok 4.5 | ★ Dev consuming bugs/evidence |
+| council-user-product-owner | `council-user-product-owner.md` | Grok 4.5 | ★ PO/BA / AC author |
+| council-user-release-manager | `council-user-release-manager.md` | Grok 4.5 | ★ Release / eng manager |
+| council-security-adviser | `council-security-adviser.md` | Grok 4.7 | ★ Security / compliance |
+| council-ux-partner | `council-ux-partner.md` | Grok 4.5 | Chat/orb UX |
+| council-scope-guardian | `council-scope-guardian.md` | Grok 4.5 | Devil’s advocate / vision |
+| council-platform-pragmatist | `council-platform-pragmatist.md` | Grok 4.5 | Home-PC / Windows limits |
 
-- **debugger** — flaky Playwright / Ollama loops  
-- **security-isolation** — OFFICIAL/SECRET profile work  
-- **release-notes** — only if doc-keeper isn’t enough  
+★ = likely real users/buyers when the unfinished **“test all”** product ships to software companies.
 
-## Skills (playbooks)
+## Billing reality
+
+All Cursor agents stay on the **Grok** family (4.5 light / 4.7 heavy). Ollama is free only for the **product** runtime.
+
+## Build skills
 
 | Skill | Purpose |
 |-------|---------|
-| `slice-workflow` | How PM runs a slice without human paste |
-| `run-local-stack` | Boot FastAPI / health on Windows |
+| `slice-workflow` | How Build PM runs a slice |
+| `run-local-stack` | Boot desktop / stack on Windows |
 | `jira-safe` | Confirm gates; no secrets |
 | `orb-slice` | Orb UI conventions |
 | `update-memory` | After-slice PROJECT_MEMORY / ROADMAP |
+| `advisory-council` | Council Room protocol |
 
 ## Constraint
 
-Cloud/PM agents **cannot** open a second chat inside your local IDE. They either edit the repo here or spawn in-run subagents. You still only talk to the PM; pull when told.
+Council and Build are **separate chats** you open. Within a chat, the lead may spawn subagents. Do not ask the human to paste prompts between browser Grok / AFK Pilot and Cursor.

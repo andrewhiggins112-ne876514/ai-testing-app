@@ -1,23 +1,33 @@
-# How We Work (PM-managed Cursor team)
+# How We Work (two Cursor chat lanes)
 
-**Goal:** you speak in **one place** (this PM chat). The PM does work directly or delegates to agents. **No copy-paste** between browser Grok, AFK Pilot, and other Cursor coding chats.
+**Goal:** **No copy-paste** between browser Grok, AFK Pilot, and Cursor. Use the right chat for the job.
+
+## Two chats
+
+| Lane | Open | Say | Does |
+|------|------|-----|------|
+| **Build** | Fresh default Agent chat | **“pick up where we left off”** | Coding slices — unchanged (pull, Active story, implement, verify, Jira close-out, push) |
+| **Council Room** | Fresh Agent chat → select **`council`** | “review…”, “creative idea…”, “open the room…” | Multi-persona review/creative debate; may update docs/Jira/rules after you agree — **no product feature coding** |
+
+Full council guide: `docs/ops/ADVISORY_COUNCIL.md`. Roster: `docs/ops/TEAM.md`.
 
 ## Your job (human)
 
-1. Prefer a **fresh Cursor IDE Agent chat** and say **“pick up where we left off”** (or paste `python scripts/next_prompt.py` output).  
-2. Confirm when asked (credentials, Jira writes, deletes, security, browser logins).  
-3. You do **not** need to run git. The new Agent chat **pulls `main` itself** at pick-up, and the finishing agent **commits + pushes**. Optionally run the **desktop app** (`python desktop_app.py`) when you want to look; agents verify that native window (Computer Use), not a browser tab of `/ui/desktop/`.  
-4. Do **not** paste coding prompts into browser Grok / AFK Pilot.  
-5. Workspace folder must be `D:\Projects\ai_testing_app`.
+1. **Build:** fresh Agent chat → **“pick up where we left off”** (or `python scripts/next_prompt.py`).  
+2. **Review / creative / path change:** fresh Agent chat → agent **`council`**.  
+3. Confirm when asked (credentials, Jira writes, deletes, security, browser logins).  
+4. You do **not** need to run git. Build chats **pull `main`** at pick-up and **commit + push** when a slice finishes. Optionally run **`desktop_app.py`** to look; agents verify that native window (Computer Use).  
+5. Do **not** paste coding prompts into browser Grok / AFK Pilot.  
+6. Workspace folder must be `D:\Projects\ai_testing_app`.
 
-## PM job (this chat)
+## Build PM job
 
 - Scope slices, fill blanks, prioritise, advise.  
-- Implement work directly **or** dispatch agents (same run — you never paste).  
-- Merge to `main` when push access allows.  
-- Report back: what landed, what to pull/run, what’s next.
+- Implement directly **or** dispatch build agents (same run — you never paste).  
+- Report back: what landed, how to check the app, what’s next.  
+- Never ask the human to `git pull` / commit / push.
 
-## Agent roster (`.cursor/agents/`)
+## Build agent roster (`.cursor/agents/`)
 
 | Agent | Model | Job |
 |-------|--------|-----|
@@ -27,6 +37,7 @@
 | verifier | Grok 4.5 | Tests + skeptical review |
 | explorer-cheap | Grok 4.5 | Find files; short summaries |
 | architect | Grok 4.7 | Design-only trade-offs |
+| **council** (+ `council-*`) | 4.7 / 4.5 | **Separate chat** — Advisory Council Room only |
 
 Product runtime LLM stays **Ollama on the home PC** — that part is actually free.
 
@@ -62,5 +73,5 @@ See `docs/ops/CONNECTORS.md`. Customize/MCP is in the **Agents** window, not the
 
 ## Continue next time
 
-Human (or you) says **“pick up where we left off”** → read WORK_LOG Active slice → implement that KAN story.  
-Or: `python scripts/next_prompt.py`.
+- **Build:** “pick up where we left off” → read WORK_LOG Active slice → implement that KAN story. Or: `python scripts/next_prompt.py`.  
+- **Council:** open agent **`council`** → review or creative room (`docs/ops/ADVISORY_COUNCIL.md`).

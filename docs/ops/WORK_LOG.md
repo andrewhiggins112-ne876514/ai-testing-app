@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-16 — OPS — Advisory Council Room (separate from Build pick-up)
+- **Agent/chat:** Cursor IDE Agent — design + land council roster
+- **Done:** Added Council Room as a **separate** Agent chat (`council`) for review/creative multi-persona debate. Build lane (“pick up where we left off”) unchanged. Council may update docs/Jira/rules after confirm; no product feature coding. Seats include future company-wide users (QA, test manager, developer, PO, release, security) plus auditors/architect/UX/scope/pragmatist.
+- **Files:** `docs/ops/ADVISORY_COUNCIL.md`, `docs/ops/TEAM.md`, `docs/ops/HOW_WE_WORK.md`, `AGENTS.md`, `PROJECT_MEMORY.md`, `.cursor/skills/advisory-council/SKILL.md`, `.cursor/agents/council.md`, `.cursor/agents/council-*.md`
+- **Verify:** Open Agent → select **`council`**; Build chat still uses pick-up only
+- **Jira:** n/a (ops tooling, not a KAN story)
+- **Next:** Active coding slice remains **KAN-81** deferred; use Build pick-up when coding resumes
+
 ### 2026-11-16 — KAN-99 — Audit log for Jira write operations (FR-JIRA-5 / NFR §4.3)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-99
 - **Done:** Confirmed Jira writes (create/bug/test/transition/comment/update_status/set_parent) append a local `jira_write_audit.jsonl` line (timestamp, action, issue_key, session_id, status) under LOCALAPPDATA. Declined confirm leaves no success audit line. Tokens never stored. Privacy wipe includes `jira_write_audit`.
