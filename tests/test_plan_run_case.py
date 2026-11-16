@@ -1,7 +1,7 @@
-"""Single-case Playwright run + degraded + source view + evidence + failure class (KAN-137…147)."""
+"""Single-case Playwright run + degraded + source view + evidence + failure class + pause (KAN-137…149)."""
 from __future__ import annotations
 
-import json
+import asyncio
 import os
 import tempfile
 import unittest
@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 import main
 from plans.defect_packet import defect_packet_preview
 from plans.evidence_bundle import write_failure_bundle
+from plans.pause_session import clear_sessions
 from plans.run_case import case_detail, run_single_case
 from plans.store import add_case, add_run, create_plan, set_run_failure_class
 from settings.degraded import degraded_status, ollama_chat_blocked
@@ -25,8 +26,10 @@ class PlanRunCaseTests(unittest.TestCase):
 
         settings_store._SETTINGS_CACHE = None  # type: ignore[attr-defined]
         settings_store.load_settings()
+        clear_sessions()
 
     def tearDown(self):
+        clear_sessions()
         self._tmp.cleanup()
 
     def test_disabled_case_refused(self):
@@ -154,6 +157,89 @@ class PlanRunCaseTests(unittest.TestCase):
         res = client.post(f"/api/plans/{pid}/cases/{cid}/run")
         body = res.json()
         self.assertEqual(body.get("error"), "case_disabled")
+
+    @patch("plugins.playwright_runner.run_playwright", new_callable=AsyncMock)
+    @patch("plans.run_case._check_target")
+    def test_pause_off_by_default(self, mock_tgt, mock_pw):
+        mock_tgt.return_value = {"up": True, "message": "ok"}
+        mock_pw.return_value = {
+            "status": "fail",
+            "playwright_mode": "headed",
+            "error": "boom",
+            "steps": [{"action": "click", "status": "fail", "error": "boom"}],
+            "screenshot": r"C:\tmp\fail.png",
+        }
+        from settings import store as settings_store
+
+        settings_store.update_setting("target_url", "https://example.com", confirm=True)
+        created = create_plan("PauseOff")
+        pid = created["plan"]["id"]
+        cid = add_case(pid, "Fail")["case"]["id"]
+        out = asyncio.run(run_single_case(pid, cid))
+        self.assertEqual(out.get("status"), "ok")
+        self.assertEqual(out.get("run", {}).get("result"), "fail")
+        self.assertFalse(mock_pw.call_args.kwargs.get("pause_on_fail"))
+        self.assertIsNone(mock_pw.call_args.kwargs.get("pause_decision"))
+
+    @patch("plans.run_case._check_target")
+    def test_pause_on_fail_stop_records_failed_run(self, mock_tgt):
+        mock_tgt.return_value = {"up": True, "message": "ok"}
+
+        async def fake_pw(**kwargs):
+            self.assertTrue(kwargs.get("pause_on_fail"))
+            decision = kwargs.get("pause_decision")
+            self.assertIsNotNone(decision)
+            partial = {
+                "status": "paused",
+                "error": "selector missing",
+                "steps": [
+                    {"action": "click", "status": "fail", "error": "selector missing"}
+                ],
+                "screenshot": r"C:\tmp\paused.png",
+            }
+            choice = await decision(partial)
+            self.assertEqual(choice, "stop")
+            return {
+                "status": "fail",
+                "playwright_mode": "headed",
+                "error": "selector missing",
+                "pause_decision": "stop",
+                "steps": partial["steps"],
+                "screenshot": r"C:\tmp\paused.png",
+            }
+
+        from settings import store as settings_store
+
+        settings_store.update_setting("target_url", "https://example.com", confirm=True)
+        created = create_plan("PauseStop")
+        pid = created["plan"]["id"]
+        cid = add_case(pid, "Broken")["case"]["id"]
+
+        async def scenario():
+            task = asyncio.create_task(
+                run_single_case(pid, cid, pause_on_fail=True)
+            )
+            first = await task
+            self.assertEqual(first.get("status"), "paused")
+            pause_id = first.get("pause_id")
+            self.assertTrue(pause_id)
+            from plans.pause_session import signal_decision
+
+            stopped = await signal_decision(pause_id, "stop")
+            self.assertEqual(stopped.get("run", {}).get("result"), "fail")
+            self.assertEqual(stopped.get("pause_decision"), "stop")
+            return stopped
+
+        with patch("plugins.playwright_runner.run_playwright", new=fake_pw):
+            final = asyncio.run(scenario())
+        self.assertEqual(final.get("run", {}).get("result"), "fail")
+
+    def test_api_pause_endpoints_not_found(self):
+        client = TestClient(main.app)
+        res = client.get("/api/plans/pause/missing")
+        self.assertEqual(res.json().get("error"), "pause_not_found")
+        res = client.post("/api/plans/pause/missing/stop")
+        self.assertEqual(res.json().get("error"), "pause_not_found")
 
 
 if __name__ == "__main__":

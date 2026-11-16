@@ -1274,6 +1274,11 @@
   const planCaseUp = document.getElementById("plan-case-up");
   const planCaseDown = document.getElementById("plan-case-down");
   const planCaseRun = document.getElementById("plan-case-run");
+  const planPauseOnFail = document.getElementById("plan-pause-on-fail");
+  const planPauseActions = document.getElementById("plan-pause-actions");
+  const planPauseContinue = document.getElementById("plan-pause-continue");
+  const planPauseStop = document.getElementById("plan-pause-stop");
+  let activePauseId = "";
   const planDefectPreview = document.getElementById("plan-defect-preview");
   const planRunFailureClass = document.getElementById("plan-run-failure-class");
   const planRunFailureSave = document.getElementById("plan-run-failure-save");
@@ -2835,13 +2840,48 @@
     });
   }
 
+  function setPauseActionsVisible(visible) {
+    if (planPauseActions) planPauseActions.hidden = !visible;
+  }
+
+  function applyPlanRunPayload(payload) {
+    if (payload.plan) renderPlanCases(payload.plan);
+    if (payload.run && payload.run.id) lastCaseRunId = payload.run.id;
+    if (payload.pause_state === "paused" || payload.status === "paused") {
+      activePauseId = payload.pause_id || "";
+      setPauseActionsVisible(!!activePauseId);
+      if (planStatus) {
+        planStatus.textContent =
+          payload.message ||
+          "Paused on fail — headed browser left open. Continue or Stop.";
+      }
+      return;
+    }
+    activePauseId = "";
+    setPauseActionsVisible(false);
+    const run = payload.run || {};
+    if (planStatus) {
+      planStatus.textContent =
+        (payload.message || "Finished.") +
+        (run.result ? " Result: " + run.result : "") +
+        (run.duration_ms != null ? " (" + run.duration_ms + "ms)" : "");
+    }
+  }
+
   if (planCaseRun) {
     planCaseRun.addEventListener("click", async function () {
       if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
         if (planStatus) planStatus.textContent = "Enter a case id to run.";
         return;
       }
-      if (planStatus) planStatus.textContent = "Running case (headed)…";
+      const pauseOn = !!(planPauseOnFail && planPauseOnFail.checked);
+      activePauseId = "";
+      setPauseActionsVisible(false);
+      if (planStatus) {
+        planStatus.textContent = pauseOn
+          ? "Running case (headed, pause on fail)…"
+          : "Running case (headed)…";
+      }
       try {
         const res = await fetch(
           "/api/plans/" +
@@ -2849,28 +2889,75 @@
             "/cases/" +
             encodeURIComponent(planCaseId.value.trim()) +
             "/run",
-          { method: "POST" }
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pause_on_fail: pauseOn }),
+          }
         );
         const payload = await res.json();
-        if (payload.status !== "ok") {
+        if (
+          payload.status !== "ok" &&
+          payload.status !== "paused" &&
+          payload.pause_state !== "paused"
+        ) {
           if (planStatus) {
             planStatus.textContent = payload.message || "Run failed.";
           }
           return;
         }
-        if (payload.plan) renderPlanCases(payload.plan);
-        if (payload.run && payload.run.id) lastCaseRunId = payload.run.id;
-        await refreshCaseDetail();
-        const run = payload.run || {};
-        if (planStatus) {
-          planStatus.textContent =
-            (payload.message || "Finished.") +
-            (run.result ? " Result: " + run.result : "") +
-            (run.duration_ms != null ? " (" + run.duration_ms + "ms)" : "");
+        applyPlanRunPayload(payload);
+        if (payload.pause_state !== "paused" && payload.status !== "paused") {
+          await refreshCaseDetail();
         }
       } catch (err) {
         if (planStatus) planStatus.textContent = "Run request failed.";
       }
+    });
+  }
+
+  async function postPauseDecision(kind) {
+    if (!activePauseId) {
+      if (planStatus) planStatus.textContent = "No active pause.";
+      return;
+    }
+    if (planStatus) {
+      planStatus.textContent =
+        kind === "continue" ? "Continuing after pause…" : "Stopping — recording fail…";
+    }
+    try {
+      const res = await fetch(
+        "/api/plans/pause/" + encodeURIComponent(activePauseId) + "/" + kind,
+        { method: "POST" }
+      );
+      const payload = await res.json();
+      if (
+        payload.status !== "ok" &&
+        payload.status !== "paused" &&
+        payload.pause_state !== "paused"
+      ) {
+        if (planStatus) {
+          planStatus.textContent = payload.message || "Pause action failed.";
+        }
+        return;
+      }
+      applyPlanRunPayload(payload);
+      if (payload.pause_state !== "paused" && payload.status !== "paused") {
+        await refreshCaseDetail();
+      }
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Pause action request failed.";
+    }
+  }
+
+  if (planPauseContinue) {
+    planPauseContinue.addEventListener("click", function () {
+      postPauseDecision("continue");
+    });
+  }
+  if (planPauseStop) {
+    planPauseStop.addEventListener("click", function () {
+      postPauseDecision("stop");
     });
   }
 

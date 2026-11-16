@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk35" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk36" />
 </head>
 <body>
   <div id="app">
@@ -369,9 +369,14 @@
             <button type="button" id="plan-case-up" class="save-btn secondary">Move up</button>
             <button type="button" id="plan-case-down" class="save-btn secondary">Move down</button>
           </div>
+          <label class="stack-label"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail (headed browser stays open until Continue or Stop; off by default)</label>
           <div class="btn-row">
             <button type="button" id="plan-case-run" class="save-btn">Run selected case (headed)</button>
             <button type="button" id="plan-defect-preview" class="save-btn secondary">Preview defect packet</button>
+          </div>
+          <div class="btn-row" id="plan-pause-actions" hidden>
+            <button type="button" id="plan-pause-continue" class="save-btn">Continue</button>
+            <button type="button" id="plan-pause-stop" class="save-btn secondary">Stop (record fail)</button>
           </div>
           <label class="stack-label">Failure class (last run)
             <select id="plan-run-failure-class">
@@ -488,6 +493,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk35"></script>
+  <script src="/ui/desktop/desktop.js?v=desk36"></script>
 </body>
 </html>

@@ -2,11 +2,13 @@
 
 Only the requested case runs. Disabled or archived cases are refused.
 Tool/browser failures are recorded as fail or error — never pass.
+Optional pause-on-fail keeps the headed browser open until continue/stop (KAN-149).
 """
 from __future__ import annotations
 
+import asyncio
 import time
-from typing import Any
+from typing import Any, Awaitable, Callable
 
 from plans.store import add_run, get_plan
 from plugins.playwright_steps import generate_steps_from_spec
@@ -91,17 +93,13 @@ def _map_playwright_result(pw: dict[str, Any]) -> tuple[str, str | None, list[st
     return "error", failure_class or "tool", evidence
 
 
-async def run_single_case(
+def _resolve_case(
     plan_id: str,
     case_id: str,
     *,
-    level: str | None = None,
-    session_id: str = "plan-run",
+    level: str,
 ) -> dict[str, Any]:
-    from settings.store import get_security_level, load_settings
-
-    lvl = (level or get_security_level()).strip().upper()
-    loaded = get_plan(plan_id, level=lvl)
+    loaded = get_plan(plan_id, level=level)
     if loaded.get("status") != "ok":
         return loaded
 
@@ -118,14 +116,14 @@ async def run_single_case(
             "status": "error",
             "error": "case_not_found",
             "message": f"Case {cid!r} was not found on plan {plan_id!r}.",
-            "security_level": lvl,
+            "security_level": level,
         }
     if not target_case.get("enabled", True):
         return {
             "status": "error",
             "error": "case_disabled",
             "message": "Disabled cases are not executed.",
-            "security_level": lvl,
+            "security_level": level,
             "case_id": cid,
         }
     if target_case.get("archived"):
@@ -133,10 +131,34 @@ async def run_single_case(
             "status": "error",
             "error": "case_archived",
             "message": "Archived cases are not executed.",
-            "security_level": lvl,
+            "security_level": level,
             "case_id": cid,
         }
+    return {
+        "status": "ok",
+        "plan": plan,
+        "case": target_case,
+        "security_level": level,
+    }
 
+
+async def _execute_case(
+    plan_id: str,
+    case_id: str,
+    *,
+    level: str,
+    session_id: str,
+    pause_on_fail: bool = False,
+    pause_decision: Callable[[dict[str, Any]], Awaitable[str]] | None = None,
+) -> dict[str, Any]:
+    from settings.store import load_settings
+
+    resolved = _resolve_case(plan_id, case_id, level=level)
+    if resolved.get("status") != "ok":
+        return resolved
+
+    target_case = resolved["case"]
+    cid = target_case["id"]
     target_url = (load_settings().get("target_url") or "").strip()
     target_probe = _check_target()
     started = time.monotonic()
@@ -152,15 +174,16 @@ async def run_single_case(
             failure_class="environment",
             evidence=[],
             note=msg[:500],
-            level=lvl,
+            level=level,
         )
         return {
             "status": "ok",
             "message": msg,
-            "security_level": lvl,
+            "security_level": level,
             "playwright_mode": "headed",
             "target_up": False,
             "only_case_id": cid,
+            "pause_on_fail": bool(pause_on_fail),
             "plan": recorded.get("plan"),
             "case": recorded.get("case"),
             "run": recorded.get("run"),
@@ -177,11 +200,13 @@ async def run_single_case(
         url=url,
         mode="run",
         steps=steps,
-        security_level=lvl,
+        security_level=level,
         request_text=spec,
         session_id=session_id,
         headless=False,
         reject_incomplete=False,
+        pause_on_fail=bool(pause_on_fail),
+        pause_decision=pause_decision if pause_on_fail else None,
     )
     duration_ms = int((time.monotonic() - started) * 1000)
     result, failure_class, evidence = _map_playwright_result(pw)
@@ -189,6 +214,8 @@ async def run_single_case(
         result = "fail"
 
     note = str(pw.get("error") or "")[:500]
+    if pw.get("pause_decision") == "stop" and not note:
+        note = "Stopped after pause on fail."
     recorded = add_run(
         plan_id,
         cid,
@@ -197,7 +224,7 @@ async def run_single_case(
         failure_class=failure_class,
         evidence=evidence,
         note=note,
-        level=lvl,
+        level=level,
     )
     run_id = (recorded.get("run") or {}).get("id")
     if result in {"fail", "error"} and run_id:
@@ -212,14 +239,16 @@ async def run_single_case(
         )
         extra = [p for p in bundle.get("paths") or [] if p not in evidence]
         if extra:
-            recorded = append_run_evidence(plan_id, cid, run_id, extra, level=lvl)
+            recorded = append_run_evidence(plan_id, cid, run_id, extra, level=level)
     return {
         "status": "ok",
         "message": f"Case {cid} finished: {result}.",
-        "security_level": lvl,
+        "security_level": level,
         "playwright_mode": pw.get("playwright_mode") or "headed",
         "target_up": True,
         "only_case_id": cid,
+        "pause_on_fail": bool(pause_on_fail),
+        "pause_decision": pw.get("pause_decision"),
         "playwright": {
             "status": pw.get("status"),
             "error": pw.get("error"),
@@ -229,6 +258,64 @@ async def run_single_case(
         "case": recorded.get("case"),
         "run": recorded.get("run"),
     }
+
+
+async def run_single_case(
+    plan_id: str,
+    case_id: str,
+    *,
+    level: str | None = None,
+    session_id: str = "plan-run",
+    pause_on_fail: bool = False,
+) -> dict[str, Any]:
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    if not pause_on_fail:
+        return await _execute_case(
+            plan_id,
+            case_id,
+            level=lvl,
+            session_id=session_id,
+            pause_on_fail=False,
+        )
+
+    from plans.pause_session import (
+        create_session,
+        make_pause_waiter,
+        wait_until_paused_or_done,
+    )
+
+    session = create_session(plan_id, case_id, level=lvl)
+    pause_decision = await make_pause_waiter(session)
+
+    async def _job() -> None:
+        try:
+            payload = await _execute_case(
+                plan_id,
+                case_id,
+                level=lvl,
+                session_id=session_id,
+                pause_on_fail=True,
+                pause_decision=pause_decision,
+            )
+            session.result_payload = payload
+            session.message = payload.get("message") or "Run finished."
+        except Exception as exc:  # noqa: BLE001 — surface to session
+            session.result_payload = {
+                "status": "error",
+                "error": "run_failed",
+                "message": str(exc)[:500],
+                "pause_id": session.id,
+                "security_level": lvl,
+            }
+            session.message = str(exc)[:500]
+        finally:
+            session.state = "done"
+            session.state_event.set()
+
+    asyncio.create_task(_job())
+    return await wait_until_paused_or_done(session)
 
 
 def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:

@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-149** — Test-all B4 — Pause on fail |
-| **Start task** | **KAN-150** (`test`, Relates → KAN-149) |
+| **Jira story** | **KAN-151** — Test-all B5 — Rerun failed only |
+| **Start task** | **KAN-152** (`test`, Relates → KAN-151) |
 | **Epic** | **KAN-118** — Test-all B — Failures and evidence |
-| **Roadmap ID** | TESTALL-B / FR-TEST-2 / FR-PLAN-2 |
+| **Roadmap ID** | TESTALL-B / FR-PLAN-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-150** |
-| **Shipped** | … **KAN-135** A6; **KAN-137** A7; **KAN-139** A8; **KAN-141** A9; **KAN-143** B1; **KAN-145** B2; **KAN-147** B3 |
+| **Test ticket** | **KAN-152** |
+| **Shipped** | … **KAN-143** B1; **KAN-145** B2; **KAN-147** B3; **KAN-149** B4 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-149 — B4 pause on fail
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-149
+- **Done:** Run option `pause_on_fail` (off by default). On step fail, headed browser stays open until Continue (remaining steps) or Stop (records failed run). Session APIs + Plans checkbox / Continue / Stop (desk36).
+- **Files:** `plans/pause_session.py`, `plans/run_case.py`, `plugins/playwright_runner.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_plan_run_case.py`
+- **Verify:** `pytest tests/test_plan_run_case.py -v` (11 passed). Live desk36 HTML has `plan-pause-on-fail` + Continue/Stop.
+- **Jira:** close-out **KAN-149** + **KAN-150**
+- **Next:** **KAN-151** B5 rerun failed only
 
 ### 2026-11-16 — KAN-147 — B3 defect packet preview
 - **Agent/chat:** implementer subagent — six-ticket pick-up (6/6)

@@ -41,6 +41,7 @@ from plugins.playwright_suite import (
 )
 from plans.defect_packet import defect_packet_preview
 from plans.draft import add_document_draft_cases, draft_plan_from_issue
+from plans.pause_session import get_session, public_session, signal_decision
 from plans.run_case import case_detail, run_single_case
 from plans.starter import create_starter_plan, lab_home_status
 from plans.store import (
@@ -250,6 +251,12 @@ class PlanRunRequest(BaseModel):
 
 class PlanFailureClassRequest(BaseModel):
     failure_class: str = ""
+
+
+class PlanCaseRunRequest(BaseModel):
+    """Optional run flags. pause_on_fail is off by default (KAN-149)."""
+
+    pause_on_fail: bool = False
 
 
 def _orb_from_settings() -> dict:
@@ -685,9 +692,48 @@ async def post_plan_run(plan_id: str, case_id: str, req: PlanRunRequest):
 
 
 @app.post("/api/plans/{plan_id}/cases/{case_id}/run")
-async def post_plan_case_run(plan_id: str, case_id: str):
-    """Run a single case headed with Playwright; record evidence on that case (KAN-137)."""
-    return await run_single_case(plan_id, case_id, session_id="desktop")
+async def post_plan_case_run(
+    plan_id: str,
+    case_id: str,
+    req: PlanCaseRunRequest | None = None,
+):
+    """Run a single case headed with Playwright; record evidence on that case (KAN-137).
+
+    Optional pause_on_fail (KAN-149): on step failure leave headed browser open until
+    continue or stop. Off by default.
+    """
+    body = req or PlanCaseRunRequest()
+    return await run_single_case(
+        plan_id,
+        case_id,
+        session_id="desktop",
+        pause_on_fail=bool(body.pause_on_fail),
+    )
+
+
+@app.get("/api/plans/pause/{pause_id}")
+async def get_plan_pause(pause_id: str):
+    """Pause-on-fail session status (KAN-149)."""
+    session = get_session(pause_id)
+    if session is None:
+        return {
+            "status": "error",
+            "error": "pause_not_found",
+            "message": f"No pause session {pause_id!r}.",
+        }
+    return public_session(session)
+
+
+@app.post("/api/plans/pause/{pause_id}/continue")
+async def post_plan_pause_continue(pause_id: str):
+    """Continue after pause-on-fail (remaining steps; browser stays open) (KAN-149)."""
+    return await signal_decision(pause_id, "continue")
+
+
+@app.post("/api/plans/pause/{pause_id}/stop")
+async def post_plan_pause_stop(pause_id: str):
+    """Stop after pause-on-fail and record a failed run (KAN-149)."""
+    return await signal_decision(pause_id, "stop")
 
 
 @app.get("/api/plans/{plan_id}/cases/{case_id}")

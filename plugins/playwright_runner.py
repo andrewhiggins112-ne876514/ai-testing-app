@@ -7,7 +7,7 @@ import difflib
 import os
 import time
 from pathlib import Path
-from typing import List, Optional, Dict, Any, Tuple
+from typing import Awaitable, Callable, List, Optional, Dict, Any, Tuple
 
 from playwright.async_api import TimeoutError as PlaywrightTimeout
 from playwright.async_api import async_playwright
@@ -371,6 +371,8 @@ async def run_playwright(
     reject_incomplete: bool = False,
     success_evidence: Optional[bool] = None,
     headless: Optional[bool] = None,
+    pause_on_fail: bool = False,
+    pause_decision: Optional[Callable[[Dict[str, Any]], Awaitable[str]]] = None,
 ) -> Dict[str, Any]:
     result: Dict[str, Any] = {
         "status": "fail",
@@ -379,9 +381,14 @@ async def run_playwright(
         "error": None,
         "evidence": [],
     }
-    use_headless = _headless_enabled(headless)
+    # Pause-on-fail needs a visible browser; force headed when enabled (KAN-149).
+    if pause_on_fail:
+        use_headless = False
+    else:
+        use_headless = _headless_enabled(headless)
     result["headless"] = use_headless
     result["playwright_mode"] = "headless" if use_headless else "headed"
+    result["pause_on_fail"] = bool(pause_on_fail)
     if steps is None and mode == "generate" and (request_text or "").strip():
         generated = generate_steps_from_spec(request_text, url=url)
         steps = list(generated.get("steps") or [])
@@ -432,6 +439,7 @@ async def run_playwright(
         try:
             if steps:
                 result["steps"] = []
+                had_failure = False
                 for step in steps:
                     try:
                         healed = await _run_step(page, step, click_timeout, retry_timeout)
@@ -456,13 +464,33 @@ async def run_playwright(
                             failed["heal_refused"] = refused
                         result["steps"].append(failed)
                         result["error"] = str(e)
+                        had_failure = True
+                        # FR-TEST-4: capture failure evidence before optional pause.
+                        await _save_screenshot(page, result, kind="failure")
+                        can_pause = (
+                            bool(pause_on_fail)
+                            and pause_decision is not None
+                            and not use_headless
+                        )
+                        if can_pause:
+                            result["paused"] = True
+                            result["status"] = "paused"
+                            decision = await pause_decision(result)
+                            result["paused"] = False
+                            result["pause_decision"] = (
+                                "continue" if decision == "continue" else "stop"
+                            )
+                            if decision == "continue":
+                                result["status"] = "fail"
+                                continue
+                        result["status"] = "fail"
                         break
                     passed = {"action": step["action"], "status": "pass"}
                     if healed:
                         passed.update(healed)
                     result["steps"].append(passed)
                 else:
-                    result["status"] = "pass"
+                    result["status"] = "pass" if not had_failure else "fail"
                 try:
                     result["title"] = await page.title()
                 except Exception:
@@ -475,7 +503,7 @@ async def run_playwright(
                 if result.get("status") == "pass":
                     if take_success:
                         await _save_screenshot(page, result, kind="success")
-                else:
+                elif not result.get("screenshot"):
                     # FR-TEST-4: always capture failure evidence under local app data.
                     await _save_screenshot(page, result, kind="failure")
             else:
