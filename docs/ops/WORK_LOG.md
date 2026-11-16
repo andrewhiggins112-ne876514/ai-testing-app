@@ -13,7 +13,7 @@
 | **Epic** | KAN-27 (Desktop shell) |
 | **Roadmap ID** | UI-DESK-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-6/7, FR-UI-3 accent coupling, FR-SET-3 |
-| **Git** | `main` @ `d1b08e9` (UI desk19 `a355f2d` / `4d246d0`) |
+| **Git** | `main` @ `33cfcee` (handoff; UI desk19 `a355f2d` / `4d246d0`) |
 | **Test ticket** | **KAN-104** (`test`, Relates → KAN-103) |
 | **Shipped (desk19)** | `#area-surface` routing; App area layout A–E (`desktop-area-layout-v1`); style-coupled chrome; **KAN-102** Done; Tasks **KAN-106/108/112** Done |
 | **Still open** | **KAN-107** HUD, **KAN-109** hub polish, **KAN-110** KAN-101 check, **KAN-104** full verify. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
