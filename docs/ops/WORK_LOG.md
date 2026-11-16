@@ -12,7 +12,7 @@
 | **Epic** | KAN-27 (Desktop shell) |
 | **Roadmap ID** | UI-DESK-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-6/7, FR-SET-3 |
-| **Next action** | User picks mockup **A / B / C** from `docs/mockups/kan103_nav/option_*_*.png`; then implement **Task KAN-106** (area screens). No `ui/desktop` until the pick. |
+| **Next action** | User picks mockup **A / B / C** from `docs/mockups/kan103_nav/grok/` (nine labeled frames); then implement **Task KAN-106**. No `ui/desktop` until the pick. |
 | **Deferred** | **KAN-75** heal proposal review UI — after KAN-103 nav shell to stop drawer-inline defects (KAN-101 class). Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -34,6 +34,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — OPS — KAN-103 nine labeled mockups in grok/ (design gate)
+- **Agent/chat:** ui-orb (Grok) — images and README only; no `ui/desktop/` code
+- **Done:** Nine labeled mystic-cyan frames under `docs/mockups/kan103_nav/grok/` (A1–A3, B1–B3, C1–C3) for the Designer pick. README now points at that set. Active slice was already **KAN-103** / **KAN-106** after the pick; **KAN-75** stays deferred. Design not locked.
+- **Files:** docs/mockups/kan103_nav/grok/*.png, docs/mockups/kan103_nav/README.md, docs/ops/WORK_LOG.md
+- **Verify:** Open the nine PNGs in `grok/` and choose A, B, C, or hybrid.
+- **Jira:** skipped — Active slice and prior KAN-103 comment already in place
+- **Next:** User selects **A**, **B**, **C**, or hybrid → lock design → implement KAN-106
 
 ### 2026-11-16 — OPS — KAN-103 Grok image mockups A/B/C (design gate)
 - **Agent/chat:** Cursor IDE Agent (Designer + PM — images and docs only; no `ui/desktop/` code)

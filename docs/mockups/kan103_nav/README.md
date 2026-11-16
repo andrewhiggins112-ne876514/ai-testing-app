@@ -6,19 +6,23 @@
 
 **Product model (locked):** Agent home = chat + orb; HUD widgets from Screen drawer; App areas = dedicated surfaces; App Settings ≠ Orb settings.
 
-## Generated frames (pick from these)
+## Designer choice images (pick from these)
 
-Dark void, mystic cyan (no purple). Open the HTML file beside each pair if the PNG viewer is inconvenient.
+Labeled mystic-cyan frames in [`grok/`](grok/). Black void, filament orb, no purple. No `ui/desktop/` code until you choose.
 
-| Option | Frames | HTML fallback |
-|--------|--------|----------------|
-| **A** Full-bleed overlay | `option_a_home.png`, `option_a_settings.png` | `option_a.html` |
-| **B** Area stage (orb pip) | `option_b_home.png`, `option_b_settings.png` | `option_b.html` |
-| **C** Orb hub, then overlay A | `option_c_hub.png`, `option_c_settings.png` | `option_c.html` |
+| Option | Frames |
+|--------|--------|
+| **A** Full-bleed overlay | `grok/A1-home.png`, `grok/A2-app-settings.png`, `grok/A3-reports.png` |
+| **B** Area stage (orb pip) | `grok/B1-home.png`, `grok/B2-app-settings.png`, `grok/B3-reports.png` |
+| **C** Orb hub, then overlay A | `grok/C1-orb-hub.png`, `grok/C2-app-settings.png`, `grok/C3-hub-fallback.png` |
 
-**A** keeps the full orb on home and dims it under a glass Settings/Reports window. The App button is a nav list only; the Screen drawer is HUD widget toggles. **B** puts work on a large stage and shrinks the orb to a pip, so the area feels like its own screen. **C** adds neural spokes from the orb to the seven areas, then opens the same full-window glass as A.
+**A — pros:** home stays iconic; Settings and Reports are a glass sheet over a dimmed orb, with a clear Back. **Cons:** drawers and the overlay can stack.
 
-Earlier HTML pack and rendered PNGs under `png/` remain for layout detail. Reference chrome: `docs/mockups/screenshots/mystic_desktop_drawers.png`.
+**B — pros:** an area feels like its own screen; the orb shrinks to a corner pip and the form owns the stage. **Cons:** the agent presence shrinks while you work.
+
+**C — pros:** seven area labels sit on neural spokes, then the pick opens the same glass as A; the App grid stays the keyboard fallback (`C3`). **Cons:** most UI to build (hub is KAN-109; v1 or phase 2).
+
+Earlier six-frame pass (`option_a_home.png` and siblings) and the HTML wireframes under this folder are layout notes only. Reference chrome: `docs/mockups/screenshots/mystic_desktop_drawers.png`.
 
 ## Option A — Full-bleed area overlay
 
