@@ -219,7 +219,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
 | FR-TEST-5 | Shipped baseline import/run; in-suite import deepen | **Done** **KAN-59**; Test-all **C8** |
 | FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; D3/D4 later |
-| FR-PLAN-1…2 | Partial (A1+A5) | **KAN-125** store + **KAN-133** edit/disable/reorder; run UI later A7 |
+| FR-PLAN-1…2 | Partial (A1+A5+A6) | **KAN-125** store + **KAN-133** edit/disable/reorder + **KAN-135** starter/empty home; run UI later A7 |
 | FR-PLAN-3…4 | Partial (A4) | **KAN-131** draft from one story + optional doc; project-scale later C |
 | FR-CI-1 | Future (design) | Test-all **H2** |
 | FR-MAN-1 | Future (design) | Test-all **H1** |
@@ -237,7 +237,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-SEC-2 | Done | **KAN-69** |
 | FR-SEC-4 | Done | **KAN-71** |
 | FR-UI-1…5 | Baseline shipped | **Done** KAN-10/41/53/73; Voice **KAN-81** deferred (mic; last) |
-| FR-UI-6 | Baseline Security + Reports widgets; role packs later | **Done** **KAN-103** / **KAN-107** / **KAN-104**; Test-all **F1–F7** |
+| FR-UI-6 | Baseline Security + Reports + Lab checklist; role packs later | **Done** **KAN-103** / **KAN-107** / **KAN-104** + **KAN-135** empty-lab checklist; Test-all **F1–F7** |
 | FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix | **Done** **KAN-103** / **KAN-104** (desk22g) |
 | FR-SET-3 | Shipped — App Settings screen vs Orb settings (Screen drawer) | **Done** Task **KAN-108** under KAN-103 |
 | FR-PLUG-1 | Shipped registry + local multi-sandbox orchestration | **Done** KAN-55 stub + **KAN-95** (test **KAN-96**) |

@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-135** — Test-all A6 — Empty state and starter template on orb home |
-| **Start task** | **KAN-136** (`test`, Relates → KAN-135) |
+| **Jira story** | **KAN-137** — Test-all A7 — Run a single case and show evidence |
+| **Start task** | **KAN-138** (`test`, Relates → KAN-137) |
 | **Epic** | **KAN-117** — Test-all A — Usable lab (alpha) |
-| **Roadmap ID** | TESTALL-A / FR-UI-1 / FR-UI-6 / FR-PLAN-1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` §1 + FR-UI/FR-PLAN; catalogue `docs/ops/test_all_catalogue.json` |
+| **Roadmap ID** | TESTALL-A / FR-PLAN-2 / FR-PLAN-4 / FR-TEST-2 / FR-TEST-4 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` §1 + FR-PLAN/FR-TEST; catalogue `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-136** |
-| **Shipped** | Prototype baselines through **KAN-99**/**KAN-100**; Test-all backlog seeded **KAN-117…KAN-246**; **KAN-125** A1; **KAN-127** A2; **KAN-129** A3; **KAN-131** A4; **KAN-133** A5 |
+| **Test ticket** | **KAN-138** |
+| **Shipped** | Prototype baselines through **KAN-99**/**KAN-100**; Test-all backlog seeded **KAN-117…KAN-246**; **KAN-125** A1; **KAN-127** A2; **KAN-129** A3; **KAN-131** A4; **KAN-133** A5; **KAN-135** A6 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-135 — A6 empty state / starter template on orb home
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-135
+- **Done:** Orb-home Lab checklist HUD auto-shows when the active level has no plans (check connection, draft from story key, start template). `plans/starter.py` + `GET /api/plans/home` + `POST /api/plans/starter` create a normal editable starter plan (3 cases). No second welcome canvas; App areas still open (starter opens Plans). Screen drawer can also toggle Lab checklist. Cache bust desk34.
+- **Files:** `plans/starter.py`, `plans/__init__.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_plan_starter.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP
+- **Verify:** `pytest tests/test_plan_starter.py tests/test_plan_edit.py tests/test_plan_store.py -v` (7 passed). Live desk34 HTML has `hud-lab`; Computer Use: empty checklist visible → Start a template → Plans with Starter plan 3 cases.
+- **Jira:** story agent-completion + **KAN-136** evidence/Done; **KAN-135** Done
+- **Next:** **KAN-137** A7 run a single case and show evidence (test **KAN-138**)
 
 ### 2026-11-16 — KAN-129 / KAN-131 / KAN-133 — A3–A5 (model + draft + edit plan)
 - **Agent/chat:** Cursor IDE Agent (Composer) — multi-ticket pick-up (next three)

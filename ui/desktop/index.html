@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk33" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk34" />
 </head>
 <body>
   <div id="app">
@@ -114,6 +114,19 @@
     <aside id="hud-reports" class="shell-surface hud-widget hud-reports movable-widget" data-widget="hud-reports" hidden aria-label="Reports HUD" title="Drag to move · resize from edges">
       <h4 class="hud-widget-title">Reports HUD</h4>
       <p id="hud-reports-body" class="hud-widget-body">No recent run</p>
+    </aside>
+    <aside id="hud-lab" class="shell-surface hud-widget hud-lab movable-widget" data-widget="hud-lab" hidden aria-label="Lab checklist" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Lab checklist</h4>
+      <p id="hud-lab-message" class="hud-widget-body">No plan yet — pick a next step.</p>
+      <div class="hud-lab-actions">
+        <button type="button" id="hud-lab-conn" class="save-btn secondary hud-lab-btn">Check connection</button>
+        <label class="stack-label hud-lab-story">Story key
+          <input type="text" id="hud-lab-issue" placeholder="KAN-135" autocomplete="off" />
+        </label>
+        <button type="button" id="hud-lab-draft" class="save-btn secondary hud-lab-btn">Draft from story</button>
+        <button type="button" id="hud-lab-starter" class="save-btn hud-lab-btn">Start a template</button>
+      </div>
+      <p id="hud-lab-status" class="drawer-hint" role="status"></p>
     </aside>
 
     <div id="area-layer" class="area-layer" hidden>
@@ -445,9 +458,10 @@
           <label>Border <input id="ctrl-widget-border" type="color" value="#50cdff" /></label>
           <label>Background <input id="ctrl-widget-bg" type="color" value="#000000" /></label>
           <h3 class="orb-section-label">HUD widgets</h3>
-          <p class="drawer-hint">Home mini panels only. They are not App area content.</p>
+          <p class="drawer-hint">Home mini panels only. They are not App area content. Lab checklist also auto-shows when there is no plan yet.</p>
           <label class="check-row"><input type="checkbox" id="hud-security-toggle" /> Security status</label>
           <label class="check-row"><input type="checkbox" id="hud-reports-toggle" /> Reports mini</label>
+          <label class="check-row"><input type="checkbox" id="hud-lab-toggle" /> Lab checklist</label>
         </div>
       </div>
     </aside>
@@ -455,6 +469,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk33"></script>
+  <script src="/ui/desktop/desktop.js?v=desk34"></script>
 </body>
 </html>

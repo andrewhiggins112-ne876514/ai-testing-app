@@ -40,6 +40,7 @@ from plugins.playwright_suite import (
     suite_status as playwright_suite_status,
 )
 from plans.draft import add_document_draft_cases, draft_plan_from_issue
+from plans.starter import create_starter_plan, lab_home_status
 from plans.store import (
     add_case as plan_add_case,
     add_run as plan_add_run,
@@ -199,6 +200,10 @@ class PlanDraftRequest(BaseModel):
     issue_key: str = ""
     document_text: str = ""
     document_name: str = ""
+
+
+class PlanStarterRequest(BaseModel):
+    name: str = "Starter plan"
 
 
 class PlanDocumentDraftRequest(BaseModel):
@@ -575,6 +580,18 @@ async def post_plan_draft(req: PlanDraftRequest):
         document_text=req.document_text or "",
         document_name=req.document_name or "",
     )
+
+
+@app.get("/api/plans/home")
+async def get_plans_home():
+    """Orb-home empty state + checklist when no plans exist (KAN-135)."""
+    return lab_home_status()
+
+
+@app.post("/api/plans/starter")
+async def post_plan_starter(req: PlanStarterRequest):
+    """Create a starter template plan with editable cases (KAN-135). No Jira writes."""
+    return create_starter_plan(name=req.name or "Starter plan")
 
 
 @app.get("/api/plans/{plan_id}")

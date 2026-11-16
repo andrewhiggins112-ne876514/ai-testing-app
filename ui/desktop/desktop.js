@@ -1888,13 +1888,22 @@
   const sectionHost = document.getElementById("area-section-host");
   const hudSecurityToggle = document.getElementById("hud-security-toggle");
   const hudReportsToggle = document.getElementById("hud-reports-toggle");
+  const hudLabToggle = document.getElementById("hud-lab-toggle");
   const hudSecurityPanel = document.getElementById("hud-security");
   const hudReportsPanel = document.getElementById("hud-reports");
+  const hudLabPanel = document.getElementById("hud-lab");
   const hudSecurityLevel = document.getElementById("hud-security-level");
   const hudReportsBody = document.getElementById("hud-reports-body");
+  const hudLabMessage = document.getElementById("hud-lab-message");
+  const hudLabStatus = document.getElementById("hud-lab-status");
+  const hudLabConn = document.getElementById("hud-lab-conn");
+  const hudLabDraft = document.getElementById("hud-lab-draft");
+  const hudLabStarter = document.getElementById("hud-lab-starter");
+  const hudLabIssue = document.getElementById("hud-lab-issue");
   let areaLayout = "overlay";
   let openAreaName = "";
-  let hudFlags = { security: false, reports: false };
+  let hudFlags = { security: false, reports: false, lab: false };
+  let labHomeEmpty = false;
   let hubCloseTimer = 0;
 
   if (areaBody && sectionHost) {
@@ -2281,20 +2290,26 @@
     hudFlags = {
       security: !!(flags && flags.security),
       reports: !!(flags && flags.reports),
+      lab: !!(flags && flags.lab),
     };
     if (hudSecurityToggle) hudSecurityToggle.checked = hudFlags.security;
     if (hudReportsToggle) hudReportsToggle.checked = hudFlags.reports;
+    if (hudLabToggle) hudLabToggle.checked = hudFlags.lab;
     const home = !openAreaName;
     if (hudSecurityPanel) hudSecurityPanel.hidden = !(home && hudFlags.security);
     if (hudReportsPanel) hudReportsPanel.hidden = !(home && hudFlags.reports);
+    // Empty lab auto-shows checklist on home; toggle keeps it available when plans exist.
+    if (hudLabPanel) {
+      hudLabPanel.hidden = !(home && (labHomeEmpty || hudFlags.lab));
+    }
   }
 
   function loadHud() {
     try {
       const raw = localStorage.getItem(HUD_KEY);
-      applyHud(raw ? JSON.parse(raw) : { security: false, reports: false });
+      applyHud(raw ? JSON.parse(raw) : { security: false, reports: false, lab: false });
     } catch (err) {
-      applyHud({ security: false, reports: false });
+      applyHud({ security: false, reports: false, lab: false });
     }
   }
 
@@ -2302,6 +2317,7 @@
     const flags = {
       security: !!(hudSecurityToggle && hudSecurityToggle.checked),
       reports: !!(hudReportsToggle && hudReportsToggle.checked),
+      lab: !!(hudLabToggle && hudLabToggle.checked),
     };
     applyHud(flags);
     try {
@@ -2311,12 +2327,119 @@
     }
   }
 
+  async function refreshLabHome() {
+    try {
+      const res = await fetch("/api/plans/home");
+      const payload = await res.json();
+      labHomeEmpty = !!(payload && payload.empty);
+      if (hudLabMessage) {
+        hudLabMessage.textContent =
+          (payload && payload.message) ||
+          (labHomeEmpty
+            ? "No plan yet — pick a next step."
+            : "Plans ready for this level.");
+      }
+      applyHud(hudFlags);
+    } catch (err) {
+      labHomeEmpty = false;
+      if (hudLabStatus) hudLabStatus.textContent = "Could not load lab home status.";
+      applyHud(hudFlags);
+    }
+  }
+
   if (hudSecurityToggle) hudSecurityToggle.addEventListener("change", saveHud);
   if (hudReportsToggle) hudReportsToggle.addEventListener("change", saveHud);
+  if (hudLabToggle) hudLabToggle.addEventListener("change", saveHud);
   loadHud();
   loadHudReports();
   loadSecurityStatus();
+  refreshLabHome();
   applyAreaLayout(loadAreaLayout());
+
+  if (hudLabConn) {
+    hudLabConn.addEventListener("click", async function () {
+      if (hudLabStatus) hudLabStatus.textContent = "Checking connection…";
+      try {
+        const res = await fetch("/api/connection-health");
+        const payload = await res.json();
+        applyConnectionHealth(payload);
+        if (hudLabStatus) {
+          hudLabStatus.textContent =
+            payload.message || "Health: " + (payload.overall || "unknown");
+        }
+        // Deep-link into Settings without replacing the home canvas permanently.
+        openArea("settings");
+      } catch (err) {
+        if (hudLabStatus) hudLabStatus.textContent = "Connection check failed.";
+      }
+    });
+  }
+
+  if (hudLabDraft) {
+    hudLabDraft.addEventListener("click", async function () {
+      const key = hudLabIssue && hudLabIssue.value ? hudLabIssue.value.trim() : "";
+      if (!key) {
+        if (hudLabStatus) hudLabStatus.textContent = "Enter a story key first.";
+        return;
+      }
+      if (hudLabStatus) hudLabStatus.textContent = "Drafting from " + key + "…";
+      try {
+        const res = await fetch("/api/plans/draft", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ issue_key: key }),
+        });
+        const payload = await res.json();
+        if (payload.status !== "ok" || !payload.plan) {
+          if (hudLabStatus) {
+            hudLabStatus.textContent = payload.message || "Draft failed.";
+          }
+          return;
+        }
+        if (planIssueKey) planIssueKey.value = key;
+        await loadPlanList(payload.plan.id);
+        openPlanId = payload.plan.id;
+        renderPlanCases(payload.plan);
+        await refreshLabHome();
+        if (hudLabStatus) {
+          hudLabStatus.textContent = payload.message || "Drafted.";
+        }
+        openArea("plans");
+      } catch (err) {
+        if (hudLabStatus) hudLabStatus.textContent = "Draft request failed.";
+      }
+    });
+  }
+
+  if (hudLabStarter) {
+    hudLabStarter.addEventListener("click", async function () {
+      if (hudLabStatus) hudLabStatus.textContent = "Creating starter template…";
+      try {
+        const res = await fetch("/api/plans/starter", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: "Starter plan" }),
+        });
+        const payload = await res.json();
+        if (payload.status !== "ok" || !payload.plan) {
+          if (hudLabStatus) {
+            hudLabStatus.textContent = payload.message || "Starter failed.";
+          }
+          return;
+        }
+        await loadPlanList(payload.plan.id);
+        openPlanId = payload.plan.id;
+        renderPlanCases(payload.plan);
+        await refreshLabHome();
+        if (hudLabStatus) {
+          hudLabStatus.textContent = payload.message || "Starter created.";
+        }
+        openArea("plans");
+      } catch (err) {
+        if (hudLabStatus) hudLabStatus.textContent = "Starter request failed.";
+      }
+    });
+  }
 
   function formatJiraRead(payload) {
     if (!payload || typeof payload !== "object") {
@@ -2463,6 +2586,7 @@
         await loadPlanList(payload.plan.id);
         openPlanId = payload.plan.id;
         renderPlanCases(payload.plan);
+        if (typeof refreshLabHome === "function") await refreshLabHome();
         if (planStatus) {
           planStatus.textContent = payload.message || "Drafted.";
         }
