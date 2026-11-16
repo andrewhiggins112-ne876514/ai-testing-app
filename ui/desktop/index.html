@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk31" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk32" />
 </head>
 <body>
   <div id="app">
@@ -145,7 +145,7 @@
         <div id="area-section-host">
         <div id="app-section-settings" class="app-section" hidden>
           <h3 class="orb-section-label">App settings</h3>
-          <p class="drawer-hint">Chat stays primary. Target URL, exe path, messaging endpoints, and Jira base URL are first-class here (level-scoped). Credentials stay in the local store and are never shown. Orb colours stay in the Screen drawer.</p>
+          <p class="drawer-hint">Chat stays primary. Connect-once checklist below uses the same level-scoped keys (Jira, target, exe, messaging). Credentials stay in the local store and are never shown. Orb colours stay in the Screen drawer.</p>
           <fieldset class="layout-picker" id="area-layout-picker">
             <legend class="orb-section-label">App area layout</legend>
             <p class="drawer-hint">How App areas open. Borders, labels, and glow use the active orb style accent.</p>
@@ -155,6 +155,9 @@
             <label class="layout-choice"><input type="radio" name="area-layout" value="split" /> <span><strong>Split</strong> — docked panel beside the orb; Esc closes it</span></label>
             <label class="layout-choice"><input type="radio" name="area-layout" value="floating" /> <span><strong>Floating</strong> — movable area window; orb stays full size</span></label>
           </fieldset>
+          <h4 class="orb-section-label">Connect-once checklist</h4>
+          <p class="drawer-hint">Save connection keys, then check whether Jira, Ollama, and the target URL are reachable. Security level switches still require confirm in Security.</p>
+          <p id="conn-level" class="drawer-hint">Security level: —</p>
           <label class="stack-label">Target application URL
             <input type="url" id="set-target-url" placeholder="https://app.example.com" autocomplete="off" />
           </label>
@@ -171,6 +174,12 @@
             <input type="text" id="set-jira-project" placeholder="KAN" autocomplete="off" maxlength="10" />
           </label>
           <p class="drawer-hint">FR-LEARN-4: default project for list/read when the agent or tools omit a key.</p>
+          <div class="btn-row">
+            <button type="button" id="set-save" class="save-btn">Save connection</button>
+            <button type="button" id="conn-health-btn" class="save-btn secondary">Check health</button>
+          </div>
+          <pre id="conn-health-out" class="drawer-hint" aria-live="polite" hidden></pre>
+          <p id="conn-health-status" class="drawer-hint" role="status">Health: not checked yet</p>
           <h4 class="orb-section-label">Read Jira story</h4>
           <p class="drawer-hint">Fetch description and acceptance criteria by issue key (FR-JIRA-1). Credentials stay in the local store.</p>
           <label class="stack-label">Issue key
@@ -199,7 +208,6 @@
           <p id="set-store-path" class="drawer-hint">Local store: —</p>
           <p id="set-creds" class="drawer-hint">Jira credentials: —</p>
           <p id="set-summary" class="drawer-hint">Summary: —</p>
-          <button type="button" id="set-save" class="save-btn">Save</button>
           <p id="set-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-security" class="app-section" hidden>
@@ -389,6 +397,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk31"></script>
+  <script src="/ui/desktop/desktop.js?v=desk32"></script>
 </body>
 </html>

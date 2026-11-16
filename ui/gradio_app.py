@@ -1482,6 +1482,21 @@ def settings_store_summary():
     return app_settings_status().get("summary") or ""
 
 
+def connection_health_summary():
+    """Jira / Ollama / target up-down lines for Gradio (KAN-127). Never secrets."""
+    from settings.connection_health import connection_health
+
+    payload = connection_health()
+    lines = [payload.get("message") or "Connection health"]
+    for check in payload.get("checks") or []:
+        mark = "UP" if check.get("up") else str(check.get("state") or "down").upper()
+        lines.append(f"{mark}  {check.get('label') or check.get('id')}: {check.get('message') or ''}")
+    checklist = payload.get("checklist") or {}
+    level = checklist.get("security_level") or "—"
+    lines.append(f"Security level: {level} (switch still requires confirm)")
+    return "\n".join(lines)
+
+
 def privacy_panel_summary():
     status = privacy_status()
     cats = status.get("categories") or {}
@@ -2052,6 +2067,12 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     lines=4,
                 )
                 status = gr.Textbox(value="Ready", label="Status", interactive=False, max_lines=1)
+                health_info = gr.Textbox(
+                    value="Health: not checked yet",
+                    label="Connection health (Jira / Ollama / target)",
+                    interactive=False,
+                    lines=5,
+                )
                 with gr.Row():
                     gr.Button("Save", variant="primary").click(
                         save_settings,
@@ -2080,6 +2101,11 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                             playwright_mode_dd,
                         ],
                         [status, store_info],
+                    )
+                    gr.Button("Check health").click(
+                        connection_health_summary,
+                        [],
+                        [health_info],
                     )
                 gr.HTML('<div class="orb-section-label">Privacy &amp; local data (GDPR)</div>')
                 gr.HTML(

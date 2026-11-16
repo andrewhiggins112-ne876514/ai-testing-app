@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-127** — Test-all A2 — Connect-once checklist and health |
-| **Start task** | **KAN-128** (`test`, Relates → KAN-127) |
+| **Jira story** | **KAN-129** — Test-all A3 — Choose the Ollama model |
+| **Start task** | **KAN-130** (`test`, Relates → KAN-129) |
 | **Epic** | **KAN-117** — Test-all A — Usable lab (alpha) |
-| **Roadmap ID** | TESTALL-A / FR-CONN-1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` §1 + FR-CONN/FR-PLAN; catalogue `docs/ops/test_all_catalogue.json` |
+| **Roadmap ID** | TESTALL-A / FR-CONN-1 / FR-SET-3 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` §1 + FR-CONN/FR-SET; catalogue `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-128** |
-| **Shipped** | Prototype baselines through **KAN-99**/**KAN-100**; Test-all backlog seeded **KAN-117…KAN-246**; **KAN-125** A1 plan model |
+| **Test ticket** | **KAN-130** |
+| **Shipped** | Prototype baselines through **KAN-99**/**KAN-100**; Test-all backlog seeded **KAN-117…KAN-246**; **KAN-125** A1; **KAN-127** A2 connect-once health |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-127 — Connect-once checklist and health (A2)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-127
+- **Done:** Connect-once checklist on existing App Settings keys (Jira URL/project, target URL, optional exe, messaging, level). `GET /api/connection-health` reports up/down for Jira, Ollama, and target without secrets (system CA via `ssl.create_default_context`). Desktop desk32 Save connection + Check health; Gradio Check health. Level switch still confirm-gated. No new credential store.
+- **Files:** `settings/connection_health.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_connection_health.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP
+- **Verify:** `pytest tests/test_connection_health.py tests/test_app_settings.py -v` (10 passed). Live `GET /api/connection-health` → Jira up, Ollama up, target not_configured; desk32 HTML has Connect-once / `conn-health-btn`.
+- **Jira:** story agent-completion + **KAN-128** evidence/Done; **KAN-127** Done
+- **Next:** **KAN-129** A3 choose Ollama model (test **KAN-130**)
 
 ### 2026-11-16 — KAN-125 — Local plan, suite, case, and run model (A1)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-125

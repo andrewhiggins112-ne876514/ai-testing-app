@@ -49,6 +49,7 @@ from plans.store import (
 from plugins.registry import list_plugins
 from reports.exporter import latest_summary as latest_report_summary
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
+from settings.connection_health import connection_health
 from settings.privacy import delete_local_data, privacy_status, telemetry_enabled
 from settings.store import (
     app_settings_status,
@@ -338,6 +339,12 @@ async def post_app_settings_api(req: AppSettingsRequest):
     elif req.playwright_headless is not None:
         kwargs["playwright_headless"] = req.playwright_headless
     return save_app_settings(**kwargs)
+
+
+@app.get("/api/connection-health")
+async def get_connection_health_api():
+    """Connect-once health: Jira, Ollama, target — no secrets (KAN-127 / FR-CONN-1)."""
+    return connection_health()
 
 
 @app.get("/api/test-framework")

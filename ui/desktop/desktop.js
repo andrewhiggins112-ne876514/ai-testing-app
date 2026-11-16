@@ -1263,6 +1263,10 @@
   const setSummary = document.getElementById("set-summary");
   const setSave = document.getElementById("set-save");
   const setStatus = document.getElementById("set-status");
+  const connLevel = document.getElementById("conn-level");
+  const connHealthBtn = document.getElementById("conn-health-btn");
+  const connHealthOut = document.getElementById("conn-health-out");
+  const connHealthStatus = document.getElementById("conn-health-status");
   const deskEnabled = document.getElementById("desk-enabled");
   const deskPath = document.getElementById("desk-path");
   const deskExe = document.getElementById("desk-exe");
@@ -1370,6 +1374,12 @@
       setPlaywrightMode.value =
         mode === "headless" || payload.playwright_headless ? "headless" : "headed";
     }
+    if (connLevel) {
+      connLevel.textContent =
+        "Security level: " +
+        (payload.security_level || "—") +
+        " (switch requires confirm in Security)";
+    }
     if (setStorePath) {
       setStorePath.textContent =
         "Local store: " + (payload.settings_path || "—");
@@ -1388,6 +1398,32 @@
       setSummary.textContent = lines.length
         ? lines.join(" · ")
         : "Summary: —";
+    }
+  }
+
+  function applyConnectionHealth(payload) {
+    if (!payload) return;
+    if (payload.checklist && connLevel) {
+      connLevel.textContent =
+        "Security level: " +
+        (payload.checklist.security_level || "—") +
+        " (switch requires confirm in Security)";
+    }
+    const checks = payload.checks || [];
+    const lines = checks.map(function (c) {
+      const mark = c.up ? "UP" : String(c.state || "down").toUpperCase();
+      return mark + "  " + (c.label || c.id) + " — " + (c.message || "");
+    });
+    if (connHealthOut) {
+      connHealthOut.hidden = false;
+      connHealthOut.textContent = lines.length
+        ? lines.join("\n")
+        : payload.summary || "";
+    }
+    if (connHealthStatus) {
+      connHealthStatus.textContent =
+        payload.message ||
+        "Health: " + (payload.overall || "unknown");
     }
   }
 
@@ -2194,6 +2230,23 @@
         }
       } catch (err) {
         if (setStatus) setStatus.textContent = "Could not save app settings.";
+      }
+    });
+  }
+
+  if (connHealthBtn) {
+    connHealthBtn.addEventListener("click", async function () {
+      if (connHealthStatus) connHealthStatus.textContent = "Checking…";
+      try {
+        const res = await fetch("/api/connection-health");
+        const payload = await res.json();
+        applyConnectionHealth(payload);
+      } catch (err) {
+        if (connHealthStatus) {
+          connHealthStatus.textContent =
+            "Health check failed: " +
+            (err && err.message ? err.message : err);
+        }
       }
     });
   }
