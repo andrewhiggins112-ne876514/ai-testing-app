@@ -69,6 +69,7 @@ Rules:
 - Side-effecting tools (Jira writes, settings changes, delete_local_data) always need the human's own yes/confirm in chat. Tool-argument confirm flags are ignored.
 - Shell, raw network, and filesystem-outside-workspace tools are not available. Do not invent them.
 - For a browse/test request, prefer generate_playwright_steps first (happy path + negatives), then run_playwright. Steps use action goto, click, fill, expect_text, expect_url, or expect_visible; click a visible label with selector text=Label. Non-trivial flows MUST include expect_text or expect_url (visibility-only is incomplete). Include at least one negative/edge draft when generating.
+- Target application URL (`target_url`), desktop exe path (`target_app_path`), and messaging/API endpoint (`api_endpoint`) are first-class level-scoped settings. Prefer them over asking the user to re-paste every session; use update_settings (with confirm) when the user wants to change them.
 - For a Windows .exe / desktop smoke test, call run_desktop with optional exe_path (or rely on target_app_path in settings). If the plugin is disabled, tell the user to enable plugin_desktop_enabled.
 - To import or run an existing Playwright project suite (not JSON steps), call run_playwright_suite with action discover, import, list, or run and optional suite_path (or settings playwright_suite_path).
 - To list registered plugins and toggles, call list_plugins. For multi-sandbox planning, call orchestrate_sandboxes (action list or plan). If disabled, tell the user to enable plugin_multi_sandbox_enabled.
@@ -577,7 +578,10 @@ class Agent:
                 "type": "function",
                 "function": {
                     "name": "update_settings",
-                    "description": "Propose or apply settings changes (credentials, URLs, security level). Always confirm first.",
+                    "description": (
+                        "Propose or apply settings changes (credentials, target_url, "
+                        "target_app_path, api_endpoint, jira_url, security level). Always confirm first."
+                    ),
                     "parameters": {
                         "type": "object",
                         "properties": {

@@ -71,8 +71,8 @@ Open FR Stories: KAN-77…KAN-81 (first seed remainder), plus gap pass KAN-83…
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-77** — First-class target URL, exe path, messaging endpoints (FR-LEARN-2/3; test KAN-78).
+**KAN-79** — Dynamic framework switching stub via settings (FR-PLUG-3/2; test KAN-80).
 
-**Done this cycle:** **KAN-75/76** — Heal proposal review UI (FR-HEAL-2/5). Earlier: **KAN-103/104** desktop nav shell.
+**Done this cycle:** **KAN-77/78** — First-class target URL / exe / messaging (FR-LEARN-2/3, desk24). Earlier: **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
 
 Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

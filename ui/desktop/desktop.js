@@ -1147,6 +1147,9 @@
   const healStatus = document.getElementById("heal-status");
   const healRefresh = document.getElementById("heal-refresh");
   const setJiraUrl = document.getElementById("set-jira-url");
+  const setTargetUrl = document.getElementById("set-target-url");
+  const setTargetExe = document.getElementById("set-target-exe");
+  const setApiEndpoint = document.getElementById("set-api-endpoint");
   const setStorePath = document.getElementById("set-store-path");
   const setCreds = document.getElementById("set-creds");
   const setSummary = document.getElementById("set-summary");
@@ -1229,6 +1232,15 @@
     if (!payload) return;
     if (setJiraUrl) {
       setJiraUrl.value = payload.jira_url || "";
+    }
+    if (setTargetUrl) {
+      setTargetUrl.value = payload.target_url || "";
+    }
+    if (setTargetExe) {
+      setTargetExe.value = payload.target_app_path || "";
+    }
+    if (setApiEndpoint) {
+      setApiEndpoint.value = payload.api_endpoint || "";
     }
     if (setStorePath) {
       setStorePath.textContent =
@@ -1903,6 +1915,14 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             jira_url: setJiraUrl && setJiraUrl.value ? setJiraUrl.value.trim() : "",
+            target_url:
+              setTargetUrl && setTargetUrl.value ? setTargetUrl.value.trim() : "",
+            target_app_path:
+              setTargetExe && setTargetExe.value ? setTargetExe.value.trim() : "",
+            api_endpoint:
+              setApiEndpoint && setApiEndpoint.value
+                ? setApiEndpoint.value.trim()
+                : "",
           }),
         });
         const payload = await res.json();

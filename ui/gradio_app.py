@@ -1460,7 +1460,13 @@ _NONE_REPORT = "(none yet)"
 
 def current_settings():
     data = load_settings()
-    return data.get("security_level") or "OFFICIAL", data.get("jira_url") or ""
+    return (
+        data.get("security_level") or "OFFICIAL",
+        data.get("jira_url") or "",
+        data.get("target_url") or "",
+        data.get("target_app_path") or "",
+        data.get("api_endpoint") or "",
+    )
 
 
 def settings_store_summary():
@@ -1587,14 +1593,20 @@ def plugins_list_summary() -> str:
     return "Registered plugins:\n" + ("\n".join(lines) if lines else "(none)")
 
 
-def save_settings(level, jira_base_url, confirm_level: bool = False):
-    """Save Jira URL; level switch requires a second confirm (FR-SEC-3)."""
+def save_settings(
+    level,
+    jira_base_url,
+    target_url="",
+    target_app_path="",
+    api_endpoint="",
+    confirm_level: bool = False,
+):
+    """Save target/Jira settings; level switch requires a second confirm (FR-SEC-3)."""
+    from settings.store import save_app_settings
+
     level = (level or "").strip().upper()
-    url = (jira_base_url or "").strip()
     if level not in LEVELS:
         return "Invalid security level.", settings_store_summary()
-    if url and not (url.startswith("https://") or url.startswith("http://")):
-        return "Jira URL must start with http:// or https://.", settings_store_summary()
     current = (load_settings().get("security_level") or "OFFICIAL").strip().upper()
     if level != current and not confirm_level:
         result = set_security_level(level, confirm=False)
@@ -1604,13 +1616,27 @@ def save_settings(level, jira_base_url, confirm_level: bool = False):
         result = set_security_level(level, confirm=True)
         if result.get("status") == "error":
             return result.get("message") or "Level switch failed.", settings_store_summary()
-    update_setting("jira_url", url, confirm=True)
+    saved = save_app_settings(
+        jira_url=jira_base_url or "",
+        target_url=target_url or "",
+        target_app_path=target_app_path or "",
+        api_endpoint=api_endpoint or "",
+    )
+    if saved.get("status") == "error":
+        return saved.get("message") or "Save failed.", settings_store_summary()
     return "Saved.", settings_store_summary()
 
 
-def confirm_security_level(level, jira_base_url):
+def confirm_security_level(level, jira_base_url, target_url="", target_app_path="", api_endpoint=""):
     """Second step for OFFICIAL/SECRET switch."""
-    return save_settings(level, jira_base_url, confirm_level=True)
+    return save_settings(
+        level,
+        jira_base_url,
+        target_url,
+        target_app_path,
+        api_endpoint,
+        confirm_level=True,
+    )
 
 
 def _format_doc_proposal(result: dict) -> tuple[str, str, str]:
@@ -1921,12 +1947,12 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     fill_height=False,
                 )
         with gr.Tab("Settings"):
-            loaded_level, loaded_url = current_settings()
+            loaded_level, loaded_url, loaded_target, loaded_exe, loaded_msg = current_settings()
             with gr.Column(elem_id="settings-panel"):
                 gr.HTML('<div class="panel-title">Settings</div>')
                 gr.HTML(
-                    '<div class="panel-hint">Chat stays primary. Security and Jira URL live here as '
-                    "secondary controls — credentials never appear in this UI.</div>"
+                    '<div class="panel-hint">Chat stays primary. Target URL, exe path, messaging '
+                    "endpoints, security, and Jira URL are first-class here — credentials never appear.</div>"
                 )
                 gr.HTML('<div class="orb-section-label">Security</div>')
                 level = gr.Dropdown(
@@ -1934,6 +1960,23 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     value=loaded_level,
                     label="Security level",
                     info="OFFICIAL and SECRET isolate credentials and browser profiles (FR-SEC-1).",
+                )
+                gr.HTML('<div class="orb-section-label">Target application (FR-LEARN-2/3)</div>')
+                target_url_box = gr.Textbox(
+                    value=loaded_target,
+                    label="Target application URL",
+                    placeholder="https://app.example.com",
+                )
+                target_exe_box = gr.Textbox(
+                    value=loaded_exe,
+                    label="Target .exe path",
+                    placeholder=r"C:\Path\To\App.exe",
+                )
+                api_endpoint_box = gr.Textbox(
+                    value=loaded_msg,
+                    label="Messaging / API endpoint",
+                    placeholder="amqps://broker.example.com/vhost",
+                    info="http(s), amqp(s), or ws(s). Stored per security level.",
                 )
                 gr.HTML('<div class="orb-section-label">Jira</div>')
                 jira_base_url = gr.Textbox(
@@ -1946,15 +1989,19 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     value=settings_store_summary(),
                     label="Local store",
                     interactive=False,
-                    lines=3,
+                    lines=4,
                 )
                 status = gr.Textbox(value="Ready", label="Status", interactive=False, max_lines=1)
                 with gr.Row():
                     gr.Button("Save", variant="primary").click(
-                        save_settings, [level, jira_base_url], [status, store_info]
+                        save_settings,
+                        [level, jira_base_url, target_url_box, target_exe_box, api_endpoint_box],
+                        [status, store_info],
                     )
                     gr.Button("Confirm level switch").click(
-                        confirm_security_level, [level, jira_base_url], [status, store_info]
+                        confirm_security_level,
+                        [level, jira_base_url, target_url_box, target_exe_box, api_endpoint_box],
+                        [status, store_info],
                     )
                 gr.HTML('<div class="orb-section-label">Privacy &amp; local data (GDPR)</div>')
                 gr.HTML(
@@ -2157,7 +2204,10 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     [doc_proposal_id],
                     [doc_status, doc_preview, doc_proposal_id],
                 )
-    demo.load(current_settings, outputs=[level, jira_base_url])
+    demo.load(
+        current_settings,
+        outputs=[level, jira_base_url, target_url_box, target_exe_box, api_endpoint_box],
+    )
     demo.load(settings_store_summary, outputs=[store_info])
     demo.load(
         refresh_reports_ui,

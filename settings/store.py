@@ -247,6 +247,17 @@ def _jira_credentials_label(email_set: bool, token_set: bool) -> tuple[str, str]
     )
 
 
+def _http_url_ok(value: str) -> bool:
+    return value.startswith("https://") or value.startswith("http://")
+
+
+def _messaging_url_ok(value: str) -> bool:
+    lower = value.lower()
+    return lower.startswith(
+        ("https://", "http://", "amqp://", "amqps://", "ws://", "wss://")
+    )
+
+
 def app_settings_status() -> dict:
     """Desktop/Gradio App Settings payload (FR-UI-1 / FR-SET-1). Never echoes secrets."""
     data = load_settings()
@@ -259,6 +270,8 @@ def app_settings_status() -> dict:
     desk_on = bool(data.get("plugin_desktop_enabled", True))
     multi_on = bool(data.get("plugin_multi_sandbox_enabled", False))
     app_path = (data.get("target_app_path") or "").strip()
+    target_url = (data.get("target_url") or "").strip()
+    api_endpoint = (data.get("api_endpoint") or "").strip()
     suite_path = (data.get("playwright_suite_path") or "").strip()
     telem = bool(data.get("telemetry_enabled", False))
     summary = "\n".join(
@@ -266,6 +279,7 @@ def app_settings_status() -> dict:
             f"Local store: {settings_path()}",
             f"Level: {level} | Browser profile: {browser_profile_dir(level)}",
             creds_label,
+            f"Target URL: {target_url or '(not set)'} | Messaging: {api_endpoint or '(not set)'}",
             f"Desktop plugin: {'on' if desk_on else 'off'} | target_app_path: {app_path or '(not set)'}",
             f"Playwright suite path: {suite_path or '(not set)'}",
             f"Multi-sandbox plugin: {'on' if multi_on else 'off'}",
@@ -281,7 +295,9 @@ def app_settings_status() -> dict:
         "jira_credentials_label": creds_label,
         "jira_credentials_configured": creds_status == "configured",
         "plugin_desktop_enabled": desk_on,
+        "target_url": target_url,
         "target_app_path": app_path,
+        "api_endpoint": api_endpoint,
         "playwright_suite_path": suite_path,
         "plugin_multi_sandbox_enabled": multi_on,
         "telemetry_enabled": telem,
@@ -289,12 +305,19 @@ def app_settings_status() -> dict:
     }
 
 
-def save_jira_url(url: str) -> dict:
-    """Persist Jira base URL for the active security level. Never returns secrets."""
-    cleaned = (url or "").strip()
-    if cleaned and not (
-        cleaned.startswith("https://") or cleaned.startswith("http://")
-    ):
+def save_app_settings(
+    jira_url: str = "",
+    target_url: str = "",
+    target_app_path: str = "",
+    api_endpoint: str = "",
+) -> dict:
+    """Persist App Settings targets for the active security level (FR-LEARN-2/3)."""
+    jira = (jira_url or "").strip()
+    target = (target_url or "").strip()
+    exe = (target_app_path or "").strip()
+    messaging = (api_endpoint or "").strip()
+
+    if jira and not _http_url_ok(jira):
         payload = app_settings_status()
         payload.update(
             {
@@ -303,10 +326,39 @@ def save_jira_url(url: str) -> dict:
             }
         )
         return payload
-    update_setting("jira_url", cleaned, confirm=True)
+    if target and not _http_url_ok(target):
+        payload = app_settings_status()
+        payload.update(
+            {
+                "status": "error",
+                "message": "Target URL must start with http:// or https://.",
+            }
+        )
+        return payload
+    if messaging and not _messaging_url_ok(messaging):
+        payload = app_settings_status()
+        payload.update(
+            {
+                "status": "error",
+                "message": (
+                    "Messaging endpoint must start with http(s)://, amqp(s)://, or ws(s)://."
+                ),
+            }
+        )
+        return payload
+
+    update_setting("jira_url", jira, confirm=True)
+    update_setting("target_url", target, confirm=True)
+    update_setting("target_app_path", exe, confirm=True)
+    update_setting("api_endpoint", messaging, confirm=True)
     payload = app_settings_status()
     payload.update({"status": "updated", "message": "Saved."})
     return payload
+
+
+def save_jira_url(url: str) -> dict:
+    """Persist Jira base URL for the active security level. Never returns secrets."""
+    return save_app_settings(jira_url=url)
 
 
 def load_settings() -> dict:

@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-77** — First-class target URL, exe path, and messaging endpoints |
-| **Start task** | **KAN-78** (`test`, Relates → KAN-77) |
-| **Epic** | (LEARN / settings) |
-| **Roadmap ID** | (FR-LEARN-2/3) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-LEARN-2/3 |
+| **Jira story** | **KAN-79** — Dynamic framework switching stub via settings |
+| **Start task** | **KAN-80** (`test`, Relates → KAN-79) |
+| **Epic** | (PLUG) |
+| **Roadmap ID** | (FR-PLUG-3/2) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-PLUG-3 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-78** |
-| **Shipped** | **KAN-75** / **KAN-76** Done (heal proposal review UI, desk23) |
+| **Test ticket** | **KAN-80** |
+| **Shipped** | **KAN-77** / **KAN-78** Done (target URL / exe / messaging, desk24) |
 | **Deferred** | — |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-77 — First-class target URL, exe path, messaging endpoints (FR-LEARN-2/3)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-77
+- **Done:** Promoted `target_url`, `target_app_path`, and `api_endpoint` to first-class App Settings (level-scoped). `save_app_settings` + GET/POST `/api/app-settings`; desktop Settings fields (desk24); Gradio Settings target section; agent prompt/tool description; doc-ingest messaging/exe decline covered.
+- **Files:** `settings/store.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `ui/gradio_app.py`, `agent/agent.py`, `tests/test_app_settings.py`, `tests/test_doc_ingest.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_app_settings.py tests/test_doc_ingest.py -v` (13 passed). Live `POST /api/app-settings` persisted URL/exe/messaging under OFFICIAL. Desktop `desktop_app.py` desk24 launched; HTML fields present.
+- **Jira:** story agent-completion + **KAN-78** evidence/Done; **KAN-77** Done (yes)
+- **Next:** **KAN-79** dynamic framework switching stub (test KAN-80)
 
 ### 2026-11-16 — KAN-75 — Heal proposal review UI (FR-HEAL-2/5)
 - **Agent/chat:** Cursor IDE Agent (Composer) — heal review

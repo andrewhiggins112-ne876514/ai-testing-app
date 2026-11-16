@@ -139,7 +139,7 @@
         <div id="area-section-host">
         <div id="app-section-settings" class="app-section" hidden>
           <h3 class="orb-section-label">App settings</h3>
-          <p class="drawer-hint">Chat stays primary. Edit Jira base URL here; credentials stay in the local store and are never shown. Orb colours stay in the Screen drawer.</p>
+          <p class="drawer-hint">Chat stays primary. Target URL, exe path, messaging endpoints, and Jira base URL are first-class here (level-scoped). Credentials stay in the local store and are never shown. Orb colours stay in the Screen drawer.</p>
           <fieldset class="layout-picker" id="area-layout-picker">
             <legend class="orb-section-label">App area layout</legend>
             <p class="drawer-hint">How App areas open. Borders, labels, and glow use the active orb style accent.</p>
@@ -149,6 +149,15 @@
             <label class="layout-choice"><input type="radio" name="area-layout" value="split" /> <span><strong>Split</strong> — docked panel beside the orb; Esc closes it</span></label>
             <label class="layout-choice"><input type="radio" name="area-layout" value="floating" /> <span><strong>Floating</strong> — movable area window; orb stays full size</span></label>
           </fieldset>
+          <label class="stack-label">Target application URL
+            <input type="url" id="set-target-url" placeholder="https://app.example.com" autocomplete="off" />
+          </label>
+          <label class="stack-label">Target .exe path
+            <input type="text" id="set-target-exe" placeholder="C:\Path\To\App.exe" autocomplete="off" />
+          </label>
+          <label class="stack-label">Messaging / API endpoint
+            <input type="text" id="set-api-endpoint" placeholder="amqps://broker.example.com/vhost or https://…" autocomplete="off" />
+          </label>
           <label class="stack-label">Jira base URL
             <input type="url" id="set-jira-url" placeholder="https://your-site.atlassian.net" autocomplete="off" />
           </label>

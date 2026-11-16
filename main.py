@@ -40,7 +40,7 @@ from settings.privacy import delete_local_data, privacy_status, telemetry_enable
 from settings.store import (
     app_settings_status,
     load_settings,
-    save_jira_url,
+    save_app_settings,
     security_status,
     set_security_level,
     settings_path,
@@ -112,6 +112,9 @@ class DeleteLocalDataRequest(BaseModel):
 
 class AppSettingsRequest(BaseModel):
     jira_url: str = ""
+    target_url: str = ""
+    target_app_path: str = ""
+    api_endpoint: str = ""
 
 
 class DesktopPluginRequest(BaseModel):
@@ -238,7 +241,12 @@ async def get_app_settings_api():
 
 @app.post("/api/app-settings")
 async def post_app_settings_api(req: AppSettingsRequest):
-    return save_jira_url(req.jira_url or "")
+    return save_app_settings(
+        jira_url=req.jira_url or "",
+        target_url=req.target_url or "",
+        target_app_path=req.target_app_path or "",
+        api_endpoint=req.api_endpoint or "",
+    )
 
 
 @app.post("/api/doc-ingest")

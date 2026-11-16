@@ -110,6 +110,26 @@ class DocIngestTests(unittest.TestCase):
         self.assertEqual(outcome["status"], "declined")
         self.assertEqual(load_settings().get("jira_url") or "", "")
 
+    def test_messaging_and_exe_proposed_decline_unchanged(self):
+        sample = (
+            "AUT: https://shop.example.com\n"
+            "Desktop: C:\\Apps\\Shop.exe\n"
+            "Broker: amqps://mq.example.com/orders\n"
+        )
+        proposed = extract_settings_proposals(sample)
+        self.assertEqual(proposed["target_url"], "https://shop.example.com")
+        self.assertEqual(proposed["target_app_path"], r"C:\Apps\Shop.exe")
+        self.assertEqual(proposed["api_endpoint"], "amqps://mq.example.com/orders")
+        result = ingest_document(text=sample, session_id="msg1")
+        self.assertEqual(result["status"], "proposal")
+        self.assertIn("api_endpoint", result["settings_diff"])
+        declined = decline_proposal(result["proposal_id"])
+        self.assertEqual(declined["status"], "declined")
+        data = load_settings()
+        self.assertEqual(data.get("target_url") or "", "")
+        self.assertEqual(data.get("target_app_path") or "", "")
+        self.assertEqual(data.get("api_endpoint") or "", "")
+
     def test_markdown_file_path(self):
         path = Path(self.tmp.name) / "feature.md"
         path.write_text(

@@ -180,7 +180,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next** (track in KAN; Active slice = **KAN-77** — FR-LEARN-2/3; **KAN-75** heal review Done)
+**Still open / next** (track in KAN; Active slice = next open Story after **KAN-77**; **KAN-75** heal review + **KAN-77** LEARN-2/3 Done)
 
 Rule: a Done Story covers only what it actually shipped. Remaining FR text must stay on open Stories (seed/reconcile via `scripts/jira_kan_seed_backlog.py`). Done parents have gap comments where needed.
 
@@ -191,7 +191,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-AGENT-1…5 | Shipped (chat/sessions/clarify/confirm/errors baseline) | **Done** KAN-8; busy UX remainder **KAN-97** |
 | FR-AGENT-6 | Shipped (JSON-in-text fallback + grounded replies) | **Done** **KAN-61** |
 | FR-LEARN-1, FR-LEARN-5, FR-SET-2 | Shipped (ingest propose+confirm) | **Done** KAN-45 |
-| FR-LEARN-2, FR-LEARN-3 | Open (settings keys exist; first-class UI/agent use incomplete) | **KAN-77** |
+| FR-LEARN-2, FR-LEARN-3 | Shipped (Settings + API + agent; level-scoped) | **Done** **KAN-77** |
 | FR-LEARN-4 | Open | **KAN-93** |
 | FR-TEST-1 | Partial (chat/spec step gen) | **Done** KAN-57; from Jira AC **KAN-85** |
 | FR-TEST-2 | Partial (headed only today) | **Done** KAN-9 baseline; headless **KAN-83** |
