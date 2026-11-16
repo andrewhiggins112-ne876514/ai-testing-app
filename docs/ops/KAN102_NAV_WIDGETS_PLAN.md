@@ -1,6 +1,6 @@
 # KAN-102 CR — Desktop nav, agent widgets, App vs Orb settings
 
-**Status:** Product model locked (2026-11-15). **Navigation chrome locked 2026-11-16 as configurable A–E** (not a single mockup): `overlay`, `stage`, `orb_hub`, `split`, `floating` in App Settings (`desktop-area-layout-v1`). Area chrome uses the active orb-style accent (FR-UI-3). **Active slice = KAN-103** (KAN-75 deferred). **KAN-107 HUD + KAN-109 particle hub shipped (desk21b).** Open: KAN-110 overlap, KAN-104 verify.
+**Status:** Product model locked (2026-11-15). **Navigation chrome locked 2026-11-16 as configurable A–E** (not a single mockup): `overlay`, `stage`, `orb_hub`, `split`, `floating` in App Settings (`desktop-area-layout-v1`). Area chrome uses the active orb-style accent (FR-UI-3). **Active slice = KAN-103** (KAN-75 deferred). **KAN-107 HUD + KAN-109 hub + KAN-110 overlap fix shipped (desk22g).** Open: KAN-104 full verify.
 
 **Canonical spec:** `docs/FUNCTIONAL_SPEC.md` — FR-UI-1/3/6/7, FR-SET-3.
 
@@ -45,7 +45,7 @@ flowchart TB
 
 **Layout modes (all shipped as a setting):** overlay (A), stage (B), orb hub particle spokes then overlay (C), split dock (D), one floating window (E). Accents follow mystic / aether / neural / apex.
 
-**Still open:** KAN-101 overlap check (KAN-110); full test evidence (KAN-104).
+**Still open:** full test evidence (KAN-104). KAN-110 / KAN-101 / KAN-113 Done (desk22g).
 
 **Shipped desk21b (2026-11-16):** Tasks **KAN-106/108/112/107/109** Done (area surfaces, App vs Orb, layout A–E, HUD mini panels, particle hub); Bug **KAN-102** fixed. Story **KAN-103** remains **In Progress**.
 
@@ -109,5 +109,5 @@ flowchart TB
 
 ## PM notes
 
-- **Active slice:** **KAN-103** (WORK_LOG) — start **KAN-110**; **KAN-75** deferred. Mockups: `docs/mockups/kan103_nav/README.md`.
+- **Active slice:** **KAN-103** (WORK_LOG) — start **KAN-104** full verify; **KAN-75** deferred. Mockups: `docs/mockups/kan103_nav/README.md`.
 - KAN-73 **Done** delivered Settings **behaviour**; this Story delivers correct **navigation shell** per CR.

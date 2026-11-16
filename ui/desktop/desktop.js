@@ -3,7 +3,7 @@
   const ORB_STYLES_KEY = "desktop-orb-styles-v1";
   const WEBGL_STYLES = ["mystic", "aether", "neural", "apex"];
   const EDGE_PAD = 16;
-  const DRAG_THRESHOLD = 6;
+  const DRAG_THRESHOLD = 14;
   const BTN = 42;
   const WIDGET_MIN_W = 220;
   const WIDGET_MIN_H = 160;
@@ -304,10 +304,85 @@
     }
   });
 
+  function currentDrawerSize(drawer, edge) {
+    const raw = drawer.style.getPropertyValue("--drawer-size");
+    return parseFloat(raw) || defaultDrawerSize(edge);
+  }
+
+  function parkToggleOnOpenDrawer(toggle, drawer) {
+    /* Keep the edge toggle as a seam tab so it cannot cover App/Screen nav (KAN-101 / KAN-113). */
+    if (!toggle || !drawer || !drawer.classList.contains("open")) return;
+    const edge = toggle.dataset.edge || "left";
+    const size = currentDrawerSize(drawer, edge);
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const drawerTop = parseFloat(drawer.style.top);
+    const drawerLeft = parseFloat(drawer.style.left);
+    clearPos(toggle);
+    toggle.dataset.edge = edge;
+    toggle.classList.add("edge-snap", "drawer-open-tab");
+
+    if (edge === "left" || edge === "right") {
+      const topBase = Number.isFinite(drawerTop) ? drawerTop : 24;
+      /* Mid-seam, below the title row, so Settings is never under the tab. */
+      const top = clamp(topBase + 72, EDGE_PAD, H - EDGE_PAD - BTN);
+      if (edge === "left") {
+        toggle.style.left = size + 6 + "px";
+        toggle.style.top = top + "px";
+      } else {
+        toggle.style.right = size + 6 + "px";
+        toggle.style.top = top + "px";
+      }
+      return;
+    }
+    if (edge === "top") {
+      const left = clamp(
+        (Number.isFinite(drawerLeft) ? drawerLeft : 72) + 10,
+        EDGE_PAD,
+        W - EDGE_PAD - BTN
+      );
+      toggle.style.left = left + "px";
+      toggle.style.top = size + 6 + "px";
+      return;
+    }
+    const left = clamp(
+      (Number.isFinite(drawerLeft) ? drawerLeft : 72) + 10,
+      EDGE_PAD,
+      W - EDGE_PAD - BTN
+    );
+    toggle.style.left = left + "px";
+    toggle.style.bottom = size + 6 + "px";
+  }
+
+  function restoreTogglePlacement(toggle) {
+    if (!toggle) return;
+    toggle.classList.remove("drawer-open-tab");
+    const saved = layout.toggles && layout.toggles[toggle.id];
+    const edge =
+      (saved && saved.edge) ||
+      toggle.dataset.edge ||
+      toggle.getAttribute("data-default-edge") ||
+      "left";
+    const along = saved && typeof saved.along === "number" ? saved.along : null;
+    placeToggle(toggle, edge, along);
+  }
+
   function setDrawer(drawer, toggle, open) {
     drawer.classList.toggle("open", open);
     drawer.setAttribute("aria-hidden", open ? "false" : "true");
     toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    if (drawer === appDrawer) {
+      document.documentElement.classList.toggle("drawer-app-open", open);
+    } else if (drawer === screenDrawer) {
+      document.documentElement.classList.toggle("drawer-screen-open", open);
+    }
+    if (open) {
+      syncDrawerEdge(toggle, drawer);
+      parkToggleOnOpenDrawer(toggle, drawer);
+    } else {
+      restoreTogglePlacement(toggle);
+      syncDrawerEdge(toggle, drawer);
+    }
   }
 
   function closeOther(which) {
@@ -645,8 +720,12 @@
     if (height != null) el.style.height = h + "px";
     const useW = width != null ? w : rect.width || w;
     const useH = height != null ? h : rect.height || h;
-    const x = clamp(left, 8, Math.max(8, W - useW - 8));
+    let x = clamp(left, 8, Math.max(8, W - useW - 8));
     const y = clamp(top, 8, Math.max(8, H - useH - 8));
+    if (el.id === "chat-panel" || el.dataset.widget === "chat-panel") {
+      /* Keep a clear column for the left-edge App toggle (KAN-101 / KAN-113). */
+      x = Math.max(x, 64);
+    }
     el.style.left = x + "px";
     el.style.top = y + "px";
     el.style.right = "auto";
@@ -811,10 +890,12 @@
       const wasDrag = moved;
       const cx = ev ? ev.clientX : startX;
       const cy = ev ? ev.clientY : startY;
+      const dist = Math.hypot(cx - startX, cy - startY);
       pointerId = null;
       el.classList.remove("dragging");
 
-      if (wasDrag) {
+      /* Tiny pointer jitter (incl. Computer Use) should still toggle, not edge-snap. */
+      if (wasDrag && dist >= DRAG_THRESHOLD) {
         const W = window.innerWidth;
         const H = window.innerHeight;
         const edge = nearestEdge(cx, cy, W, H);
@@ -825,10 +906,19 @@
           along = cx - BTN / 2;
         }
         placeToggle(el, edge, along);
-        syncDrawerEdge(el, toggleDrawerMap.get(el));
         persistToggle(el);
+        const drawer = toggleDrawerMap.get(el);
+        syncDrawerEdge(el, drawer);
+        if (drawer && drawer.classList.contains("open")) {
+          parkToggleOnOpenDrawer(el, drawer);
+        }
       } else {
-        el.classList.add("edge-snap");
+        if (wasDrag) restoreTogglePlacement(el);
+        else el.classList.add("edge-snap");
+        const drawer = toggleDrawerMap.get(el);
+        if (drawer && drawer.classList.contains("open")) {
+          parkToggleOnOpenDrawer(el, drawer);
+        }
         toggleDrawerFor(el);
       }
     }
@@ -994,6 +1084,9 @@
       else if (edge === "top") delta = ev.clientY - startPos;
       else delta = startPos - ev.clientY;
       applyDrawerSize(drawer, edge, originSize + delta);
+      const toggle =
+        drawer === appDrawer ? appToggle : drawer === screenDrawer ? screenToggle : null;
+      if (toggle) parkToggleOnOpenDrawer(toggle, drawer);
       ev.preventDefault();
     });
 
@@ -1002,6 +1095,9 @@
       pointerId = null;
       drawer.classList.remove("resizing");
       persistDrawer(drawer);
+      const toggle =
+        drawer === appDrawer ? appToggle : drawer === screenDrawer ? screenToggle : null;
+      if (toggle) parkToggleOnOpenDrawer(toggle, drawer);
     }
 
     handle.addEventListener("pointerup", endResize);
@@ -1580,7 +1676,9 @@
   document.addEventListener("keydown", function (ev) {
     if (ev.key !== "Escape") return;
     const hubOpen = isHubOpen();
-    if (!hubOpen && !openAreaName) return;
+    const appOpen = !!(appDrawer && appDrawer.classList.contains("open"));
+    const screenOpen = !!(screenDrawer && screenDrawer.classList.contains("open"));
+    if (!hubOpen && !openAreaName && !appOpen && !screenOpen) return;
     if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA")) {
       ev.target.blur();
     }
@@ -1591,6 +1689,16 @@
     }
     if (openAreaName) {
       closeArea();
+      ev.preventDefault();
+      return;
+    }
+    if (appOpen) {
+      setDrawer(appDrawer, appToggle, false);
+      ev.preventDefault();
+      return;
+    }
+    if (screenOpen) {
+      setDrawer(screenDrawer, screenToggle, false);
       ev.preventDefault();
     }
   });

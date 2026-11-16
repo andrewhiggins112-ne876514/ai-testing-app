@@ -9,14 +9,14 @@
 |-------|--------|
 | **Status** | in progress |
 | **Jira story** | **KAN-103** — Desktop nav: dedicated area screens + agent-home widgets + App Settings split |
-| **Start task** | **KAN-110** — KAN-101 drawer toggle vs Settings nav overlap check |
+| **Start task** | **KAN-104** — full Computer Use + pytest evidence to close KAN-103 |
 | **Epic** | KAN-27 (Desktop shell) |
 | **Roadmap ID** | UI-DESK-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-6/7, FR-UI-3 accent coupling, FR-SET-3 |
-| **Git** | `main` (desk21b hub) |
+| **Git** | `main` (desk22g nav overlap) |
 | **Test ticket** | **KAN-104** (`test`, Relates → KAN-103) |
-| **Shipped (desk21b)** | desk20 HUD + **KAN-109** particle orb hub (SVG spokes/nodes, open/close motion, accent vars); Tasks **KAN-106/107/108/109/112** Done |
-| **Still open** | **KAN-110** KAN-101 overlap, **KAN-104** full verify. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
+| **Shipped (desk22g)** | desk21b hub + **KAN-110** drawer/toggle/chat hit-target fix; Tasks **KAN-106/107/108/109/110/112** Done; Bugs **KAN-101/113** Done |
+| **Still open** | **KAN-104** full verify → then mark **KAN-103** Done. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
 | **Deferred** | **KAN-75** heal proposal review UI — after **KAN-103** closes |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-110 — App drawer / chat nav hit overlap (desk22g)
+- **Agent/chat:** Cursor IDE Agent (Composer) — desktop shell
+- **Done:** Park open-drawer toggle as an outside seam tab (`parkToggleOnOpenDrawer`); raise open drawer z-index; disable chat pointer-events while App drawer open; nudge chat left gutter clear of App toggle; Esc closes drawers; cache desk22g. Fixes KAN-101 / KAN-113 class.
+- **Files:** `ui/desktop/desktop.js`, `desktop.css`, `index.html`, `desktop_app.py`, `tests/test_nav_overlap.py`, `tests/test_orb_hub.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, KAN102 plan, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_nav_overlap.py tests/test_orb_hub.py tests/test_area_layout.py tests/test_hud_widgets.py -v` (15 passed). Computer Use on `desktop_app.py` desk22*: App drawer opens; Security/Reports area surfaces open from App nav; toggle no longer covers nav list.
+- **Jira:** Task **KAN-110** Done; Bugs **KAN-101** + **KAN-113** Fix+Done; progress on **KAN-103**; evidence on **KAN-104** (story stays In Progress for full verify)
+- **Next:** **KAN-104** full Computer Use checklist → close **KAN-103**; then **KAN-75**
 
 ### 2026-11-16 — KAN-109 — Orb hub particle polish (desk21b)
 - **Agent/chat:** Cursor IDE Agent (Composer) — desktop shell

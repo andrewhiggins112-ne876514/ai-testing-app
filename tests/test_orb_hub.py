@@ -34,12 +34,12 @@ class OrbHubTests(unittest.TestCase):
         self.assertIn('classList.add("is-open")', js)
         self.assertIn('setAttribute("aria-expanded"', js)
 
-    def test_cache_bust_desk21(self):
+    def test_cache_bust_desk22(self):
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk21b", app)
-        self.assertIn("desktop.css?v=desk21b", html)
-        self.assertIn("desktop.js?v=desk21b", html)
+        self.assertIn("desk22g", app)
+        self.assertIn("desktop.css?v=desk22g", html)
+        self.assertIn("desktop.js?v=desk22g", html)
 
 
 if __name__ == "__main__":

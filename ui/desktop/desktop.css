@@ -107,7 +107,8 @@ html, body {
 .chat-panel {
   position: absolute;
   top: 28px;
-  left: 28px;
+  /* Leave a clear column for the left-edge App toggle (KAN-101 / KAN-113). */
+  left: 72px;
   width: min(360px, 32vw);
   height: min(420px, 55vh);
   border-radius: 12px;
@@ -323,9 +324,16 @@ html, body {
 
 .drawer-toggle {
   position: absolute;
-  z-index: 8;
+  /* Above chat/HUD so the App grid is never stolen by the chat widget. */
+  z-index: 11;
   touch-action: none;
   transition: box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.drawer-toggle.drawer-open-tab,
+.drawer-toggle[aria-expanded="true"] {
+  /* Seam tab above open drawer so nav items stay clickable (KAN-101). */
+  z-index: 12;
 }
 
 .drawer-toggle.dragging {
@@ -352,6 +360,13 @@ html, body {
 
 .side-drawer.open {
   pointer-events: auto;
+  /* Above chat/HUD (z≤6) and resting toggles so App nav receives hits (KAN-113). */
+  z-index: 9;
+}
+
+/* While App drawer is open, chat must not intercept Settings / area nav hits. */
+html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
+  pointer-events: none;
 }
 
 .side-drawer.edge-left,
