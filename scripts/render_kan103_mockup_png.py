@@ -8,8 +8,22 @@ MOCK = REPO / "docs" / "mockups" / "kan103_nav"
 OUT = MOCK / "png"
 
 
+ALIASES = {
+    "option-a-home.png": "A-home.png",
+    "option-a-app-settings.png": "A-settings.png",
+    "option-a-reports.png": "A-reports.png",
+    "option-b-home.png": "B-home.png",
+    "option-b-app-settings.png": "B-settings.png",
+    "option-b-reports.png": "B-reports.png",
+    "option-c-home.png": "C-home.png",
+    "option-c-app-settings.png": "C-settings.png",
+    "option-c-hub.png": "C-hub.png",
+    "option-c-reports.png": "C-reports.png",
+}
+
+
 def main() -> int:
-    pages = sorted(MOCK.glob("option-*.html"))
+    pages = sorted(p for p in MOCK.glob("option-*.html") if p.name != "option-a.html")
     if not pages:
         print("no html mockups")
         return 1
@@ -30,6 +44,12 @@ def main() -> int:
             page.screenshot(path=str(out), full_page=False)
             print("wrote", out.relative_to(REPO))
         browser.close()
+
+    for src, dst in ALIASES.items():
+        src_path = OUT / src
+        if src_path.is_file():
+            (MOCK / dst).write_bytes(src_path.read_bytes())
+            print("alias", dst)
     return 0
 
 
