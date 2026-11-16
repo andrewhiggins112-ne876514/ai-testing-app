@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-16 (KAN-79/80 Done — framework switch stub; desk25)
+Last updated: 2026-11-16 (KAN-81 voice deferred until mic; Active → KAN-83)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -77,7 +77,8 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-77** Target URL / exe / messaging endpoints — **Done** (KAN-78; desk24 App Settings)
 - **KAN-79** Dynamic framework switching stub — **Done** (KAN-80; desk25 `test_framework`)
 - **KAN-103** Desktop nav area screens + HUD widgets — **Done** (KAN-104 verify; desk22g; Tasks KAN-106–110/112 Done)
-- KAN-79…KAN-81 first FR seed remainder; KAN-83…KAN-99 gap pass (headless, Jira AC read, 429 backoff, desktop beyond smoke, LEARN-4, sandbox beyond stub, busy UX, Jira write audit, steps from Jira AC)
+- **KAN-81** Voice input — **deferred** until mic connected (do last; test KAN-82 stays open)
+- Next Active: **KAN-83** headed/headless (test KAN-84); then KAN-85…KAN-99 gap pass
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -100,5 +101,5 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-61** — Tool-calling reliability + JSON-in-text fallback (FR-AGENT-6).
-2. Continue open FR Stories in WORK_LOG / FUNCTIONAL_SPEC §5 order.
+1. **KAN-83** — Playwright headed/headless mode setting (FR-TEST-2; test KAN-84).
+2. Continue open FR Stories in WORK_LOG / FUNCTIONAL_SPEC §5 order; **KAN-81** voice last (needs mic).

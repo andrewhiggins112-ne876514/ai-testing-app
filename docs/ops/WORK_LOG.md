@@ -8,15 +8,15 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-81** — Voice input for conversational agent |
-| **Start task** | **KAN-82** (`test`, Relates → KAN-81) |
-| **Epic** | (UI) |
-| **Roadmap ID** | VOICE-1 / FR-UI-1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-1 |
+| **Jira story** | **KAN-83** — Playwright headed/headless mode setting |
+| **Start task** | **KAN-84** (`test`, Relates → KAN-83) |
+| **Epic** | (TEST) |
+| **Roadmap ID** | FR-TEST-2 gap |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-TEST-2 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-82** |
+| **Test ticket** | **KAN-84** |
 | **Shipped** | **KAN-79** / **KAN-80** Done (framework switch stub, desk25) |
-| **Deferred** | — |
+| **Deferred** | **KAN-81** / **KAN-82** voice — until mic connected |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — OPS — Defer KAN-81 voice until mic available
+- **Agent/chat:** Cursor IDE Agent — user CR / priority
+- **Done:** Voice input (**KAN-81** / test **KAN-82**) deferred until a microphone is connected. Active slice → **KAN-83** headed/headless (test **KAN-84**).
+- **Files:** WORK_LOG, ROADMAP, PROJECT_MEMORY, FUNCTIONAL_SPEC note
+- **Verify:** Active slice table points at KAN-83; KAN-81 remains open/deferred
+- **Jira:** deferral comments on KAN-81 / KAN-82
+- **Next:** **KAN-83** Playwright headed/headless mode setting
 
 ### 2026-11-16 — KAN-79 — Dynamic framework switching stub via settings (FR-PLUG-3)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-79

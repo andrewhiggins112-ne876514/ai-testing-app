@@ -211,7 +211,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-SEC-1, FR-SEC-3, FR-SEC-5 | Shipped isolation + confirm + secrets scoping | **Done** KAN-15, **KAN-16** |
 | FR-SEC-2 | Done | **KAN-69** |
 | FR-SEC-4 | Done | **KAN-71** |
-| FR-UI-1…5 | Baseline shipped | **Done** KAN-10/41/53/73; Voice **KAN-81** open |
+| FR-UI-1…5 | Baseline shipped | **Done** KAN-10/41/53/73; Voice **KAN-81** deferred (mic; last) |
 | FR-UI-6 | Done for Security + Reports mini panels (desk20); more widget types later | **KAN-103** / Task **KAN-107** Done; test **KAN-104** |
 | FR-UI-7 | Partial — dedicated surfaces + layout A–E + particle hub + overlap fix (desk22g); full verify open | **KAN-103**; Bug **KAN-102/101/113** Done; Tasks **KAN-106/109/110/112** Done; **KAN-104** open |
 | FR-SET-3 | Shipped — App Settings screen vs Orb settings (Screen drawer) | **Done** Task **KAN-108** under KAN-103 |

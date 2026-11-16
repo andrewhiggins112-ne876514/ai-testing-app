@@ -47,7 +47,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 |----|------|-------|
 | DESK-1 | Desktop `.exe` testing plugin | **done** — KAN-47; `plugins/desktop_runner.py` smoke + toggle |
 | MULTI-1 | Multi-sandbox orchestration | **done** — KAN-55; `plugins/multi_sandbox.py` + registry stub |
-| VOICE-1 | Voice input | **KAN-81** (test KAN-82) — after text UX is solid |
+| VOICE-1 | Voice input | **KAN-81** (test KAN-82) — **deferred** until mic connected (last) |
 | SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
 
 Open FR Stories: KAN-77…KAN-81 (first seed remainder), plus gap pass KAN-83…KAN-99. Full FR→ticket matrix: `docs/FUNCTIONAL_SPEC.md` §5.
@@ -71,7 +71,9 @@ Open FR Stories: KAN-77…KAN-81 (first seed remainder), plus gap pass KAN-83…
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-81** — Voice input for conversational agent (FR-UI-1; test KAN-82).
+**KAN-83** — Playwright headed/headless mode setting (FR-TEST-2; test KAN-84).
+
+**Deferred:** **KAN-81/82** voice input — until a microphone is connected (do last).
 
 **Done this cycle:** **KAN-79/80** — Dynamic framework switching stub (FR-PLUG-3, desk25). Earlier: **KAN-77/78** target URL / exe / messaging; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
 
