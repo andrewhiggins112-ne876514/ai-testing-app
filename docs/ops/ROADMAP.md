@@ -50,7 +50,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | VOICE-1 | Voice input | **KAN-81** (test KAN-82) — **deferred** until mic connected (last) |
 | SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
 
-Open FR Stories: KAN-77…KAN-81 (first seed remainder), plus gap pass KAN-83…KAN-99. Full FR→ticket matrix: `docs/FUNCTIONAL_SPEC.md` §5.
+FR gap pass KAN-83…KAN-99 complete. Remaining open FR Story: **KAN-81** voice (deferred). Full FR→ticket matrix: `docs/FUNCTIONAL_SPEC.md` §5.
 
 ## Blocked / waiting on you
 
@@ -71,10 +71,8 @@ Open FR Stories: KAN-77…KAN-81 (first seed remainder), plus gap pass KAN-83…
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-99** — Audit log for Jira write operations (FR-JIRA-5; test KAN-100).
+**KAN-81** — Voice input (FR-UI voice; test KAN-82) — **deferred** until a microphone is connected (do last). No other open FR gap Stories from the KAN-83…99 pass.
 
-**Deferred:** **KAN-81/82** voice input — until a microphone is connected (do last).
-
-**Done this cycle:** **KAN-97/98** — busy/long-run UX (desk31 busy bar + cancel + `/chat` ok flag). **KAN-95/96** — multi-sandbox real local orchestration (FR-PLUG-1). **KAN-93/94** — jira_project default for agent reads (FR-LEARN-4). **KAN-91/92** — Jira 429 backoff / auth errors (FR-JIRA-6). **KAN-89/90** — Read story descriptions/AC (FR-JIRA-1). **KAN-87/88** desktop structured steps. **KAN-85/86** Jira AC → Playwright steps. **KAN-83/84** headed/headless. Earlier: **KAN-79/80** framework switch; **KAN-77/78** targets; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
+**Done this cycle:** **KAN-99/100** — Jira write audit (`jira_write_audit.jsonl`). **KAN-97/98** — busy/long-run UX (desk31 busy bar + cancel + `/chat` ok flag). **KAN-95/96** — multi-sandbox real local orchestration (FR-PLUG-1). **KAN-93/94** — jira_project default for agent reads (FR-LEARN-4). **KAN-91/92** — Jira 429 backoff / auth errors (FR-JIRA-6). **KAN-89/90** — Read story descriptions/AC (FR-JIRA-1). **KAN-87/88** desktop structured steps. **KAN-85/86** Jira AC → Playwright steps. **KAN-83/84** headed/headless. Earlier: **KAN-79/80** framework switch; **KAN-77/78** targets; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
 
 Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

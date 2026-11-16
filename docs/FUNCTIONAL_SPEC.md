@@ -203,7 +203,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-JIRA-1 | Shipped (list + read_issue + UX) | **Done** KAN-12 list; **KAN-85** `read_issue`/gen; **KAN-89** agent tool + `/api/jira-issue` + App Settings Read story |
 | FR-JIRA-2, FR-JIRA-3 | Shipped (create_test + update_status confirm) | **Done** **KAN-65** |
 | FR-JIRA-4 | Shipped (create_bug + confirm) | **Done** KAN-63 |
-| FR-JIRA-5, FR-JIRA-7 | Shipped confirm + local creds | **Done** KAN-12, **KAN-16**; write audit **KAN-99** |
+| FR-JIRA-5, FR-JIRA-7 | Shipped confirm + local creds + write audit | **Done** KAN-12, **KAN-16**, **KAN-99** |
 | FR-JIRA-6 | Shipped (429 Retry-After backoff + readable auth/rate-limit errors) | **Done** **KAN-91** |
 | FR-REP-1 | Shipped (stories covered + bugs by story/area) | **Done** **KAN-67** |
 | FR-REP-2 | Shipped | **Done** KAN-51 |

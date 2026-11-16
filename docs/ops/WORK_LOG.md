@@ -7,15 +7,15 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | ready |
-| **Jira story** | **KAN-99** — Audit log for Jira write operations |
-| **Start task** | **KAN-100** (`test`, Relates → KAN-99) |
-| **Epic** | (JIRA) |
-| **Roadmap ID** | FR-JIRA-5 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-JIRA-5 / NFR §4.3 |
+| **Status** | deferred |
+| **Jira story** | **KAN-81** — Voice input (last) |
+| **Start task** | **KAN-82** (`test`, Relates → KAN-81) |
+| **Epic** | (UI) |
+| **Roadmap ID** | VOICE-1 / FR-UI voice |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI voice |
 | **Git** | `main` |
-| **Test ticket** | **KAN-100** |
-| **Shipped** | **KAN-97** / **KAN-98** busy/long-run UX; **KAN-95** / **KAN-96** multi-sandbox; **KAN-93** / **KAN-94** jira_project default; **KAN-91** / **KAN-92** Jira 429 backoff; **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
+| **Test ticket** | **KAN-82** |
+| **Shipped** | **KAN-99** / **KAN-100** Jira write audit; **KAN-97** / **KAN-98** busy/long-run UX; **KAN-95** / **KAN-96** multi-sandbox; **KAN-93** / **KAN-94** jira_project default; **KAN-91** / **KAN-92** Jira 429 backoff; **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic connected |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-99 — Audit log for Jira write operations (FR-JIRA-5 / NFR §4.3)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-99
+- **Done:** Confirmed Jira writes (create/bug/test/transition/comment/update_status/set_parent) append a local `jira_write_audit.jsonl` line (timestamp, action, issue_key, session_id, status) under LOCALAPPDATA. Declined confirm leaves no success audit line. Tokens never stored. Privacy wipe includes `jira_write_audit`.
+- **Files:** `plugins/jira_plugin.py`, `settings/privacy.py`, `tests/test_jira_write_audit.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_jira_write_audit.py tests/test_create_bug.py tests/test_privacy_gdpr.py -v` (14 passed)
+- **Jira:** story agent-completion + **KAN-100** evidence/Done; **KAN-99** Done
+- **Next:** **KAN-81** voice — deferred until mic connected
 
 ### 2026-11-16 — KAN-97 — Busy and long-run UX while agent or tests execute (FR-AGENT-5 / NFR §4.6)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-97

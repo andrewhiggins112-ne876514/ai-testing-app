@@ -16,11 +16,12 @@ DELETABLE_CATEGORIES = (
     "reports",
     "screenshots",
     "heal_audit",
+    "jira_write_audit",
     "sessions",
     "browser_profiles",
 )
 
-_DEFAULT_WIPE = ("reports", "screenshots", "heal_audit", "sessions")
+_DEFAULT_WIPE = ("reports", "screenshots", "heal_audit", "jira_write_audit", "sessions")
 
 CONSENT_NOTE = (
     "Extracted document data is never stored without your explicit confirmation "
@@ -34,6 +35,7 @@ def _category_path(category: str) -> Path:
         "reports": root / "reports",
         "screenshots": root / "screenshots",
         "heal_audit": root / "heal_audit.jsonl",
+        "jira_write_audit": root / "jira_write_audit.jsonl",
         "sessions": root / "sessions",
         "browser_profiles": root / "browser_profiles",
     }

@@ -7,6 +7,7 @@ import re
 import ssl
 import time
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -39,10 +40,53 @@ _WRITE = {"create_test", "update_status", "create_bug"}
 _CONFIRM_WORDS = {"yes", "confirm"}
 _PENDING: Dict[str, Dict[str, Any]] = {}
 _CONFIRM_TTL = 300.0
+# Successful confirmed writes that get a local audit line (NFR §4.3 / KAN-99).
+_SUCCESS_WRITE_STATUSES = frozenset({"created", "linked", "transitioned", "updated", "commented"})
 # FR-JIRA-6 — match scripts/jira_kan_*.py backoff behaviour
 _MAX_429_ATTEMPTS = 6
 _INTER_CALL_BACKOFF = 0.35
 _DEFAULT_RETRY_AFTER = 2.0
+
+
+def jira_write_log_path() -> Path:
+    """LOCALAPPDATA jira_write_audit.jsonl (mirrors heal_audit.jsonl)."""
+    base = os.environ.get("LOCALAPPDATA")
+    root = Path(base) / "ai_testing_app" if base else Path.home() / ".ai_testing_app"
+    return root / "jira_write_audit.jsonl"
+
+
+def append_jira_write_log(entry: Dict[str, Any]) -> None:
+    path = jira_write_log_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(entry, ensure_ascii=True) + "\n")
+
+
+def _issue_key_from_outcome(outcome: Dict[str, Any]) -> str:
+    for field in ("key", "issue_key"):
+        key = _issue_key(outcome.get(field))
+        if key:
+            return key
+    return ""
+
+
+def _maybe_audit_write(*, session_id: str, action: str, outcome: Optional[Dict[str, Any]]) -> None:
+    """Append one local audit line after a successful confirmed write. Never stores tokens."""
+    if not isinstance(outcome, dict):
+        return
+    if outcome.get("status") not in _SUCCESS_WRITE_STATUSES:
+        return
+    entry = {
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "action": str(action or ""),
+        "issue_key": _issue_key_from_outcome(outcome),
+        "session_id": str(session_id or ""),
+        "status": outcome.get("status"),
+    }
+    try:
+        append_jira_write_log(entry)
+    except Exception:
+        pass
 
 
 async def _sleep(seconds: float) -> None:
@@ -672,16 +716,20 @@ async def resolve_create(session_id: str, user_message: str) -> Optional[Dict[st
         return {"status": "cancelled", "confirm_id": record["confirm_id"]}
     if time.monotonic() >= record["expires"]:
         return {"status": "expired", "confirm_id": record["confirm_id"]}
-    if record.get("action") == "set_parent":
-        return await _put_parent(record["preview"])
-    if record.get("action") == "transition":
-        return await _post_transition(record["preview"])
-    if record.get("action") == "update_status":
-        return await _post_update_status(record["preview"])
-    if record.get("action") == "comment":
-        return await _post_comment(record["preview"])
-    # create / create_bug / create_test share the same POST path
-    return await _post_issue(record["preview"])
+    action = str(record.get("action") or "create")
+    if action == "set_parent":
+        outcome = await _put_parent(record["preview"])
+    elif action == "transition":
+        outcome = await _post_transition(record["preview"])
+    elif action == "update_status":
+        outcome = await _post_update_status(record["preview"])
+    elif action == "comment":
+        outcome = await _post_comment(record["preview"])
+    else:
+        # create / create_bug / create_test share the same POST path
+        outcome = await _post_issue(record["preview"])
+    _maybe_audit_write(session_id=str(session_id), action=action, outcome=outcome)
+    return outcome
 
 
 async def _post_relates_link(
