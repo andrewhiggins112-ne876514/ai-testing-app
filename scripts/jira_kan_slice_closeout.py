@@ -70,6 +70,7 @@ STORY_TO_TEST: Dict[str, str] = {
     "KAN-95": "KAN-96",
     "KAN-97": "KAN-98",
     "KAN-99": "KAN-100",
+    "KAN-103": "KAN-104",
 }
 
 

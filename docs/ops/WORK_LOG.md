@@ -9,11 +9,14 @@
 |-------|--------|
 | **Status** | in progress |
 | **Jira story** | **KAN-103** — Desktop nav: dedicated area screens + agent-home widgets + App Settings split |
+| **Start task** | **KAN-107** — Agent-home HUD widgets + Screen drawer toggles (open Task; AC on Jira) |
 | **Epic** | KAN-27 (Desktop shell) |
 | **Roadmap ID** | UI-DESK-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-6/7, FR-UI-3 accent coupling, FR-SET-3 |
-| **Next action** | Layout modes A–E are in App Settings. Remaining: richer HUD widgets, hub particle polish, Computer Use pass if the window was not exercised. **KAN-75** stays deferred. |
-| **Deferred** | **KAN-75** heal proposal review UI — after KAN-103 nav shell. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
+| **Test ticket** | **KAN-104** (`test`, Relates → KAN-103) |
+| **Shipped (desk19)** | `#area-surface` routing; App area layout A–E (`desktop-area-layout-v1`); style-coupled chrome; **KAN-102** Done; Tasks **KAN-106/108/112** Done |
+| **Still open** | **KAN-107** HUD, **KAN-109** hub polish, **KAN-110** KAN-101 check, **KAN-104** full verify. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
+| **Deferred** | **KAN-75** heal proposal review UI — after **KAN-103** closes |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -34,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — OPS — desk19 PM handoff (pick-up alignment)
+- **Agent/chat:** PM + doc-keeper — WORK_LOG Active slice, Jira REST, docs; standard “pick up where we left off” flow
+- **Done:** Active slice → **KAN-103** / start **KAN-107**; KAN-102 description + Fix comment (dedicated surfaces + layout A–E + style coupling); reconciled Tasks **KAN-106–112**, test **KAN-104** (no duplicate KAN-105 story); FUNCTIONAL_SPEC/ROADMAP/plan sync
+- **Files:** `docs/ops/WORK_LOG.md`, `PROJECT_MEMORY.md`, `docs/FUNCTIONAL_SPEC.md`, `docs/ops/ROADMAP.md`, `docs/ops/KAN102_NAV_WIDGETS_PLAN.md`, `scripts/jira_kan103_desk19_handoff.py`, `scripts/jira_kan_slice_closeout.py`
+- **Verify:** Jira **KAN-103** In Progress; open Jira **KAN-107** for AC; `pytest tests/test_area_layout.py` (4 passed); `desktop_app.py` desk19
+- **Jira:** KAN-102/106/108/112 Done; KAN-103 In Progress; KAN-107/109/110/104 open; KAN-105 duplicate noted
+- **Next:** Say **pick up where we left off** → implement **KAN-107** under **KAN-103**
 
 ### 2026-11-16 — KAN-103 — Configurable area layouts A–E + style accents
 - **Agent/chat:** Designer + Implementer (Grok) — desktop shell

@@ -45,7 +45,9 @@ flowchart TB
 
 **Layout modes (all shipped as a setting):** overlay (A), stage (B), orb hub spokes then overlay (C, simple radial — particle polish later), split dock (D), one floating window (E). Accents follow mystic / aether / neural / apex.
 
-**Still open:** richer HUD widgets; particle hub; multiple floating areas.
+**Still open:** richer HUD widgets (KAN-107); particle hub (KAN-109); KAN-101 overlap check (KAN-110); full test evidence (KAN-104).
+
+**Shipped desk19 (2026-11-16):** Tasks **KAN-106** (area surfaces), **KAN-112** (layout A–E), **KAN-108** (App vs Orb split); Bug **KAN-102** fixed. Story **KAN-103** remains **In Progress**.
 
 ---
 
@@ -107,5 +109,5 @@ flowchart TB
 
 ## PM notes
 
-- **Active slice (2026-11-16):** **KAN-103** — A–E layout setting is in the desktop shell. **KAN-75** stays deferred. Mockups: `docs/mockups/kan103_nav/README.md`.
+- **Active slice:** **KAN-103** (WORK_LOG) — start **KAN-107**; **KAN-75** deferred. Mockups: `docs/mockups/kan103_nav/README.md`.
 - KAN-73 **Done** delivered Settings **behaviour**; this Story delivers correct **navigation shell** per CR.

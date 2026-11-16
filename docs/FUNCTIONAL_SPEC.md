@@ -180,7 +180,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next** (track in KAN; Active slice = **KAN-59**)
+**Still open / next** (track in KAN; Active slice = **KAN-103** — HUD/hub polish; **KAN-75** deferred)
 
 Rule: a Done Story covers only what it actually shipped. Remaining FR text must stay on open Stories (seed/reconcile via `scripts/jira_kan_seed_backlog.py`). Done parents have gap comments where needed.
 
@@ -211,9 +211,10 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-SEC-1, FR-SEC-3, FR-SEC-5 | Shipped isolation + confirm + secrets scoping | **Done** KAN-15, **KAN-16** |
 | FR-SEC-2 | Done | **KAN-69** |
 | FR-SEC-4 | Done | **KAN-71** |
-| FR-UI-1…5 | Baseline shipped; FR-UI-6/7 open (nav/widgets CR) | **Done** KAN-10/41/53/73 partial; **Open** area screens + HUD widgets (see KAN-102 / new nav story); Voice **KAN-81** |
-| FR-UI-6, FR-UI-7 | In progress — area layout modes A–E wired; HUD chips are a stub | **KAN-103** (epic KAN-27; Tasks KAN-106…110; test **KAN-104**; Bug **KAN-102**) |
-| FR-SET-3 | In progress — App Settings holds layout mode; Orb settings stay in the Screen drawer | **KAN-108** Task under KAN-103 |
+| FR-UI-1…5 | Baseline shipped | **Done** KAN-10/41/53/73; Voice **KAN-81** open |
+| FR-UI-6 | In progress — HUD toggles/chips stub; richer widgets open | **KAN-103** / Task **KAN-107**; test **KAN-104** |
+| FR-UI-7 | Partial — dedicated surfaces + layout A–E shipped (desk19); hub polish open | **KAN-103**; Bug **KAN-102** Done; Tasks **KAN-106/112** Done; **KAN-109** open |
+| FR-SET-3 | Shipped — App Settings screen vs Orb settings (Screen drawer) | **Done** Task **KAN-108** under KAN-103 |
 | FR-PLUG-1 | Partial (registry + stubs) | **Done** KAN-55 stub; real sandboxes **KAN-95** |
 | FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |
 | FR-PLUG-3 | Open | **KAN-79** |

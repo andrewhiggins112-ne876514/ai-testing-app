@@ -72,8 +72,8 @@ Skeleton + substantial features exist:
 - **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); **product UI = `desktop_app.py` + Computer Use** (not browser shell); IronBee for AUT/Gradio only; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
 
 Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
-- **KAN-103** Desktop nav area screens + HUD widgets (**Active**; layout modes A–E shipped in App Settings; hub polish + fuller HUD still open)
-- **KAN-75** Heal proposal review UI (deferred until KAN-103 nav shell)
+- **KAN-103** Desktop nav area screens + HUD widgets (**Active** — `docs/ops/WORK_LOG.md`; **start Task KAN-107**; layouts A–E + area surfaces shipped desk19; hub polish **KAN-109** still open)
+- **KAN-75** Heal proposal review UI (deferred until **KAN-103** closes)
 - KAN-77…KAN-81 first FR seed remainder; KAN-83…KAN-99 gap pass (headless, Jira AC read, 429 backoff, desktop beyond smoke, LEARN-4, sandbox beyond stub, busy UX, Jira write audit, steps from Jira AC)
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. Open example: **KAN-101** (App drawer toggle overlaps Settings)
