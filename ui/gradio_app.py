@@ -2156,10 +2156,10 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 _ms = multi_sandbox_plugin_status()
                 ms_enabled = gr.Checkbox(
                     value=bool(_ms.get("plugin_multi_sandbox_enabled", False)),
-                    label="Enable multi-sandbox orchestration stub (KAN-55, default off)",
+                    label="Enable multi-sandbox orchestration (KAN-95, default off)",
                 )
                 ms_action = gr.Dropdown(
-                    choices=["list", "plan"],
+                    choices=["list", "plan", "prepare", "status"],
                     value="list",
                     label="Orchestrate action",
                 )
@@ -2179,7 +2179,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     gr.Button("Save multi-sandbox plugin").click(
                         save_multi_sandbox_plugin, [ms_enabled], [status, store_info]
                     )
-                    gr.Button("Orchestrate (stub)", variant="primary").click(
+                    gr.Button("Orchestrate", variant="primary").click(
                         run_multi_sandbox_ui, [ms_action], [ms_status]
                     )
                     gr.Button("Refresh plugins").click(

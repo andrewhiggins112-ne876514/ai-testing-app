@@ -215,7 +215,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-UI-6 | Done for Security + Reports mini panels (desk20); more widget types later | **KAN-103** / Task **KAN-107** Done; test **KAN-104** |
 | FR-UI-7 | Partial — dedicated surfaces + layout A–E + particle hub + overlap fix (desk22g); full verify open | **KAN-103**; Bug **KAN-102/101/113** Done; Tasks **KAN-106/109/110/112** Done; **KAN-104** open |
 | FR-SET-3 | Shipped — App Settings screen vs Orb settings (Screen drawer) | **Done** Task **KAN-108** under KAN-103 |
-| FR-PLUG-1 | Partial (registry + stubs) | **Done** KAN-55 stub; real sandboxes **KAN-95** |
+| FR-PLUG-1 | Shipped registry + local multi-sandbox orchestration | **Done** KAN-55 stub + **KAN-95** (test **KAN-96**) |
 | FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |
 | FR-PLUG-3 | Stub shipped (Playwright default; others not-implemented) | **Done** **KAN-79** (test **KAN-80**) |
 | FR-SET-1 | Shipped local store | **Done** KAN-16 |

@@ -153,6 +153,10 @@ class MultiSandboxPluginRequest(BaseModel):
 
 class MultiSandboxOrchestrateRequest(BaseModel):
     action: str = "list"
+    sandbox_id: str = ""
+    label: str = ""
+    url: str = ""
+    profile_key: str = ""
 
 
 class PlaywrightSuitePathRequest(BaseModel):
@@ -408,7 +412,13 @@ async def post_multi_sandbox_plugin(req: MultiSandboxPluginRequest):
 
 @app.post("/api/multi-sandbox/orchestrate")
 async def post_multi_sandbox_orchestrate(req: MultiSandboxOrchestrateRequest):
-    return multi_sandbox_orchestrate(action=req.action or "list")
+    return multi_sandbox_orchestrate(
+        action=req.action or "list",
+        sandbox_id=req.sandbox_id or "",
+        label=req.label or "",
+        url=req.url or "",
+        profile_key=req.profile_key or "",
+    )
 
 
 @app.get("/api/playwright-suite")

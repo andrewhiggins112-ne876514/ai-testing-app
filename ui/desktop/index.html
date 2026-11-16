@@ -302,18 +302,32 @@
         </div>
         <div id="app-section-sandboxes" class="app-section" hidden>
           <h3 class="orb-section-label">Multi-sandbox plugin</h3>
-          <p class="drawer-hint">Stub orchestration for parallel environments. Default off. No real grid launches.</p>
+          <p class="drawer-hint">Local configured environments (max 4). Prepare creates profile folders. No cloud farms.</p>
           <label class="check-row"><input type="checkbox" id="ms-enabled" /> Enable multi-sandbox plugin</label>
           <p id="ms-plugins" class="drawer-hint">Plugins: —</p>
+          <p id="ms-list" class="drawer-hint">Sandboxes: —</p>
           <label class="stack-label">Action
             <select id="ms-action">
               <option value="list">list</option>
               <option value="plan">plan</option>
+              <option value="prepare">prepare</option>
+              <option value="status">status</option>
             </select>
+          </label>
+          <label class="stack-label">Sandbox id
+            <input type="text" id="ms-id" placeholder="primary" autocomplete="off" />
+          </label>
+          <label class="stack-label">Label
+            <input type="text" id="ms-label" placeholder="Primary AUT" autocomplete="off" />
+          </label>
+          <label class="stack-label">URL
+            <input type="url" id="ms-url" placeholder="https://…" autocomplete="off" />
           </label>
           <div class="btn-row">
             <button type="button" id="ms-save" class="save-btn">Save plugin</button>
             <button type="button" id="ms-run" class="save-btn secondary">Orchestrate</button>
+            <button type="button" id="ms-upsert" class="save-btn secondary">Save sandbox</button>
+            <button type="button" id="ms-remove" class="save-btn secondary">Remove</button>
           </div>
           <p id="ms-status" class="drawer-hint" role="status">Ready</p>
         </div>

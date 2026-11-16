@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-95** — Multi-sandbox real orchestration beyond stub |
-| **Start task** | **KAN-96** (`test`, Relates → KAN-95) |
-| **Epic** | (PLUG) |
-| **Roadmap ID** | FR-PLUG-1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-PLUG-1 |
+| **Jira story** | **KAN-97** — Busy and long-run UX while agent or tests execute |
+| **Start task** | **KAN-98** (`test`, Relates → KAN-97) |
+| **Epic** | (AGENT) |
+| **Roadmap ID** | FR-AGENT-5 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-AGENT-5 / NFR §4.6 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-96** |
-| **Shipped** | **KAN-93** / **KAN-94** jira_project default; **KAN-91** / **KAN-92** Jira 429 backoff; **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
+| **Test ticket** | **KAN-98** |
+| **Shipped** | **KAN-95** / **KAN-96** multi-sandbox real orchestration; **KAN-93** / **KAN-94** jira_project default; **KAN-91** / **KAN-92** Jira 429 backoff; **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic connected |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-95 — Multi-sandbox real orchestration beyond stub (FR-PLUG-1)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-95
+- **Done:** Replaced hardcoded mock sandboxes with level-scoped `multi_sandboxes` records, local status, prepare (profile dirs), upsert/remove, and max-4 limit. Plan mode is `local` (not `mock`). Plugin toggle kept. Desktop Sandboxes (desk30) + Gradio + agent `orchestrate_sandboxes` actions extended. No cloud farms.
+- **Files:** `plugins/multi_sandbox.py`, `plugins/registry.py`, `settings/store.py`, `main.py`, `agent/agent.py`, `ui/desktop/*`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_multi_sandbox.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_multi_sandbox.py -v` (7 passed). Live API enable→upsert→plan(local)→prepare→remove→disable→list disabled. Plugin prepare created profile under LOCALAPPDATA browser_profiles.
+- **Jira:** story agent-completion + **KAN-96** evidence/Done; **KAN-95** Done
+- **Next:** **KAN-97** busy/long-run UX (test KAN-98)
 
 ### 2026-11-16 — KAN-93 — First-class jira_project default for agent Jira reads (FR-LEARN-4)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-93

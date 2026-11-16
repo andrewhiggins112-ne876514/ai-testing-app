@@ -46,7 +46,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | ID | Item | Notes |
 |----|------|-------|
 | DESK-1 | Desktop `.exe` testing plugin | **done** — KAN-47; `plugins/desktop_runner.py` smoke + toggle |
-| MULTI-1 | Multi-sandbox orchestration | **done** — KAN-55; `plugins/multi_sandbox.py` + registry stub |
+| MULTI-1 | Multi-sandbox orchestration | **done** — KAN-55 stub + **KAN-95** real local records/status/prepare |
 | VOICE-1 | Voice input | **KAN-81** (test KAN-82) — **deferred** until mic connected (last) |
 | SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
 
@@ -71,10 +71,10 @@ Open FR Stories: KAN-77…KAN-81 (first seed remainder), plus gap pass KAN-83…
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-95** — Multi-sandbox real orchestration beyond stub (FR-PLUG-1; test KAN-96).
+**KAN-97** — Busy and long-run UX while agent or tests execute (FR-AGENT-5; test KAN-98).
 
 **Deferred:** **KAN-81/82** voice input — until a microphone is connected (do last).
 
-**Done this cycle:** **KAN-93/94** — jira_project default for agent reads (FR-LEARN-4). **KAN-91/92** — Jira 429 backoff / auth errors (FR-JIRA-6). **KAN-89/90** — Read story descriptions/AC (FR-JIRA-1). **KAN-87/88** desktop structured steps. **KAN-85/86** Jira AC → Playwright steps. **KAN-83/84** headed/headless. Earlier: **KAN-79/80** framework switch; **KAN-77/78** targets; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
+**Done this cycle:** **KAN-95/96** — multi-sandbox real local orchestration (FR-PLUG-1). **KAN-93/94** — jira_project default for agent reads (FR-LEARN-4). **KAN-91/92** — Jira 429 backoff / auth errors (FR-JIRA-6). **KAN-89/90** — Read story descriptions/AC (FR-JIRA-1). **KAN-87/88** desktop structured steps. **KAN-85/86** Jira AC → Playwright steps. **KAN-83/84** headed/headless. Earlier: **KAN-79/80** framework switch; **KAN-77/78** targets; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
 
 Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

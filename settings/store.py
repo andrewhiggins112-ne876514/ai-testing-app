@@ -24,6 +24,7 @@ _SCOPED_KEYS = (
     "target_app_path",
     "api_endpoint",
     "playwright_suite_path",
+    "multi_sandboxes",
 )
 
 
@@ -92,8 +93,10 @@ def _defaults() -> dict:
         "playwright_suite_path": "",
         # FR-PLUG-2: desktop .exe smoke plugin (KAN-47)
         "plugin_desktop_enabled": True,
-        # FR-PLUG-2: multi-sandbox orchestration stub (KAN-55) — default off
+        # FR-PLUG-2: multi-sandbox orchestration (KAN-55/KAN-95) — default off
         "plugin_multi_sandbox_enabled": False,
+        # FR-PLUG-1: configured sandbox env records (level-scoped; KAN-95)
+        "multi_sandboxes": [],
         # FR-PLUG-3: automation framework preference (KAN-79) — Playwright default
         "test_framework": "playwright",
         # FR-TEST-4: capture final screenshot on successful Playwright runs (failures always)

@@ -1177,9 +1177,15 @@
   const suiteStatus = document.getElementById("suite-status");
   const msEnabled = document.getElementById("ms-enabled");
   const msPlugins = document.getElementById("ms-plugins");
+  const msList = document.getElementById("ms-list");
   const msAction = document.getElementById("ms-action");
+  const msId = document.getElementById("ms-id");
+  const msLabel = document.getElementById("ms-label");
+  const msUrl = document.getElementById("ms-url");
   const msSave = document.getElementById("ms-save");
   const msRun = document.getElementById("ms-run");
+  const msUpsert = document.getElementById("ms-upsert");
+  const msRemove = document.getElementById("ms-remove");
   const msStatus = document.getElementById("ms-status");
   const sandboxesSection = document.getElementById("app-section-sandboxes");
   const rptStatus = document.getElementById("rpt-status");
@@ -1421,11 +1427,59 @@
     }
   }
 
+  function renderSandboxList(sandboxes) {
+    if (!msList) return;
+    const rows = Array.isArray(sandboxes) ? sandboxes : [];
+    if (!rows.length) {
+      msList.textContent = "Sandboxes: (none configured)";
+      return;
+    }
+    msList.textContent =
+      "Sandboxes: " +
+      rows
+        .map(function (s) {
+          return (
+            (s.id || "?") +
+            "[" +
+            (s.status || "idle") +
+            "]" +
+            (s.url ? " " + s.url : "")
+          );
+        })
+        .join(" · ");
+  }
+
   function applyMultiSandboxPlugin(payload) {
     if (!payload) return;
     if (msEnabled) {
       msEnabled.checked = !!payload.plugin_multi_sandbox_enabled;
     }
+    if (payload.sandboxes) {
+      renderSandboxList(payload.sandboxes);
+    }
+  }
+
+  async function runMultiSandboxAction(action, extra) {
+    const body = Object.assign(
+      {
+        action: action || "list",
+        sandbox_id: msId && msId.value ? msId.value.trim() : "",
+        label: msLabel && msLabel.value ? msLabel.value.trim() : "",
+        url: msUrl && msUrl.value ? msUrl.value.trim() : "",
+      },
+      extra || {}
+    );
+    const res = await fetch("/api/multi-sandbox/orchestrate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const payload = await res.json();
+    if (!res.ok) {
+      throw new Error("request failed");
+    }
+    renderSandboxList(payload.sandboxes || []);
+    return payload;
   }
 
   async function loadPluginRegistry() {
@@ -1458,6 +1512,14 @@
       if (!res.ok) return;
       applyMultiSandboxPlugin(await res.json());
       await loadPluginRegistry();
+      try {
+        const listed = await runMultiSandboxAction("list");
+        if (listed && listed.status === "disabled") {
+          renderSandboxList([]);
+        }
+      } catch (err) {
+        /* list optional when plugin off */
+      }
       if (msStatus) msStatus.textContent = "Ready";
     } catch (err) {
       if (msStatus) msStatus.textContent = "Could not load multi-sandbox plugin.";
@@ -2165,16 +2227,7 @@
       try {
         const action =
           msAction && msAction.value ? msAction.value.trim() : "list";
-        const res = await fetch("/api/multi-sandbox/orchestrate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: action }),
-        });
-        const payload = await res.json();
-        if (!res.ok) {
-          if (msStatus) msStatus.textContent = "Orchestrate request failed.";
-          return;
-        }
+        const payload = await runMultiSandboxAction(action);
         if (payload.status === "disabled") {
           if (msStatus) {
             msStatus.textContent =
@@ -2195,6 +2248,58 @@
         if (msStatus) {
           msStatus.textContent =
             payload.error || payload.message || "Orchestration failed.";
+        }
+      } catch (err) {
+        if (msStatus) msStatus.textContent = "Could not reach orchestrate API.";
+      }
+    });
+  }
+
+  if (msUpsert) {
+    msUpsert.addEventListener("click", async function () {
+      if (msStatus) msStatus.textContent = "Saving sandbox…";
+      try {
+        const payload = await runMultiSandboxAction("upsert");
+        if (payload.status === "disabled") {
+          if (msStatus) {
+            msStatus.textContent =
+              payload.message || "Plugin disabled — enable and Save.";
+          }
+          return;
+        }
+        if (payload.status === "ok") {
+          if (msStatus) msStatus.textContent = payload.message || "Sandbox saved.";
+          return;
+        }
+        if (msStatus) {
+          msStatus.textContent =
+            payload.error || payload.message || "Save sandbox failed.";
+        }
+      } catch (err) {
+        if (msStatus) msStatus.textContent = "Could not reach orchestrate API.";
+      }
+    });
+  }
+
+  if (msRemove) {
+    msRemove.addEventListener("click", async function () {
+      if (msStatus) msStatus.textContent = "Removing sandbox…";
+      try {
+        const payload = await runMultiSandboxAction("remove");
+        if (payload.status === "disabled") {
+          if (msStatus) {
+            msStatus.textContent =
+              payload.message || "Plugin disabled — enable and Save.";
+          }
+          return;
+        }
+        if (payload.status === "ok") {
+          if (msStatus) msStatus.textContent = payload.message || "Sandbox removed.";
+          return;
+        }
+        if (msStatus) {
+          msStatus.textContent =
+            payload.error || payload.message || "Remove failed.";
         }
       } catch (err) {
         if (msStatus) msStatus.textContent = "Could not reach orchestrate API.";

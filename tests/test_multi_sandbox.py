@@ -1,4 +1,4 @@
-"""Multi-sandbox orchestration stub (KAN-55 / FR-PLUG-1 / FR-PLUG-2)."""
+"""Multi-sandbox orchestration (KAN-55 / KAN-95 / FR-PLUG-1 / FR-PLUG-2)."""
 import os
 import sys
 import tempfile
@@ -7,7 +7,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from plugins.multi_sandbox import orchestrate, set_plugin_enabled  # noqa: E402
+from plugins.multi_sandbox import (  # noqa: E402
+    MAX_SANDBOXES,
+    orchestrate,
+    set_plugin_enabled,
+)
 from plugins.registry import get_plugin, list_plugins  # noqa: E402
 
 
@@ -45,23 +49,82 @@ class MultiSandboxTests(unittest.TestCase):
         msg = (result.get("message") or result.get("error") or "").lower()
         self.assertTrue("enable" in msg or "disabled" in msg)
 
-    def test_enabled_list_returns_stub_sandboxes(self):
+    def test_enabled_list_returns_configured_sandboxes(self):
         set_plugin_enabled(True)
         result = orchestrate(action="list")
         self.assertEqual(result["status"], "ok", result)
+        self.assertEqual(result.get("mode"), "local")
         self.assertGreaterEqual(len(result.get("sandboxes") or []), 1)
         first = result["sandboxes"][0]
         self.assertIn("url", first)
         self.assertIn("profile", first)
         self.assertIn("credentials_scope", first)
+        self.assertIn("status", first)
 
-    def test_enabled_plan_is_mock_only(self):
+    def test_enabled_plan_is_local_not_mock(self):
         set_plugin_enabled(True)
         result = orchestrate(action="plan")
         self.assertEqual(result["status"], "ok", result)
         plan = result.get("plan") or {}
-        self.assertEqual(plan.get("mode"), "mock")
+        self.assertEqual(plan.get("mode"), "local")
+        self.assertNotEqual(plan.get("mode"), "mock")
         self.assertTrue(plan.get("steps"))
+
+    def test_upsert_persists_and_list_reflects_config(self):
+        set_plugin_enabled(True)
+        saved = orchestrate(
+            action="upsert",
+            sandbox_id="alpha",
+            label="Alpha AUT",
+            url="https://alpha.example",
+        )
+        self.assertEqual(saved["status"], "ok", saved)
+        listed = orchestrate(action="list")
+        self.assertEqual(listed["status"], "ok", listed)
+        ids = [s["id"] for s in listed.get("sandboxes") or []]
+        self.assertIn("alpha", ids)
+        alpha = next(s for s in listed["sandboxes"] if s["id"] == "alpha")
+        self.assertEqual(alpha["url"], "https://alpha.example")
+        self.assertEqual(alpha["label"], "Alpha AUT")
+
+    def test_prepare_creates_profile_dir(self):
+        set_plugin_enabled(True)
+        orchestrate(
+            action="upsert",
+            sandbox_id="prep1",
+            label="Prep",
+            url="https://prep.example",
+        )
+        prepared = orchestrate(action="prepare", sandbox_id="prep1")
+        self.assertEqual(prepared["status"], "ok", prepared)
+        self.assertIn("prep1", prepared.get("prepared") or [])
+        box = next(s for s in prepared["sandboxes"] if s["id"] == "prep1")
+        self.assertEqual(box["status"], "prepared")
+        self.assertTrue(Path(box["profile"]).is_dir())
+
+    def test_max_sandboxes_limit(self):
+        set_plugin_enabled(True)
+        listed = orchestrate(action="list")
+        for s in list(listed.get("sandboxes") or []):
+            orchestrate(action="remove", sandbox_id=s["id"])
+        for i in range(MAX_SANDBOXES):
+            r = orchestrate(
+                action="upsert",
+                sandbox_id=f"box{i}",
+                label=f"Box {i}",
+                url=f"https://box{i}.example",
+            )
+            self.assertEqual(r["status"], "ok", r)
+        listed = orchestrate(action="list")
+        self.assertEqual(len(listed.get("sandboxes") or []), MAX_SANDBOXES)
+        overflow = orchestrate(
+            action="upsert",
+            sandbox_id="overflow",
+            label="Too many",
+            url="https://overflow.example",
+        )
+        self.assertEqual(overflow["status"], "error", overflow)
+        self.assertIn("limit", (overflow.get("message") or "").lower())
 
 
 if __name__ == "__main__":

@@ -20,7 +20,10 @@ _MANIFESTS: list[dict[str, Any]] = [
     {
         "id": "multi_sandbox",
         "name": "Multi-sandbox orchestration",
-        "description": "Stub orchestration for parallel test environments (mock only).",
+        "description": (
+            "Local multi-sandbox env records, status, and prepare "
+            "(max 4; no cloud farms)."
+        ),
         "toggle_key": "plugin_multi_sandbox_enabled",
         "default_enabled": False,
     },
