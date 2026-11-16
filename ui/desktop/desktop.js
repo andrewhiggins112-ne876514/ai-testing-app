@@ -1220,6 +1220,7 @@
   const healSection = document.getElementById("app-section-heal");
   const desktopSection = document.getElementById("app-section-desktop");
   const suitesSection = document.getElementById("app-section-suites");
+  const plansSection = document.getElementById("app-section-plans");
   const settingsNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="settings"]')
     : null;
@@ -1241,6 +1242,9 @@
   const suitesNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="suites"]')
     : null;
+  const plansNav = appDrawer
+    ? appDrawer.querySelector('.app-nav-item[data-section="plans"]')
+    : null;
   const sandboxesNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="sandboxes"]')
     : null;
@@ -1249,6 +1253,29 @@
   const healRefresh = document.getElementById("heal-refresh");
   const setJiraUrl = document.getElementById("set-jira-url");
   const setJiraProject = document.getElementById("set-jira-project");
+  const setOllamaModel = document.getElementById("set-ollama-model");
+  const ollamaRefreshBtn = document.getElementById("ollama-refresh-btn");
+  const ollamaModelStatus = document.getElementById("ollama-model-status");
+  const planIssueKey = document.getElementById("plan-issue-key");
+  const planDocName = document.getElementById("plan-doc-name");
+  const planDocText = document.getElementById("plan-doc-text");
+  const planDraftBtn = document.getElementById("plan-draft-btn");
+  const planRefreshBtn = document.getElementById("plan-refresh-btn");
+  const planList = document.getElementById("plan-list");
+  const planLoadBtn = document.getElementById("plan-load-btn");
+  const planDocAddBtn = document.getElementById("plan-doc-add-btn");
+  const planIntent = document.getElementById("plan-intent");
+  const planCases = document.getElementById("plan-cases");
+  const planCaseId = document.getElementById("plan-case-id");
+  const planCaseName = document.getElementById("plan-case-name");
+  const planCaseNote = document.getElementById("plan-case-note");
+  const planCaseEnabled = document.getElementById("plan-case-enabled");
+  const planCaseSave = document.getElementById("plan-case-save");
+  const planCaseUp = document.getElementById("plan-case-up");
+  const planCaseDown = document.getElementById("plan-case-down");
+  const planStatus = document.getElementById("plan-status");
+  let openPlanId = "";
+  let openPlanCases = [];
   const jiraReadKey = document.getElementById("jira-read-key");
   const jiraReadBtn = document.getElementById("jira-read-btn");
   const jiraReadOut = document.getElementById("jira-read-out");
@@ -1355,6 +1382,20 @@
     if (setJiraProject) {
       setJiraProject.value = payload.jira_project || "";
     }
+    if (setOllamaModel && payload.ollama_model) {
+      const wanted = payload.ollama_model;
+      let found = false;
+      Array.prototype.forEach.call(setOllamaModel.options || [], function (opt) {
+        if (opt.value === wanted) found = true;
+      });
+      if (!found && wanted) {
+        const opt = document.createElement("option");
+        opt.value = wanted;
+        opt.textContent = wanted + " (saved)";
+        setOllamaModel.appendChild(opt);
+      }
+      setOllamaModel.value = wanted;
+    }
     if (setTargetUrl) {
       setTargetUrl.value = payload.target_url || "";
     }
@@ -1427,15 +1468,163 @@
     }
   }
 
+  async function loadOllamaModels() {
+    if (!setOllamaModel) return;
+    if (ollamaModelStatus) ollamaModelStatus.textContent = "Loading models…";
+    try {
+      const res = await fetch("/api/ollama-models");
+      const payload = await res.json();
+      const models = payload.models || [];
+      const selected = payload.selected || "";
+      setOllamaModel.innerHTML = "";
+      if (!models.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = payload.status === "ok" ? "(no models)" : "(Ollama unreachable)";
+        setOllamaModel.appendChild(opt);
+      } else {
+        models.forEach(function (name) {
+          const opt = document.createElement("option");
+          opt.value = name;
+          opt.textContent = name;
+          setOllamaModel.appendChild(opt);
+        });
+      }
+      if (selected) {
+        let found = false;
+        Array.prototype.forEach.call(setOllamaModel.options, function (opt) {
+          if (opt.value === selected) found = true;
+        });
+        if (!found) {
+          const opt = document.createElement("option");
+          opt.value = selected;
+          opt.textContent = selected + " (missing)";
+          setOllamaModel.appendChild(opt);
+        }
+        setOllamaModel.value = selected;
+      }
+      if (ollamaModelStatus) {
+        ollamaModelStatus.textContent =
+          payload.message ||
+          (payload.status === "ok"
+            ? "Model: " + (selected || "not set")
+            : "Could not list models");
+      }
+    } catch (err) {
+      if (ollamaModelStatus) {
+        ollamaModelStatus.textContent =
+          "Could not list models: " + (err && err.message ? err.message : err);
+      }
+    }
+  }
+
   async function loadAppSettings() {
     try {
       const res = await fetch("/api/app-settings");
       if (!res.ok) return;
       applyAppSettings(await res.json());
+      await loadOllamaModels();
       if (setStatus) setStatus.textContent = "Ready";
     } catch (err) {
       if (setStatus) setStatus.textContent = "Could not load app settings.";
     }
+  }
+
+  function renderPlanCases(plan) {
+    openPlanCases = (plan && plan.suite && plan.suite.cases) || [];
+    if (planIntent) {
+      const intent = (plan && plan.intent) || "";
+      planIntent.hidden = !intent;
+      planIntent.textContent = intent || "";
+    }
+    if (!planCases) return;
+    if (!openPlanCases.length) {
+      planCases.textContent = "Cases: (none)";
+      return;
+    }
+    planCases.innerHTML = openPlanCases
+      .map(function (c, idx) {
+        const en = c.enabled === false ? "OFF" : "ON";
+        const src = (c.source && c.source.ref) || "";
+        return (
+          idx +
+          1 +
+          ". [" +
+          en +
+          "] " +
+          (c.id || "?") +
+          " — " +
+          (c.name || "") +
+          (c.jira_key ? " (" + c.jira_key + ")" : "") +
+          (src ? "\n   why: " + src : "") +
+          (c.note ? "\n   note: " + c.note : "")
+        );
+      })
+      .join("\n");
+  }
+
+  async function loadPlanList(selectId) {
+    if (!planList) return;
+    try {
+      const res = await fetch("/api/plans");
+      const payload = await res.json();
+      const plans = payload.plans || [];
+      planList.innerHTML = "";
+      if (!plans.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "(none yet)";
+        planList.appendChild(opt);
+      } else {
+        plans.forEach(function (p) {
+          const opt = document.createElement("option");
+          opt.value = p.id;
+          opt.textContent =
+            (p.name || p.id) + " — " + (p.case_count || 0) + " case(s)";
+          planList.appendChild(opt);
+        });
+      }
+      if (selectId) planList.value = selectId;
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Could not list plans.";
+    }
+  }
+
+  async function openPlan(planId) {
+    if (!planId) return;
+    if (planStatus) planStatus.textContent = "Loading plan…";
+    try {
+      const res = await fetch("/api/plans/" + encodeURIComponent(planId));
+      const payload = await res.json();
+      if (payload.status !== "ok" || !payload.plan) {
+        if (planStatus) {
+          planStatus.textContent = payload.message || "Plan not found.";
+        }
+        return;
+      }
+      openPlanId = payload.plan.id;
+      renderPlanCases(payload.plan);
+      if (planList) planList.value = openPlanId;
+      if (planStatus) {
+        planStatus.textContent =
+          "Open: " +
+          (payload.plan.name || openPlanId) +
+          " (" +
+          ((payload.plan.suite && payload.plan.suite.cases) || []).length +
+          " cases)";
+      }
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Could not open plan.";
+    }
+  }
+
+  function selectedCaseIndex() {
+    const cid = planCaseId && planCaseId.value ? planCaseId.value.trim() : "";
+    if (!cid) return -1;
+    for (let i = 0; i < openPlanCases.length; i++) {
+      if (openPlanCases[i].id === cid) return i;
+    }
+    return -1;
   }
 
   function applySecurityStatus(payload) {
@@ -1674,6 +1863,7 @@
     heal: "Heal review",
     desktop: "Desktop",
     suites: "Suites",
+    plans: "Plans",
     sandboxes: "Sandboxes",
   };
   const areaMap = {
@@ -1684,6 +1874,7 @@
     heal: { section: healSection, nav: healNav },
     desktop: { section: desktopSection, nav: desktopNav },
     suites: { section: suitesSection, nav: suitesNav },
+    plans: { section: plansSection, nav: plansNav },
     sandboxes: { section: sandboxesSection, nav: sandboxesNav },
   };
   const areaLayer = document.getElementById("area-layer");
@@ -1846,6 +2037,7 @@
     if (name === "heal") loadHealProposals();
     if (name === "desktop") loadDesktopPlugin();
     if (name === "suites") loadPlaywrightSuite();
+    if (name === "plans") loadPlanList(openPlanId);
     if (name === "sandboxes") loadMultiSandboxPlugin();
   }
 
@@ -2219,18 +2411,209 @@
               setPlaywrightMode && setPlaywrightMode.value
                 ? setPlaywrightMode.value
                 : "headed",
+            ollama_model:
+              setOllamaModel && setOllamaModel.value
+                ? setOllamaModel.value.trim()
+                : "",
           }),
         });
         const payload = await res.json();
         applyAppSettings(payload);
+        await loadOllamaModels();
         if (setStatus) {
           setStatus.textContent =
             payload.message ||
             (payload.status === "updated" ? "Saved." : "Save failed.");
         }
+        if (ollamaModelStatus && payload.status === "error") {
+          ollamaModelStatus.textContent = payload.message || "Model save refused.";
+        }
       } catch (err) {
         if (setStatus) setStatus.textContent = "Could not save app settings.";
       }
+    });
+  }
+
+  if (ollamaRefreshBtn) {
+    ollamaRefreshBtn.addEventListener("click", function () {
+      loadOllamaModels();
+    });
+  }
+
+  if (planDraftBtn) {
+    planDraftBtn.addEventListener("click", async function () {
+      if (planStatus) planStatus.textContent = "Drafting…";
+      try {
+        const res = await fetch("/api/plans/draft", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            issue_key: planIssueKey && planIssueKey.value ? planIssueKey.value.trim() : "",
+            document_text: planDocText && planDocText.value ? planDocText.value : "",
+            document_name: planDocName && planDocName.value ? planDocName.value.trim() : "",
+          }),
+        });
+        const payload = await res.json();
+        if (payload.status !== "ok" || !payload.plan) {
+          if (planStatus) {
+            planStatus.textContent = payload.message || "Draft failed.";
+          }
+          return;
+        }
+        await loadPlanList(payload.plan.id);
+        openPlanId = payload.plan.id;
+        renderPlanCases(payload.plan);
+        if (planStatus) {
+          planStatus.textContent = payload.message || "Drafted.";
+        }
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Draft request failed.";
+      }
+    });
+  }
+
+  if (planRefreshBtn) {
+    planRefreshBtn.addEventListener("click", function () {
+      loadPlanList(openPlanId);
+    });
+  }
+
+  if (planLoadBtn) {
+    planLoadBtn.addEventListener("click", function () {
+      const id = planList && planList.value ? planList.value : "";
+      openPlan(id);
+    });
+  }
+
+  if (planDocAddBtn) {
+    planDocAddBtn.addEventListener("click", async function () {
+      if (!openPlanId) {
+        if (planStatus) planStatus.textContent = "Open a plan first.";
+        return;
+      }
+      if (planStatus) planStatus.textContent = "Adding document cases…";
+      try {
+        const res = await fetch(
+          "/api/plans/" + encodeURIComponent(openPlanId) + "/draft-document",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              document_text: planDocText && planDocText.value ? planDocText.value : "",
+              document_name:
+                planDocName && planDocName.value
+                  ? planDocName.value.trim()
+                  : "uploaded-document",
+              jira_key:
+                planIssueKey && planIssueKey.value ? planIssueKey.value.trim() : "",
+            }),
+          }
+        );
+        const payload = await res.json();
+        if (payload.status !== "ok") {
+          if (planStatus) {
+            planStatus.textContent = payload.message || "Document draft failed.";
+          }
+          return;
+        }
+        if (payload.plan) renderPlanCases(payload.plan);
+        else await openPlan(openPlanId);
+        if (planStatus) {
+          planStatus.textContent = payload.message || "Document cases added.";
+        }
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Document draft request failed.";
+      }
+    });
+  }
+
+  if (planCaseSave) {
+    planCaseSave.addEventListener("click", async function () {
+      if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
+        if (planStatus) planStatus.textContent = "Pick a case id first.";
+        return;
+      }
+      if (planStatus) planStatus.textContent = "Saving case…";
+      try {
+        const res = await fetch(
+          "/api/plans/" +
+            encodeURIComponent(openPlanId) +
+            "/cases/" +
+            encodeURIComponent(planCaseId.value.trim()),
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: planCaseName ? planCaseName.value : null,
+              note: planCaseNote ? planCaseNote.value : null,
+              enabled: planCaseEnabled ? !!planCaseEnabled.checked : true,
+            }),
+          }
+        );
+        const payload = await res.json();
+        if (payload.status !== "ok") {
+          if (planStatus) {
+            planStatus.textContent = payload.message || "Case save failed.";
+          }
+          return;
+        }
+        if (payload.plan) renderPlanCases(payload.plan);
+        if (planStatus) planStatus.textContent = "Case saved locally.";
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Case save request failed.";
+      }
+    });
+  }
+
+  async function moveSelectedCase(delta) {
+    if (!openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      return;
+    }
+    const idx = selectedCaseIndex();
+    if (idx < 0) {
+      if (planStatus) planStatus.textContent = "Enter a case id from the list.";
+      return;
+    }
+    const next = idx + delta;
+    if (next < 0 || next >= openPlanCases.length) return;
+    const ids = openPlanCases.map(function (c) {
+      return c.id;
+    });
+    const tmp = ids[idx];
+    ids[idx] = ids[next];
+    ids[next] = tmp;
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + "/reorder",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ case_ids: ids }),
+        }
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok") {
+        if (planStatus) {
+          planStatus.textContent = payload.message || "Reorder failed.";
+        }
+        return;
+      }
+      if (payload.plan) renderPlanCases(payload.plan);
+      if (planStatus) planStatus.textContent = "Reordered locally.";
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Reorder request failed.";
+    }
+  }
+
+  if (planCaseUp) {
+    planCaseUp.addEventListener("click", function () {
+      moveSelectedCase(-1);
+    });
+  }
+  if (planCaseDown) {
+    planCaseDown.addEventListener("click", function () {
+      moveSelectedCase(1);
     });
   }
 

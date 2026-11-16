@@ -1458,8 +1458,22 @@ ORB_THEME = gr.themes.Base(
 _NONE_REPORT = "(none yet)"
 
 
+def _ollama_model_choices():
+    from settings.ollama_models import get_ollama_model, list_ollama_models
+
+    listed = list_ollama_models()
+    models = list(listed.get("models") or [])
+    selected = get_ollama_model()
+    if selected and selected not in models:
+        models = [selected] + models
+    if not models:
+        models = [selected or ""]
+    return selected, models
+
+
 def current_settings():
     from plugins.framework_switch import normalize_framework
+    from settings.ollama_models import get_ollama_model
 
     data = load_settings()
     pw_mode = "headless" if bool(data.get("playwright_headless", False)) else "headed"
@@ -1472,6 +1486,7 @@ def current_settings():
         data.get("api_endpoint") or "",
         normalize_framework(data.get("test_framework")),
         pw_mode,
+        get_ollama_model(),
     )
 
 
@@ -1623,6 +1638,7 @@ def save_settings(
     api_endpoint="",
     test_framework="playwright",
     playwright_mode="headed",
+    ollama_model="",
     confirm_level: bool = False,
 ):
     """Save target/Jira settings; level switch requires a second confirm (FR-SEC-3)."""
@@ -1648,6 +1664,7 @@ def save_settings(
         api_endpoint=api_endpoint or "",
         test_framework=test_framework or "playwright",
         playwright_mode=playwright_mode or "headed",
+        ollama_model=ollama_model if ollama_model is not None else None,
     )
     if saved.get("status") == "error":
         return saved.get("message") or "Save failed.", settings_store_summary()
@@ -1663,6 +1680,7 @@ def confirm_security_level(
     api_endpoint="",
     test_framework="playwright",
     playwright_mode="headed",
+    ollama_model="",
 ):
     """Second step for OFFICIAL/SECRET switch."""
     return save_settings(
@@ -1674,6 +1692,7 @@ def confirm_security_level(
         api_endpoint,
         test_framework,
         playwright_mode,
+        ollama_model,
         confirm_level=True,
     )
 
@@ -2004,7 +2023,9 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 loaded_msg,
                 loaded_fw,
                 loaded_pw_mode,
+                _loaded_ollama_unused,
             ) = current_settings()
+            loaded_ollama, loaded_ollama_choices = _ollama_model_choices()
             with gr.Column(elem_id="settings-panel"):
                 gr.HTML('<div class="panel-title">Settings</div>')
                 gr.HTML(
@@ -2048,6 +2069,13 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     placeholder="KAN",
                     info="Default project for list/read when the agent omits a key.",
                 )
+                ollama_model_dd = gr.Dropdown(
+                    choices=loaded_ollama_choices or [loaded_ollama or ""],
+                    value=loaded_ollama or None,
+                    label="Ollama model (FR-CONN-1 / A3)",
+                    info="Chat uses this model. Missing models are refused on save — no pretend success.",
+                    allow_custom_value=False,
+                )
                 test_framework_dd = gr.Dropdown(
                     choices=["playwright", "selenium", "cypress"],
                     value=loaded_fw or "playwright",
@@ -2085,6 +2113,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                             api_endpoint_box,
                             test_framework_dd,
                             playwright_mode_dd,
+                            ollama_model_dd,
                         ],
                         [status, store_info],
                     )
@@ -2099,6 +2128,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                             api_endpoint_box,
                             test_framework_dd,
                             playwright_mode_dd,
+                            ollama_model_dd,
                         ],
                         [status, store_info],
                     )
@@ -2319,6 +2349,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
             api_endpoint_box,
             test_framework_dd,
             playwright_mode_dd,
+            ollama_model_dd,
         ],
     )
     demo.load(settings_store_summary, outputs=[store_info])

@@ -240,6 +240,8 @@ def connection_checklist() -> dict[str, Any]:
     level = get_security_level()
     email_set = bool((data.get("jira_email") or "").strip())
     token_set = bool((data.get("jira_api_token") or "").strip())
+    from settings.ollama_models import get_ollama_model
+
     return {
         "security_level": level,
         "jira_url": (data.get("jira_url") or "").strip(),
@@ -248,6 +250,7 @@ def connection_checklist() -> dict[str, Any]:
         "target_url": (data.get("target_url") or "").strip(),
         "target_app_path": (data.get("target_app_path") or "").strip(),
         "api_endpoint": (data.get("api_endpoint") or "").strip(),
+        "ollama_model": get_ollama_model(),
         "level_switch_requires_confirm": True,
     }
 

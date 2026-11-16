@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk32" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk33" />
 </head>
 <body>
   <div id="app">
@@ -103,7 +103,8 @@
       <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="heal" style="--spoke:4">Heal review</button>
       <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="desktop" style="--spoke:5">Desktop</button>
       <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="suites" style="--spoke:6">Suites</button>
-      <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="sandboxes" style="--spoke:7">Sandboxes</button>
+      <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="plans" style="--spoke:7">Plans</button>
+      <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="sandboxes" style="--spoke:8">Sandboxes</button>
     </div>
 
     <aside id="hud-security" class="shell-surface hud-widget hud-security movable-widget" data-widget="hud-security" hidden aria-label="Security HUD" title="Drag to move · resize from edges">
@@ -140,6 +141,7 @@
           <button type="button" class="app-nav-item" data-section="heal" aria-pressed="false">Heal review</button>
           <button type="button" class="app-nav-item" data-section="desktop" aria-pressed="false">Desktop</button>
           <button type="button" class="app-nav-item" data-section="suites" aria-pressed="false">Suites</button>
+          <button type="button" class="app-nav-item" data-section="plans" aria-pressed="false">Plans</button>
           <button type="button" class="app-nav-item" data-section="sandboxes" aria-pressed="false">Sandboxes</button>
         </nav>
         <div id="area-section-host">
@@ -174,6 +176,17 @@
             <input type="text" id="set-jira-project" placeholder="KAN" autocomplete="off" maxlength="10" />
           </label>
           <p class="drawer-hint">FR-LEARN-4: default project for list/read when the agent or tools omit a key.</p>
+          <h4 class="orb-section-label">Ollama model</h4>
+          <p class="drawer-hint">Lists models local Ollama reports. Chat uses the saved model only — switching does not start a second model beside it. Missing models are refused on save.</p>
+          <label class="stack-label">Agent model
+            <select id="set-ollama-model">
+              <option value="">(loading…)</option>
+            </select>
+          </label>
+          <div class="btn-row">
+            <button type="button" id="ollama-refresh-btn" class="save-btn secondary">Refresh models</button>
+          </div>
+          <p id="ollama-model-status" class="drawer-hint" role="status">Model: not loaded</p>
           <div class="btn-row">
             <button type="button" id="set-save" class="save-btn">Save connection</button>
             <button type="button" id="conn-health-btn" class="save-btn secondary">Check health</button>
@@ -300,6 +313,51 @@
           </div>
           <p id="desk-status" class="drawer-hint" role="status">Ready</p>
         </div>
+        <div id="app-section-plans" class="app-section" hidden>
+          <h3 class="orb-section-label">Plans</h3>
+          <p class="drawer-hint">Draft a local plan from one Jira story (and optional document text). Edit cases before any run. Nothing is written to Jira from this screen.</p>
+          <label class="stack-label">Issue key
+            <input type="text" id="plan-issue-key" placeholder="KAN-131" autocomplete="off" />
+          </label>
+          <label class="stack-label">Optional document name
+            <input type="text" id="plan-doc-name" placeholder="spec.md" autocomplete="off" />
+          </label>
+          <label class="stack-label">Optional document text (adds draft cases only)
+            <textarea id="plan-doc-text" rows="4" placeholder="Paste requirements or Given/When/Then lines…"></textarea>
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-draft-btn" class="save-btn">Draft from story</button>
+            <button type="button" id="plan-refresh-btn" class="save-btn secondary">Refresh list</button>
+          </div>
+          <label class="stack-label">Saved plans
+            <select id="plan-list">
+              <option value="">(none yet)</option>
+            </select>
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-load-btn" class="save-btn secondary">Open plan</button>
+            <button type="button" id="plan-doc-add-btn" class="save-btn secondary">Add doc cases to open plan</button>
+          </div>
+          <pre id="plan-intent" class="drawer-hint" aria-live="polite" hidden></pre>
+          <div id="plan-cases" class="drawer-hint" aria-live="polite"></div>
+          <h4 class="orb-section-label">Edit selected case</h4>
+          <label class="stack-label">Case id
+            <input type="text" id="plan-case-id" placeholder="c…" autocomplete="off" />
+          </label>
+          <label class="stack-label">Rename
+            <input type="text" id="plan-case-name" placeholder="Case name" autocomplete="off" />
+          </label>
+          <label class="stack-label">Note
+            <input type="text" id="plan-case-note" placeholder="Tester note" autocomplete="off" />
+          </label>
+          <label class="stack-label"><input type="checkbox" id="plan-case-enabled" checked /> Enabled (disabled cases are skipped by later runs)</label>
+          <div class="btn-row">
+            <button type="button" id="plan-case-save" class="save-btn">Save case edits</button>
+            <button type="button" id="plan-case-up" class="save-btn secondary">Move up</button>
+            <button type="button" id="plan-case-down" class="save-btn secondary">Move down</button>
+          </div>
+          <p id="plan-status" class="drawer-hint" role="status">Ready</p>
+        </div>
         <div id="app-section-suites" class="app-section" hidden>
           <h3 class="orb-section-label">Playwright suites</h3>
           <p class="drawer-hint">Import an existing Playwright project path and run it with npx (FR-TEST-5). Separate from JSON step runs.</p>
@@ -397,6 +455,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk32"></script>
+  <script src="/ui/desktop/desktop.js?v=desk33"></script>
 </body>
 </html>

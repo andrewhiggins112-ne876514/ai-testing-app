@@ -92,10 +92,21 @@ Rules:
 """
 
 
+def _resolved_model_name() -> str:
+    """Prefer App Settings ollama_model; fall back to env/default (KAN-129)."""
+    try:
+        from settings.ollama_models import get_ollama_model
+
+        return get_ollama_model() or MODEL
+    except Exception:  # noqa: BLE001 — chat must still work if settings import fails
+        return MODEL
+
+
 def _chat_payload(messages: List[Dict], tools: Optional[List[Dict]] = None) -> Dict[str, Any]:
     # Low temperature + think:false reduces injection success on small local models (FR-SEC-4).
+    # One model name per request — switching settings does not spawn a second Ollama process.
     body: Dict[str, Any] = {
-        "model": MODEL,
+        "model": _resolved_model_name(),
         "messages": messages,
         "stream": False,
         "think": OLLAMA_THINK,
@@ -850,6 +861,14 @@ class Agent:
         from agent.prompt_guard import wrap_tool_result_for_llm
         from plugins.doc_ingest import resolve_doc_ingest
         from plugins.jira_plugin import resolve_create
+        from settings.ollama_models import resolve_chat_model
+
+        model_check = resolve_chat_model()
+        if model_check.get("status") != "ok":
+            return model_check.get("message") or (
+                "Chosen Ollama model is missing. Pick an installed model in App Settings."
+            )
+
         history = self.histories.setdefault(
             session_id, [{"role": "system", "content": SYSTEM_PROMPT}]
         )

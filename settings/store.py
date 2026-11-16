@@ -105,6 +105,8 @@ def _defaults() -> dict:
         "playwright_headless": False,
         # FR-SEC-2: no telemetry by default (GDPR)
         "telemetry_enabled": False,
+        # FR-CONN-1 / FR-SET-3: Ollama model the agent chat uses (KAN-129)
+        "ollama_model": "",
     }
 
 
@@ -286,6 +288,10 @@ def app_settings_status() -> dict:
     api_endpoint = (data.get("api_endpoint") or "").strip()
     suite_path = (data.get("playwright_suite_path") or "").strip()
     telem = bool(data.get("telemetry_enabled", False))
+    from settings.ollama_models import default_model_name, get_ollama_model
+
+    ollama_model = get_ollama_model()
+    ollama_model_saved = (data.get("ollama_model") or "").strip()
     summary = "\n".join(
         [
             f"Local store: {settings_path()}",
@@ -293,6 +299,7 @@ def app_settings_status() -> dict:
             creds_label,
             f"Jira project: {(data.get('jira_project') or '').strip() or '(not set)'}",
             f"Target URL: {target_url or '(not set)'} | Messaging: {api_endpoint or '(not set)'}",
+            f"Ollama model: {ollama_model or default_model_name()}",
             f"Desktop plugin: {'on' if desk_on else 'off'} | target_app_path: {app_path or '(not set)'}",
             f"Playwright suite path: {suite_path or '(not set)'}",
             f"Test framework: {test_framework} (default {DEFAULT_FRAMEWORK})",
@@ -315,6 +322,8 @@ def app_settings_status() -> dict:
         "target_app_path": app_path,
         "api_endpoint": api_endpoint,
         "playwright_suite_path": suite_path,
+        "ollama_model": ollama_model,
+        "ollama_model_saved": ollama_model_saved,
         "test_framework": test_framework,
         "frameworks": list_frameworks().get("frameworks") or [],
         "playwright_headless": playwright_headless,
@@ -357,12 +366,47 @@ def save_app_settings(
     test_framework: str | None = None,
     playwright_headless: bool | str | None = None,
     playwright_mode: str | None = None,
+    ollama_model: str | None = None,
 ) -> dict:
     """Persist App Settings targets for the active security level (FR-LEARN-2/3/4).
 
     None means leave the existing value unchanged (partial updates safe).
     Explicit empty string clears a field.
     """
+    if ollama_model is not None:
+        chosen = ollama_model.strip()
+        if chosen:
+            from settings.ollama_models import list_ollama_models, model_is_available
+
+            listed = list_ollama_models()
+            if listed.get("status") != "ok":
+                payload = app_settings_status()
+                payload.update(
+                    {
+                        "status": "error",
+                        "message": listed.get("message")
+                        or "Ollama is not reachable; cannot verify the model.",
+                        "ollama_models": listed.get("models") or [],
+                    }
+                )
+                return payload
+            models = list(listed.get("models") or [])
+            if not model_is_available(chosen, models):
+                payload = app_settings_status()
+                payload.update(
+                    {
+                        "status": "error",
+                        "message": (
+                            f"Model {chosen!r} is not installed in local Ollama. "
+                            "Choose one from the list — save was not applied."
+                        ),
+                        "ollama_models": models,
+                    }
+                )
+                return payload
+            update_setting("ollama_model", chosen, confirm=True)
+        else:
+            update_setting("ollama_model", "", confirm=True)
     if jira_url is not None:
         jira = jira_url.strip()
         if jira and not _http_url_ok(jira):

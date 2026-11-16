@@ -218,9 +218,9 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-TEST-3 | Done (smoke + structured steps) | **Done** KAN-47 smoke; **KAN-87** steps (`wait_window`/`type_text`/…) |
 | FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
 | FR-TEST-5 | Shipped baseline import/run; in-suite import deepen | **Done** **KAN-59**; Test-all **C8** |
-| FR-CONN-1 | Open (test-all) | Test-all **A2**, **A3**, **D3**, **D4** |
-| FR-PLAN-1…2 | Partial (A1 model) | **KAN-125** store + API; edit/run UI later A5/A7 |
-| FR-PLAN-3…4 | Open (test-all) | Test-all epic **A** then **B–C** |
+| FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; D3/D4 later |
+| FR-PLAN-1…2 | Partial (A1+A5) | **KAN-125** store + **KAN-133** edit/disable/reorder; run UI later A7 |
+| FR-PLAN-3…4 | Partial (A4) | **KAN-131** draft from one story + optional doc; project-scale later C |
 | FR-CI-1 | Future (design) | Test-all **H2** |
 | FR-MAN-1 | Future (design) | Test-all **H1** |
 | FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |

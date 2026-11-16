@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-129** — Test-all A3 — Choose the Ollama model |
-| **Start task** | **KAN-130** (`test`, Relates → KAN-129) |
+| **Jira story** | **KAN-135** — Test-all A6 — Empty state and starter template on orb home |
+| **Start task** | **KAN-136** (`test`, Relates → KAN-135) |
 | **Epic** | **KAN-117** — Test-all A — Usable lab (alpha) |
-| **Roadmap ID** | TESTALL-A / FR-CONN-1 / FR-SET-3 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` §1 + FR-CONN/FR-SET; catalogue `docs/ops/test_all_catalogue.json` |
+| **Roadmap ID** | TESTALL-A / FR-UI-1 / FR-UI-6 / FR-PLAN-1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` §1 + FR-UI/FR-PLAN; catalogue `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-130** |
-| **Shipped** | Prototype baselines through **KAN-99**/**KAN-100**; Test-all backlog seeded **KAN-117…KAN-246**; **KAN-125** A1; **KAN-127** A2 connect-once health |
+| **Test ticket** | **KAN-136** |
+| **Shipped** | Prototype baselines through **KAN-99**/**KAN-100**; Test-all backlog seeded **KAN-117…KAN-246**; **KAN-125** A1; **KAN-127** A2; **KAN-129** A3; **KAN-131** A4; **KAN-133** A5 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-129 / KAN-131 / KAN-133 — A3–A5 (model + draft + edit plan)
+- **Agent/chat:** Cursor IDE Agent (Composer) — multi-ticket pick-up (next three)
+- **Done:** **A3** list/save Ollama model (`settings/ollama_models.py`, App Settings + Gradio); chat uses saved model; missing model refused. **A4** draft plan from one Jira issue + optional document (`plans/draft.py`); cases keep jira_key + source_ref; no Jira writes. **A5** rename/reorder/disable/note cases; `cases_for_run` skips disabled; desktop **Plans** area (desk33).
+- **Files:** `settings/ollama_models.py`, `settings/store.py`, `settings/connection_health.py`, `plans/draft.py`, `plans/store.py`, `plans/__init__.py`, `agent/agent.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_ollama_model.py`, `tests/test_plan_draft.py`, `tests/test_plan_edit.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP
+- **Verify:** `pytest tests/test_ollama_model.py tests/test_plan_draft.py tests/test_plan_edit.py -v` (10 passed). Live `/api/ollama-models` (5 models); draft/edit/runnable smoke OK; desk33 HTML has `set-ollama-model` + `app-section-plans`.
+- **Jira:** story agent-completion + tests **KAN-130**/**KAN-132**/**KAN-134** evidence/Done; stories **KAN-129**/**KAN-131**/**KAN-133** Done
+- **Next:** **KAN-135** A6 empty state / starter template (test **KAN-136**)
 
 ### 2026-11-16 — KAN-127 — Connect-once checklist and health (A2)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-127

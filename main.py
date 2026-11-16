@@ -39,17 +39,22 @@ from plugins.playwright_suite import (
     set_suite_path,
     suite_status as playwright_suite_status,
 )
+from plans.draft import add_document_draft_cases, draft_plan_from_issue
 from plans.store import (
     add_case as plan_add_case,
     add_run as plan_add_run,
+    cases_for_run as plan_cases_for_run,
     create_plan,
     get_plan,
     list_plans,
+    reorder_cases as plan_reorder_cases,
+    update_case as plan_update_case,
 )
 from plugins.registry import list_plugins
 from reports.exporter import latest_summary as latest_report_summary
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.connection_health import connection_health
+from settings.ollama_models import list_ollama_models
 from settings.privacy import delete_local_data, privacy_status, telemetry_enabled
 from settings.store import (
     app_settings_status,
@@ -133,6 +138,7 @@ class AppSettingsRequest(BaseModel):
     test_framework: str | None = None
     playwright_mode: str | None = None
     playwright_headless: bool | None = None
+    ollama_model: str | None = None
 
 
 class TestFrameworkRequest(BaseModel):
@@ -189,6 +195,18 @@ class PlanCreateRequest(BaseModel):
     documents: list[str] | None = None
 
 
+class PlanDraftRequest(BaseModel):
+    issue_key: str = ""
+    document_text: str = ""
+    document_name: str = ""
+
+
+class PlanDocumentDraftRequest(BaseModel):
+    document_text: str = ""
+    document_name: str = "uploaded-document"
+    jira_key: str = ""
+
+
 class PlanCaseRequest(BaseModel):
     name: str = "Untitled case"
     jira_key: str = ""
@@ -198,6 +216,19 @@ class PlanCaseRequest(BaseModel):
     enabled: bool = True
     source_kind: str = "manual-draft"
     source_ref: str = ""
+
+
+class PlanCaseUpdateRequest(BaseModel):
+    name: str | None = None
+    note: str | None = None
+    enabled: bool | None = None
+    order: int | None = None
+    priority: int | None = None
+    tags: list[str] | None = None
+
+
+class PlanReorderRequest(BaseModel):
+    case_ids: list[str] = Field(default_factory=list)
 
 
 class PlanRunRequest(BaseModel):
@@ -338,7 +369,15 @@ async def post_app_settings_api(req: AppSettingsRequest):
         kwargs["playwright_mode"] = req.playwright_mode.strip()
     elif req.playwright_headless is not None:
         kwargs["playwright_headless"] = req.playwright_headless
+    if req.ollama_model is not None:
+        kwargs["ollama_model"] = req.ollama_model
     return save_app_settings(**kwargs)
+
+
+@app.get("/api/ollama-models")
+async def get_ollama_models_api():
+    """List local Ollama models and the selected agent model (KAN-129)."""
+    return list_ollama_models()
 
 
 @app.get("/api/connection-health")
@@ -528,9 +567,25 @@ async def post_plan(req: PlanCreateRequest):
     )
 
 
+@app.post("/api/plans/draft")
+async def post_plan_draft(req: PlanDraftRequest):
+    """Draft a plan from one Jira issue (+ optional document). Never writes to Jira (KAN-131)."""
+    return await draft_plan_from_issue(
+        req.issue_key or "",
+        document_text=req.document_text or "",
+        document_name=req.document_name or "",
+    )
+
+
 @app.get("/api/plans/{plan_id}")
 async def get_plan_by_id(plan_id: str):
     return get_plan(plan_id)
+
+
+@app.get("/api/plans/{plan_id}/runnable")
+async def get_plan_runnable(plan_id: str):
+    """Cases later runs should execute — disabled cases are skipped (KAN-133)."""
+    return plan_cases_for_run(plan_id)
 
 
 @app.post("/api/plans/{plan_id}/cases")
@@ -545,6 +600,37 @@ async def post_plan_case(plan_id: str, req: PlanCaseRequest):
         enabled=bool(req.enabled),
         source_kind=req.source_kind or "manual-draft",
         source_ref=req.source_ref or "",
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}")
+async def post_plan_case_update(plan_id: str, case_id: str, req: PlanCaseUpdateRequest):
+    """Rename / note / enable-disable / order a case before run (KAN-133)."""
+    return plan_update_case(
+        plan_id,
+        case_id,
+        name=req.name,
+        note=req.note,
+        enabled=req.enabled,
+        order=req.order,
+        priority=req.priority,
+        tags=list(req.tags) if req.tags is not None else None,
+    )
+
+
+@app.post("/api/plans/{plan_id}/reorder")
+async def post_plan_reorder(plan_id: str, req: PlanReorderRequest):
+    return plan_reorder_cases(plan_id, list(req.case_ids or []))
+
+
+@app.post("/api/plans/{plan_id}/draft-document")
+async def post_plan_draft_document(plan_id: str, req: PlanDocumentDraftRequest):
+    """Upload/document text adds draft cases only — no Jira writes (KAN-131)."""
+    return add_document_draft_cases(
+        plan_id,
+        document_text=req.document_text or "",
+        document_name=req.document_name or "uploaded-document",
+        jira_key=req.jira_key or "",
     )
 
 

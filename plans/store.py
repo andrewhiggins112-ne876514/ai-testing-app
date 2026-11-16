@@ -385,3 +385,169 @@ def add_run(
         "case": target,
         "run": run,
     }
+
+
+def update_case(
+    plan_id: str,
+    case_id: str,
+    *,
+    name: str | None = None,
+    note: str | None = None,
+    enabled: bool | None = None,
+    order: int | None = None,
+    priority: int | None = None,
+    tags: list[str] | None = None,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Edit a case before any run (KAN-133 / FR-PLAN-1/2). Local only."""
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    cid = (case_id or "").strip()
+    cases = list((plan.get("suite") or {}).get("cases") or [])
+    target: Optional[dict[str, Any]] = None
+    for case in cases:
+        if case.get("id") == cid:
+            target = case
+            break
+    if target is None:
+        return {
+            "status": "error",
+            "error": "case_not_found",
+            "message": f"Case {cid!r} was not found on plan {plan_id!r}.",
+            "security_level": lvl,
+        }
+    now = _utcnow()
+    if name is not None:
+        text = str(name).strip() or "Untitled case"
+        target["name"] = text[:120]
+    if note is not None:
+        target["note"] = str(note)[:2000]
+    if enabled is not None:
+        target["enabled"] = bool(enabled)
+    if order is not None:
+        try:
+            target["order"] = int(order)
+        except (TypeError, ValueError):
+            pass
+    if priority is not None:
+        try:
+            target["priority"] = int(priority)
+        except (TypeError, ValueError):
+            pass
+    if tags is not None:
+        cleaned: list[str] = []
+        for tag in tags:
+            t = str(tag or "").strip().lower()
+            if t and t not in cleaned:
+                cleaned.append(t[:40])
+        target["tags"] = cleaned
+    target["updated_at"] = now
+    cases.sort(key=lambda c: (int(c.get("order") or 0), c.get("created_at") or "", c["id"]))
+    plan["suite"] = {"cases": cases}
+    plan["updated_at"] = now
+    _write_plan(plan, level=lvl)
+    return {"status": "ok", "security_level": lvl, "plan": plan, "case": target}
+
+
+def reorder_cases(
+    plan_id: str,
+    case_ids: list[str],
+    *,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Reorder cases by id list. Unknown ids keep their relative place at the end."""
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    cases = list((plan.get("suite") or {}).get("cases") or [])
+    by_id = {c["id"]: c for c in cases}
+    ordered: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for raw in case_ids or []:
+        cid = str(raw or "").strip()
+        if cid in by_id and cid not in seen:
+            ordered.append(by_id[cid])
+            seen.add(cid)
+    for case in cases:
+        if case["id"] not in seen:
+            ordered.append(case)
+    now = _utcnow()
+    for idx, case in enumerate(ordered):
+        case["order"] = idx
+        case["updated_at"] = now
+    plan["suite"] = {"cases": ordered}
+    plan["updated_at"] = now
+    _write_plan(plan, level=lvl)
+    return {"status": "ok", "security_level": lvl, "plan": plan}
+
+
+def cases_for_run(plan: dict[str, Any] | str, *, level: str | None = None) -> dict[str, Any]:
+    """Cases that later runs should execute — skips disabled and archived (KAN-133)."""
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    if isinstance(plan, str):
+        loaded = get_plan(plan, level=lvl)
+        if loaded.get("status") != "ok":
+            return loaded
+        plan_obj = loaded["plan"]
+    else:
+        plan_obj = plan
+    cases = list((plan_obj.get("suite") or {}).get("cases") or [])
+    runnable = [
+        c
+        for c in cases
+        if c.get("enabled", True) and not c.get("archived", False)
+    ]
+    runnable.sort(key=lambda c: (int(c.get("order") or 0), c.get("created_at") or "", c["id"]))
+    skipped = [
+        c["id"]
+        for c in cases
+        if (not c.get("enabled", True)) or c.get("archived", False)
+    ]
+    return {
+        "status": "ok",
+        "security_level": lvl,
+        "plan_id": plan_obj.get("id"),
+        "cases": runnable,
+        "count": len(runnable),
+        "skipped_case_ids": skipped,
+        "skipped_count": len(skipped),
+    }
+
+
+def record_document_source(
+    plan_id: str,
+    document_name: str,
+    *,
+    jira_key: str = "",
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Attach a document name (and optional Jira key) to plan sources without rewriting cases."""
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    sources = _normalize_sources(plan.get("sources"))
+    doc = (document_name or "").strip()[:200]
+    if doc and doc not in sources["documents"]:
+        sources["documents"].append(doc)
+    key = (jira_key or "").strip().upper()[:32]
+    if key and key not in sources["jira_keys"]:
+        sources["jira_keys"].append(key)
+    plan["sources"] = sources
+    plan["updated_at"] = _utcnow()
+    _write_plan(plan, level=lvl)
+    return {"status": "ok", "security_level": lvl, "plan": plan}

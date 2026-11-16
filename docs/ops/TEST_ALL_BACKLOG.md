@@ -20,8 +20,8 @@ Downloadable local **test-all** app. Connect once. **One home** = orb + chat; ro
 | G Widen as plugins | **KAN-123** | later (G10=voice↔KAN-81) |
 | H Future workplace (design) | **KAN-124** | FUTURE |
 
-**Active Build story:** **KAN-127** (A2) · test **KAN-128**  
-**Shipped:** **KAN-125** (A1) · test **KAN-126** Done  
+**Active Build story:** **KAN-135** (A6) · test **KAN-136**  
+**Shipped:** **KAN-125** (A1), **KAN-127** (A2), **KAN-129** (A3), **KAN-131** (A4), **KAN-133** (A5)  
 Stories/tests continue through **KAN-245** / **KAN-246** (H3).
 
 ## Sequence

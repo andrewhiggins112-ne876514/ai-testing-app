@@ -971,7 +971,7 @@ html[data-area-open="true"] .hud-widget {
   left: 0;
   top: 0;
   /* 8 App areas → 45deg spacing */
-  transform: rotate(calc(var(--spoke) * 45deg)) translateY(-210px) rotate(calc(var(--spoke) * -45deg)) scale(0.92);
+  transform: rotate(calc(var(--spoke) * 40deg)) translateY(-210px) rotate(calc(var(--spoke) * -40deg)) scale(0.92);
   margin: -16px 0 0 -54px;
   min-width: 108px;
   padding: 8px 12px;
@@ -991,7 +991,7 @@ html[data-area-open="true"] .hud-widget {
 
 .orb-hub.is-open .hub-spoke {
   opacity: 1;
-  transform: rotate(calc(var(--spoke) * 45deg)) translateY(-210px) rotate(calc(var(--spoke) * -45deg)) scale(1);
+  transform: rotate(calc(var(--spoke) * 40deg)) translateY(-210px) rotate(calc(var(--spoke) * -40deg)) scale(1);
 }
 
 .hub-spoke:hover,
