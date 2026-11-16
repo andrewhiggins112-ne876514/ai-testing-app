@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-89** — Read Jira story descriptions and acceptance criteria |
-| **Start task** | **KAN-90** (`test`, Relates → KAN-89) |
+| **Jira story** | **KAN-91** — Jira rate-limit backoff and human-readable 429/auth errors |
+| **Start task** | **KAN-92** (`test`, Relates → KAN-91) |
 | **Epic** | (JIRA) |
-| **Roadmap ID** | FR-JIRA-1 gap |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-JIRA-1 |
+| **Roadmap ID** | FR-JIRA-6 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-JIRA-6 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-90** |
-| **Shipped** | **KAN-87** / **KAN-88** Done (desktop steps); **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
+| **Test ticket** | **KAN-92** |
+| **Shipped** | **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic connected |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-89 — Read Jira story descriptions and acceptance criteria (FR-JIRA-1)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-89
+- **Done:** Exposed fuller read UX on top of KAN-85 `read_issue`: agent tool `read_issue`; `list_stories(include_description=…)`; `GET/POST /api/jira-issue`; App Settings **Read Jira story** (desk28). Responses never include credentials; missing/unauthorized return clear messages.
+- **Files:** `plugins/jira_plugin.py`, `agent/agent.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_jira_read_ux.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_jira_read_ux.py tests/test_jira_steps.py tests/test_jira_readonly.py -v` (17 passed). Live `read_issue('KAN-89')` + `GET /api/jira-issue/KAN-89` → ok + AC; HTML desk28 has `jira-read-key` / Read story.
+- **Jira:** story agent-completion + **KAN-90** evidence/Done; **KAN-89** Done
+- **Next:** **KAN-91** Jira 429 backoff / auth errors (test KAN-92)
 
 ### 2026-11-16 — KAN-87 — Expand desktop .exe plugin beyond smoke (FR-TEST-3)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-87

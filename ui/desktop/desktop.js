@@ -1147,6 +1147,10 @@
   const healStatus = document.getElementById("heal-status");
   const healRefresh = document.getElementById("heal-refresh");
   const setJiraUrl = document.getElementById("set-jira-url");
+  const jiraReadKey = document.getElementById("jira-read-key");
+  const jiraReadBtn = document.getElementById("jira-read-btn");
+  const jiraReadOut = document.getElementById("jira-read-out");
+  const jiraReadStatus = document.getElementById("jira-read-status");
   const setTargetUrl = document.getElementById("set-target-url");
   const setTargetExe = document.getElementById("set-target-exe");
   const setApiEndpoint = document.getElementById("set-api-endpoint");
@@ -1918,6 +1922,70 @@
   loadHudReports();
   loadSecurityStatus();
   applyAreaLayout(loadAreaLayout());
+
+  function formatJiraRead(payload) {
+    if (!payload || typeof payload !== "object") {
+      return "No response";
+    }
+    if (payload.status && payload.status !== "ok") {
+      return (
+        (payload.status || "error") +
+        ": " +
+        (payload.message || payload.error || "request failed")
+      );
+    }
+    const lines = [
+      (payload.key || "?") + " — " + (payload.summary || "(no summary)"),
+      "Type: " + (payload.type || "—") + " · Status: " + (payload.issue_status || "—"),
+      "",
+      "Acceptance criteria:",
+      payload.has_acceptance_criteria
+        ? payload.acceptance_criteria || "(empty)"
+        : "(none found in description)",
+      "",
+      "Description:",
+      payload.description || "(empty)",
+    ];
+    return lines.join("\n");
+  }
+
+  if (jiraReadBtn) {
+    jiraReadBtn.addEventListener("click", async function () {
+      const key = jiraReadKey && jiraReadKey.value ? jiraReadKey.value.trim() : "";
+      if (jiraReadStatus) jiraReadStatus.textContent = "Reading…";
+      if (jiraReadOut) {
+        jiraReadOut.hidden = true;
+        jiraReadOut.textContent = "";
+      }
+      if (!key) {
+        if (jiraReadStatus) jiraReadStatus.textContent = "Enter an issue key (e.g. KAN-89).";
+        return;
+      }
+      try {
+        const res = await fetch(
+          "/api/jira-issue/" + encodeURIComponent(key.toUpperCase())
+        );
+        const payload = await res.json();
+        const text = formatJiraRead(payload);
+        if (jiraReadOut) {
+          jiraReadOut.hidden = false;
+          jiraReadOut.textContent = text;
+        }
+        if (jiraReadStatus) {
+          jiraReadStatus.textContent =
+            payload && payload.status === "ok"
+              ? "Loaded " + (payload.key || key)
+              : payload && payload.message
+                ? payload.message
+                : "Read failed";
+        }
+      } catch (err) {
+        if (jiraReadStatus) {
+          jiraReadStatus.textContent = "Read failed: " + (err && err.message ? err.message : err);
+        }
+      }
+    });
+  }
 
   if (setSave) {
     setSave.addEventListener("click", async function () {

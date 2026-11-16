@@ -161,6 +161,16 @@
           <label class="stack-label">Jira base URL
             <input type="url" id="set-jira-url" placeholder="https://your-site.atlassian.net" autocomplete="off" />
           </label>
+          <h4 class="orb-section-label">Read Jira story</h4>
+          <p class="drawer-hint">Fetch description and acceptance criteria by issue key (FR-JIRA-1). Credentials stay in the local store.</p>
+          <label class="stack-label">Issue key
+            <input type="text" id="jira-read-key" placeholder="KAN-89" autocomplete="off" />
+          </label>
+          <div class="btn-row">
+            <button type="button" id="jira-read-btn" class="save-btn secondary">Read story</button>
+          </div>
+          <pre id="jira-read-out" class="drawer-hint" aria-live="polite" hidden></pre>
+          <p id="jira-read-status" class="drawer-hint" role="status">Ready</p>
           <label class="stack-label">Test framework
             <select id="set-test-framework">
               <option value="playwright">Playwright (default)</option>
@@ -355,6 +365,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk27"></script>
+  <script src="/ui/desktop/desktop.js?v=desk28"></script>
 </body>
 </html>

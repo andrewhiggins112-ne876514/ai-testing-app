@@ -50,18 +50,30 @@ def _creds() -> Dict[str, str]:
 def _url_ok(url: str) -> bool:
     return url.startswith("https://") or url.startswith("http://127.0.0.1") or url.startswith("http://localhost")
 
-def _stories(payload: Dict[str, Any], project: str) -> Dict[str, Any]:
+def _stories(
+    payload: Dict[str, Any],
+    project: str,
+    *,
+    include_description: bool = False,
+) -> Dict[str, Any]:
     stories = []
     for issue in payload.get("issues") or []:
         fields = issue.get("fields") or {}
         status = fields.get("status") or {}
         kind = fields.get("issuetype") or {}
-        stories.append({
+        row: Dict[str, Any] = {
             "key": issue.get("key", ""),
             "summary": fields.get("summary", ""),
             "status": status.get("name", "") if isinstance(status, dict) else "",
             "type": kind.get("name", "") if isinstance(kind, dict) else "",
-        })
+        }
+        if include_description:
+            description = adf_to_text(fields.get("description"))
+            acceptance = extract_acceptance_criteria(description)
+            row["description"] = description
+            row["acceptance_criteria"] = acceptance
+            row["has_acceptance_criteria"] = bool(acceptance)
+        stories.append(row)
     return {"stories": stories, "project": project}
 
 async def _search(url: str, email: str, token: str, project: str) -> Dict[str, Any]:
@@ -179,12 +191,24 @@ def _type_clause(issue_types: Any) -> Any:
     return f" AND issuetype IN ({quoted})"
 
 
-async def _list_search(url: str, email: str, token: str, project: str, limit: int, clause: str) -> Dict[str, Any]:
+async def _list_search(
+    url: str,
+    email: str,
+    token: str,
+    project: str,
+    limit: int,
+    clause: str,
+    *,
+    include_description: bool = False,
+) -> Dict[str, Any]:
     """GET the search API. The result never includes credentials."""
+    fields = "summary,status,issuetype"
+    if include_description:
+        fields += ",description"
     params = {
         "jql": f"project = {project}{clause} ORDER BY key DESC",
         "maxResults": limit,
-        "fields": "summary,status,issuetype",
+        "fields": fields,
     }
     if email:
         attempts = [
@@ -208,7 +232,9 @@ async def _list_search(url: str, email: str, token: str, project: str, limit: in
                 return {"status": "unauthorized", "message": "Jira rejected the credentials"}
             response.raise_for_status()
             payload = response.json()
-            stories = _stories(payload, project)["stories"]
+            stories = _stories(
+                payload, project, include_description=include_description
+            )["stories"]
             result = {"status": "ok", "stories": stories}
             try:
                 total = int(payload.get("total"))
@@ -220,7 +246,12 @@ async def _list_search(url: str, email: str, token: str, project: str, limit: in
     return {"status": "error", "message": "jira_search_unavailable"}
 
 
-async def list_stories(project: str, max: int = 50, issue_types: Any = None) -> Dict[str, Any]:
+async def list_stories(
+    project: str,
+    max: int = 50,
+    issue_types: Any = None,
+    include_description: bool = False,
+) -> Dict[str, Any]:
     """Read-only issue list. GET only. Missing URL or token returns unconfigured."""
     key = str(project or "").strip().upper()
     if not _LIST_KEY.fullmatch(key):
@@ -237,7 +268,15 @@ async def list_stories(project: str, max: int = 50, issue_types: Any = None) -> 
     if not _url_ok(creds["url"]):
         return {"status": "error", "message": "jira_url must start with https://"}
     try:
-        return await _list_search(creds["url"], creds["email"], creds["token"], key, _clamp_max(max), clause)
+        return await _list_search(
+            creds["url"],
+            creds["email"],
+            creds["token"],
+            key,
+            _clamp_max(max),
+            clause,
+            include_description=bool(include_description),
+        )
     except httpx.HTTPError:
         return {"status": "error", "message": "jira_request_failed"}
 

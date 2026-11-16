@@ -165,6 +165,10 @@ class PlaywrightSuiteRunRequest(BaseModel):
     timeout_s: float = 300.0
 
 
+class JiraIssueRequest(BaseModel):
+    issue_key: str = ""
+
+
 def _orb_from_settings() -> dict:
     s = load_settings()
     return {
@@ -337,6 +341,21 @@ async def api_heal_approve(req: HealReviewRequest):
 @app.post("/api/heal/reject")
 async def api_heal_reject(req: HealReviewRequest):
     return reject_heal(req.proposal_id, reviewer=req.reviewer or "local_user")
+
+
+@app.get("/api/jira-issue/{issue_key}")
+async def get_jira_issue(issue_key: str):
+    """Read-only: summary, description, and acceptance criteria for one issue."""
+    from plugins.jira_plugin import read_issue
+
+    return await read_issue(issue_key)
+
+
+@app.post("/api/jira-issue")
+async def post_jira_issue(req: JiraIssueRequest):
+    from plugins.jira_plugin import read_issue
+
+    return await read_issue(req.issue_key or "")
 
 
 @app.get("/api/desktop-plugin")
