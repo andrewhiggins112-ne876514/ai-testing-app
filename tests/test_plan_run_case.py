@@ -1,4 +1,4 @@
-"""Single-case Playwright run + degraded + source view + evidence + failure class + pause (KAN-137…149)."""
+"""Single-case Playwright run + degraded + source view + evidence + failure class + pause + rerun (KAN-137…151)."""
 from __future__ import annotations
 
 import asyncio
@@ -13,8 +13,15 @@ import main
 from plans.defect_packet import defect_packet_preview
 from plans.evidence_bundle import write_failure_bundle
 from plans.pause_session import clear_sessions
+from plans.rerun_failed import rerun_failed_cases, select_rerun_candidates
 from plans.run_case import case_detail, run_single_case
-from plans.store import add_case, add_run, create_plan, set_run_failure_class
+from plans.store import (
+    add_case,
+    add_run,
+    create_plan,
+    get_plan,
+    set_run_failure_class,
+)
 from settings.degraded import degraded_status, ollama_chat_blocked
 
 
@@ -240,6 +247,87 @@ class PlanRunCaseTests(unittest.TestCase):
         self.assertEqual(res.json().get("error"), "pause_not_found")
         res = client.post("/api/plans/pause/missing/stop")
         self.assertEqual(res.json().get("error"), "pause_not_found")
+
+    def test_rerun_failed_skips_disabled_and_quarantined(self):
+        created = create_plan("RerunSkip")
+        pid = created["plan"]["id"]
+        c_fail = add_case(pid, "FailOn")["case"]["id"]
+        c_off = add_case(pid, "FailOff", enabled=False)["case"]["id"]
+        c_q = add_case(pid, "FailQ")["case"]["id"]
+        c_pass = add_case(pid, "Pass")["case"]["id"]
+        add_run(pid, c_fail, result="fail", note="red")
+        add_run(pid, c_off, result="fail", note="red")
+        add_run(pid, c_q, result="error", note="red")
+        add_run(pid, c_pass, result="pass")
+        plan = get_plan(pid)["plan"]
+        for case in plan["suite"]["cases"]:
+            if case["id"] == c_q:
+                case["quarantined"] = True
+                case["quarantine"] = {"reason": "flake", "active": True}
+        from plans.store import _write_plan
+
+        _write_plan(plan, level=plan["security_level"])
+        plan = get_plan(pid)["plan"]
+        sel = select_rerun_candidates(plan)
+        self.assertEqual(sel.get("status"), "ok")
+        self.assertIn(c_fail, sel.get("to_run") or [])
+        reasons = {s["case_id"]: s["reason"] for s in sel.get("skipped") or []}
+        self.assertEqual(reasons.get(c_off), "disabled")
+        self.assertEqual(reasons.get(c_q), "quarantined")
+        self.assertNotIn(c_pass, sel.get("failed_case_ids") or [])
+
+    @patch("plugins.playwright_runner.run_playwright", new_callable=AsyncMock)
+    @patch("plans.run_case._check_target")
+    def test_rerun_failed_new_suite_run_linked(self, mock_tgt, mock_pw):
+        mock_tgt.return_value = {"up": True, "message": "ok"}
+        mock_pw.return_value = {
+            "status": "pass",
+            "playwright_mode": "headed",
+            "error": None,
+            "steps": [{"action": "goto", "status": "pass"}],
+            "screenshot": r"C:\tmp\rerun.png",
+        }
+        from settings import store as settings_store
+
+        settings_store.update_setting("target_url", "https://example.com", confirm=True)
+        created = create_plan("RerunOk")
+        pid = created["plan"]["id"]
+        c1 = add_case(pid, "A")["case"]["id"]
+        c2 = add_case(pid, "B")["case"]["id"]
+        add_run(pid, c1, result="fail")
+        add_run(pid, c2, result="fail")
+        out = asyncio.run(rerun_failed_cases(pid))
+        self.assertEqual(out.get("status"), "ok")
+        suite_run_id = out.get("suite_run_id")
+        self.assertTrue(suite_run_id)
+        self.assertTrue(out.get("sequential"))
+        self.assertEqual(len(out.get("case_results") or []), 2)
+        plan = get_plan(pid)["plan"]
+        self.assertTrue(any(r.get("id") == suite_run_id for r in plan.get("suite_runs") or []))
+        linked = 0
+        for case in plan["suite"]["cases"]:
+            for run in case.get("runs") or []:
+                if run.get("suite_run_id") == suite_run_id:
+                    linked += 1
+        self.assertEqual(linked, 2)
+        self.assertEqual(mock_pw.await_count, 2)
+
+    def test_api_rerun_failed_no_failures(self):
+        client = TestClient(main.app)
+        created = create_plan("RerunEmpty")
+        pid = created["plan"]["id"]
+        add_case(pid, "Only")
+        res = client.post(f"/api/plans/{pid}/rerun-failed", json={})
+        body = res.json()
+        self.assertEqual(body.get("error"), "no_failed_cases")
+
+    def test_desktop_cache_bust_desk37(self):
+        root = os.path.dirname(os.path.dirname(__file__))
+        html = open(os.path.join(root, "ui", "desktop", "index.html"), encoding="utf-8").read()
+        desk = open(os.path.join(root, "desktop_app.py"), encoding="utf-8").read()
+        self.assertIn("desk37", html)
+        self.assertIn("plan-rerun-failed", html)
+        self.assertIn("desk37", desk)
 
 
 if __name__ == "__main__":

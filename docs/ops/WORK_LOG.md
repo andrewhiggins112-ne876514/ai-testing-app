@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-151** — Test-all B5 — Rerun failed only |
-| **Start task** | **KAN-152** (`test`, Relates → KAN-151) |
+| **Jira story** | **KAN-153** — Test-all B6 — Known issues and exclusions |
+| **Start task** | **KAN-154** (`test`, Relates → KAN-153) |
 | **Epic** | **KAN-118** — Test-all B — Failures and evidence |
-| **Roadmap ID** | TESTALL-B / FR-PLAN-2 |
+| **Roadmap ID** | TESTALL-B / FR-PLAN-4 / FR-REP-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-152** |
-| **Shipped** | … **KAN-143** B1; **KAN-145** B2; **KAN-147** B3; **KAN-149** B4 |
+| **Test ticket** | **KAN-154** |
+| **Shipped** | … **KAN-143** B1; **KAN-145** B2; **KAN-147** B3; **KAN-149** B4; **KAN-151** B5 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-151 — B5 rerun failed only
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-151
+- **Done:** From finished failures, `POST /api/plans/{id}/rerun-failed` runs only failed/error cases sequentially; new `suite_run` id linked on the same plan; case runs stamped with `suite_run_id`. Disabled/quarantined candidates skipped with reasons shown. Plans desk37 **Rerun failed only** + skip/result panel.
+- **Files:** `plans/rerun_failed.py`, `plans/store.py`, `plans/run_case.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_plan_run_case.py`
+- **Verify:** `pytest tests/test_plan_run_case.py -v` (15 passed). Live desk37 HTML has `plan-rerun-failed`; desktop window opened on desk37.
+- **Jira:** close-out **KAN-151** + **KAN-152**
+- **Next:** **KAN-153** B6 known issues and exclusions
 
 ### 2026-11-16 — KAN-149 — B4 pause on fail
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-149

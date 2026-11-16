@@ -150,6 +150,7 @@ async def _execute_case(
     session_id: str,
     pause_on_fail: bool = False,
     pause_decision: Callable[[dict[str, Any]], Awaitable[str]] | None = None,
+    suite_run_id: str | None = None,
 ) -> dict[str, Any]:
     from settings.store import load_settings
 
@@ -162,6 +163,7 @@ async def _execute_case(
     target_url = (load_settings().get("target_url") or "").strip()
     target_probe = _check_target()
     started = time.monotonic()
+    suite_rid = (suite_run_id or "").strip() or None
 
     if not target_url or not target_probe.get("up"):
         msg = target_probe.get("message") or "Target URL is not configured or unreachable."
@@ -174,6 +176,7 @@ async def _execute_case(
             failure_class="environment",
             evidence=[],
             note=msg[:500],
+            suite_run_id=suite_rid,
             level=level,
         )
         return {
@@ -184,6 +187,7 @@ async def _execute_case(
             "target_up": False,
             "only_case_id": cid,
             "pause_on_fail": bool(pause_on_fail),
+            "suite_run_id": suite_rid,
             "plan": recorded.get("plan"),
             "case": recorded.get("case"),
             "run": recorded.get("run"),
@@ -224,6 +228,7 @@ async def _execute_case(
         failure_class=failure_class,
         evidence=evidence,
         note=note,
+        suite_run_id=suite_rid,
         level=level,
     )
     run_id = (recorded.get("run") or {}).get("id")
@@ -249,6 +254,7 @@ async def _execute_case(
         "only_case_id": cid,
         "pause_on_fail": bool(pause_on_fail),
         "pause_decision": pw.get("pause_decision"),
+        "suite_run_id": suite_rid,
         "playwright": {
             "status": pw.get("status"),
             "error": pw.get("error"),

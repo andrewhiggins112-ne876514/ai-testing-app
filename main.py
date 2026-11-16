@@ -42,6 +42,7 @@ from plugins.playwright_suite import (
 from plans.defect_packet import defect_packet_preview
 from plans.draft import add_document_draft_cases, draft_plan_from_issue
 from plans.pause_session import get_session, public_session, signal_decision
+from plans.rerun_failed import rerun_failed_cases
 from plans.run_case import case_detail, run_single_case
 from plans.starter import create_starter_plan, lab_home_status
 from plans.store import (
@@ -257,6 +258,12 @@ class PlanCaseRunRequest(BaseModel):
     """Optional run flags. pause_on_fail is off by default (KAN-149)."""
 
     pause_on_fail: bool = False
+
+
+class PlanRerunFailedRequest(BaseModel):
+    """Optional source suite run for rerun-failed (KAN-151)."""
+
+    source_suite_run_id: str = ""
 
 
 def _orb_from_settings() -> dict:
@@ -708,6 +715,23 @@ async def post_plan_case_run(
         case_id,
         session_id="desktop",
         pause_on_fail=bool(body.pause_on_fail),
+    )
+
+
+@app.post("/api/plans/{plan_id}/rerun-failed")
+async def post_plan_rerun_failed(
+    plan_id: str,
+    req: PlanRerunFailedRequest | None = None,
+):
+    """Rerun only failed cases sequentially; new suite_run id on same suite (KAN-151).
+
+    Disabled and quarantined candidates are skipped with reasons shown.
+    """
+    body = req or PlanRerunFailedRequest()
+    return await rerun_failed_cases(
+        plan_id,
+        source_suite_run_id=(body.source_suite_run_id or "").strip() or None,
+        session_id="desktop",
     )
 
 

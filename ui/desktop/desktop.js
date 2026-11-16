@@ -1274,6 +1274,8 @@
   const planCaseUp = document.getElementById("plan-case-up");
   const planCaseDown = document.getElementById("plan-case-down");
   const planCaseRun = document.getElementById("plan-case-run");
+  const planRerunFailed = document.getElementById("plan-rerun-failed");
+  const planRerunOut = document.getElementById("plan-rerun-out");
   const planPauseOnFail = document.getElementById("plan-pause-on-fail");
   const planPauseActions = document.getElementById("plan-pause-actions");
   const planPauseContinue = document.getElementById("plan-pause-continue");
@@ -1289,6 +1291,7 @@
   let openPlanId = "";
   let openPlanCases = [];
   let lastCaseRunId = "";
+  let lastSuiteRunId = "";
   const jiraReadKey = document.getElementById("jira-read-key");
   const jiraReadBtn = document.getElementById("jira-read-btn");
   const jiraReadOut = document.getElementById("jira-read-out");
@@ -1691,6 +1694,15 @@
         return;
       }
       openPlanId = payload.plan.id;
+      lastSuiteRunId = "";
+      if (payload.plan.suite_runs && payload.plan.suite_runs.length) {
+        const finished = payload.plan.suite_runs.filter(function (r) {
+          return r && r.finished_at;
+        });
+        if (finished.length) {
+          lastSuiteRunId = finished[finished.length - 1].id || "";
+        }
+      }
       renderPlanCases(payload.plan);
       if (planList) planList.value = openPlanId;
       if (planStatus) {
@@ -2912,6 +2924,102 @@
         }
       } catch (err) {
         if (planStatus) planStatus.textContent = "Run request failed.";
+      }
+    });
+  }
+
+  if (planRerunFailed) {
+    planRerunFailed.addEventListener("click", async function () {
+      if (!openPlanId) {
+        if (planStatus) planStatus.textContent = "Open a plan first.";
+        return;
+      }
+      if (planStatus) {
+        planStatus.textContent = "Rerunning failed cases (sequential)…";
+      }
+      if (planRerunOut) {
+        planRerunOut.hidden = false;
+        planRerunOut.textContent = "Rerunning…";
+      }
+      try {
+        const res = await fetch(
+          "/api/plans/" + encodeURIComponent(openPlanId) + "/rerun-failed",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              source_suite_run_id: lastSuiteRunId || "",
+            }),
+          }
+        );
+        const payload = await res.json();
+        if (payload.status !== "ok") {
+          if (planStatus) {
+            planStatus.textContent = payload.message || "Rerun failed.";
+          }
+          if (planRerunOut) {
+            planRerunOut.textContent = payload.message || "Rerun failed.";
+          }
+          return;
+        }
+        if (payload.suite_run_id) lastSuiteRunId = payload.suite_run_id;
+        if (payload.plan) renderPlanCases(payload.plan);
+        const skipped = payload.skipped || [];
+        const results = payload.case_results || [];
+        const lines = [
+          payload.message || "Rerun finished.",
+          "Suite run: " + (payload.suite_run_id || "—"),
+          payload.source_suite_run_id
+            ? "Source suite run: " + payload.source_suite_run_id
+            : "Source: last failed case results",
+          "Sequential: " + (payload.sequential ? "yes" : "no"),
+          "",
+          "Executed:",
+          results.length
+            ? results
+                .map(function (r) {
+                  return (
+                    "- " +
+                    (r.case_id || "?") +
+                    " → " +
+                    (r.result || r.status || "?")
+                  );
+                })
+                .join("\n")
+            : "(none)",
+          "",
+          "Skipped:",
+          skipped.length
+            ? skipped
+                .map(function (s) {
+                  return "- " + (s.case_id || "?") + " — " + (s.reason || "");
+                })
+                .join("\n")
+            : "(none)",
+        ];
+        if (planRerunOut) {
+          planRerunOut.hidden = false;
+          planRerunOut.textContent = lines.join("\n");
+        }
+        if (planStatus) {
+          planStatus.textContent =
+            (payload.message || "Rerun finished.") +
+            (skipped.length
+              ? " Skipped: " +
+                skipped
+                  .map(function (s) {
+                    return (s.case_id || "?") + " (" + (s.reason || "") + ")";
+                  })
+                  .join(", ")
+              : "");
+        }
+        await refreshCaseDetail();
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Rerun request failed.";
+        if (planRerunOut) {
+          planRerunOut.hidden = false;
+          planRerunOut.textContent = "Rerun request failed.";
+        }
       }
     });
   }

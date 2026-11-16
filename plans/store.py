@@ -85,11 +85,20 @@ def _normalize_case(raw: Any, *, order: int = 0) -> Optional[dict[str, Any]]:
         if run:
             runs.append(run)
     now = _utcnow()
+    quarantine_raw = raw.get("quarantine") if isinstance(raw.get("quarantine"), dict) else {}
+    quarantine = {
+        "reason": str(quarantine_raw.get("reason") or "")[:500],
+        "expires_at": str(quarantine_raw.get("expires_at") or "")[:64] or None,
+        "active": bool(quarantine_raw.get("active", False)),
+    }
+    quarantined = bool(raw.get("quarantined", False)) or bool(quarantine.get("active"))
     return {
         "id": cid,
         "name": name[:120],
         "enabled": bool(raw.get("enabled", True)),
         "archived": bool(raw.get("archived", False)),
+        "quarantined": quarantined,
+        "quarantine": quarantine,
         "tags": tags,
         "priority": int(raw.get("priority") or 0),
         "note": str(raw.get("note") or "")[:2000],
@@ -122,15 +131,56 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
     except (TypeError, ValueError):
         duration_ms = None
     failure_class = str(raw.get("failure_class") or "").strip().lower()[:64] or None
+    suite_run_id = str(raw.get("suite_run_id") or "").strip()
+    if suite_run_id and not _ID_SAFE.match(suite_run_id):
+        suite_run_id = ""
     return {
         "id": rid,
         "result": result,
         "duration_ms": duration_ms,
         "failure_class": failure_class,
         "evidence": evidence,
+        "suite_run_id": suite_run_id or None,
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
         "note": str(raw.get("note") or "")[:2000],
+    }
+
+
+def _normalize_suite_run(raw: Any) -> Optional[dict[str, Any]]:
+    if not isinstance(raw, dict):
+        return None
+    sid = str(raw.get("id") or "").strip()
+    if not _ID_SAFE.match(sid):
+        sid = _new_id("sr")
+    case_runs: list[dict[str, str]] = []
+    for item in raw.get("case_runs") or []:
+        if not isinstance(item, dict):
+            continue
+        cid = str(item.get("case_id") or "").strip()
+        rid = str(item.get("run_id") or "").strip()
+        if cid and rid:
+            case_runs.append({"case_id": cid[:64], "run_id": rid[:64]})
+    skipped: list[dict[str, str]] = []
+    for item in raw.get("skipped") or []:
+        if not isinstance(item, dict):
+            continue
+        cid = str(item.get("case_id") or "").strip()
+        reason = str(item.get("reason") or "").strip()[:80]
+        if cid and reason:
+            skipped.append({"case_id": cid[:64], "reason": reason})
+    mode = str(raw.get("mode") or "suite").strip().lower()[:40] or "suite"
+    source = str(raw.get("source_suite_run_id") or "").strip() or None
+    if source and not _ID_SAFE.match(source):
+        source = None
+    return {
+        "id": sid,
+        "mode": mode,
+        "source_suite_run_id": source,
+        "started_at": str(raw.get("started_at") or "") or None,
+        "finished_at": str(raw.get("finished_at") or "") or None,
+        "case_runs": case_runs,
+        "skipped": skipped,
     }
 
 
@@ -146,6 +196,12 @@ def _normalize_plan(raw: dict[str, Any], *, level: str) -> dict[str, Any]:
         if case:
             cases.append(case)
     cases.sort(key=lambda c: (int(c.get("order") or 0), c.get("created_at") or "", c["id"]))
+    suite_runs_in = raw.get("suite_runs") if isinstance(raw.get("suite_runs"), list) else []
+    suite_runs: list[dict[str, Any]] = []
+    for item in suite_runs_in:
+        sr = _normalize_suite_run(item)
+        if sr:
+            suite_runs.append(sr)
     now = _utcnow()
     return {
         "id": pid,
@@ -154,6 +210,7 @@ def _normalize_plan(raw: dict[str, Any], *, level: str) -> dict[str, Any]:
         "security_level": level,
         "sources": _normalize_sources(raw.get("sources")),
         "suite": {"cases": cases},
+        "suite_runs": suite_runs,
         "created_at": str(raw.get("created_at") or now),
         "updated_at": str(raw.get("updated_at") or now),
     }
@@ -335,6 +392,7 @@ def add_run(
     note: str = "",
     started_at: str | None = None,
     finished_at: str | None = None,
+    suite_run_id: str | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
     """Attach a run record to a case (execution itself is later stories)."""
@@ -367,6 +425,7 @@ def add_run(
             "duration_ms": duration_ms,
             "failure_class": failure_class,
             "evidence": evidence or [],
+            "suite_run_id": suite_run_id,
             "started_at": started_at or now,
             "finished_at": finished_at or now,
             "note": note,
@@ -384,6 +443,107 @@ def add_run(
         "plan": plan,
         "case": target,
         "run": run,
+    }
+
+
+def start_suite_run(
+    plan_id: str,
+    *,
+    mode: str = "suite",
+    source_suite_run_id: str | None = None,
+    skipped: list[dict[str, str]] | None = None,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Create a suite-level run id linked to this plan (KAN-151)."""
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    now = _utcnow()
+    suite_run = _normalize_suite_run(
+        {
+            "id": _new_id("sr"),
+            "mode": mode,
+            "source_suite_run_id": source_suite_run_id,
+            "started_at": now,
+            "finished_at": None,
+            "case_runs": [],
+            "skipped": skipped or [],
+        }
+    )
+    assert suite_run is not None
+    plan["suite_runs"] = list(plan.get("suite_runs") or []) + [suite_run]
+    plan["updated_at"] = now
+    _write_plan(plan, level=lvl)
+    return {
+        "status": "ok",
+        "security_level": lvl,
+        "plan": plan,
+        "suite_run": suite_run,
+    }
+
+
+def finish_suite_run(
+    plan_id: str,
+    suite_run_id: str,
+    *,
+    case_runs: list[dict[str, str]] | None = None,
+    skipped: list[dict[str, str]] | None = None,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Mark a suite run finished and attach case-run links / skips."""
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    sid = (suite_run_id or "").strip()
+    target: Optional[dict[str, Any]] = None
+    for item in plan.get("suite_runs") or []:
+        if item.get("id") == sid:
+            target = item
+            break
+    if target is None:
+        return {
+            "status": "error",
+            "error": "suite_run_not_found",
+            "message": f"Suite run {sid!r} was not found on plan {plan_id!r}.",
+            "security_level": lvl,
+        }
+    now = _utcnow()
+    if case_runs is not None:
+        cleaned: list[dict[str, str]] = []
+        for item in case_runs:
+            if not isinstance(item, dict):
+                continue
+            cid = str(item.get("case_id") or "").strip()
+            rid = str(item.get("run_id") or "").strip()
+            if cid and rid:
+                cleaned.append({"case_id": cid[:64], "run_id": rid[:64]})
+        target["case_runs"] = cleaned
+    if skipped is not None:
+        sk: list[dict[str, str]] = []
+        for item in skipped:
+            if not isinstance(item, dict):
+                continue
+            cid = str(item.get("case_id") or "").strip()
+            reason = str(item.get("reason") or "").strip()[:80]
+            if cid and reason:
+                sk.append({"case_id": cid[:64], "reason": reason})
+        target["skipped"] = sk
+    target["finished_at"] = now
+    plan["updated_at"] = now
+    _write_plan(plan, level=lvl)
+    return {
+        "status": "ok",
+        "security_level": lvl,
+        "plan": plan,
+        "suite_run": target,
     }
 
 

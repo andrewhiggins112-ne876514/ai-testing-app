@@ -78,8 +78,8 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**Test-all B5** — next story after B4 (**KAN-151** rerun failed only). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.  
-**Shipped:** A1–A9 as before; **B1 KAN-143** evidence bundle; **B2 KAN-145** failure class; **B3 KAN-147** defect packet preview; **B4 KAN-149** pause-on-fail (`plans/pause_session.py`, desk36).
+**Test-all B6** — next story after B5 (**KAN-153** known issues and exclusions). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.  
+**Shipped:** A1–A9 as before; **B1–B4** as before; **B5 KAN-151** rerun-failed-only (`plans/rerun_failed.py`, desk37).
 
 **Council CR (2026-11-16):** Test-all vision locked; 48-story catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
 
