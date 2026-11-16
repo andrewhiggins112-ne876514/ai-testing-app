@@ -638,6 +638,44 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   display: none !important;
 }
 
+.heal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.heal-card {
+  border: 1px solid var(--cyan-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, var(--accent-soft-2), var(--shell-fill));
+}
+
+.heal-card-meta {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+
+.heal-diff {
+  white-space: pre-wrap;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--cyan-border);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.heal-empty {
+  margin: 8px 0 0;
+  opacity: 0.8;
+}
+
 .doc-diff {
   display: flex;
   flex-direction: column;
@@ -856,7 +894,8 @@ html[data-area-open="true"] .hud-widget {
   position: absolute;
   left: 0;
   top: 0;
-  transform: rotate(calc(var(--spoke) * 51.428deg)) translateY(-210px) rotate(calc(var(--spoke) * -51.428deg)) scale(0.92);
+  /* 8 App areas → 45deg spacing */
+  transform: rotate(calc(var(--spoke) * 45deg)) translateY(-210px) rotate(calc(var(--spoke) * -45deg)) scale(0.92);
   margin: -16px 0 0 -54px;
   min-width: 108px;
   padding: 8px 12px;
@@ -876,7 +915,7 @@ html[data-area-open="true"] .hud-widget {
 
 .orb-hub.is-open .hub-spoke {
   opacity: 1;
-  transform: rotate(calc(var(--spoke) * 51.428deg)) translateY(-210px) rotate(calc(var(--spoke) * -51.428deg)) scale(1);
+  transform: rotate(calc(var(--spoke) * 45deg)) translateY(-210px) rotate(calc(var(--spoke) * -45deg)) scale(1);
 }
 
 .hub-spoke:hover,

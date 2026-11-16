@@ -10,18 +10,19 @@ sys.path.insert(0, str(ROOT))
 
 
 class OrbHubTests(unittest.TestCase):
-    def test_hub_markup_has_particle_layer_and_seven_spokes(self):
+    def test_hub_markup_has_particle_layer_and_eight_spokes(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         self.assertIn('id="orb-hub"', html)
         self.assertIn("hub-particle-layer", html)
         self.assertIn("hub-spoke-lines", html)
         self.assertIn("hub-particles", html)
-        self.assertEqual(html.count('class="hub-spoke shell-surface"'), 7)
+        self.assertEqual(html.count('class="hub-spoke shell-surface"'), 8)
         for section in (
             "settings",
             "security",
             "reports",
             "documents",
+            "heal",
             "desktop",
             "suites",
             "sandboxes",
@@ -34,12 +35,12 @@ class OrbHubTests(unittest.TestCase):
         self.assertIn('classList.add("is-open")', js)
         self.assertIn('setAttribute("aria-expanded"', js)
 
-    def test_cache_bust_desk22(self):
+    def test_cache_bust_desk23(self):
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk22g", app)
-        self.assertIn("desktop.css?v=desk22g", html)
-        self.assertIn("desktop.js?v=desk22g", html)
+        self.assertIn("desk23", app)
+        self.assertIn("desktop.css?v=desk23", html)
+        self.assertIn("desktop.js?v=desk23", html)
 
 
 if __name__ == "__main__":

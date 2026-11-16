@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk22g" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk23" />
 </head>
 <body>
   <div id="app">
@@ -94,9 +94,10 @@
       <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="security" style="--spoke:1">Security</button>
       <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="reports" style="--spoke:2">Reports</button>
       <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="documents" style="--spoke:3">Documents</button>
-      <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="desktop" style="--spoke:4">Desktop</button>
-      <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="suites" style="--spoke:5">Suites</button>
-      <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="sandboxes" style="--spoke:6">Sandboxes</button>
+      <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="heal" style="--spoke:4">Heal review</button>
+      <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="desktop" style="--spoke:5">Desktop</button>
+      <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="suites" style="--spoke:6">Suites</button>
+      <button type="button" class="hub-spoke shell-surface" role="menuitem" data-section="sandboxes" style="--spoke:7">Sandboxes</button>
     </div>
 
     <aside id="hud-security" class="shell-surface hud-widget hud-security movable-widget" data-widget="hud-security" hidden aria-label="Security HUD" title="Drag to move · resize from edges">
@@ -130,6 +131,7 @@
           <button type="button" class="app-nav-item" data-section="security" aria-pressed="false">Security</button>
           <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
           <button type="button" class="app-nav-item" data-section="documents" aria-pressed="false">Documents</button>
+          <button type="button" class="app-nav-item" data-section="heal" aria-pressed="false">Heal review</button>
           <button type="button" class="app-nav-item" data-section="desktop" aria-pressed="false">Desktop</button>
           <button type="button" class="app-nav-item" data-section="suites" aria-pressed="false">Suites</button>
           <button type="button" class="app-nav-item" data-section="sandboxes" aria-pressed="false">Sandboxes</button>
@@ -218,6 +220,18 @@
             </div>
           </div>
           <p id="doc-status" class="drawer-hint" role="status">Ready</p>
+        </div>
+        <div id="app-section-heal" class="app-section" hidden>
+          <h3 class="orb-section-label">Heal proposal review</h3>
+          <p class="drawer-hint">
+            Locator-only heals wait here for approval (FR-HEAL-2). Approve records an approver in the audit log;
+            reject leaves the heal unaccepted. Assertions are never auto-healed. Suite files are never auto-committed.
+          </p>
+          <div class="btn-row">
+            <button type="button" id="heal-refresh" class="save-btn secondary">Refresh</button>
+          </div>
+          <div id="heal-list" class="heal-list" aria-live="polite"></div>
+          <p id="heal-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-desktop" class="app-section" hidden>
           <h3 class="orb-section-label">Desktop .exe plugin</h3>
@@ -316,6 +330,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk22g"></script>
+  <script src="/ui/desktop/desktop.js?v=desk23"></script>
 </body>
 </html>

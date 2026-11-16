@@ -7,13 +7,16 @@ are always refused. Real product bugs stay red.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
+import tempfile
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 CLASSIFICATIONS = frozenset(
     {"product_bug", "test_defect", "intended_change", "environment"}
@@ -205,6 +208,24 @@ def evaluate(proposal: HealProposal) -> PolicyDecision:
     )
 
 
+def _new_proposal_id() -> str:
+    return uuid.uuid4().hex[:12]
+
+
+def _stable_legacy_id(entry: Dict[str, Any], line_index: int) -> str:
+    """Deterministic id for audit lines written before KAN-75."""
+    raw = "|".join(
+        [
+            str(entry.get("timestamp") or ""),
+            str(entry.get("kind") or ""),
+            str(entry.get("classification") or ""),
+            str(entry.get("proposal") or entry.get("message") or ""),
+            str(line_index),
+        ]
+    )
+    return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:12]
+
+
 def record_approved_or_pending(
     proposal: HealProposal,
     decision: PolicyDecision,
@@ -212,10 +233,12 @@ def record_approved_or_pending(
     approver: Optional[str] = "pending_review",
 ) -> Dict[str, Any]:
     """Append FR-HEAL-5 audit line. Call only after evaluate()."""
-    entry = {
+    allowed = bool(decision.allowed)
+    entry: Dict[str, Any] = {
+        "id": _new_proposal_id(),
         "timestamp": datetime.now().isoformat(timespec="seconds"),
         "kind": proposal.kind,
-        "allowed": decision.allowed,
+        "allowed": allowed,
         "reason": decision.reason,
         "classification": decision.classification or proposal.classification,
         "evidence": proposal.evidence
@@ -223,7 +246,8 @@ def record_approved_or_pending(
             "original": proposal.original,
             "proposed": proposal.proposed,
         },
-        "approver": approver if decision.allowed else None,
+        "approver": approver if allowed else None,
+        "review_status": "pending_review" if allowed else "refused",
         "proposal": decision.proposal_diff or decision.message,
         "message": decision.message,
     }
@@ -242,3 +266,174 @@ def evaluate_and_log(
         proposal, decision, approver=approver if decision.allowed else None
     )
     return decision
+
+
+def _read_audit_entries(path: Optional[Path] = None) -> List[Dict[str, Any]]:
+    log_path = path or heal_log_path()
+    if not log_path.is_file():
+        return []
+    entries: List[Dict[str, Any]] = []
+    try:
+        lines = log_path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return []
+    for idx, line in enumerate(lines):
+        text = (line or "").strip()
+        if not text:
+            continue
+        try:
+            raw = json.loads(text)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(raw, dict):
+            continue
+        entry = dict(raw)
+        if not entry.get("id"):
+            entry["id"] = _stable_legacy_id(entry, idx)
+        status = (entry.get("review_status") or "").strip().lower()
+        if not status:
+            if entry.get("allowed") and entry.get("approver") == "pending_review":
+                status = "pending_review"
+            elif entry.get("allowed") and entry.get("approver"):
+                status = "approved"
+            elif entry.get("allowed") is False:
+                status = "refused"
+            else:
+                status = "unknown"
+            entry["review_status"] = status
+        entries.append(entry)
+    return entries
+
+
+def _write_audit_entries(entries: List[Dict[str, Any]], path: Optional[Path] = None) -> None:
+    log_path = path or heal_log_path()
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = "".join(json.dumps(e, ensure_ascii=True) + "\n" for e in entries)
+    fd, tmp_name = tempfile.mkstemp(
+        prefix="heal_audit_", suffix=".jsonl", dir=str(log_path.parent)
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(payload)
+        Path(tmp_name).replace(log_path)
+    except Exception:
+        try:
+            Path(tmp_name).unlink(missing_ok=True)
+        except OSError:
+            pass
+        raise
+
+
+def _public_proposal(entry: Dict[str, Any]) -> Dict[str, Any]:
+    evidence = entry.get("evidence") if isinstance(entry.get("evidence"), dict) else {}
+    return {
+        "id": entry.get("id"),
+        "timestamp": entry.get("timestamp"),
+        "kind": entry.get("kind"),
+        "classification": entry.get("classification"),
+        "proposal": entry.get("proposal") or entry.get("message") or "",
+        "message": entry.get("message") or "",
+        "approver": entry.get("approver"),
+        "review_status": entry.get("review_status"),
+        "evidence": {
+            "original": evidence.get("original"),
+            "proposed": evidence.get("proposed") or evidence.get("used"),
+            "action": evidence.get("action"),
+            "value_unchanged": evidence.get("value_unchanged"),
+        },
+    }
+
+
+def list_pending_heals(*, path: Optional[Path] = None) -> Dict[str, Any]:
+    """Pending locator heals awaiting human approve/reject (FR-HEAL-2)."""
+    pending = [
+        _public_proposal(e)
+        for e in _read_audit_entries(path)
+        if e.get("allowed") and (e.get("review_status") or "") == "pending_review"
+    ]
+    return {"pending": pending, "count": len(pending)}
+
+
+def resolve_heal(
+    proposal_id: str,
+    *,
+    action: str,
+    reviewer: str = "local_user",
+    path: Optional[Path] = None,
+) -> Dict[str, Any]:
+    """
+    Approve or reject a pending heal (FR-HEAL-2 / FR-HEAL-5).
+
+    Approve records a human approver; reject marks not accepted (suite not updated).
+    No auto-commit of healed tests.
+    """
+    pid = (proposal_id or "").strip()
+    if not pid:
+        return {"ok": False, "error": "proposal_id is required"}
+
+    decision = (action or "").strip().lower()
+    if decision not in {"approve", "reject"}:
+        return {"ok": False, "error": "action must be approve or reject"}
+
+    name = (reviewer or "").strip() or "local_user"
+    entries = _read_audit_entries(path)
+    target: Optional[Dict[str, Any]] = None
+    for entry in entries:
+        if entry.get("id") == pid:
+            target = entry
+            break
+    if target is None:
+        return {"ok": False, "error": "proposal not found", "id": pid}
+
+    status = (target.get("review_status") or "").strip().lower()
+    if not target.get("allowed") or status != "pending_review":
+        return {
+            "ok": False,
+            "error": "proposal is not pending review",
+            "id": pid,
+            "review_status": status or target.get("review_status"),
+        }
+
+    reviewed_at = datetime.now().isoformat(timespec="seconds")
+    if decision == "approve":
+        target["review_status"] = "approved"
+        target["approver"] = name
+        target["reviewed_at"] = reviewed_at
+        target["message"] = (
+            f"Locator heal approved by {name} (FR-HEAL-2/5). "
+            "Suite file not auto-committed."
+        )
+    else:
+        target["review_status"] = "rejected"
+        target["approver"] = None
+        target["rejected_by"] = name
+        target["reviewed_at"] = reviewed_at
+        target["message"] = (
+            f"Locator heal rejected by {name}; not treated as accepted (FR-HEAL-2)."
+        )
+
+    try:
+        _write_audit_entries(entries, path)
+    except OSError as exc:
+        return {"ok": False, "error": f"could not write audit log: {exc}", "id": pid}
+
+    return {
+        "ok": True,
+        "id": pid,
+        "review_status": target["review_status"],
+        "approver": target.get("approver"),
+        "rejected_by": target.get("rejected_by"),
+        "proposal": _public_proposal(target),
+    }
+
+
+def approve_heal(
+    proposal_id: str, *, reviewer: str = "local_user", path: Optional[Path] = None
+) -> Dict[str, Any]:
+    return resolve_heal(proposal_id, action="approve", reviewer=reviewer, path=path)
+
+
+def reject_heal(
+    proposal_id: str, *, reviewer: str = "local_user", path: Optional[Path] = None
+) -> Dict[str, Any]:
+    return resolve_heal(proposal_id, action="reject", reviewer=reviewer, path=path)

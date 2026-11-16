@@ -1116,6 +1116,7 @@
   const securitySection = document.getElementById("app-section-security");
   const reportsSection = document.getElementById("app-section-reports");
   const documentsSection = document.getElementById("app-section-documents");
+  const healSection = document.getElementById("app-section-heal");
   const desktopSection = document.getElementById("app-section-desktop");
   const suitesSection = document.getElementById("app-section-suites");
   const settingsNav = appDrawer
@@ -1130,6 +1131,9 @@
   const documentsNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="documents"]')
     : null;
+  const healNav = appDrawer
+    ? appDrawer.querySelector('.app-nav-item[data-section="heal"]')
+    : null;
   const desktopNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="desktop"]')
     : null;
@@ -1139,6 +1143,9 @@
   const sandboxesNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="sandboxes"]')
     : null;
+  const healList = document.getElementById("heal-list");
+  const healStatus = document.getElementById("heal-status");
+  const healRefresh = document.getElementById("heal-refresh");
   const setJiraUrl = document.getElementById("set-jira-url");
   const setStorePath = document.getElementById("set-store-path");
   const setCreds = document.getElementById("set-creds");
@@ -1432,6 +1439,7 @@
     security: "Security",
     reports: "Reports",
     documents: "Documents",
+    heal: "Heal review",
     desktop: "Desktop",
     suites: "Suites",
     sandboxes: "Sandboxes",
@@ -1441,6 +1449,7 @@
     security: { section: securitySection, nav: securityNav },
     reports: { section: reportsSection, nav: reportsNav },
     documents: { section: documentsSection, nav: documentsNav },
+    heal: { section: healSection, nav: healNav },
     desktop: { section: desktopSection, nav: desktopNav },
     suites: { section: suitesSection, nav: suitesNav },
     sandboxes: { section: sandboxesSection, nav: sandboxesNav },
@@ -1602,9 +1611,105 @@
       loadSecurityStatus();
       loadPrivacyStatus();
     }
+    if (name === "heal") loadHealProposals();
     if (name === "desktop") loadDesktopPlugin();
     if (name === "suites") loadPlaywrightSuite();
     if (name === "sandboxes") loadMultiSandboxPlugin();
+  }
+
+  function renderHealProposals(payload) {
+    if (!healList) return;
+    healList.innerHTML = "";
+    const pending = (payload && payload.pending) || [];
+    if (!pending.length) {
+      const empty = document.createElement("p");
+      empty.className = "heal-empty drawer-hint";
+      empty.textContent = "No pending heal proposals.";
+      healList.appendChild(empty);
+      return;
+    }
+    pending.forEach(function (item) {
+      const card = document.createElement("article");
+      card.className = "heal-card";
+      card.dataset.id = item.id || "";
+      const meta = document.createElement("p");
+      meta.className = "heal-card-meta";
+      meta.textContent = [
+        item.kind || "locator",
+        item.classification || "unclassified",
+        item.timestamp || "",
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      const diff = document.createElement("pre");
+      diff.className = "heal-diff";
+      diff.textContent = item.proposal || item.message || "(no diff)";
+      const row = document.createElement("div");
+      row.className = "btn-row";
+      const approveBtn = document.createElement("button");
+      approveBtn.type = "button";
+      approveBtn.className = "save-btn heal-approve";
+      approveBtn.textContent = "Approve";
+      approveBtn.dataset.id = item.id || "";
+      const rejectBtn = document.createElement("button");
+      rejectBtn.type = "button";
+      rejectBtn.className = "save-btn secondary heal-reject";
+      rejectBtn.textContent = "Reject";
+      rejectBtn.dataset.id = item.id || "";
+      row.appendChild(approveBtn);
+      row.appendChild(rejectBtn);
+      card.appendChild(meta);
+      card.appendChild(diff);
+      card.appendChild(row);
+      healList.appendChild(card);
+    });
+  }
+
+  async function loadHealProposals() {
+    if (healStatus) healStatus.textContent = "Loading…";
+    try {
+      const res = await fetch("/api/heal/proposals");
+      const data = await res.json();
+      renderHealProposals(data);
+      if (healStatus) {
+        const n = (data && data.count) || 0;
+        healStatus.textContent =
+          n === 0 ? "No pending heals." : n + " pending heal(s).";
+      }
+    } catch (err) {
+      if (healStatus) healStatus.textContent = "Could not load heal proposals.";
+    }
+  }
+
+  async function resolveHealProposal(id, action) {
+    if (!id) return;
+    if (healStatus) {
+      healStatus.textContent = action === "approve" ? "Approving…" : "Rejecting…";
+    }
+    try {
+      const res = await fetch(action === "approve" ? "/api/heal/approve" : "/api/heal/reject", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ proposal_id: id, reviewer: "local_user" }),
+      });
+      const data = await res.json();
+      if (!data || !data.ok) {
+        if (healStatus) {
+          healStatus.textContent =
+            (data && data.error) || "Could not update heal proposal.";
+        }
+        return;
+      }
+      await loadHealProposals();
+      if (healStatus) {
+        healStatus.textContent =
+          action === "approve"
+            ? "Approved — approver recorded; suite not auto-committed."
+            : "Rejected — heal not treated as accepted.";
+      }
+    } catch (err) {
+      if (healStatus) healStatus.textContent = "Could not update heal proposal.";
+    }
   }
 
   function closeArea() {
@@ -2342,6 +2447,24 @@
         if (docStatus) docStatus.textContent = "Declined. Settings file unchanged.";
       } catch (err) {
         if (docStatus) docStatus.textContent = "Could not decline proposal.";
+      }
+    });
+  }
+
+  if (healRefresh) {
+    healRefresh.addEventListener("click", function () {
+      loadHealProposals();
+    });
+  }
+  if (healList) {
+    healList.addEventListener("click", function (ev) {
+      const target = ev.target;
+      if (!target || !target.classList) return;
+      const id = target.getAttribute("data-id") || "";
+      if (target.classList.contains("heal-approve")) {
+        resolveHealProposal(id, "approve");
+      } else if (target.classList.contains("heal-reject")) {
+        resolveHealProposal(id, "reject");
       }
     });
   }

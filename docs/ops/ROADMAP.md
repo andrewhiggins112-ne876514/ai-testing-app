@@ -39,6 +39,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | REP-1 | Customisable reporting | **done** — KAN-51; section toggles + exporter |
 | HEAL-1 | Broader locator self-heal | **done** — KAN-14; click + fill heal; assertions stay red |
 | HEAL-2 | Full FR-HEAL guardrails | **done** — KAN-49; `plugins/heal_policy.py` + runner hooks |
+| HEAL-3 | Heal proposal review UI | **done** — KAN-75; App → Heal review + `/api/heal/*` (desk23) |
 
 ## Later
 
@@ -49,7 +50,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | VOICE-1 | Voice input | **KAN-81** (test KAN-82) — after text UX is solid |
 | SALES-1 | Internal guinea-pig packaging | Company large browser app + Jira + GitHub |
 
-Open FR Stories: KAN-75…KAN-81 (first seed remainder), plus gap pass KAN-83…KAN-99. Full FR→ticket matrix: `docs/FUNCTIONAL_SPEC.md` §5.
+Open FR Stories: KAN-77…KAN-81 (first seed remainder), plus gap pass KAN-83…KAN-99. Full FR→ticket matrix: `docs/FUNCTIONAL_SPEC.md` §5.
 
 ## Blocked / waiting on you
 
@@ -70,8 +71,8 @@ Open FR Stories: KAN-75…KAN-81 (first seed remainder), plus gap pass KAN-83…
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-75** — Heal proposal review UI (FR-HEAL-2/5; test KAN-76).
+**KAN-77** — First-class target URL, exe path, messaging endpoints (FR-LEARN-2/3; test KAN-78).
 
-**Done this cycle:** **KAN-103/104** — Desktop nav area screens + HUD widgets (UI-DESK-4).
+**Done this cycle:** **KAN-75/76** — Heal proposal review UI (FR-HEAL-2/5). Earlier: **KAN-103/104** desktop nav shell.
 
 Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

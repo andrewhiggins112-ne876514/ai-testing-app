@@ -29,12 +29,12 @@ class NavOverlapTests(unittest.TestCase):
         self.assertIn("left: 72px", css)
         self.assertIn("z-index: 11", css)
 
-    def test_cache_bust_desk22(self):
+    def test_cache_bust_desk23(self):
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk22g", app)
-        self.assertIn("desktop.css?v=desk22g", html)
-        self.assertIn("desktop.js?v=desk22g", html)
+        self.assertIn("desk23", app)
+        self.assertIn("desktop.css?v=desk23", html)
+        self.assertIn("desktop.js?v=desk23", html)
 
 
 if __name__ == "__main__":

@@ -20,6 +20,7 @@ from plugins.desktop_runner import (
     set_plugin_enabled as set_desktop_plugin_enabled,
 )
 from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
+from plugins.heal_policy import approve_heal, list_pending_heals, reject_heal
 from plugins.multi_sandbox import (
     orchestrate as multi_sandbox_orchestrate,
     plugin_status as multi_sandbox_plugin_status,
@@ -92,6 +93,11 @@ class DocIngestApplyRequest(BaseModel):
 class DocIngestDeclineRequest(BaseModel):
     proposal_id: str
     session_id: str = "desktop"
+
+
+class HealReviewRequest(BaseModel):
+    proposal_id: str
+    reviewer: str = "local_user"
 
 
 class SecurityLevelRequest(BaseModel):
@@ -260,6 +266,21 @@ async def api_doc_ingest_apply(req: DocIngestApplyRequest):
 @app.post("/api/doc-ingest/decline")
 async def api_doc_ingest_decline(req: DocIngestDeclineRequest):
     return decline_proposal(req.proposal_id, session_id=req.session_id or "desktop")
+
+
+@app.get("/api/heal/proposals")
+async def api_heal_proposals():
+    return list_pending_heals()
+
+
+@app.post("/api/heal/approve")
+async def api_heal_approve(req: HealReviewRequest):
+    return approve_heal(req.proposal_id, reviewer=req.reviewer or "local_user")
+
+
+@app.post("/api/heal/reject")
+async def api_heal_reject(req: HealReviewRequest):
+    return reject_heal(req.proposal_id, reviewer=req.reviewer or "local_user")
 
 
 @app.get("/api/desktop-plugin")

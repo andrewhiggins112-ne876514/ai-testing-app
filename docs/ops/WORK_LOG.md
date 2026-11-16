@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-75** — Heal proposal review UI |
-| **Start task** | **KAN-76** (`test`, Relates → KAN-75) |
-| **Epic** | (self-heal / heal proposals) |
-| **Roadmap ID** | (FR-HEAL-2/5) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-HEAL-2/5 |
+| **Jira story** | **KAN-77** — First-class target URL, exe path, and messaging endpoints |
+| **Start task** | **KAN-78** (`test`, Relates → KAN-77) |
+| **Epic** | (LEARN / settings) |
+| **Roadmap ID** | (FR-LEARN-2/3) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-LEARN-2/3 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-76** |
-| **Shipped** | **KAN-103** / **KAN-104** Done (desk22g nav shell verify) |
+| **Test ticket** | **KAN-78** |
+| **Shipped** | **KAN-75** / **KAN-76** Done (heal proposal review UI, desk23) |
 | **Deferred** | — |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-75 — Heal proposal review UI (FR-HEAL-2/5)
+- **Agent/chat:** Cursor IDE Agent (Composer) — heal review
+- **Done:** Pending locator heals from `heal_audit.jsonl` surfaced in App → **Heal review** (desk23). APIs `GET /api/heal/proposals`, `POST /api/heal/approve|reject`. Approve records approver; reject leaves unaccepted; no suite auto-commit. Hub spokes → 8.
+- **Files:** `plugins/heal_policy.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_heal_review.py`, `tests/test_orb_hub.py`, `tests/test_nav_overlap.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_heal_review.py tests/test_heal_policy.py tests/test_orb_hub.py tests/test_nav_overlap.py -v` (18 passed). Computer Use on `desktop_app.py` desk23: App → Heal review shows locator diffs + Approve/Reject; live API approve/reject cleared pending.
+- **Jira:** story agent-completion + **KAN-76** evidence/Done; **KAN-75** Done (yes)
+- **Next:** **KAN-77** first-class target URL / exe path / messaging endpoints (test KAN-78)
 
 ### 2026-11-16 — KAN-104 — Full verify closes KAN-103 (UI-DESK-4)
 - **Agent/chat:** Cursor IDE Agent (Composer) — desktop shell verify
