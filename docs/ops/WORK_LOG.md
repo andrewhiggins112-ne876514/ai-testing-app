@@ -12,7 +12,7 @@
 | **Epic** | KAN-27 (Desktop shell) |
 | **Roadmap ID** | UI-DESK-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-6/7, FR-SET-3 |
-| **Next action** | Designer picks mockup **A / B / C** (`docs/mockups/kan103_nav/`); then implement **Task KAN-106** (area screens) |
+| **Next action** | User picks mockup **A / B / C** from `docs/mockups/kan103_nav/option_*_*.png`; then implement **Task KAN-106** (area screens). No `ui/desktop` until the pick. |
 | **Deferred** | **KAN-75** heal proposal review UI — after KAN-103 nav shell to stop drawer-inline defects (KAN-101 class). Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -34,6 +34,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — OPS — KAN-103 Grok image mockups A/B/C (design gate)
+- **Agent/chat:** Cursor IDE Agent (Designer + PM — images and docs only; no `ui/desktop/` code)
+- **Done:** Generated six mystic-cyan frames for nav options A/B/C and saved them under `docs/mockups/kan103_nav/` (`option_a_home.png`, `option_a_settings.png`, `option_b_home.png`, `option_b_settings.png`, `option_c_hub.png`, `option_c_settings.png`) plus HTML fallbacks `option_a.html`, `option_b.html`, `option_c.html`. Active slice remains **KAN-103** / start **KAN-106** after the user picks; **KAN-75** stays deferred.
+- **Files:** docs/mockups/kan103_nav/option_*.png, option_{a,b,c}.html, README.md, docs/ops/WORK_LOG.md
+- **Verify:** Open the six PNGs (or the three HTML files) and choose A, B, or C.
+- **Jira:** comment on KAN-102 and KAN-103 pointing at the generated frames (design not locked).
+- **Next:** User selects **A**, **B**, or **C** → lock design → implement KAN-106.
 
 ### 2026-11-15 — OPS — Active slice → KAN-103; nav mockups A/B/C (design gate)
 - **Agent/chat:** Cursor IDE Agent (PM + Designer slice — docs, mockups, Jira; no `ui/desktop/` code)

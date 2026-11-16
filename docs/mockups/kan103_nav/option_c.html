@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Option C — orb hub + overlay</title>
+<style>
+  body { margin: 0; background: #02060c; color: #d7f6ff; font: 14px/1.4 Segoe UI, sans-serif; }
+  h1 { font-weight: 500; letter-spacing: 0.08em; font-size: 14px; color: #7ee8ff; margin: 16px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 16px 24px; }
+  figure { margin: 0; }
+  img { width: 100%; border: 1px solid #16485c; border-radius: 12px; background: #000; }
+  figcaption { color: #7ee8ff; margin: 8px 0; letter-spacing: 0.12em; font-size: 11px; }
+  .frame { position: relative; height: 420px; background: #000; border: 1px solid #1a6d88; border-radius: 16px; overflow: hidden; }
+  .orb { position: absolute; left: 50%; top: 40%; width: 110px; height: 110px; margin: -55px 0 0 -55px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, #fff, #5dfff2 28%, #00c2e8 62%, transparent 70%);
+    box-shadow: 0 0 36px #00d4ff; }
+  .node { position: absolute; width: 72px; text-align: center; font-size: 11px; color: #9adff0; }
+  .node i { display: block; width: 28px; height: 28px; margin: 0 auto 4px; border: 1px solid #3ad7ff; border-radius: 50%; box-shadow: 0 0 8px #00d4ff; }
+  .chat { position: absolute; left: 12%; right: 12%; bottom: 24px; height: 36px; border: 1px solid #1a6d88; border-radius: 18px; }
+  .nav { position: absolute; top: 20px; left: 12px; bottom: 70px; width: 110px; border: 1px solid #1a6d88; border-radius: 12px; padding: 10px; font-size: 12px; }
+  .on { color: #041018; background: #3ad7ff; border-radius: 6px; padding: 2px 6px; }
+  .glass { position: absolute; inset: 16px 16px 64px 136px; border: 1px solid #1a6d88; border-radius: 14px; background: rgba(0,12,20,0.78); padding: 16px; }
+</style>
+</head>
+<body>
+<h1>OPTION C — particle spokes from the orb to 7 areas, then the same overlay as A</h1>
+<div class="row">
+  <figure>
+    <figcaption>HUB</figcaption>
+    <img src="option_c_hub.png" alt="Option C hub" />
+    <div class="frame" style="margin-top:12px">
+      <div class="orb"></div>
+      <div class="node" style="left:46%;top:18px"><i></i>Settings</div>
+      <div class="node" style="right:18%;top:70px"><i></i>Security</div>
+      <div class="node" style="right:12%;top:180px"><i></i>Reports</div>
+      <div class="node" style="right:22%;bottom:80px"><i></i>Documents</div>
+      <div class="node" style="left:28%;bottom:80px"><i></i>Suites</div>
+      <div class="node" style="left:12%;top:180px"><i></i>Desktop</div>
+      <div class="node" style="left:18%;top:70px"><i></i>Sandboxes</div>
+      <div class="chat"></div>
+    </div>
+  </figure>
+  <figure>
+    <figcaption>APP SETTINGS</figcaption>
+    <img src="option_c_settings.png" alt="Option C settings" />
+    <div class="frame" style="margin-top:12px">
+      <div class="nav"><span class="on">Settings</span><br>Security<br>Reports<br>Documents<br>Desktop<br>Suites<br>Sandboxes</div>
+      <div class="glass"><b>APP SETTINGS</b><p>Jira URL · Connectors<br>Credential status CONFIGURED<br>Security OFFICIAL</p><p>Faint spokes behind the glass. No orb sliders.</p></div>
+      <div class="chat"></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

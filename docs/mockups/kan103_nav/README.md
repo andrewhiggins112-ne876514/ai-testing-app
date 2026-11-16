@@ -1,12 +1,24 @@
 # KAN-103 navigation UX mockups (design choice — not locked)
 
-**Status:** Awaiting Designer pick of **A**, **B**, **C**, or hybrid before `ui/desktop/` implementation.
+**Status:** Awaiting user pick of **A**, **B**, or **C** before `ui/desktop/` implementation. Active slice stays **KAN-103** (start **KAN-106** after the pick). **KAN-75** stays deferred.
 
 **Plan:** [`docs/ops/KAN102_NAV_WIDGETS_PLAN.md`](../../ops/KAN102_NAV_WIDGETS_PLAN.md)
 
 **Product model (locked):** Agent home = chat + orb; HUD widgets from Screen drawer; App areas = dedicated surfaces; App Settings ≠ Orb settings.
 
-Open [`index.html`](index.html) in a browser for links. Reference chrome: mystic cyan (`#50cdff`) on void black — see `docs/mockups/screenshots/mystic_desktop_drawers.png`.
+## Generated frames (pick from these)
+
+Dark void, mystic cyan (no purple). Open the HTML file beside each pair if the PNG viewer is inconvenient.
+
+| Option | Frames | HTML fallback |
+|--------|--------|----------------|
+| **A** Full-bleed overlay | `option_a_home.png`, `option_a_settings.png` | `option_a.html` |
+| **B** Area stage (orb pip) | `option_b_home.png`, `option_b_settings.png` | `option_b.html` |
+| **C** Orb hub, then overlay A | `option_c_hub.png`, `option_c_settings.png` | `option_c.html` |
+
+**A** keeps the full orb on home and dims it under a glass Settings/Reports window. The App button is a nav list only; the Screen drawer is HUD widget toggles. **B** puts work on a large stage and shrinks the orb to a pip, so the area feels like its own screen. **C** adds neural spokes from the orb to the seven areas, then opens the same full-window glass as A.
+
+Earlier HTML pack and rendered PNGs under `png/` remain for layout detail. Reference chrome: `docs/mockups/screenshots/mystic_desktop_drawers.png`.
 
 ## Option A — Full-bleed area overlay
 
@@ -46,7 +58,8 @@ Clicking orb (or hub mode) expands **neural spokes** to 7 areas; pick one → **
 
 | View | HTML | PNG |
 |------|------|-----|
-| Home hub idle | `option-c-home.html` | `png/option-c-home.png` |
+| Agent home (hub off) | `option-c-home.html` | `C-home.png` / `png/option-c-home.png` |
+| Orb hub expanded | `option-c-hub.html` | `C-hub.png` / `png/option-c-hub.png` |
 | App Settings | `option-c-app-settings.html` | `png/option-c-app-settings.png` |
 | Reports | `option-c-reports.html` | `png/option-c-reports.png` |
 

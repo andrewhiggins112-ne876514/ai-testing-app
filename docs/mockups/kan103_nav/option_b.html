@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Option B — area stage</title>
+<style>
+  body { margin: 0; background: #02060c; color: #d7f6ff; font: 14px/1.4 Segoe UI, sans-serif; }
+  h1 { font-weight: 500; letter-spacing: 0.08em; font-size: 14px; color: #7ee8ff; margin: 16px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 16px 24px; }
+  figure { margin: 0; }
+  img { width: 100%; border: 1px solid #16485c; border-radius: 12px; background: #000; }
+  figcaption { color: #7ee8ff; margin: 8px 0; letter-spacing: 0.12em; font-size: 11px; }
+  .frame { position: relative; height: 420px; background: #000; border: 1px solid #1a6d88; border-radius: 16px; overflow: hidden; }
+  .stage { position: absolute; left: 90px; right: 36px; top: 24px; bottom: 90px; border: 1px solid #1a6d88; border-radius: 14px; }
+  .orb { position: absolute; left: 50%; top: 42%; width: 150px; height: 150px; margin: -75px 0 0 -75px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, #fff, #5dfff2 28%, #00c2e8 62%, transparent 70%);
+    box-shadow: 0 0 40px #00d4ff; }
+  .pip { position: absolute; left: 16px; top: 40px; width: 28px; height: 28px; border-radius: 50%;
+    background: radial-gradient(circle, #fff, #00e5ff 60%, transparent 70%); box-shadow: 0 0 12px #00d4ff; }
+  .rail { position: absolute; left: 14px; top: 40px; width: 64px; font-size: 12px; color: #9adff0; }
+  .rail .on { color: #041018; background: #3ad7ff; border-radius: 6px; padding: 2px 4px; }
+  .chat { position: absolute; left: 12%; right: 8%; bottom: 28px; height: 36px; border: 1px solid #1a6d88; border-radius: 18px; }
+</style>
+</head>
+<body>
+<h1>OPTION B — area stage · orb shrinks to a pip · large stage for Settings / Reports</h1>
+<div class="row">
+  <figure>
+    <figcaption>HOME</figcaption>
+    <img src="option_b_home.png" alt="Option B home" />
+    <div class="frame" style="margin-top:12px">
+      <div class="rail">APP<br>▦<br>🛡<br>▤<br>▤</div>
+      <div class="stage"><div class="orb"></div></div>
+      <div class="chat"></div>
+    </div>
+  </figure>
+  <figure>
+    <figcaption>APP SETTINGS</figcaption>
+    <img src="option_b_settings.png" alt="Option B settings" />
+    <div class="frame" style="margin-top:12px">
+      <div class="rail"><span class="on">Settings</span><br>Security<br>Reports<br>Documents<br>Desktop<br>Suites<br>Sandboxes</div>
+      <div class="stage" style="padding:16px">
+        <div class="pip"></div>
+        <p style="margin-left:40px"><b>APP SETTINGS</b><br>Jira URL<br>Connectors<br>Credential status CONFIGURED<br>Security OFFICIAL<br>No orb sliders.</p>
+      </div>
+      <div class="chat"></div>
+    </div>
+  </figure>
+</div>
+</body>
+</html>
