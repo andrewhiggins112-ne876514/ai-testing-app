@@ -94,6 +94,8 @@ def _defaults() -> dict:
         "plugin_desktop_enabled": True,
         # FR-PLUG-2: multi-sandbox orchestration stub (KAN-55) — default off
         "plugin_multi_sandbox_enabled": False,
+        # FR-PLUG-3: automation framework preference (KAN-79) — Playwright default
+        "test_framework": "playwright",
         # FR-TEST-4: capture final screenshot on successful Playwright runs (failures always)
         "playwright_success_evidence": True,
         # FR-SEC-2: no telemetry by default (GDPR)
@@ -269,6 +271,9 @@ def app_settings_status() -> dict:
     creds_status, creds_label = _jira_credentials_label(email_set, token_set)
     desk_on = bool(data.get("plugin_desktop_enabled", True))
     multi_on = bool(data.get("plugin_multi_sandbox_enabled", False))
+    from plugins.framework_switch import DEFAULT_FRAMEWORK, list_frameworks, normalize_framework
+
+    test_framework = normalize_framework(data.get("test_framework"))
     app_path = (data.get("target_app_path") or "").strip()
     target_url = (data.get("target_url") or "").strip()
     api_endpoint = (data.get("api_endpoint") or "").strip()
@@ -282,6 +287,7 @@ def app_settings_status() -> dict:
             f"Target URL: {target_url or '(not set)'} | Messaging: {api_endpoint or '(not set)'}",
             f"Desktop plugin: {'on' if desk_on else 'off'} | target_app_path: {app_path or '(not set)'}",
             f"Playwright suite path: {suite_path or '(not set)'}",
+            f"Test framework: {test_framework} (default {DEFAULT_FRAMEWORK})",
             f"Multi-sandbox plugin: {'on' if multi_on else 'off'}",
             f"Telemetry: {'on' if telem else 'off (default)'} | Extracted-data consent required",
         ]
@@ -299,6 +305,8 @@ def app_settings_status() -> dict:
         "target_app_path": app_path,
         "api_endpoint": api_endpoint,
         "playwright_suite_path": suite_path,
+        "test_framework": test_framework,
+        "frameworks": list_frameworks().get("frameworks") or [],
         "plugin_multi_sandbox_enabled": multi_on,
         "telemetry_enabled": telem,
         "summary": summary,
@@ -310,6 +318,7 @@ def save_app_settings(
     target_url: str = "",
     target_app_path: str = "",
     api_endpoint: str = "",
+    test_framework: str | None = None,
 ) -> dict:
     """Persist App Settings targets for the active security level (FR-LEARN-2/3)."""
     jira = (jira_url or "").strip()
@@ -351,6 +360,14 @@ def save_app_settings(
     update_setting("target_url", target, confirm=True)
     update_setting("target_app_path", exe, confirm=True)
     update_setting("api_endpoint", messaging, confirm=True)
+    if test_framework is not None and str(test_framework).strip():
+        from plugins.framework_switch import set_framework
+
+        fw = set_framework(str(test_framework).strip())
+        if fw.get("status") == "error":
+            payload = app_settings_status()
+            payload.update({"status": "error", "message": fw.get("message") or "Invalid framework."})
+            return payload
     payload = app_settings_status()
     payload.update({"status": "updated", "message": "Saved."})
     return payload

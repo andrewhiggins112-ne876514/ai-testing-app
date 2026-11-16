@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-79** — Dynamic framework switching stub via settings |
-| **Start task** | **KAN-80** (`test`, Relates → KAN-79) |
-| **Epic** | (PLUG) |
-| **Roadmap ID** | (FR-PLUG-3/2) |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-PLUG-3 |
+| **Jira story** | **KAN-81** — Voice input for conversational agent |
+| **Start task** | **KAN-82** (`test`, Relates → KAN-81) |
+| **Epic** | (UI) |
+| **Roadmap ID** | VOICE-1 / FR-UI-1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-1 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-80** |
-| **Shipped** | **KAN-77** / **KAN-78** Done (target URL / exe / messaging, desk24) |
+| **Test ticket** | **KAN-82** |
+| **Shipped** | **KAN-79** / **KAN-80** Done (framework switch stub, desk25) |
 | **Deferred** | — |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-79 — Dynamic framework switching stub via settings (FR-PLUG-3)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-79
+- **Done:** Settings key `test_framework` defaults to Playwright. Stub module + registry entry; Selenium/Cypress selectable; run returns clear `not_implemented` (no crash). APIs `GET/POST /api/test-framework` + `/run`; App Settings select (desktop desk25 + Gradio); agent tool `test_framework`; Playwright run/suite gated when non-Playwright active.
+- **Files:** `plugins/framework_switch.py`, `plugins/registry.py`, `settings/store.py`, `main.py`, `agent/agent.py`, `ui/desktop/*`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_framework_switch.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_framework_switch.py tests/test_app_settings.py tests/test_multi_sandbox.py -v` (13 passed). Live desk25: HTML has Test framework select; API set selenium → run `not_implemented` → reset playwright.
+- **Jira:** story agent-completion + **KAN-80** evidence/Done; **KAN-79** Done (yes)
+- **Next:** **KAN-81** voice input (test KAN-82)
 
 ### 2026-11-16 — KAN-77 — First-class target URL, exe path, messaging endpoints (FR-LEARN-2/3)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-77

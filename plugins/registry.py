@@ -39,6 +39,13 @@ _MANIFESTS: list[dict[str, Any]] = [
         "default_enabled": True,
     },
     {
+        "id": "framework_switch",
+        "name": "Test framework switch",
+        "description": "Settings stub: Playwright default; Selenium/Cypress not implemented yet (FR-PLUG-3).",
+        "toggle_key": None,
+        "default_enabled": True,
+    },
+    {
         "id": "doc_ingest",
         "name": "Document ingestion",
         "description": "Parse specs into settings proposals (confirm before write).",
@@ -66,6 +73,7 @@ def _enabled_for(manifest: dict[str, Any], settings: dict[str, Any]) -> bool:
 
 def list_plugins() -> dict[str, Any]:
     """Return registered plugin manifests with current enabled flags."""
+    from plugins.framework_switch import framework_status, list_frameworks
     from settings.store import load_settings
 
     settings = load_settings()
@@ -81,7 +89,14 @@ def list_plugins() -> dict[str, Any]:
                 "toggleable": bool(m.get("toggle_key")),
             }
         )
-    return {"plugins": plugins, "count": len(plugins)}
+    fw = framework_status()
+    return {
+        "plugins": plugins,
+        "count": len(plugins),
+        # FR-PLUG-3: active automation framework (Playwright default; others stub)
+        "test_framework": fw.get("active") or "playwright",
+        "frameworks": list_frameworks().get("frameworks") or [],
+    }
 
 
 def get_plugin(plugin_id: str) -> Optional[dict[str, Any]]:

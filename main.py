@@ -21,6 +21,12 @@ from plugins.desktop_runner import (
 )
 from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
 from plugins.heal_policy import approve_heal, list_pending_heals, reject_heal
+from plugins.framework_switch import (
+    attempt_run as framework_attempt_run,
+    framework_status,
+    reject_if_unsupported,
+    set_framework,
+)
 from plugins.multi_sandbox import (
     orchestrate as multi_sandbox_orchestrate,
     plugin_status as multi_sandbox_plugin_status,
@@ -115,6 +121,16 @@ class AppSettingsRequest(BaseModel):
     target_url: str = ""
     target_app_path: str = ""
     api_endpoint: str = ""
+    test_framework: str = ""
+
+
+class TestFrameworkRequest(BaseModel):
+    test_framework: str = "playwright"
+
+
+class TestFrameworkRunRequest(BaseModel):
+    action: str = "run"
+    framework: str = ""
 
 
 class DesktopPluginRequest(BaseModel):
@@ -241,11 +257,32 @@ async def get_app_settings_api():
 
 @app.post("/api/app-settings")
 async def post_app_settings_api(req: AppSettingsRequest):
-    return save_app_settings(
-        jira_url=req.jira_url or "",
-        target_url=req.target_url or "",
-        target_app_path=req.target_app_path or "",
-        api_endpoint=req.api_endpoint or "",
+    kwargs = {
+        "jira_url": req.jira_url or "",
+        "target_url": req.target_url or "",
+        "target_app_path": req.target_app_path or "",
+        "api_endpoint": req.api_endpoint or "",
+    }
+    if (req.test_framework or "").strip():
+        kwargs["test_framework"] = req.test_framework.strip()
+    return save_app_settings(**kwargs)
+
+
+@app.get("/api/test-framework")
+async def get_test_framework_api():
+    return framework_status()
+
+
+@app.post("/api/test-framework")
+async def post_test_framework_api(req: TestFrameworkRequest):
+    return set_framework(req.test_framework or "playwright")
+
+
+@app.post("/api/test-framework/run")
+async def post_test_framework_run_api(req: TestFrameworkRunRequest):
+    return framework_attempt_run(
+        framework=(req.framework or "").strip() or None,
+        action=req.action or "run",
     )
 
 
@@ -348,6 +385,9 @@ async def post_playwright_suite_list(req: PlaywrightSuitePathRequest):
 
 @app.post("/api/playwright-suite/run")
 async def post_playwright_suite_run(req: PlaywrightSuiteRunRequest):
+    blocked = reject_if_unsupported(action="run_suite")
+    if blocked is not None:
+        return blocked
     return run_playwright_suite(
         suite_path=req.suite_path or "",
         grep=req.grep or "",

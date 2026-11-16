@@ -1459,6 +1459,8 @@ _NONE_REPORT = "(none yet)"
 
 
 def current_settings():
+    from plugins.framework_switch import normalize_framework
+
     data = load_settings()
     return (
         data.get("security_level") or "OFFICIAL",
@@ -1466,6 +1468,7 @@ def current_settings():
         data.get("target_url") or "",
         data.get("target_app_path") or "",
         data.get("api_endpoint") or "",
+        normalize_framework(data.get("test_framework")),
     )
 
 
@@ -1599,6 +1602,7 @@ def save_settings(
     target_url="",
     target_app_path="",
     api_endpoint="",
+    test_framework="playwright",
     confirm_level: bool = False,
 ):
     """Save target/Jira settings; level switch requires a second confirm (FR-SEC-3)."""
@@ -1621,13 +1625,21 @@ def save_settings(
         target_url=target_url or "",
         target_app_path=target_app_path or "",
         api_endpoint=api_endpoint or "",
+        test_framework=test_framework or "playwright",
     )
     if saved.get("status") == "error":
         return saved.get("message") or "Save failed.", settings_store_summary()
     return "Saved.", settings_store_summary()
 
 
-def confirm_security_level(level, jira_base_url, target_url="", target_app_path="", api_endpoint=""):
+def confirm_security_level(
+    level,
+    jira_base_url,
+    target_url="",
+    target_app_path="",
+    api_endpoint="",
+    test_framework="playwright",
+):
     """Second step for OFFICIAL/SECRET switch."""
     return save_settings(
         level,
@@ -1635,6 +1647,7 @@ def confirm_security_level(level, jira_base_url, target_url="", target_app_path=
         target_url,
         target_app_path,
         api_endpoint,
+        test_framework,
         confirm_level=True,
     )
 
@@ -1947,7 +1960,9 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     fill_height=False,
                 )
         with gr.Tab("Settings"):
-            loaded_level, loaded_url, loaded_target, loaded_exe, loaded_msg = current_settings()
+            loaded_level, loaded_url, loaded_target, loaded_exe, loaded_msg, loaded_fw = (
+                current_settings()
+            )
             with gr.Column(elem_id="settings-panel"):
                 gr.HTML('<div class="panel-title">Settings</div>')
                 gr.HTML(
@@ -1985,6 +2000,12 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     placeholder="https://your-site.atlassian.net",
                     info="Site root only. Email and API token stay in the local settings file.",
                 )
+                test_framework_dd = gr.Dropdown(
+                    choices=["playwright", "selenium", "cypress"],
+                    value=loaded_fw or "playwright",
+                    label="Test framework (FR-PLUG-3)",
+                    info="Playwright is ready. Selenium/Cypress are stubs — run returns not implemented.",
+                )
                 store_info = gr.Textbox(
                     value=settings_store_summary(),
                     label="Local store",
@@ -1995,12 +2016,26 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 with gr.Row():
                     gr.Button("Save", variant="primary").click(
                         save_settings,
-                        [level, jira_base_url, target_url_box, target_exe_box, api_endpoint_box],
+                        [
+                            level,
+                            jira_base_url,
+                            target_url_box,
+                            target_exe_box,
+                            api_endpoint_box,
+                            test_framework_dd,
+                        ],
                         [status, store_info],
                     )
                     gr.Button("Confirm level switch").click(
                         confirm_security_level,
-                        [level, jira_base_url, target_url_box, target_exe_box, api_endpoint_box],
+                        [
+                            level,
+                            jira_base_url,
+                            target_url_box,
+                            target_exe_box,
+                            api_endpoint_box,
+                            test_framework_dd,
+                        ],
                         [status, store_info],
                     )
                 gr.HTML('<div class="orb-section-label">Privacy &amp; local data (GDPR)</div>')
@@ -2206,7 +2241,14 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 )
     demo.load(
         current_settings,
-        outputs=[level, jira_base_url, target_url_box, target_exe_box, api_endpoint_box],
+        outputs=[
+            level,
+            jira_base_url,
+            target_url_box,
+            target_exe_box,
+            api_endpoint_box,
+            test_framework_dd,
+        ],
     )
     demo.load(settings_store_summary, outputs=[store_info])
     demo.load(

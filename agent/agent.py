@@ -25,6 +25,7 @@ TOOL_NAMES = frozenset({
     "run_playwright_suite",
     "list_plugins",
     "orchestrate_sandboxes",
+    "test_framework",
     "update_settings",
     "list_stories",
     "create_issue",
@@ -48,6 +49,7 @@ _FAIL_STATUSES = frozenset({
     "unauthorized",
     "disabled",
     "not_enabled",
+    "not_implemented",
     "cancelled",
 })
 _SUCCESS_CLAIM = re.compile(
@@ -73,6 +75,7 @@ Rules:
 - For a Windows .exe / desktop smoke test, call run_desktop with optional exe_path (or rely on target_app_path in settings). If the plugin is disabled, tell the user to enable plugin_desktop_enabled.
 - To import or run an existing Playwright project suite (not JSON steps), call run_playwright_suite with action discover, import, list, or run and optional suite_path (or settings playwright_suite_path).
 - To list registered plugins and toggles, call list_plugins. For multi-sandbox planning, call orchestrate_sandboxes (action list or plan). If disabled, tell the user to enable plugin_multi_sandbox_enabled.
+- Test framework preference (FR-PLUG-3): default is playwright. Call test_framework with action status, set (framework=playwright|selenium|cypress), or run. Non-Playwright selections are stubs — run returns not_implemented; do not claim Selenium/Cypress executed.
 - When the user asks to list Jira issues or stories, call list_stories with the project key and do not invent issues. Set issue_types only when the user names types. "list issues in KAN" omits issue_types.
 - When the user asks to create a Jira issue and names a project key and summary, call create_issue immediately with those values. Do not clarify and do not answer yes for the user. Wait for the user to reply yes or confirm.
 - When a failed run is classified as product_bug (or the user asks to raise a Bug), call create_bug with project (or settings jira_project), symptom, expected, actual, environment, numbered replication_steps, and optional evidence_paths / report_path / relates_to. Do not file Bugs for test_defect, intended_change, or environment. Do not answer yes for the user — wait for yes or confirm.
@@ -694,7 +697,8 @@ class Agent:
                     "name": "list_plugins",
                     "description": (
                         "List registered plugins with enabled flags and toggle keys "
-                        "(FR-PLUG-1 / FR-PLUG-2). Includes multi-sandbox (default off)."
+                        "(FR-PLUG-1 / FR-PLUG-2). Includes multi-sandbox (default off) and "
+                        "active test_framework (FR-PLUG-3)."
                     ),
                     "parameters": {"type": "object", "properties": {}},
                 },
@@ -714,6 +718,29 @@ class Agent:
                             "action": {
                                 "type": "string",
                                 "description": "list or plan (default list)",
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "test_framework",
+                    "description": (
+                        "FR-PLUG-3 stub: get or set the active test framework (default playwright). "
+                        "action=status|set|run. Selenium/Cypress are selectable but not implemented."
+                    ),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "action": {
+                                "type": "string",
+                                "description": "status (default), set, or run",
+                            },
+                            "framework": {
+                                "type": "string",
+                                "description": "playwright, selenium, or cypress (for set/run)",
                             },
                         },
                     },
@@ -846,7 +873,12 @@ class Agent:
                 include_negatives=True if include is None else bool(include),
             )
         if name == "run_playwright":
+            from plugins.framework_switch import reject_if_unsupported
             from plugins.playwright_runner import run_playwright
+
+            blocked = reject_if_unsupported(action="run_playwright")
+            if blocked is not None:
+                return blocked
             allowed = {
                 "url",
                 "mode",
@@ -864,6 +896,7 @@ class Agent:
             allowed = {"exe_path", "timeout_s"}
             return run_desktop(**{k: v for k, v in args.items() if k in allowed})
         elif name == "run_playwright_suite":
+            from plugins.framework_switch import reject_if_unsupported
             from plugins.playwright_suite import (
                 discover_suite,
                 list_suite_tests,
@@ -879,6 +912,9 @@ class Agent:
                 return set_suite_path(suite_path or "", confirm=True)
             if action == "list":
                 return list_suite_tests(suite_path=suite_path or "")
+            blocked = reject_if_unsupported(action="run_suite")
+            if blocked is not None:
+                return blocked
             grep = args.get("grep") if isinstance(args.get("grep"), str) else ""
             return run_suite(suite_path=suite_path or "", grep=grep or "")
         elif name == "list_plugins":
@@ -888,6 +924,25 @@ class Agent:
             from plugins.multi_sandbox import orchestrate
             action = args.get("action") if isinstance(args.get("action"), str) else "list"
             return orchestrate(action=action or "list")
+        elif name == "test_framework":
+            from plugins.framework_switch import (
+                attempt_run,
+                framework_status,
+                set_framework,
+            )
+
+            action = (
+                args.get("action") if isinstance(args.get("action"), str) else "status"
+            ) or "status"
+            action = action.strip().lower()
+            framework = (
+                args.get("framework") if isinstance(args.get("framework"), str) else ""
+            )
+            if action == "set":
+                return set_framework(framework or "playwright")
+            if action == "run":
+                return attempt_run(framework=framework or None, action="run")
+            return framework_status()
         elif name == "jira_action":
             from plugins.jira_plugin import jira_action
             allowed = {"action", "project", "summary", "status"}

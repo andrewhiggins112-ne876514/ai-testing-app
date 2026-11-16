@@ -116,7 +116,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 ### 3.9 Plugins and Extensibility
 - **FR-PLUG-1:** Modular plugin architecture. New capabilities (desktop testing, richer reporting, multi-sandbox, performance, security testing, etc.) are addable without rewriting the core.
 - **FR-PLUG-2:** Plugins can be toggled.
-- **FR-PLUG-3:** Future: dynamic framework switching (Playwright first; others later) via settings.
+- **FR-PLUG-3:** Dynamic framework switching via settings (Playwright default/ready; Selenium/Cypress selectable stubs return not-implemented on run — full runners later).
 
 ### 3.10 Settings and Local Store
 - **FR-SET-1:** All user settings, credentials, orb presets, and layout live under the local app data directory (`%LOCALAPPDATA%\ai_testing_app\`). Never committed to git.
@@ -217,7 +217,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-SET-3 | Shipped — App Settings screen vs Orb settings (Screen drawer) | **Done** Task **KAN-108** under KAN-103 |
 | FR-PLUG-1 | Partial (registry + stubs) | **Done** KAN-55 stub; real sandboxes **KAN-95** |
 | FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |
-| FR-PLUG-3 | Open | **KAN-79** |
+| FR-PLUG-3 | Stub shipped (Playwright default; others not-implemented) | **Done** **KAN-79** (test **KAN-80**) |
 | FR-SET-1 | Shipped local store | **Done** KAN-16 |
 
 **Open Stories (To Do):** KAN-57…KAN-81 (first seed), KAN-83…KAN-99 (FR gap pass). Each has a linked `test` Task (KAN-58…KAN-100).

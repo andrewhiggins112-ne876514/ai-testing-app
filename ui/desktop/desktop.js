@@ -1150,6 +1150,7 @@
   const setTargetUrl = document.getElementById("set-target-url");
   const setTargetExe = document.getElementById("set-target-exe");
   const setApiEndpoint = document.getElementById("set-api-endpoint");
+  const setTestFramework = document.getElementById("set-test-framework");
   const setStorePath = document.getElementById("set-store-path");
   const setCreds = document.getElementById("set-creds");
   const setSummary = document.getElementById("set-summary");
@@ -1241,6 +1242,11 @@
     }
     if (setApiEndpoint) {
       setApiEndpoint.value = payload.api_endpoint || "";
+    }
+    if (setTestFramework) {
+      const fw = (payload.test_framework || "playwright").toLowerCase();
+      setTestFramework.value =
+        fw === "selenium" || fw === "cypress" ? fw : "playwright";
     }
     if (setStorePath) {
       setStorePath.textContent =
@@ -1923,6 +1929,10 @@
               setApiEndpoint && setApiEndpoint.value
                 ? setApiEndpoint.value.trim()
                 : "",
+            test_framework:
+              setTestFramework && setTestFramework.value
+                ? setTestFramework.value
+                : "playwright",
           }),
         });
         const payload = await res.json();
