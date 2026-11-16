@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-16 (KAN-83 headed/headless Done; Active → KAN-85)
+Last updated: 2026-11-16 (KAN-85 steps-from-Jira-AC Done; Active → KAN-87)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -47,14 +47,14 @@ Skeleton + substantial features exist:
 - `agent/agent.py` — Ollama tool-calling loop with clarification rules and sessions; **FR-AGENT-6 (KAN-61):** JSON-in-text tool fallback parser, `think: false` + `num_ctx`, grounded replies that never claim success on failed tool results; **FR-SEC-4 (KAN-71):** system prompt + tool-result untrusted fencing, `temperature: 0.2`, confirm args ignored for settings/delete (exact user yes/confirm only), SECRET-narrowed tool surface
 - `agent/prompt_guard.py` — prompt-injection mitigations (wrap untrusted, injection heuristics, high-privilege refuse, SECRET filter)
 - `plugins/heal_policy.py` — central FR-HEAL-1…5 guardrails (classify; refuse weaken/skip/timeout/AUT; locator-only pending review + audit); **KAN-75:** `list_pending_heals` / `approve_heal` / `reject_heal` rewrite audit `review_status` (no suite auto-commit)
-- `plugins/playwright_steps.py` — generate happy + negative/edge drafts; assess/reject visibility-only flows (FR-TEST-6); used by agent `generate_playwright_steps` (KAN-57)
+- `plugins/playwright_steps.py` — generate happy + negative/edge drafts; assess/reject visibility-only flows (FR-TEST-6); used by agent `generate_playwright_steps` (KAN-57); **from Jira AC** via `generate_steps_from_jira` + `issue_key` (KAN-85)
 - `plugins/playwright_runner.py` — steps (+ `expect_visible`), click + fill locator self-heal via heal_policy (assertions never healed), failure screenshots always + success via `playwright_success_evidence`; **persistent browser profile per security level** (KAN-15); **headed/headless** from `playwright_headless` setting or run override (KAN-83)
 - `plugins/playwright_suite.py` — import/list/run existing Playwright projects via `npx playwright test` (KAN-59 / FR-TEST-5); settings `playwright_suite_path`; suite CLI `--headed` when product mode is headed (KAN-83)
 - `plugins/desktop_runner.py` — Windows `.exe` smoke plugin (KAN-47); stdlib launch; toggle `plugin_desktop_enabled`; does not fork Playwright
 - `plugins/multi_sandbox.py` — multi-sandbox orchestration stub (KAN-55); toggle `plugin_multi_sandbox_enabled` default off; mock list/plan only
 - `plugins/registry.py` — lightweight plugin manifests + `list_plugins()` (FR-PLUG-1/2); includes `test_framework` / frameworks list (FR-PLUG-3)
 - `plugins/framework_switch.py` — test-framework preference stub (KAN-79); Playwright default/ready; Selenium/Cypress not-implemented on run
-- `plugins/jira_plugin.py` — list/create/transition/comment/epic link; **create_bug** (KAN-63 / FR-JIRA-4) builds Symptom/Expected/Actual/Environment/Replication/Evidence from failed runs or report_path; product_bug only; Relates optional; **create_test** / **update_status** (KAN-65 / FR-JIRA-2/3) — issuetype **`test`** + Relates, Done when coverage evidence confirmed; writes need confirm. KAN types: Task=dev work under Story, `test`=verification, Bug=defects
+- `plugins/jira_plugin.py` — list/create/transition/comment/epic link; **read_issue** (KAN-85) returns summary/description/AC (ADF→text); httpx uses system CA via `_async_client`; **create_bug** (KAN-63 / FR-JIRA-4) builds Symptom/Expected/Actual/Environment/Replication/Evidence from failed runs or report_path; product_bug only; Relates optional; **create_test** / **update_status** (KAN-65 / FR-JIRA-2/3) — issuetype **`test`** + Relates, Done when coverage evidence confirmed; writes need confirm. KAN types: Task=dev work under Story, `test`=verification, Bug=defects
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\`; shared UI prefs in `settings.json`; **OFFICIAL/SECRET isolation (KAN-15):** credentials in `levels\{LEVEL}\credentials.json`; Playwright profiles in `browser_profiles\{LEVEL}\`; level switch needs confirm; `plugin_desktop_enabled`; `plugin_multi_sandbox_enabled` (default false); `playwright_success_evidence` (default true); `playwright_headless` (default false = headed, KAN-83); `playwright_suite_path` (level-scoped); `telemetry_enabled` default false (FR-SEC-2); **`app_settings_status` / `save_app_settings` (KAN-73 + KAN-77 + KAN-79 + KAN-83)** — non-secret App Settings payload; Jira URL + **`target_url` / `target_app_path` / `api_endpoint`** (FR-LEARN-2/3, level-scoped) + **`test_framework`** (FR-PLUG-3) + **`playwright_mode`/`playwright_headless`**; partial saves skip omitted fields
 - `settings/privacy.py` — **GDPR (KAN-69 / FR-SEC-2):** inventory + confirm-gated `delete_local_data` for reports/screenshots/heal_audit/sessions/browser_profiles; credentials/settings.json never wiped here; consent note for extracted data
 - `main.py` — FastAPI `/chat` + `/health` (includes `telemetry_enabled`) + `/api/orb` + `/api/report-sections` + `/api/security-level` + `/api/privacy` + `/api/privacy/delete` + `/api/app-settings` + `/api/heal/proposals` + `/api/heal/approve` + `/api/heal/reject` + `/api/desktop-plugin` + `/api/desktop-smoke` + `/api/plugins` + `/api/multi-sandbox-plugin` + `/api/multi-sandbox/orchestrate` + `/api/playwright-suite*` + static `/ui`
@@ -79,7 +79,7 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-83** Playwright headed/headless — **Done** (KAN-84; desk26 `playwright_mode`)
 - **KAN-103** Desktop nav area screens + HUD widgets — **Done** (KAN-104 verify; desk22g; Tasks KAN-106–110/112 Done)
 - **KAN-81** Voice input — **deferred** until mic connected (do last; test KAN-82 stays open)
-- Next Active: **KAN-85** generate steps from Jira AC (test KAN-86); then KAN-87…KAN-99 gap pass
+- Next Active: **KAN-87** expand desktop .exe plugin beyond smoke (test KAN-88); then KAN-89…KAN-99 gap pass; **KAN-81** voice last
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -102,5 +102,5 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-85** — Generate Playwright steps from Jira AC (FR-TEST-1 gap; test KAN-86).
+1. **KAN-87** — Expand desktop .exe plugin beyond smoke (FR-TEST-3 gap; test KAN-88).
 2. Continue open FR Stories in WORK_LOG / FUNCTIONAL_SPEC §5 order; **KAN-81** voice last (needs mic).

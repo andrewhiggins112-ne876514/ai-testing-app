@@ -160,6 +160,80 @@ def _host_token(url: str) -> str:
     return host.split(".")[0] or host
 
 
+async def generate_steps_from_jira(
+    issue_key: str,
+    url: str = "",
+    *,
+    include_negatives: bool = True,
+) -> Dict[str, Any]:
+    """Fetch a Jira story's AC/description and generate Playwright step drafts.
+
+    On fetch failure returns a clear error and does **not** invent acceptance criteria.
+    """
+    from plugins.jira_plugin import read_issue
+
+    key = str(issue_key or "").strip().upper()
+    if not key:
+        return {
+            "status": "error",
+            "message": "issue_key is required (for example KAN-85)",
+            "issue_key": "",
+            "steps": [],
+            "happy_path": [],
+            "negatives": [],
+        }
+
+    fetched = await read_issue(key)
+    if fetched.get("status") != "ok":
+        return {
+            "status": fetched.get("status") or "error",
+            "message": fetched.get("message")
+            or "Could not fetch Jira acceptance criteria",
+            "issue_key": key,
+            "steps": [],
+            "happy_path": [],
+            "negatives": [],
+            "invented_ac": False,
+        }
+
+    acceptance = str(fetched.get("acceptance_criteria") or "").strip()
+    description = str(fetched.get("description") or "").strip()
+    summary = str(fetched.get("summary") or "").strip()
+    source_text = acceptance or description
+    if not source_text:
+        return {
+            "status": "error",
+            "message": (
+                f"Issue {fetched.get('key') or key} has no description or "
+                "acceptance criteria to generate from (refusing to invent AC)"
+            ),
+            "issue_key": fetched.get("key") or key,
+            "summary": summary,
+            "steps": [],
+            "happy_path": [],
+            "negatives": [],
+            "invented_ac": False,
+        }
+
+    # Prefer explicit AC; include summary as light context for URL/label hints only.
+    pack_text = source_text
+    if summary and summary.lower() not in source_text.lower():
+        pack_text = f"{summary}\n{source_text}"
+
+    pack = generate_steps_from_spec(
+        pack_text,
+        url=url,
+        include_negatives=include_negatives,
+    )
+    pack = dict(pack)
+    pack["issue_key"] = fetched.get("key") or key
+    pack["summary"] = summary
+    pack["acceptance_criteria"] = acceptance
+    pack["source"] = "acceptance_criteria" if acceptance else "description"
+    pack["invented_ac"] = False
+    return pack
+
+
 def generate_steps_from_spec(
     text: str,
     url: str = "",

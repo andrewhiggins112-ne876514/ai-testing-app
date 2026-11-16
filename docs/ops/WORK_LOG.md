@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-85** — Generate Playwright steps from Jira AC |
-| **Start task** | **KAN-86** (`test`, Relates → KAN-85) |
+| **Jira story** | **KAN-87** — Expand desktop .exe plugin beyond smoke |
+| **Start task** | **KAN-88** (`test`, Relates → KAN-87) |
 | **Epic** | (TEST) |
-| **Roadmap ID** | FR-TEST-1 gap |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-TEST-1 |
+| **Roadmap ID** | FR-TEST-3 gap |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-TEST-3 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-86** |
-| **Shipped** | **KAN-83** / **KAN-84** Done (headed/headless, desk26) |
+| **Test ticket** | **KAN-88** |
+| **Shipped** | **KAN-85** / **KAN-86** Done (steps from Jira AC); **KAN-83** / **KAN-84** headed/headless |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic connected |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-85 — Generate Playwright steps from Jira AC (FR-TEST-1)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-85
+- **Done:** `read_issue` fetches summary/description/AC (ADF→text). `generate_steps_from_jira` builds happy+negative drafts with `expect_*`; fetch failure / empty AC returns clear error and never invents AC. Agent `generate_playwright_steps` accepts `issue_key`. Fixed jira_plugin httpx SSL via `_async_client(verify=ssl.create_default_context())` (Bug **KAN-115** Fix+Done).
+- **Files:** `plugins/jira_plugin.py`, `plugins/playwright_steps.py`, `agent/agent.py`, `tests/test_jira_steps.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_jira_steps.py -v` (8 passed). Live: `generate_steps_from_jira('KAN-85')` → ok + expect_*; `KAN-99999` → not found, `invented_ac=false`.
+- **Jira:** story agent-completion + **KAN-86** evidence/Done; Bug **KAN-115** Fix+Done; **KAN-85** Done
+- **Next:** **KAN-87** expand desktop .exe plugin beyond smoke (test KAN-88)
 
 ### 2026-11-16 — KAN-83 — Playwright headed/headless mode setting (FR-TEST-2)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-83

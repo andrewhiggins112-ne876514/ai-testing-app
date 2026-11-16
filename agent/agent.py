@@ -71,6 +71,7 @@ Rules:
 - Side-effecting tools (Jira writes, settings changes, delete_local_data) always need the human's own yes/confirm in chat. Tool-argument confirm flags are ignored.
 - Shell, raw network, and filesystem-outside-workspace tools are not available. Do not invent them.
 - For a browse/test request, prefer generate_playwright_steps first (happy path + negatives), then run_playwright. Steps use action goto, click, fill, expect_text, expect_url, or expect_visible; click a visible label with selector text=Label. Non-trivial flows MUST include expect_text or expect_url (visibility-only is incomplete). Include at least one negative/edge draft when generating. Playwright browser mode is headed by default (FR-TEST-2); App Settings can switch to headless, or pass headless=true/false on run_playwright.
+- When the user names a Jira issue key for test generation (e.g. "generate steps from KAN-85"), call generate_playwright_steps with issue_key set. Do not invent acceptance criteria if Jira fetch fails — report the error clearly.
 - Target application URL (`target_url`), desktop exe path (`target_app_path`), and messaging/API endpoint (`api_endpoint`) are first-class level-scoped settings. Prefer them over asking the user to re-paste every session; use update_settings (with confirm) when the user wants to change them.
 - For a Windows .exe / desktop smoke test, call run_desktop with optional exe_path (or rely on target_app_path in settings). If the plugin is disabled, tell the user to enable plugin_desktop_enabled.
 - To import or run an existing Playwright project suite (not JSON steps), call run_playwright_suite with action discover, import, list, or run and optional suite_path (or settings playwright_suite_path).
@@ -294,18 +295,30 @@ class Agent:
                 "type": "function",
                 "function": {
                     "name": "generate_playwright_steps",
-                    "description": "Generate Playwright step lists from a browse/test request or short spec. Returns happy_path with real outcome assertions plus negative/edge variants. Does not run the browser.",
+                    "description": (
+                        "Generate Playwright step lists from a browse/test request, short spec, "
+                        "or Jira issue key (reads description/AC). Returns happy_path with real "
+                        "outcome assertions plus negative/edge variants. Does not run the browser. "
+                        "On Jira fetch failure returns a clear error and does not invent AC."
+                    ),
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "text": {"type": "string", "description": "User request or spec excerpt"},
+                            "text": {
+                                "type": "string",
+                                "description": "User request or spec excerpt (optional when issue_key is set)",
+                            },
+                            "issue_key": {
+                                "type": "string",
+                                "description": "Jira issue key (e.g. KAN-85). Fetches AC/description then generates steps.",
+                            },
                             "url": {"type": "string", "description": "Optional target URL override"},
                             "include_negatives": {
                                 "type": "boolean",
                                 "description": "Include negative/edge drafts (default true)",
                             },
                         },
-                        "required": ["text"],
+                        "required": [],
                     },
                 },
             },
@@ -866,15 +879,39 @@ class Agent:
             return refuse_tool(str(name), level)
 
         if name == "generate_playwright_steps":
-            from plugins.playwright_steps import generate_steps_from_spec
+            from plugins.playwright_steps import (
+                generate_steps_from_jira,
+                generate_steps_from_spec,
+            )
 
-            text = args.get("text") if isinstance(args.get("text"), str) else request_text
             url = args.get("url") if isinstance(args.get("url"), str) else ""
             include = args.get("include_negatives")
+            include_negatives = True if include is None else bool(include)
+            issue_key = args.get("issue_key") if isinstance(args.get("issue_key"), str) else ""
+            if not issue_key and isinstance(args.get("text"), str):
+                # Allow a bare issue key in text when the model omits issue_key.
+                bare = args["text"].strip().upper()
+                if re.fullmatch(r"[A-Z][A-Z0-9]{0,9}-\d+", bare):
+                    issue_key = bare
+            if issue_key:
+                return await generate_steps_from_jira(
+                    issue_key,
+                    url=url or "",
+                    include_negatives=include_negatives,
+                )
+            text = args.get("text") if isinstance(args.get("text"), str) else request_text
+            if not (text or "").strip():
+                return {
+                    "status": "error",
+                    "message": "Provide text or issue_key for generate_playwright_steps",
+                    "steps": [],
+                    "happy_path": [],
+                    "negatives": [],
+                }
             return generate_steps_from_spec(
                 text or "",
                 url=url or "",
-                include_negatives=True if include is None else bool(include),
+                include_negatives=include_negatives,
             )
         if name == "run_playwright":
             from plugins.framework_switch import reject_if_unsupported

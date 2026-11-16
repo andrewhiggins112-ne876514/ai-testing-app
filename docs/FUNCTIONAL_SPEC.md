@@ -193,14 +193,14 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-LEARN-1, FR-LEARN-5, FR-SET-2 | Shipped (ingest propose+confirm) | **Done** KAN-45 |
 | FR-LEARN-2, FR-LEARN-3 | Shipped (Settings + API + agent; level-scoped) | **Done** **KAN-77** |
 | FR-LEARN-4 | Open | **KAN-93** |
-| FR-TEST-1 | Partial (chat/spec step gen) | **Done** KAN-57; from Jira AC **KAN-85** |
+| FR-TEST-1 | Shipped (chat/spec + from Jira AC) | **Done** KAN-57; **Done** **KAN-85** |
 | FR-TEST-2 | Done (headed + headless setting) | **Done** KAN-9 baseline; **KAN-83** headless mode |
 | FR-TEST-3 | Partial (smoke only) | **Done** KAN-47 smoke; expand **KAN-87** |
 | FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
 | FR-TEST-5 | Shipped | **Done** **KAN-59** |
 | FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |
 | FR-HEAL-2 | Shipped review UI (approve/reject; no auto-commit) | **Done** **KAN-75** |
-| FR-JIRA-1 | Partial (list summary only) | **Done** KAN-12 list; read AC **KAN-89** |
+| FR-JIRA-1 | Partial (list + read_issue for gen) | **Done** KAN-12 list; `read_issue` via **KAN-85**; fuller read UX **KAN-89** |
 | FR-JIRA-2, FR-JIRA-3 | Shipped (create_test + update_status confirm) | **Done** **KAN-65** |
 | FR-JIRA-4 | Shipped (create_bug + confirm) | **Done** KAN-63 |
 | FR-JIRA-5, FR-JIRA-7 | Shipped confirm + local creds | **Done** KAN-12, **KAN-16**; write audit **KAN-99** |

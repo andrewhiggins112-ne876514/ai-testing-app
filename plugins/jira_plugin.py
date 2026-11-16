@@ -3,6 +3,7 @@ import json
 import os
 import platform
 import re
+import ssl
 import time
 import uuid
 from pathlib import Path
@@ -11,6 +12,11 @@ from typing import Any, Dict, Optional
 import httpx
 
 from settings.store import load_settings
+
+
+def _async_client(timeout: float = 20.0) -> httpx.AsyncClient:
+    """httpx client using the system CA store (matches scripts/jira_kan_*.py)."""
+    return httpx.AsyncClient(timeout=timeout, verify=ssl.create_default_context())
 
 _PROJECT = re.compile(r"[A-Za-z][A-Za-z0-9_]{1,10}")
 _LIST_KEY = re.compile(r"[A-Z0-9]{1,10}")
@@ -68,7 +74,7 @@ async def _search(url: str, email: str, token: str, project: str) -> Dict[str, A
     else:
         attempts.append((f"{url}/rest/api/2/search", None, {"Authorization": f"Bearer {token}"}))
 
-    async with httpx.AsyncClient(timeout=20.0) as client:
+    async with _async_client() as client:
         last_status = 0
         for endpoint, auth, headers in attempts:
             response = await client.get(
@@ -188,7 +194,7 @@ async def _list_search(url: str, email: str, token: str, project: str, limit: in
     else:
         attempts = [(f"{url}/rest/api/2/search", None, {"Authorization": f"Bearer {token}"})]
 
-    async with httpx.AsyncClient(timeout=20.0) as client:
+    async with _async_client() as client:
         for endpoint, auth, headers in attempts:
             response = await client.get(
                 endpoint,
@@ -233,6 +239,126 @@ async def list_stories(project: str, max: int = 50, issue_types: Any = None) -> 
     try:
         return await _list_search(creds["url"], creds["email"], creds["token"], key, _clamp_max(max), clause)
     except httpx.HTTPError:
+        return {"status": "error", "message": "jira_request_failed"}
+
+
+_AC_HEADING = re.compile(
+    r"(?im)^[ \t]*(?:\d+\.\s*)?(?:acceptance\s+criteria|ac)\s*:?\s*$"
+)
+_SECTION_HEADING = re.compile(
+    r"(?im)^[ \t]*(?:\d+\.\s*)?(?:"
+    r"definition\s+of\s+done|out\s+of\s+scope|technical\s+notes|"
+    r"roadmap|dependencies|behaviour|requirements|user\s+story|"
+    r"who\s+this\s+is\s+for|intro|evidence|test\s+procedure"
+    r")\s*:?\s*$"
+)
+
+
+def adf_to_text(node: Any) -> str:
+    """Flatten Atlassian Document Format (or plain string) to readable text."""
+    if node is None:
+        return ""
+    if isinstance(node, str):
+        return node
+    parts: list[str] = []
+
+    def walk(item: Any) -> None:
+        if item is None:
+            return
+        if isinstance(item, str):
+            parts.append(item)
+            return
+        if isinstance(item, list):
+            for child in item:
+                walk(child)
+            return
+        if not isinstance(item, dict):
+            return
+        kind = str(item.get("type") or "")
+        if kind == "text":
+            parts.append(str(item.get("text") or ""))
+            return
+        if kind == "hardBreak":
+            parts.append("\n")
+            return
+        for child in item.get("content") or []:
+            walk(child)
+        if kind in {
+            "paragraph",
+            "heading",
+            "blockquote",
+            "listItem",
+            "bulletList",
+            "orderedList",
+            "codeBlock",
+            "rule",
+        }:
+            if parts and not parts[-1].endswith("\n"):
+                parts.append("\n")
+
+    walk(node)
+    text = "".join(parts)
+    text = re.sub(r"[ \t]+\n", "\n", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def extract_acceptance_criteria(description: str) -> str:
+    """Pull the Acceptance criteria section from a description, if present."""
+    raw = (description or "").replace("\r\n", "\n").strip()
+    if not raw:
+        return ""
+    match = _AC_HEADING.search(raw)
+    if not match:
+        return ""
+    rest = raw[match.end() :].lstrip("\n")
+    end = _SECTION_HEADING.search(rest)
+    body = rest[: end.start()] if end else rest
+    return body.strip()
+
+
+async def read_issue(issue_key: str) -> Dict[str, Any]:
+    """Read-only fetch of summary + description/AC for one issue. Never returns credentials."""
+    key = _issue_key(issue_key)
+    if not key:
+        return {"status": "error", "message": "issue key must look like KEY-123"}
+    creds = _list_creds()
+    if not creds["url"] or not creds["token"]:
+        return _unconfigured()
+    if not _url_ok(creds["url"]):
+        return {"status": "error", "message": "jira_url must start with https://"}
+    headers, auth = _auth(creds)
+    try:
+        async with _async_client() as client:
+            response = await client.get(
+                f"{creds['url']}/rest/api/3/issue/{key}",
+                params={"fields": "summary,status,issuetype,description"},
+                auth=auth,
+                headers=headers,
+            )
+        if response.status_code in (401, 403):
+            return {"status": "unauthorized", "message": "Jira rejected the credentials"}
+        if response.status_code == 404:
+            return {"status": "error", "message": f"issue {key} not found"}
+        if response.status_code >= 400:
+            return {"status": "error", "message": "jira_request_failed"}
+        payload = response.json()
+        fields = payload.get("fields") or {}
+        status = fields.get("status") or {}
+        kind = fields.get("issuetype") or {}
+        description = adf_to_text(fields.get("description"))
+        acceptance = extract_acceptance_criteria(description)
+        return {
+            "status": "ok",
+            "key": payload.get("key") or key,
+            "summary": str(fields.get("summary") or ""),
+            "issue_status": status.get("name", "") if isinstance(status, dict) else "",
+            "type": kind.get("name", "") if isinstance(kind, dict) else "",
+            "description": description,
+            "acceptance_criteria": acceptance,
+            "has_acceptance_criteria": bool(acceptance),
+        }
+    except (httpx.HTTPError, ValueError, TypeError):
         return {"status": "error", "message": "jira_request_failed"}
 
 
@@ -329,7 +455,7 @@ async def _post_issue(preview: Dict[str, str]) -> Dict[str, Any]:
         fields["labels"] = [str(item).strip() for item in labels if str(item or "").strip()]
     headers, auth = _auth(creds)
     try:
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with _async_client() as client:
             response = await client.post(
                 f"{creds['url']}/rest/api/3/issue",
                 json={"fields": fields},
@@ -852,7 +978,7 @@ async def _get_issue_type(key: str) -> Dict[str, Any]:
         return {"status": "error", "message": "jira_url must start with https://"}
     headers, auth = _auth(creds)
     try:
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with _async_client() as client:
             response = await client.get(
                 f"{creds['url']}/rest/api/3/issue/{key}",
                 params={"fields": "issuetype"},
@@ -879,7 +1005,7 @@ async def _put_parent(preview: Dict[str, str]) -> Dict[str, Any]:
         return {"status": "error", "message": "jira_url must start with https://"}
     headers, auth = _auth(creds)
     try:
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with _async_client() as client:
             response = await client.put(
                 f"{creds['url']}/rest/api/3/issue/{preview['issue_key']}",
                 json={"fields": {"parent": {"key": preview["epic_key"]}}},
@@ -967,7 +1093,7 @@ async def _load_transition(key: str) -> Dict[str, Any]:
         return {"status": "error", "message": "jira_url must start with https://"}
     headers, auth = _auth(creds)
     try:
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with _async_client() as client:
             issue = await client.get(
                 f"{creds['url']}/rest/api/3/issue/{key}",
                 params={"fields": "status"},
@@ -1003,7 +1129,7 @@ async def _post_transition(preview: Dict[str, str]) -> Dict[str, Any]:
         return {"status": "error", "message": "jira_url must start with https://"}
     headers, auth = _auth(creds)
     try:
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with _async_client() as client:
             listed = await client.get(
                 f"{creds['url']}/rest/api/3/issue/{preview['issue_key']}/transitions",
                 auth=auth,
@@ -1082,7 +1208,7 @@ async def _load_issue_labels(key: str) -> Dict[str, Any]:
         return {"status": "error", "message": "jira_url must start with https://"}
     headers, auth = _auth(creds)
     try:
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with _async_client() as client:
             response = await client.get(
                 f"{creds['url']}/rest/api/3/issue/{key}",
                 params={"fields": "labels,status,issuetype,summary"},
@@ -1282,7 +1408,7 @@ async def _post_comment(preview: Dict[str, str]) -> Dict[str, Any]:
         return {"status": "error", "message": "jira_url must start with https://"}
     headers, auth = _auth(creds)
     try:
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        async with _async_client() as client:
             response = await client.post(
                 f"{creds['url']}/rest/api/3/issue/{preview['issue_key']}/comment",
                 json={"body": _adf_comment(preview["body"])},
