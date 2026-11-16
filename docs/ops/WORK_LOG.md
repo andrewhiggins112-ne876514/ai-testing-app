@@ -7,17 +7,16 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | in progress |
-| **Jira story** | **KAN-103** — Desktop nav: dedicated area screens + agent-home widgets + App Settings split |
-| **Start task** | **KAN-104** — full Computer Use + pytest evidence to close KAN-103 |
-| **Epic** | KAN-27 (Desktop shell) |
-| **Roadmap ID** | UI-DESK-4 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-6/7, FR-UI-3 accent coupling, FR-SET-3 |
-| **Git** | `main` (desk22g nav overlap) |
-| **Test ticket** | **KAN-104** (`test`, Relates → KAN-103) |
-| **Shipped (desk22g)** | desk21b hub + **KAN-110** drawer/toggle/chat hit-target fix; Tasks **KAN-106/107/108/109/110/112** Done; Bugs **KAN-101/113** Done |
-| **Still open** | **KAN-104** full verify → then mark **KAN-103** Done. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
-| **Deferred** | **KAN-75** heal proposal review UI — after **KAN-103** closes |
+| **Status** | ready |
+| **Jira story** | **KAN-75** — Heal proposal review UI |
+| **Start task** | **KAN-76** (`test`, Relates → KAN-75) |
+| **Epic** | (self-heal / heal proposals) |
+| **Roadmap ID** | (FR-HEAL-2/5) |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-HEAL-2/5 |
+| **Git** | `main` |
+| **Test ticket** | **KAN-76** |
+| **Shipped** | **KAN-103** / **KAN-104** Done (desk22g nav shell verify) |
+| **Deferred** | — |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -38,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-104 — Full verify closes KAN-103 (UI-DESK-4)
+- **Agent/chat:** Cursor IDE Agent (Composer) — desktop shell verify
+- **Done:** KAN-104 Computer Use + pytest evidence. Native `desktop_app.py` desk22g: agent home chat+orb; App drawer → Settings dedicated surface (layout A–E, Jira URL, no orb sliders); Esc closes; App toggle seam-tab (KAN-101/110); Screen → Widget Settings → Security HUD Level OFFICIAL. Story **KAN-103** + test **KAN-104** → Done.
+- **Files:** WORK_LOG, PROJECT_MEMORY, ROADMAP, KAN102 plan (no product code this slice)
+- **Verify:** `pytest tests/test_nav_overlap.py tests/test_orb_hub.py tests/test_area_layout.py tests/test_hud_widgets.py -v` (15 passed). Computer Use on `desktop_app.py`.
+- **Jira:** story agent-completion + **KAN-104** evidence/Done; **KAN-103** Done (yes)
+- **Next:** **KAN-75** heal proposal review UI
 
 ### 2026-11-16 — KAN-110 — App drawer / chat nav hit overlap (desk22g)
 - **Agent/chat:** Cursor IDE Agent (Composer) — desktop shell

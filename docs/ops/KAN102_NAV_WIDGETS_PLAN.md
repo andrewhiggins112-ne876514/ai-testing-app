@@ -1,6 +1,6 @@
 # KAN-102 CR — Desktop nav, agent widgets, App vs Orb settings
 
-**Status:** Product model locked (2026-11-15). **Navigation chrome locked 2026-11-16 as configurable A–E** (not a single mockup): `overlay`, `stage`, `orb_hub`, `split`, `floating` in App Settings (`desktop-area-layout-v1`). Area chrome uses the active orb-style accent (FR-UI-3). **Active slice = KAN-103** (KAN-75 deferred). **KAN-107 HUD + KAN-109 hub + KAN-110 overlap fix shipped (desk22g).** Open: KAN-104 full verify.
+**Status:** **Shipped + verified 2026-11-16.** Product model locked (2026-11-15). Navigation chrome = configurable A–E in App Settings (`desktop-area-layout-v1`). Area chrome uses orb-style accent (FR-UI-3). **KAN-103 / KAN-104 Done** (desk22g). Tasks KAN-106–110/112 Done. **Next Active: KAN-75.**
 
 **Canonical spec:** `docs/FUNCTIONAL_SPEC.md` — FR-UI-1/3/6/7, FR-SET-3.
 
@@ -45,9 +45,7 @@ flowchart TB
 
 **Layout modes (all shipped as a setting):** overlay (A), stage (B), orb hub particle spokes then overlay (C), split dock (D), one floating window (E). Accents follow mystic / aether / neural / apex.
 
-**Still open:** full test evidence (KAN-104). KAN-110 / KAN-101 / KAN-113 Done (desk22g).
-
-**Shipped desk21b (2026-11-16):** Tasks **KAN-106/108/112/107/109** Done (area surfaces, App vs Orb, layout A–E, HUD mini panels, particle hub); Bug **KAN-102** fixed. Story **KAN-103** remains **In Progress**.
+**Verified desk22g (2026-11-16):** KAN-104 Computer Use + pytest (15) closed Story **KAN-103**. KAN-110 / KAN-101 / KAN-113 Done. Tasks **KAN-106/108/112/107/109/110** Done; Bug **KAN-102** fixed.
 
 ---
 
@@ -109,5 +107,5 @@ flowchart TB
 
 ## PM notes
 
-- **Active slice:** **KAN-103** (WORK_LOG) — start **KAN-104** full verify; **KAN-75** deferred. Mockups: `docs/mockups/kan103_nav/README.md`.
-- KAN-73 **Done** delivered Settings **behaviour**; this Story delivers correct **navigation shell** per CR.
+- **Active slice:** **KAN-75** (WORK_LOG). KAN-103/104 Done. Mockups: `docs/mockups/kan103_nav/README.md`.
+- KAN-73 **Done** delivered Settings **behaviour**; KAN-103 delivered correct **navigation shell** per CR.

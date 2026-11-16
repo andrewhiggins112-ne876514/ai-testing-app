@@ -17,7 +17,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | UI-DESK-1 | First native desktop window (pywebview mystic shell) | done | `desktop_app.py` + `ui/desktop/`; Gradio kept |
 | UI-DESK-2 | Desktop dual drawers + full-void orb canvas | done | App/screen drawers; no top nav; soft cyan glass |
 | UI-DESK-3 | Edge-snap drawer buttons + movable widgets | done | Shared shell surfaces; Widget Settings (opacity/border/bg) |
-| UI-DESK-4 | Dedicated App area screens + agent HUD widgets | now | **Active: KAN-103** — desk22g: overlap fix shipped (KAN-110); open KAN-104 full verify then Done |
+| UI-DESK-4 | Dedicated App area screens + agent HUD widgets | done | **KAN-103/104 Done** (desk22g) — area layouts A–E, HUD widgets, hub, overlap fix verified |
 
 ## Near term
 
@@ -70,8 +70,8 @@ Open FR Stories: KAN-75…KAN-81 (first seed remainder), plus gap pass KAN-83…
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-103** — Desktop nav area screens + HUD widgets (FR-UI-6/7, FR-SET-3; test KAN-104). Layout modes `overlay` / `stage` / `orb_hub` / `split` / `floating` are an App Settings choice (not one mockup). Accents follow the orb style. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md`.
+**KAN-75** — Heal proposal review UI (FR-HEAL-2/5; test KAN-76).
 
-**Deferred:** **KAN-75** — Heal proposal review UI (FR-HEAL-2/5; test KAN-76) until KAN-103 nav shell lands.
+**Done this cycle:** **KAN-103/104** — Desktop nav area screens + HUD widgets (UI-DESK-4).
 
 Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.
