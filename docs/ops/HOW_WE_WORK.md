@@ -7,14 +7,14 @@
 | Lane | Open | Say | Does |
 |------|------|-----|------|
 | **Build** | Fresh default Agent chat | **“pick up where we left off”** | Coding slices — unchanged (pull, Active story, implement, verify, Jira close-out, push) |
-| **Council Room** | Fresh Agent chat → select **`council`** | “review…”, “creative idea…”, “open the room…” | Multi-persona review/creative debate; may update docs/Jira/rules after you agree — **no product feature coding** |
+| **Council Room** | Fresh Agent chat → **`/council`** + your ask | “review…”, “creative idea…”, “open the room…” | Multi-persona review/creative debate; may update docs/Jira/rules after you agree — **no product feature coding** |
 
 Full council guide: `docs/ops/ADVISORY_COUNCIL.md`. Roster: `docs/ops/TEAM.md`.
 
 ## Your job (human)
 
 1. **Build:** fresh Agent chat → **“pick up where we left off”** (or `python scripts/next_prompt.py`).  
-2. **Review / creative / path change:** fresh Agent chat → agent **`council`**.  
+2. **Review / creative / path change:** fresh Agent chat → type **`/council`** then your ask.  
 3. Confirm when asked (credentials, Jira writes, deletes, security, browser logins).  
 4. You do **not** need to run git. Build chats **pull `main`** at pick-up and **commit + push** when a slice finishes. Optionally run **`desktop_app.py`** to look; agents verify that native window (Computer Use).  
 5. Do **not** paste coding prompts into browser Grok / AFK Pilot.  
@@ -74,4 +74,4 @@ See `docs/ops/CONNECTORS.md`. Customize/MCP is in the **Agents** window, not the
 ## Continue next time
 
 - **Build:** “pick up where we left off” → read WORK_LOG Active slice → implement that KAN story. Or: `python scripts/next_prompt.py`.  
-- **Council:** open agent **`council`** → review or creative room (`docs/ops/ADVISORY_COUNCIL.md`).
+- **Council:** **`/council`** → review or creative room (`docs/ops/ADVISORY_COUNCIL.md`).

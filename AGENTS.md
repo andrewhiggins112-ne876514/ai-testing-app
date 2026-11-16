@@ -26,7 +26,7 @@
 ## Cursor workflow (two lanes; replaces Grok browser + AFK Pilot)
 - Primary home is **Cursor IDE**.
 - **Build lane (unchanged):** fresh default Agent chat → **“pick up where we left off”** (reads `docs/ops/WORK_LOG.md` Active slice) → implement that story.
-- **Council Room (review / creative):** fresh Agent chat → select **`council`**. Multi-persona debate; may update docs/Jira/`AGENTS.md`/rules after human agree. **No product feature coding.** Guide: `docs/ops/ADVISORY_COUNCIL.md`. Skill: `advisory-council`. Do **not** treat pick-up as a coding handoff inside the council chat.
+- **Council Room (review / creative):** fresh Agent chat → type **`/council`** (slash menu; not a mode dropdown item). Multi-persona debate; may update docs/Jira/`AGENTS.md`/rules after human agree. **No product feature coding.** Guide: `docs/ops/ADVISORY_COUNCIL.md`. Skill: `advisory-council`. Do **not** treat pick-up as a coding handoff inside the council chat.
 - **Product UI = desktop app** (`desktop_app.py`). Run and test it as a native window (Computer Use). Do not fall back to browser tabs of the shell or Gradio unless the slice says so.
 - Do not ask the human to paste coding prompts into browser Grok / AFK Pilot / other tools.
 - Ops docs: `docs/ops/HOW_WE_WORK.md`, `docs/ops/TEAM.md`, `docs/ops/ROADMAP.md`, `docs/ops/ADVISORY_COUNCIL.md`.

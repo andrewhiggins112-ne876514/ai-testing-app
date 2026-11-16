@@ -23,7 +23,9 @@ You talk to the **PM** in this lane. Coding agents are workers the PM invokes �
 
 ## Lane B — Advisory Council Room (review & creative)
 
-Open a **fresh Agent chat** and select custom agent **`council`**.
+Open a **fresh Agent chat**, type **`/council`**, then your review or creative ask.
+(No separate Council button — Cursor exposes `.cursor/agents` via the **`/`** menu.)
+
 Use for project review, creative pivots, multi-persona debate, and (after you agree) updates to docs, Jira, `AGENTS.md`, rules, and skills.
 
 **Does not** replace pick-up. **Does not** implement product features.
@@ -32,7 +34,7 @@ Guide: `docs/ops/ADVISORY_COUNCIL.md` · Skill: `advisory-council`
 
 | Agent | File | Model | When |
 |-------|------|--------|------|
-| council (Facilitator) | `council.md` | Grok 4.7 | **Open this chat for the room** |
+| council (Facilitator) | `council.md` | Grok 4.7 | **`/council` to open the room** |
 | council-creative-architect | `council-creative-architect.md` | Grok 4.5 | Vibes / path deviations |
 | council-delivery-auditor | `council-delivery-auditor.md` | Grok 4.5 | Jira↔repo / FR gaps |
 | council-quality-auditor | `council-quality-auditor.md` | Grok 4.5 | Coverage / heal / regression |

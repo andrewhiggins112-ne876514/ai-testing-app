@@ -10,7 +10,7 @@ It does **not** replace the normal build workflow.
 | Chat | How you open it | What you say | What it does |
 |------|-----------------|--------------|--------------|
 | **Build (normal)** | Fresh IDE Agent chat (default / PM) | **“pick up where we left off”** | Unchanged: pull `main`, read WORK_LOG Active slice, implement that KAN story, verify, Jira close-out, commit/push |
-| **Council Room** | Fresh IDE Agent chat → select agent **`council`** | “review the project”, “I have a creative idea…”, “open the room on …” | Debate, gap analysis, CR shaping, docs/Jira/rules proposals — **no product feature coding** |
+| **Council Room** | Fresh IDE Agent chat → type **`/council`** (slash menu) then your ask | “review the project”, “I have a creative idea…”, “open the room on …” | Debate, gap analysis, CR shaping, docs/Jira/rules proposals — **no product feature coding** |
 
 You can keep both chats. Build chat ignores council drama unless you (or council, after you agree) land decisions into docs/rules/Jira that the next pick-up will read.
 
@@ -105,14 +105,23 @@ Order: update `docs/FUNCTIONAL_SPEC.md` (if product intent changed) → KAN epic
 
 ## How to start the room
 
-1. Open a **new** Cursor Agent chat.
-2. Choose the custom agent **`council`** (Council Facilitator).
-3. Say what you want, e.g.:
-   - “Review the project against Jira and the FR matrix.”
-   - “Creative idea: …”
-   - “Full room — should we add voice before more Jira polish?”
+There is **no “Council” button** in the Agents window. Custom agents are **slash subagents**, not a mode in the Agent/Ask/Plan dropdown.
 
-Build chat stays: new Agent chat → **“pick up where we left off”** → same as always.
+1. Open a **new** Cursor Agent chat (IDE **Ctrl+I**, or Agents window → **New Chat**).
+2. Leave mode on **Agent**.
+3. In the input, type **`/council`** and pick **council** from the slash menu (or type it fully).
+4. On the same line (or next), say what you want, e.g.:
+   - `/council Review the project against Jira and the FR matrix.`
+   - `/council Creative idea: …`
+   - `/council Full room — should we add voice before more Jira polish?`
+5. Press Enter. The parent chat stays the coordinator; **council** runs as the room facilitator and may call other `council-*` seats.
+
+**Also works:** plain English — “Use the council subagent and review …”  
+**Optional skill:** `/advisory-council` then your ask (same playbook).
+
+If `/council` does not appear: confirm `.cursor/agents/council.md` exists on `main`, then reload the window (**Ctrl+Shift+P** → “Developer: Reload Window”).
+
+Build chat stays: new Agent chat → **“pick up where we left off”** (no `/council`) → same as always.
 
 ## Files
 
