@@ -170,7 +170,7 @@ class ReadIssueUxTests(unittest.TestCase):
         self.assertIn('id="jira-read-key"', html)
         self.assertIn('id="jira-read-btn"', html)
         self.assertIn("/api/jira-issue/", js)
-        self.assertIn("desk29", html)
+        self.assertIn("desk31", html)
 
 
 if __name__ == "__main__":

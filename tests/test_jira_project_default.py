@@ -152,8 +152,8 @@ class JiraProjectDefaultTests(unittest.TestCase):
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         self.assertIn('id="set-jira-project"', html)
         self.assertIn("jira_project", js)
-        self.assertIn("desk29", html)
-        self.assertIn("desk29", desk)
+        self.assertIn("desk31", html)
+        self.assertIn("desk31", desk)
 
 
 if __name__ == "__main__":

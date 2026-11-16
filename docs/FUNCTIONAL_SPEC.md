@@ -188,7 +188,7 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 
 | FR | Implementation status | Primary ticket(s) |
 |----|----------------------|-------------------|
-| FR-AGENT-1…5 | Shipped (chat/sessions/clarify/confirm/errors baseline) | **Done** KAN-8; busy UX remainder **KAN-97** |
+| FR-AGENT-1…5 | Shipped (chat/sessions/clarify/confirm/errors + busy/long-run UX) | **Done** KAN-8; **Done** **KAN-97** |
 | FR-AGENT-6 | Shipped (JSON-in-text fallback + grounded replies) | **Done** **KAN-61** |
 | FR-LEARN-1, FR-LEARN-5, FR-SET-2 | Shipped (ingest propose+confirm) | **Done** KAN-45 |
 | FR-LEARN-2, FR-LEARN-3 | Shipped (Settings + API + agent; level-scoped) | **Done** **KAN-77** |

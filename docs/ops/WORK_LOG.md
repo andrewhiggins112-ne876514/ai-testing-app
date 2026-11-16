@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-97** — Busy and long-run UX while agent or tests execute |
-| **Start task** | **KAN-98** (`test`, Relates → KAN-97) |
-| **Epic** | (AGENT) |
-| **Roadmap ID** | FR-AGENT-5 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-AGENT-5 / NFR §4.6 |
+| **Jira story** | **KAN-99** — Audit log for Jira write operations |
+| **Start task** | **KAN-100** (`test`, Relates → KAN-99) |
+| **Epic** | (JIRA) |
+| **Roadmap ID** | FR-JIRA-5 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-JIRA-5 / NFR §4.3 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-98** |
-| **Shipped** | **KAN-95** / **KAN-96** multi-sandbox real orchestration; **KAN-93** / **KAN-94** jira_project default; **KAN-91** / **KAN-92** Jira 429 backoff; **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
+| **Test ticket** | **KAN-100** |
+| **Shipped** | **KAN-97** / **KAN-98** busy/long-run UX; **KAN-95** / **KAN-96** multi-sandbox; **KAN-93** / **KAN-94** jira_project default; **KAN-91** / **KAN-92** Jira 429 backoff; **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic connected |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-97 — Busy and long-run UX while agent or tests execute (FR-AGENT-5 / NFR §4.6)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-97
+- **Done:** Desktop chat shows busy bar (label + elapsed + Cancel) during `/chat`, orb thinking mode, send disabled without locking drawers. AbortController cancel. Agent/HTTP failures render as error messages (`ok:false` from `/chat`). Gradio `respond` surfaces failures clearly. Cache bust desk31.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `main.py`, `ui/gradio_app.py`, `tests/test_busy_ux.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_busy_ux.py tests/test_jira_project_default.py tests/test_jira_read_ux.py tests/test_sessions.py -v` (20 passed). Live `http://127.0.0.1:8765` desk31 HTML/JS has `chat-busy` / Cancel / `setChatBusy`. Desktop window opened (`desktop_app.py` desk31).
+- **Jira:** story agent-completion + **KAN-98** evidence/Done; **KAN-97** Done
+- **Next:** **KAN-99** Jira write audit (test KAN-100)
 
 ### 2026-11-16 — KAN-95 — Multi-sandbox real orchestration beyond stub (FR-PLUG-1)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-95

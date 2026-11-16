@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk29" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk31" />
 </head>
 <body>
   <div id="app">
@@ -29,12 +29,18 @@
     <p class="app-title">AI Testing Agent</p>
 
     <section id="chat-panel" class="shell-surface chat-panel movable-widget" data-widget="chat-panel" aria-label="Chat" title="Drag to move · resize from edges">
+      <div id="chat-busy" class="chat-busy" hidden data-busy="false" aria-live="polite">
+        <span class="chat-busy-dot" aria-hidden="true"></span>
+        <span id="chat-busy-label">Working…</span>
+        <span id="chat-busy-elapsed" class="chat-busy-elapsed"></span>
+        <button type="button" id="chat-cancel" class="chat-cancel-btn">Cancel</button>
+      </div>
       <div id="chat-log" class="chat-log"></div>
     </section>
 
     <form id="chat-form" class="shell-surface chat-bar" autocomplete="off">
       <input id="chat-input" type="text" placeholder="Talk to the agent…" aria-label="Message" />
-      <button type="submit" class="send-btn" aria-label="Send">↑</button>
+      <button type="submit" id="chat-send" class="send-btn" aria-label="Send">↑</button>
     </form>
 
     <button id="orb-hub-hit" class="orb-hub-hit" type="button" hidden aria-label="Open area hub" aria-expanded="false" aria-controls="orb-hub"></button>
@@ -383,6 +389,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk29"></script>
+  <script src="/ui/desktop/desktop.js?v=desk31"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-16 (KAN-95 multi-sandbox real orchestration Done; Active → KAN-97)
+Last updated: 2026-11-16 (KAN-97 busy/long-run UX Done; Active → KAN-99)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -83,7 +83,8 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-89** Read story/AC UX — **Done** (KAN-90; desk28 `read_issue` tool + `/api/jira-issue` + App Settings Read story)
 - **KAN-91** Jira 429 backoff / auth errors — **Done** (KAN-92; `_request` Retry-After + readable messages)
 - **KAN-93** jira_project default — **Done** (KAN-94; desk29 Settings field + `list_stories` default)
-- Next Active: **KAN-97** busy/long-run UX (test KAN-98); then KAN-99 Jira write audit; **KAN-81** voice last
+- **KAN-97** Busy/long-run UX — **Done** (KAN-98; desk31 chat busy bar + Cancel + `/chat` `ok` flag; Gradio error surfacing)
+- Next Active: **KAN-99** Jira write audit (test KAN-100); **KAN-81** voice last
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -106,5 +107,5 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-97** — Busy and long-run UX while agent or tests execute (FR-AGENT-5; test KAN-98).
+1. **KAN-99** — Audit log for Jira write operations (FR-JIRA-5; test KAN-100).
 2. Continue open FR Stories in WORK_LOG / FUNCTIONAL_SPEC §5 order; **KAN-81** voice last (needs mic).

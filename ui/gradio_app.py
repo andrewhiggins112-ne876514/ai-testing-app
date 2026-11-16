@@ -1822,13 +1822,22 @@ def new_session_id():
 def respond(message, history, session_id):
     if not session_id:
         session_id = new_session_id()
-    response = httpx.post(
-        CHAT_URL,
-        json={"message": message, "session_id": session_id},
-        timeout=180.0,
-    )
-    response.raise_for_status()
-    return response.json().get("reply") or "No response."
+    try:
+        response = httpx.post(
+            CHAT_URL,
+            json={"message": message, "session_id": session_id},
+            timeout=180.0,
+        )
+    except httpx.HTTPError:
+        return "Could not reach the local agent. Is the FastAPI server running on port 8000?"
+    try:
+        payload = response.json()
+    except ValueError:
+        return f"Agent returned a non-JSON response (HTTP {response.status_code})."
+    reply = (payload.get("reply") if isinstance(payload, dict) else None) or ""
+    if response.is_error or (isinstance(payload, dict) and payload.get("ok") is False):
+        return reply or payload.get("error") or f"Agent error (HTTP {response.status_code})."
+    return reply or "No response."
 
 
 class LocalApp(gr.Blocks):

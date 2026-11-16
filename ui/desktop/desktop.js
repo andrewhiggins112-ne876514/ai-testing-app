@@ -72,6 +72,15 @@
   const chatLog = document.getElementById("chat-log");
   const chatForm = document.getElementById("chat-form");
   const chatInput = document.getElementById("chat-input");
+  const chatSend = document.getElementById("chat-send");
+  const chatBusy = document.getElementById("chat-busy");
+  const chatBusyLabel = document.getElementById("chat-busy-label");
+  const chatBusyElapsed = document.getElementById("chat-busy-elapsed");
+  const chatCancel = document.getElementById("chat-cancel");
+  let chatBusyTimer = null;
+  let chatBusyStartedAt = 0;
+  let chatAbort = null;
+  let chatInFlight = false;
   const screenDrawer = document.getElementById("screen-drawer");
   const screenToggle = document.getElementById("screen-drawer-toggle");
   const appDrawer = document.getElementById("app-drawer");
@@ -268,39 +277,131 @@
     }
   });
 
-  function appendMsg(who, text) {
+  function appendMsg(who, text, opts) {
     const row = document.createElement("div");
-    row.className = "msg " + who;
+    const kind = (opts && opts.kind) || who;
+    row.className = "msg " + kind;
     const label = document.createElement("span");
     label.className = "who";
-    label.textContent = who === "user" ? "You" : "Agent";
+    label.textContent =
+      kind === "user" ? "You" : kind === "error" ? "Error" : "Agent";
     const body = document.createElement("div");
     body.textContent = text;
     row.appendChild(label);
     row.appendChild(body);
     chatLog.appendChild(row);
     chatLog.scrollTop = chatLog.scrollHeight;
+    return row;
+  }
+
+  function busyLabelForElapsed(seconds) {
+    if (seconds >= 60) return "Long run still going — drawers stay usable";
+    if (seconds >= 15) return "Long run in progress…";
+    if (seconds >= 5) return "Still working…";
+    return "Working…";
+  }
+
+  function formatElapsed(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m > 0 ? m + "m " + String(s).padStart(2, "0") + "s" : s + "s";
+  }
+
+  function setChatBusy(on) {
+    chatInFlight = !!on;
+    if (chatBusy) {
+      chatBusy.hidden = !on;
+      chatBusy.dataset.busy = on ? "true" : "false";
+    }
+    if (chatForm) chatForm.classList.toggle("is-busy", !!on);
+    if (chatSend) chatSend.disabled = !!on;
+    if (chatInput) chatInput.disabled = !!on;
+    if (chatBusyTimer) {
+      clearInterval(chatBusyTimer);
+      chatBusyTimer = null;
+    }
+    if (!on) {
+      if (chatBusyLabel) chatBusyLabel.textContent = "Working…";
+      if (chatBusyElapsed) chatBusyElapsed.textContent = "";
+      window.__energyOrbMode = "calm";
+      return;
+    }
+    chatBusyStartedAt = Date.now();
+    window.__energyOrbMode = "thinking";
+    const tick = function () {
+      const seconds = Math.max(0, Math.floor((Date.now() - chatBusyStartedAt) / 1000));
+      if (chatBusyLabel) chatBusyLabel.textContent = busyLabelForElapsed(seconds);
+      if (chatBusyElapsed) chatBusyElapsed.textContent = formatElapsed(seconds);
+    };
+    tick();
+    chatBusyTimer = setInterval(tick, 1000);
+  }
+
+  function cancelChatRequest() {
+    if (!chatInFlight || !chatAbort) return;
+    chatAbort.abort();
+  }
+
+  if (chatCancel) {
+    chatCancel.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      cancelChatRequest();
+    });
   }
 
   chatForm.addEventListener("submit", async function (ev) {
     ev.preventDefault();
+    if (chatInFlight) return;
     const message = (chatInput.value || "").trim();
     if (!message) return;
     chatInput.value = "";
     appendMsg("user", message);
-    window.__energyOrbMode = "thinking";
+    chatAbort = typeof AbortController !== "undefined" ? new AbortController() : null;
+    setChatBusy(true);
     try {
       const res = await fetch("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: message, session_id: "desktop" }),
+        signal: chatAbort ? chatAbort.signal : undefined,
       });
-      const data = await res.json();
-      appendMsg("agent", data.reply || "(no reply)");
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (_parseErr) {
+        data = null;
+      }
+      if (!res.ok) {
+        const detail =
+          (data && (data.reply || data.error || data.detail)) ||
+          ("HTTP " + res.status + " from /chat");
+        appendMsg("agent", String(detail), { kind: "error" });
+        return;
+      }
+      const reply = (data && data.reply) || "";
+      const failed = data && data.ok === false;
+      if (failed || !reply) {
+        appendMsg(
+          "agent",
+          reply || (data && data.error) || "Agent returned no reply.",
+          { kind: "error" }
+        );
+        return;
+      }
+      appendMsg("agent", reply);
     } catch (err) {
-      appendMsg("agent", "Could not reach the local agent. Is the server running?");
+      if (err && err.name === "AbortError") {
+        appendMsg("agent", "Cancelled — stopped waiting for the agent reply.");
+      } else {
+        appendMsg(
+          "agent",
+          "Could not reach the local agent. Is the server running?",
+          { kind: "error" }
+        );
+      }
     } finally {
-      window.__energyOrbMode = "calm";
+      chatAbort = null;
+      setChatBusy(false);
     }
   });
 

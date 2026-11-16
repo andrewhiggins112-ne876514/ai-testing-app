@@ -190,11 +190,28 @@ def _orb_from_settings() -> dict:
 
 @app.post("/chat")
 async def chat(req: ChatRequest):
+    """Chat entrypoint — always returns a reply string; ok=false on agent/tool failure (KAN-97)."""
     try:
         reply = await agent.chat(req.message, req.session_id)
     except httpx.HTTPError:
-        reply = "Ollama is not reachable. Start Ollama and check that the model is pulled."
-    return {"reply": reply}
+        return {
+            "ok": False,
+            "error": "ollama_unreachable",
+            "reply": "Ollama is not reachable. Start Ollama and check that the model is pulled.",
+        }
+    except Exception as exc:  # noqa: BLE001 — surface agent failures clearly (NFR §4.6 / FR-AGENT-5)
+        name = type(exc).__name__
+        detail = str(exc).strip() or name
+        # Never echo credentials if an unexpected exception string ever contained them.
+        lowered = detail.lower()
+        if "token" in lowered or "password" in lowered or "authorization" in lowered:
+            detail = name
+        return {
+            "ok": False,
+            "error": "agent_error",
+            "reply": f"Agent error ({name}): {detail}",
+        }
+    return {"ok": True, "reply": reply}
 
 @app.get("/health")
 async def health():
