@@ -7,13 +7,13 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | blocked on design |
+| **Status** | in progress |
 | **Jira story** | **KAN-103** — Desktop nav: dedicated area screens + agent-home widgets + App Settings split |
 | **Epic** | KAN-27 (Desktop shell) |
 | **Roadmap ID** | UI-DESK-4 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-6/7, FR-SET-3 |
-| **Next action** | User picks mockup **A / B / C** from `docs/mockups/kan103_nav/grok/` (nine labeled frames); then implement **Task KAN-106**. No `ui/desktop` until the pick. |
-| **Deferred** | **KAN-75** heal proposal review UI — after KAN-103 nav shell to stop drawer-inline defects (KAN-101 class). Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-6/7, FR-UI-3 accent coupling, FR-SET-3 |
+| **Next action** | Layout modes A–E are in App Settings. Remaining: richer HUD widgets, hub particle polish, Computer Use pass if the window was not exercised. **KAN-75** stays deferred. |
+| **Deferred** | **KAN-75** heal proposal review UI — after KAN-103 nav shell. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
 
@@ -34,6 +34,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-103 — Configurable area layouts A–E + style accents
+- **Agent/chat:** Designer + Implementer (Grok) — desktop shell
+- **Done:** CR locked all mockups as settings, not one pick. Added split (D) and floating (E) frames, including aether settings variants. App Settings **App area layout** persists `desktop-area-layout-v1` (`overlay`, `stage`, `orb_hub`, `split`, `floating`). App drawer opens `#area-surface` instead of inline sections. Esc/Back closes. Orb-hub mode uses radial spokes then overlay. Screen drawer HUD toggles stub (Security / Reports chips). Area chrome uses the active orb accent variables. Story left open for hub polish and fuller HUD.
+- **Files:** `ui/desktop/index.html`, `desktop.js`, `desktop.css`, `desktop_app.py`, `settings/area_layout.py`, `tests/test_area_layout.py`, `docs/mockups/kan103_nav/option_d_*.png`, `option_e_*.png`, README, FUNCTIONAL_SPEC, PROJECT_MEMORY, ROADMAP, KAN102 plan, WORK_LOG
+- **Verify:** `.\venv\Scripts\python.exe -m pytest tests/test_area_layout.py -v`. Desktop: App → Settings → App area layout; Screen → Orb style mystic vs aether recolors the open surface.
+- **Jira:** comments + description note on KAN-103, KAN-102, KAN-106–109; new Task **KAN-112** (story not marked Done)
+- **Next:** Hub particle polish and richer HUD widgets on KAN-103; **KAN-75** stays deferred
 
 ### 2026-11-16 — OPS — KAN-103 nine labeled mockups in grok/ (design gate)
 - **Agent/chat:** ui-orb (Grok) — images and README only; no `ui/desktop/` code

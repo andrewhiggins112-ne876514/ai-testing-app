@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk11" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk19" />
 </head>
 <body>
   <div id="app">
@@ -37,6 +37,31 @@
       <button type="submit" class="send-btn" aria-label="Send">↑</button>
     </form>
 
+    <button id="orb-hub-hit" class="orb-hub-hit" type="button" hidden aria-label="Open area hub"></button>
+    <div id="orb-hub" class="orb-hub" hidden>
+      <button type="button" class="hub-spoke shell-surface" data-section="settings" style="--spoke:0">Settings</button>
+      <button type="button" class="hub-spoke shell-surface" data-section="security" style="--spoke:1">Security</button>
+      <button type="button" class="hub-spoke shell-surface" data-section="reports" style="--spoke:2">Reports</button>
+      <button type="button" class="hub-spoke shell-surface" data-section="documents" style="--spoke:3">Documents</button>
+      <button type="button" class="hub-spoke shell-surface" data-section="desktop" style="--spoke:4">Desktop</button>
+      <button type="button" class="hub-spoke shell-surface" data-section="suites" style="--spoke:5">Suites</button>
+      <button type="button" class="hub-spoke shell-surface" data-section="sandboxes" style="--spoke:6">Sandboxes</button>
+    </div>
+
+    <div id="hud-security-chip" class="shell-surface hud-chip" hidden>Security</div>
+    <div id="hud-reports-chip" class="shell-surface hud-chip hud-chip-reports" hidden>Reports</div>
+
+    <div id="area-layer" class="area-layer" hidden>
+      <div id="area-scrim" class="area-scrim"></div>
+      <section id="area-surface" class="shell-surface area-surface" role="region" aria-label="App area">
+        <header class="area-surface-bar">
+          <button type="button" id="area-back" class="save-btn secondary">Back</button>
+          <h2 id="area-title" class="area-title">Settings</h2>
+        </header>
+        <div id="area-body" class="area-body"></div>
+      </section>
+    </div>
+
     <button id="app-drawer-toggle" class="icon-btn drawer-toggle app-drawer-toggle" type="button"
       data-edge-snap="1" data-default-edge="left"
       aria-label="Open app menu" aria-expanded="false" aria-controls="app-drawer" title="App (drag to edge)">▦</button>
@@ -52,9 +77,19 @@
           <button type="button" class="app-nav-item" data-section="suites" aria-pressed="false">Suites</button>
           <button type="button" class="app-nav-item" data-section="sandboxes" aria-pressed="false">Sandboxes</button>
         </nav>
+        <div id="area-section-host">
         <div id="app-section-settings" class="app-section" hidden>
           <h3 class="orb-section-label">App settings</h3>
-          <p class="drawer-hint">Chat stays primary. Edit Jira base URL here; credentials stay in the local store and are never shown.</p>
+          <p class="drawer-hint">Chat stays primary. Edit Jira base URL here; credentials stay in the local store and are never shown. Orb colours stay in the Screen drawer.</p>
+          <fieldset class="layout-picker" id="area-layout-picker">
+            <legend class="orb-section-label">App area layout</legend>
+            <p class="drawer-hint">How App areas open. Borders, labels, and glow use the active orb style accent.</p>
+            <label class="layout-choice"><input type="radio" name="area-layout" value="overlay" /> <span><strong>Overlay</strong> — full-bleed glass over a dimmed home</span></label>
+            <label class="layout-choice"><input type="radio" name="area-layout" value="stage" /> <span><strong>Stage</strong> — area stage, orb shrinks to a pip</span></label>
+            <label class="layout-choice"><input type="radio" name="area-layout" value="orb_hub" /> <span><strong>Orb hub</strong> — click the orb for spokes, then open the area</span></label>
+            <label class="layout-choice"><input type="radio" name="area-layout" value="split" /> <span><strong>Split</strong> — docked panel beside the orb; Esc closes it</span></label>
+            <label class="layout-choice"><input type="radio" name="area-layout" value="floating" /> <span><strong>Floating</strong> — movable area window; orb stays full size</span></label>
+          </fieldset>
           <label class="stack-label">Jira base URL
             <input type="url" id="set-jira-url" placeholder="https://your-site.atlassian.net" autocomplete="off" />
           </label>
@@ -172,7 +207,8 @@
           </div>
           <p id="ms-status" class="drawer-hint" role="status">Ready</p>
         </div>
-        <p class="drawer-hint" id="app-drawer-hint">Choose Settings, Security, Reports, Documents, Desktop, Suites, or Sandboxes.</p>
+        </div>
+        <p class="drawer-hint" id="app-drawer-hint">Choose an area. It opens in the layout set under App Settings.</p>
       </div>
     </aside>
 
@@ -212,6 +248,10 @@
           </label>
           <label>Border <input id="ctrl-widget-border" type="color" value="#50cdff" /></label>
           <label>Background <input id="ctrl-widget-bg" type="color" value="#000000" /></label>
+          <h3 class="orb-section-label">HUD widgets</h3>
+          <p class="drawer-hint">Home chips only. They are not App area content.</p>
+          <label class="check-row"><input type="checkbox" id="hud-security-toggle" /> Security status</label>
+          <label class="check-row"><input type="checkbox" id="hud-reports-toggle" /> Reports mini</label>
         </div>
       </div>
     </aside>
@@ -219,6 +259,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk18"></script>
+  <script src="/ui/desktop/desktop.js?v=desk19"></script>
 </body>
 </html>

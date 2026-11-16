@@ -101,11 +101,17 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 ### 3.8 UI and Desktop Experience
 - **FR-UI-1:** Conversational interface is primary on the **agent home screen** (chat + central orb). App drawer and screen drawer are secondary shells for navigation and layout — not replacements for the home canvas.
 - **FR-UI-2:** Native Windows desktop window (pywebview + Edge WebView2) is the preferred experience. Gradio remains available.
-- **FR-UI-3:** Visual orb styles (Mystic, Aether, Neural, Apex and classic canvas styles) with per-style settings, live controls, and theme accent that follows the active style. **Orb settings** (style, size, spin, glow, colours) live in the **Screen drawer** only — not under App → Settings.
+- **FR-UI-3:** Visual orb styles (Mystic, Aether, Neural, Apex and classic canvas styles) with per-style settings, live controls, and theme accent that follows the active style. **Orb settings** (style, size, spin, glow, colours) live in the **Screen drawer** only — not under App → Settings. The active style accent (CSS variables such as `--cyan`, border, glow, and muted text) also paints App nav, area surfaces (overlay, stage, split, floating), HUD chips, hub spokes, and the App Settings layout picker — not only the orb canvas. *(CR 2026-11-16 — layout modes × style theme.)*
 - **FR-UI-4:** Movable / resizable panels and widgets (UI-6). Layout persists in localStorage.
 - **FR-UI-5:** Widget settings (transparency, border, background) apply live to shell surfaces.
 - **FR-UI-6:** **Agent-home HUD widgets** — optional toggleable widgets on the agent home screen (status chips, mini panels, etc. as shown in mystic/neural mockup side layers). Visibility and layout controls sit alongside existing Screen drawer toggles (chat output widget, orb visibility, widget chrome) — not as App → Settings list content.
-- **FR-UI-7:** **Dedicated area screens** — each App-nav area (Settings, Security, Reports, Documents, Desktop, Suites, Sandboxes, and future areas) opens its own **dedicated full-window surface** (or equivalent dedicated route/overlay). The App drawer provides navigation only; it must **not** expand inline `app-section-*` blocks as the primary UX for those areas. *(Product decision 2026-11-15 — KAN-102 CR.)*
+- **FR-UI-7:** **Dedicated area screens** — each App-nav area (Settings, Security, Reports, Documents, Desktop, Suites, Sandboxes, and future areas) opens its own **dedicated surface**. The App drawer is a navigation list only; it must **not** expand inline `app-section-*` blocks. **App area layout** (App Settings, not Orb settings) chooses how that surface appears, persisted in `localStorage` key `desktop-area-layout-v1`:
+  - `overlay` — full-bleed glass over a dimmed home (mockup A)
+  - `stage` — area stage with the orb scaled to a corner pip (mockup B)
+  - `orb_hub` — orb click shows spokes, then the area opens as an overlay (mockup C)
+  - `split` — docked panel beside the home orb; Esc closes it (mockup D)
+  - `floating` — one movable area window; the orb stays full size (mockup E)
+  Esc or Back returns home. Accents follow the active orb style (FR-UI-3). *(Product decision 2026-11-16 — configurable A–E, not a single mockup pick.)*
 
 ### 3.9 Plugins and Extensibility
 - **FR-PLUG-1:** Modular plugin architecture. New capabilities (desktop testing, richer reporting, multi-sandbox, performance, security testing, etc.) are addable without rewriting the core.
@@ -115,7 +121,7 @@ A local-first, conversational AI testing agent that helps senior test engineers 
 ### 3.10 Settings and Local Store
 - **FR-SET-1:** All user settings, credentials, orb presets, and layout live under the local app data directory (`%LOCALAPPDATA%\ai_testing_app\`). Never committed to git.
 - **FR-SET-2:** Document ingestion proposes settings; user must confirm before they are written.
-- **FR-SET-3:** **App Settings** (connectors, Jira URL, credentials status, configuration for other areas) is a **dedicated App area screen** — separate from **Orb settings** (FR-UI-3) in the Screen drawer. App → Settings is main application configuration, not orb visual controls.
+- **FR-SET-3:** **App Settings** (connectors, Jira URL, credentials status, **App area layout**, configuration for other areas) is a **dedicated App area screen** — separate from **Orb settings** (FR-UI-3) in the Screen drawer. App → Settings is main application configuration, not orb visual controls. The layout control lists overlay, stage, orb hub, split, and floating.
 
 ---
 
@@ -206,8 +212,8 @@ Rule: a Done Story covers only what it actually shipped. Remaining FR text must 
 | FR-SEC-2 | Done | **KAN-69** |
 | FR-SEC-4 | Done | **KAN-71** |
 | FR-UI-1…5 | Baseline shipped; FR-UI-6/7 open (nav/widgets CR) | **Done** KAN-10/41/53/73 partial; **Open** area screens + HUD widgets (see KAN-102 / new nav story); Voice **KAN-81** |
-| FR-UI-6, FR-UI-7 | Open — agent HUD widgets + dedicated area screens | **KAN-103** (epic KAN-27; Tasks KAN-106…110; test **KAN-104**; Bug **KAN-102**) |
-| FR-SET-3 | Open — App Settings vs Orb settings split | **KAN-108** Task under KAN-103 |
+| FR-UI-6, FR-UI-7 | In progress — area layout modes A–E wired; HUD chips are a stub | **KAN-103** (epic KAN-27; Tasks KAN-106…110; test **KAN-104**; Bug **KAN-102**) |
+| FR-SET-3 | In progress — App Settings holds layout mode; Orb settings stay in the Screen drawer | **KAN-108** Task under KAN-103 |
 | FR-PLUG-1 | Partial (registry + stubs) | **Done** KAN-55 stub; real sandboxes **KAN-95** |
 | FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |
 | FR-PLUG-3 | Open | **KAN-79** |

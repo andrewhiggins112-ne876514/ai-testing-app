@@ -1,6 +1,6 @@
 # KAN-102 CR — Desktop nav, agent widgets, App vs Orb settings
 
-**Status:** Product model locked (2026-11-15). **Navigation shell design pending** — mockups A/B/C in `docs/mockups/kan103_nav/` (user must pick before KAN-106 coding). **Active slice = KAN-103** (KAN-75 deferred).
+**Status:** Product model locked (2026-11-15). **Navigation chrome locked 2026-11-16 as configurable A–E** (not a single mockup): `overlay`, `stage`, `orb_hub`, `split`, `floating` in App Settings (`desktop-area-layout-v1`). Area chrome uses the active orb-style accent (FR-UI-3). **Active slice = KAN-103** (KAN-75 deferred). Hub particles and richer HUD widgets are still open.
 
 **Canonical spec:** `docs/FUNCTIONAL_SPEC.md` — FR-UI-1/3/6/7, FR-SET-3.
 
@@ -32,7 +32,7 @@ flowchart TB
   end
   Nav --> areas
   screen_drawer --> home
-  app_drawer -.->|"opens full-window surface, not inline section"| areas
+  app_drawer -.->|"opens area surface in the active layout mode"| areas
 ```
 
 | Concept | Where it lives | Not here |
@@ -40,10 +40,12 @@ flowchart TB
 | Agent conversation + orb | Agent home | App drawer inline sections |
 | HUD status / mini panels | Agent home, toggles in Screen drawer | App → Settings list |
 | Orb style, size, spin, colours | Screen drawer | App → Settings |
-| Jira URL, connectors, app-wide config | App → Settings **area screen** | Screen drawer orb sliders |
+| Jira URL, connectors, app-wide config, **App area layout** | App → Settings **area screen** | Screen drawer orb sliders |
 | Security, Reports, etc. | Each own **area screen** | Inline `app-section-*` in drawer |
 
-**Future (out of scope for first implementation slice):** orb-as-hub with particle/radial links to open areas — lower priority Task.
+**Layout modes (all shipped as a setting):** overlay (A), stage (B), orb hub spokes then overlay (C, simple radial — particle polish later), split dock (D), one floating window (E). Accents follow mystic / aether / neural / apex.
+
+**Still open:** richer HUD widgets; particle hub; multiple floating areas.
 
 ---
 
@@ -105,5 +107,5 @@ flowchart TB
 
 ## PM notes
 
-- **Active slice (2026-11-15 PM):** **KAN-103** — implement **KAN-106** after Designer locks mockup **A/B/C** (see `docs/mockups/kan103_nav/README.md`). **KAN-75** deferred behind this UX fix.
+- **Active slice (2026-11-16):** **KAN-103** — A–E layout setting is in the desktop shell. **KAN-75** stays deferred. Mockups: `docs/mockups/kan103_nav/README.md`.
 - KAN-73 **Done** delivered Settings **behaviour**; this Story delivers correct **navigation shell** per CR.

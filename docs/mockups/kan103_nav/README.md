@@ -1,14 +1,26 @@
-# KAN-103 navigation UX mockups (design choice — not locked)
+# KAN-103 navigation UX mockups (A–E are all settings)
 
-**Status:** Awaiting user pick of **A**, **B**, or **C** before `ui/desktop/` implementation. Active slice stays **KAN-103** (start **KAN-106** after the pick). **KAN-75** stays deferred.
+**Status:** Design locked as **configurable layout modes**, not a single pick. Desktop App Settings → **App area layout** stores `overlay` | `stage` | `orb_hub` | `split` | `floating` in `localStorage` `desktop-area-layout-v1`. Chrome accents follow the active orb style (mystic cyan, aether orange-gold, neural, apex).
 
 **Plan:** [`docs/ops/KAN102_NAV_WIDGETS_PLAN.md`](../../ops/KAN102_NAV_WIDGETS_PLAN.md)
 
 **Product model (locked):** Agent home = chat + orb; HUD widgets from Screen drawer; App areas = dedicated surfaces; App Settings ≠ Orb settings.
 
-## Designer choice images (pick from these)
+## Comparison
 
-Labeled mystic-cyan frames in [`grok/`](grok/). Black void, filament orb, no purple. No `ui/desktop/` code until you choose.
+| Id | Mockup | What it does |
+|----|--------|----------------|
+| `overlay` | A | Full-bleed glass over a dimmed home. Esc/Back closes. |
+| `stage` | B | Area owns the stage; orb shrinks to a corner pip. HUD is home-only. |
+| `orb_hub` | C | Click the orb for radial spokes, then the area opens as an overlay. App ▦ stays the list. |
+| `split` | D | Persistent dock (~half width) beside the orb. Esc closes the dock. |
+| `floating` | E | One movable/resizable area window. Orb stays full size. |
+
+Style coupling: D and E settings frames exist in **mystic** and **aether** so the layout chrome is not cyan-only.
+
+## Designer frames
+
+Labeled mystic-cyan frames in [`grok/`](grok/) remain the A–C reference. D/E frames are the root PNGs below.
 
 | Option | Frames |
 |--------|--------|
@@ -73,12 +85,40 @@ Clicking orb (or hub mode) expands **neural spokes** to 7 areas; pick one → **
 
 ---
 
+## Option D — Split workspace
+
+Home keeps the full orb. Choosing an area opens a **docked glass panel** on the right (~40–50% width). Esc/Back closes the dock. Useful for glancing at Settings while the agent stays visible.
+
+| View | PNG |
+|------|-----|
+| Home (mystic) | `option_d_home.png` |
+| Settings (mystic) | `option_d_settings.png` / `option_d_settings_mystic.png` |
+| Settings (aether) | `option_d_settings_aether.png` |
+
+**Pros:** Agent stays present; no full-screen takeover. **Cons:** Narrow forms; drawer and dock can compete on the right.
+
+---
+
+## Option E — Floating area window
+
+Choosing an area opens **one** movable, resizable `shell-surface` window (same idea as HUD widgets). The orb stays full size. v1 is one window at a time.
+
+| View | PNG |
+|------|-----|
+| Home (mystic) | `option_e_home.png` |
+| Settings (mystic) | `option_e_settings.png` / `option_e_settings_mystic.png` |
+| Settings (aether) | `option_e_settings_aether.png` |
+
+**Pros:** Home composition unchanged; window can sit beside chat. **Cons:** Overlap and z-order need care; multiple windows are later.
+
+---
+
 ## Regenerate PNGs
 
 ```text
 .\venv\Scripts\python.exe scripts\render_kan103_mockup_png.py
 ```
 
-## Your decision
+## Decision (2026-11-16)
 
-Reply with **A**, **B**, **C**, or **hybrid** (e.g. “A overlay + C hub in phase 2”). PM will lock design in Jira and start **KAN-106** implementation.
+Do not pick one letter. A–E are all **App area layout** choices. Accents follow Screen → Orb style (FR-UI-3). Hub spokes are a simple radial v1; particle hub polish is still open.

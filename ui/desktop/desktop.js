@@ -201,6 +201,7 @@
     if (!node || !cfg) return;
     const style = cfg.style || "mystic";
     node.setAttribute("data-style", style);
+    document.documentElement.setAttribute("data-style", style);
     node.setAttribute("data-calm-color", cfg.calm_color || "#50cdff");
     node.setAttribute("data-thinking-color", cfg.thinking_color || "#b388ff");
     node.setAttribute("data-size", String(cfg.size || 360));
@@ -421,10 +422,27 @@
   function applyAccentVars(hex) {
     const c = hexToRgb(normalizeHex(hex, DEFAULT_APPEARANCE.border));
     const root = document.documentElement;
-    root.style.setProperty("--cyan", normalizeHex(hex, DEFAULT_APPEARANCE.border));
+    const accent = normalizeHex(hex, DEFAULT_APPEARANCE.border);
+    root.style.setProperty("--cyan", accent);
     root.style.setProperty(
       "--cyan-dim",
       "rgba(" + c.r + ", " + c.g + ", " + c.b + ", 0.22)"
+    );
+    root.style.setProperty(
+      "--accent-soft",
+      "rgba(" + c.r + ", " + c.g + ", " + c.b + ", 0.12)"
+    );
+    root.style.setProperty(
+      "--accent-soft-2",
+      "rgba(" + c.r + ", " + c.g + ", " + c.b + ", 0.18)"
+    );
+    const tr = Math.round(c.r + (255 - c.r) * 0.86);
+    const tg = Math.round(c.g + (255 - c.g) * 0.86);
+    const tb = Math.round(c.b + (255 - c.b) * 0.86);
+    root.style.setProperty("--text", "rgb(" + tr + ", " + tg + ", " + tb + ")");
+    root.style.setProperty(
+      "--muted",
+      "rgba(" + c.r + ", " + c.g + ", " + c.b + ", 0.62)"
     );
   }
 
@@ -831,9 +849,12 @@
 
     el.addEventListener("pointerdown", function (ev) {
       if (ev.button != null && ev.button !== 0) return;
+      if (el.id === "area-surface" && document.documentElement.getAttribute("data-area-chrome") !== "floating") {
+        return;
+      }
       if (
         ev.target.closest &&
-        ev.target.closest("button, a, input, textarea, select, .resize-handle")
+        ev.target.closest("button, a, input, textarea, select, .resize-handle, .layout-choice")
       ) {
         return;
       }
@@ -893,6 +914,9 @@
 
       handle.addEventListener("pointerdown", function (ev) {
         if (ev.button != null && ev.button !== 0) return;
+        if (el.id === "area-surface" && document.documentElement.getAttribute("data-area-chrome") !== "floating") {
+          return;
+        }
         pointerId = ev.pointerId;
         dir = handle.dataset.resize || "se";
         startX = ev.clientX;
@@ -1301,83 +1325,261 @@
     }
   }
 
-  function showAppSection(name) {
-    const map = {
-      settings: { section: settingsSection, nav: settingsNav },
-      security: { section: securitySection, nav: securityNav },
-      reports: { section: reportsSection, nav: reportsNav },
-      documents: { section: documentsSection, nav: documentsNav },
-      desktop: { section: desktopSection, nav: desktopNav },
-      suites: { section: suitesSection, nav: suitesNav },
-      sandboxes: { section: sandboxesSection, nav: sandboxesNav },
-    };
-    Object.keys(map).forEach(function (key) {
-      const entry = map[key];
-      if (!entry.section || !entry.nav) return;
-      const open = key === name && entry.section.hidden;
-      entry.section.hidden = !open;
-      entry.nav.setAttribute("aria-pressed", open ? "true" : "false");
-    });
-    const anyOpen = Object.keys(map).some(function (key) {
-      return map[key].section && !map[key].section.hidden;
-    });
-    if (appDrawerHint) appDrawerHint.hidden = anyOpen;
-    if (name === "settings" && settingsSection && !settingsSection.hidden) {
-      loadAppSettings();
-    }
-    if (name === "reports" && reportsSection && !reportsSection.hidden) {
-      loadReportSections();
-    }
-    if (name === "security" && securitySection && !securitySection.hidden) {
-      loadSecurityStatus();
-      loadPrivacyStatus();
-    }
-    if (name === "desktop" && desktopSection && !desktopSection.hidden) {
-      loadDesktopPlugin();
-    }
-    if (name === "suites" && suitesSection && !suitesSection.hidden) {
-      loadPlaywrightSuite();
-    }
-    if (name === "sandboxes" && sandboxesSection && !sandboxesSection.hidden) {
-      loadMultiSandboxPlugin();
+  const AREA_LAYOUT_KEY = "desktop-area-layout-v1";
+  const HUD_KEY = "desktop-hud-widgets-v1";
+  const AREA_LAYOUTS = ["overlay", "stage", "orb_hub", "split", "floating"];
+  const AREA_LABELS = {
+    settings: "Settings",
+    security: "Security",
+    reports: "Reports",
+    documents: "Documents",
+    desktop: "Desktop",
+    suites: "Suites",
+    sandboxes: "Sandboxes",
+  };
+  const areaMap = {
+    settings: { section: settingsSection, nav: settingsNav },
+    security: { section: securitySection, nav: securityNav },
+    reports: { section: reportsSection, nav: reportsNav },
+    documents: { section: documentsSection, nav: documentsNav },
+    desktop: { section: desktopSection, nav: desktopNav },
+    suites: { section: suitesSection, nav: suitesNav },
+    sandboxes: { section: sandboxesSection, nav: sandboxesNav },
+  };
+  const areaLayer = document.getElementById("area-layer");
+  const areaSurface = document.getElementById("area-surface");
+  const areaTitle = document.getElementById("area-title");
+  const areaBody = document.getElementById("area-body");
+  const areaBack = document.getElementById("area-back");
+  const areaScrim = document.getElementById("area-scrim");
+  const orbHub = document.getElementById("orb-hub");
+  const orbHubHit = document.getElementById("orb-hub-hit");
+  const sectionHost = document.getElementById("area-section-host");
+  const hudSecurityToggle = document.getElementById("hud-security-toggle");
+  const hudReportsToggle = document.getElementById("hud-reports-toggle");
+  const hudSecurityChip = document.getElementById("hud-security-chip");
+  const hudReportsChip = document.getElementById("hud-reports-chip");
+  let areaLayout = "overlay";
+  let openAreaName = "";
+
+  if (areaBody && sectionHost) {
+    areaBody.appendChild(sectionHost);
+  }
+
+  function normalizeAreaLayout(value) {
+    const key = String(value || "").trim().toLowerCase();
+    return AREA_LAYOUTS.indexOf(key) >= 0 ? key : "overlay";
+  }
+
+  function chromeFor(mode, areaOpen) {
+    if (!areaOpen) return "home";
+    if (mode === "orb_hub") return "overlay";
+    return mode;
+  }
+
+  function loadAreaLayout() {
+    try {
+      return normalizeAreaLayout(localStorage.getItem(AREA_LAYOUT_KEY));
+    } catch (err) {
+      return "overlay";
     }
   }
 
-  if (settingsNav) {
-    settingsNav.addEventListener("click", function () {
-      showAppSection("settings");
+  function syncLayoutRadios() {
+    document.querySelectorAll('input[name="area-layout"]').forEach(function (input) {
+      input.checked = input.value === areaLayout;
     });
   }
-  if (securityNav) {
-    securityNav.addEventListener("click", function () {
-      showAppSection("security");
+
+  function syncHubAffordance() {
+    const hubMode = areaLayout === "orb_hub" && !openAreaName;
+    if (orbHubHit) orbHubHit.hidden = !hubMode;
+    if (!hubMode && orbHub) orbHub.hidden = true;
+  }
+
+  function clearSurfaceBox() {
+    if (!areaSurface) return;
+    areaSurface.style.left = "";
+    areaSurface.style.top = "";
+    areaSurface.style.width = "";
+    areaSurface.style.height = "";
+    areaSurface.style.right = "";
+    areaSurface.style.bottom = "";
+  }
+
+  function syncFloatingChrome() {
+    if (!areaSurface) return;
+    const floating = document.documentElement.getAttribute("data-area-chrome") === "floating";
+    if (floating) {
+      areaSurface.dataset.widget = "area-surface";
+      areaSurface.classList.add("movable-widget");
+      if (!areaSurface.dataset.dragBound) {
+        areaSurface.dataset.dragBound = "1";
+        bindWidgetDrag(areaSurface);
+        bindWidgetResize(areaSurface);
+      }
+      const saved = layout.widgets && layout.widgets["area-surface"];
+      if (saved && typeof saved.left === "number" && typeof saved.top === "number") {
+        placeWidget(
+          areaSurface,
+          saved.left,
+          saved.top,
+          typeof saved.width === "number" ? saved.width : null,
+          typeof saved.height === "number" ? saved.height : null
+        );
+      }
+    } else {
+      areaSurface.classList.remove("movable-widget", "dragging", "resizing");
+      clearSurfaceBox();
+    }
+  }
+
+  function applyAreaLayout(mode) {
+    areaLayout = normalizeAreaLayout(mode);
+    try {
+      localStorage.setItem(AREA_LAYOUT_KEY, areaLayout);
+    } catch (err) {
+      console.warn("area layout save failed", err);
+    }
+    const root = document.documentElement;
+    root.setAttribute("data-area-layout", areaLayout);
+    root.setAttribute("data-area-chrome", chromeFor(areaLayout, !!openAreaName));
+    if (openAreaName) root.setAttribute("data-area-open", "true");
+    else root.removeAttribute("data-area-open");
+    syncLayoutRadios();
+    syncHubAffordance();
+    syncFloatingChrome();
+  }
+
+  function loadAreaData(name) {
+    if (name === "settings") loadAppSettings();
+    if (name === "reports") loadReportSections();
+    if (name === "security") {
+      loadSecurityStatus();
+      loadPrivacyStatus();
+    }
+    if (name === "desktop") loadDesktopPlugin();
+    if (name === "suites") loadPlaywrightSuite();
+    if (name === "sandboxes") loadMultiSandboxPlugin();
+  }
+
+  function closeArea() {
+    openAreaName = "";
+    Object.keys(areaMap).forEach(function (key) {
+      const entry = areaMap[key];
+      if (entry.section) entry.section.hidden = true;
+      if (entry.nav) entry.nav.setAttribute("aria-pressed", "false");
+    });
+    if (areaLayer) areaLayer.hidden = true;
+    if (appDrawerHint) appDrawerHint.hidden = false;
+    applyAreaLayout(areaLayout);
+  }
+
+  function openArea(name) {
+    if (!areaMap[name]) return;
+    if (openAreaName === name) {
+      closeArea();
+      return;
+    }
+    openAreaName = name;
+    Object.keys(areaMap).forEach(function (key) {
+      const entry = areaMap[key];
+      const on = key === name;
+      if (entry.section) entry.section.hidden = !on;
+      if (entry.nav) entry.nav.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    if (areaTitle) areaTitle.textContent = AREA_LABELS[name] || name;
+    if (areaLayer) areaLayer.hidden = false;
+    if (orbHub) orbHub.hidden = true;
+    if (appDrawerHint) appDrawerHint.hidden = true;
+    if (appDrawer && appDrawer.classList.contains("open")) {
+      setDrawer(appDrawer, appToggle, false);
+    }
+    applyAreaLayout(areaLayout);
+    loadAreaData(name);
+  }
+
+  document.querySelectorAll(".app-nav-item[data-section], .hub-spoke[data-section]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      openArea(btn.getAttribute("data-section"));
+    });
+  });
+
+  if (areaBack) {
+    areaBack.addEventListener("click", closeArea);
+  }
+  if (areaScrim) {
+    areaScrim.addEventListener("click", function () {
+      const chrome = document.documentElement.getAttribute("data-area-chrome");
+      if (chrome === "split") return;
+      closeArea();
     });
   }
-  if (reportsNav) {
-    reportsNav.addEventListener("click", function () {
-      showAppSection("reports");
+  if (orbHubHit) {
+    orbHubHit.addEventListener("click", function () {
+      if (areaLayout !== "orb_hub" || openAreaName) return;
+      if (orbHub) orbHub.hidden = !orbHub.hidden;
     });
   }
-  if (documentsNav) {
-    documentsNav.addEventListener("click", function () {
-      showAppSection("documents");
+  document.querySelectorAll('input[name="area-layout"]').forEach(function (input) {
+    input.addEventListener("change", function () {
+      if (!input.checked) return;
+      applyAreaLayout(input.value);
     });
+  });
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key !== "Escape") return;
+    const hubOpen = orbHub && !orbHub.hidden;
+    if (!hubOpen && !openAreaName) return;
+    if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA")) {
+      ev.target.blur();
+    }
+    if (hubOpen) {
+      orbHub.hidden = true;
+      ev.preventDefault();
+      return;
+    }
+    if (openAreaName) {
+      closeArea();
+      ev.preventDefault();
+    }
+  });
+
+  function applyHud(flags) {
+    const securityOn = !!(flags && flags.security);
+    const reportsOn = !!(flags && flags.reports);
+    if (hudSecurityToggle) hudSecurityToggle.checked = securityOn;
+    if (hudReportsToggle) hudReportsToggle.checked = reportsOn;
+    if (hudSecurityChip) hudSecurityChip.hidden = !securityOn;
+    if (hudReportsChip) hudReportsChip.hidden = !reportsOn;
   }
-  if (desktopNav) {
-    desktopNav.addEventListener("click", function () {
-      showAppSection("desktop");
-    });
+
+  function loadHud() {
+    try {
+      const raw = localStorage.getItem(HUD_KEY);
+      applyHud(raw ? JSON.parse(raw) : { security: false, reports: false });
+    } catch (err) {
+      applyHud({ security: false, reports: false });
+    }
   }
-  if (suitesNav) {
-    suitesNav.addEventListener("click", function () {
-      showAppSection("suites");
-    });
+
+  function saveHud() {
+    const flags = {
+      security: !!(hudSecurityToggle && hudSecurityToggle.checked),
+      reports: !!(hudReportsToggle && hudReportsToggle.checked),
+    };
+    applyHud(flags);
+    try {
+      localStorage.setItem(HUD_KEY, JSON.stringify(flags));
+    } catch (err) {
+      console.warn("hud save failed", err);
+    }
   }
-  if (sandboxesNav) {
-    sandboxesNav.addEventListener("click", function () {
-      showAppSection("sandboxes");
-    });
-  }
+
+  if (hudSecurityToggle) hudSecurityToggle.addEventListener("change", saveHud);
+  if (hudReportsToggle) hudReportsToggle.addEventListener("change", saveHud);
+  loadHud();
+  applyAreaLayout(loadAreaLayout());
 
   if (setSave) {
     setSave.addEventListener("click", async function () {
