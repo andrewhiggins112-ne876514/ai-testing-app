@@ -12,8 +12,8 @@ from typing import Any, Optional
 _MANIFESTS: list[dict[str, Any]] = [
     {
         "id": "desktop_runner",
-        "name": "Desktop .exe smoke",
-        "description": "Stdlib Windows .exe smoke harness (not Playwright).",
+        "name": "Desktop .exe tests",
+        "description": "Stdlib Windows .exe smoke + structured steps (not Playwright).",
         "toggle_key": "plugin_desktop_enabled",
         "default_enabled": True,
     },

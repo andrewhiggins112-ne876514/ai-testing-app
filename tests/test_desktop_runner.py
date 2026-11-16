@@ -1,4 +1,4 @@
-"""Desktop .exe smoke plugin (KAN-47 / FR-TEST-3 / FR-PLUG-2)."""
+"""Desktop .exe plugin (KAN-47 smoke + KAN-87 structured steps / FR-TEST-3)."""
 import os
 import sys
 import tempfile
@@ -8,7 +8,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from plugins import desktop_runner  # noqa: E402
-from plugins.desktop_runner import run_desktop, set_plugin_enabled  # noqa: E402
+from plugins.desktop_runner import (  # noqa: E402
+    SUPPORTED_ACTIONS,
+    demo_notepad_steps,
+    run_desktop,
+    set_plugin_enabled,
+)
 from settings.store import load_settings, write_settings  # noqa: E402
 
 
@@ -33,6 +38,15 @@ class DesktopRunnerTests(unittest.TestCase):
         self.assertEqual(result["status"], "disabled")
         self.assertIn("enable", (result.get("message") or result.get("error") or "").lower())
         self.assertEqual(result.get("plugin"), "desktop_runner")
+
+    def test_disabled_steps_returns_enable_message(self):
+        set_plugin_enabled(False)
+        result = run_desktop(
+            exe_path=sys.executable,
+            steps=[{"action": "wait", "seconds": 0.1}],
+        )
+        self.assertEqual(result["status"], "disabled")
+        self.assertIn("enable", (result.get("message") or result.get("error") or "").lower())
 
     def test_missing_path_fails(self):
         set_plugin_enabled(True)
@@ -82,6 +96,58 @@ class DesktopRunnerTests(unittest.TestCase):
             f"desktop_runner pulled in playwright modules: {loaded}",
         )
         self.assertNotIn("plugins.playwright_runner", sys.modules)
+
+    def test_unsupported_step_fails_clearly(self):
+        if sys.platform != "win32":
+            self.skipTest("Windows-only plugin")
+        set_plugin_enabled(True)
+        result = run_desktop(
+            exe_path=sys.executable,
+            steps=[{"action": "click_button", "value": "OK"}],
+        )
+        self.assertEqual(result["status"], "fail")
+        self.assertIn("Unsupported", result.get("error") or "")
+        self.assertTrue(result.get("steps"))
+        self.assertEqual(result["steps"][0]["status"], "fail")
+
+    def test_wait_step_passes(self):
+        if sys.platform != "win32":
+            self.skipTest("Windows-only plugin")
+        set_plugin_enabled(True)
+        result = run_desktop(
+            exe_path=sys.executable,
+            args=["-c", "import time; time.sleep(2)"],
+            steps=[{"action": "wait", "seconds": 0.2}, {"action": "close"}],
+            timeout_s=3.0,
+        )
+        self.assertEqual(result["status"], "pass", result)
+        actions = [s["action"] for s in result.get("steps") or []]
+        self.assertIn("wait", actions)
+        self.assertIn("close", actions)
+
+    def test_notepad_wait_window_and_type(self):
+        if sys.platform != "win32":
+            self.skipTest("Windows-only plugin")
+        notepad = Path(r"C:\Windows\System32\notepad.exe")
+        if not notepad.is_file():
+            self.skipTest("notepad.exe not found")
+        set_plugin_enabled(True)
+        result = run_desktop(
+            exe_path=str(notepad),
+            timeout_s=8.0,
+            steps=demo_notepad_steps(),
+        )
+        self.assertEqual(result["status"], "pass", result)
+        actions = [s["action"] for s in result.get("steps") or []]
+        self.assertIn("wait_window", actions)
+        self.assertIn("type_text", actions)
+        for step in result["steps"]:
+            self.assertEqual(step["status"], "pass", step)
+
+    def test_supported_actions_documented(self):
+        self.assertIn("wait_window", SUPPORTED_ACTIONS)
+        self.assertIn("type_text", SUPPORTED_ACTIONS)
+        self.assertIn("launch", SUPPORTED_ACTIONS)
 
 
 if __name__ == "__main__":

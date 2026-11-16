@@ -50,7 +50,7 @@ Skeleton + substantial features exist:
 - `plugins/playwright_steps.py` — generate happy + negative/edge drafts; assess/reject visibility-only flows (FR-TEST-6); used by agent `generate_playwright_steps` (KAN-57); **from Jira AC** via `generate_steps_from_jira` + `issue_key` (KAN-85)
 - `plugins/playwright_runner.py` — steps (+ `expect_visible`), click + fill locator self-heal via heal_policy (assertions never healed), failure screenshots always + success via `playwright_success_evidence`; **persistent browser profile per security level** (KAN-15); **headed/headless** from `playwright_headless` setting or run override (KAN-83)
 - `plugins/playwright_suite.py` — import/list/run existing Playwright projects via `npx playwright test` (KAN-59 / FR-TEST-5); settings `playwright_suite_path`; suite CLI `--headed` when product mode is headed (KAN-83)
-- `plugins/desktop_runner.py` — Windows `.exe` smoke plugin (KAN-47); stdlib launch; toggle `plugin_desktop_enabled`; does not fork Playwright
+- `plugins/desktop_runner.py` — Windows `.exe` smoke + structured steps (KAN-47/KAN-87); `wait_window`/`type_text`/… via ctypes; toggle `plugin_desktop_enabled`; does not fork Playwright
 - `plugins/multi_sandbox.py` — multi-sandbox orchestration stub (KAN-55); toggle `plugin_multi_sandbox_enabled` default off; mock list/plan only
 - `plugins/registry.py` — lightweight plugin manifests + `list_plugins()` (FR-PLUG-1/2); includes `test_framework` / frameworks list (FR-PLUG-3)
 - `plugins/framework_switch.py` — test-framework preference stub (KAN-79); Playwright default/ready; Selenium/Cypress not-implemented on run
@@ -79,7 +79,8 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-83** Playwright headed/headless — **Done** (KAN-84; desk26 `playwright_mode`)
 - **KAN-103** Desktop nav area screens + HUD widgets — **Done** (KAN-104 verify; desk22g; Tasks KAN-106–110/112 Done)
 - **KAN-81** Voice input — **deferred** until mic connected (do last; test KAN-82 stays open)
-- Next Active: **KAN-87** expand desktop .exe plugin beyond smoke (test KAN-88); then KAN-89…KAN-99 gap pass; **KAN-81** voice last
+- **KAN-87** Desktop .exe structured steps — **Done** (KAN-88; desk27 `wait_window`/`type_text`; Bug KAN-116 close tree)
+- Next Active: **KAN-89** read Jira story descriptions / AC (test KAN-90); then KAN-91…KAN-99 gap pass; **KAN-81** voice last
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -102,5 +103,5 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-87** — Expand desktop .exe plugin beyond smoke (FR-TEST-3 gap; test KAN-88).
+1. **KAN-89** — Read Jira story descriptions and acceptance criteria (FR-JIRA-1 gap; test KAN-90).
 2. Continue open FR Stories in WORK_LOG / FUNCTIONAL_SPEC §5 order; **KAN-81** voice last (needs mic).

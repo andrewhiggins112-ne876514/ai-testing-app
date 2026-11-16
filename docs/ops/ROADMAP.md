@@ -71,10 +71,10 @@ Open FR Stories: KAN-77…KAN-81 (first seed remainder), plus gap pass KAN-83…
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**KAN-87** — Expand desktop .exe plugin beyond smoke harness (FR-TEST-3 gap; test KAN-88).
+**KAN-89** — Read Jira story descriptions and acceptance criteria (FR-JIRA-1 gap; test KAN-90).
 
 **Deferred:** **KAN-81/82** voice input — until a microphone is connected (do last).
 
-**Done this cycle:** **KAN-85/86** — Generate Playwright steps from Jira AC (FR-TEST-1). **KAN-83/84** headed/headless. Earlier: **KAN-79/80** framework switch; **KAN-77/78** targets; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
+**Done this cycle:** **KAN-87/88** — Desktop .exe structured steps beyond smoke (FR-TEST-3). **KAN-85/86** Jira AC → Playwright steps. **KAN-83/84** headed/headless. Earlier: **KAN-79/80** framework switch; **KAN-77/78** targets; **KAN-75/76** heal review; **KAN-103/104** desktop nav shell.
 
 Then open FR Stories as listed in FUNCTIONAL_SPEC §5. Say **“pick up where we left off”** or run `python scripts/next_prompt.py`.

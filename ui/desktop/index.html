@@ -259,15 +259,16 @@
         </div>
         <div id="app-section-desktop" class="app-section" hidden>
           <h3 class="orb-section-label">Desktop .exe plugin</h3>
-          <p class="drawer-hint">Separate smoke harness (not Playwright). Uses target_app_path from the active security level.</p>
+          <p class="drawer-hint">Separate from Playwright. Smoke launch, or structured steps (wait_window, type_text). Uses target_app_path from the active security level.</p>
           <label class="check-row"><input type="checkbox" id="desk-enabled" checked /> Enable desktop plugin</label>
           <p id="desk-path" class="drawer-hint">App path: —</p>
-          <label class="stack-label">Smoke path override
+          <label class="stack-label">Exe path override
             <input type="text" id="desk-exe" placeholder="C:\Path\To\App.exe" />
           </label>
           <div class="btn-row">
             <button type="button" id="desk-save" class="save-btn">Save plugin</button>
             <button type="button" id="desk-smoke" class="save-btn secondary">Run smoke</button>
+            <button type="button" id="desk-steps" class="save-btn secondary">Run demo steps</button>
           </div>
           <p id="desk-status" class="drawer-hint" role="status">Ready</p>
         </div>
@@ -354,6 +355,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk26"></script>
+  <script src="/ui/desktop/desktop.js?v=desk27"></script>
 </body>
 </html>

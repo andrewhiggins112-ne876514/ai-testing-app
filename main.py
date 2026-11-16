@@ -142,6 +142,8 @@ class DesktopPluginRequest(BaseModel):
 class DesktopSmokeRequest(BaseModel):
     exe_path: str = ""
     timeout_s: float = 1.5
+    steps: list | None = None
+    demo: bool = False
 
 
 class MultiSandboxPluginRequest(BaseModel):
@@ -349,7 +351,22 @@ async def post_desktop_plugin(req: DesktopPluginRequest):
 
 @app.post("/api/desktop-smoke")
 async def post_desktop_smoke(req: DesktopSmokeRequest):
-    return run_desktop(exe_path=req.exe_path or "", timeout_s=float(req.timeout_s or 1.5))
+    from plugins.desktop_runner import demo_notepad_steps
+
+    steps = req.steps
+    if req.demo and not steps:
+        steps = demo_notepad_steps()
+        exe = (req.exe_path or "").strip() or r"C:\Windows\System32\notepad.exe"
+        return run_desktop(
+            exe_path=exe,
+            timeout_s=float(req.timeout_s or 8.0),
+            steps=steps,
+        )
+    return run_desktop(
+        exe_path=req.exe_path or "",
+        timeout_s=float(req.timeout_s or 1.5),
+        steps=steps,
+    )
 
 
 @app.get("/api/plugins")

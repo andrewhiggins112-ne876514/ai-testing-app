@@ -73,7 +73,7 @@ Rules:
 - For a browse/test request, prefer generate_playwright_steps first (happy path + negatives), then run_playwright. Steps use action goto, click, fill, expect_text, expect_url, or expect_visible; click a visible label with selector text=Label. Non-trivial flows MUST include expect_text or expect_url (visibility-only is incomplete). Include at least one negative/edge draft when generating. Playwright browser mode is headed by default (FR-TEST-2); App Settings can switch to headless, or pass headless=true/false on run_playwright.
 - When the user names a Jira issue key for test generation (e.g. "generate steps from KAN-85"), call generate_playwright_steps with issue_key set. Do not invent acceptance criteria if Jira fetch fails — report the error clearly.
 - Target application URL (`target_url`), desktop exe path (`target_app_path`), and messaging/API endpoint (`api_endpoint`) are first-class level-scoped settings. Prefer them over asking the user to re-paste every session; use update_settings (with confirm) when the user wants to change them.
-- For a Windows .exe / desktop smoke test, call run_desktop with optional exe_path (or rely on target_app_path in settings). If the plugin is disabled, tell the user to enable plugin_desktop_enabled.
+- For a Windows .exe / desktop test, call run_desktop with optional exe_path (or rely on target_app_path in settings). Pass steps for structured runs (launch, wait_window, type_text, wait, close); omit steps for smoke-only. If the plugin is disabled, tell the user to enable plugin_desktop_enabled.
 - To import or run an existing Playwright project suite (not JSON steps), call run_playwright_suite with action discover, import, list, or run and optional suite_path (or settings playwright_suite_path).
 - To list registered plugins and toggles, call list_plugins. For multi-sandbox planning, call orchestrate_sandboxes (action list or plan). If disabled, tell the user to enable plugin_multi_sandbox_enabled.
 - Test framework preference (FR-PLUG-3): default is playwright. Call test_framework with action status, set (framework=playwright|selenium|cypress), or run. Non-Playwright selections are stubs — run returns not_implemented; do not claim Selenium/Cypress executed.
@@ -665,8 +665,9 @@ class Agent:
                 "function": {
                     "name": "run_desktop",
                     "description": (
-                        "Smoke-launch a Windows desktop .exe (separate from Playwright). "
-                        "Uses exe_path or settings target_app_path. Returns status and logs. "
+                        "Run a Windows desktop .exe via the separate desktop plugin (not Playwright). "
+                        "Without steps: smoke launch. With steps: launch / wait_window / type_text / "
+                        "wait / close / focus_window. Uses exe_path or settings target_app_path. "
                         "Fails gracefully if plugin_desktop_enabled is false."
                     ),
                     "parameters": {
@@ -675,6 +676,17 @@ class Agent:
                             "exe_path": {
                                 "type": "string",
                                 "description": "Absolute path to a Windows .exe (optional if target_app_path is set)",
+                            },
+                            "timeout_s": {
+                                "type": "number",
+                                "description": "Smoke window or default wait_window timeout seconds",
+                            },
+                            "steps": {
+                                "type": "array",
+                                "description": (
+                                    "Optional structured steps: "
+                                    "{action: launch|wait_window|type_text|wait|close|focus_window, ...}"
+                                ),
                             },
                         },
                     },
@@ -935,7 +947,7 @@ class Agent:
             return await run_playwright(**kwargs)
         elif name == "run_desktop":
             from plugins.desktop_runner import run_desktop
-            allowed = {"exe_path", "timeout_s"}
+            allowed = {"exe_path", "timeout_s", "steps", "args"}
             return run_desktop(**{k: v for k, v in args.items() if k in allowed})
         elif name == "run_playwright_suite":
             from plugins.framework_switch import reject_if_unsupported

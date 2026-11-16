@@ -1162,6 +1162,7 @@
   const deskExe = document.getElementById("desk-exe");
   const deskSave = document.getElementById("desk-save");
   const deskSmoke = document.getElementById("desk-smoke");
+  const deskSteps = document.getElementById("desk-steps");
   const deskStatus = document.getElementById("desk-status");
   const suiteSaved = document.getElementById("suite-saved");
   const suitePath = document.getElementById("suite-path");
@@ -2153,6 +2154,27 @@
     });
   }
 
+  function summarizeDesktopRun(payload, label) {
+    if (payload.status === "disabled") {
+      return payload.message || payload.error || "Plugin disabled — enable and Save.";
+    }
+    if (payload.status === "pass") {
+      const n = Array.isArray(payload.steps) ? payload.steps.length : 0;
+      const stepBit = n ? " · " + n + " steps" : "";
+      return (
+        "Pass (" +
+        label +
+        "): " +
+        (payload.exe_path || "app") +
+        " (pid " +
+        (payload.pid || "—") +
+        ")" +
+        stepBit
+      );
+    }
+    return payload.error || payload.message || label + " failed.";
+  }
+
   if (deskSmoke) {
     deskSmoke.addEventListener("click", async function () {
       if (deskStatus) deskStatus.textContent = "Running smoke…";
@@ -2168,25 +2190,35 @@
           if (deskStatus) deskStatus.textContent = "Smoke request failed.";
           return;
         }
-        if (payload.status === "disabled") {
-          if (deskStatus) {
-            deskStatus.textContent =
-              payload.message || payload.error || "Plugin disabled — enable and Save.";
-          }
-          return;
-        }
-        if (payload.status === "pass") {
-          if (deskStatus) {
-            deskStatus.textContent =
-              "Pass: " + (payload.exe_path || "app") + " (pid " + (payload.pid || "—") + ")";
-          }
-          return;
-        }
-        if (deskStatus) {
-          deskStatus.textContent = payload.error || payload.message || "Smoke failed.";
-        }
+        if (deskStatus) deskStatus.textContent = summarizeDesktopRun(payload, "smoke");
       } catch (err) {
         if (deskStatus) deskStatus.textContent = "Could not reach desktop smoke API.";
+      }
+    });
+  }
+
+  if (deskSteps) {
+    deskSteps.addEventListener("click", async function () {
+      if (deskStatus) deskStatus.textContent = "Running demo steps…";
+      try {
+        const override = deskExe && deskExe.value ? deskExe.value.trim() : "";
+        const res = await fetch("/api/desktop-smoke", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            exe_path: override,
+            timeout_s: 8,
+            demo: true,
+          }),
+        });
+        const payload = await res.json();
+        if (!res.ok) {
+          if (deskStatus) deskStatus.textContent = "Steps request failed.";
+          return;
+        }
+        if (deskStatus) deskStatus.textContent = summarizeDesktopRun(payload, "steps");
+      } catch (err) {
+        if (deskStatus) deskStatus.textContent = "Could not reach desktop steps API.";
       }
     });
   }

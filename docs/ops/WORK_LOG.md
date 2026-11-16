@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-87** — Expand desktop .exe plugin beyond smoke |
-| **Start task** | **KAN-88** (`test`, Relates → KAN-87) |
-| **Epic** | (TEST) |
-| **Roadmap ID** | FR-TEST-3 gap |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-TEST-3 |
+| **Jira story** | **KAN-89** — Read Jira story descriptions and acceptance criteria |
+| **Start task** | **KAN-90** (`test`, Relates → KAN-89) |
+| **Epic** | (JIRA) |
+| **Roadmap ID** | FR-JIRA-1 gap |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-JIRA-1 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-88** |
-| **Shipped** | **KAN-85** / **KAN-86** Done (steps from Jira AC); **KAN-83** / **KAN-84** headed/headless |
+| **Test ticket** | **KAN-90** |
+| **Shipped** | **KAN-87** / **KAN-88** Done (desktop steps); **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic connected |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-87 — Expand desktop .exe plugin beyond smoke (FR-TEST-3)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-87
+- **Done:** Extended `desktop_runner` with structured steps (`launch`, `wait_window`, `focus_window`, `type_text`, `wait`, `close`) via stdlib + Win32 ctypes (no Playwright fork). Smoke path unchanged. Agent `run_desktop` accepts `steps`; API `/api/desktop-smoke` accepts `steps` / `demo`; App Desktop area **Run demo steps** (desk27). Bug **KAN-116**: Win11 Notepad survived `Popen.terminate` — fixed with `taskkill /T /F` fallback.
+- **Files:** `plugins/desktop_runner.py`, `plugins/registry.py`, `main.py`, `agent/agent.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_desktop_runner.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_desktop_runner.py -v` (10 passed). Live `POST /api/desktop-smoke` demo → pass (launch/wait_window/type_text/close). HTML desk27 has Run demo steps; plugin status lists `supported_actions`.
+- **Jira:** story agent-completion + **KAN-88** evidence/Done; Bug **KAN-116** Fix+Done; **KAN-87** Done
+- **Next:** **KAN-89** read Jira story descriptions / AC (test KAN-90)
 
 ### 2026-11-16 — KAN-85 — Generate Playwright steps from Jira AC (FR-TEST-1)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-85
