@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk34" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk35" />
 </head>
 <body>
   <div id="app">
@@ -369,6 +369,25 @@
             <button type="button" id="plan-case-up" class="save-btn secondary">Move up</button>
             <button type="button" id="plan-case-down" class="save-btn secondary">Move down</button>
           </div>
+          <div class="btn-row">
+            <button type="button" id="plan-case-run" class="save-btn">Run selected case (headed)</button>
+            <button type="button" id="plan-defect-preview" class="save-btn secondary">Preview defect packet</button>
+          </div>
+          <label class="stack-label">Failure class (last run)
+            <select id="plan-run-failure-class">
+              <option value="">(unset)</option>
+              <option value="product_bug">Product bug</option>
+              <option value="test_defect">Test defect</option>
+              <option value="environment">Environment</option>
+              <option value="known_issue">Known issue</option>
+            </select>
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-run-failure-save" class="save-btn secondary">Save failure class</button>
+          </div>
+          <pre id="plan-case-detail" class="drawer-hint" aria-live="polite" hidden></pre>
+          <pre id="plan-defect-out" class="drawer-hint" aria-live="polite" hidden></pre>
+          <p id="plan-degraded-hint" class="drawer-hint" role="status" hidden></p>
           <p id="plan-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-suites" class="app-section" hidden>
@@ -469,6 +488,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk34"></script>
+  <script src="/ui/desktop/desktop.js?v=desk35"></script>
 </body>
 </html>

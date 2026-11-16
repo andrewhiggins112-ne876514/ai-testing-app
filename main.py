@@ -39,7 +39,9 @@ from plugins.playwright_suite import (
     set_suite_path,
     suite_status as playwright_suite_status,
 )
+from plans.defect_packet import defect_packet_preview
 from plans.draft import add_document_draft_cases, draft_plan_from_issue
+from plans.run_case import case_detail, run_single_case
 from plans.starter import create_starter_plan, lab_home_status
 from plans.store import (
     add_case as plan_add_case,
@@ -49,8 +51,10 @@ from plans.store import (
     get_plan,
     list_plans,
     reorder_cases as plan_reorder_cases,
+    set_run_failure_class as plan_set_run_failure_class,
     update_case as plan_update_case,
 )
+from settings.degraded import degraded_status, ollama_chat_blocked
 from plugins.registry import list_plugins
 from reports.exporter import latest_summary as latest_report_summary
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
@@ -244,6 +248,10 @@ class PlanRunRequest(BaseModel):
     note: str = ""
 
 
+class PlanFailureClassRequest(BaseModel):
+    failure_class: str = ""
+
+
 def _orb_from_settings() -> dict:
     s = load_settings()
     return {
@@ -261,6 +269,9 @@ def _orb_from_settings() -> dict:
 @app.post("/chat")
 async def chat(req: ChatRequest):
     """Chat entrypoint — always returns a reply string; ok=false on agent/tool failure (KAN-97)."""
+    blocked = ollama_chat_blocked()
+    if blocked:
+        return blocked
     try:
         reply = await agent.chat(req.message, req.session_id)
     except httpx.HTTPError:
@@ -572,14 +583,23 @@ async def post_plan(req: PlanCreateRequest):
     )
 
 
+@app.get("/api/degraded-mode")
+async def get_degraded_mode():
+    """Dependency-down hints — saved plans stay readable (KAN-139)."""
+    return degraded_status()
+
+
 @app.post("/api/plans/draft")
 async def post_plan_draft(req: PlanDraftRequest):
     """Draft a plan from one Jira issue (+ optional document). Never writes to Jira (KAN-131)."""
-    return await draft_plan_from_issue(
+    out = await draft_plan_from_issue(
         req.issue_key or "",
         document_text=req.document_text or "",
         document_name=req.document_name or "",
     )
+    if out.get("status") != "ok" or not degraded_status().get("jira_up"):
+        out = {**out, "degraded": degraded_status()}
+    return out
 
 
 @app.get("/api/plans/home")
@@ -662,6 +682,43 @@ async def post_plan_run(plan_id: str, case_id: str, req: PlanRunRequest):
         evidence=list(req.evidence or []),
         note=req.note or "",
     )
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/run")
+async def post_plan_case_run(plan_id: str, case_id: str):
+    """Run a single case headed with Playwright; record evidence on that case (KAN-137)."""
+    return await run_single_case(plan_id, case_id, session_id="desktop")
+
+
+@app.get("/api/plans/{plan_id}/cases/{case_id}")
+async def get_plan_case(plan_id: str, case_id: str):
+    """Case view with source links and last run (KAN-141)."""
+    loaded = get_plan(plan_id)
+    if loaded.get("status") != "ok":
+        return loaded
+    return case_detail(loaded["plan"], case_id)
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/runs/{run_id}/failure-class")
+async def post_plan_run_failure_class(
+    plan_id: str,
+    case_id: str,
+    run_id: str,
+    req: PlanFailureClassRequest,
+):
+    """Set failure class on a run — create-bug only when product_bug (KAN-145)."""
+    return plan_set_run_failure_class(
+        plan_id,
+        case_id,
+        run_id,
+        req.failure_class,
+    )
+
+
+@app.get("/api/plans/{plan_id}/cases/{case_id}/defect-preview")
+async def get_plan_defect_preview(plan_id: str, case_id: str, run_id: str = ""):
+    """Preview defect packet before Jira create — confirm still required (KAN-147)."""
+    return defect_packet_preview(plan_id, case_id, run_id=run_id or None)
 
 
 app.mount("/ui", StaticFiles(directory=str(_UI_DIR)), name="ui")

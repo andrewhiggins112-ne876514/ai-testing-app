@@ -387,6 +387,105 @@ def add_run(
     }
 
 
+def append_run_evidence(
+    plan_id: str,
+    case_id: str,
+    run_id: str,
+    paths: list[str],
+    *,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Attach more evidence file paths to an existing run (e.g. evidence bundle)."""
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    cid = (case_id or "").strip()
+    rid = (run_id or "").strip()
+    cases = list((plan.get("suite") or {}).get("cases") or [])
+    for case in cases:
+        if case.get("id") != cid:
+            continue
+        for run in case.get("runs") or []:
+            if run.get("id") != rid:
+                continue
+            ev = list(run.get("evidence") or [])
+            for path in paths or []:
+                text = str(path or "").strip()
+                if text and text not in ev:
+                    ev.append(text[:500])
+            run["evidence"] = ev
+            case["updated_at"] = _utcnow()
+            plan["suite"] = {"cases": cases}
+            plan["updated_at"] = _utcnow()
+            _write_plan(plan, level=lvl)
+            return {
+                "status": "ok",
+                "security_level": lvl,
+                "plan": plan,
+                "case": case,
+                "run": run,
+            }
+    return {
+        "status": "error",
+        "error": "run_not_found",
+        "message": f"Run {rid!r} on case {cid!r} was not found.",
+        "security_level": lvl,
+    }
+
+
+def set_run_failure_class(
+    plan_id: str,
+    case_id: str,
+    run_id: str,
+    failure_class: str | None,
+    *,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Tester-selected failure class on a run (KAN-145 / FR-HEAL-4)."""
+    from plans.failure_class import normalize_failure_class
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    cid = (case_id or "").strip()
+    rid = (run_id or "").strip()
+    norm = normalize_failure_class(failure_class)
+    cases = list((plan.get("suite") or {}).get("cases") or [])
+    for case in cases:
+        if case.get("id") != cid:
+            continue
+        for run in case.get("runs") or []:
+            if run.get("id") != rid:
+                continue
+            run["failure_class"] = norm
+            case["updated_at"] = _utcnow()
+            plan["suite"] = {"cases": cases}
+            plan["updated_at"] = _utcnow()
+            _write_plan(plan, level=lvl)
+            return {
+                "status": "ok",
+                "security_level": lvl,
+                "plan": plan,
+                "case": case,
+                "run": run,
+                "failure_class": norm,
+                "create_bug_allowed": norm == "product_bug",
+            }
+    return {
+        "status": "error",
+        "error": "run_not_found",
+        "message": f"Run {rid!r} on case {cid!r} was not found.",
+        "security_level": lvl,
+    }
+
+
 def update_case(
     plan_id: str,
     case_id: str,

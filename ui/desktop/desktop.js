@@ -1273,9 +1273,17 @@
   const planCaseSave = document.getElementById("plan-case-save");
   const planCaseUp = document.getElementById("plan-case-up");
   const planCaseDown = document.getElementById("plan-case-down");
+  const planCaseRun = document.getElementById("plan-case-run");
+  const planDefectPreview = document.getElementById("plan-defect-preview");
+  const planRunFailureClass = document.getElementById("plan-run-failure-class");
+  const planRunFailureSave = document.getElementById("plan-run-failure-save");
+  const planCaseDetail = document.getElementById("plan-case-detail");
+  const planDefectOut = document.getElementById("plan-defect-out");
+  const planDegradedHint = document.getElementById("plan-degraded-hint");
   const planStatus = document.getElementById("plan-status");
   let openPlanId = "";
   let openPlanCases = [];
+  let lastCaseRunId = "";
   const jiraReadKey = document.getElementById("jira-read-key");
   const jiraReadBtn = document.getElementById("jira-read-btn");
   const jiraReadOut = document.getElementById("jira-read-out");
@@ -1530,6 +1538,23 @@
     }
   }
 
+  function lastRunLine(caseObj) {
+    const runs = (caseObj && caseObj.runs) || [];
+    if (!runs.length) return "";
+    const last = runs[runs.length - 1];
+    const parts = [last.result || "pending"];
+    if (last.duration_ms != null) parts.push(last.duration_ms + "ms");
+    if (last.failure_class) parts.push(last.failure_class);
+    const ev = last.evidence || [];
+    for (let i = 0; i < ev.length; i++) {
+      if (String(ev[i]).toLowerCase().indexOf(".png") >= 0) {
+        parts.push("screenshot");
+        break;
+      }
+    }
+    return "\n   last run: " + parts.join(" · ");
+  }
+
   function renderPlanCases(plan) {
     openPlanCases = (plan && plan.suite && plan.suite.cases) || [];
     if (planIntent) {
@@ -1546,6 +1571,7 @@
       .map(function (c, idx) {
         const en = c.enabled === false ? "OFF" : "ON";
         const src = (c.source && c.source.ref) || "";
+        const kind = (c.source && c.source.kind) || "manual-draft";
         return (
           idx +
           1 +
@@ -1555,12 +1581,69 @@
           (c.id || "?") +
           " — " +
           (c.name || "") +
-          (c.jira_key ? " (" + c.jira_key + ")" : "") +
-          (src ? "\n   why: " + src : "") +
-          (c.note ? "\n   note: " + c.note : "")
+          (c.jira_key ? " · Jira " + c.jira_key : "") +
+          (kind === "manual-draft" && !c.jira_key ? " · manual-draft" : "") +
+          (src ? "\n   source: " + src : "") +
+          (c.note ? "\n   note: " + c.note : "") +
+          lastRunLine(c)
         );
       })
       .join("\n");
+  }
+
+  async function refreshPlanDegradedHint() {
+    if (!planDegradedHint) return;
+    try {
+      const res = await fetch("/api/degraded-mode");
+      const payload = await res.json();
+      const msgs = payload.messages || {};
+      const parts = Object.keys(msgs).map(function (k) {
+        return msgs[k];
+      });
+      if (parts.length) {
+        planDegradedHint.hidden = false;
+        planDegradedHint.textContent = parts.join(" ");
+      } else {
+        planDegradedHint.hidden = true;
+        planDegradedHint.textContent = "";
+      }
+    } catch (err) {
+      planDegradedHint.hidden = true;
+    }
+  }
+
+  async function refreshCaseDetail() {
+    if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
+      if (planCaseDetail) planCaseDetail.hidden = true;
+      return;
+    }
+    try {
+      const res = await fetch(
+        "/api/plans/" +
+          encodeURIComponent(openPlanId) +
+          "/cases/" +
+          encodeURIComponent(planCaseId.value.trim())
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok" || !planCaseDetail) return;
+      const lines = [
+        "Case: " + (payload.name || ""),
+        "Jira: " + (payload.jira_key || "—"),
+        "Source: " + (payload.source_kind || "manual-draft") + " — " + (payload.source_ref || "—"),
+        payload.manual_draft ? "Marked manual-draft (no Jira/doc source)" : "",
+        payload.last_run_summary ? "Last run: " + payload.last_run_summary : "Last run: (none)",
+      ].filter(Boolean);
+      planCaseDetail.hidden = false;
+      planCaseDetail.textContent = lines.join("\n");
+      if (payload.last_run && payload.last_run.id) {
+        lastCaseRunId = payload.last_run.id;
+        if (planRunFailureClass && payload.last_run.failure_class) {
+          planRunFailureClass.value = payload.last_run.failure_class;
+        }
+      }
+    } catch (err) {
+      if (planCaseDetail) planCaseDetail.hidden = true;
+    }
   }
 
   async function loadPlanList(selectId) {
@@ -1613,6 +1696,8 @@
           ((payload.plan.suite && payload.plan.suite.cases) || []).length +
           " cases)";
       }
+      await refreshPlanDegradedHint();
+      await refreshCaseDetail();
     } catch (err) {
       if (planStatus) planStatus.textContent = "Could not open plan.";
     }
@@ -2738,6 +2823,149 @@
   if (planCaseDown) {
     planCaseDown.addEventListener("click", function () {
       moveSelectedCase(1);
+    });
+  }
+
+  if (planCaseId) {
+    planCaseId.addEventListener("change", function () {
+      refreshCaseDetail();
+    });
+    planCaseId.addEventListener("blur", function () {
+      refreshCaseDetail();
+    });
+  }
+
+  if (planCaseRun) {
+    planCaseRun.addEventListener("click", async function () {
+      if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
+        if (planStatus) planStatus.textContent = "Enter a case id to run.";
+        return;
+      }
+      if (planStatus) planStatus.textContent = "Running case (headed)…";
+      try {
+        const res = await fetch(
+          "/api/plans/" +
+            encodeURIComponent(openPlanId) +
+            "/cases/" +
+            encodeURIComponent(planCaseId.value.trim()) +
+            "/run",
+          { method: "POST" }
+        );
+        const payload = await res.json();
+        if (payload.status !== "ok") {
+          if (planStatus) {
+            planStatus.textContent = payload.message || "Run failed.";
+          }
+          return;
+        }
+        if (payload.plan) renderPlanCases(payload.plan);
+        if (payload.run && payload.run.id) lastCaseRunId = payload.run.id;
+        await refreshCaseDetail();
+        const run = payload.run || {};
+        if (planStatus) {
+          planStatus.textContent =
+            (payload.message || "Finished.") +
+            (run.result ? " Result: " + run.result : "") +
+            (run.duration_ms != null ? " (" + run.duration_ms + "ms)" : "");
+        }
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Run request failed.";
+      }
+    });
+  }
+
+  if (planRunFailureSave) {
+    planRunFailureSave.addEventListener("click", async function () {
+      if (!openPlanId || !planCaseId || !planCaseId.value.trim() || !lastCaseRunId) {
+        if (planStatus) planStatus.textContent = "Run a case first.";
+        return;
+      }
+      try {
+        const res = await fetch(
+          "/api/plans/" +
+            encodeURIComponent(openPlanId) +
+            "/cases/" +
+            encodeURIComponent(planCaseId.value.trim()) +
+            "/runs/" +
+            encodeURIComponent(lastCaseRunId) +
+            "/failure-class",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              failure_class: planRunFailureClass ? planRunFailureClass.value : "",
+            }),
+          }
+        );
+        const payload = await res.json();
+        if (payload.status !== "ok") {
+          if (planStatus) planStatus.textContent = payload.message || "Could not save class.";
+          return;
+        }
+        if (payload.plan) renderPlanCases(payload.plan);
+        if (planStatus) {
+          planStatus.textContent =
+            "Failure class saved." +
+            (payload.create_bug_allowed
+              ? " Product bug — create-bug path allowed."
+              : " Jira create-bug stays blocked for this class.");
+        }
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Failure class save failed.";
+      }
+    });
+  }
+
+  if (planDefectPreview) {
+    planDefectPreview.addEventListener("click", async function () {
+      if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
+        if (planStatus) planStatus.textContent = "Enter a case id.";
+        return;
+      }
+      if (planDefectOut) {
+        planDefectOut.hidden = false;
+        planDefectOut.textContent = "Building preview…";
+      }
+      try {
+        const qs = lastCaseRunId ? "?run_id=" + encodeURIComponent(lastCaseRunId) : "";
+        const res = await fetch(
+          "/api/plans/" +
+            encodeURIComponent(openPlanId) +
+            "/cases/" +
+            encodeURIComponent(planCaseId.value.trim()) +
+            "/defect-preview" +
+            qs
+        );
+        const payload = await res.json();
+        if (payload.status !== "ok" || !payload.packet) {
+          if (planDefectOut) {
+            planDefectOut.textContent = payload.message || "No preview.";
+          }
+          return;
+        }
+        const p = payload.packet;
+        const lines = [
+          payload.message || "",
+          "",
+          "Symptom: " + p.symptom,
+          "Expected: " + p.expected,
+          "Actual: " + p.actual,
+          "",
+          "Environment:",
+          p.environment,
+          "",
+          "Replication:",
+          (p.replication_steps || []).map(function (s, i) {
+            return i + 1 + ". " + s;
+          }).join("\n"),
+          "",
+          "Evidence:",
+          (p.evidence_paths || []).join("\n") || "(none)",
+        ];
+        if (planDefectOut) planDefectOut.textContent = lines.join("\n");
+      } catch (err) {
+        if (planDefectOut) planDefectOut.textContent = "Preview request failed.";
+      }
     });
   }
 

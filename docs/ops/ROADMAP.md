@@ -78,8 +78,8 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**Test-all A7** — next alpha story after A6 (**KAN-137**). Then A8–A9. Do **not** start **KAN-81** while deferred.  
-**Shipped:** A1 **KAN-125** plan model; A2 **KAN-127** connect-once health; A3 **KAN-129** Ollama model (`settings/ollama_models.py`, desk33); A4 **KAN-131** draft plan (`plans/draft.py`); A5 **KAN-133** edit plan (update/reorder/disable); A6 **KAN-135** empty state / starter template (`plans/starter.py`, desk34 Lab checklist HUD).
+**Test-all B4** — next story after B3 (**KAN-149** pause on fail). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.  
+**Shipped:** A1–A6 as before; **A7 KAN-137** single-case headed run + evidence (`plans/run_case.py`, desk35); **A8 KAN-139** degraded mode (`settings/degraded.py`); **A9 KAN-141** case source + last run view; **B1 KAN-143** evidence bundle; **B2 KAN-145** failure class; **B3 KAN-147** defect packet preview.
 
 **Council CR (2026-11-16):** Test-all vision locked; 48-story catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
 

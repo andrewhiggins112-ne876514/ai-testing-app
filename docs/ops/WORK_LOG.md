@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-137** — Test-all A7 — Run a single case and show evidence |
-| **Start task** | **KAN-138** (`test`, Relates → KAN-137) |
-| **Epic** | **KAN-117** — Test-all A — Usable lab (alpha) |
-| **Roadmap ID** | TESTALL-A / FR-PLAN-2 / FR-PLAN-4 / FR-TEST-2 / FR-TEST-4 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` §1 + FR-PLAN/FR-TEST; catalogue `docs/ops/test_all_catalogue.json` |
+| **Jira story** | **KAN-149** — Test-all B4 — Pause on fail |
+| **Start task** | **KAN-150** (`test`, Relates → KAN-149) |
+| **Epic** | **KAN-118** — Test-all B — Failures and evidence |
+| **Roadmap ID** | TESTALL-B / FR-TEST-2 / FR-PLAN-2 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-138** |
-| **Shipped** | Prototype baselines through **KAN-99**/**KAN-100**; Test-all backlog seeded **KAN-117…KAN-246**; **KAN-125** A1; **KAN-127** A2; **KAN-129** A3; **KAN-131** A4; **KAN-133** A5; **KAN-135** A6 |
+| **Test ticket** | **KAN-150** |
+| **Shipped** | … **KAN-135** A6; **KAN-137** A7; **KAN-139** A8; **KAN-141** A9; **KAN-143** B1; **KAN-145** B2; **KAN-147** B3 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,54 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-147 — B3 defect packet preview
+- **Agent/chat:** implementer subagent — six-ticket pick-up (6/6)
+- **Done:** `GET /api/plans/…/defect-preview` builds symptom/expected/actual/environment/replication/evidence from last run — confirm still required for Jira create.
+- **Files:** `plans/defect_packet.py`, `main.py`, `ui/desktop/*`, `tests/test_plan_run_case.py`
+- **Verify:** `pytest tests/test_plan_run_case.py -v` (8 passed, includes preview test)
+- **Jira:** close-out **KAN-147** + **KAN-148**
+- **Next:** **KAN-149** B4 pause on fail
+
+### 2026-11-16 — KAN-145 — B2 failure class before filing
+- **Agent/chat:** implementer — six-ticket pick-up (5/6)
+- **Done:** `set_run_failure_class` + Plans dropdown; create-bug allowed only for `product_bug`.
+- **Files:** `plans/failure_class.py`, `plans/store.py`, `main.py`, `ui/desktop/*`
+- **Verify:** pytest failure_class test in `test_plan_run_case.py`
+- **Jira:** **KAN-145** + **KAN-146**
+- **Next:** **KAN-147**
+
+### 2026-11-16 — KAN-143 — B1 evidence bundle on failed case
+- **Agent/chat:** implementer — (4/6)
+- **Done:** Failure bundle under `%LOCALAPPDATA%/ai_testing_app/evidence/{run_id}/` (bundle.json, screenshot path, console-like step errors).
+- **Files:** `plans/evidence_bundle.py`, `plans/run_case.py`, `plans/store.py`
+- **Verify:** pytest `test_evidence_bundle_paths`
+- **Jira:** **KAN-143** + **KAN-144**
+- **Next:** **KAN-145**
+
+### 2026-11-16 — KAN-141 — A9 case keeps source links
+- **Agent/chat:** implementer — (3/6)
+- **Done:** `GET /api/plans/{plan}/cases/{case}` + Plans case detail panel; case list shows Jira key, source ref, manual-draft, last run line.
+- **Files:** `plans/run_case.py` (`case_detail`), `main.py`, `ui/desktop/*`
+- **Verify:** pytest `test_case_detail_source_and_last_run`
+- **Jira:** **KAN-141** + **KAN-142**
+- **Next:** **KAN-143**
+
+### 2026-11-16 — KAN-139 — A8 degraded mode
+- **Agent/chat:** implementer — (2/6)
+- **Done:** `GET /api/degraded-mode`; chat blocked with clear message when Ollama down; draft responses attach degraded hints when Jira/read fails; target-down runs stay environment error.
+- **Files:** `settings/degraded.py`, `main.py`, `ui/desktop/desktop.js`
+- **Verify:** pytest degraded tests + `tests/test_connection_health.py`
+- **Jira:** **KAN-139** + **KAN-140**
+- **Next:** **KAN-141**
+
+### 2026-11-16 — KAN-137 — A7 run a single case and show evidence
+- **Agent/chat:** implementer — six-ticket pick-up (1/6)
+- **Done:** `POST /api/plans/…/cases/…/run` runs Playwright headed for one enabled case; records pass/fail/duration/screenshot; disabled cases refused; desk35 Run case UI.
+- **Files:** `plans/run_case.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_plan_run_case.py`
+- **Verify:** `pytest tests/test_plan_run_case.py tests/test_plan_edit.py tests/test_connection_health.py -v` (14 passed)
+- **Jira:** **KAN-137** + **KAN-138**
+- **Next:** **KAN-139**
 
 ### 2026-11-16 — KAN-135 — A6 empty state / starter template on orb home
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-135
