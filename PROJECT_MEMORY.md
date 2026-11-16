@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-16 (KAN-85 steps-from-Jira-AC Done; Active → KAN-87)
+Last updated: 2026-11-16 (KAN-91 Jira 429 backoff Done; Active → KAN-93)
 
 ## Original Vision
 A local AI testing agent with a conversational interface. The user talks to it (text first, voice later) to request tests, configure environments, or interpret results. Everything else lives in secondary tabs or settings.
@@ -54,7 +54,7 @@ Skeleton + substantial features exist:
 - `plugins/multi_sandbox.py` — multi-sandbox orchestration stub (KAN-55); toggle `plugin_multi_sandbox_enabled` default off; mock list/plan only
 - `plugins/registry.py` — lightweight plugin manifests + `list_plugins()` (FR-PLUG-1/2); includes `test_framework` / frameworks list (FR-PLUG-3)
 - `plugins/framework_switch.py` — test-framework preference stub (KAN-79); Playwright default/ready; Selenium/Cypress not-implemented on run
-- `plugins/jira_plugin.py` — list/create/transition/comment/epic link; **read_issue** (KAN-85/KAN-89) returns summary/description/AC (ADF→text); `list_stories(include_description=…)`; httpx uses system CA via `_async_client`; **create_bug** (KAN-63 / FR-JIRA-4) builds Symptom/Expected/Actual/Environment/Replication/Evidence from failed runs or report_path; product_bug only; Relates optional; **create_test** / **update_status** (KAN-65 / FR-JIRA-2/3) — issuetype **`test`** + Relates, Done when coverage evidence confirmed; writes need confirm. KAN types: Task=dev work under Story, `test`=verification, Bug=defects
+- `plugins/jira_plugin.py` — list/create/transition/comment/epic link; **read_issue** (KAN-85/KAN-89) returns summary/description/AC (ADF→text); `list_stories(include_description=…)`; httpx uses system CA via `_async_client`; **FR-JIRA-6 (KAN-91):** shared `_request` retries on 429 with `Retry-After` + inter-call spacing; 401/403/429 → human-readable `unauthorized`/`rate_limited` (no token echo); **create_bug** (KAN-63 / FR-JIRA-4) builds Symptom/Expected/Actual/Environment/Replication/Evidence from failed runs or report_path; product_bug only; Relates optional; **create_test** / **update_status** (KAN-65 / FR-JIRA-2/3) — issuetype **`test`** + Relates, Done when coverage evidence confirmed; writes need confirm. KAN types: Task=dev work under Story, `test`=verification, Bug=defects
 - `settings/store.py` — local settings under `%LOCALAPPDATA%\ai_testing_app\`; shared UI prefs in `settings.json`; **OFFICIAL/SECRET isolation (KAN-15):** credentials in `levels\{LEVEL}\credentials.json`; Playwright profiles in `browser_profiles\{LEVEL}\`; level switch needs confirm; `plugin_desktop_enabled`; `plugin_multi_sandbox_enabled` (default false); `playwright_success_evidence` (default true); `playwright_headless` (default false = headed, KAN-83); `playwright_suite_path` (level-scoped); `telemetry_enabled` default false (FR-SEC-2); **`app_settings_status` / `save_app_settings` (KAN-73 + KAN-77 + KAN-79 + KAN-83)** — non-secret App Settings payload; Jira URL + **`target_url` / `target_app_path` / `api_endpoint`** (FR-LEARN-2/3, level-scoped) + **`test_framework`** (FR-PLUG-3) + **`playwright_mode`/`playwright_headless`**; partial saves skip omitted fields
 - `settings/privacy.py` — **GDPR (KAN-69 / FR-SEC-2):** inventory + confirm-gated `delete_local_data` for reports/screenshots/heal_audit/sessions/browser_profiles; credentials/settings.json never wiped here; consent note for extracted data
 - `main.py` — FastAPI `/chat` + `/health` (includes `telemetry_enabled`) + `/api/orb` + `/api/report-sections` + `/api/security-level` + `/api/privacy` + `/api/privacy/delete` + `/api/app-settings` + `/api/jira-issue` (KAN-89) + `/api/heal/proposals` + `/api/heal/approve` + `/api/heal/reject` + `/api/desktop-plugin` + `/api/desktop-smoke` + `/api/plugins` + `/api/multi-sandbox-plugin` + `/api/multi-sandbox/orchestrate` + `/api/playwright-suite*` + static `/ui`
@@ -81,7 +81,8 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-81** Voice input — **deferred** until mic connected (do last; test KAN-82 stays open)
 - **KAN-87** Desktop .exe structured steps — **Done** (KAN-88; desk27 `wait_window`/`type_text`; Bug KAN-116 close tree)
 - **KAN-89** Read story/AC UX — **Done** (KAN-90; desk28 `read_issue` tool + `/api/jira-issue` + App Settings Read story)
-- Next Active: **KAN-91** Jira 429 backoff (test KAN-92); then KAN-93…KAN-99 gap pass; **KAN-81** voice last
+- **KAN-91** Jira 429 backoff / auth errors — **Done** (KAN-92; `_request` Retry-After + readable messages)
+- Next Active: **KAN-93** jira_project default (test KAN-94); then KAN-95…KAN-99 gap pass; **KAN-81** voice last
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -104,5 +105,5 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-91** — Jira rate-limit backoff and human-readable 429/auth errors (FR-JIRA-6; test KAN-92).
+1. **KAN-93** — First-class jira_project default for agent Jira reads (FR-LEARN-4; test KAN-94).
 2. Continue open FR Stories in WORK_LOG / FUNCTIONAL_SPEC §5 order; **KAN-81** voice last (needs mic).

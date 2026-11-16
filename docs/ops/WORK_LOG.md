@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-91** — Jira rate-limit backoff and human-readable 429/auth errors |
-| **Start task** | **KAN-92** (`test`, Relates → KAN-91) |
-| **Epic** | (JIRA) |
-| **Roadmap ID** | FR-JIRA-6 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-JIRA-6 |
+| **Jira story** | **KAN-93** — First-class jira_project default for agent Jira reads |
+| **Start task** | **KAN-94** (`test`, Relates → KAN-93) |
+| **Epic** | (LEARN) |
+| **Roadmap ID** | FR-LEARN-4 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-LEARN-4 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-92** |
-| **Shipped** | **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
+| **Test ticket** | **KAN-94** |
+| **Shipped** | **KAN-91** / **KAN-92** Jira 429 backoff; **KAN-89** / **KAN-90** read story/AC UX; **KAN-87** / **KAN-88** desktop steps; **KAN-85** / **KAN-86** Jira AC steps; **KAN-83** / **KAN-84** headed/headless |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic connected |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-91 — Jira rate-limit backoff and human-readable 429/auth errors (FR-JIRA-6)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-91
+- **Done:** Shared `_request` in `jira_plugin` retries on HTTP 429 using `Retry-After` (default 2s, up to 6 attempts) with light inter-call spacing. 401/403/429 return human-readable `unauthorized` / `rate_limited` messages; never echoes tokens. Wired through search, read_issue, create, transition, comment, and related helpers.
+- **Files:** `plugins/jira_plugin.py`, `tests/test_jira_rate_limit.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_jira_rate_limit.py tests/test_jira_read_ux.py tests/test_jira_steps.py tests/test_jira_readonly.py -v` (26 passed)
+- **Jira:** story agent-completion + **KAN-92** evidence/Done; **KAN-91** Done
+- **Next:** **KAN-93** jira_project default for agent reads (test KAN-94)
 
 ### 2026-11-16 — KAN-89 — Read Jira story descriptions and acceptance criteria (FR-JIRA-1)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-89

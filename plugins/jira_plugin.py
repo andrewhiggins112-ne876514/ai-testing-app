@@ -1,4 +1,5 @@
 """Jira tools. list_stories is read-only. create_issue POSTs only after the user's own confirmation."""
+import asyncio
 import json
 import os
 import platform
@@ -38,6 +39,81 @@ _WRITE = {"create_test", "update_status", "create_bug"}
 _CONFIRM_WORDS = {"yes", "confirm"}
 _PENDING: Dict[str, Dict[str, Any]] = {}
 _CONFIRM_TTL = 300.0
+# FR-JIRA-6 — match scripts/jira_kan_*.py backoff behaviour
+_MAX_429_ATTEMPTS = 6
+_INTER_CALL_BACKOFF = 0.35
+_DEFAULT_RETRY_AFTER = 2.0
+
+
+async def _sleep(seconds: float) -> None:
+    """Awaitable delay. No-op under pytest so the unit suite stays fast."""
+    if seconds <= 0:
+        return
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        return
+    await asyncio.sleep(seconds)
+
+
+def _retry_after_seconds(response: Any) -> float:
+    headers = getattr(response, "headers", None) or {}
+    raw = None
+    try:
+        raw = headers.get("Retry-After")
+        if raw is None:
+            raw = headers.get("retry-after")
+    except (TypeError, AttributeError):
+        raw = None
+    if raw is None:
+        return _DEFAULT_RETRY_AFTER
+    try:
+        return max(0.0, float(raw))
+    except (TypeError, ValueError):
+        return _DEFAULT_RETRY_AFTER
+
+
+async def _request(client: Any, method: str, url: str, **kwargs: Any) -> Any:
+    """HTTP helper with 429 Retry-After retries and light inter-call spacing (FR-JIRA-6)."""
+    method_u = str(method or "GET").upper()
+    response: Any = None
+    for _ in range(_MAX_429_ATTEMPTS):
+        if method_u == "GET":
+            response = await client.get(url, **kwargs)
+        elif method_u == "POST":
+            response = await client.post(url, **kwargs)
+        elif method_u == "PUT":
+            response = await client.put(url, **kwargs)
+        else:
+            response = await client.request(method_u, url, **kwargs)
+        if getattr(response, "status_code", 0) != 429:
+            await _sleep(_INTER_CALL_BACKOFF)
+            return response
+        await _sleep(_retry_after_seconds(response))
+    return response
+
+
+def _auth_error(status: int = 401) -> Dict[str, Any]:
+    return {
+        "status": "unauthorized",
+        "message": (
+            "Jira rejected the credentials "
+            "(check email and API token in local settings)."
+        ),
+        "http_status": int(status),
+    }
+
+
+def _rate_limited_error(response: Any = None) -> Dict[str, Any]:
+    wait = _retry_after_seconds(response) if response is not None else _DEFAULT_RETRY_AFTER
+    seconds = max(1, int(round(wait)))
+    return {
+        "status": "rate_limited",
+        "message": (
+            f"Jira rate limit reached. Wait about {seconds}s and try again "
+            "(Retry-After was respected)."
+        ),
+        "http_status": 429,
+        "retry_after": wait,
+    }
 
 def _creds() -> Dict[str, str]:
     settings = load_settings()
@@ -89,7 +165,9 @@ async def _search(url: str, email: str, token: str, project: str) -> Dict[str, A
     async with _async_client() as client:
         last_status = 0
         for endpoint, auth, headers in attempts:
-            response = await client.get(
+            response = await _request(
+                client,
+                "GET",
                 endpoint,
                 params=params,
                 auth=auth,
@@ -99,8 +177,21 @@ async def _search(url: str, email: str, token: str, project: str) -> Dict[str, A
             if response.status_code == 404:
                 continue
             if response.status_code in (401, 403):
-                return {"error": "jira_unauthorized", "status": response.status_code}
-            response.raise_for_status()
+                err = _auth_error(response.status_code)
+                return {
+                    "error": "jira_unauthorized",
+                    "status": response.status_code,
+                    "message": err["message"],
+                }
+            if response.status_code == 429:
+                err = _rate_limited_error(response)
+                return {
+                    "error": "jira_rate_limited",
+                    "status": 429,
+                    "message": err["message"],
+                }
+            if response.status_code >= 400:
+                return {"error": "jira_request_failed", "status": response.status_code}
             return _stories(response.json(), project)
     return {"error": "jira_search_unavailable", "status": last_status}
 
@@ -220,7 +311,9 @@ async def _list_search(
 
     async with _async_client() as client:
         for endpoint, auth, headers in attempts:
-            response = await client.get(
+            response = await _request(
+                client,
+                "GET",
                 endpoint,
                 params=params,
                 auth=auth,
@@ -229,8 +322,11 @@ async def _list_search(
             if response.status_code == 404:
                 continue
             if response.status_code in (401, 403):
-                return {"status": "unauthorized", "message": "Jira rejected the credentials"}
-            response.raise_for_status()
+                return _auth_error(response.status_code)
+            if response.status_code == 429:
+                return _rate_limited_error(response)
+            if response.status_code >= 400:
+                return {"status": "error", "message": "jira_request_failed"}
             payload = response.json()
             stories = _stories(
                 payload, project, include_description=include_description
@@ -369,14 +465,18 @@ async def read_issue(issue_key: str) -> Dict[str, Any]:
     headers, auth = _auth(creds)
     try:
         async with _async_client() as client:
-            response = await client.get(
+            response = await _request(
+                client,
+                "GET",
                 f"{creds['url']}/rest/api/3/issue/{key}",
                 params={"fields": "summary,status,issuetype,description"},
                 auth=auth,
                 headers=headers,
             )
         if response.status_code in (401, 403):
-            return {"status": "unauthorized", "message": "Jira rejected the credentials"}
+            return _auth_error(response.status_code)
+        if response.status_code == 429:
+            return _rate_limited_error(response)
         if response.status_code == 404:
             return {"status": "error", "message": f"issue {key} not found"}
         if response.status_code >= 400:
@@ -495,14 +595,18 @@ async def _post_issue(preview: Dict[str, str]) -> Dict[str, Any]:
     headers, auth = _auth(creds)
     try:
         async with _async_client() as client:
-            response = await client.post(
+            response = await _request(
+                client,
+                "POST",
                 f"{creds['url']}/rest/api/3/issue",
                 json={"fields": fields},
                 auth=auth,
                 headers=headers,
             )
             if response.status_code in (401, 403):
-                return {"status": "unauthorized", "message": "Jira rejected the credentials"}
+                return _auth_error(response.status_code)
+            if response.status_code == 429:
+                return _rate_limited_error(response)
             if response.status_code >= 400:
                 return {"status": "error", "message": "jira_request_failed"}
             try:
@@ -571,7 +675,9 @@ async def _post_relates_link(
 ) -> None:
     """Best-effort Relates link. Never raises into the caller; create already succeeded."""
     try:
-        await client.post(
+        await _request(
+            client,
+            "POST",
             f"{url}/rest/api/3/issueLink",
             json={
                 "type": {"name": "Relates"},
@@ -998,9 +1104,11 @@ async def create_test(
     return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": shown}
 
 
-async def _read_error(response: Any) -> Optional[Dict[str, str]]:
+async def _read_error(response: Any) -> Optional[Dict[str, Any]]:
     if response.status_code in (401, 403):
-        return {"status": "unauthorized", "message": "Jira rejected the credentials"}
+        return _auth_error(response.status_code)
+    if response.status_code == 429:
+        return _rate_limited_error(response)
     if response.status_code == 404:
         return {"status": "error", "message": "epic not found"}
     if response.status_code >= 400:
@@ -1018,7 +1126,9 @@ async def _get_issue_type(key: str) -> Dict[str, Any]:
     headers, auth = _auth(creds)
     try:
         async with _async_client() as client:
-            response = await client.get(
+            response = await _request(
+                client,
+                "GET",
                 f"{creds['url']}/rest/api/3/issue/{key}",
                 params={"fields": "issuetype"},
                 auth=auth,
@@ -1045,7 +1155,9 @@ async def _put_parent(preview: Dict[str, str]) -> Dict[str, Any]:
     headers, auth = _auth(creds)
     try:
         async with _async_client() as client:
-            response = await client.put(
+            response = await _request(
+                client,
+                "PUT",
                 f"{creds['url']}/rest/api/3/issue/{preview['issue_key']}",
                 json={"fields": {"parent": {"key": preview["epic_key"]}}},
                 auth=auth,
@@ -1080,9 +1192,11 @@ async def set_parent(issue_key: str, epic_key: str, session_id: str = "default")
     return {"status": "confirmation_required", "confirm_id": confirm_id, "preview": preview}
 
 
-def _status_failure(response: Any, missing: str) -> Optional[Dict[str, str]]:
+def _status_failure(response: Any, missing: str) -> Optional[Dict[str, Any]]:
     if response.status_code in (401, 403):
-        return {"status": "unauthorized", "message": "Jira rejected the credentials"}
+        return _auth_error(response.status_code)
+    if response.status_code == 429:
+        return _rate_limited_error(response)
     if response.status_code == 404:
         return {"status": "error", "message": missing}
     if response.status_code >= 400:
@@ -1133,7 +1247,9 @@ async def _load_transition(key: str) -> Dict[str, Any]:
     headers, auth = _auth(creds)
     try:
         async with _async_client() as client:
-            issue = await client.get(
+            issue = await _request(
+                client,
+                "GET",
                 f"{creds['url']}/rest/api/3/issue/{key}",
                 params={"fields": "status"},
                 auth=auth,
@@ -1145,7 +1261,9 @@ async def _load_transition(key: str) -> Dict[str, Any]:
             fields = issue.json().get("fields") or {}
             status = fields.get("status") or {}
             current = status.get("name", "") if isinstance(status, dict) else ""
-            listed = await client.get(
+            listed = await _request(
+                client,
+                "GET",
                 f"{creds['url']}/rest/api/3/issue/{key}/transitions",
                 auth=auth,
                 headers=headers,
@@ -1169,7 +1287,9 @@ async def _post_transition(preview: Dict[str, str]) -> Dict[str, Any]:
     headers, auth = _auth(creds)
     try:
         async with _async_client() as client:
-            listed = await client.get(
+            listed = await _request(
+                client,
+                "GET",
                 f"{creds['url']}/rest/api/3/issue/{preview['issue_key']}/transitions",
                 auth=auth,
                 headers=headers,
@@ -1188,7 +1308,9 @@ async def _post_transition(preview: Dict[str, str]) -> Dict[str, Any]:
                     "message": "transition is no longer available",
                     "options": _option_names(transitions),
                 }
-            response = await client.post(
+            response = await _request(
+                client,
+                "POST",
                 f"{creds['url']}/rest/api/3/issue/{preview['issue_key']}/transitions",
                 json={"transition": {"id": str(preview["transition_id"])}},
                 auth=auth,
@@ -1248,7 +1370,9 @@ async def _load_issue_labels(key: str) -> Dict[str, Any]:
     headers, auth = _auth(creds)
     try:
         async with _async_client() as client:
-            response = await client.get(
+            response = await _request(
+                client,
+                "GET",
                 f"{creds['url']}/rest/api/3/issue/{key}",
                 params={"fields": "labels,status,issuetype,summary"},
                 auth=auth,
@@ -1448,7 +1572,9 @@ async def _post_comment(preview: Dict[str, str]) -> Dict[str, Any]:
     headers, auth = _auth(creds)
     try:
         async with _async_client() as client:
-            response = await client.post(
+            response = await _request(
+                client,
+                "POST",
                 f"{creds['url']}/rest/api/3/issue/{preview['issue_key']}/comment",
                 json={"body": _adf_comment(preview["body"])},
                 auth=auth,
