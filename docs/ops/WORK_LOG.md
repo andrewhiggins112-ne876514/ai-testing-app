@@ -9,14 +9,14 @@
 |-------|--------|
 | **Status** | in progress |
 | **Jira story** | **KAN-103** — Desktop nav: dedicated area screens + agent-home widgets + App Settings split |
-| **Start task** | **KAN-107** — Agent-home HUD widgets + Screen drawer toggles (open Task; AC on Jira) |
+| **Start task** | **KAN-109** — Orb hub particle polish (open Task; AC on Jira) |
 | **Epic** | KAN-27 (Desktop shell) |
 | **Roadmap ID** | UI-DESK-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-6/7, FR-UI-3 accent coupling, FR-SET-3 |
-| **Git** | `main` @ `33cfcee` (handoff; UI desk19 `a355f2d` / `4d246d0`) |
+| **Git** | `main` (desk20 HUD) |
 | **Test ticket** | **KAN-104** (`test`, Relates → KAN-103) |
-| **Shipped (desk19)** | `#area-surface` routing; App area layout A–E (`desktop-area-layout-v1`); style-coupled chrome; **KAN-102** Done; Tasks **KAN-106/108/112** Done |
-| **Still open** | **KAN-107** HUD, **KAN-109** hub polish, **KAN-110** KAN-101 check, **KAN-104** full verify. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
+| **Shipped (desk20)** | desk19 layouts + **KAN-107** HUD mini panels (Security / Reports), Screen drawer toggles, `GET /api/reports/latest-summary`; Tasks **KAN-106/107/108/112** Done |
+| **Still open** | **KAN-109** hub polish, **KAN-110** KAN-101 check, **KAN-104** full verify. Plan: `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
 | **Deferred** | **KAN-75** heal proposal review UI — after **KAN-103** closes |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table, open the Jira story description, then start coding that story immediately (no long rediscovery).
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-107 — Agent-home HUD widgets (desk20)
+- **Agent/chat:** Cursor IDE Agent (Composer) — desktop shell
+- **Done:** Replaced stub chips with movable Security + Reports mini panels on agent home. Screen drawer toggles persist in `desktop-hud-widgets-v1`; positions use `desktop-shell-layout-v1`. Live Security level from `/api/security-level`; Reports from new `GET /api/reports/latest-summary` (`reports.exporter.latest_summary`). HUD is home-only (hidden when any App area is open). Cache-bust desk20.
+- **Files:** `ui/desktop/index.html`, `desktop.js`, `desktop.css`, `desktop_app.py`, `main.py`, `reports/exporter.py`, `tests/test_hud_widgets.py`, WORK_LOG, PROJECT_MEMORY, ROADMAP, KAN102 plan, FUNCTIONAL_SPEC
+- **Verify:** `pytest tests/test_hud_widgets.py tests/test_area_layout.py -v` (9 passed). Computer Use on `desktop_app.py`: enable both HUD toggles → Security Level OFFICIAL + Reports “Last run: 1 test”; App → Settings hides HUD.
+- **Jira:** Task **KAN-107** Done + agent comment; progress on **KAN-103**; evidence on **KAN-104** (story stays In Progress)
+- **Next:** **KAN-109** orb hub particle polish under **KAN-103**
 
 ### 2026-11-16 — OPS — desk19 PM handoff (pick-up alignment)
 - **Agent/chat:** PM + doc-keeper — WORK_LOG Active slice, Jira REST, docs; standard “pick up where we left off” flow

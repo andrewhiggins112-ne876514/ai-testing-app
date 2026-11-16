@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk19" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk20" />
 </head>
 <body>
   <div id="app">
@@ -48,8 +48,14 @@
       <button type="button" class="hub-spoke shell-surface" data-section="sandboxes" style="--spoke:6">Sandboxes</button>
     </div>
 
-    <div id="hud-security-chip" class="shell-surface hud-chip" hidden>Security</div>
-    <div id="hud-reports-chip" class="shell-surface hud-chip hud-chip-reports" hidden>Reports</div>
+    <aside id="hud-security" class="shell-surface hud-widget hud-security movable-widget" data-widget="hud-security" hidden aria-label="Security HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Security</h4>
+      <p class="hud-widget-body">Level <span id="hud-security-level" class="hud-level-chip">—</span></p>
+    </aside>
+    <aside id="hud-reports" class="shell-surface hud-widget hud-reports movable-widget" data-widget="hud-reports" hidden aria-label="Reports HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Reports HUD</h4>
+      <p id="hud-reports-body" class="hud-widget-body">No recent run</p>
+    </aside>
 
     <div id="area-layer" class="area-layer" hidden>
       <div id="area-scrim" class="area-scrim"></div>
@@ -249,7 +255,7 @@
           <label>Border <input id="ctrl-widget-border" type="color" value="#50cdff" /></label>
           <label>Background <input id="ctrl-widget-bg" type="color" value="#000000" /></label>
           <h3 class="orb-section-label">HUD widgets</h3>
-          <p class="drawer-hint">Home chips only. They are not App area content.</p>
+          <p class="drawer-hint">Home mini panels only. They are not App area content.</p>
           <label class="check-row"><input type="checkbox" id="hud-security-toggle" /> Security status</label>
           <label class="check-row"><input type="checkbox" id="hud-reports-toggle" /> Reports mini</label>
         </div>
@@ -259,6 +265,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk19"></script>
+  <script src="/ui/desktop/desktop.js?v=desk20"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 # KAN-102 CR — Desktop nav, agent widgets, App vs Orb settings
 
-**Status:** Product model locked (2026-11-15). **Navigation chrome locked 2026-11-16 as configurable A–E** (not a single mockup): `overlay`, `stage`, `orb_hub`, `split`, `floating` in App Settings (`desktop-area-layout-v1`). Area chrome uses the active orb-style accent (FR-UI-3). **Active slice = KAN-103** (KAN-75 deferred). Hub particles and richer HUD widgets are still open.
+**Status:** Product model locked (2026-11-15). **Navigation chrome locked 2026-11-16 as configurable A–E** (not a single mockup): `overlay`, `stage`, `orb_hub`, `split`, `floating` in App Settings (`desktop-area-layout-v1`). Area chrome uses the active orb-style accent (FR-UI-3). **Active slice = KAN-103** (KAN-75 deferred). **KAN-107 HUD mini panels shipped (desk20).** Hub particles (KAN-109) still open.
 
 **Canonical spec:** `docs/FUNCTIONAL_SPEC.md` — FR-UI-1/3/6/7, FR-SET-3.
 
@@ -45,9 +45,9 @@ flowchart TB
 
 **Layout modes (all shipped as a setting):** overlay (A), stage (B), orb hub spokes then overlay (C, simple radial — particle polish later), split dock (D), one floating window (E). Accents follow mystic / aether / neural / apex.
 
-**Still open:** richer HUD widgets (KAN-107); particle hub (KAN-109); KAN-101 overlap check (KAN-110); full test evidence (KAN-104).
+**Still open:** particle hub (KAN-109); KAN-101 overlap check (KAN-110); full test evidence (KAN-104).
 
-**Shipped desk19 (2026-11-16):** Tasks **KAN-106** (area surfaces), **KAN-112** (layout A–E), **KAN-108** (App vs Orb split); Bug **KAN-102** fixed. Story **KAN-103** remains **In Progress**.
+**Shipped desk20 (2026-11-16):** Tasks **KAN-106** (area surfaces), **KAN-112** (layout A–E), **KAN-108** (App vs Orb split), **KAN-107** (HUD Security/Reports mini panels + Screen drawer toggles + latest-summary API); Bug **KAN-102** fixed. Story **KAN-103** remains **In Progress**.
 
 ---
 
@@ -109,5 +109,5 @@ flowchart TB
 
 ## PM notes
 
-- **Active slice:** **KAN-103** (WORK_LOG) — start **KAN-107**; **KAN-75** deferred. Mockups: `docs/mockups/kan103_nav/README.md`.
+- **Active slice:** **KAN-103** (WORK_LOG) — start **KAN-109**; **KAN-75** deferred. Mockups: `docs/mockups/kan103_nav/README.md`.
 - KAN-73 **Done** delivered Settings **behaviour**; this Story delivers correct **navigation shell** per CR.

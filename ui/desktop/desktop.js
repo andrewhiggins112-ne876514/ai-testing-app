@@ -1168,6 +1168,9 @@
       secProfile.textContent =
         "Browser profile: " + (payload.browser_profile || "—");
     }
+    if (typeof updateHudSecurity === "function") {
+      updateHudSecurity(payload.security_level || "");
+    }
   }
 
   async function loadSecurityStatus() {
@@ -1357,10 +1360,13 @@
   const sectionHost = document.getElementById("area-section-host");
   const hudSecurityToggle = document.getElementById("hud-security-toggle");
   const hudReportsToggle = document.getElementById("hud-reports-toggle");
-  const hudSecurityChip = document.getElementById("hud-security-chip");
-  const hudReportsChip = document.getElementById("hud-reports-chip");
+  const hudSecurityPanel = document.getElementById("hud-security");
+  const hudReportsPanel = document.getElementById("hud-reports");
+  const hudSecurityLevel = document.getElementById("hud-security-level");
+  const hudReportsBody = document.getElementById("hud-reports-body");
   let areaLayout = "overlay";
   let openAreaName = "";
+  let hudFlags = { security: false, reports: false };
 
   if (areaBody && sectionHost) {
     areaBody.appendChild(sectionHost);
@@ -1473,6 +1479,7 @@
     if (areaLayer) areaLayer.hidden = true;
     if (appDrawerHint) appDrawerHint.hidden = false;
     applyAreaLayout(areaLayout);
+    applyHud(hudFlags);
   }
 
   function openArea(name) {
@@ -1496,6 +1503,7 @@
       setDrawer(appDrawer, appToggle, false);
     }
     applyAreaLayout(areaLayout);
+    applyHud(hudFlags);
     loadAreaData(name);
   }
 
@@ -1545,13 +1553,61 @@
     }
   });
 
+  function updateHudSecurity(level) {
+    if (!hudSecurityLevel) return;
+    const text = String(level || "").trim().toUpperCase();
+    hudSecurityLevel.textContent = text || "—";
+  }
+
+  function formatHudReports(summary) {
+    if (!summary || !summary.available) return "No recent run";
+    const bits = [];
+    if (typeof summary.pass_rate_percent === "number") {
+      bits.push("pass " + Math.round(summary.pass_rate_percent) + "%");
+    }
+    if (typeof summary.stories_covered === "number") {
+      bits.push(
+        summary.stories_covered +
+          (summary.stories_covered === 1 ? " story" : " stories")
+      );
+    }
+    if (typeof summary.tests_passed === "number") {
+      bits.push(
+        summary.tests_passed +
+          (summary.tests_passed === 1 ? " test" : " tests")
+      );
+    }
+    if (!bits.length) return "No recent run";
+    return "Last run: " + bits.join(", ");
+  }
+
+  function applyHudReports(summary) {
+    if (hudReportsBody) hudReportsBody.textContent = formatHudReports(summary);
+  }
+
+  async function loadHudReports() {
+    try {
+      const res = await fetch("/api/reports/latest-summary");
+      if (!res.ok) {
+        applyHudReports({ available: false });
+        return;
+      }
+      applyHudReports(await res.json());
+    } catch (err) {
+      applyHudReports({ available: false });
+    }
+  }
+
   function applyHud(flags) {
-    const securityOn = !!(flags && flags.security);
-    const reportsOn = !!(flags && flags.reports);
-    if (hudSecurityToggle) hudSecurityToggle.checked = securityOn;
-    if (hudReportsToggle) hudReportsToggle.checked = reportsOn;
-    if (hudSecurityChip) hudSecurityChip.hidden = !securityOn;
-    if (hudReportsChip) hudReportsChip.hidden = !reportsOn;
+    hudFlags = {
+      security: !!(flags && flags.security),
+      reports: !!(flags && flags.reports),
+    };
+    if (hudSecurityToggle) hudSecurityToggle.checked = hudFlags.security;
+    if (hudReportsToggle) hudReportsToggle.checked = hudFlags.reports;
+    const home = !openAreaName;
+    if (hudSecurityPanel) hudSecurityPanel.hidden = !(home && hudFlags.security);
+    if (hudReportsPanel) hudReportsPanel.hidden = !(home && hudFlags.reports);
   }
 
   function loadHud() {
@@ -1579,6 +1635,8 @@
   if (hudSecurityToggle) hudSecurityToggle.addEventListener("change", saveHud);
   if (hudReportsToggle) hudReportsToggle.addEventListener("change", saveHud);
   loadHud();
+  loadHudReports();
+  loadSecurityStatus();
   applyAreaLayout(loadAreaLayout());
 
   if (setSave) {

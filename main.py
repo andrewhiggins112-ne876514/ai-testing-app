@@ -33,6 +33,7 @@ from plugins.playwright_suite import (
     suite_status as playwright_suite_status,
 )
 from plugins.registry import list_plugins
+from reports.exporter import latest_summary as latest_report_summary
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.privacy import delete_local_data, privacy_status, telemetry_enabled
 from settings.store import (
@@ -197,6 +198,11 @@ async def get_report_sections():
 @app.post("/api/report-sections")
 async def set_report_sections(req: ReportSectionsRequest):
     return save_report_sections(normalize_sections(req.model_dump()))
+
+
+@app.get("/api/reports/latest-summary")
+async def get_latest_report_summary():
+    return latest_report_summary()
 
 
 @app.get("/api/security-level")

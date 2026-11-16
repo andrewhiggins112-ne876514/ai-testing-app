@@ -63,3 +63,54 @@ def export_run(
     except Exception:
         return result
     return result
+
+
+def latest_summary() -> dict:
+    """Return HUD-friendly metrics from the newest exported report JSON.
+
+    Never includes paths that could leak machine layout beyond the filename stamp.
+    """
+    try:
+        folder = reports_dir()
+    except RuntimeError:
+        return {"available": False}
+    if not folder.is_dir():
+        return {"available": False}
+    files = sorted(
+        (p for p in folder.glob("*.json") if p.is_file()),
+        key=lambda p: (p.stat().st_mtime, p.name),
+        reverse=True,
+    )
+    if not files:
+        return {"available": False}
+    try:
+        payload = json.loads(files[0].read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeError):
+        return {"available": False}
+    if not isinstance(payload, dict):
+        return {"available": False}
+    sections = payload.get("sections") if isinstance(payload.get("sections"), dict) else {}
+    summary = sections.get("summary") if isinstance(sections.get("summary"), dict) else {}
+    progress = summary.get("progress") if isinstance(summary.get("progress"), dict) else {}
+    tests_passed = summary.get("tests_passed", summary.get("passed", progress.get("tests_passed")))
+    stories = summary.get("stories_covered", progress.get("stories_covered"))
+    pass_rate = summary.get("pass_rate_percent", progress.get("pass_rate_percent"))
+    try:
+        tests_passed_n = int(tests_passed) if tests_passed is not None else None
+    except (TypeError, ValueError):
+        tests_passed_n = None
+    try:
+        stories_n = int(stories) if stories is not None else None
+    except (TypeError, ValueError):
+        stories_n = None
+    try:
+        pass_rate_n = float(pass_rate) if pass_rate is not None else None
+    except (TypeError, ValueError):
+        pass_rate_n = None
+    return {
+        "available": True,
+        "timestamp": payload.get("timestamp") or "",
+        "pass_rate_percent": pass_rate_n,
+        "stories_covered": stories_n,
+        "tests_passed": tests_passed_n,
+    }
