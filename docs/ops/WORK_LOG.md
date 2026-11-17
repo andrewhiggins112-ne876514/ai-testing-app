@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-161** — Test-all C3 — Project-wide draft in batches |
-| **Start task** | **KAN-162** (`test`, Relates → KAN-161) |
+| **Jira story** | **KAN-163** — Test-all C4 — Coverage gaps |
+| **Start task** | **KAN-164** (`test`, Relates → KAN-163) |
 | **Epic** | Test-all C (plan growth) |
-| **Roadmap ID** | C3 / FR-PLAN-3 |
+| **Roadmap ID** | C4 / FR-PLAN-3 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-162** |
-| **Shipped** | … **KAN-247** Reports library; **KAN-248** Gradio menu; **KAN-249** Settings hub |
+| **Test ticket** | **KAN-164** |
+| **Shipped** | … **KAN-249** Settings hub; **KAN-161** C3 project-wide draft in batches |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-161 — C3 project-wide draft in batches
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-161
+- **Done:** Project-wide plan draft from configured `jira_project` with a visible batch-size cap (1–25, default 5). Uses `list_stories` + `read_issue` (429 backoff). Creates one local plan with per-issue AC cases; `jira_write=false`; no auto-run (`review_required`). Desktop Plans: batch input + **Draft from project**. `POST /api/plans/draft-project`. desk43.
+- **Files:** `plans/draft.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_project_draft.py`
+- **Verify:** `pytest tests/test_plan_project_draft.py tests/test_plan_draft.py -v` (7 passed). Live desk43 HTML has `plan-batch-size` + `plan-draft-project-btn`; `POST /api/plans/draft-project` batch=2 → ok, 2 issues, no Jira write; `desktop_app.py` opened.
+- **Jira:** close-out **KAN-161** + **KAN-162**
+- **Next:** **KAN-163** C4 coverage gaps (test **KAN-164**)
 
 ### 2026-11-17 — KAN-249 — UI-NAV-IA-3 Settings hub (App / Report)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-249

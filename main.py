@@ -41,7 +41,11 @@ from plugins.playwright_suite import (
     suite_status as playwright_suite_status,
 )
 from plans.defect_packet import defect_packet_preview
-from plans.draft import add_document_draft_cases, draft_plan_from_issue
+from plans.draft import (
+    add_document_draft_cases,
+    draft_plan_from_issue,
+    draft_plan_from_project,
+)
 from plans.pause_session import get_session, public_session, signal_decision
 from plans.rerun_failed import rerun_failed_cases
 from plans.run_case import case_detail, run_single_case
@@ -216,6 +220,14 @@ class PlanDraftRequest(BaseModel):
     issue_key: str = ""
     document_text: str = ""
     document_name: str = ""
+
+
+class PlanProjectDraftRequest(BaseModel):
+    """Project-wide draft in batches (KAN-161 / C3). batch_size is a visible cap."""
+
+    batch_size: int = 5
+    project: str = ""
+    issue_types: list[str] | None = None
 
 
 class PlanStarterRequest(BaseModel):
@@ -671,6 +683,22 @@ async def post_plan_draft(req: PlanDraftRequest):
         req.issue_key or "",
         document_text=req.document_text or "",
         document_name=req.document_name or "",
+    )
+    if out.get("status") != "ok" or not degraded_status().get("jira_up"):
+        out = {**out, "degraded": degraded_status()}
+    return out
+
+
+@app.post("/api/plans/draft-project")
+async def post_plan_draft_project(req: PlanProjectDraftRequest):
+    """Draft a plan from the configured Jira project in a capped batch (KAN-161 / C3).
+
+    Read-only. Does not auto-run — person reviews then uses A7 run path.
+    """
+    out = await draft_plan_from_project(
+        batch_size=req.batch_size,
+        project=req.project or None,
+        issue_types=req.issue_types,
     )
     if out.get("status") != "ok" or not degraded_status().get("jira_up"):
         out = {**out, "degraded": degraded_status()}

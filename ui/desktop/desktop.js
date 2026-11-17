@@ -1259,7 +1259,9 @@
   const planIssueKey = document.getElementById("plan-issue-key");
   const planDocName = document.getElementById("plan-doc-name");
   const planDocText = document.getElementById("plan-doc-text");
+  const planBatchSize = document.getElementById("plan-batch-size");
   const planDraftBtn = document.getElementById("plan-draft-btn");
+  const planDraftProjectBtn = document.getElementById("plan-draft-project-btn");
   const planRefreshBtn = document.getElementById("plan-refresh-btn");
   const planList = document.getElementById("plan-list");
   const planLoadBtn = document.getElementById("plan-load-btn");
@@ -2993,6 +2995,47 @@
         }
       } catch (err) {
         if (planStatus) planStatus.textContent = "Draft request failed.";
+      }
+    });
+  }
+
+  if (planDraftProjectBtn) {
+    planDraftProjectBtn.addEventListener("click", async function () {
+      if (planStatus) planStatus.textContent = "Drafting from project…";
+      let batch = 5;
+      if (planBatchSize && planBatchSize.value !== "") {
+        const n = parseInt(planBatchSize.value, 10);
+        if (!isNaN(n)) batch = n;
+      }
+      try {
+        const res = await fetch("/api/plans/draft-project", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ batch_size: batch }),
+        });
+        const payload = await res.json();
+        if (payload.status !== "ok" || !payload.plan) {
+          if (planStatus) {
+            planStatus.textContent = payload.message || "Project draft failed.";
+          }
+          return;
+        }
+        if (
+          planBatchSize &&
+          payload.batch_size != null &&
+          !isNaN(Number(payload.batch_size))
+        ) {
+          planBatchSize.value = String(payload.batch_size);
+        }
+        await loadPlanList(payload.plan.id);
+        openPlanId = payload.plan.id;
+        renderPlanCases(payload.plan);
+        if (typeof refreshLabHome === "function") await refreshLabHome();
+        if (planStatus) {
+          planStatus.textContent = payload.message || "Project draft ready — review before run.";
+        }
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Project draft request failed.";
       }
     });
   }

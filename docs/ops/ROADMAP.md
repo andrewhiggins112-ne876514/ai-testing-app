@@ -81,8 +81,8 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**C3** — next (**KAN-161** project-wide draft in batches; test **KAN-162**). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.
-**Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1…3** (**KAN-247…249**) Reports library + Gradio menu + Settings hub.
+**C4** — next (**KAN-163** coverage gaps; test **KAN-164**). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.
+**Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1…3** (**KAN-247…249**); **C3 KAN-161** project-wide draft in batches.
 
 **Council CR (2026-11-16):** Test-all vision locked; 48-story catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
 

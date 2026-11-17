@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk42" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk43" />
 </head>
 <body>
   <div id="app">
@@ -382,7 +382,7 @@
         </div>
         <div id="app-section-plans" class="app-section" hidden>
           <h3 class="orb-section-label">Plans</h3>
-          <p class="drawer-hint">Draft a local plan from one Jira story (and optional document text). Edit cases before any run. Nothing is written to Jira from this screen.</p>
+          <p class="drawer-hint">Draft a local plan from one Jira story, optional document text, or a capped batch from the configured project. Edit cases before any run. Nothing is written to Jira from this screen.</p>
           <label class="stack-label">Issue key
             <input type="text" id="plan-issue-key" placeholder="KAN-131" autocomplete="off" />
           </label>
@@ -392,8 +392,12 @@
           <label class="stack-label">Optional document text (adds draft cases only)
             <textarea id="plan-doc-text" rows="4" placeholder="Paste requirements or Given/When/Then lines…"></textarea>
           </label>
+          <label class="stack-label">Project batch size (cap 1–25)
+            <input type="number" id="plan-batch-size" min="1" max="25" value="5" step="1" />
+          </label>
           <div class="btn-row">
             <button type="button" id="plan-draft-btn" class="save-btn">Draft from story</button>
+            <button type="button" id="plan-draft-project-btn" class="save-btn secondary">Draft from project</button>
             <button type="button" id="plan-refresh-btn" class="save-btn secondary">Refresh list</button>
           </div>
           <label class="stack-label">Saved plans
@@ -567,6 +571,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk42"></script>
+  <script src="/ui/desktop/desktop.js?v=desk43"></script>
 </body>
 </html>
