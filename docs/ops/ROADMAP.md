@@ -8,7 +8,8 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
-| TESTALL-E | Test-all E privacy / audit / recovery — **E3** redact secrets | now | **KAN-197** / test **KAN-198**; A–D + E1–E2 Done; after E3 → **KAN-260** then E4… |
+| TESTALL-E | Test-all E privacy / audit / recovery — **E3** redact secrets | done (E3); E4 next after UI-LAB | **KAN-197** Done (desk63); E1–E3 Done; next product Now = **KAN-260** then E4… |
+| UI-LAB-MENU | Lab tools back on desktop App menu | now | **KAN-260** — Security/Heal/Desktop/Suites/Sandboxes currently hub-only |
 | TESTALL-A | Test-all alpha (A1–A9) — in-app plan/suite spine | done | Catalogue A1–A9 shipped; cut nothing; deepen via later epics |
 | UI-6a | Orb settings behind top-right gear (clean chat dash) | done | Chatbot/input settings icons later |
 | UI-6 | Movable/resizable panels | done | Desktop resize + persist (KAN-53); Gradio orb panel resize parity |
@@ -56,7 +57,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | VOICE-1 | Voice input | **KAN-81** / Test-all **G10** — deferred until mic; stays in product |
 | SALES-1 | Installer / second PC | Test-all **G11** after alpha used |
 | TESTALL-B…D | Failures, project plan, run policy | done | B1–B7, C1–C11, D1–D7 shipped (baselines; deepen later) |
-| UI-LAB-MENU | Lab tools back on desktop App menu | next | **KAN-260** after E3 — Security/Heal/Desktop/Suites/Sandboxes currently hub-only on default overlay |
+| UI-LAB-MENU | Lab tools back on desktop App menu | (see Now) | **KAN-260** |
 | TESTALL-F | Role widget packs on orb home | later | F = HUD packs on **orb home** (not separate homes); F6 assumes E3 redaction |
 | TESTALL-G | Plugins widen (desktop cases, API, a11y, …) | later | Stubs stay until deepened |
 | TESTALL-H | Manual capture + pipelines + multi-PC share | future | Design-only until later council |
@@ -85,8 +86,8 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**E2** — Done (**KAN-195** audit log for local side effects; test **KAN-196**; desk62). **E3** — next (**KAN-197** redact secrets in evidence and exports; test **KAN-198**). After E3 → **KAN-260** (lab tools in App menu), then E4…. Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.
-**Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1…4** (**KAN-247…249**, **KAN-253**); **C3 KAN-161**; **C4 KAN-163** coverage gaps (desk45); **C5 KAN-165** acceptance drift (desk46); **C6 KAN-167** traceability matrix (desk48); **C7 KAN-169** tags/priority/smoke/regression (desk49); **C8 KAN-171** import Playwright into suite (desk50); **C9 KAN-173** search plans/cases/failures (desk51); **C10 KAN-175** suite history/compare (desk52); **C11 KAN-177** archive case (desk53); **D1 KAN-179** sequential default + parallel cap (desk54); **D2 KAN-181** flake/quarantine (desk55); **D3 KAN-183** named environments (desk56); **D4 KAN-185** credential status (desk57); **D5 KAN-187** case step timeouts (desk58); **D6 KAN-189** local run-finish notices (desk59); **D7 KAN-191** duration on run/case + compare (desk60); **E1 KAN-193** document privacy for uploads (desk61); **E2 KAN-195** local side-effects audit (desk62).
+**E3** — Done (**KAN-197** redact secrets in evidence/exports; test **KAN-198**; desk63). **Now** — **KAN-260** lab tools in App menu; then E4…. Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.
+**Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1…4** (**KAN-247…249**, **KAN-253**); **C3 KAN-161**; **C4 KAN-163** coverage gaps (desk45); **C5 KAN-165** acceptance drift (desk46); **C6 KAN-167** traceability matrix (desk48); **C7 KAN-169** tags/priority/smoke/regression (desk49); **C8 KAN-171** import Playwright into suite (desk50); **C9 KAN-173** search plans/cases/failures (desk51); **C10 KAN-175** suite history/compare (desk52); **C11 KAN-177** archive case (desk53); **D1 KAN-179** sequential default + parallel cap (desk54); **D2 KAN-181** flake/quarantine (desk55); **D3 KAN-183** named environments (desk56); **D4 KAN-185** credential status (desk57); **D5 KAN-187** case step timeouts (desk58); **D6 KAN-189** local run-finish notices (desk59); **D7 KAN-191** duration on run/case + compare (desk60); **E1 KAN-193** document privacy for uploads (desk61); **E2 KAN-195** local side-effects audit (desk62); **E3 KAN-197** redact secrets in evidence/exports (desk63).
 
 **Council CR (2026-11-16):** Test-all vision locked; catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
 **Council review (2026-11-17):** On track at E3; cut-nothing holds (reach gap = hub-only lab tools → **KAN-260** after E3); stale Now pointers refreshed here.

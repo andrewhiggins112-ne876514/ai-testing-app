@@ -111,6 +111,7 @@ from settings.environments import (
 from settings.ollama_models import list_ollama_models
 from settings.local_audit import list_local_audit
 from settings.privacy import delete_local_data, privacy_status, telemetry_enabled
+from reports.redact import redaction_status
 from settings.store import (
     app_settings_status,
     load_settings,
@@ -559,6 +560,12 @@ async def post_privacy_delete_api(req: DeleteLocalDataRequest):
 async def get_local_audit_api(limit: int = 100):
     """Local side-effects audit for Security (KAN-195 / E2). No tokens/bodies."""
     return list_local_audit(limit=limit)
+
+
+@app.get("/api/redaction")
+async def get_redaction_api():
+    """Export/evidence redaction policy (KAN-197 / E3). Never echoes secrets."""
+    return redaction_status()
 
 
 @app.get("/api/app-settings")

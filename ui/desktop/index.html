@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk62" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk63" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -331,6 +331,13 @@
           </div>
           <ul id="local-audit-list" class="drawer-hint" aria-live="polite"></ul>
           <p id="local-audit-status" class="drawer-hint" role="status">Ready</p>
+          <h3 class="orb-section-label">Export &amp; evidence redaction</h3>
+          <p class="drawer-hint">
+            Exports and evidence index redact known secret patterns and stored token values.
+            Hit counts appear on the export summary. Screenshots are not OCR-redacted automatically.
+          </p>
+          <p id="redaction-status" class="drawer-hint" role="status">Redaction: —</p>
+          <p id="redaction-screenshot-warn" class="drawer-hint" hidden></p>
         </div>
         <div id="app-section-reports" class="app-section" hidden>
           <h3 class="orb-section-label">Report library</h3>
@@ -757,6 +764,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk62"></script>
+  <script src="/ui/desktop/desktop.js?v=desk63"></script>
 </body>
 </html>

@@ -1550,6 +1550,8 @@
   const localAuditRefresh = document.getElementById("local-audit-refresh");
   const localAuditList = document.getElementById("local-audit-list");
   const localAuditStatus = document.getElementById("local-audit-status");
+  const redactionStatusEl = document.getElementById("redaction-status");
+  const redactionShotWarn = document.getElementById("redaction-screenshot-warn");
   let pendingPrivacyCategories = null;
   const docText = document.getElementById("doc-text");
   const docParse = document.getElementById("doc-parse");
@@ -1818,12 +1820,19 @@
       }
       if (rptStatus) {
         const n = data.heal_pending_count || 0;
-        rptStatus.textContent =
+        const hits = data.redaction_hits || 0;
+        let text =
           "Exported run " +
           runId +
+          ". Redaction hits: " +
+          hits +
           ". " +
           n +
           " pending heal(s) for this run — open Heal review to approve/reject (no auto-commit).";
+        if (data.screenshot_redaction_warning) {
+          text += " " + data.screenshot_redaction_warning;
+        }
+        rptStatus.textContent = text;
       }
       if (healRunFilter) {
         healRunFilter.value = [planId, caseId, runId].join("|");
@@ -3295,6 +3304,34 @@
     }
   }
 
+  async function loadRedactionStatus() {
+    if (!redactionStatusEl) return;
+    try {
+      const res = await fetch("/api/redaction");
+      const data = await res.json();
+      if (!data || data.status !== "ok") {
+        redactionStatusEl.textContent = "Redaction: unavailable";
+        return;
+      }
+      redactionStatusEl.textContent =
+        "Redaction: patterns on · stored tokens on · OCR off · " +
+        "configured secrets in store: " +
+        (data.stored_secrets_configured || 0) +
+        " (values never shown)";
+      if (redactionShotWarn) {
+        if (data.screenshot_warning) {
+          redactionShotWarn.hidden = false;
+          redactionShotWarn.textContent = data.screenshot_warning;
+        } else {
+          redactionShotWarn.hidden = true;
+          redactionShotWarn.textContent = "";
+        }
+      }
+    } catch (err) {
+      redactionStatusEl.textContent = "Redaction: could not load.";
+    }
+  }
+
   async function loadLocalAudit() {
     if (!localAuditList) return;
     try {
@@ -3697,6 +3734,7 @@
       loadSecurityStatus();
       loadPrivacyStatus();
       loadLocalAudit();
+      loadRedactionStatus();
     }
     if (name === "documents") loadDocUploads();
     if (name === "heal") {

@@ -51,6 +51,10 @@ def write_failure_bundle(
         encoding="utf-8",
     )
     bundle["trace"] = str(trace_placeholder)
+    from reports.redact import redact_evidence_index
+
+    # Evidence index must not become a second copy of stored tokens (KAN-197 / E3).
+    bundle = redact_evidence_index(bundle)
     manifest = folder / "bundle.json"
     manifest.write_text(json.dumps(bundle, indent=2), encoding="utf-8")
     paths = [str(manifest)]

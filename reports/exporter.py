@@ -58,8 +58,26 @@ def export_run(
             "result": result,
             "sections": section_payload,
         }
+        from reports.redact import redact_export_payload
+
+        payload = redact_export_payload(payload)
+        section_payload = (
+            payload.get("sections")
+            if isinstance(payload.get("sections"), dict)
+            else section_payload
+        )
         json_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         md_path.write_text(render_markdown(section_payload), encoding="utf-8")
+        # Attach redaction meta on the returned result for API/UI (never secrets).
+        if isinstance(result, dict):
+            meta = payload.get("redaction") if isinstance(payload.get("redaction"), dict) else {}
+            enriched = dict(result)
+            enriched["redaction_hits"] = meta.get("redaction_hits", 0)
+            if meta.get("screenshot_redaction_warning"):
+                enriched["screenshot_redaction_warning"] = meta[
+                    "screenshot_redaction_warning"
+                ]
+            return enriched
     except Exception:
         return result
     return result

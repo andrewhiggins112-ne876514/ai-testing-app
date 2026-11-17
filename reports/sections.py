@@ -363,6 +363,11 @@ def render_markdown(sections: Mapping[str, Any]) -> str:
             lines.append(f"Pass rate: {rate}%")
         lines.append(f"Stories covered: {summary.get('stories_covered', 0)}")
         lines.append(f"Bugs raised: {summary.get('bugs_raised', 0)}")
+        if "redaction_hits" in summary:
+            lines.append(f"Redaction hits: {summary.get('redaction_hits', 0)}")
+        warn = summary.get("screenshot_redaction_warning")
+        if warn:
+            lines.append(f"Screenshot warning: {warn}")
         if summary.get("error"):
             lines.append(f"Error: {summary.get('error')}")
         lines.append("")

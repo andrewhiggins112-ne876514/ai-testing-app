@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-197** — E3 Redact secrets in evidence and exports |
-| **Start task** | **KAN-198** (`test`, Relates → KAN-197) |
-| **Epic** | Test-all E (see catalogue) |
-| **Roadmap ID** | E3 / FR-SEC-5 + FR-REP-3 |
+| **Jira story** | **KAN-260** — Lab tools in App menu |
+| **Start task** | (linked `test` Relates → KAN-260; create if missing) |
+| **Epic** | UI / Designer priority (reach gap) |
+| **Roadmap ID** | UI-LAB-MENU |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-198** |
-| **Shipped** | … **KAN-195** E2 local side-effects audit (desk62); **KAN-193** E1 document privacy uploads (desk61); **KAN-191** D7 duration (desk60); **KAN-189** D6 run-finish notify (desk59); **KAN-187** D5 timeouts; **KAN-185** D4 credential status; **KAN-183** D3 named environments; **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-257** App menu |
+| **Test ticket** | (create `test` Relates if none) |
+| **Shipped** | … **KAN-197** E3 redact secrets (desk63); **KAN-195** E2 local side-effects audit (desk62); **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | **KAN-260** Lab tools in App menu (Designer priority after E3; then resume E4…) |
+| **Next after this** | Resume Test-all **E4** (backup/restore) after KAN-260 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-197 — E3 Redact secrets in evidence and exports
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-197
+- **Done:** Exports and evidence index (`bundle.json`) redact known secret patterns and stored token values (`jira_api_token`, `target_secret`). Export summary counts `redaction_hits`; screenshots get an explicit non-OCR warning (not a wipe). `GET /api/redaction` + Security panel blurb (desk63).
+- **Files:** `reports/redact.py`, `reports/exporter.py`, `reports/sections.py`, `plans/evidence_bundle.py`, `plans/run_report.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_export_redaction.py` (+ desk63 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_export_redaction.py` + related (45 passed). Live `GET /api/redaction` → patterns on, ocr false, wipes false; desk63 HTML has `redaction-status` / `redaction-screenshot-warn`; `desktop_app.py` opened (desk63).
+- **Jira:** close-out **KAN-197** + **KAN-198**
+- **Next:** **KAN-260** Lab tools in App menu (then E4…)
 
 ### 2026-11-17 — Council review — track / gaps / cut-nothing
 - **Agent/chat:** Cursor IDE Agent `/council` — Review mode (no product code)

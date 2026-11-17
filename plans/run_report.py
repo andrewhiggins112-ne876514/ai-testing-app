@@ -273,6 +273,19 @@ def export_plan_run(
         sections=enabled,
     )
     heals = list_pending_heals(run_id=str(run_id or "").strip())
+    hits = 0
+    shot_warn = None
+    if isinstance(exported, dict):
+        hits = int(exported.get("redaction_hits") or 0)
+        shot_warn = exported.get("screenshot_redaction_warning")
+    msg = (
+        f"Exported run {run_id} with selected report sections. "
+        f"Redaction hits: {hits}. "
+        f"{heals.get('count') or 0} pending heal(s) for this run "
+        "(approve/reject in Heal review; no auto-commit)."
+    )
+    if shot_warn:
+        msg += f" {shot_warn}"
     return {
         "status": "ok",
         "security_level": built.get("security_level"),
@@ -281,11 +294,9 @@ def export_plan_run(
         "run_id": run_id,
         "sections": enabled,
         "result": exported,
+        "redaction_hits": hits,
+        "screenshot_redaction_warning": shot_warn,
         "heal_pending": heals.get("pending") or [],
         "heal_pending_count": heals.get("count") or 0,
-        "message": (
-            f"Exported run {run_id} with selected report sections. "
-            f"{heals.get('count') or 0} pending heal(s) for this run "
-            "(approve/reject in Heal review; no auto-commit)."
-        ),
+        "message": msg,
     }
