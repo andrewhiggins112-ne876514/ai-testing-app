@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-17 — KAN-256 — Fix desktop App menu still tall after KAN-253
+- **Agent/chat:** Council/Designer follow-up — KAN-253 marked Done but desktop App menu unchanged vs Gradio popover
+- **Done:** Bug **KAN-256** raised + fixed. App menu is nav-only Gradio-style `position:fixed` popover under ▦; `#area-section-host` moved into `#area-body`; mid-seam toggle migrate (`appMenuCompactV2`); desk46.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.css`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_desktop_app_menu.py` (+ desk46 cache-bust in related tests)
+- **Verify:** `pytest tests/test_desktop_app_menu.py tests/test_nav_overlap.py tests/test_settings_hub.py tests/test_orb_hub.py tests/test_reports_library.py tests/test_plan_coverage_gaps.py -v` (27 passed). Restart `desktop_app.py` required to see desk46.
+- **Jira:** Fix comment + Done on **KAN-256**; note on **KAN-253**
+- **Next:** Active remains **KAN-165** C5; human should reopen desktop and confirm ▦ popover
+
 ### 2026-11-17 — KAN-163 — C4 Coverage gaps
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-163
 - **Done:** After project draft (and on demand), Plans lists stories with no case and stories whose cases are all disabled separately. Filter by key/summary (`q`). Never auto-creates cases. `GET /api/plans/{id}/coverage-gaps`; draft-project response includes `coverage_gaps`. desk45.

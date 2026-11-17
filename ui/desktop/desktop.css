@@ -533,19 +533,26 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   gap: 12px;
 }
 
-/* Compact App menu (KAN-253) — ▦ opens a small panel, not a tall side rail. */
+/* Compact App menu (KAN-253 / KAN-256) — Gradio-style ▦ popover, not a tall side rail. */
 #app-drawer.app-menu-panel {
-  position: absolute;
-  z-index: 12;
-  width: min(280px, calc(100vw - 24px));
-  max-height: min(70vh, 520px);
-  height: auto;
+  position: fixed;
+  z-index: 40;
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  width: min(260px, calc(100vw - 24px));
+  max-width: min(260px, calc(100vw - 24px));
+  height: fit-content;
+  max-height: min(72vh, 560px);
   overflow: hidden;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-4px);
-  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+  transform: translateY(-6px);
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
+  /* Never inherit tall side-drawer top/bottom stretch. */
+  inset: unset;
 }
 
 #app-drawer.app-menu-panel.open {
@@ -556,21 +563,24 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
 }
 
 #app-drawer.app-menu-panel .app-menu-inner {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-width: 100%;
   height: auto;
-  max-height: min(70vh, 520px);
+  max-height: min(72vh, 560px);
   overflow: auto;
   margin: 0;
   border-radius: 14px;
   padding: 12px 12px 10px;
-  gap: 10px;
+  gap: 8px;
   border: 1px solid var(--cyan-dim);
+  background: rgba(8, 14, 22, 0.97);
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
 }
 
 #app-drawer.app-menu-panel .app-menu-title {
-  margin: 0;
+  margin: 0 0 2px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -588,8 +598,19 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   min-height: 34px;
 }
 
+#app-drawer.app-menu-panel #app-drawer-hint {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 #app-drawer.app-menu-panel .drawer-resize-handle {
-  display: none;
+  display: none !important;
+}
+
+/* App toggle defaults to a top-left chrome control (Gradio parity). */
+#app-drawer-toggle.app-drawer-toggle {
+  z-index: 41;
 }
 
 .app-nav {
@@ -920,10 +941,7 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   border-radius: 3px;
 }
 
-/* App areas live in #area-body, not as inline drawer sections. */
-#app-drawer #area-section-host {
-  display: none;
-}
+/* App areas live in #area-body only (KAN-256) — never nest host under App menu. */
 
 .layout-picker {
   margin: 0;

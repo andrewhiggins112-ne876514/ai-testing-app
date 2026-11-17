@@ -415,36 +415,41 @@
   }
 
   function positionAppMenuPanel() {
-    /* Compact ▦ panel beside the toggle — not a full-height side rail (KAN-253). */
+    /* Gradio-style ▦ popover — fixed card beside the toggle (KAN-253 / KAN-256). */
     if (!appDrawer || !appToggle) return;
     const edge = appToggle.dataset.edge || "left";
     const tr = appToggle.getBoundingClientRect();
     const W = window.innerWidth;
     const H = window.innerHeight;
-    const panelW = Math.min(280, W - 24);
+    const panelW = Math.min(260, W - 24);
     const gap = 8;
     clearPos(appDrawer);
-    appDrawer.classList.remove("edge-left", "edge-right", "edge-top", "edge-bottom");
-    appDrawer.classList.add("edge-" + edge);
+    appDrawer.style.width = "";
+    appDrawer.style.height = "";
+    appDrawer.style.bottom = "";
+    appDrawer.style.right = "";
+    appDrawer.style.setProperty("--drawer-size", "");
+    appDrawer.classList.remove("edge-left", "edge-right", "edge-top", "edge-bottom", "side-drawer");
     appDrawer.style.width = panelW + "px";
-    appDrawer.style.maxHeight = Math.min(H - 48, 520) + "px";
+    appDrawer.style.maxHeight = Math.min(H - 24, 560) + "px";
+    /* Prefer drop-down under/ beside the button like Gradio #app-menu-panel. */
     if (edge === "left") {
-      appDrawer.style.left = clamp(tr.right + gap, 12, Math.max(12, W - panelW - 12)) + "px";
-      appDrawer.style.top = clamp(tr.top, 12, Math.max(12, H - 120)) + "px";
+      appDrawer.style.left = clamp(tr.left, 12, Math.max(12, W - panelW - 12)) + "px";
+      appDrawer.style.top = clamp(tr.bottom + gap, 12, Math.max(12, H - 80)) + "px";
       return;
     }
     if (edge === "right") {
-      appDrawer.style.left = clamp(tr.left - gap - panelW, 12, Math.max(12, W - panelW - 12)) + "px";
-      appDrawer.style.top = clamp(tr.top, 12, Math.max(12, H - 120)) + "px";
+      appDrawer.style.left = clamp(tr.right - panelW, 12, Math.max(12, W - panelW - 12)) + "px";
+      appDrawer.style.top = clamp(tr.bottom + gap, 12, Math.max(12, H - 80)) + "px";
       return;
     }
     if (edge === "top") {
       appDrawer.style.left = clamp(tr.left, 12, Math.max(12, W - panelW - 12)) + "px";
-      appDrawer.style.top = clamp(tr.bottom + gap, 12, Math.max(12, H - 120)) + "px";
+      appDrawer.style.top = clamp(tr.bottom + gap, 12, Math.max(12, H - 80)) + "px";
       return;
     }
     appDrawer.style.left = clamp(tr.left, 12, Math.max(12, W - panelW - 12)) + "px";
-    appDrawer.style.bottom = clamp(H - tr.top + gap, 12, Math.max(12, H - 120)) + "px";
+    appDrawer.style.top = clamp(tr.top - gap - 8, 12, Math.max(12, H - 80)) + "px";
   }
 
   function parkToggleOnOpenDrawer(toggle, drawer) {
@@ -948,11 +953,39 @@
     drawer.appendChild(handle);
   }
 
+  function defaultAlongForToggle(el, edge) {
+    const raw = el.getAttribute("data-default-along");
+    if (raw != null && raw !== "" && !Number.isNaN(Number(raw))) {
+      return Number(raw);
+    }
+    /* App ▦ defaults near the top (Gradio chrome), Screen stays mid-edge. */
+    if (el === appToggle && (edge === "left" || edge === "right")) {
+      return 16;
+    }
+    return null;
+  }
+
   function restoreLayout() {
+    /* One-time migrate: old mid-seam App toggle made the menu feel like a tall rail. */
+    if (!layout.appMenuCompactV2 && appToggle) {
+      layout.appMenuCompactV2 = true;
+      const t = layout.toggles && layout.toggles[appToggle.id];
+      if (t && typeof t.along === "number" && t.along > 80) {
+        t.along = 16;
+        t.edge = t.edge || "left";
+      }
+      if (layout.drawers && layout.drawers["app-drawer"]) {
+        delete layout.drawers["app-drawer"];
+      }
+      saveLayout(layout);
+    }
     [appToggle, screenToggle].forEach(function (el) {
       const saved = layout.toggles[el.id];
       const edge = (saved && saved.edge) || el.getAttribute("data-default-edge") || "left";
-      const along = saved && typeof saved.along === "number" ? saved.along : null;
+      const along =
+        saved && typeof saved.along === "number"
+          ? saved.along
+          : defaultAlongForToggle(el, edge);
       placeToggle(el, edge, along);
       const drawer = toggleDrawerMap.get(el);
       if (isCompactAppMenu(drawer)) {
