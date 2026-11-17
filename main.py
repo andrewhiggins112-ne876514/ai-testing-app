@@ -77,6 +77,7 @@ from plans.api_case import add_api_case, add_contract_case
 from plans.seed_case import add_seed_case
 from plans.visual_case import add_visual_case, update_case_baseline
 from plans.a11y_case import add_a11y_browser_case, enable_a11y_on_case
+from plans.perf_case import add_perf_budget_case, set_performance_budget
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
 from plans.home_checklist import home_checklist_summary
@@ -382,6 +383,22 @@ class PlanA11yEnableRequest(BaseModel):
     """Enable/disable a11y sidecar on an existing browser case (KAN-227 / G6)."""
 
     enabled: bool = True
+
+
+class PlanPerfCaseRequest(BaseModel):
+    """Add a browser case with a numeric performance budget (KAN-229 / G7)."""
+
+    name: str = ""
+    note: str = ""
+    tags: list[str] | None = None
+    budget_ms: int | None = None
+
+
+class PlanPerfBudgetRequest(BaseModel):
+    """Set or clear performance budget on an existing case (KAN-229 / G7)."""
+
+    budget_ms: int | None = None
+    clear: bool = False
 
 
 class JiraIssueRequest(BaseModel):
@@ -1424,6 +1441,41 @@ async def post_plan_a11y_enable(
         plan_id,
         case_id,
         enabled=bool(body.enabled),
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/perf")
+async def post_plan_perf_case(plan_id: str, req: PlanPerfCaseRequest):
+    """Add a browser case with a numeric performance budget (KAN-229 / G7)."""
+    return add_perf_budget_case(
+        plan_id,
+        req.name or "",
+        budget_ms=req.budget_ms,
+        note=req.note or "",
+        tags=list(req.tags or []),
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/perf")
+async def post_plan_perf_budget(
+    plan_id: str,
+    case_id: str,
+    req: PlanPerfBudgetRequest | None = None,
+):
+    """Set or clear a numeric performance budget on a case (KAN-229 / G7)."""
+    from plugins.performance_budget import DEFAULT_BUDGET_MS
+
+    body = req or PlanPerfBudgetRequest()
+    if body.clear:
+        budget: int | None = None
+    elif body.budget_ms is None:
+        budget = DEFAULT_BUDGET_MS
+    else:
+        budget = body.budget_ms
+    return set_performance_budget(
+        plan_id,
+        case_id,
+        budget_ms=budget,
     )
 
 

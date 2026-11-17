@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-229** — G7 Performance budget plugin |
-| **Start task** | **KAN-230** (`test`, Relates → KAN-229) |
+| **Jira story** | **KAN-231** — G8 Sandbox chosen as the run environment |
+| **Start task** | **KAN-232** (`test`, Relates → KAN-231) |
 | **Epic** | Test-all G (see catalogue) |
-| **Roadmap ID** | G7 / FR-PLUG-1 |
+| **Roadmap ID** | G8 / FR-PLUG-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-230** |
-| **Shipped** | … **KAN-227** G6 Accessibility (desk79); **KAN-225** G5 Visual baseline (desk78); **KAN-223** G4 Seed/fixtures (desk77); **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
+| **Test ticket** | **KAN-232** |
+| **Shipped** | … **KAN-229** G7 Performance budget (desk80); **KAN-227** G6 Accessibility (desk79); **KAN-225** G5 Visual baseline (desk78); **KAN-223** G4 Seed/fixtures (desk77); **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all G after G7 → G8… |
+| **Next after this** | continue Test-all G after G8 → G9… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-229 — G7 Performance budget plugin
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-229
+- **Done:** Optional numeric `performance_budget_ms` on cases. Local duration only; over budget fails that case; cases without budget unchanged. `performance_budget` plugin + evidence JSON. Plans UI “Add performance budget case”; `POST /api/plans/{id}/cases/perf` + set/clear `…/cases/{id}/perf` + desk80.
+- **Files:** `plugins/performance_budget.py`, `plugins/registry.py`, `plans/perf_case.py`, `plans/store.py`, `plans/run_case.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_performance_budget.py` (+ desk80 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_plan_performance_budget.py` 9 passed (+ a11y 8 = 17). Live `POST /api/plans/.../cases/perf` → budget_ms set, local_only true, cloud_apm false; plain case budget None. desk80 HTML has `plan-add-perf-btn`. `desktop_app.py` opened desk80 (orb home; Computer Use Plans click contested; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-229** + **KAN-230**
+- **Next:** **KAN-231** G8 Sandbox chosen as the run environment (test **KAN-232**)
 
 ### 2026-11-17 — KAN-227 — G6 Accessibility checks plugin
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-227

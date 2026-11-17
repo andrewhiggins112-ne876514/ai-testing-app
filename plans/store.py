@@ -24,6 +24,13 @@ def _utcnow() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
+def _coerce_performance_budget_ms(value: Any) -> int | None:
+    """Optional case budget (ms). None means no budget (KAN-229 / G7)."""
+    from plugins.performance_budget import coerce_budget_ms
+
+    return coerce_budget_ms(value)
+
+
 def _new_id(prefix: str = "") -> str:
     raw = uuid.uuid4().hex[:12]
     return f"{prefix}{raw}" if prefix else raw
@@ -158,6 +165,10 @@ def _normalize_case(raw: Any, *, order: int = 0) -> Optional[dict[str, Any]]:
         "source": source,
         # G6: opt-in a11y sidecar on browser cases (KAN-227). Off unless set.
         "a11y_check": bool(raw.get("a11y_check", False)),
+        # G7: optional numeric performance budget (ms); unset = unchanged (KAN-229).
+        "performance_budget_ms": _coerce_performance_budget_ms(
+            raw.get("performance_budget_ms")
+        ),
         "known_issue": _normalize_known_issue_field(raw.get("known_issue")),
         "runs": runs,
         "created_at": str(raw.get("created_at") or now),
@@ -211,6 +222,30 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
             "violation_count": vcount,
             "replaces_functional": False,
         }
+    # G7: performance budget evaluation (KAN-229) — local only.
+    perf_raw = raw.get("performance") if isinstance(raw.get("performance"), dict) else None
+    perf_summary = None
+    if perf_raw is not None:
+        try:
+            bms = int(perf_raw["budget_ms"]) if perf_raw.get("budget_ms") is not None else None
+        except (TypeError, ValueError, KeyError):
+            bms = None
+        try:
+            dms = (
+                int(perf_raw["duration_ms"])
+                if perf_raw.get("duration_ms") is not None
+                else None
+            )
+        except (TypeError, ValueError, KeyError):
+            dms = None
+        perf_summary = {
+            "budget_ms": bms,
+            "duration_ms": dms,
+            "over_budget": bool(perf_raw.get("over_budget")),
+            "status": str(perf_raw.get("status") or "")[:40] or None,
+            "local_only": True,
+            "cloud_apm": False,
+        }
     return {
         "id": rid,
         "result": result,
@@ -223,6 +258,7 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
         "seed_fixture": seed_name,
         "visual_baseline": visual_name,
         "a11y": a11y_summary,
+        "performance": perf_summary,
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
         "note": str(raw.get("note") or "")[:2000],
@@ -539,6 +575,7 @@ def add_case(
     source_kind: str = "manual-draft",
     source_ref: str = "",
     a11y_check: bool = False,
+    performance_budget_ms: int | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
     from settings.store import get_security_level
@@ -564,6 +601,7 @@ def add_case(
             "jira_key": jira_key,
             "source": {"kind": source_kind, "ref": source_ref},
             "a11y_check": bool(a11y_check),
+            "performance_budget_ms": performance_budget_ms,
             "runs": [],
             "created_at": now,
             "updated_at": now,
@@ -602,9 +640,11 @@ def add_run(
     seed_fixture: str | None = None,
     visual_baseline: str | None = None,
     a11y: dict[str, Any] | None = None,
+    performance: dict[str, Any] | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
     """Attach a run record to a case (execution itself is later stories)."""
+    from plugins.performance_budget import apply_performance_budget
     from settings.environments import active_environment_name
     from settings.store import get_security_level
 
@@ -631,10 +671,36 @@ def add_run(
     rid = (run_id or "").strip()
     if rid and not _ID_SAFE.match(rid):
         rid = ""
+    if not rid:
+        rid = _new_id("r")
     env_label = (environment_name if environment_name is not None else active_environment_name())
+    # G7: apply case performance budget (local duration only; KAN-229).
+    budget_ms = _coerce_performance_budget_ms(target.get("performance_budget_ms"))
+    if performance is None:
+        adj = apply_performance_budget(
+            result=result,
+            duration_ms=duration_ms,
+            budget_ms=budget_ms,
+            note=note,
+            failure_class=failure_class,
+        )
+        result = adj["result"]
+        note = adj["note"]
+        failure_class = adj["failure_class"]
+        performance = adj["performance"] if budget_ms is not None else None
+        if budget_ms is not None and performance and performance.get("applied"):
+            from plans.perf_case import write_perf_evidence
+
+            extra = write_perf_evidence(
+                run_id=rid,
+                plan_id=plan_id,
+                case_id=cid,
+                performance=performance,
+            )
+            evidence = list(evidence or []) + [p for p in extra if p not in (evidence or [])]
     run = _normalize_run(
         {
-            "id": rid or _new_id("r"),
+            "id": rid,
             "result": result,
             "duration_ms": duration_ms,
             "failure_class": failure_class,
@@ -645,6 +711,7 @@ def add_run(
             "seed_fixture": seed_fixture,
             "visual_baseline": visual_baseline,
             "a11y": a11y,
+            "performance": performance,
             "started_at": started_at or now,
             "finished_at": finished_at or now,
             "note": note,
@@ -1130,6 +1197,8 @@ def update_case(
     tags: list[str] | None = None,
     step_timeout_ms: int | None = None,
     a11y_check: bool | None = None,
+    performance_budget_ms: int | None = None,
+    clear_performance_budget: bool = False,
     level: str | None = None,
     session_id: str | None = None,
 ) -> dict[str, Any]:
@@ -1138,6 +1207,7 @@ def update_case(
     Archive (KAN-177 / C11) sets archived=True without deleting runs or evidence.
     Step timeout (KAN-187 / D5) is editable before run; default matches runner.
     a11y_check (KAN-227 / G6) opts the browser case into accessibility sidecar.
+    performance_budget_ms (KAN-229 / G7) sets/clears a local duration budget.
     Successful edits append a local side-effects audit line (KAN-195 / E2).
     """
     from settings.store import get_security_level
@@ -1200,6 +1270,13 @@ def update_case(
     if a11y_check is not None:
         target["a11y_check"] = bool(a11y_check)
         fields_changed.append("a11y_check")
+    if clear_performance_budget:
+        target["performance_budget_ms"] = None
+        fields_changed.append("performance_budget_ms")
+    elif performance_budget_ms is not None:
+        coerced = _coerce_performance_budget_ms(performance_budget_ms)
+        target["performance_budget_ms"] = coerced
+        fields_changed.append("performance_budget_ms")
     if step_timeout_ms is not None:
         from plans.timeouts import resolve_step_timeout_ms
 

@@ -1222,6 +1222,7 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
                 str(t or "").strip().lower() in {"a11y", "accessibility"}
                 for t in (case.get("tags") or [])
             ),
+            "performance_budget_ms": case.get("performance_budget_ms"),
             "runner": runner_name,
             "last_run": last,
             "last_run_summary": _last_run_summary(case),

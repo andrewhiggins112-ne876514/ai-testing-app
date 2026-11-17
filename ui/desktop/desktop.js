@@ -1362,6 +1362,7 @@
   const planAddVisualBtn = document.getElementById("plan-add-visual-btn");
   const planUpdateBaselineBtn = document.getElementById("plan-update-baseline-btn");
   const planAddA11yBtn = document.getElementById("plan-add-a11y-btn");
+  const planAddPerfBtn = document.getElementById("plan-add-perf-btn");
   const planPwPath = document.getElementById("plan-pw-path");
   const planRefreshBtn = document.getElementById("plan-refresh-btn");
   const planList = document.getElementById("plan-list");
@@ -2460,6 +2461,9 @@
             (kind === "manual-draft" && !c.jira_key ? " · manual-draft" : "") +
             (isKnownLabel(c) ? " · known" : "") +
             (isQuarantinedCase(c) ? " · quarantined" : "") +
+            (c.performance_budget_ms
+              ? " · budget " + c.performance_budget_ms + " ms"
+              : "") +
             (tags ? " · tags " + tags : "") +
             (pri ? " · P" + pri : "") +
             (src ? "\n   source: " + src : "") +
@@ -5939,6 +5943,51 @@
   if (planAddA11yBtn) {
     planAddA11yBtn.addEventListener("click", function () {
       addA11yCaseToOpenPlan();
+    });
+  }
+
+  async function addPerfCaseToOpenPlan() {
+    if (!openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      return;
+    }
+    if (planStatus) planStatus.textContent = "Adding performance budget case…";
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + "/cases/perf",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok" || !payload.plan) {
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message || "Could not add performance budget case.";
+        }
+        return;
+      }
+      renderPlanCases(payload.plan);
+      if (payload.case && planCaseId) {
+        planCaseId.value = payload.case.id || "";
+      }
+      if (typeof refreshLabHome === "function") await refreshLabHome();
+      if (planStatus) {
+        planStatus.textContent =
+          "Performance budget case added — over budget fails that case; local timing only.";
+      }
+    } catch (err) {
+      if (planStatus) {
+        planStatus.textContent = "Performance budget case request failed.";
+      }
+    }
+  }
+
+  if (planAddPerfBtn) {
+    planAddPerfBtn.addEventListener("click", function () {
+      addPerfCaseToOpenPlan();
     });
   }
 

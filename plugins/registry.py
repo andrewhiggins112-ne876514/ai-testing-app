@@ -89,6 +89,17 @@ _MANIFESTS: list[dict[str, Any]] = [
         "default_enabled": True,
     },
     {
+        "id": "performance_budget",
+        "name": "Performance budget",
+        "description": (
+            "Optional numeric duration budget (ms) on a case; over budget fails "
+            "that case. Cases without a budget unchanged. Local timing only "
+            "(KAN-229 / G7)."
+        ),
+        "toggle_key": None,
+        "default_enabled": True,
+    },
+    {
         "id": "doc_ingest",
         "name": "Document ingestion",
         "description": "Parse specs into settings proposals (confirm before write).",

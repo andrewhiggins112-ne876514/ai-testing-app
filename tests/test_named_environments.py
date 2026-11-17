@@ -136,7 +136,7 @@ class NamedEnvironmentsTests(unittest.TestCase):
         self.assertNotIn("jira_api_token", blob)
         self.assertNotIn("password", blob.lower())
 
-    def test_api_and_desktop_ui_desk79(self):
+    def test_api_and_desktop_ui_desk80(self):
         client = TestClient(main.app)
         created = client.post(
             "/api/environments",
@@ -163,8 +163,8 @@ class NamedEnvironmentsTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk79", html)
-        self.assertIn("desk79", desk)
+        self.assertIn("desk80", html)
+        self.assertIn("desk80", desk)
         self.assertIn("set-env-active", html)
         self.assertIn("plan-env-active", html)
         self.assertIn("/api/environments", js)
