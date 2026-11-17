@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-248** — UI-NAV-IA-2 — Gradio menu button (no persistent top tab bar) |
-| **Start task** | **KAN-251** (`test`, Relates → KAN-248) |
+| **Jira story** | **KAN-249** — UI-NAV-IA-3 — Settings hub (App / Report categories) |
+| **Start task** | **KAN-252** (`test`, Relates → KAN-249) |
 | **Epic** | **KAN-27** — Desktop / Gradio shell |
-| **Roadmap ID** | UI-NAV-IA-2 / FR-UI-1 + FR-UI-2 |
+| **Roadmap ID** | UI-NAV-IA-3 / FR-SET-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-251** |
-| **Shipped** | … **KAN-159** C2; **KAN-247** Reports library + Report Settings |
+| **Test ticket** | **KAN-252** |
+| **Shipped** | … **KAN-247** Reports library; **KAN-248** Gradio menu button |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-248 — UI-NAV-IA-2 Gradio menu button (no top tabs)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-248
+- **Done:** Replaced Gradio `gr.Tabs` strip with App menu button (`▦`) + panel (Chat / Settings / Plans / Reports / Documents). Area columns toggle via `select_app_area`; home stays Chat + orb. Orb gear remains orb-only. Desktop drawer unchanged (no top tab bar).
+- **Files:** `ui/gradio_app.py`, `tests/test_gradio_menu_nav.py`, `tests/test_plans_tab.py`, `tests/test_reports_library.py`
+- **Verify:** `pytest tests/test_gradio_menu_nav.py tests/test_plans_tab.py tests/test_reports_library.py tests/test_reports_tab.py -v` (20 passed). Live Gradio: menu visible, `tab_nav_count=0`, Plans switch works, orb gear → Presets. Desktop HTML still has `app-drawer-toggle` / no `tab-nav`.
+- **Jira:** close-out **KAN-248** + **KAN-251**
+- **Next:** **KAN-249** Settings hub (test **KAN-252**)
 
 ### 2026-11-17 — KAN-247 — UI-NAV-IA-1 Reports library / Report Settings
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-247

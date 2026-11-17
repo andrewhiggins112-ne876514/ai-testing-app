@@ -106,8 +106,8 @@ class ReportsLibraryTests(unittest.TestCase):
 
     def test_gradio_sections_live_under_settings_not_reports_lead(self):
         src = (ROOT / "ui" / "gradio_app.py").read_text(encoding="utf-8")
-        settings_idx = src.find('with gr.Tab("Settings"):')
-        reports_idx = src.find('with gr.Tab("Reports"):')
+        settings_idx = src.find('elem_id="gradio-area-settings"')
+        reports_idx = src.find('elem_id="gradio-area-reports"')
         self.assertGreater(settings_idx, 0)
         self.assertGreater(reports_idx, settings_idx)
         settings_chunk = src[settings_idx:reports_idx]

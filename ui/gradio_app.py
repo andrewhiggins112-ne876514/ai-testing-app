@@ -323,6 +323,27 @@ def toggle_orb_settings(is_open: bool):
     return nxt, gr.update(visible=nxt)
 
 
+# Gradio app areas (KAN-248 / UI-NAV-IA-2) — menu button, not a top tab strip.
+GRADIO_APP_AREAS = ("Chat", "Settings", "Plans", "Reports", "Documents")
+
+
+def toggle_app_menu(is_open: bool):
+    nxt = not bool(is_open)
+    return nxt, gr.update(visible=nxt)
+
+
+def select_app_area(area: str):
+    """Show one Gradio area column; close the App menu. Home = Chat."""
+    chosen = area if area in GRADIO_APP_AREAS else "Chat"
+    panel_updates = [gr.update(visible=(name == chosen)) for name in GRADIO_APP_AREAS]
+    return (
+        False,
+        gr.update(visible=False),
+        f"**{chosen}**",
+        *panel_updates,
+    )
+
+
 ORB_HTML = """
 <div class="energy-orb" data-state="calm">
   <canvas width="680" height="800" aria-label="energy orb"></canvas>
@@ -1152,7 +1173,8 @@ html, body {
 .gradio-container .main,
 .gradio-container .contain,
 .gradio-container .tabs,
-.gradio-container .tabitem {
+.gradio-container .tabitem,
+.gradio-container .gradio-area {
   background: #05070d !important;
   color: #d7eaf6;
 }
@@ -1181,10 +1203,85 @@ html, body {
   background: #080d16 !important;
   border-color: #16485f !important;
 }
-.gradio-container .tab-nav button { color: #9fdfff !important; }
-.gradio-container .tab-nav button.selected {
-  color: #f3fdff !important;
-  border-color: #22d3ee !important;
+/* KAN-248: no persistent top tab strip — App menu button navigates areas. */
+.gradio-container .tab-nav {
+  display: none !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+#app-menu-chrome {
+  position: relative;
+  z-index: 80;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 0 0 8px 0 !important;
+  padding: 4px 2px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+#app-menu-chrome .form,
+#app-menu-chrome .block {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+#app-menu-btn button,
+#app-menu-btn {
+  min-width: 42px !important;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 10px !important;
+  border: 1px solid #1f6f8f !important;
+  background: #0a1522 !important;
+  color: #9fdfff !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.15);
+}
+#app-area-label,
+#app-area-label .html-container,
+#app-area-label .prose,
+#app-area-label p {
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #7eb7d4 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: transparent !important;
+  border: none !important;
+}
+#app-menu-panel {
+  position: relative;
+  z-index: 90;
+  width: min(280px, 100%);
+  margin: 0 0 12px 0 !important;
+  padding: 12px 12px 10px !important;
+  border: 1px solid #1f6f8f !important;
+  border-radius: 14px !important;
+  background: rgba(8, 14, 22, 0.97) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+#app-menu-panel .app-menu-title {
+  margin: 0 0 8px 0 !important;
+  font-size: 12px !important;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #67e8f9 !important;
+}
+#app-menu-panel button {
+  width: 100% !important;
+  justify-content: flex-start !important;
+  min-height: 34px !important;
+  margin: 0 0 6px 0 !important;
+  border-radius: 8px !important;
+  border: 1px solid #1f6f8f !important;
+  background: #0d1a28 !important;
+  color: #c8e7f7 !important;
 }
 .gradio-container footer, footer {
   background: #05070d !important;
@@ -2091,8 +2188,29 @@ class LocalApp(gr.Blocks):
 
 
 with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
-    with gr.Tabs():
-        with gr.Tab("Chat"):
+    app_menu_open = gr.State(False)
+    with gr.Row(elem_id="app-menu-chrome"):
+        app_menu_btn = gr.Button(
+            "\u25a6",
+            elem_id="app-menu-btn",
+            scale=0,
+            min_width=42,
+        )
+        app_area_label = gr.Markdown("**Chat**", elem_id="app-area-label")
+    with gr.Column(visible=False, elem_id="app-menu-panel") as app_menu_panel:
+        gr.HTML('<div class="app-menu-title">App</div>')
+        app_nav_chat = gr.Button("Chat", elem_id="app-menu-nav-chat", size="sm")
+        app_nav_settings = gr.Button("Settings", elem_id="app-menu-nav-settings", size="sm")
+        app_nav_plans = gr.Button("Plans", elem_id="app-menu-nav-plans", size="sm")
+        app_nav_reports = gr.Button("Reports", elem_id="app-menu-nav-reports", size="sm")
+        app_nav_documents = gr.Button("Documents", elem_id="app-menu-nav-documents", size="sm")
+    app_menu_btn.click(
+        toggle_app_menu,
+        [app_menu_open],
+        [app_menu_open, app_menu_panel],
+    )
+
+    with gr.Column(visible=True, elem_id="gradio-area-chat", elem_classes=["gradio-area"]) as area_chat:
             _orb = current_orb_config()
             with gr.Column(elem_id="chat-stage"):
                 orb_config_host = gr.HTML(
@@ -2221,7 +2339,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     analytics_enabled=False,
                     fill_height=False,
                 )
-        with gr.Tab("Settings"):
+    with gr.Column(visible=False, elem_id="gradio-area-settings", elem_classes=["gradio-area"]) as area_settings:
             (
                 loaded_level,
                 loaded_url,
@@ -2461,7 +2579,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 gr.HTML('<div class="orb-section-label" id="report-settings-heading">Report Settings</div>')
                 gr.HTML(
                     '<div class="panel-hint">Section include/exclude for the next JSON/Markdown export '
-                    "(FR-REP-2). The Reports tab is the saved-report library.</div>"
+                    "(FR-REP-2). Reports (App menu) is the saved-report library.</div>"
                 )
                 _sec = load_report_sections()
                 sec_summary = gr.Checkbox(value=_sec["summary"], label="Summary (status, counts, steps)")
@@ -2483,7 +2601,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     [sec_summary, sec_stories, sec_bugs, sec_evidence, sec_known],
                     [sections_status],
                 )
-        with gr.Tab("Plans"):
+    with gr.Column(visible=False, elem_id="gradio-area-plans", elem_classes=["gradio-area"]) as area_plans:
             _plan_choices = list_plan_choices()
             _case_choices = list_case_choices(_plan_choices[0] if _plan_choices else None)
             with gr.Column(elem_id="plans-panel"):
@@ -2536,7 +2654,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     [plan_detail],
                 )
 
-        with gr.Tab("Reports"):
+    with gr.Column(visible=False, elem_id="gradio-area-reports", elem_classes=["gradio-area"]) as area_reports:
             _report_choices = list_report_choices()
             with gr.Column(elem_id="reports-panel"):
                 gr.HTML('<div class="panel-title">Reports</div>')
@@ -2572,7 +2690,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     [report_pick],
                     [report_pick, report_md, report_image, report_json, report_meta],
                 )
-        with gr.Tab("Documents"):
+    with gr.Column(visible=False, elem_id="gradio-area-documents", elem_classes=["gradio-area"]) as area_documents:
             with gr.Column(elem_id="documents-panel"):
                 gr.HTML('<div class="panel-title">Documents</div>')
                 gr.HTML(
@@ -2607,6 +2725,23 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     [doc_proposal_id],
                     [doc_status, doc_preview, doc_proposal_id],
                 )
+
+    _app_area_outputs = [
+        app_menu_open,
+        app_menu_panel,
+        app_area_label,
+        area_chat,
+        area_settings,
+        area_plans,
+        area_reports,
+        area_documents,
+    ]
+    app_nav_chat.click(lambda: select_app_area("Chat"), outputs=_app_area_outputs)
+    app_nav_settings.click(lambda: select_app_area("Settings"), outputs=_app_area_outputs)
+    app_nav_plans.click(lambda: select_app_area("Plans"), outputs=_app_area_outputs)
+    app_nav_reports.click(lambda: select_app_area("Reports"), outputs=_app_area_outputs)
+    app_nav_documents.click(lambda: select_app_area("Documents"), outputs=_app_area_outputs)
+
     demo.load(
         current_settings,
         outputs=[

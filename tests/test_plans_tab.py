@@ -116,12 +116,18 @@ class PlansTabTests(unittest.TestCase):
         self.assertEqual(kwargs.get("session_id"), "gradio-plan-run")
         self.assertIn("pass", status.lower())
 
-    def test_existing_tabs_still_defined(self):
+    def test_existing_areas_still_defined(self):
         """C1 must not remove Chat / Settings / Reports / Documents panels."""
         source = (ROOT / "ui" / "gradio_app.py").read_text(encoding="utf-8")
-        for tab in ('gr.Tab("Chat")', 'gr.Tab("Settings")', 'gr.Tab("Reports")', 'gr.Tab("Documents")'):
-            self.assertIn(tab, source)
-        self.assertIn('gr.Tab("Plans")', source)
+        for area_id in (
+            'elem_id="gradio-area-chat"',
+            'elem_id="gradio-area-settings"',
+            'elem_id="gradio-area-reports"',
+            'elem_id="gradio-area-documents"',
+            'elem_id="gradio-area-plans"',
+            'elem_id="plans-panel"',
+        ):
+            self.assertIn(area_id, source)
 
 
 if __name__ == "__main__":
