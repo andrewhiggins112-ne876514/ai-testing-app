@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-249** — UI-NAV-IA-3 — Settings hub (App / Report categories) |
-| **Start task** | **KAN-252** (`test`, Relates → KAN-249) |
-| **Epic** | **KAN-27** — Desktop / Gradio shell |
-| **Roadmap ID** | UI-NAV-IA-3 / FR-SET-4 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
+| **Jira story** | **KAN-161** — Test-all C3 — Project-wide draft in batches |
+| **Start task** | **KAN-162** (`test`, Relates → KAN-161) |
+| **Epic** | Test-all C (plan growth) |
+| **Roadmap ID** | C3 / FR-PLAN-3 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-252** |
-| **Shipped** | … **KAN-247** Reports library; **KAN-248** Gradio menu button |
+| **Test ticket** | **KAN-162** |
+| **Shipped** | … **KAN-247** Reports library; **KAN-248** Gradio menu; **KAN-249** Settings hub |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-249 — UI-NAV-IA-3 Settings hub (App / Report)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-249
+- **Done:** Settings is a hub with App / Report category switch (stays on Settings). Desktop: `#settings-cat-*` panels + deep link from Reports opens Report category. Gradio: Radio category switch + show/hide App vs Report columns. Security confirm gates remain on Security (desktop). desk42.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_settings_hub.py`, `tests/test_reports_library.py`
+- **Verify:** `pytest tests/test_settings_hub.py tests/test_reports_library.py tests/test_gradio_menu_nav.py tests/test_report_sections.py -v` (23 passed). Live `/ui/desktop/?v=desk42` has `settings-cat-switch` + panels; `desktop_app.py` opened.
+- **Jira:** close-out **KAN-249** + **KAN-252**
+- **Next:** **KAN-161** C3 project-wide draft in batches (test **KAN-162**)
 
 ### 2026-11-17 — KAN-248 — UI-NAV-IA-2 Gradio menu button (no top tabs)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-248

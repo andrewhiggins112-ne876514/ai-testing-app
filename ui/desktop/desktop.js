@@ -1544,13 +1544,35 @@
     }
   }
 
-  function openReportSettings() {
-    openArea("settings");
-    if (reportSettingsHeading && typeof reportSettingsHeading.scrollIntoView === "function") {
+  let settingsCategoryPending = null;
+
+  function setSettingsCategory(cat) {
+    const chosen = cat === "report" ? "report" : "app";
+    const buttons = document.querySelectorAll(".settings-cat-btn[data-settings-cat]");
+    const panels = document.querySelectorAll(".settings-cat-panel[data-settings-cat-panel]");
+    buttons.forEach(function (btn) {
+      const on = btn.getAttribute("data-settings-cat") === chosen;
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    panels.forEach(function (panel) {
+      const on = panel.getAttribute("data-settings-cat-panel") === chosen;
+      panel.hidden = !on;
+    });
+    if (chosen === "report" && reportSettingsHeading && typeof reportSettingsHeading.scrollIntoView === "function") {
       window.setTimeout(function () {
         reportSettingsHeading.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 60);
+      }, 40);
     }
+  }
+
+  function openReportSettings() {
+    settingsCategoryPending = "report";
+    if (openAreaName === "settings") {
+      setSettingsCategory("report");
+      settingsCategoryPending = null;
+      return;
+    }
+    openArea("settings");
   }
 
   async function exportChosenRun() {
@@ -2555,6 +2577,10 @@
     }
     applyAreaLayout(areaLayout);
     applyHud(hudFlags);
+    if (name === "settings") {
+      setSettingsCategory(settingsCategoryPending || "app");
+      settingsCategoryPending = null;
+    }
     loadAreaData(name);
   }
 
@@ -4234,6 +4260,11 @@
       openReportSettings();
     });
   }
+  document.querySelectorAll(".settings-cat-btn[data-settings-cat]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      setSettingsCategory(btn.getAttribute("data-settings-cat"));
+    });
+  });
 
   window.addEventListener("resize", function () {
     restoreLayout();

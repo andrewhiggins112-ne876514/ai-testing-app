@@ -565,6 +565,42 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   background: rgba(80, 205, 255, 0.12);
 }
 
+.settings-cat-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 2px 0 6px;
+}
+
+.settings-cat-btn {
+  appearance: none;
+  border: 1px solid var(--cyan-dim);
+  background: rgba(80, 205, 255, 0.04);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+
+.settings-cat-btn[aria-selected="true"] {
+  border-color: var(--cyan-border);
+  background: rgba(80, 205, 255, 0.12);
+  color: var(--cyan);
+}
+
+.settings-cat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-cat-panel[hidden] {
+  display: none;
+}
+
 .app-section {
   display: flex;
   flex-direction: column;

@@ -26,7 +26,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 |----|------|---------|-------|
 | UI-NAV-IA-1 | Reports area = library/viewer; section toggles → Report Settings | UI-DESK-4 + after KAN-159 | **done** — **KAN-247** / test **KAN-250** (desk41) |
 | UI-NAV-IA-2 | Gradio menu button (no persistent top tab bar) | UI-NAV-IA-1 | **done** — **KAN-248** / test **KAN-251** |
-| UI-NAV-IA-3 | Settings hub category switch (App / Report / …) | UI-NAV-IA-1 | **KAN-249** / test **KAN-252**; FR-SET-4 |
+| UI-NAV-IA-3 | Settings hub category switch (App / Report / …) | UI-NAV-IA-1 | **done** — **KAN-249** / test **KAN-252** (desk42); FR-SET-4 |
 | UI-CHAT | Minimal chat UX polish / Gradio Settings+Reports gaps | UI-6 | **done** — KAN-10 Settings/Reports polish (2026-11-15) |
 | JIRA-R | Richer tickets (AC + test steps) | — | **done** (2026-11-15) — multi-audience template + enrich script |
 | JIRA-B | Backlog structure (epics/stories/tests/bugs) | JIRA-R | **done** (2026-11-15) — KAN-20…29; Story→`test`+Relates; Task=dev; Bug=defects |
@@ -81,8 +81,8 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**UI-NAV-IA-3** — next (**KAN-249** Settings hub; test **KAN-252**). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.
-**Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1 KAN-247**; **UI-NAV-IA-2 KAN-248** Gradio menu button (no top tabs).
+**C3** — next (**KAN-161** project-wide draft in batches; test **KAN-162**). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.
+**Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1…3** (**KAN-247…249**) Reports library + Gradio menu + Settings hub.
 
 **Council CR (2026-11-16):** Test-all vision locked; 48-story catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
 

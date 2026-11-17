@@ -101,8 +101,10 @@ class ReportsLibraryTests(unittest.TestCase):
         self.assertIn("Report library", reports_block)
         self.assertIn("openReportSettings", js)
         self.assertIn("/api/reports", js)
-        self.assertIn("desk41", desk)
-        self.assertIn("desk41", html)
+        self.assertIn("desk42", desk)
+        self.assertIn("desk42", html)
+        self.assertIn('id="settings-cat-report"', settings_block)
+        self.assertIn("setSettingsCategory", js)
 
     def test_gradio_sections_live_under_settings_not_reports_lead(self):
         src = (ROOT / "ui" / "gradio_app.py").read_text(encoding="utf-8")

@@ -344,6 +344,19 @@ def select_app_area(area: str):
     )
 
 
+GRADIO_SETTINGS_CATEGORIES = ("App", "Report")
+
+
+def select_settings_category(category: str):
+    """Settings hub category switch (FR-SET-4 / KAN-249) — stays on Settings."""
+    chosen = category if category in GRADIO_SETTINGS_CATEGORIES else "App"
+    return (
+        chosen,
+        gr.update(visible=(chosen == "App")),
+        gr.update(visible=(chosen == "Report")),
+    )
+
+
 ORB_HTML = """
 <div class="energy-orb" data-state="calm">
   <canvas width="680" height="800" aria-label="energy orb"></canvas>
@@ -2355,251 +2368,277 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
             with gr.Column(elem_id="settings-panel"):
                 gr.HTML('<div class="panel-title">Settings</div>')
                 gr.HTML(
-                    '<div class="panel-hint">Chat stays primary. Target URL, exe path, messaging '
-                    "endpoints, security, and Jira URL/project are first-class here — credentials never appear.</div>"
+                    '<div class="panel-hint">Settings hub (FR-SET-4). Switch App / Report without '
+                    "leaving Settings. Credentials never appear. Orb look stays under the orb gear.</div>"
                 )
-                gr.HTML('<div class="orb-section-label">Security</div>')
-                level = gr.Dropdown(
-                    choices=list(LEVELS),
-                    value=loaded_level,
-                    label="Security level",
-                    info="OFFICIAL and SECRET isolate credentials and browser profiles (FR-SEC-1).",
+                settings_cat = gr.Radio(
+                    choices=list(GRADIO_SETTINGS_CATEGORIES),
+                    value="App",
+                    label="Category",
+                    elem_id="settings-cat-switch",
                 )
-                gr.HTML('<div class="orb-section-label">Target application (FR-LEARN-2/3)</div>')
-                target_url_box = gr.Textbox(
-                    value=loaded_target,
-                    label="Target application URL",
-                    placeholder="https://app.example.com",
-                )
-                target_exe_box = gr.Textbox(
-                    value=loaded_exe,
-                    label="Target .exe path",
-                    placeholder=r"C:\Path\To\App.exe",
-                )
-                api_endpoint_box = gr.Textbox(
-                    value=loaded_msg,
-                    label="Messaging / API endpoint",
-                    placeholder="amqps://broker.example.com/vhost",
-                    info="http(s), amqp(s), or ws(s). Stored per security level.",
-                )
-                gr.HTML('<div class="orb-section-label">Jira</div>')
-                jira_base_url = gr.Textbox(
-                    value=loaded_url,
-                    label="Jira base URL",
-                    placeholder="https://your-site.atlassian.net",
-                    info="Site root only. Email and API token stay in the local settings file.",
-                )
-                jira_project_box = gr.Textbox(
-                    value=loaded_project,
-                    label="Jira project key (FR-LEARN-4)",
-                    placeholder="KAN",
-                    info="Default project for list/read when the agent omits a key.",
-                )
-                ollama_model_dd = gr.Dropdown(
-                    choices=loaded_ollama_choices or [loaded_ollama or ""],
-                    value=loaded_ollama or None,
-                    label="Ollama model (FR-CONN-1 / A3)",
-                    info="Chat uses this model. Missing models are refused on save — no pretend success.",
-                    allow_custom_value=False,
-                )
-                test_framework_dd = gr.Dropdown(
-                    choices=["playwright", "selenium", "cypress"],
-                    value=loaded_fw or "playwright",
-                    label="Test framework (FR-PLUG-3)",
-                    info="Playwright is ready. Selenium/Cypress are stubs — run returns not implemented.",
-                )
-                playwright_mode_dd = gr.Dropdown(
-                    choices=["headed", "headless"],
-                    value=loaded_pw_mode or "headed",
-                    label="Playwright browser mode (FR-TEST-2)",
-                    info="Headed shows Chromium (default). Headless runs without a window.",
-                )
-                store_info = gr.Textbox(
-                    value=settings_store_summary(),
-                    label="Local store",
-                    interactive=False,
-                    lines=4,
-                )
-                status = gr.Textbox(value="Ready", label="Status", interactive=False, max_lines=1)
-                health_info = gr.Textbox(
-                    value="Health: not checked yet",
-                    label="Connection health (Jira / Ollama / target)",
-                    interactive=False,
-                    lines=5,
-                )
-                with gr.Row():
-                    gr.Button("Save", variant="primary").click(
-                        save_settings,
-                        [
-                            level,
-                            jira_base_url,
-                            jira_project_box,
-                            target_url_box,
-                            target_exe_box,
-                            api_endpoint_box,
-                            test_framework_dd,
-                            playwright_mode_dd,
-                            ollama_model_dd,
-                        ],
-                        [status, store_info],
+                settings_cat_state = gr.State("App")
+                with gr.Column(visible=True, elem_id="settings-cat-app") as settings_cat_app:
+                    gr.HTML('<div class="orb-section-label">App settings</div>')
+                    gr.HTML(
+                        '<div class="panel-hint">Connectors, target, Jira, model, framework. '
+                        "Level switch and local-data wipe stay confirm-gated below (Gradio has no "
+                        "separate Security area yet).</div>"
                     )
-                    gr.Button("Confirm level switch").click(
-                        confirm_security_level,
-                        [
-                            level,
-                            jira_base_url,
-                            jira_project_box,
-                            target_url_box,
-                            target_exe_box,
-                            api_endpoint_box,
-                            test_framework_dd,
-                            playwright_mode_dd,
-                            ollama_model_dd,
-                        ],
-                        [status, store_info],
+                    gr.HTML('<div class="orb-section-label">Security</div>')
+                    level = gr.Dropdown(
+                        choices=list(LEVELS),
+                        value=loaded_level,
+                        label="Security level",
+                        info="OFFICIAL and SECRET isolate credentials and browser profiles (FR-SEC-1).",
                     )
-                    gr.Button("Check health").click(
-                        connection_health_summary,
-                        [],
-                        [health_info],
+                    gr.HTML('<div class="orb-section-label">Target application (FR-LEARN-2/3)</div>')
+                    target_url_box = gr.Textbox(
+                        value=loaded_target,
+                        label="Target application URL",
+                        placeholder="https://app.example.com",
                     )
-                gr.HTML('<div class="orb-section-label">Privacy &amp; local data (GDPR)</div>')
-                gr.HTML(
-                    '<div class="panel-hint">No telemetry by default. Wipe reports/screenshots/'
-                    "heal audit/sessions/browser profiles with confirmation. Credentials stay. "
-                    "Document ingestion still requires explicit consent before storing extracted data.</div>"
-                )
-                privacy_info = gr.Textbox(
-                    value=privacy_panel_summary(),
-                    label="Privacy status",
-                    interactive=False,
-                    lines=6,
-                )
-                with gr.Row():
-                    priv_reports = gr.Checkbox(value=True, label="Reports")
-                    priv_shots = gr.Checkbox(value=True, label="Screenshots")
-                    priv_heal = gr.Checkbox(value=True, label="Heal audit")
-                    priv_sessions = gr.Checkbox(value=True, label="Sessions")
-                    priv_profiles = gr.Checkbox(value=False, label="Browser profiles")
-                with gr.Row():
-                    gr.Button("Delete local data…").click(
-                        propose_delete_local_data,
-                        [priv_reports, priv_shots, priv_heal, priv_sessions, priv_profiles],
-                        [status, privacy_info, store_info],
+                    target_exe_box = gr.Textbox(
+                        value=loaded_exe,
+                        label="Target .exe path",
+                        placeholder=r"C:\Path\To\App.exe",
                     )
-                    gr.Button("Confirm delete").click(
-                        confirm_delete_local_data,
-                        [priv_reports, priv_shots, priv_heal, priv_sessions, priv_profiles],
-                        [status, privacy_info, store_info],
+                    api_endpoint_box = gr.Textbox(
+                        value=loaded_msg,
+                        label="Messaging / API endpoint",
+                        placeholder="amqps://broker.example.com/vhost",
+                        info="http(s), amqp(s), or ws(s). Stored per security level.",
                     )
-                gr.HTML('<div class="orb-section-label">Desktop plugin</div>')
-                _desk = desktop_plugin_status()
-                desk_enabled = gr.Checkbox(
-                    value=bool(_desk.get("plugin_desktop_enabled", True)),
-                    label="Enable desktop .exe smoke plugin (FR-TEST-3)",
-                )
-                desk_exe = gr.Textbox(
-                    value=_desk.get("target_app_path") or "",
-                    label="Smoke exe path (optional override)",
-                    placeholder=r"C:\Path\To\App.exe",
-                )
-                desk_status = gr.Textbox(
-                    value="Ready",
-                    label="Desktop smoke",
-                    interactive=False,
-                    max_lines=2,
-                )
-                with gr.Row():
-                    gr.Button("Save desktop plugin").click(
-                        save_desktop_plugin, [desk_enabled], [status, store_info]
+                    gr.HTML('<div class="orb-section-label">Jira</div>')
+                    jira_base_url = gr.Textbox(
+                        value=loaded_url,
+                        label="Jira base URL",
+                        placeholder="https://your-site.atlassian.net",
+                        info="Site root only. Email and API token stay in the local settings file.",
                     )
-                    gr.Button("Run desktop smoke", variant="primary").click(
-                        run_desktop_smoke_ui, [desk_exe], [desk_status]
+                    jira_project_box = gr.Textbox(
+                        value=loaded_project,
+                        label="Jira project key (FR-LEARN-4)",
+                        placeholder="KAN",
+                        info="Default project for list/read when the agent omits a key.",
                     )
-                gr.HTML('<div class="orb-section-label">Playwright suites (FR-TEST-5)</div>')
-                _suite = playwright_suite_status()
-                suite_path_box = gr.Textbox(
-                    value=_suite.get("playwright_suite_path") or "",
-                    label="Playwright project path",
-                    placeholder=r"D:\path\to\playwright-project",
-                )
-                suite_status = gr.Textbox(
-                    value="Ready",
-                    label="Suite status",
-                    interactive=False,
-                    max_lines=3,
-                )
-                with gr.Row():
-                    gr.Button("Discover suite").click(
-                        discover_playwright_suite_ui,
-                        [suite_path_box],
-                        [suite_status, store_info],
+                    ollama_model_dd = gr.Dropdown(
+                        choices=loaded_ollama_choices or [loaded_ollama or ""],
+                        value=loaded_ollama or None,
+                        label="Ollama model (FR-CONN-1 / A3)",
+                        info="Chat uses this model. Missing models are refused on save — no pretend success.",
+                        allow_custom_value=False,
                     )
-                    gr.Button("Import suite path").click(
-                        import_playwright_suite_ui,
-                        [suite_path_box],
-                        [suite_status, store_info],
+                    test_framework_dd = gr.Dropdown(
+                        choices=["playwright", "selenium", "cypress"],
+                        value=loaded_fw or "playwright",
+                        label="Test framework (FR-PLUG-3)",
+                        info="Playwright is ready. Selenium/Cypress are stubs — run returns not implemented.",
                     )
-                    gr.Button("Run suite", variant="primary").click(
-                        run_playwright_suite_ui, [suite_path_box], [suite_status]
+                    playwright_mode_dd = gr.Dropdown(
+                        choices=["headed", "headless"],
+                        value=loaded_pw_mode or "headed",
+                        label="Playwright browser mode (FR-TEST-2)",
+                        info="Headed shows Chromium (default). Headless runs without a window.",
                     )
-                gr.HTML('<div class="orb-section-label">Multi-sandbox plugin</div>')
-                _ms = multi_sandbox_plugin_status()
-                ms_enabled = gr.Checkbox(
-                    value=bool(_ms.get("plugin_multi_sandbox_enabled", False)),
-                    label="Enable multi-sandbox orchestration (KAN-95, default off)",
-                )
-                ms_action = gr.Dropdown(
-                    choices=["list", "plan", "prepare", "status"],
-                    value="list",
-                    label="Orchestrate action",
-                )
-                ms_status = gr.Textbox(
-                    value="Ready",
-                    label="Multi-sandbox",
-                    interactive=False,
-                    max_lines=3,
-                )
-                plugins_box = gr.Textbox(
-                    value=plugins_list_summary(),
-                    label="Plugin registry",
-                    interactive=False,
-                    lines=6,
-                )
-                with gr.Row():
-                    gr.Button("Save multi-sandbox plugin").click(
-                        save_multi_sandbox_plugin, [ms_enabled], [status, store_info]
+                    store_info = gr.Textbox(
+                        value=settings_store_summary(),
+                        label="Local store",
+                        interactive=False,
+                        lines=4,
                     )
-                    gr.Button("Orchestrate", variant="primary").click(
-                        run_multi_sandbox_ui, [ms_action], [ms_status]
+                    status = gr.Textbox(value="Ready", label="Status", interactive=False, max_lines=1)
+                    health_info = gr.Textbox(
+                        value="Health: not checked yet",
+                        label="Connection health (Jira / Ollama / target)",
+                        interactive=False,
+                        lines=5,
                     )
-                    gr.Button("Refresh plugins").click(
-                        plugins_list_summary, outputs=[plugins_box]
+                    with gr.Row():
+                        gr.Button("Save", variant="primary").click(
+                            save_settings,
+                            [
+                                level,
+                                jira_base_url,
+                                jira_project_box,
+                                target_url_box,
+                                target_exe_box,
+                                api_endpoint_box,
+                                test_framework_dd,
+                                playwright_mode_dd,
+                                ollama_model_dd,
+                            ],
+                            [status, store_info],
+                        )
+                        gr.Button("Confirm level switch").click(
+                            confirm_security_level,
+                            [
+                                level,
+                                jira_base_url,
+                                jira_project_box,
+                                target_url_box,
+                                target_exe_box,
+                                api_endpoint_box,
+                                test_framework_dd,
+                                playwright_mode_dd,
+                                ollama_model_dd,
+                            ],
+                            [status, store_info],
+                        )
+                        gr.Button("Check health").click(
+                            connection_health_summary,
+                            [],
+                            [health_info],
+                        )
+                    gr.HTML('<div class="orb-section-label">Privacy &amp; local data (GDPR)</div>')
+                    gr.HTML(
+                        '<div class="panel-hint">No telemetry by default. Wipe reports/screenshots/'
+                        "heal audit/sessions/browser profiles with confirmation. Credentials stay. "
+                        "Document ingestion still requires explicit consent before storing extracted data.</div>"
                     )
-                gr.HTML('<div class="orb-section-label" id="report-settings-heading">Report Settings</div>')
-                gr.HTML(
-                    '<div class="panel-hint">Section include/exclude for the next JSON/Markdown export '
-                    "(FR-REP-2). Reports (App menu) is the saved-report library.</div>"
-                )
-                _sec = load_report_sections()
-                sec_summary = gr.Checkbox(value=_sec["summary"], label="Summary (status, counts, steps)")
-                sec_stories = gr.Checkbox(value=_sec["stories"], label="Stories (Jira keys)")
-                sec_bugs = gr.Checkbox(value=_sec["bugs"], label="Bugs")
-                sec_evidence = gr.Checkbox(value=_sec["evidence"], label="Evidence (screenshot links)")
-                sec_known = gr.Checkbox(
-                    value=_sec.get("known_issues", True),
-                    label="Known issues (exclusions; not new regressions)",
-                )
-                sections_status = gr.Textbox(
-                    value="Ready",
-                    label="Section profile",
-                    interactive=False,
-                    max_lines=1,
-                )
-                gr.Button("Save sections", variant="primary").click(
-                    save_report_section_toggles,
-                    [sec_summary, sec_stories, sec_bugs, sec_evidence, sec_known],
-                    [sections_status],
+                    privacy_info = gr.Textbox(
+                        value=privacy_panel_summary(),
+                        label="Privacy status",
+                        interactive=False,
+                        lines=6,
+                    )
+                    with gr.Row():
+                        priv_reports = gr.Checkbox(value=True, label="Reports")
+                        priv_shots = gr.Checkbox(value=True, label="Screenshots")
+                        priv_heal = gr.Checkbox(value=True, label="Heal audit")
+                        priv_sessions = gr.Checkbox(value=True, label="Sessions")
+                        priv_profiles = gr.Checkbox(value=False, label="Browser profiles")
+                    with gr.Row():
+                        gr.Button("Delete local data…").click(
+                            propose_delete_local_data,
+                            [priv_reports, priv_shots, priv_heal, priv_sessions, priv_profiles],
+                            [status, privacy_info, store_info],
+                        )
+                        gr.Button("Confirm delete").click(
+                            confirm_delete_local_data,
+                            [priv_reports, priv_shots, priv_heal, priv_sessions, priv_profiles],
+                            [status, privacy_info, store_info],
+                        )
+                    gr.HTML('<div class="orb-section-label">Desktop plugin</div>')
+                    _desk = desktop_plugin_status()
+                    desk_enabled = gr.Checkbox(
+                        value=bool(_desk.get("plugin_desktop_enabled", True)),
+                        label="Enable desktop .exe smoke plugin (FR-TEST-3)",
+                    )
+                    desk_exe = gr.Textbox(
+                        value=_desk.get("target_app_path") or "",
+                        label="Smoke exe path (optional override)",
+                        placeholder=r"C:\Path\To\App.exe",
+                    )
+                    desk_status = gr.Textbox(
+                        value="Ready",
+                        label="Desktop smoke",
+                        interactive=False,
+                        max_lines=2,
+                    )
+                    with gr.Row():
+                        gr.Button("Save desktop plugin").click(
+                            save_desktop_plugin, [desk_enabled], [status, store_info]
+                        )
+                        gr.Button("Run desktop smoke", variant="primary").click(
+                            run_desktop_smoke_ui, [desk_exe], [desk_status]
+                        )
+                    gr.HTML('<div class="orb-section-label">Playwright suites (FR-TEST-5)</div>')
+                    _suite = playwright_suite_status()
+                    suite_path_box = gr.Textbox(
+                        value=_suite.get("playwright_suite_path") or "",
+                        label="Playwright project path",
+                        placeholder=r"D:\path\to\playwright-project",
+                    )
+                    suite_status = gr.Textbox(
+                        value="Ready",
+                        label="Suite status",
+                        interactive=False,
+                        max_lines=3,
+                    )
+                    with gr.Row():
+                        gr.Button("Discover suite").click(
+                            discover_playwright_suite_ui,
+                            [suite_path_box],
+                            [suite_status, store_info],
+                        )
+                        gr.Button("Import suite path").click(
+                            import_playwright_suite_ui,
+                            [suite_path_box],
+                            [suite_status, store_info],
+                        )
+                        gr.Button("Run suite", variant="primary").click(
+                            run_playwright_suite_ui, [suite_path_box], [suite_status]
+                        )
+                    gr.HTML('<div class="orb-section-label">Multi-sandbox plugin</div>')
+                    _ms = multi_sandbox_plugin_status()
+                    ms_enabled = gr.Checkbox(
+                        value=bool(_ms.get("plugin_multi_sandbox_enabled", False)),
+                        label="Enable multi-sandbox orchestration (KAN-95, default off)",
+                    )
+                    ms_action = gr.Dropdown(
+                        choices=["list", "plan", "prepare", "status"],
+                        value="list",
+                        label="Orchestrate action",
+                    )
+                    ms_status = gr.Textbox(
+                        value="Ready",
+                        label="Multi-sandbox",
+                        interactive=False,
+                        max_lines=3,
+                    )
+                    plugins_box = gr.Textbox(
+                        value=plugins_list_summary(),
+                        label="Plugin registry",
+                        interactive=False,
+                        lines=6,
+                    )
+                    with gr.Row():
+                        gr.Button("Save multi-sandbox plugin").click(
+                            save_multi_sandbox_plugin, [ms_enabled], [status, store_info]
+                        )
+                        gr.Button("Orchestrate", variant="primary").click(
+                            run_multi_sandbox_ui, [ms_action], [ms_status]
+                        )
+                        gr.Button("Refresh plugins").click(
+                            plugins_list_summary, outputs=[plugins_box]
+                        )
+                with gr.Column(visible=False, elem_id="settings-cat-report") as settings_cat_report:
+                    gr.HTML(
+                        '<div class="orb-section-label" id="report-settings-heading">Report Settings</div>'
+                    )
+                    gr.HTML(
+                        '<div class="panel-hint">Section include/exclude for the next JSON/Markdown export '
+                        "(FR-REP-2). Reports (App menu) is the saved-report library.</div>"
+                    )
+                    _sec = load_report_sections()
+                    sec_summary = gr.Checkbox(
+                        value=_sec["summary"], label="Summary (status, counts, steps)"
+                    )
+                    sec_stories = gr.Checkbox(value=_sec["stories"], label="Stories (Jira keys)")
+                    sec_bugs = gr.Checkbox(value=_sec["bugs"], label="Bugs")
+                    sec_evidence = gr.Checkbox(
+                        value=_sec["evidence"], label="Evidence (screenshot links)"
+                    )
+                    sec_known = gr.Checkbox(
+                        value=_sec.get("known_issues", True),
+                        label="Known issues (exclusions; not new regressions)",
+                    )
+                    sections_status = gr.Textbox(
+                        value="Ready",
+                        label="Section profile",
+                        interactive=False,
+                        max_lines=1,
+                    )
+                    gr.Button("Save sections", variant="primary").click(
+                        save_report_section_toggles,
+                        [sec_summary, sec_stories, sec_bugs, sec_evidence, sec_known],
+                        [sections_status],
+                    )
+                settings_cat.change(
+                    select_settings_category,
+                    [settings_cat],
+                    [settings_cat_state, settings_cat_app, settings_cat_report],
                 )
     with gr.Column(visible=False, elem_id="gradio-area-plans", elem_classes=["gradio-area"]) as area_plans:
             _plan_choices = list_plan_choices()

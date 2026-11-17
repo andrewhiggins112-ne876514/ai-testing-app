@@ -241,9 +241,9 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-SEC-4 | Done | **KAN-71** |
 | FR-UI-1…5 | Baseline shipped | **Done** KAN-10/41/53/73; Voice **KAN-81** deferred (mic; last) |
 | FR-UI-6 | Baseline Security + Reports + Lab checklist; role packs later | **Done** **KAN-103** / **KAN-107** / **KAN-104** + **KAN-135** empty-lab checklist; Test-all **F1–F7** |
-| FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix; content vs config | **Done** shell **KAN-103** / **KAN-104**; content-vs-config **open** KAN-247…249 |
-| FR-SET-3 | Shipped — App Settings vs Orb settings; tightened App category | **Done** Task **KAN-108**; tighten **open** **KAN-249** |
-| FR-SET-4 | Settings hub with category switch (App / Report / …) | **Open** — **KAN-249** |
+| FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix; content vs config | **Done** shell **KAN-103** / **KAN-104**; content-vs-config **KAN-247…249** |
+| FR-SET-3 | Shipped — App Settings vs Orb settings; App category on Settings hub | **Done** Task **KAN-108**; hub **KAN-249** |
+| FR-SET-4 | Settings hub with category switch (App / Report / …) | **Done** — **KAN-249** (desk42) |
 | FR-PLUG-1 | Shipped registry + local multi-sandbox orchestration | **Done** KAN-55 stub + **KAN-95** (test **KAN-96**) |
 | FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |
 | FR-PLUG-3 | Stub shipped (Playwright default; others not-implemented) | **Done** **KAN-79** (test **KAN-80**) |
