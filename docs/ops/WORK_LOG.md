@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-167** — C6 traceability matrix |
-| **Start task** | **KAN-168** (`test`, Relates → KAN-167) |
+| **Jira story** | **KAN-169** — C7 tags, priority, smoke and regression |
+| **Start task** | **KAN-170** (`test`, Relates → KAN-169) |
 | **Epic** | Test-all C (see catalogue) |
-| **Roadmap ID** | C6 / FR-REP-1 + FR-PLAN-4 |
+| **Roadmap ID** | C7 / FR-PLAN-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-168** |
-| **Shipped** | … **KAN-257** desktop App menu popover landed (desk47); **KAN-165** C5; **KAN-163** C4; **KAN-253** |
+| **Test ticket** | **KAN-170** |
+| **Shipped** | … **KAN-167** C6 traceability (desk48); **KAN-257** App menu; **KAN-165** C5; **KAN-163** C4 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all C after C6 |
+| **Next after this** | continue Test-all C after C7 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-167 — C6 traceability matrix
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-167
+- **Done:** Plan-level traceability matrix: story key, case count, last result, linked bug keys, known-issue flag. Keys with no runs are `not_loaded` (never fake pass). `GET /api/plans/{id}/traceability`; Desktop Plans grid with row→open case; report section `traceability` on export (run_report attaches rows). desk48.
+- **Files:** `plans/traceability.py`, `plans/__init__.py`, `plans/run_report.py`, `reports/sections.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/gradio_app.py`, `desktop_app.py`, `tests/test_plan_traceability.py`, `tests/test_report_sections.py` (+ desk48 cache-bust)
+- **Verify:** `pytest tests/test_plan_traceability.py tests/test_report_sections.py tests/test_desktop_app_menu.py tests/test_plan_coverage_gaps.py tests/test_plan_acceptance_drift.py tests/test_nav_overlap.py tests/test_orb_hub.py tests/test_settings_hub.py tests/test_reports_library.py -v` (44 passed). Live `/ui/desktop/?v=desk48` has `plan-trace-matrix` + `/api/plans/{id}/traceability`; `desktop_app.py` opened.
+- **Jira:** close-out **KAN-167** + **KAN-168**
+- **Next:** **KAN-169** C7 tags/priority/smoke/regression (test **KAN-170**)
 
 ### 2026-11-17 — KAN-257 — Desktop App menu still tall (KAN-256 never on main)
 - **Agent/chat:** Designer report — desktop ▦ still old 9-item menu vs Gradio Chat…Documents

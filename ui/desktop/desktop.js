@@ -1367,6 +1367,9 @@
   const planDriftKeepBtn = document.getElementById("plan-drift-keep-btn");
   const planDriftRefreshBtn = document.getElementById("plan-drift-refresh-btn");
   const planDriftOut = document.getElementById("plan-drift-out");
+  const planTraceFilter = document.getElementById("plan-trace-filter");
+  const planTraceBtn = document.getElementById("plan-trace-btn");
+  const planTraceMatrix = document.getElementById("plan-trace-matrix");
   const planCaseId = document.getElementById("plan-case-id");
   const planCaseName = document.getElementById("plan-case-name");
   const planCaseNote = document.getElementById("plan-case-note");
@@ -1451,6 +1454,7 @@
     bugs: document.getElementById("rpt-bugs"),
     evidence: document.getElementById("rpt-evidence"),
     known_issues: document.getElementById("rpt-known-issues"),
+    traceability: document.getElementById("rpt-traceability"),
   };
   const rptSave = document.getElementById("rpt-save");
   const rptLibrarySelect = document.getElementById("rpt-library-select");
@@ -1518,6 +1522,7 @@
       bugs: !!(rptChecks.bugs && rptChecks.bugs.checked),
       evidence: !!(rptChecks.evidence && rptChecks.evidence.checked),
       known_issues: !!(rptChecks.known_issues && rptChecks.known_issues.checked),
+      traceability: !!(rptChecks.traceability && rptChecks.traceability.checked),
     };
   }
 
@@ -2017,6 +2022,103 @@
     }
   }
 
+  function renderTraceabilityMatrix(payload) {
+    if (!planTraceMatrix) return;
+    const rows = (payload && payload.rows) || [];
+    planTraceMatrix._traceRows = rows;
+    planTraceMatrix.dataset.rowCount = String(rows.length);
+    planTraceMatrix.innerHTML = "";
+    if (!rows.length) {
+      planTraceMatrix.textContent = "Traceability: (no story rows)";
+      return;
+    }
+    const hint = document.createElement("div");
+    hint.className = "drawer-hint";
+    hint.textContent = "Story | Cases | Last | Bugs | Known — click a row to open the case";
+    planTraceMatrix.appendChild(hint);
+    rows.forEach(function (r) {
+      const bugs = (r.linked_bug_keys || []).join(", ") || "—";
+      const known = r.known_issue ? "yes" : "no";
+      const last = r.last_result || "not_loaded";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "save-btn secondary plan-trace-row";
+      btn.style.display = "block";
+      btn.style.width = "100%";
+      btn.style.textAlign = "left";
+      btn.style.marginTop = "0.35rem";
+      btn.dataset.caseId = r.primary_case_id || "";
+      btn.dataset.storyKey = r.story_key || "";
+      btn.textContent =
+        (r.story_key || "?") +
+        " | " +
+        (r.case_count != null ? r.case_count : 0) +
+        " | " +
+        last +
+        " | " +
+        bugs +
+        " | " +
+        known;
+      if (!r.primary_case_id) {
+        btn.disabled = true;
+        btn.title = "No case to open for this story";
+      } else {
+        btn.title = "Open case " + r.primary_case_id;
+        btn.addEventListener("click", function () {
+          openTraceabilityRow(r);
+        });
+      }
+      planTraceMatrix.appendChild(btn);
+    });
+  }
+
+  async function openTraceabilityRow(row) {
+    if (!row || !row.primary_case_id || !planCaseId) return;
+    planCaseId.value = row.primary_case_id;
+    if (planCaseName && row.summary) planCaseName.value = row.summary;
+    await refreshCaseDetail();
+    if (planCaseId.focus) planCaseId.focus();
+    if (planStatus) {
+      planStatus.textContent =
+        "Opened case " +
+        row.primary_case_id +
+        " for " +
+        (row.story_key || "story");
+    }
+  }
+
+  async function refreshTraceabilityMatrix() {
+    if (!openPlanId) {
+      renderTraceabilityMatrix({ rows: [] });
+      return;
+    }
+    const q =
+      planTraceFilter && planTraceFilter.value
+        ? planTraceFilter.value.trim()
+        : "";
+    try {
+      const res = await fetch(
+        "/api/plans/" +
+          encodeURIComponent(openPlanId) +
+          "/traceability?q=" +
+          encodeURIComponent(q)
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok") {
+        if (planTraceMatrix) {
+          planTraceMatrix.textContent =
+            payload.message || "Traceability unavailable.";
+        }
+        return;
+      }
+      renderTraceabilityMatrix(payload);
+    } catch (err) {
+      if (planTraceMatrix) {
+        planTraceMatrix.textContent = "Could not load traceability matrix.";
+      }
+    }
+  }
+
   function renderAcceptanceDrift(payload) {
     if (!planDriftOut) return;
     if (!payload) {
@@ -2225,6 +2327,7 @@
       }
       renderPlanCases(payload.plan);
       await refreshCoverageGaps();
+      await refreshTraceabilityMatrix();
       if (planList) planList.value = openPlanId;
       if (planStatus) {
         planStatus.textContent =
@@ -3305,6 +3408,7 @@
         } else {
           await refreshCoverageGaps();
         }
+        await refreshTraceabilityMatrix();
         if (typeof refreshLabHome === "function") await refreshLabHome();
         if (planStatus) {
           planStatus.textContent = payload.message || "Project draft ready — review before run.";
@@ -3343,6 +3447,22 @@
       if (ev.key === "Enter") {
         ev.preventDefault();
         refreshCoverageGaps();
+      }
+    });
+  }
+  if (planTraceBtn) {
+    planTraceBtn.addEventListener("click", function () {
+      refreshTraceabilityMatrix();
+    });
+  }
+  if (planTraceFilter) {
+    planTraceFilter.addEventListener("change", function () {
+      refreshTraceabilityMatrix();
+    });
+    planTraceFilter.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        refreshTraceabilityMatrix();
       }
     });
   }

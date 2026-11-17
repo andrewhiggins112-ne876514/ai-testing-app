@@ -45,6 +45,7 @@ class ReportSectionsTests(unittest.TestCase):
                 "bugs": True,
                 "evidence": True,
                 "known_issues": True,
+                "traceability": True,
             },
         )
         result = {
@@ -53,10 +54,27 @@ class ReportSectionsTests(unittest.TestCase):
             "screenshot": "C:/shot.png",
             "steps": [{"action": "goto", "status": "pass"}],
             "jira_keys": ["KAN-51"],
+            "traceability": [
+                {
+                    "story_key": "KAN-51",
+                    "case_count": 1,
+                    "last_result": "pass",
+                    "linked_bug_keys": [],
+                    "known_issue": False,
+                }
+            ],
         }
         sections = build_sections(result, "cover KAN-51", default_sections())
         self.assertEqual(
-            set(sections), {"summary", "stories", "bugs", "evidence", "known_issues"}
+            set(sections),
+            {
+                "summary",
+                "stories",
+                "bugs",
+                "evidence",
+                "known_issues",
+                "traceability",
+            },
         )
         text = render_markdown(sections)
         self.assertIn("## Summary", text)
@@ -68,6 +86,7 @@ class ReportSectionsTests(unittest.TestCase):
         self.assertIn("## Evidence", text)
         self.assertIn("Screenshot: C:/shot.png", text)
         self.assertIn("## Known issues", text)
+        self.assertIn("## Traceability", text)
 
     def test_omitted_sections_absent_from_markdown_and_json(self):
         result = {
@@ -90,6 +109,7 @@ class ReportSectionsTests(unittest.TestCase):
                 "bugs": False,
                 "evidence": False,
                 "known_issues": False,
+                "traceability": False,
             }
         )
         export_run(result, "run for KAN-99", "sess", sections=flags)
@@ -102,6 +122,7 @@ class ReportSectionsTests(unittest.TestCase):
         self.assertNotIn("## Bugs", text)
         self.assertNotIn("## Evidence", text)
         self.assertNotIn("## Known issues", text)
+        self.assertNotIn("## Traceability", text)
         self.assertNotIn("KAN-99", text)
         payload = json.loads(json_files[0].read_text(encoding="utf-8"))
         self.assertEqual(set(payload["sections"]), {"summary"})
@@ -109,6 +130,7 @@ class ReportSectionsTests(unittest.TestCase):
         self.assertNotIn("bugs", payload["sections"])
         self.assertNotIn("evidence", payload["sections"])
         self.assertNotIn("known_issues", payload["sections"])
+        self.assertNotIn("traceability", payload["sections"])
 
     def test_saved_settings_drive_export(self):
         from reports.sections import save_report_sections
@@ -120,6 +142,7 @@ class ReportSectionsTests(unittest.TestCase):
                 "bugs": True,
                 "evidence": False,
                 "known_issues": False,
+                "traceability": False,
             }
         )
         result = {
@@ -219,6 +242,7 @@ class ReportSectionsTests(unittest.TestCase):
                 "bugs": False,
                 "evidence": False,
                 "known_issues": False,
+                "traceability": False,
             }
         )
         sections = build_sections(result, "KAN-67", flags)
@@ -253,6 +277,7 @@ class ReportSectionsTests(unittest.TestCase):
                     "stories": False,
                     "bugs": False,
                     "known_issues": False,
+                    "traceability": False,
                 }
             ),
         )
@@ -275,6 +300,7 @@ class ReportSectionsTests(unittest.TestCase):
                     "stories": False,
                     "bugs": False,
                     "known_issues": False,
+                    "traceability": False,
                 }
             ),
         )
@@ -298,7 +324,16 @@ class ReportSectionsTests(unittest.TestCase):
         on = build_sections(
             result,
             "",
-            normalize_sections({"known_issues": True, "summary": False, "stories": False, "bugs": False, "evidence": False}),
+            normalize_sections(
+                {
+                    "known_issues": True,
+                    "summary": False,
+                    "stories": False,
+                    "bugs": False,
+                    "evidence": False,
+                    "traceability": False,
+                }
+            ),
         )
         self.assertEqual(set(on), {"known_issues"})
         self.assertEqual(on["known_issues"]["count"], 1)
@@ -309,7 +344,16 @@ class ReportSectionsTests(unittest.TestCase):
         off = build_sections(
             result,
             "",
-            normalize_sections({"known_issues": False, "summary": True, "stories": False, "bugs": False, "evidence": False}),
+            normalize_sections(
+                {
+                    "known_issues": False,
+                    "summary": True,
+                    "stories": False,
+                    "bugs": False,
+                    "evidence": False,
+                    "traceability": False,
+                }
+            ),
         )
         self.assertNotIn("known_issues", off)
         self.assertNotIn("## Known issues", render_markdown(off))

@@ -207,6 +207,9 @@ def build_result_for_run(
         )
 
     heals = list_pending_heals(run_id=str(run.get("id") or ""))
+    from plans.traceability import traceability_from_plan
+
+    matrix = traceability_from_plan(plan)
     body = {
         "title": f"{plan.get('name') or plan_id} / {case.get('name') or case_id}",
         "status": "pass" if result_status == "pass" else "fail",
@@ -219,6 +222,7 @@ def build_result_for_run(
         "screenshot": screenshot,
         "notes": notes,
         "known_issues": known_issues,
+        "traceability": list(matrix.get("rows") or []),
         "run_id": run.get("id"),
         "plan_id": plan.get("id"),
         "case_id": case.get("id"),

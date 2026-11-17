@@ -222,7 +222,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-TEST-5 | Shipped baseline import/run; in-suite import deepen | **Done** **KAN-59**; Test-all **C8** |
 | FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; D3/D4 later |
 | FR-PLAN-1…2 | Partial (A1+A5+A6) | **KAN-125** store + **KAN-133** edit/disable/reorder + **KAN-135** starter/empty home; run UI later A7 |
-| FR-PLAN-3…4 | Partial (A4+C3–C5) | **KAN-131** one story; **KAN-161** project-wide draft; **KAN-163** coverage gaps; **KAN-165** AC drift; C6 matrix next |
+| FR-PLAN-3…4 | Partial (A4+C3–C6) | **KAN-131** one story; **KAN-161** project-wide draft; **KAN-163** coverage gaps; **KAN-165** AC drift; **KAN-167** C6 matrix; C7 tags next |
 | FR-CI-1 | Future (design) | Test-all **H2** |
 | FR-MAN-1 | Future (design) | Test-all **H1** |
 | FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |
@@ -265,7 +265,8 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | Nav IA — Reports data / menu / Settings hub | **Shipped** KAN-247…249 | Gradio compact menu done; desktop still tall App drawer until follow-on |
 | Desktop compact App menu (match Gradio) | **Shipped** KAN-253 (desk44) | Compact `▦` panel |
 | Coverage gaps (C4) | **Shipped** KAN-163 (desk45) | No-case / all-disabled lists; filter; no auto-create |
-| Acceptance drift (C5) | **Shipped** KAN-165 (desk46) | Stale on summary/AC change; Keep/Refresh; runs preserved; Active → **KAN-167** C6 |
+| Acceptance drift (C5) | **Shipped** KAN-165 (desk46) | Stale on summary/AC change; Keep/Refresh; runs preserved |
+| Traceability matrix (C6) | **Shipped** KAN-167 (desk48) | Story → cases → last result → bugs → known; not_loaded never pass; export section; Active → **KAN-169** C7 |
 | Voice input | Deferred | **KAN-81**; mic; later G10 |
 | Model tool-calling reliability | **Done** baseline | **KAN-61** |
 | Self-healing guardrails (policy) | **Done** (KAN-49) | Review UI **Done** (KAN-75) |

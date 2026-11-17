@@ -1936,6 +1936,7 @@ def save_report_section_toggles(
     bugs: bool,
     evidence: bool,
     known_issues: bool = True,
+    traceability: bool = True,
 ):
     saved = save_report_sections(
         normalize_sections(
@@ -1945,6 +1946,7 @@ def save_report_section_toggles(
                 "bugs": bugs,
                 "evidence": evidence,
                 "known_issues": known_issues,
+                "traceability": traceability,
             }
         )
     )
@@ -2624,6 +2626,10 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                         value=_sec.get("known_issues", True),
                         label="Known issues (exclusions; not new regressions)",
                     )
+                    sec_trace = gr.Checkbox(
+                        value=_sec.get("traceability", True),
+                        label="Traceability matrix (story → cases → result → bugs)",
+                    )
                     sections_status = gr.Textbox(
                         value="Ready",
                         label="Section profile",
@@ -2632,7 +2638,14 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     )
                     gr.Button("Save sections", variant="primary").click(
                         save_report_section_toggles,
-                        [sec_summary, sec_stories, sec_bugs, sec_evidence, sec_known],
+                        [
+                            sec_summary,
+                            sec_stories,
+                            sec_bugs,
+                            sec_evidence,
+                            sec_known,
+                            sec_trace,
+                        ],
                         [sections_status],
                     )
                 settings_cat.change(

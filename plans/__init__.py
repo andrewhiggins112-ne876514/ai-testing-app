@@ -11,6 +11,7 @@ from plans.drift import (
     keep_acceptance_drafts,
     refresh_acceptance_drafts,
 )
+from plans.traceability import plan_traceability_matrix
 from plans.starter import create_starter_plan, lab_home_status
 from plans.store import (
     add_case,
@@ -49,6 +50,7 @@ __all__ = [
     "lab_home_status",
     "list_plans",
     "plan_coverage_gaps",
+    "plan_traceability_matrix",
     "plans_dir",
     "reorder_cases",
     "update_case",

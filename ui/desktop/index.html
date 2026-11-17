@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk47" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk48" />
 </head>
 <body>
   <div id="app">
@@ -232,6 +232,7 @@
             <label class="check-row"><input type="checkbox" id="rpt-bugs" checked /> Bugs</label>
             <label class="check-row"><input type="checkbox" id="rpt-evidence" checked /> Evidence</label>
             <label class="check-row"><input type="checkbox" id="rpt-known-issues" checked /> Known issues</label>
+            <label class="check-row"><input type="checkbox" id="rpt-traceability" checked /> Traceability matrix</label>
             <button type="button" id="rpt-save" class="save-btn">Save sections</button>
             <p id="rpt-sections-status" class="drawer-hint" role="status">Ready</p>
           </div>
@@ -409,6 +410,15 @@
             <button type="button" id="plan-drift-refresh-btn" class="save-btn">Refresh drafts</button>
           </div>
           <pre id="plan-drift-out" class="drawer-hint" aria-live="polite" hidden></pre>
+          <h4 class="orb-section-label">Traceability matrix</h4>
+          <p class="drawer-hint">Story key, case count, last result, linked bug keys, and known-issue flag in one grid. Keys with no run show as not loaded (never as pass). Click a row to open that case.</p>
+          <label class="stack-label">Filter matrix
+            <input type="text" id="plan-trace-filter" placeholder="KAN- or summary / bug key" autocomplete="off" />
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-trace-btn" class="save-btn secondary">Refresh traceability</button>
+          </div>
+          <div id="plan-trace-matrix" class="drawer-hint" aria-live="polite" role="table" aria-label="Traceability matrix"></div>
           <h4 class="orb-section-label">Edit selected case</h4>
           <label class="stack-label">Case id
             <input type="text" id="plan-case-id" placeholder="c…" autocomplete="off" />
@@ -586,6 +596,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk47"></script>
+  <script src="/ui/desktop/desktop.js?v=desk48"></script>
 </body>
 </html>

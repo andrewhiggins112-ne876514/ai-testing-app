@@ -4,13 +4,21 @@ from __future__ import annotations
 import re
 from typing import Any, Mapping
 
-SECTION_KEYS = ("summary", "stories", "bugs", "evidence", "known_issues")
+SECTION_KEYS = (
+    "summary",
+    "stories",
+    "bugs",
+    "evidence",
+    "known_issues",
+    "traceability",
+)
 SECTION_LABELS = {
     "summary": "Summary",
     "stories": "Stories",
     "bugs": "Bugs",
     "evidence": "Evidence",
     "known_issues": "Known issues",
+    "traceability": "Traceability",
 }
 
 _JIRA_KEY = re.compile(r"\b([A-Z][A-Z0-9]+-\d+)\b")
@@ -297,6 +305,18 @@ def build_sections(
             "excluded_from_regression": True,
             "label": "known",
         }
+    if flags.get("traceability"):
+        raw_rows = body.get("traceability")
+        rows: list[dict[str, Any]] = []
+        if isinstance(raw_rows, list):
+            for item in raw_rows:
+                if isinstance(item, Mapping):
+                    rows.append(dict(item))
+        sections["traceability"] = {
+            "rows": rows,
+            "count": len(rows),
+            "label": "traceability matrix",
+        }
     return sections
 
 
@@ -458,6 +478,29 @@ def render_markdown(sections: Mapping[str, Any]) -> str:
                 lines.append("- " + " — ".join(bits))
         else:
             lines.append("None linked.")
+        lines.append("")
+
+    if "traceability" in sections and isinstance(sections["traceability"], Mapping):
+        matrix = sections["traceability"]
+        lines.append("## Traceability")
+        lines.append("")
+        lines.append(f"Rows: {matrix.get('count', 0)}")
+        lines.append("")
+        lines.append("| story | cases | last result | bugs | known |")
+        lines.append("| --- | --- | --- | --- | --- |")
+        rows = matrix.get("rows") or []
+        if rows:
+            for item in rows:
+                if not isinstance(item, Mapping):
+                    continue
+                story = item.get("story_key") or ""
+                cases_n = item.get("case_count", 0)
+                last = item.get("last_result") or "not_loaded"
+                bugs = ", ".join(str(b) for b in (item.get("linked_bug_keys") or [])) or "—"
+                known = "yes" if item.get("known_issue") else "no"
+                lines.append(f"| {story} | {cases_n} | {last} | {bugs} | {known} |")
+        else:
+            lines.append("| — | 0 | not_loaded | — | no |")
         lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"

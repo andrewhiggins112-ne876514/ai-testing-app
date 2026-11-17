@@ -52,6 +52,7 @@ from plans.drift import (
     keep_acceptance_drafts,
     refresh_acceptance_drafts,
 )
+from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
 from plans.rerun_failed import rerun_failed_cases
 from plans.run_case import case_detail, run_single_case
@@ -732,6 +733,15 @@ async def get_plan_coverage_gaps(
         project=project or None,
         list_max=list_max,
     )
+    if out.get("status") != "ok" or not degraded_status().get("jira_up"):
+        out = {**out, "degraded": degraded_status()}
+    return out
+
+
+@app.get("/api/plans/{plan_id}/traceability")
+async def get_plan_traceability(plan_id: str, q: str = ""):
+    """C6 traceability matrix: story → cases → last result → bugs → known (KAN-167)."""
+    out = plan_traceability_matrix(plan_id, filter_text=q or "")
     if out.get("status") != "ok" or not degraded_status().get("jira_up"):
         out = {**out, "degraded": degraded_status()}
     return out
