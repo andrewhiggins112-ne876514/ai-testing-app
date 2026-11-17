@@ -34,6 +34,7 @@ from plans.timeouts import (
 from plans.traceability import plan_traceability_matrix
 from plans.run_by_tag import WELL_KNOWN_TAGS, run_cases_by_tag, select_cases_for_tag
 from plans.starter import create_starter_plan, lab_home_status
+from plans.manager_hud import manager_hud_summary
 from plans.tester_hud import tester_hud_summary
 from plans.store import (
     add_case,
@@ -87,6 +88,7 @@ __all__ = [
     "draft_plan_from_project",
     "get_plan",
     "lab_home_status",
+    "manager_hud_summary",
     "tester_hud_summary",
     "list_plans",
     "plan_coverage_gaps",

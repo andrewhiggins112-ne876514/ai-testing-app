@@ -1077,6 +1077,34 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   min-height: 110px;
 }
 
+.hud-mgr-pass {
+  left: 72px;
+  top: 120px;
+  width: 200px;
+  min-height: 96px;
+}
+
+.hud-mgr-known {
+  left: 288px;
+  top: 120px;
+  width: 220px;
+  min-height: 110px;
+}
+
+.hud-mgr-gaps {
+  left: 72px;
+  top: 260px;
+  width: 220px;
+  min-height: 110px;
+}
+
+.hud-mgr-bugs {
+  left: 308px;
+  top: 260px;
+  width: 220px;
+  min-height: 110px;
+}
+
 .hud-row-list {
   display: flex;
   flex-direction: column;

@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-205** — F2 Manager HUD widget pack on orb home |
-| **Start task** | **KAN-206** (`test`, Relates → KAN-205) |
+| **Jira story** | **KAN-207** — F3 Release HUD widget pack on orb home |
+| **Start task** | **KAN-208** (`test`, Relates → KAN-207) |
 | **Epic** | Test-all F (see catalogue) |
-| **Roadmap ID** | F2 / FR-UI-6 + FR-REP-1 |
+| **Roadmap ID** | F3 / FR-UI-6 + FR-REP-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-206** |
-| **Shipped** | … **KAN-203** F1 Tester HUD (desk67); **KAN-201** E5 offline last plan (desk66); **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
+| **Test ticket** | **KAN-208** |
+| **Shipped** | … **KAN-205** F2 Manager HUD (desk68); **KAN-203** F1 Tester HUD (desk67); **KAN-201** E5 offline last plan (desk66); **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all F after F2 → F3… |
+| **Next after this** | continue Test-all F after F3 → F4… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-205 — F2 Manager HUD widget pack on orb home
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-205
+- **Done:** Optional Manager HUD pack on orb home: pass rate, known-issue count, stories with no cases, bugs from plan. Screen drawer toggles; home-only (hidden while App area open); pass rate opens Reports; rows deep-link into Plans. Known issues never shown as passes. No separate Manager home. `GET /api/plans/manager-hud` + desk68.
+- **Files:** `plans/manager_hud.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_manager_hud.py` (+ desk68 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_manager_hud.py` (+ tester/orb) 7 passed. Live `GET /api/plans/manager-hud` → home_only true, separate_manager_home false, known_not_shown_as_pass true; desk68 HTML has manager HUD ids/toggles. `desktop_app.py` opened desk68 (Computer Use focus contested by other apps; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-205** + **KAN-206**
+- **Next:** **KAN-207** F3 Release HUD widget pack on orb home (test **KAN-208**)
 
 ### 2026-11-17 — KAN-203 — F1 Tester HUD widget pack on orb home
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-203

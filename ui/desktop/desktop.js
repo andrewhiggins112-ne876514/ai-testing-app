@@ -3716,6 +3716,10 @@
   const hudTesterQuarantineToggle = document.getElementById(
     "hud-tester-quarantine-toggle"
   );
+  const hudMgrPassToggle = document.getElementById("hud-mgr-pass-toggle");
+  const hudMgrKnownToggle = document.getElementById("hud-mgr-known-toggle");
+  const hudMgrGapsToggle = document.getElementById("hud-mgr-gaps-toggle");
+  const hudMgrBugsToggle = document.getElementById("hud-mgr-bugs-toggle");
   const hudSecurityPanel = document.getElementById("hud-security");
   const hudReportsPanel = document.getElementById("hud-reports");
   const hudLabPanel = document.getElementById("hud-lab");
@@ -3723,6 +3727,10 @@
   const hudTesterLastPanel = document.getElementById("hud-tester-last");
   const hudTesterFailsPanel = document.getElementById("hud-tester-fails");
   const hudTesterQuarantinePanel = document.getElementById("hud-tester-quarantine");
+  const hudMgrPassPanel = document.getElementById("hud-mgr-pass");
+  const hudMgrKnownPanel = document.getElementById("hud-mgr-known");
+  const hudMgrGapsPanel = document.getElementById("hud-mgr-gaps");
+  const hudMgrBugsPanel = document.getElementById("hud-mgr-bugs");
   const hudSecurityLevel = document.getElementById("hud-security-level");
   const hudReportsBody = document.getElementById("hud-reports-body");
   const hudLabMessage = document.getElementById("hud-lab-message");
@@ -3743,6 +3751,14 @@
   const hudTesterQuarantineList = document.getElementById(
     "hud-tester-quarantine-list"
   );
+  const hudMgrPassBody = document.getElementById("hud-mgr-pass-body");
+  const hudMgrPassOpen = document.getElementById("hud-mgr-pass-open");
+  const hudMgrKnownEmpty = document.getElementById("hud-mgr-known-empty");
+  const hudMgrKnownList = document.getElementById("hud-mgr-known-list");
+  const hudMgrGapsEmpty = document.getElementById("hud-mgr-gaps-empty");
+  const hudMgrGapsList = document.getElementById("hud-mgr-gaps-list");
+  const hudMgrBugsEmpty = document.getElementById("hud-mgr-bugs-empty");
+  const hudMgrBugsList = document.getElementById("hud-mgr-bugs-list");
   let areaLayout = "overlay";
   let openAreaName = "";
   let hudFlags = {
@@ -3753,11 +3769,17 @@
     testerLast: false,
     testerFails: false,
     testerQuarantine: false,
+    mgrPass: false,
+    mgrKnown: false,
+    mgrGaps: false,
+    mgrBugs: false,
   };
   let labHomeEmpty = false;
   let hubCloseTimer = 0;
   let testerHudLastPlanId = "";
   let testerHudCache = null;
+  let managerHudPlanId = "";
+  let managerHudCache = null;
 
   if (areaBody && sectionHost) {
     areaBody.appendChild(sectionHost);
@@ -4205,6 +4227,10 @@
       testerLast: !!(flags && flags.testerLast),
       testerFails: !!(flags && flags.testerFails),
       testerQuarantine: !!(flags && flags.testerQuarantine),
+      mgrPass: !!(flags && flags.mgrPass),
+      mgrKnown: !!(flags && flags.mgrKnown),
+      mgrGaps: !!(flags && flags.mgrGaps),
+      mgrBugs: !!(flags && flags.mgrBugs),
     };
     if (hudSecurityToggle) hudSecurityToggle.checked = hudFlags.security;
     if (hudReportsToggle) hudReportsToggle.checked = hudFlags.reports;
@@ -4215,6 +4241,10 @@
     if (hudTesterQuarantineToggle) {
       hudTesterQuarantineToggle.checked = hudFlags.testerQuarantine;
     }
+    if (hudMgrPassToggle) hudMgrPassToggle.checked = hudFlags.mgrPass;
+    if (hudMgrKnownToggle) hudMgrKnownToggle.checked = hudFlags.mgrKnown;
+    if (hudMgrGapsToggle) hudMgrGapsToggle.checked = hudFlags.mgrGaps;
+    if (hudMgrBugsToggle) hudMgrBugsToggle.checked = hudFlags.mgrBugs;
     const home = !openAreaName;
     if (hudSecurityPanel) hudSecurityPanel.hidden = !(home && hudFlags.security);
     if (hudReportsPanel) hudReportsPanel.hidden = !(home && hudFlags.reports);
@@ -4235,6 +4265,19 @@
     if (hudTesterQuarantinePanel) {
       hudTesterQuarantinePanel.hidden = !(home && hudFlags.testerQuarantine);
     }
+    // Manager pack is home-only (no separate Manager home).
+    if (hudMgrPassPanel) {
+      hudMgrPassPanel.hidden = !(home && hudFlags.mgrPass);
+    }
+    if (hudMgrKnownPanel) {
+      hudMgrKnownPanel.hidden = !(home && hudFlags.mgrKnown);
+    }
+    if (hudMgrGapsPanel) {
+      hudMgrGapsPanel.hidden = !(home && hudFlags.mgrGaps);
+    }
+    if (hudMgrBugsPanel) {
+      hudMgrBugsPanel.hidden = !(home && hudFlags.mgrBugs);
+    }
   }
 
   function defaultHudFlags() {
@@ -4246,6 +4289,10 @@
       testerLast: false,
       testerFails: false,
       testerQuarantine: false,
+      mgrPass: false,
+      mgrKnown: false,
+      mgrGaps: false,
+      mgrBugs: false,
     };
   }
 
@@ -4269,6 +4316,10 @@
       testerQuarantine: !!(
         hudTesterQuarantineToggle && hudTesterQuarantineToggle.checked
       ),
+      mgrPass: !!(hudMgrPassToggle && hudMgrPassToggle.checked),
+      mgrKnown: !!(hudMgrKnownToggle && hudMgrKnownToggle.checked),
+      mgrGaps: !!(hudMgrGapsToggle && hudMgrGapsToggle.checked),
+      mgrBugs: !!(hudMgrBugsToggle && hudMgrBugsToggle.checked),
     };
     applyHud(flags);
     try {
@@ -4283,6 +4334,9 @@
       flags.testerQuarantine
     ) {
       loadTesterHud();
+    }
+    if (flags.mgrPass || flags.mgrKnown || flags.mgrGaps || flags.mgrBugs) {
+      loadManagerHud();
     }
   }
 
@@ -4440,6 +4494,101 @@
     }
   }
 
+  function renderManagerHud(payload) {
+    managerHudCache = payload || null;
+    const rate = (payload && payload.pass_rate) || {};
+    managerHudPlanId = rate.plan_id || "";
+    if (hudMgrPassBody) {
+      if (rate.pass_rate_percent == null && !rate.case_count) {
+        hudMgrPassBody.textContent = "No suite run yet";
+      } else {
+        const pct =
+          rate.pass_rate_percent != null
+            ? rate.pass_rate_percent + "%"
+            : "n/a";
+        const bits = [pct + " pass"];
+        if (typeof rate.known_issues === "number" && rate.known_issues) {
+          bits.push(rate.known_issues + " known (not pass)");
+        }
+        hudMgrPassBody.textContent =
+          (rate.plan_name || rate.plan_id || "Plan") + " — " + bits.join(", ");
+      }
+    }
+    if (hudMgrPassOpen) {
+      hudMgrPassOpen.hidden = !managerHudPlanId;
+    }
+
+    const known = (payload && payload.known_issues) || [];
+    clearHudRowList(hudMgrKnownList);
+    if (hudMgrKnownEmpty) {
+      hudMgrKnownEmpty.hidden = known.length > 0;
+      hudMgrKnownEmpty.textContent = known.length
+        ? ""
+        : "None labelled known";
+    }
+    known.forEach(function (row) {
+      appendHudRow(
+        hudMgrKnownList,
+        (row.case_name || row.case_id || "?") +
+          " · known" +
+          (row.result && row.result !== "pass" ? " · " + row.result : ""),
+        (row.note || row.jira_key || "known issue") +
+          " (not counted as pass)",
+        function () {
+          openPlansOnCase(row.plan_id, row.case_id, row.case_name);
+        }
+      );
+    });
+
+    const gaps = (payload && payload.stories_no_case) || [];
+    clearHudRowList(hudMgrGapsList);
+    if (hudMgrGapsEmpty) {
+      hudMgrGapsEmpty.hidden = gaps.length > 0;
+      hudMgrGapsEmpty.textContent = gaps.length ? "" : "No coverage gaps";
+    }
+    gaps.forEach(function (row) {
+      appendHudRow(
+        hudMgrGapsList,
+        row.story_key || "?",
+        row.summary || "story with no case",
+        function () {
+          openPlansOnCase(row.plan_id, "", "");
+        }
+      );
+    });
+
+    const bugs = (payload && payload.bugs) || [];
+    clearHudRowList(hudMgrBugsList);
+    if (hudMgrBugsEmpty) {
+      hudMgrBugsEmpty.hidden = bugs.length > 0;
+      hudMgrBugsEmpty.textContent = bugs.length ? "" : "No product bugs";
+    }
+    bugs.forEach(function (row) {
+      appendHudRow(
+        hudMgrBugsList,
+        (row.case_name || row.case_id || "?") +
+          (row.jira_key ? " · " + row.jira_key : ""),
+        (row.plan_name || row.plan_id || "") + " · product_bug",
+        function () {
+          openPlansOnCase(row.plan_id, row.case_id, row.case_name);
+        }
+      );
+    });
+  }
+
+  async function loadManagerHud() {
+    try {
+      const res = await fetch("/api/plans/manager-hud");
+      if (!res.ok) {
+        renderManagerHud(null);
+        return;
+      }
+      renderManagerHud(await res.json());
+    } catch (err) {
+      renderManagerHud(null);
+    }
+  }
+
   if (hudSecurityToggle) hudSecurityToggle.addEventListener("change", saveHud);
   if (hudReportsToggle) hudReportsToggle.addEventListener("change", saveHud);
   if (hudLabToggle) hudLabToggle.addEventListener("change", saveHud);
@@ -4449,9 +4598,18 @@
   if (hudTesterQuarantineToggle) {
     hudTesterQuarantineToggle.addEventListener("change", saveHud);
   }
+  if (hudMgrPassToggle) hudMgrPassToggle.addEventListener("change", saveHud);
+  if (hudMgrKnownToggle) hudMgrKnownToggle.addEventListener("change", saveHud);
+  if (hudMgrGapsToggle) hudMgrGapsToggle.addEventListener("change", saveHud);
+  if (hudMgrBugsToggle) hudMgrBugsToggle.addEventListener("change", saveHud);
   if (hudTesterLastOpen) {
     hudTesterLastOpen.addEventListener("click", function () {
       if (testerHudLastPlanId) openPlansOnCase(testerHudLastPlanId, "", "");
+    });
+  }
+  if (hudMgrPassOpen) {
+    hudMgrPassOpen.addEventListener("click", function () {
+      openArea("reports");
     });
   }
   loadHud();
@@ -4459,6 +4617,7 @@
   loadSecurityStatus();
   refreshLabHome();
   loadTesterHud();
+  loadManagerHud();
   applyAreaLayout(loadAreaLayout());
 
   if (hudLabConn) {

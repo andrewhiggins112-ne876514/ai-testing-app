@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk67" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk68" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -149,6 +149,27 @@
       <h4 class="hud-widget-title">Quarantine</h4>
       <p id="hud-tester-quarantine-empty" class="hud-widget-body">Nothing quarantined</p>
       <div id="hud-tester-quarantine-list" class="hud-row-list" role="list"></div>
+    </aside>
+
+    <aside id="hud-mgr-pass" class="shell-surface hud-widget hud-mgr-pass movable-widget" data-widget="hud-mgr-pass" hidden aria-label="Pass rate HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Pass rate</h4>
+      <p id="hud-mgr-pass-body" class="hud-widget-body">No suite run yet</p>
+      <button type="button" id="hud-mgr-pass-open" class="save-btn secondary hud-lab-btn" hidden>Open in Reports</button>
+    </aside>
+    <aside id="hud-mgr-known" class="shell-surface hud-widget hud-mgr-known movable-widget" data-widget="hud-mgr-known" hidden aria-label="Known issues HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Known issues</h4>
+      <p id="hud-mgr-known-empty" class="hud-widget-body">None labelled known</p>
+      <div id="hud-mgr-known-list" class="hud-row-list" role="list"></div>
+    </aside>
+    <aside id="hud-mgr-gaps" class="shell-surface hud-widget hud-mgr-gaps movable-widget" data-widget="hud-mgr-gaps" hidden aria-label="Stories with no cases HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Stories · no cases</h4>
+      <p id="hud-mgr-gaps-empty" class="hud-widget-body">No coverage gaps</p>
+      <div id="hud-mgr-gaps-list" class="hud-row-list" role="list"></div>
+    </aside>
+    <aside id="hud-mgr-bugs" class="shell-surface hud-widget hud-mgr-bugs movable-widget" data-widget="hud-mgr-bugs" hidden aria-label="Bugs from plan HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Bugs from plan</h4>
+      <p id="hud-mgr-bugs-empty" class="hud-widget-body">No product bugs</p>
+      <div id="hud-mgr-bugs-list" class="hud-row-list" role="list"></div>
     </aside>
 
     <div id="area-layer" class="area-layer" hidden>
@@ -809,7 +830,7 @@
           <label>Border <input id="ctrl-widget-border" type="color" value="#50cdff" /></label>
           <label>Background <input id="ctrl-widget-bg" type="color" value="#000000" /></label>
           <h3 class="orb-section-label">HUD widgets</h3>
-          <p class="drawer-hint">Home mini panels only. They are not App area content. Lab checklist also auto-shows when there is no plan yet. Tester pack stays on orb home (no separate Tester route).</p>
+          <p class="drawer-hint">Home mini panels only. They are not App area content. Lab checklist also auto-shows when there is no plan yet. Tester and Manager packs stay on orb home (no separate role homes).</p>
           <label class="check-row"><input type="checkbox" id="hud-security-toggle" /> Security status</label>
           <label class="check-row"><input type="checkbox" id="hud-reports-toggle" /> Reports mini</label>
           <label class="check-row"><input type="checkbox" id="hud-lab-toggle" /> Lab checklist</label>
@@ -818,6 +839,11 @@
           <label class="check-row"><input type="checkbox" id="hud-tester-last-toggle" /> Last run</label>
           <label class="check-row"><input type="checkbox" id="hud-tester-fails-toggle" /> Failed cases</label>
           <label class="check-row"><input type="checkbox" id="hud-tester-quarantine-toggle" /> Quarantined cases</label>
+          <h3 class="orb-section-label">Manager HUD pack</h3>
+          <label class="check-row"><input type="checkbox" id="hud-mgr-pass-toggle" /> Pass rate</label>
+          <label class="check-row"><input type="checkbox" id="hud-mgr-known-toggle" /> Known-issue count</label>
+          <label class="check-row"><input type="checkbox" id="hud-mgr-gaps-toggle" /> Stories with no cases</label>
+          <label class="check-row"><input type="checkbox" id="hud-mgr-bugs-toggle" /> Bugs from plan</label>
         </div>
       </div>
     </aside>
@@ -825,6 +851,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk67"></script>
+  <script src="/ui/desktop/desktop.js?v=desk68"></script>
 </body>
 </html>
