@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk53" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk54" />
 </head>
 <body>
   <div id="app">
@@ -483,8 +483,16 @@
             <button type="button" id="plan-case-up" class="save-btn secondary">Move up</button>
             <button type="button" id="plan-case-down" class="save-btn secondary">Move down</button>
           </div>
+          <h4 class="orb-section-label">Suite parallel</h4>
+          <p class="drawer-hint" id="plan-parallel-hint">Suite runs are sequential by default (1). Cap this stage: 2. The run record stores the count used; values above the cap are refused.</p>
+          <label class="stack-label">Parallel count
+            <select id="plan-parallel-count" aria-describedby="plan-parallel-hint">
+              <option value="1" selected>1 — sequential (default)</option>
+              <option value="2">2 — max this stage</option>
+            </select>
+          </label>
           <h4 class="orb-section-label">Run by tag</h4>
-          <p class="drawer-hint">Runs all cases with the chosen tag sequentially. Untagged cases are omitted and listed as not selected. Suite run stores the run id and tag used. Smoke and regression are first-class tags.</p>
+          <p class="drawer-hint">Runs all cases with the chosen tag. Default is sequential; use Suite parallel above for a capped parallel run. Untagged cases are omitted and listed as not selected. Suite run stores the run id, tag, and parallel count. Smoke and regression are first-class tags.</p>
           <label class="stack-label">Tag
             <input type="text" id="plan-run-tag" list="plan-run-tag-suggestions" placeholder="smoke" autocomplete="off" />
             <datalist id="plan-run-tag-suggestions">
@@ -653,6 +661,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk53"></script>
+  <script src="/ui/desktop/desktop.js?v=desk54"></script>
 </body>
 </html>

@@ -1,12 +1,14 @@
 """Rerun only failed cases from a finished suite run (KAN-151 / B5).
 
 Creates a new suite_run id on the same plan. Disabled and quarantined cases
-are skipped with an explicit reason. Execution is sequential (no parallel).
+are skipped with an explicit reason. Default is sequential; parallel is capped
+(KAN-179 / D1).
 """
 from __future__ import annotations
 
 from typing import Any
 
+from plans.parallel import map_cases_with_parallel, resolve_parallel_count
 from plans.run_case import _execute_case
 from plans.store import finish_suite_run, get_plan, start_suite_run
 
@@ -148,11 +150,19 @@ async def rerun_failed_cases(
     level: str | None = None,
     source_suite_run_id: str | None = None,
     session_id: str = "plan-rerun-failed",
+    parallel: Any = None,
 ) -> dict[str, Any]:
-    """Rerun failed cases sequentially; return new suite_run id + skip reasons."""
+    """Rerun failed cases; return new suite_run id + skip reasons + parallel_count."""
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
+    resolved = resolve_parallel_count(parallel)
+    if resolved.get("status") != "ok":
+        return {**resolved, "security_level": lvl, "plan_id": plan_id}
+
+    parallel_count = int(resolved["parallel_count"])
+    sequential = bool(resolved["sequential"])
+
     loaded = get_plan(plan_id, level=lvl)
     if loaded.get("status") != "ok":
         return loaded
@@ -174,12 +184,14 @@ async def rerun_failed_cases(
             "suite_run_id": None,
             "skipped": [],
             "case_results": [],
+            "parallel_count": parallel_count,
         }
 
     started = start_suite_run(
         plan_id,
         mode="rerun_failed",
         source_suite_run_id=selection.get("source_suite_run_id"),
+        parallel_count=parallel_count,
         skipped=skipped,
         level=lvl,
     )
@@ -188,31 +200,34 @@ async def rerun_failed_cases(
     suite_run = started["suite_run"]
     suite_run_id = suite_run["id"]
 
-    case_runs: list[dict[str, str]] = []
-    case_results: list[dict[str, Any]] = []
-
-    for cid in to_run:
+    async def _one(cid: str) -> dict[str, Any]:
         payload = await _execute_case(
             plan_id,
             cid,
             level=lvl,
-            session_id=session_id,
+            session_id=f"{session_id}-{cid}",
             pause_on_fail=False,
             suite_run_id=suite_run_id,
         )
         run = payload.get("run") or {}
         rid = str(run.get("id") or "")
-        if rid:
+        return {
+            "case_id": cid,
+            "run_id": rid or None,
+            "result": run.get("result") or payload.get("error"),
+            "message": payload.get("message"),
+            "status": payload.get("status"),
+        }
+
+    case_results = await map_cases_with_parallel(to_run, parallel_count, _one)
+    case_runs: list[dict[str, str]] = []
+    for item in case_results:
+        if not isinstance(item, dict):
+            continue
+        cid = str(item.get("case_id") or "")
+        rid = str(item.get("run_id") or "")
+        if cid and rid:
             case_runs.append({"case_id": cid, "run_id": rid})
-        case_results.append(
-            {
-                "case_id": cid,
-                "run_id": rid or None,
-                "result": run.get("result") or payload.get("error"),
-                "message": payload.get("message"),
-                "status": payload.get("status"),
-            }
-        )
 
     finished = finish_suite_run(
         plan_id,
@@ -224,8 +239,9 @@ async def rerun_failed_cases(
     plan_out = finished.get("plan") if finished.get("status") == "ok" else started.get("plan")
     ran_n = len(case_runs)
     skip_n = len(skipped)
+    mode_label = "sequential" if sequential else f"parallel={parallel_count}"
     msg = (
-        f"Rerun failed finished: suite run {suite_run_id} — "
+        f"Rerun failed finished: suite run {suite_run_id} — {mode_label}, "
         f"{ran_n} case(s) executed, {skip_n} skipped."
     )
     return {
@@ -236,7 +252,9 @@ async def rerun_failed_cases(
         "suite_run_id": suite_run_id,
         "source_suite_run_id": selection.get("source_suite_run_id"),
         "mode": "rerun_failed",
-        "sequential": True,
+        "parallel_count": parallel_count,
+        "parallel_max": resolved.get("parallel_max"),
+        "sequential": sequential,
         "skipped": skipped,
         "case_results": case_results,
         "suite_run": finished.get("suite_run") or suite_run,

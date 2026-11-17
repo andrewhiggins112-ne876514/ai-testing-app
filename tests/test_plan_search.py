@@ -139,7 +139,7 @@ class PlanSearchTests(unittest.TestCase):
         self.assertEqual(out["count"], 0)
         self.assertEqual(out["hits"], [])
 
-    def test_api_search_and_desktop_ui_desk53(self):
+    def test_api_search_and_desktop_ui_desk54(self):
         ids = self._seed()
         client = TestClient(app)
         res = client.get("/api/plans/search", params={"q": "product_bug"})
@@ -152,8 +152,8 @@ class PlanSearchTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk53", html)
-        self.assertIn("desk53", desk)
+        self.assertIn("desk54", html)
+        self.assertIn("desk54", desk)
         self.assertIn("plan-search-q", html)
         self.assertIn("plan-search-btn", html)
         self.assertIn("plan-search-results", html)

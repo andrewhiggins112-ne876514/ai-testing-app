@@ -1,12 +1,14 @@
 """Run suite cases that carry a chosen tag (KAN-169 / C7).
 
-Sequential only — no parallel tag runs. Untagged cases are omitted and listed
-as not_selected. Suite run stores the run id and the tag used.
+Default is sequential (parallel_count=1). Untagged cases are omitted and listed
+as not_selected. Suite run stores the run id, the tag used, and parallel count
+(KAN-179 / D1).
 """
 from __future__ import annotations
 
 from typing import Any
 
+from plans.parallel import map_cases_with_parallel, resolve_parallel_count
 from plans.run_case import _execute_case
 from plans.store import finish_suite_run, get_plan, start_suite_run
 
@@ -88,11 +90,19 @@ async def run_cases_by_tag(
     *,
     level: str | None = None,
     session_id: str = "plan-run-by-tag",
+    parallel: Any = None,
 ) -> dict[str, Any]:
-    """Run all cases with ``tag`` sequentially; store suite_run id + tag used."""
+    """Run all cases with ``tag``; store suite_run id + tag + parallel_count."""
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
+    resolved = resolve_parallel_count(parallel)
+    if resolved.get("status") != "ok":
+        return {**resolved, "security_level": lvl, "plan_id": plan_id}
+
+    parallel_count = int(resolved["parallel_count"])
+    sequential = bool(resolved["sequential"])
+
     loaded = get_plan(plan_id, level=lvl)
     if loaded.get("status") != "ok":
         return loaded
@@ -114,6 +124,7 @@ async def run_cases_by_tag(
         plan_id,
         mode="tag",
         tag=needle,
+        parallel_count=parallel_count,
         skipped=suite_skipped,
         level=lvl,
     )
@@ -122,31 +133,34 @@ async def run_cases_by_tag(
     suite_run = started["suite_run"]
     suite_run_id = suite_run["id"]
 
-    case_runs: list[dict[str, str]] = []
-    case_results: list[dict[str, Any]] = []
-
-    for cid in to_run:
+    async def _one(cid: str) -> dict[str, Any]:
         payload = await _execute_case(
             plan_id,
             cid,
             level=lvl,
-            session_id=session_id,
+            session_id=f"{session_id}-{cid}",
             pause_on_fail=False,
             suite_run_id=suite_run_id,
         )
         run = payload.get("run") or {}
         rid = str(run.get("id") or "")
-        if rid:
+        return {
+            "case_id": cid,
+            "run_id": rid or None,
+            "result": run.get("result") or payload.get("error"),
+            "message": payload.get("message"),
+            "status": payload.get("status"),
+        }
+
+    case_results = await map_cases_with_parallel(to_run, parallel_count, _one)
+    case_runs: list[dict[str, str]] = []
+    for item in case_results:
+        if not isinstance(item, dict):
+            continue
+        cid = str(item.get("case_id") or "")
+        rid = str(item.get("run_id") or "")
+        if cid and rid:
             case_runs.append({"case_id": cid, "run_id": rid})
-        case_results.append(
-            {
-                "case_id": cid,
-                "run_id": rid or None,
-                "result": run.get("result") or payload.get("error"),
-                "message": payload.get("message"),
-                "status": payload.get("status"),
-            }
-        )
 
     finished = finish_suite_run(
         plan_id,
@@ -157,9 +171,10 @@ async def run_cases_by_tag(
     )
     plan_out = finished.get("plan") if finished.get("status") == "ok" else started.get("plan")
     ran_n = len(case_runs)
+    mode_label = "sequential" if sequential else f"parallel={parallel_count}"
     msg = (
         f"Tag run finished: suite run {suite_run_id} — tag={needle!r}, "
-        f"{ran_n} case(s) executed, {len(skipped)} skipped, "
+        f"{mode_label}, {ran_n} case(s) executed, {len(skipped)} skipped, "
         f"{len(not_selected)} not selected."
     )
     return {
@@ -170,7 +185,9 @@ async def run_cases_by_tag(
         "suite_run_id": suite_run_id,
         "tag": needle,
         "mode": "tag",
-        "sequential": True,
+        "parallel_count": parallel_count,
+        "parallel_max": resolved.get("parallel_max"),
+        "sequential": sequential,
         "to_run": to_run,
         "skipped": skipped,
         "not_selected": not_selected,

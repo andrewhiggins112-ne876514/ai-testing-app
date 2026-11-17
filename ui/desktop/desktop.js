@@ -1395,6 +1395,7 @@
   const planCaseSave = document.getElementById("plan-case-save");
   const planCaseUp = document.getElementById("plan-case-up");
   const planCaseDown = document.getElementById("plan-case-down");
+  const planParallelCount = document.getElementById("plan-parallel-count");
   const planRunTag = document.getElementById("plan-run-tag");
   const planRunByTag = document.getElementById("plan-run-by-tag");
   const planRunTagSmoke = document.getElementById("plan-run-tag-smoke");
@@ -4069,6 +4070,12 @@
     });
   }
 
+  function selectedParallelCount() {
+    if (!planParallelCount) return 1;
+    const n = parseInt(planParallelCount.value, 10);
+    return Number.isFinite(n) && n >= 1 ? n : 1;
+  }
+
   async function runPlanByTag(tagValue) {
     if (!openPlanId) {
       if (planStatus) planStatus.textContent = "Open a plan first.";
@@ -4079,9 +4086,13 @@
       if (planStatus) planStatus.textContent = "Enter a tag (e.g. smoke or regression).";
       return;
     }
+    const parallel = selectedParallelCount();
     if (planRunTag) planRunTag.value = tag;
     if (planStatus) {
-      planStatus.textContent = "Running tag " + tag + " (sequential)…";
+      planStatus.textContent =
+        "Running tag " +
+        tag +
+        (parallel <= 1 ? " (sequential)…" : " (parallel=" + parallel + ")…");
     }
     if (planTagRunOut) {
       planTagRunOut.hidden = false;
@@ -4093,7 +4104,7 @@
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tag: tag }),
+          body: JSON.stringify({ tag: tag, parallel: parallel }),
         }
       );
       const payload = await res.json();
@@ -4115,6 +4126,7 @@
         payload.message || "Tag run finished.",
         "Suite run: " + (payload.suite_run_id || "—"),
         "Tag: " + (payload.tag || tag),
+        "Parallel count: " + (payload.parallel_count != null ? payload.parallel_count : parallel),
         "Sequential: " + (payload.sequential ? "yes" : "no"),
         "",
         "Executed:",
@@ -4376,8 +4388,12 @@
         if (planStatus) planStatus.textContent = "Open a plan first.";
         return;
       }
+      const parallel = selectedParallelCount();
       if (planStatus) {
-        planStatus.textContent = "Rerunning failed cases (sequential)…";
+        planStatus.textContent =
+          parallel <= 1
+            ? "Rerunning failed cases (sequential)…"
+            : "Rerunning failed cases (parallel=" + parallel + ")…";
       }
       if (planRerunOut) {
         planRerunOut.hidden = false;
@@ -4391,6 +4407,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               source_suite_run_id: lastSuiteRunId || "",
+              parallel: parallel,
             }),
           }
         );
@@ -4414,6 +4431,7 @@
           payload.source_suite_run_id
             ? "Source suite run: " + payload.source_suite_run_id
             : "Source: last failed case results",
+          "Parallel count: " + (payload.parallel_count != null ? payload.parallel_count : parallel),
           "Sequential: " + (payload.sequential ? "yes" : "no"),
           "",
           "Executed:",

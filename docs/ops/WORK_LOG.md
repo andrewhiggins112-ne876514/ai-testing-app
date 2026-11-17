@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-179** — D1 Sequential default and a parallel cap |
-| **Start task** | **KAN-180** (`test`, Relates → KAN-179) |
+| **Jira story** | **KAN-181** — D2 Flake score and quarantine |
+| **Start task** | **KAN-182** (`test`, Relates → KAN-181) |
 | **Epic** | Test-all D (see catalogue) |
-| **Roadmap ID** | D1 / FR-PLAN-2 |
+| **Roadmap ID** | D2 / FR-PLAN-2 + FR-PLAN-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-180** |
-| **Shipped** | … **KAN-177** C11 archive case (desk53); **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
+| **Test ticket** | **KAN-182** |
+| **Shipped** | … **KAN-179** D1 parallel cap (desk54); **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all D after D1 → D2…, or **KAN-260** Lab tools in App menu when prioritised |
+| **Next after this** | continue Test-all D after D2 → D3…, or **KAN-260** Lab tools in App menu when prioritised |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-179 — D1 Sequential default and a parallel cap
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-179
+- **Done:** Suite runs default parallel=1 (sequential). Cap max=2 visible in Plans. Suite run stores `parallel_count`. API refuses above cap (`parallel_above_cap`). Wired into tag run + rerun-failed. `GET /api/plans/parallel-cap`. desk54.
+- **Files:** `plans/parallel.py`, `plans/store.py`, `plans/run_by_tag.py`, `plans/rerun_failed.py`, `plans/history.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_parallel.py` (+ desk54 cache-bust)
+- **Verify:** `pytest tests/test_plan_parallel.py` + related Plans/UI suite (80 passed). Live `GET /api/plans/parallel-cap` → default 1 max 2; desk54 HTML has `plan-parallel-count`; `desktop_app.py` opened → App ▦ → Plans → Suite parallel.
+- **Jira:** close-out **KAN-179** + **KAN-180**
+- **Next:** **KAN-181** D2 flake score and quarantine (test **KAN-182**)
 
 ### 2026-11-17 — KAN-177 — C11 Archive a case without deleting history
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-177

@@ -215,10 +215,18 @@ def _normalize_suite_run(raw: Any) -> Optional[dict[str, Any]]:
     if source and not _ID_SAFE.match(source):
         source = None
     tag = str(raw.get("tag") or "").strip().lower()[:40] or None
+    # D1: store parallel count used (default sequential = 1).
+    try:
+        parallel_count = int(raw.get("parallel_count") if raw.get("parallel_count") is not None else 1)
+    except (TypeError, ValueError):
+        parallel_count = 1
+    if parallel_count < 1:
+        parallel_count = 1
     return {
         "id": sid,
         "mode": mode,
         "tag": tag,
+        "parallel_count": parallel_count,
         "source_suite_run_id": source,
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
@@ -596,10 +604,11 @@ def start_suite_run(
     mode: str = "suite",
     source_suite_run_id: str | None = None,
     tag: str | None = None,
+    parallel_count: int = 1,
     skipped: list[dict[str, str]] | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
-    """Create a suite-level run id linked to this plan (KAN-151 / KAN-169)."""
+    """Create a suite-level run id linked to this plan (KAN-151 / KAN-169 / KAN-179)."""
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
@@ -608,11 +617,18 @@ def start_suite_run(
         return loaded
     plan = loaded["plan"]
     now = _utcnow()
+    try:
+        pcount = int(parallel_count)
+    except (TypeError, ValueError):
+        pcount = 1
+    if pcount < 1:
+        pcount = 1
     suite_run = _normalize_suite_run(
         {
             "id": _new_id("sr"),
             "mode": mode,
             "tag": (str(tag or "").strip().lower()[:40] or None),
+            "parallel_count": pcount,
             "source_suite_run_id": source_suite_run_id,
             "started_at": now,
             "finished_at": None,

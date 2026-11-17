@@ -57,6 +57,7 @@ from plans.history import compare_suite_runs, list_suite_history
 from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
+from plans.parallel import parallel_cap_info
 from plans.rerun_failed import rerun_failed_cases
 from plans.run_by_tag import run_cases_by_tag, select_cases_for_tag
 from plans.run_case import case_detail, run_single_case
@@ -327,15 +328,17 @@ class PlanCaseRunRequest(BaseModel):
 
 
 class PlanRerunFailedRequest(BaseModel):
-    """Optional source suite run for rerun-failed (KAN-151)."""
+    """Optional source suite run for rerun-failed (KAN-151) + parallel (KAN-179)."""
 
     source_suite_run_id: str = ""
+    parallel: int = 1
 
 
 class PlanRunByTagRequest(BaseModel):
-    """Run all cases carrying a tag sequentially (KAN-169 / C7)."""
+    """Run all cases carrying a tag (KAN-169 / C7); parallel capped (KAN-179 / D1)."""
 
     tag: str = ""
+    parallel: int = 1
 
 
 class PlanExportRunRequest(BaseModel):
@@ -763,6 +766,12 @@ async def get_plans_search(q: str = "", limit: int = 50):
     return search_plans(q or "", limit=limit)
 
 
+@app.get("/api/plans/parallel-cap")
+async def get_plan_parallel_cap():
+    """Visible parallel default and max for suite runs (KAN-179 / D1)."""
+    return parallel_cap_info()
+
+
 @app.get("/api/plans/{plan_id}/coverage-gaps")
 async def get_plan_coverage_gaps(
     plan_id: str,
@@ -953,15 +962,17 @@ async def post_plan_rerun_failed(
     plan_id: str,
     req: PlanRerunFailedRequest | None = None,
 ):
-    """Rerun only failed cases sequentially; new suite_run id on same suite (KAN-151).
+    """Rerun only failed cases; new suite_run id on same suite (KAN-151 / KAN-179).
 
     Disabled and quarantined candidates are skipped with reasons shown.
+    Default parallel=1 (sequential); refuse above local cap.
     """
     body = req or PlanRerunFailedRequest()
     return await rerun_failed_cases(
         plan_id,
         source_suite_run_id=(body.source_suite_run_id or "").strip() or None,
         session_id="desktop",
+        parallel=body.parallel,
     )
 
 
@@ -974,10 +985,13 @@ async def get_plan_run_by_tag_preview(plan_id: str, tag: str = ""):
     selection = select_cases_for_tag(loaded["plan"], tag)
     if selection.get("status") != "ok":
         return {**selection, "plan_id": plan_id, "security_level": loaded.get("security_level")}
+    cap = parallel_cap_info()
     return {
         **selection,
         "plan_id": plan_id,
         "security_level": loaded.get("security_level"),
+        "parallel_default": cap.get("parallel_default"),
+        "parallel_max": cap.get("parallel_max"),
     }
 
 
@@ -986,15 +1000,17 @@ async def post_plan_run_by_tag(
     plan_id: str,
     req: PlanRunByTagRequest | None = None,
 ):
-    """Run all cases with a chosen tag sequentially; store suite_run id + tag (KAN-169).
+    """Run all cases with a chosen tag; store suite_run id + tag + parallel (KAN-169 / KAN-179).
 
-    Untagged cases are omitted and listed as not_selected. Sequential only.
+    Untagged cases are omitted and listed as not_selected.
+    Default parallel=1 (sequential); refuse above local cap.
     """
     body = req or PlanRunByTagRequest()
     return await run_cases_by_tag(
         plan_id,
         body.tag or "",
         session_id="desktop",
+        parallel=body.parallel,
     )
 
 
