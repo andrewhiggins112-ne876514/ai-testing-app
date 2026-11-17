@@ -1,5 +1,6 @@
 """In-app test plan / suite / case / run model (FR-PLAN-1 / FR-PLAN-2)."""
 
+from plans.coverage import plan_coverage_gaps
 from plans.draft import (
     add_document_draft_cases,
     draft_plan_from_issue,
@@ -38,6 +39,7 @@ __all__ = [
     "get_plan",
     "lab_home_status",
     "list_plans",
+    "plan_coverage_gaps",
     "plans_dir",
     "reorder_cases",
     "update_case",

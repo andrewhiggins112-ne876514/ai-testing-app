@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-163** — C4 coverage gaps |
-| **Start task** | **KAN-164** (`test`, Relates → KAN-163) |
+| **Jira story** | **KAN-165** — C5 acceptance text drift |
+| **Start task** | **KAN-166** (`test`, Relates → KAN-165) |
 | **Epic** | Test-all C (see catalogue) |
-| **Roadmap ID** | C4 / FR coverage gaps |
+| **Roadmap ID** | C5 / FR-PLAN-3 drift |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-164** |
-| **Shipped** | … **KAN-253** desktop compact App menu (desk44); **KAN-249** Settings hub; **KAN-161** C3 |
+| **Test ticket** | **KAN-166** |
+| **Shipped** | … **KAN-163** C4 coverage gaps (desk45); **KAN-253** compact App menu; **KAN-161** C3 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all C after C4 |
+| **Next after this** | continue Test-all C after C5 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-163 — C4 Coverage gaps
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-163
+- **Done:** After project draft (and on demand), Plans lists stories with no case and stories whose cases are all disabled separately. Filter by key/summary (`q`). Never auto-creates cases. `GET /api/plans/{id}/coverage-gaps`; draft-project response includes `coverage_gaps`. desk45.
+- **Files:** `plans/coverage.py`, `plans/draft.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_coverage_gaps.py`, `tests/test_plan_project_draft.py` (+ desk45 cache-bust tests)
+- **Verify:** `pytest tests/test_plan_coverage_gaps.py tests/test_plan_project_draft.py tests/test_desktop_app_menu.py tests/test_orb_hub.py tests/test_nav_overlap.py tests/test_settings_hub.py -v` (25 passed). Live `GET /api/plans/{id}/coverage-gaps` → 50 no-case stories, `cases_created=false`; desk45 HTML has `plan-coverage-filter`; `desktop_app.py` opened.
+- **Jira:** close-out **KAN-163** + **KAN-164**
+- **Next:** **KAN-165** C5 acceptance text drift (test **KAN-166**)
 
 ### 2026-11-17 — KAN-253 — UI-NAV-IA-4 Desktop compact App menu
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-253

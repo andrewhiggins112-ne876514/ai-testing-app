@@ -1326,6 +1326,10 @@
   const planDocAddBtn = document.getElementById("plan-doc-add-btn");
   const planIntent = document.getElementById("plan-intent");
   const planCases = document.getElementById("plan-cases");
+  const planCoverageFilter = document.getElementById("plan-coverage-filter");
+  const planCoverageBtn = document.getElementById("plan-coverage-btn");
+  const planCoverageNoCase = document.getElementById("plan-coverage-no-case");
+  const planCoverageDisabled = document.getElementById("plan-coverage-disabled");
   const planCaseId = document.getElementById("plan-case-id");
   const planCaseName = document.getElementById("plan-case-name");
   const planCaseNote = document.getElementById("plan-case-note");
@@ -1913,6 +1917,69 @@
       .join("\n");
   }
 
+  function renderCoverageGaps(payload) {
+    function linesFor(list, emptyLabel) {
+      const rows = list || [];
+      if (!rows.length) return emptyLabel;
+      return rows
+        .map(function (r, idx) {
+          return (
+            idx +
+            1 +
+            ". " +
+            (r.key || "?") +
+            (r.summary ? " — " + r.summary : "") +
+            " · cases " +
+            (r.case_count != null ? r.case_count : 0)
+          );
+        })
+        .join("\n");
+    }
+    if (planCoverageNoCase) {
+      planCoverageNoCase.textContent =
+        "No case:\n" + linesFor(payload && payload.no_case, "(none)");
+    }
+    if (planCoverageDisabled) {
+      planCoverageDisabled.textContent =
+        "All cases disabled:\n" +
+        linesFor(payload && payload.all_disabled, "(none)");
+    }
+  }
+
+  async function refreshCoverageGaps() {
+    if (!openPlanId) {
+      renderCoverageGaps({ no_case: [], all_disabled: [] });
+      return;
+    }
+    const q =
+      planCoverageFilter && planCoverageFilter.value
+        ? planCoverageFilter.value.trim()
+        : "";
+    try {
+      const res = await fetch(
+        "/api/plans/" +
+          encodeURIComponent(openPlanId) +
+          "/coverage-gaps?q=" +
+          encodeURIComponent(q)
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok") {
+        if (planCoverageNoCase) {
+          planCoverageNoCase.textContent =
+            payload.message || "Coverage gaps unavailable.";
+        }
+        if (planCoverageDisabled) planCoverageDisabled.textContent = "";
+        return;
+      }
+      renderCoverageGaps(payload);
+    } catch (err) {
+      if (planCoverageNoCase) {
+        planCoverageNoCase.textContent = "Could not load coverage gaps.";
+      }
+      if (planCoverageDisabled) planCoverageDisabled.textContent = "";
+    }
+  }
+
   async function refreshPlanDegradedHint() {
     if (!planDegradedHint) return;
     try {
@@ -2028,6 +2095,7 @@
         }
       }
       renderPlanCases(payload.plan);
+      await refreshCoverageGaps();
       if (planList) planList.value = openPlanId;
       if (planStatus) {
         planStatus.textContent =
@@ -3088,12 +3156,34 @@
         await loadPlanList(payload.plan.id);
         openPlanId = payload.plan.id;
         renderPlanCases(payload.plan);
+        if (payload.coverage_gaps && payload.coverage_gaps.status === "ok") {
+          renderCoverageGaps(payload.coverage_gaps);
+        } else {
+          await refreshCoverageGaps();
+        }
         if (typeof refreshLabHome === "function") await refreshLabHome();
         if (planStatus) {
           planStatus.textContent = payload.message || "Project draft ready — review before run.";
         }
       } catch (err) {
         if (planStatus) planStatus.textContent = "Project draft request failed.";
+      }
+    });
+  }
+
+  if (planCoverageBtn) {
+    planCoverageBtn.addEventListener("click", function () {
+      refreshCoverageGaps();
+    });
+  }
+  if (planCoverageFilter) {
+    planCoverageFilter.addEventListener("change", function () {
+      refreshCoverageGaps();
+    });
+    planCoverageFilter.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        refreshCoverageGaps();
       }
     });
   }

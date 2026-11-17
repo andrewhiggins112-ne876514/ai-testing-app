@@ -332,6 +332,24 @@ async def draft_plan_from_project(
     if note:
         msg += f" ({note})"
 
+    # C4 — after project draft, list coverage gaps (no auto-create).
+    from plans.coverage import plan_coverage_gaps
+
+    coverage = await plan_coverage_gaps(
+        plan_id,
+        project=project_key,
+        issue_types=types,
+        level=level,
+        include_project_list=True,
+    )
+    if coverage.get("status") == "ok":
+        gaps_n = int(coverage.get("no_case_count") or 0)
+        disabled_n = int(coverage.get("all_disabled_count") or 0)
+        msg += (
+            f" Coverage gaps: {gaps_n} with no case; "
+            f"{disabled_n} with all cases disabled."
+        )
+
     return {
         "status": "ok",
         "message": msg,
@@ -348,6 +366,8 @@ async def draft_plan_from_project(
         "plan": refreshed.get("plan") if refreshed.get("status") == "ok" else plan,
         "review_required": True,
         "auto_run": False,
+        "coverage_gaps": coverage if coverage.get("status") == "ok" else None,
+        "cases_created_for_gaps": False,
     }
 
 

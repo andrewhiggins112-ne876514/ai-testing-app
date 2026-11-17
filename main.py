@@ -40,6 +40,7 @@ from plugins.playwright_suite import (
     set_suite_path,
     suite_status as playwright_suite_status,
 )
+from plans.coverage import plan_coverage_gaps
 from plans.defect_packet import defect_packet_preview
 from plans.draft import (
     add_document_draft_cases,
@@ -694,11 +695,31 @@ async def post_plan_draft_project(req: PlanProjectDraftRequest):
     """Draft a plan from the configured Jira project in a capped batch (KAN-161 / C3).
 
     Read-only. Does not auto-run — person reviews then uses A7 run path.
+    After draft, response includes coverage_gaps (KAN-163 / C4) without creating cases.
     """
     out = await draft_plan_from_project(
         batch_size=req.batch_size,
         project=req.project or None,
         issue_types=req.issue_types,
+    )
+    if out.get("status") != "ok" or not degraded_status().get("jira_up"):
+        out = {**out, "degraded": degraded_status()}
+    return out
+
+
+@app.get("/api/plans/{plan_id}/coverage-gaps")
+async def get_plan_coverage_gaps(
+    plan_id: str,
+    q: str = "",
+    project: str = "",
+    list_max: int = 50,
+):
+    """List stories with no case / all cases disabled (KAN-163 / C4). Never creates cases."""
+    out = await plan_coverage_gaps(
+        plan_id,
+        filter_text=q or "",
+        project=project or None,
+        list_max=list_max,
     )
     if out.get("status") != "ok" or not degraded_status().get("jira_up"):
         out = {**out, "degraded": degraded_status()}

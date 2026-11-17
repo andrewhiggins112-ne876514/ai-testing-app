@@ -21,7 +21,7 @@ class DesktopAppMenuTests(unittest.TestCase):
         self.assertNotIn('class="side-drawer app-drawer', html)
         self.assertNotIn('class="tab-nav"', html)
         self.assertNotIn('<nav class="top-tabs">', html)
-        self.assertIn("desk44", html)
+        self.assertIn("desk45", html)
 
     def test_css_compact_panel_rules(self):
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
@@ -40,12 +40,12 @@ class DesktopAppMenuTests(unittest.TestCase):
         self.assertIn("function parkToggleOnOpenDrawer", js)
         self.assertIn("isCompactAppMenu(drawer)", js)
 
-    def test_cache_bust_desk44(self):
+    def test_cache_bust_desk45(self):
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk44", app)
-        self.assertIn("desktop.css?v=desk44", html)
-        self.assertIn("desktop.js?v=desk44", html)
+        self.assertIn("desk45", app)
+        self.assertIn("desktop.css?v=desk45", html)
+        self.assertIn("desktop.js?v=desk45", html)
 
     def test_open_area_still_closes_menu(self):
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
@@ -56,3 +56,4 @@ class DesktopAppMenuTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

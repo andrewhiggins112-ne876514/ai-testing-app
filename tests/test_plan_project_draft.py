@@ -90,9 +90,14 @@ class ProjectDraftTests(unittest.IsolatedAsyncioTestCase):
         self.assertGreaterEqual(result["case_count"], 4)
 
         list_mock.assert_awaited()
-        self.assertEqual(list_mock.await_args.args[0], "KAN")
-        self.assertEqual(list_mock.await_args.kwargs.get("max"), 2)
+        # First call drafts the batch; later call (C4) lists a wider project window.
+        first_list = list_mock.await_args_list[0]
+        self.assertEqual(first_list.args[0], "KAN")
+        self.assertEqual(first_list.kwargs.get("max"), 2)
+        self.assertGreaterEqual(list_mock.await_count, 2)
         self.assertEqual(read_mock.await_count, 2)
+        self.assertIn("coverage_gaps", result)
+        self.assertFalse(result.get("cases_created_for_gaps"))
 
         plan = result["plan"]
         self.assertEqual(set(plan["sources"]["jira_keys"]), {"KAN-101", "KAN-102"})

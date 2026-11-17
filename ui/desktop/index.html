@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk44" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk45" />
 </head>
 <body>
   <div id="app">
@@ -411,6 +411,16 @@
           </div>
           <pre id="plan-intent" class="drawer-hint" aria-live="polite" hidden></pre>
           <div id="plan-cases" class="drawer-hint" aria-live="polite"></div>
+          <h4 class="orb-section-label">Coverage gaps</h4>
+          <p class="drawer-hint">After a project draft, stories with no case and stories whose cases are all disabled are listed here. Filter by key or summary. Does not create cases.</p>
+          <label class="stack-label">Filter gaps
+            <input type="text" id="plan-coverage-filter" placeholder="KAN- or summary text" autocomplete="off" />
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-coverage-btn" class="save-btn secondary">Refresh coverage gaps</button>
+          </div>
+          <div id="plan-coverage-no-case" class="drawer-hint" aria-live="polite"></div>
+          <div id="plan-coverage-disabled" class="drawer-hint" aria-live="polite"></div>
           <h4 class="orb-section-label">Edit selected case</h4>
           <label class="stack-label">Case id
             <input type="text" id="plan-case-id" placeholder="c…" autocomplete="off" />
@@ -571,6 +581,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk44"></script>
+  <script src="/ui/desktop/desktop.js?v=desk45"></script>
 </body>
 </html>
