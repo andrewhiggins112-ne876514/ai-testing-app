@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk52" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk53" />
 </head>
 <body>
   <div id="app">
@@ -405,6 +405,7 @@
           </div>
           <div id="plan-search-results" class="drawer-hint" aria-live="polite" role="list" aria-label="Plan search results"></div>
           <pre id="plan-intent" class="drawer-hint" aria-live="polite" hidden></pre>
+          <label class="stack-label"><input type="checkbox" id="plan-show-archived" /> Show archived cases (default list hides them; runs and evidence stay)</label>
           <div id="plan-cases" class="drawer-hint" aria-live="polite"></div>
           <h4 class="orb-section-label">Coverage gaps</h4>
           <p class="drawer-hint">After a project draft, stories with no case and stories whose cases are all disabled are listed here. Filter by key or summary. Does not create cases.</p>
@@ -476,6 +477,7 @@
             <button type="button" id="plan-notes-save" class="save-btn secondary">Save notes</button>
           </div>
           <label class="stack-label"><input type="checkbox" id="plan-case-enabled" checked /> Enabled (disabled cases are skipped by later runs)</label>
+          <label class="stack-label"><input type="checkbox" id="plan-case-archived" /> Archived (hidden from new runs and the default list; history kept)</label>
           <div class="btn-row">
             <button type="button" id="plan-case-save" class="save-btn">Save case edits</button>
             <button type="button" id="plan-case-up" class="save-btn secondary">Move up</button>
@@ -651,6 +653,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk52"></script>
+  <script src="/ui/desktop/desktop.js?v=desk53"></script>
 </body>
 </html>

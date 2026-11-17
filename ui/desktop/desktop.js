@@ -1390,6 +1390,8 @@
   const planRunNote = document.getElementById("plan-run-note");
   const planNotesSave = document.getElementById("plan-notes-save");
   const planCaseEnabled = document.getElementById("plan-case-enabled");
+  const planCaseArchived = document.getElementById("plan-case-archived");
+  const planShowArchived = document.getElementById("plan-show-archived");
   const planCaseSave = document.getElementById("plan-case-save");
   const planCaseUp = document.getElementById("plan-case-up");
   const planCaseDown = document.getElementById("plan-case-down");
@@ -1950,36 +1952,61 @@
       planCases.textContent = "Cases: (none)";
       return;
     }
-    planCases.innerHTML = openPlanCases
-      .map(function (c, idx) {
-        const en = c.enabled === false ? "OFF" : "ON";
-        const src = (c.source && c.source.ref) || "";
-        const kind = (c.source && c.source.kind) || "manual-draft";
-        const tags = (c.tags || []).join(", ");
-        const pri = c.priority != null ? c.priority : 0;
-        return (
-          idx +
-          1 +
-          ". [" +
-          en +
-          "] " +
-          (c.id || "?") +
-          " — " +
-          (c.name || "") +
-          (c.jira_key ? " · Jira " + c.jira_key : "") +
-          (kind === "manual-draft" && !c.jira_key ? " · manual-draft" : "") +
-          (isKnownLabel(c) ? " · known" : "") +
-          (tags ? " · tags " + tags : "") +
-          (pri ? " · P" + pri : "") +
-          (src ? "\n   source: " + src : "") +
-          (c.note ? "\n   note: " + c.note : "") +
-          (c.known_issue && c.known_issue.note
-            ? "\n   known: " + c.known_issue.note
-            : "") +
-          lastRunLine(c)
-        );
-      })
-      .join("\n");
+    const showArchived = !!(planShowArchived && planShowArchived.checked);
+    const archivedCount = openPlanCases.filter(function (c) {
+      return !!c.archived;
+    }).length;
+    const visible = openPlanCases.filter(function (c) {
+      return showArchived || !c.archived;
+    });
+    if (!visible.length) {
+      planCases.textContent =
+        "Cases: (none visible — " +
+        archivedCount +
+        " archived; tick Show archived to list them)";
+      return;
+    }
+    const header =
+      archivedCount && !showArchived
+        ? "Cases (" +
+          visible.length +
+          " active · " +
+          archivedCount +
+          " archived hidden):\n"
+        : "Cases:\n";
+    planCases.innerHTML =
+      header +
+      visible
+        .map(function (c, idx) {
+          const en = c.enabled === false ? "OFF" : "ON";
+          const arch = c.archived ? "ARCH" : en;
+          const src = (c.source && c.source.ref) || "";
+          const kind = (c.source && c.source.kind) || "manual-draft";
+          const tags = (c.tags || []).join(", ");
+          const pri = c.priority != null ? c.priority : 0;
+          return (
+            idx +
+            1 +
+            ". [" +
+            arch +
+            "] " +
+            (c.id || "?") +
+            " — " +
+            (c.name || "") +
+            (c.jira_key ? " · Jira " + c.jira_key : "") +
+            (kind === "manual-draft" && !c.jira_key ? " · manual-draft" : "") +
+            (isKnownLabel(c) ? " · known" : "") +
+            (tags ? " · tags " + tags : "") +
+            (pri ? " · P" + pri : "") +
+            (src ? "\n   source: " + src : "") +
+            (c.note ? "\n   note: " + c.note : "") +
+            (c.known_issue && c.known_issue.note
+              ? "\n   known: " + c.known_issue.note
+              : "") +
+            lastRunLine(c)
+          );
+        })
+        .join("\n");
   }
 
   function renderCoverageGaps(payload) {
@@ -2608,6 +2635,9 @@
         "Jira: " + (payload.jira_key || "—"),
         "Tags: " + (caseTags.length ? caseTags.join(", ") : "—"),
         "Priority: " + (payload.priority != null ? payload.priority : 0),
+        "Enabled: " + (payload.enabled === false ? "no" : "yes"),
+        "Archived: " + (payload.archived ? "yes" : "no"),
+        "Runs kept: " + (payload.run_count != null ? payload.run_count : 0),
         "Source: " + (payload.source_kind || "manual-draft") + " — " + (payload.source_ref || "—"),
         payload.manual_draft ? "Marked manual-draft (no Jira/doc source)" : "",
         payload.note ? "Case note: " + payload.note : "",
@@ -2619,12 +2649,15 @@
       ].filter(Boolean);
       planCaseDetail.hidden = false;
       planCaseDetail.textContent = lines.join("\n");
+      if (planCaseName && payload.name) planCaseName.value = payload.name;
       if (planCaseNote && payload.note != null) planCaseNote.value = payload.note || "";
       if (planCaseTags) planCaseTags.value = caseTags.join(", ");
       if (planCasePriority) {
         planCasePriority.value =
           payload.priority != null ? String(payload.priority) : "0";
       }
+      if (planCaseEnabled) planCaseEnabled.checked = payload.enabled !== false;
+      if (planCaseArchived) planCaseArchived.checked = !!payload.archived;
       if (planRunNote) planRunNote.value = payload.tester_note || "";
       if (planKnownNote) planKnownNote.value = ki.note || "";
       if (planKnownJira) planKnownJira.value = ki.jira_key || "";
@@ -3990,6 +4023,7 @@
               name: planCaseName ? planCaseName.value : null,
               note: planCaseNote ? planCaseNote.value : null,
               enabled: planCaseEnabled ? !!planCaseEnabled.checked : true,
+              archived: planCaseArchived ? !!planCaseArchived.checked : false,
               tags: planCaseTags
                 ? planCaseTags.value
                     .split(",")
@@ -4012,11 +4046,26 @@
           return;
         }
         if (payload.plan) renderPlanCases(payload.plan);
-        if (planStatus) planStatus.textContent = "Case saved locally.";
+        if (planStatus) {
+          const archivedNow = !!(payload.case && payload.case.archived);
+          planStatus.textContent = archivedNow
+            ? "Case archived (runs kept; hidden from default list)."
+            : "Case saved locally.";
+        }
         await refreshCaseDetail();
       } catch (err) {
         if (planStatus) planStatus.textContent = "Case save request failed.";
       }
+    });
+  }
+
+  if (planShowArchived) {
+    planShowArchived.addEventListener("change", function () {
+      if (!openPlanId) return;
+      renderPlanCases({
+        suite: { cases: openPlanCases },
+        intent: planIntent && !planIntent.hidden ? planIntent.textContent : "",
+      });
     });
   }
 

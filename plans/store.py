@@ -1006,12 +1006,16 @@ def update_case(
     name: str | None = None,
     note: str | None = None,
     enabled: bool | None = None,
+    archived: bool | None = None,
     order: int | None = None,
     priority: int | None = None,
     tags: list[str] | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
-    """Edit a case before any run (KAN-133 / FR-PLAN-1/2). Local only."""
+    """Edit a case before any run (KAN-133 / FR-PLAN-1/2). Local only.
+
+    Archive (KAN-177 / C11) sets archived=True without deleting runs or evidence.
+    """
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
@@ -1041,6 +1045,9 @@ def update_case(
         target["note"] = str(note)[:2000]
     if enabled is not None:
         target["enabled"] = bool(enabled)
+    if archived is not None:
+        # Soft archive only — never clears runs/evidence (KAN-177).
+        target["archived"] = bool(archived)
     if order is not None:
         try:
             target["order"] = int(order)

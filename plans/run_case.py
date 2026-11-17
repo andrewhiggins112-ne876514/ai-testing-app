@@ -485,6 +485,8 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "jira_key": case.get("jira_key") or "",
             "tags": list(case.get("tags") or []),
             "priority": int(case.get("priority") or 0),
+            "enabled": bool(case.get("enabled", True)),
+            "archived": bool(case.get("archived", False)),
             "source_kind": kind,
             "source_ref": src.get("ref") or "",
             "manual_draft": kind == "manual-draft" and not (case.get("jira_key") or "").strip(),
@@ -494,6 +496,7 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "known_issue": case.get("known_issue")
             or (last.get("known_issue") if isinstance(last, dict) else None),
             "known_label": "known" if known else None,
+            "run_count": len(case.get("runs") or []),
             "case": case,
         }
     return {"status": "error", "error": "case_not_found", "message": f"Case {cid!r} not found."}

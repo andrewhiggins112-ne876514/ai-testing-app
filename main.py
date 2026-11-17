@@ -281,6 +281,7 @@ class PlanCaseUpdateRequest(BaseModel):
     name: str | None = None
     note: str | None = None
     enabled: bool | None = None
+    archived: bool | None = None
     order: int | None = None
     priority: int | None = None
     tags: list[str] | None = None
@@ -884,13 +885,14 @@ async def post_plan_case(plan_id: str, req: PlanCaseRequest):
 
 @app.post("/api/plans/{plan_id}/cases/{case_id}")
 async def post_plan_case_update(plan_id: str, case_id: str, req: PlanCaseUpdateRequest):
-    """Rename / note / enable-disable / order a case before run (KAN-133)."""
+    """Rename / note / enable-disable / archive / order a case (KAN-133 / KAN-177)."""
     return plan_update_case(
         plan_id,
         case_id,
         name=req.name,
         note=req.note,
         enabled=req.enabled,
+        archived=req.archived,
         order=req.order,
         priority=req.priority,
         tags=list(req.tags) if req.tags is not None else None,

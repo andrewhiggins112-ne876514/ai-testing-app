@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-177** — C11 Archive a case without deleting history |
-| **Start task** | **KAN-178** (`test`, Relates → KAN-177) |
-| **Epic** | Test-all C (see catalogue) |
-| **Roadmap ID** | C11 / FR-PLAN-2 |
+| **Jira story** | **KAN-179** — D1 Sequential default and a parallel cap |
+| **Start task** | **KAN-180** (`test`, Relates → KAN-179) |
+| **Epic** | Test-all D (see catalogue) |
+| **Roadmap ID** | D1 / FR-PLAN-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-178** |
-| **Shipped** | … **KAN-175** C10 suite history/compare (desk52); **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
+| **Test ticket** | **KAN-180** |
+| **Shipped** | … **KAN-177** C11 archive case (desk53); **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all C after C11 → D1, or **KAN-260** Lab tools in App menu when prioritised |
+| **Next after this** | continue Test-all D after D1 → D2…, or **KAN-260** Lab tools in App menu when prioritised |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-177 — C11 Archive a case without deleting history
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-177
+- **Done:** Soft-archive via `update_case(archived=…)`. Archived cases skip runnable/tag runs and refuse single-case run; runs/evidence kept. Unarchive restores. Desktop Plans: Show archived filter (default hide) + Archived checkbox on case edit. desk53.
+- **Files:** `plans/store.py`, `plans/run_case.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_archive.py` (+ desk53 cache-bust)
+- **Verify:** `pytest tests/test_plan_archive.py` + related Plans/UI suite (83 passed). API archive keeps evidence; unarchive restores runnable. Live desk53 HTML has `plan-case-archived` / `plan-show-archived`; `desktop_app.py` opened → App ▦ → Plans.
+- **Jira:** close-out **KAN-177** + **KAN-178**
+- **Next:** **KAN-179** D1 sequential default and a parallel cap (test **KAN-180**)
 
 ### 2026-11-17 — KAN-175 — C10 Suite history and compare two runs
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-175

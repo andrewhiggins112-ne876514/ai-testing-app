@@ -82,8 +82,8 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**C11** — next (**KAN-177** archive a case without deleting history; test **KAN-178**). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.
-**Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1…4** (**KAN-247…249**, **KAN-253**); **C3 KAN-161**; **C4 KAN-163** coverage gaps (desk45); **C5 KAN-165** acceptance drift (desk46); **C6 KAN-167** traceability matrix (desk48); **C7 KAN-169** tags/priority/smoke/regression (desk49); **C8 KAN-171** import Playwright into suite (desk50); **C9 KAN-173** search plans/cases/failures (desk51); **C10 KAN-175** suite history/compare (desk52).
+**D1** — next (**KAN-179** sequential default and a parallel cap; test **KAN-180**). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.
+**Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1…4** (**KAN-247…249**, **KAN-253**); **C3 KAN-161**; **C4 KAN-163** coverage gaps (desk45); **C5 KAN-165** acceptance drift (desk46); **C6 KAN-167** traceability matrix (desk48); **C7 KAN-169** tags/priority/smoke/regression (desk49); **C8 KAN-171** import Playwright into suite (desk50); **C9 KAN-173** search plans/cases/failures (desk51); **C10 KAN-175** suite history/compare (desk52); **C11 KAN-177** archive case (desk53).
 
 **Council CR (2026-11-16):** Test-all vision locked; 48-story catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
 
