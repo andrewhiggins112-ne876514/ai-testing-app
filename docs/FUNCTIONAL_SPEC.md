@@ -268,7 +268,8 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | Acceptance drift (C5) | **Shipped** KAN-165 (desk46) | Stale on summary/AC change; Keep/Refresh; runs preserved |
 | Traceability matrix (C6) | **Shipped** KAN-167 (desk48) | Story → cases → last result → bugs → known; not_loaded never pass; export section |
 | Tags / smoke / regression (C7) | **Shipped** KAN-169 (desk49) | Case tags+priority; sequential run-by-tag; suite_run stores tag; untagged = not_selected |
-| Import Playwright into suite (C8) | **Shipped** KAN-171 (desk50) | Project → plan cases (`source=playwright`); npx Suites unchanged; single-case suite run; external files never deleted; Active → **KAN-173** C9 |
+| Import Playwright into suite (C8) | **Shipped** KAN-171 (desk50) | Project → plan cases (`source=playwright`); npx Suites unchanged; single-case suite run; external files never deleted |
+| Search plans / cases / failures (C9) | **Shipped** KAN-173 (desk51) | Matches plan name, case name, Jira key, tag, failure class; active level only; hit opens case; Active → **KAN-175** C10 |
 | Voice input | Deferred | **KAN-81**; mic; later G10 |
 | Model tool-calling reliability | **Done** baseline | **KAN-61** |
 | Self-healing guardrails (policy) | **Done** (KAN-49) | Review UI **Done** (KAN-75) |

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk50" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk51" />
 </head>
 <body>
   <div id="app">
@@ -395,6 +395,15 @@
             <button type="button" id="plan-doc-add-btn" class="save-btn secondary">Add doc cases to open plan</button>
             <button type="button" id="plan-import-pw-add-btn" class="save-btn secondary">Add Playwright to open plan</button>
           </div>
+          <h4 class="orb-section-label">Search plans / cases / failures</h4>
+          <p class="drawer-hint">Matches plan name, case name, Jira key, tag, and failure class within the active security level only. Click a hit to open that case.</p>
+          <label class="stack-label">Search
+            <input type="text" id="plan-search-q" placeholder="name, KAN-, smoke, product_bug…" autocomplete="off" />
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-search-btn" class="save-btn secondary">Search</button>
+          </div>
+          <div id="plan-search-results" class="drawer-hint" aria-live="polite" role="list" aria-label="Plan search results"></div>
           <pre id="plan-intent" class="drawer-hint" aria-live="polite" hidden></pre>
           <div id="plan-cases" class="drawer-hint" aria-live="polite"></div>
           <h4 class="orb-section-label">Coverage gaps</h4>
@@ -622,6 +631,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk50"></script>
+  <script src="/ui/desktop/desktop.js?v=desk51"></script>
 </body>
 </html>

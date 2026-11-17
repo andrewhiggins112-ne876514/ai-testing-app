@@ -53,6 +53,7 @@ from plans.drift import (
     refresh_acceptance_drafts,
 )
 from plans.import_playwright import import_playwright_project
+from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
 from plans.rerun_failed import rerun_failed_cases
@@ -748,6 +749,16 @@ async def post_plan_import_playwright(req: PlanImportPlaywrightRequest):
         plan_id=(req.plan_id or "").strip() or None,
         plan_name=req.plan_name or "",
     )
+
+
+@app.get("/api/plans/search")
+async def get_plans_search(q: str = "", limit: int = 50):
+    """Search plans, cases, and failures in the active security level (KAN-173 / C9).
+
+    Matches plan name, case name, Jira key, tag, and failure class.
+    Does not search across OFFICIAL/SECRET.
+    """
+    return search_plans(q or "", limit=limit)
 
 
 @app.get("/api/plans/{plan_id}/coverage-gaps")

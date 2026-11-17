@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-173** — C9 Search plans, cases, and failures |
-| **Start task** | **KAN-174** (`test`, Relates → KAN-173) |
+| **Jira story** | **KAN-175** — C10 Suite history and compare two runs |
+| **Start task** | **KAN-176** (`test`, Relates → KAN-175) |
 | **Epic** | Test-all C (see catalogue) |
-| **Roadmap ID** | C9 / FR-PLAN-1 |
+| **Roadmap ID** | C10 / FR-PLAN-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-174** |
-| **Shipped** | … **KAN-171** C8 import Playwright into suite (desk50); **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
+| **Test ticket** | **KAN-176** |
+| **Shipped** | … **KAN-173** C9 search plans/cases/failures (desk51); **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all C after C9 (or **KAN-260** Lab tools in App menu when prioritised) |
+| **Next after this** | continue Test-all C after C10 (or **KAN-260** Lab tools in App menu when prioritised) |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-173 — C9 Search plans, cases, and failures
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-173
+- **Done:** Level-scoped search across plans/cases/failures matching plan name, case name, Jira key, tag, and failure class. Results never cross OFFICIAL/SECRET. Opening a hit opens the plan and selects the case. API `GET /api/plans/search`. Desktop Plans: search box + clickable hits. desk51.
+- **Files:** `plans/search.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_search.py` (+ desk51 cache-bust)
+- **Verify:** `pytest tests/test_plan_search.py tests/test_plan_import_playwright.py tests/test_plan_run_by_tag.py tests/test_plan_run_case.py tests/test_desktop_app_menu.py tests/test_nav_overlap.py tests/test_orb_hub.py tests/test_settings_hub.py tests/test_plan_store.py -q` (59 passed). Live `/ui/desktop/?v=desk51` has `plan-search-q` / `plan-search-btn`; `GET /api/plans/search?q=smoke` → ok, `cross_level=false`; `desktop_app.py` opened (desk51).
+- **Jira:** close-out **KAN-173** + **KAN-174**
+- **Next:** **KAN-175** C10 suite history and compare two runs (test **KAN-176**)
 
 ### 2026-11-17 — KAN-171 — C8 import Playwright project into suite
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-171

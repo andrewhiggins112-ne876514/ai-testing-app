@@ -12,6 +12,7 @@ from plans.drift import (
     refresh_acceptance_drafts,
 )
 from plans.import_playwright import import_playwright_project
+from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.run_by_tag import WELL_KNOWN_TAGS, run_cases_by_tag, select_cases_for_tag
 from plans.starter import create_starter_plan, lab_home_status
@@ -42,6 +43,7 @@ __all__ = [
     "keep_acceptance_drafts",
     "refresh_acceptance_drafts",
     "import_playwright_project",
+    "search_plans",
     "set_known_issue_link",
     "set_plan_notes",
     "set_run_failure_class",

@@ -1360,6 +1360,9 @@
   const planList = document.getElementById("plan-list");
   const planLoadBtn = document.getElementById("plan-load-btn");
   const planDocAddBtn = document.getElementById("plan-doc-add-btn");
+  const planSearchQ = document.getElementById("plan-search-q");
+  const planSearchBtn = document.getElementById("plan-search-btn");
+  const planSearchResults = document.getElementById("plan-search-results");
   const planIntent = document.getElementById("plan-intent");
   const planCases = document.getElementById("plan-cases");
   const planCoverageFilter = document.getElementById("plan-coverage-filter");
@@ -2098,6 +2101,100 @@
         row.primary_case_id +
         " for " +
         (row.story_key || "story");
+    }
+  }
+
+  function renderPlanSearchResults(payload) {
+    if (!planSearchResults) return;
+    planSearchResults.innerHTML = "";
+    const hits = (payload && payload.hits) || [];
+    if (!hits.length) {
+      planSearchResults.textContent =
+        (payload && payload.message) ||
+        (payload && payload.query
+          ? "No matches in the active security level."
+          : "Enter a search term.");
+      return;
+    }
+    const hint = document.createElement("div");
+    hint.textContent =
+      hits.length +
+      " hit" +
+      (hits.length === 1 ? "" : "s") +
+      " · " +
+      (payload.security_level || "") +
+      (payload.truncated ? " (truncated)" : "");
+    planSearchResults.appendChild(hint);
+    hits.forEach(function (hit, idx) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "save-btn secondary";
+      btn.style.display = "block";
+      btn.style.width = "100%";
+      btn.style.textAlign = "left";
+      btn.style.marginTop = "0.35rem";
+      btn.setAttribute("role", "listitem");
+      const matched = (hit.matched_fields || []).join(", ");
+      btn.textContent =
+        idx +
+        1 +
+        ". " +
+        (hit.plan_name || hit.plan_id || "?") +
+        (hit.case_name ? " · " + hit.case_name : "") +
+        (hit.jira_key ? " · " + hit.jira_key : "") +
+        (hit.failure_class ? " · " + hit.failure_class : "") +
+        (matched ? " [" + matched + "]" : "");
+      btn.title = hit.case_id
+        ? "Open case " + hit.case_id
+        : "Open plan " + (hit.plan_id || "");
+      btn.addEventListener("click", function () {
+        openPlanSearchHit(hit);
+      });
+      planSearchResults.appendChild(btn);
+    });
+  }
+
+  async function openPlanSearchHit(hit) {
+    if (!hit || !hit.plan_id) return;
+    await openPlan(hit.plan_id);
+    if (hit.case_id && planCaseId) {
+      planCaseId.value = hit.case_id;
+      if (planCaseName && hit.case_name) planCaseName.value = hit.case_name;
+      await refreshCaseDetail();
+      if (planCaseId.focus) planCaseId.focus();
+      if (planStatus) {
+        planStatus.textContent =
+          "Search hit → case " + hit.case_id + " in " + (hit.plan_name || hit.plan_id);
+      }
+    } else if (planStatus) {
+      planStatus.textContent =
+        "Search hit → plan " + (hit.plan_name || hit.plan_id) + " (no case)";
+    }
+  }
+
+  async function runPlanSearch() {
+    const q =
+      planSearchQ && planSearchQ.value ? planSearchQ.value.trim() : "";
+    if (planStatus) planStatus.textContent = q ? "Searching…" : "Enter a search term.";
+    try {
+      const res = await fetch(
+        "/api/plans/search?q=" + encodeURIComponent(q)
+      );
+      const payload = await res.json();
+      renderPlanSearchResults(payload);
+      if (planStatus) {
+        if (!q) {
+          planStatus.textContent = payload.message || "Enter a search term.";
+        } else {
+          planStatus.textContent =
+            (payload.count != null ? payload.count : 0) +
+            " search hit(s) in " +
+            (payload.security_level || "active level");
+        }
+      }
+    } catch (err) {
+      if (planSearchResults) planSearchResults.textContent = "Search failed.";
+      if (planStatus) planStatus.textContent = "Search request failed.";
     }
   }
 
@@ -3498,6 +3595,20 @@
   if (planImportPwAddBtn) {
     planImportPwAddBtn.addEventListener("click", function () {
       importPlaywrightIntoPlan(true);
+    });
+  }
+
+  if (planSearchBtn) {
+    planSearchBtn.addEventListener("click", function () {
+      runPlanSearch();
+    });
+  }
+  if (planSearchQ) {
+    planSearchQ.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        runPlanSearch();
+      }
     });
   }
 
