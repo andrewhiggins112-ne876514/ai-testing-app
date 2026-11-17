@@ -15,7 +15,7 @@ from typing import Any, Optional
 
 _ID_SAFE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
 _CASE_SOURCE_KINDS = frozenset(
-    {"manual-draft", "jira", "document", "playwright", "desktop"}
+    {"manual-draft", "jira", "document", "playwright", "desktop", "api"}
 )
 _RUN_RESULTS = frozenset({"pass", "fail", "error", "skipped", "pending"})
 

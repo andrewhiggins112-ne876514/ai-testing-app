@@ -212,6 +212,117 @@ def _map_desktop_result(desk: dict[str, Any]) -> tuple[str, str | None, list[str
     return "error", "tool", []
 
 
+def _map_api_result(api: dict[str, Any]) -> tuple[str, str | None]:
+    """Map api_messaging_runner output to plan run result + failure_class."""
+    status = str(api.get("status") or "fail").lower()
+    err = (api.get("error") or api.get("message") or "").strip()
+    if status == "pass":
+        return "pass", None
+    low = err.lower()
+    if (
+        "no messaging/api endpoint" in low
+        or "no host" in low
+        or "invalid endpoint" in low
+        or "unsupported endpoint scheme" in low
+        or "timed out" in low
+        or "timeout" in low
+        or "name or service not known" in low
+        or "getaddrinfo" in low
+        or "connection refused" in low
+        or "failed to establish" in low
+        or "tcp connect" in low
+        or "no port for scheme" in low
+    ):
+        return "error", "environment"
+    if status == "fail":
+        # HTTP status mismatch / 4xx/5xx — class like other product failures.
+        return "fail", "product_bug"
+    return "error", "tool"
+
+
+async def _execute_api_case(
+    plan_id: str,
+    target_case: dict[str, Any],
+    *,
+    level: str,
+    suite_run_id: str | None,
+    reserved_run_id: str,
+    started: float,
+) -> dict[str, Any]:
+    """Run one API/messaging case via api_messaging_runner."""
+    from plans.api_case import parse_api_ref, write_api_evidence
+    from plugins.api_messaging_runner import run_api_check
+    from plans.timeouts import case_step_timeout_ms
+    from settings.store import load_settings
+
+    cid = target_case["id"]
+    src = target_case.get("source") if isinstance(target_case.get("source"), dict) else {}
+    parsed = parse_api_ref(str(src.get("ref") or ""))
+    settings = load_settings()
+    endpoint = (parsed.get("endpoint") or "").strip() or str(
+        settings.get("api_endpoint") or ""
+    ).strip()
+    timeout_ms = case_step_timeout_ms(target_case)
+    timeout_s = max(0.5, min(float(timeout_ms) / 1000.0, 60.0))
+
+    api = await asyncio.to_thread(
+        run_api_check,
+        endpoint=endpoint,
+        method=str(parsed.get("method") or "GET"),
+        timeout_s=timeout_s,
+        expect_status=parsed.get("expect_status"),
+        body=parsed.get("body"),
+    )
+    duration_ms = int((time.monotonic() - started) * 1000)
+    result, failure_class = _map_api_result(api)
+    evidence = write_api_evidence(
+        run_id=reserved_run_id,
+        plan_id=plan_id,
+        case_id=cid,
+        api=api,
+    )
+    note_parts = [
+        str(api.get("message") or api.get("error") or ""),
+        f"body={api.get('body_summary') or ''}"[:400],
+    ]
+    note = " | ".join(p for p in note_parts if p)[:500]
+    recorded = add_run(
+        plan_id,
+        cid,
+        result=result,
+        duration_ms=duration_ms,
+        failure_class=failure_class,
+        evidence=evidence,
+        note=note,
+        suite_run_id=suite_run_id,
+        run_id=reserved_run_id,
+        level=level,
+    )
+    return {
+        "status": "ok",
+        "message": f"Case {cid} finished: {result}.",
+        "security_level": level,
+        "playwright_mode": None,
+        "target_up": bool(endpoint),
+        "only_case_id": cid,
+        "runner": "api_messaging_runner",
+        "pause_on_fail": False,
+        "suite_run_id": suite_run_id,
+        "api": {
+            "status": api.get("status"),
+            "error": api.get("error"),
+            "http_status": api.get("http_status"),
+            "endpoint_label": api.get("endpoint_label"),
+            "redaction_hits": api.get("redaction_hits"),
+            "body_summary": api.get("body_summary"),
+            "plugin": api.get("plugin") or "api_messaging_runner",
+        },
+        "plan": recorded.get("plan"),
+        "case": recorded.get("case"),
+        "run": recorded.get("run"),
+    }
+
+
 async def _execute_desktop_case(
     plan_id: str,
     target_case: dict[str, Any],
@@ -414,6 +525,16 @@ async def _execute_case(
 
     if _source_kind(target_case) == "desktop":
         return await _execute_desktop_case(
+            plan_id,
+            target_case,
+            level=level,
+            suite_run_id=suite_rid,
+            reserved_run_id=reserved_run_id,
+            started=started,
+        )
+
+    if _source_kind(target_case) == "api":
+        return await _execute_api_case(
             plan_id,
             target_case,
             level=level,
@@ -650,10 +771,15 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "source_ref": src.get("ref") or "",
             "manual_draft": kind == "manual-draft" and not (case.get("jira_key") or "").strip(),
             "desktop_case": kind == "desktop",
+            "api_case": kind == "api",
             "runner": (
-                "desktop_runner"
-                if kind == "desktop"
-                else ("playwright_suite" if kind == "playwright" else "playwright")
+                "api_messaging_runner"
+                if kind == "api"
+                else (
+                    "desktop_runner"
+                    if kind == "desktop"
+                    else ("playwright_suite" if kind == "playwright" else "playwright")
+                )
             ),
             "last_run": last,
             "last_run_summary": _last_run_summary(case),

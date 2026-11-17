@@ -1356,6 +1356,7 @@
   const planImportPwBtn = document.getElementById("plan-import-pw-btn");
   const planImportPwAddBtn = document.getElementById("plan-import-pw-add-btn");
   const planAddDesktopBtn = document.getElementById("plan-add-desktop-btn");
+  const planAddApiBtn = document.getElementById("plan-add-api-btn");
   const planPwPath = document.getElementById("plan-pw-path");
   const planRefreshBtn = document.getElementById("plan-refresh-btn");
   const planList = document.getElementById("plan-list");
@@ -2446,6 +2447,7 @@
             (c.name || "") +
             (c.jira_key ? " · Jira " + c.jira_key : "") +
             (kind === "desktop" ? " · desktop" : "") +
+            (kind === "api" ? " · api/messaging" : "") +
             (kind === "manual-draft" && !c.jira_key ? " · manual-draft" : "") +
             (isKnownLabel(c) ? " · known" : "") +
             (isQuarantinedCase(c) ? " · quarantined" : "") +
@@ -5711,6 +5713,49 @@
   if (planAddDesktopBtn) {
     planAddDesktopBtn.addEventListener("click", function () {
       addDesktopCaseToOpenPlan();
+    });
+  }
+
+  async function addApiCaseToOpenPlan() {
+    if (!openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      return;
+    }
+    if (planStatus) planStatus.textContent = "Adding API/messaging case…";
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + "/cases/api",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok" || !payload.plan) {
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message || "Could not add API/messaging case.";
+        }
+        return;
+      }
+      renderPlanCases(payload.plan);
+      if (payload.case && planCaseId) {
+        planCaseId.value = payload.case.id || "";
+      }
+      if (typeof refreshLabHome === "function") await refreshLabHome();
+      if (planStatus) {
+        planStatus.textContent =
+          "API/messaging case added — calls saved endpoint; body redacted in log.";
+      }
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "API/messaging case request failed.";
+    }
+  }
+
+  if (planAddApiBtn) {
+    planAddApiBtn.addEventListener("click", function () {
+      addApiCaseToOpenPlan();
     });
   }
 

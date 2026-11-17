@@ -73,6 +73,7 @@ from plans.rerun_failed import rerun_failed_cases
 from plans.run_by_tag import run_cases_by_tag, select_cases_for_tag
 from plans.run_case import case_detail, run_single_case
 from plans.desktop_case import add_desktop_case
+from plans.api_case import add_api_case
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
 from plans.home_checklist import home_checklist_summary
@@ -316,6 +317,18 @@ class PlanDesktopCaseRequest(BaseModel):
     exe_path: str = ""
     note: str = ""
     tags: list[str] | None = None
+
+
+class PlanApiCaseRequest(BaseModel):
+    """Add an API/messaging case to the open suite (KAN-219 / G2)."""
+
+    name: str = ""
+    endpoint: str = ""
+    method: str = "GET"
+    expect_status: int | None = None
+    note: str = ""
+    tags: list[str] | None = None
+    body: str | None = None
 
 
 class JiraIssueRequest(BaseModel):
@@ -1273,6 +1286,21 @@ async def post_plan_desktop_case(plan_id: str, req: PlanDesktopCaseRequest):
         exe_path=req.exe_path or "",
         note=req.note or "",
         tags=list(req.tags or []),
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/api")
+async def post_plan_api_case(plan_id: str, req: PlanApiCaseRequest):
+    """Add an API/messaging case; calls saved endpoint with redacted body (KAN-219)."""
+    return add_api_case(
+        plan_id,
+        req.name or "",
+        endpoint=req.endpoint or "",
+        method=req.method or "GET",
+        expect_status=req.expect_status,
+        note=req.note or "",
+        tags=list(req.tags or []),
+        body=req.body,
     )
 
 

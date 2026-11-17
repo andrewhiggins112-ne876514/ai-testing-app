@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-219** — G2 API and messaging checks |
-| **Start task** | **KAN-220** (`test`, Relates → KAN-219) |
+| **Jira story** | **KAN-221** — G3 Contract and mock responses |
+| **Start task** | **KAN-222** (`test`, Relates → KAN-221) |
 | **Epic** | Test-all G (see catalogue) |
-| **Roadmap ID** | G2 / FR-LEARN-3 / FR-PLAN-2 |
+| **Roadmap ID** | G3 / FR-PLUG-1 / FR-PLAN-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-220** |
-| **Shipped** | … **KAN-217** G1 Desktop cases same suite (desk74); **KAN-215** F7 Home checklist (desk73); **KAN-213** F6; **KAN-211** F5; **KAN-209** F4; **KAN-207** F3; **KAN-205** F2; **KAN-203** F1; **KAN-201** E5; **KAN-199** E4; **KAN-260** Lab tools; … **KAN-177** C11; **KAN-257** App menu |
+| **Test ticket** | **KAN-222** |
+| **Shipped** | … **KAN-219** G2 API/messaging checks (desk75); **KAN-217** G1 Desktop cases same suite (desk74); **KAN-215** F7 Home checklist (desk73); **KAN-213** F6; **KAN-211** F5; **KAN-209** F4; **KAN-207** F3; **KAN-205** F2; **KAN-203** F1; **KAN-201** E5; **KAN-199** E4; **KAN-260** Lab tools; … **KAN-177** C11; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all G after G2 → G3… |
+| **Next after this** | continue Test-all G after G3 → G4… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-219 — G2 API and messaging checks
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-219
+- **Done:** API/messaging-typed plan cases (`source.kind=api`) call saved Settings messaging/API endpoint via `api_messaging_runner`; store HTTP/TCP status + redacted body summary on same case/run model; failures class like other cases (product_bug / environment); secrets in body redacted in log/evidence. Plans UI “Add API/messaging case”; messaging Settings field kept. `POST /api/plans/{id}/cases/api` + desk75.
+- **Files:** `plugins/api_messaging_runner.py`, `plans/api_case.py`, `plans/run_case.py`, `plans/store.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_api_case.py` (+ desk75 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_plan_api_case.py` 8 passed. Live `POST /api/plans/.../cases/api` → kind api; desk75 HTML has `plan-add-api-btn` + `set-api-endpoint`. `desktop_app.py` opened desk75; Computer Use Plans shows Add API/messaging case.
+- **Jira:** close-out **KAN-219** + **KAN-220**
+- **Next:** **KAN-221** G3 Contract and mock responses (test **KAN-222**)
 
 ### 2026-11-17 — KAN-217 — G1 Desktop cases on the same suite
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-217

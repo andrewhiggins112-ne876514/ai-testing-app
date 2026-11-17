@@ -210,11 +210,11 @@ class CredentialStatusTests(unittest.TestCase):
         self.assertNotIn("new-aut-secret", str(saved))
         self.assertEqual(load_settings().get("target_secret"), "new-aut-secret")
 
-    def test_desktop_ui_has_credential_controls_desk74(self):
+    def test_desktop_ui_has_credential_controls_desk75(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk74", html)
-        self.assertIn("desk74", desk)
+        self.assertIn("desk75", html)
+        self.assertIn("desk75", desk)
         self.assertIn("cred-status-list", html)
         self.assertIn("cred-test-btn", html)
         self.assertIn("cred-clear-confirm-btn", html)
