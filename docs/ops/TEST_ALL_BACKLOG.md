@@ -20,8 +20,9 @@ Downloadable local **test-all** app. Connect once. **One home** = orb + chat; ro
 | G Widen as plugins | **KAN-123** | later (G10=voice↔KAN-81) |
 | H Future workplace (design) | **KAN-124** | FUTURE |
 
-**Active Build story:** **KAN-241** (H1 Plan manual session capture — design only; test **KAN-242**)
-**Next after KAN-241:** H2 (**KAN-243**); G10 voice deferred with KAN-81
+**Active Build story:** **KAN-243** (H2 Plan the pipelines section — design only; test **KAN-244**)
+**Next after KAN-243:** H3 (**KAN-245**); G10 voice deferred with KAN-81
+**Shipped H1:** **KAN-241** Plan manual session capture (design only; no recorder)
 **Shipped G12:** **KAN-239** Scheduled local run (desk84)
 **Deferred:** **KAN-81** / **KAN-82** voice until mic (G10 **KAN-235**)
 **Shipped:** A1–A9 (**KAN-125…KAN-141**); B1–B7; C1–C11; D1–D7; E1–E5; **F1–F7** (**KAN-215** desk73); **G1** (**KAN-217** desk74); **G2** (**KAN-219** desk75); **G3** (**KAN-221** desk76); **G4** (**KAN-223** desk77); **G5** (**KAN-225** desk78); **G6** (**KAN-227** desk79); **G7** (**KAN-229** desk80); **G8** (**KAN-231**); **G9** (**KAN-233** desk82); **G11** (**KAN-237** desk83); **KAN-260** Lab tools App menu (desk64); UI-NAV-IA + App menu (**KAN-247…249**, **KAN-253**, **KAN-257**)

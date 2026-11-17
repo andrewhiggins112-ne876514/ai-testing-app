@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-241** — H1 Plan manual session capture (design only) |
-| **Start task** | **KAN-242** (`test`, Relates → KAN-241) |
+| **Jira story** | **KAN-243** — H2 Plan the pipelines section (design only) |
+| **Start task** | **KAN-244** (`test`, Relates → KAN-243) |
 | **Epic** | Test-all H (see catalogue) |
-| **Roadmap ID** | H1 / FR-MAN-1 |
+| **Roadmap ID** | H2 / FR-CI-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-242** |
-| **Shipped** | … **KAN-239** G12 Scheduled local run (desk84); **KAN-237** G11; **KAN-233** G9; **KAN-231** G8; **KAN-229** G7; **KAN-227** G6; **KAN-225** G5; **KAN-223** G4; **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
+| **Test ticket** | **KAN-244** |
+| **Shipped** | … **KAN-241** H1 manual session design; **KAN-239** G12 Scheduled local run (desk84); **KAN-237** G11; **KAN-233** G9; **KAN-231** G8; **KAN-229** G7; **KAN-227** G6; **KAN-225** G5; **KAN-223** G4; **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | H2 (**KAN-243**) after H1 design; G10 voice still deferred |
+| **Next after this** | H3 (**KAN-245**) after H2 design; G10 voice still deferred |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-241 — H1 Plan manual session capture (design only)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-241
+- **Done:** Short FR-MAN-1 design: charter start, what is recorded (notes + opt-in screenshots; no keylogger/silent video), bug/comment propose via defect-packet + two-step confirm, OFFICIAL/SECRET isolation. **No recorder shipped.** Machine outline in `plans/manual_session_design.py`.
+- **Files:** `docs/design/H1_MANUAL_SESSION_CAPTURE.md`, `plans/manual_session_design.py`, `tests/test_manual_session_design.py`, `docs/FUNCTIONAL_SPEC.md`
+- **Verify:** `pytest tests/test_manual_session_design.py` 4 passed (outline AC, doc headings, assert_design_complete, no recorder surface in product).
+- **Jira:** close-out **KAN-241** + **KAN-242**
+- **Next:** **KAN-243** H2 Plan the pipelines section — design only (test **KAN-244**); G10 voice still deferred
 
 ### 2026-11-17 — KAN-239 — G12 Scheduled local run
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-239
