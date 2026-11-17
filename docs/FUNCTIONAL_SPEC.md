@@ -222,7 +222,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-TEST-5 | Shipped baseline import/run; in-suite import deepen | **Done** **KAN-59**; Test-all **C8** **KAN-171** |
 | FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; D3/D4 later |
 | FR-PLAN-1…2 | Partial (A1+A5+A6) | **KAN-125** store + **KAN-133** edit/disable/reorder + **KAN-135** starter/empty home; run UI later A7 |
-| FR-PLAN-3…4 | Partial (A4+C3–C9) | **KAN-131** one story; **KAN-161** project-wide draft; **KAN-163** coverage gaps; **KAN-165** AC drift; **KAN-167** C6 matrix; **KAN-169** C7 tags; **KAN-171** C8 import; **KAN-173** C9 search; C10 history next |
+| FR-PLAN-3…4 | Partial (A4+C3–C10) | **KAN-131** one story; **KAN-161** project-wide draft; **KAN-163** coverage gaps; **KAN-165** AC drift; **KAN-167** C6 matrix; **KAN-169** C7 tags; **KAN-171** C8 import; **KAN-173** C9 search; **KAN-175** C10 history; C11 archive next |
 | FR-CI-1 | Future (design) | Test-all **H2** |
 | FR-MAN-1 | Future (design) | Test-all **H1** |
 | FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |
@@ -269,7 +269,8 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | Traceability matrix (C6) | **Shipped** KAN-167 (desk48) | Story → cases → last result → bugs → known; not_loaded never pass; export section |
 | Tags / smoke / regression (C7) | **Shipped** KAN-169 (desk49) | Case tags+priority; sequential run-by-tag; suite_run stores tag; untagged = not_selected |
 | Import Playwright into suite (C8) | **Shipped** KAN-171 (desk50) | Project → plan cases (`source=playwright`); npx Suites unchanged; single-case suite run; external files never deleted |
-| Search plans / cases / failures (C9) | **Shipped** KAN-173 (desk51) | Matches plan name, case name, Jira key, tag, failure class; active level only; hit opens case; Active → **KAN-175** C10 |
+| Search plans / cases / failures (C9) | **Shipped** KAN-173 (desk51) | Matches plan name, case name, Jira key, tag, failure class; active level only; hit opens case |
+| Suite history / compare two runs (C10) | **Shipped** KAN-175 (desk52) | Past runs: time, duration, pass/fail, tag; compare changed results; known labelled; level-local; Active → **KAN-177** C11 |
 | Voice input | Deferred | **KAN-81**; mic; later G10 |
 | Model tool-calling reliability | **Done** baseline | **KAN-61** |
 | Self-healing guardrails (policy) | **Done** (KAN-49) | Review UI **Done** (KAN-75) |

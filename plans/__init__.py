@@ -12,6 +12,7 @@ from plans.drift import (
     refresh_acceptance_drafts,
 )
 from plans.import_playwright import import_playwright_project
+from plans.history import compare_suite_runs, list_suite_history
 from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.run_by_tag import WELL_KNOWN_TAGS, run_cases_by_tag, select_cases_for_tag
@@ -43,6 +44,8 @@ __all__ = [
     "keep_acceptance_drafts",
     "refresh_acceptance_drafts",
     "import_playwright_project",
+    "compare_suite_runs",
+    "list_suite_history",
     "search_plans",
     "set_known_issue_link",
     "set_plan_notes",

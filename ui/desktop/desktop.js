@@ -1376,6 +1376,12 @@
   const planTraceFilter = document.getElementById("plan-trace-filter");
   const planTraceBtn = document.getElementById("plan-trace-btn");
   const planTraceMatrix = document.getElementById("plan-trace-matrix");
+  const planHistoryBtn = document.getElementById("plan-history-btn");
+  const planHistoryList = document.getElementById("plan-history-list");
+  const planHistoryA = document.getElementById("plan-history-a");
+  const planHistoryB = document.getElementById("plan-history-b");
+  const planCompareBtn = document.getElementById("plan-compare-btn");
+  const planCompareOut = document.getElementById("plan-compare-out");
   const planCaseId = document.getElementById("plan-case-id");
   const planCaseName = document.getElementById("plan-case-name");
   const planCaseNote = document.getElementById("plan-case-note");
@@ -2230,6 +2236,244 @@
     }
   }
 
+  function formatDurationMs(ms) {
+    if (ms == null || ms === "") return "—";
+    const n = Number(ms);
+    if (!isFinite(n) || n < 0) return "—";
+    if (n < 1000) return n + "ms";
+    return (n / 1000).toFixed(1) + "s";
+  }
+
+  function fillHistorySelect(selectEl, runs, preferredId) {
+    if (!selectEl) return;
+    const keep = preferredId || selectEl.value || "";
+    selectEl.innerHTML = "";
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "(select run)";
+    selectEl.appendChild(blank);
+    (runs || []).forEach(function (r) {
+      const opt = document.createElement("option");
+      opt.value = r.id || "";
+      const when = r.finished_at || r.started_at || "?";
+      opt.textContent =
+        (r.id || "?") +
+        " · " +
+        when +
+        " · P" +
+        (r.pass != null ? r.pass : 0) +
+        "/F" +
+        (r.fail != null ? r.fail : 0) +
+        (r.tag ? " · #" + r.tag : "");
+      selectEl.appendChild(opt);
+    });
+    if (keep) {
+      selectEl.value = keep;
+      if (selectEl.value !== keep) selectEl.value = "";
+    }
+  }
+
+  function renderSuiteHistory(payload) {
+    if (!planHistoryList) return;
+    const runs = (payload && payload.runs) || [];
+    planHistoryList.innerHTML = "";
+    if (!runs.length) {
+      planHistoryList.textContent = "Suite history: (no runs yet)";
+      fillHistorySelect(planHistoryA, [], "");
+      fillHistorySelect(planHistoryB, [], "");
+      if (planCompareOut) planCompareOut.textContent = "";
+      return;
+    }
+    const hint = document.createElement("div");
+    hint.textContent =
+      runs.length +
+      " run" +
+      (runs.length === 1 ? "" : "s") +
+      " · " +
+      (payload.security_level || "") +
+      (payload.cross_level === false ? " (level-local)" : "");
+    planHistoryList.appendChild(hint);
+    runs.forEach(function (r, idx) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "save-btn secondary";
+      btn.style.display = "block";
+      btn.style.width = "100%";
+      btn.style.textAlign = "left";
+      btn.style.marginTop = "0.35rem";
+      btn.setAttribute("role", "listitem");
+      btn.dataset.suiteRunId = r.id || "";
+      btn.textContent =
+        idx +
+        1 +
+        ". " +
+        (r.finished_at || r.started_at || "?") +
+        " · " +
+        formatDurationMs(r.duration_ms) +
+        " · pass " +
+        (r.pass != null ? r.pass : 0) +
+        " · fail " +
+        (r.fail != null ? r.fail : 0) +
+        (r.error ? " · err " + r.error : "") +
+        (r.tag ? " · tag " + r.tag : "") +
+        (r.known_issues ? " · known " + r.known_issues : "");
+      btn.title = "Select as compare run A (Shift+click = B): " + (r.id || "");
+      btn.addEventListener("click", function (ev) {
+        if (!planHistoryA || !planHistoryB) return;
+        if (ev.shiftKey) {
+          planHistoryB.value = r.id || "";
+        } else {
+          planHistoryA.value = r.id || "";
+          if (!planHistoryB.value && runs.length > 1) {
+            const other = runs.find(function (x) {
+              return x && x.id && x.id !== r.id;
+            });
+            if (other) planHistoryB.value = other.id;
+          }
+        }
+        if (planStatus) {
+          planStatus.textContent =
+            "Compare A=" +
+            (planHistoryA.value || "—") +
+            " B=" +
+            (planHistoryB.value || "—");
+        }
+      });
+      planHistoryList.appendChild(btn);
+    });
+    fillHistorySelect(
+      planHistoryA,
+      runs,
+      planHistoryA && planHistoryA.value ? planHistoryA.value : runs[0] && runs[0].id
+    );
+    fillHistorySelect(
+      planHistoryB,
+      runs,
+      planHistoryB && planHistoryB.value
+        ? planHistoryB.value
+        : runs[1] && runs[1].id
+          ? runs[1].id
+          : ""
+    );
+  }
+
+  function renderSuiteCompare(payload) {
+    if (!planCompareOut) return;
+    planCompareOut.innerHTML = "";
+    if (!payload) {
+      planCompareOut.textContent = "";
+      return;
+    }
+    if (payload.status !== "ok") {
+      planCompareOut.textContent =
+        payload.message || payload.error || "Compare failed.";
+      return;
+    }
+    const changes = payload.changes || [];
+    const head = document.createElement("div");
+    head.textContent =
+      "Changed " +
+      (payload.changed != null ? payload.changed : changes.length) +
+      " · unchanged " +
+      (payload.unchanged != null ? payload.unchanged : 0) +
+      (payload.cross_level === false ? " · level-local" : "");
+    planCompareOut.appendChild(head);
+    if (!changes.length) {
+      const none = document.createElement("div");
+      none.textContent = "No cases changed result between these runs.";
+      planCompareOut.appendChild(none);
+      return;
+    }
+    changes.forEach(function (c) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "save-btn secondary";
+      btn.style.display = "block";
+      btn.style.width = "100%";
+      btn.style.textAlign = "left";
+      btn.style.marginTop = "0.35rem";
+      btn.setAttribute("role", "listitem");
+      btn.textContent =
+        (c.case_name || c.case_id || "?") +
+        " · " +
+        (c.result_a || "?") +
+        " → " +
+        (c.result_b || "?") +
+        (c.known_issue
+          ? " · " + (c.known_issue_label || "known")
+          : "");
+      if (c.case_id) {
+        btn.title = "Open case " + c.case_id;
+        btn.addEventListener("click", function () {
+          if (planCaseId) planCaseId.value = c.case_id;
+          if (planCaseName && c.case_name) planCaseName.value = c.case_name;
+          refreshCaseDetail();
+        });
+      }
+      planCompareOut.appendChild(btn);
+    });
+  }
+
+  async function refreshSuiteHistory() {
+    if (!openPlanId) {
+      renderSuiteHistory({ runs: [] });
+      return;
+    }
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + "/suite-history"
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok") {
+        if (planHistoryList) {
+          planHistoryList.textContent =
+            payload.message || "Suite history unavailable.";
+        }
+        return;
+      }
+      renderSuiteHistory(payload);
+    } catch (err) {
+      if (planHistoryList) {
+        planHistoryList.textContent = "Could not load suite history.";
+      }
+    }
+  }
+
+  async function runSuiteCompare() {
+    if (!openPlanId) {
+      if (planCompareOut) planCompareOut.textContent = "Open a plan first.";
+      return;
+    }
+    const a = planHistoryA && planHistoryA.value ? planHistoryA.value.trim() : "";
+    const b = planHistoryB && planHistoryB.value ? planHistoryB.value.trim() : "";
+    if (planStatus) planStatus.textContent = "Comparing suite runs…";
+    try {
+      const res = await fetch(
+        "/api/plans/" +
+          encodeURIComponent(openPlanId) +
+          "/suite-compare?a=" +
+          encodeURIComponent(a) +
+          "&b=" +
+          encodeURIComponent(b)
+      );
+      const payload = await res.json();
+      renderSuiteCompare(payload);
+      if (planStatus) {
+        if (payload.status === "ok") {
+          planStatus.textContent =
+            "Compare: " +
+            (payload.changed != null ? payload.changed : 0) +
+            " changed";
+        } else {
+          planStatus.textContent = payload.message || "Compare failed.";
+        }
+      }
+    } catch (err) {
+      if (planCompareOut) planCompareOut.textContent = "Compare request failed.";
+      if (planStatus) planStatus.textContent = "Compare request failed.";
+    }
+  }
+
   function renderAcceptanceDrift(payload) {
     if (!planDriftOut) return;
     if (!payload) {
@@ -2447,6 +2691,7 @@
       renderPlanCases(payload.plan);
       await refreshCoverageGaps();
       await refreshTraceabilityMatrix();
+      await refreshSuiteHistory();
       if (planList) planList.value = openPlanId;
       if (planStatus) {
         planStatus.textContent =
@@ -3657,6 +3902,16 @@
         ev.preventDefault();
         refreshTraceabilityMatrix();
       }
+    });
+  }
+  if (planHistoryBtn) {
+    planHistoryBtn.addEventListener("click", function () {
+      refreshSuiteHistory();
+    });
+  }
+  if (planCompareBtn) {
+    planCompareBtn.addEventListener("click", function () {
+      runSuiteCompare();
     });
   }
 

@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-175** — C10 Suite history and compare two runs |
-| **Start task** | **KAN-176** (`test`, Relates → KAN-175) |
+| **Jira story** | **KAN-177** — C11 Archive a case without deleting history |
+| **Start task** | **KAN-178** (`test`, Relates → KAN-177) |
 | **Epic** | Test-all C (see catalogue) |
-| **Roadmap ID** | C10 / FR-PLAN-4 |
+| **Roadmap ID** | C11 / FR-PLAN-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-176** |
-| **Shipped** | … **KAN-173** C9 search plans/cases/failures (desk51); **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
+| **Test ticket** | **KAN-178** |
+| **Shipped** | … **KAN-175** C10 suite history/compare (desk52); **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all C after C10 (or **KAN-260** Lab tools in App menu when prioritised) |
+| **Next after this** | continue Test-all C after C11 → D1, or **KAN-260** Lab tools in App menu when prioritised |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-175 — C10 Suite history and compare two runs
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-175
+- **Done:** Suite history lists past runs with time, duration, pass/fail, tag (level-local). Compare two runs shows cases whose result changed; known issues labelled. API `GET /api/plans/{id}/suite-history` + `…/suite-compare`. Desktop Plans: history list + A/B compare. desk52.
+- **Files:** `plans/history.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_suite_history.py` (+ desk52 cache-bust)
+- **Verify:** `pytest tests/test_plan_suite_history.py tests/test_plan_search.py tests/test_plan_run_by_tag.py tests/test_plan_import_playwright.py tests/test_plan_traceability.py tests/test_desktop_app_menu.py tests/test_nav_overlap.py tests/test_orb_hub.py tests/test_settings_hub.py tests/test_reports_library.py -q` (52 passed). Live `/ui/desktop/?v=desk52` has `plan-history-list` / `plan-compare-btn`; `GET /api/plans/{id}/suite-history` → ok, `cross_level=false`; `desktop_app.py` opened (desk52, App menu → Plans path).
+- **Jira:** close-out **KAN-175** + **KAN-176**
+- **Next:** **KAN-177** C11 archive a case without deleting history (test **KAN-178**)
 
 ### 2026-11-17 — KAN-173 — C9 Search plans, cases, and failures
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-173

@@ -53,6 +53,7 @@ from plans.drift import (
     refresh_acceptance_drafts,
 )
 from plans.import_playwright import import_playwright_project
+from plans.history import compare_suite_runs, list_suite_history
 from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
@@ -787,6 +788,21 @@ async def get_plan_traceability(plan_id: str, q: str = ""):
     if out.get("status") != "ok" or not degraded_status().get("jira_up"):
         out = {**out, "degraded": degraded_status()}
     return out
+
+
+@app.get("/api/plans/{plan_id}/suite-history")
+async def get_plan_suite_history(plan_id: str):
+    """C10 suite history: past runs with time, duration, pass/fail, tag (KAN-175).
+
+    Local to the active security level only — never cross-level.
+    """
+    return list_suite_history(plan_id)
+
+
+@app.get("/api/plans/{plan_id}/suite-compare")
+async def get_plan_suite_compare(plan_id: str, a: str = "", b: str = ""):
+    """C10 compare two suite runs; cases that changed result; known issues labelled (KAN-175)."""
+    return compare_suite_runs(plan_id, a, b)
 
 
 @app.post("/api/plans/{plan_id}/acceptance-drift")

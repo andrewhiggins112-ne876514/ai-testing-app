@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk51" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk52" />
 </head>
 <body>
   <div id="app">
@@ -433,6 +433,26 @@
             <button type="button" id="plan-trace-btn" class="save-btn secondary">Refresh traceability</button>
           </div>
           <div id="plan-trace-matrix" class="drawer-hint" aria-live="polite" role="table" aria-label="Traceability matrix"></div>
+          <h4 class="orb-section-label">Suite history</h4>
+          <p class="drawer-hint">Past suite runs for this plan: time, duration, pass, fail, and tag. Local to the active security level. Pick two runs to compare cases that changed result; known issues stay labelled.</p>
+          <div class="btn-row">
+            <button type="button" id="plan-history-btn" class="save-btn secondary">Refresh history</button>
+          </div>
+          <div id="plan-history-list" class="drawer-hint" aria-live="polite" role="list" aria-label="Suite run history"></div>
+          <label class="stack-label">Compare run A
+            <select id="plan-history-a">
+              <option value="">(select run)</option>
+            </select>
+          </label>
+          <label class="stack-label">Compare run B
+            <select id="plan-history-b">
+              <option value="">(select run)</option>
+            </select>
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-compare-btn" class="save-btn">Compare two runs</button>
+          </div>
+          <div id="plan-compare-out" class="drawer-hint" aria-live="polite" role="list" aria-label="Suite run compare"></div>
           <h4 class="orb-section-label">Edit selected case</h4>
           <label class="stack-label">Case id
             <input type="text" id="plan-case-id" placeholder="c…" autocomplete="off" />
@@ -631,6 +651,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk51"></script>
+  <script src="/ui/desktop/desktop.js?v=desk52"></script>
 </body>
 </html>
