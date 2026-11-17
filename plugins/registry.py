@@ -79,6 +79,16 @@ _MANIFESTS: list[dict[str, Any]] = [
         "default_enabled": True,
     },
     {
+        "id": "accessibility_checks",
+        "name": "Accessibility checks",
+        "description": (
+            "Optional a11y scan on browser cases; violations attach to the run "
+            "without replacing the functional result (opt-in; KAN-227 / G6)."
+        ),
+        "toggle_key": None,
+        "default_enabled": True,
+    },
+    {
         "id": "doc_ingest",
         "name": "Document ingestion",
         "description": "Parse specs into settings proposals (confirm before write).",

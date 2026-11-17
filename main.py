@@ -76,6 +76,7 @@ from plans.desktop_case import add_desktop_case
 from plans.api_case import add_api_case, add_contract_case
 from plans.seed_case import add_seed_case
 from plans.visual_case import add_visual_case, update_case_baseline
+from plans.a11y_case import add_a11y_browser_case, enable_a11y_on_case
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
 from plans.home_checklist import home_checklist_summary
@@ -367,6 +368,20 @@ class PlanVisualBaselineUpdateRequest(BaseModel):
     """Explicit update-baseline only (never auto on mismatch)."""
 
     current_path: str = ""
+
+
+class PlanA11yCaseRequest(BaseModel):
+    """Add a browser case with accessibility check opted in (KAN-227 / G6)."""
+
+    name: str = ""
+    note: str = ""
+    tags: list[str] | None = None
+
+
+class PlanA11yEnableRequest(BaseModel):
+    """Enable/disable a11y sidecar on an existing browser case (KAN-227 / G6)."""
+
+    enabled: bool = True
 
 
 class JiraIssueRequest(BaseModel):
@@ -1383,6 +1398,32 @@ async def post_plan_visual_case(plan_id: str, req: PlanVisualCaseRequest):
         url=req.url or "",
         note=req.note or "",
         tags=list(req.tags or []),
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/a11y")
+async def post_plan_a11y_case(plan_id: str, req: PlanA11yCaseRequest):
+    """Add a browser case with accessibility check opted in (KAN-227 / G6)."""
+    return add_a11y_browser_case(
+        plan_id,
+        req.name or "",
+        note=req.note or "",
+        tags=list(req.tags or []),
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/a11y")
+async def post_plan_a11y_enable(
+    plan_id: str,
+    case_id: str,
+    req: PlanA11yEnableRequest | None = None,
+):
+    """Enable/disable a11y sidecar on a browser case (KAN-227 / G6). Off by default."""
+    body = req or PlanA11yEnableRequest()
+    return enable_a11y_on_case(
+        plan_id,
+        case_id,
+        enabled=bool(body.enabled),
     )
 
 

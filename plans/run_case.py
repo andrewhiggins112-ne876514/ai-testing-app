@@ -987,6 +987,44 @@ async def _execute_case(
         note = raw_err[:500]
     if pw.get("pause_decision") == "stop" and not note:
         note = "Stopped after pause on fail."
+
+    # G6: optional a11y sidecar — attaches violations; never replaces functional result.
+    from plans.a11y_case import case_has_a11y_check, write_a11y_evidence
+    from plugins.accessibility_checks import run_accessibility_check
+
+    a11y_payload: dict[str, Any] | None = None
+    if case_has_a11y_check(target_case):
+        a11y_out = await asyncio.to_thread(
+            run_accessibility_check,
+            url=url,
+            opted_in=True,
+        )
+        a11y_paths = write_a11y_evidence(
+            run_id=reserved_run_id,
+            plan_id=plan_id,
+            case_id=cid,
+            a11y=a11y_out,
+            functional_result=result,
+        )
+        for path in a11y_paths:
+            if path not in evidence:
+                evidence = list(evidence) + [path]
+        vcount = int(a11y_out.get("violation_count") or 0)
+        a11y_note = str(a11y_out.get("message") or "")
+        if a11y_note:
+            note = (f"{note} | a11y: {a11y_note}" if note else f"a11y: {a11y_note}")[:500]
+        a11y_payload = {
+            "checked": True,
+            "opted_in": True,
+            "status": a11y_out.get("status"),
+            "violation_count": vcount,
+            "violations": a11y_out.get("violations") or [],
+            "error": a11y_out.get("error"),
+            "message": a11y_out.get("message"),
+            "replaces_functional": False,
+        }
+        # Functional result stays as mapped from Playwright (AC: does not replace).
+
     recorded = add_run(
         plan_id,
         cid,
@@ -997,6 +1035,7 @@ async def _execute_case(
         note=note,
         suite_run_id=suite_rid,
         run_id=reserved_run_id,
+        a11y=a11y_payload,
         level=level,
     )
     run_id = (recorded.get("run") or {}).get("id")
@@ -1029,6 +1068,7 @@ async def _execute_case(
             "error": pw.get("error"),
             "screenshot": pw.get("screenshot"),
         },
+        "a11y": a11y_payload,
         "plan": recorded.get("plan"),
         "case": recorded.get("case"),
         "run": recorded.get("run"),
@@ -1177,6 +1217,11 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "mock_fixture": mock_fixture,
             "seed_fixture": seed_fixture,
             "visual_baseline": visual_baseline,
+            "a11y_check": bool(case.get("a11y_check"))
+            or any(
+                str(t or "").strip().lower() in {"a11y", "accessibility"}
+                for t in (case.get("tags") or [])
+            ),
             "runner": runner_name,
             "last_run": last,
             "last_run_summary": _last_run_summary(case),

@@ -149,12 +149,12 @@ class PlanRunByTagTests(unittest.TestCase):
         self.assertEqual(len(body.get("to_run") or []), 1)
         self.assertEqual(len(body.get("not_selected") or []), 1)
 
-    def test_desktop_ui_has_tag_controls_desk78(self):
+    def test_desktop_ui_has_tag_controls_desk79(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk78", html)
-        self.assertIn("desk78", app)
+        self.assertIn("desk79", html)
+        self.assertIn("desk79", app)
         self.assertIn("plan-case-tags", html)
         self.assertIn("plan-case-priority", html)
         self.assertIn("plan-run-by-tag", html)

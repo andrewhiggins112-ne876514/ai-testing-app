@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-227** — G6 Accessibility checks plugin |
-| **Start task** | **KAN-228** (`test`, Relates → KAN-227) |
+| **Jira story** | **KAN-229** — G7 Performance budget plugin |
+| **Start task** | **KAN-230** (`test`, Relates → KAN-229) |
 | **Epic** | Test-all G (see catalogue) |
-| **Roadmap ID** | G6 / FR-PLUG-1 |
+| **Roadmap ID** | G7 / FR-PLUG-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-228** |
-| **Shipped** | … **KAN-225** G5 Visual baseline (desk78); **KAN-223** G4 Seed/fixtures (desk77); **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
+| **Test ticket** | **KAN-230** |
+| **Shipped** | … **KAN-227** G6 Accessibility (desk79); **KAN-225** G5 Visual baseline (desk78); **KAN-223** G4 Seed/fixtures (desk77); **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all G after G6 → G7… |
+| **Next after this** | continue Test-all G after G7 → G8… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-227 — G6 Accessibility checks plugin
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-227
+- **Done:** Optional a11y sidecar on browser cases (`a11y_check` / tags `a11y`|`accessibility`). `accessibility_checks` plugin scans HTML (stdlib) and attaches violations to the run; functional result unchanged. Off unless case opts in. Plans UI “Add accessibility check case”; `POST /api/plans/{id}/cases/a11y` + enable toggle `…/cases/{id}/a11y` + desk79.
+- **Files:** `plugins/accessibility_checks.py`, `plugins/registry.py`, `plans/a11y_case.py`, `plans/run_case.py`, `plans/store.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_a11y.py` (+ desk79 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_plan_a11y.py` 8 passed. Live `POST /api/plans/.../cases/a11y` → a11y_check true; plain case false until enable. desk79 HTML has `plan-add-a11y-btn`. `desktop_app.py` opened desk79 (orb home; Computer Use Plans click contested; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-227** + **KAN-228**
+- **Next:** **KAN-229** G7 Performance budget plugin (test **KAN-230**)
 
 ### 2026-11-17 — KAN-225 — G5 Visual baseline screenshots
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-225

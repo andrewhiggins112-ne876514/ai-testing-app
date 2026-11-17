@@ -156,6 +156,8 @@ def _normalize_case(raw: Any, *, order: int = 0) -> Optional[dict[str, Any]]:
         "order": int(raw.get("order") if raw.get("order") is not None else order),
         "jira_key": jira_key,
         "source": source,
+        # G6: opt-in a11y sidecar on browser cases (KAN-227). Off unless set.
+        "a11y_check": bool(raw.get("a11y_check", False)),
         "known_issue": _normalize_known_issue_field(raw.get("known_issue")),
         "runs": runs,
         "created_at": str(raw.get("created_at") or now),
@@ -194,6 +196,21 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
     seed_name = str(raw.get("seed_fixture") or "").strip()[:120] or None
     # G5: run stores named visual baseline when a case opted in (KAN-225).
     visual_name = str(raw.get("visual_baseline") or "").strip()[:120] or None
+    # G6: a11y sidecar summary (KAN-227) — never replaces functional result.
+    a11y_raw = raw.get("a11y") if isinstance(raw.get("a11y"), dict) else None
+    a11y_summary = None
+    if a11y_raw is not None:
+        try:
+            vcount = int(a11y_raw.get("violation_count") or 0)
+        except (TypeError, ValueError):
+            vcount = 0
+        a11y_summary = {
+            "checked": bool(a11y_raw.get("checked")),
+            "opted_in": bool(a11y_raw.get("opted_in")),
+            "status": str(a11y_raw.get("status") or "")[:40] or None,
+            "violation_count": vcount,
+            "replaces_functional": False,
+        }
     return {
         "id": rid,
         "result": result,
@@ -205,6 +222,7 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
         "mock": mock_flag,
         "seed_fixture": seed_name,
         "visual_baseline": visual_name,
+        "a11y": a11y_summary,
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
         "note": str(raw.get("note") or "")[:2000],
@@ -520,6 +538,7 @@ def add_case(
     enabled: bool = True,
     source_kind: str = "manual-draft",
     source_ref: str = "",
+    a11y_check: bool = False,
     level: str | None = None,
 ) -> dict[str, Any]:
     from settings.store import get_security_level
@@ -544,6 +563,7 @@ def add_case(
             "order": order,
             "jira_key": jira_key,
             "source": {"kind": source_kind, "ref": source_ref},
+            "a11y_check": bool(a11y_check),
             "runs": [],
             "created_at": now,
             "updated_at": now,
@@ -581,6 +601,7 @@ def add_run(
     mock: bool = False,
     seed_fixture: str | None = None,
     visual_baseline: str | None = None,
+    a11y: dict[str, Any] | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
     """Attach a run record to a case (execution itself is later stories)."""
@@ -623,6 +644,7 @@ def add_run(
             "mock": bool(mock),
             "seed_fixture": seed_fixture,
             "visual_baseline": visual_baseline,
+            "a11y": a11y,
             "started_at": started_at or now,
             "finished_at": finished_at or now,
             "note": note,
@@ -1107,6 +1129,7 @@ def update_case(
     priority: int | None = None,
     tags: list[str] | None = None,
     step_timeout_ms: int | None = None,
+    a11y_check: bool | None = None,
     level: str | None = None,
     session_id: str | None = None,
 ) -> dict[str, Any]:
@@ -1114,6 +1137,7 @@ def update_case(
 
     Archive (KAN-177 / C11) sets archived=True without deleting runs or evidence.
     Step timeout (KAN-187 / D5) is editable before run; default matches runner.
+    a11y_check (KAN-227 / G6) opts the browser case into accessibility sidecar.
     Successful edits append a local side-effects audit line (KAN-195 / E2).
     """
     from settings.store import get_security_level
@@ -1173,6 +1197,9 @@ def update_case(
                 cleaned.append(t[:40])
         target["tags"] = cleaned
         fields_changed.append("tags")
+    if a11y_check is not None:
+        target["a11y_check"] = bool(a11y_check)
+        fields_changed.append("a11y_check")
     if step_timeout_ms is not None:
         from plans.timeouts import resolve_step_timeout_ms
 

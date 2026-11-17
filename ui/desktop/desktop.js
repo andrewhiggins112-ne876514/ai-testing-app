@@ -1361,6 +1361,7 @@
   const planAddSeedBtn = document.getElementById("plan-add-seed-btn");
   const planAddVisualBtn = document.getElementById("plan-add-visual-btn");
   const planUpdateBaselineBtn = document.getElementById("plan-update-baseline-btn");
+  const planAddA11yBtn = document.getElementById("plan-add-a11y-btn");
   const planPwPath = document.getElementById("plan-pw-path");
   const planRefreshBtn = document.getElementById("plan-refresh-btn");
   const planList = document.getElementById("plan-list");
@@ -5893,6 +5894,51 @@
   if (planAddVisualBtn) {
     planAddVisualBtn.addEventListener("click", function () {
       addVisualCaseToOpenPlan();
+    });
+  }
+
+  async function addA11yCaseToOpenPlan() {
+    if (!openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      return;
+    }
+    if (planStatus) planStatus.textContent = "Adding accessibility check case…";
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + "/cases/a11y",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok" || !payload.plan) {
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message || "Could not add accessibility check case.";
+        }
+        return;
+      }
+      renderPlanCases(payload.plan);
+      if (payload.case && planCaseId) {
+        planCaseId.value = payload.case.id || "";
+      }
+      if (typeof refreshLabHome === "function") await refreshLabHome();
+      if (planStatus) {
+        planStatus.textContent =
+          "Accessibility check case added — opt-in; violations attach without replacing functional result.";
+      }
+    } catch (err) {
+      if (planStatus) {
+        planStatus.textContent = "Accessibility check case request failed.";
+      }
+    }
+  }
+
+  if (planAddA11yBtn) {
+    planAddA11yBtn.addEventListener("click", function () {
+      addA11yCaseToOpenPlan();
     });
   }
 
