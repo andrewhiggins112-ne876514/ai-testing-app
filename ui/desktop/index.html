@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk37" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk38" />
 </head>
 <body>
   <div id="app">
@@ -277,6 +277,7 @@
           <label class="check-row"><input type="checkbox" id="rpt-stories" checked /> Stories</label>
           <label class="check-row"><input type="checkbox" id="rpt-bugs" checked /> Bugs</label>
           <label class="check-row"><input type="checkbox" id="rpt-evidence" checked /> Evidence</label>
+          <label class="check-row"><input type="checkbox" id="rpt-known-issues" checked /> Known issues</label>
           <button type="button" id="rpt-save" class="save-btn">Save sections</button>
           <p id="rpt-status" class="drawer-hint" role="status">Ready</p>
         </div>
@@ -392,6 +393,18 @@
           <div class="btn-row">
             <button type="button" id="plan-run-failure-save" class="save-btn secondary">Save failure class</button>
           </div>
+          <h4 class="orb-section-label">Known issue / exclusion</h4>
+          <p class="drawer-hint">Links a note and optional Jira key. Failed runs stay red and are labelled known. Nothing is transitioned in Jira.</p>
+          <label class="stack-label">Known-issue note
+            <input type="text" id="plan-known-note" placeholder="Known failure note" autocomplete="off" />
+          </label>
+          <label class="stack-label">Known-issue Jira key (optional)
+            <input type="text" id="plan-known-jira" placeholder="KAN-123" autocomplete="off" />
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-known-save" class="save-btn secondary">Link known issue</button>
+            <button type="button" id="plan-known-clear" class="save-btn secondary">Clear known link</button>
+          </div>
           <pre id="plan-case-detail" class="drawer-hint" aria-live="polite" hidden></pre>
           <pre id="plan-defect-out" class="drawer-hint" aria-live="polite" hidden></pre>
           <p id="plan-degraded-hint" class="drawer-hint" role="status" hidden></p>
@@ -495,6 +508,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk37"></script>
+  <script src="/ui/desktop/desktop.js?v=desk38"></script>
 </body>
 </html>

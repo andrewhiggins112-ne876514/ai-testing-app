@@ -1820,7 +1820,13 @@ def current_report_sections():
     return [flags[key] for key in SECTION_KEYS]
 
 
-def save_report_section_toggles(summary: bool, stories: bool, bugs: bool, evidence: bool):
+def save_report_section_toggles(
+    summary: bool,
+    stories: bool,
+    bugs: bool,
+    evidence: bool,
+    known_issues: bool = True,
+):
     saved = save_report_sections(
         normalize_sections(
             {
@@ -1828,6 +1834,7 @@ def save_report_section_toggles(summary: bool, stories: bool, bugs: bool, eviden
                 "stories": stories,
                 "bugs": bugs,
                 "evidence": evidence,
+                "known_issues": known_issues,
             }
         )
     )
@@ -2265,6 +2272,10 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 sec_stories = gr.Checkbox(value=_sec["stories"], label="Stories (Jira keys)")
                 sec_bugs = gr.Checkbox(value=_sec["bugs"], label="Bugs")
                 sec_evidence = gr.Checkbox(value=_sec["evidence"], label="Evidence (screenshot links)")
+                sec_known = gr.Checkbox(
+                    value=_sec.get("known_issues", True),
+                    label="Known issues (exclusions; not new regressions)",
+                )
                 sections_status = gr.Textbox(
                     value="Ready",
                     label="Section profile",
@@ -2273,7 +2284,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                 )
                 gr.Button("Save sections", variant="primary").click(
                     save_report_section_toggles,
-                    [sec_summary, sec_stories, sec_bugs, sec_evidence],
+                    [sec_summary, sec_stories, sec_bugs, sec_evidence, sec_known],
                     [sections_status],
                 )
                 gr.HTML('<div class="orb-section-label">Library</div>')

@@ -4,12 +4,13 @@ from __future__ import annotations
 import re
 from typing import Any, Mapping
 
-SECTION_KEYS = ("summary", "stories", "bugs", "evidence")
+SECTION_KEYS = ("summary", "stories", "bugs", "evidence", "known_issues")
 SECTION_LABELS = {
     "summary": "Summary",
     "stories": "Stories",
     "bugs": "Bugs",
     "evidence": "Evidence",
+    "known_issues": "Known issues",
 }
 
 _JIRA_KEY = re.compile(r"\b([A-Z][A-Z0-9]+-\d+)\b")
@@ -282,6 +283,16 @@ def build_sections(
             "screenshot": shot,
             "links": links,
         }
+    if flags.get("known_issues"):
+        from plans.known_issue import known_issues_from_result
+
+        ki_items = known_issues_from_result(body)
+        sections["known_issues"] = {
+            "items": ki_items,
+            "count": len(ki_items),
+            "excluded_from_regression": True,
+            "label": "known",
+        }
     return sections
 
 
@@ -396,6 +407,34 @@ def render_markdown(sections: Mapping[str, Any]) -> str:
         for link in sections["evidence"].get("links") or []:
             if isinstance(link, Mapping) and link.get("kind") != "screenshot":
                 lines.append(f"- {link.get('kind', 'link')}: {link.get('path', '')}")
+        lines.append("")
+
+    if "known_issues" in sections and isinstance(sections["known_issues"], Mapping):
+        known = sections["known_issues"]
+        lines.append("## Known issues")
+        lines.append("")
+        lines.append(
+            f"Count: {known.get('count', 0)} (labelled known; not new regressions)"
+        )
+        items = known.get("items") or []
+        if items:
+            for item in items:
+                if not isinstance(item, Mapping):
+                    continue
+                name = item.get("case_name") or item.get("case_id") or "case"
+                key = item.get("jira_key") or ""
+                note = item.get("note") or ""
+                result = item.get("result") or ""
+                bits = [f"known · {name}"]
+                if result:
+                    bits.append(str(result))
+                if key:
+                    bits.append(str(key))
+                if note:
+                    bits.append(str(note))
+                lines.append("- " + " — ".join(bits))
+        else:
+            lines.append("None linked.")
         lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"

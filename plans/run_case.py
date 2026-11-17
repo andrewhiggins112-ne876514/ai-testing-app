@@ -16,6 +16,8 @@ from settings.connection_health import _check_target
 
 
 def _last_run_summary(case: dict[str, Any]) -> str | None:
+    from plans.known_issue import is_known_labelled
+
     runs = list(case.get("runs") or [])
     if not runs:
         return None
@@ -25,9 +27,12 @@ def _last_run_summary(case: dict[str, Any]) -> str | None:
     parts = [res]
     if dur is not None:
         parts.append(f"{dur}ms")
-    fc = last.get("failure_class")
-    if fc:
-        parts.append(fc)
+    if is_known_labelled(last) or is_known_labelled(case):
+        parts.append("known")
+    else:
+        fc = last.get("failure_class")
+        if fc:
+            parts.append(fc)
     shot = _screenshot_path(last)
     if shot:
         parts.append(shot)
@@ -332,6 +337,10 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             continue
         src = case.get("source") if isinstance(case.get("source"), dict) else {}
         kind = str(src.get("kind") or "manual-draft")
+        from plans.known_issue import is_known_labelled
+
+        last = (case.get("runs") or [])[-1] if case.get("runs") else None
+        known = is_known_labelled(last) or is_known_labelled(case)
         return {
             "status": "ok",
             "case_id": cid,
@@ -340,8 +349,11 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "source_kind": kind,
             "source_ref": src.get("ref") or "",
             "manual_draft": kind == "manual-draft" and not (case.get("jira_key") or "").strip(),
-            "last_run": (case.get("runs") or [])[-1] if case.get("runs") else None,
+            "last_run": last,
             "last_run_summary": _last_run_summary(case),
+            "known_issue": case.get("known_issue")
+            or (last.get("known_issue") if isinstance(last, dict) else None),
+            "known_label": "known" if known else None,
             "case": case,
         }
     return {"status": "error", "error": "case_not_found", "message": f"Case {cid!r} not found."}

@@ -20,6 +20,7 @@ from plans.store import (
     add_run,
     create_plan,
     get_plan,
+    set_known_issue_link,
     set_run_failure_class,
 )
 from settings.degraded import degraded_status, ollama_chat_blocked
@@ -321,13 +322,70 @@ class PlanRunCaseTests(unittest.TestCase):
         body = res.json()
         self.assertEqual(body.get("error"), "no_failed_cases")
 
-    def test_desktop_cache_bust_desk37(self):
+    def test_known_issue_link_keeps_red_and_labels_known(self):
+        created = create_plan("Known")
+        pid = created["plan"]["id"]
+        cid = add_case(pid, "Flaky login")["case"]["id"]
+        rid = add_run(pid, cid, result="fail", note="still broken")["run"]["id"]
+        out = set_known_issue_link(
+            pid,
+            cid,
+            note="Known flash on login",
+            jira_key="KAN-200",
+            run_id=rid,
+        )
+        self.assertEqual(out.get("status"), "ok")
+        self.assertEqual(out.get("label"), "known")
+        self.assertEqual(out.get("result"), "fail")
+        self.assertTrue(out.get("result_unchanged"))
+        self.assertFalse(out.get("jira_transitioned"))
+        self.assertFalse(out.get("create_bug_allowed"))
+        run = out.get("run") or {}
+        self.assertEqual(run.get("result"), "fail")
+        self.assertEqual(run.get("failure_class"), "known_issue")
+        self.assertEqual((run.get("known_issue") or {}).get("jira_key"), "KAN-200")
+        plan = get_plan(pid)["plan"]
+        detail = case_detail(plan, cid)
+        self.assertEqual(detail.get("known_label"), "known")
+        self.assertIn("known", detail.get("last_run_summary") or "")
+        self.assertIn("fail", detail.get("last_run_summary") or "")
+
+    def test_api_known_issue_and_report_toggle(self):
+        client = TestClient(main.app)
+        created = create_plan("KnownAPI")
+        pid = created["plan"]["id"]
+        cid = add_case(pid, "X")["case"]["id"]
+        rid = add_run(pid, cid, result="error")["run"]["id"]
+        res = client.post(
+            f"/api/plans/{pid}/cases/{cid}/known-issue",
+            json={"note": "tracked", "jira_key": "KAN-9", "run_id": rid},
+        )
+        body = res.json()
+        self.assertEqual(body.get("status"), "ok")
+        self.assertEqual(body.get("result"), "error")
+        self.assertEqual(body.get("label"), "known")
+        secs = client.get("/api/report-sections").json()
+        self.assertIn("known_issues", secs)
+        saved = client.post(
+            "/api/report-sections",
+            json={
+                "summary": True,
+                "stories": True,
+                "bugs": True,
+                "evidence": True,
+                "known_issues": False,
+            },
+        ).json()
+        self.assertFalse(saved.get("known_issues"))
+
+    def test_desktop_cache_bust_desk38(self):
         root = os.path.dirname(os.path.dirname(__file__))
         html = open(os.path.join(root, "ui", "desktop", "index.html"), encoding="utf-8").read()
         desk = open(os.path.join(root, "desktop_app.py"), encoding="utf-8").read()
-        self.assertIn("desk37", html)
+        self.assertIn("desk38", desk)
+        self.assertIn("plan-known-save", html)
+        self.assertIn("rpt-known-issues", html)
         self.assertIn("plan-rerun-failed", html)
-        self.assertIn("desk37", desk)
 
 
 if __name__ == "__main__":

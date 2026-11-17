@@ -41,6 +41,12 @@ def _plan_path(plan_id: str, level: str | None = None) -> Path:
     return plans_dir(level) / f"{pid}.json"
 
 
+def _normalize_known_issue_field(raw: Any) -> Optional[dict[str, Any]]:
+    from plans.known_issue import normalize_known_issue
+
+    return normalize_known_issue(raw)
+
+
 def _normalize_sources(raw: Any) -> dict[str, list[str]]:
     if not isinstance(raw, dict):
         raw = {}
@@ -105,6 +111,7 @@ def _normalize_case(raw: Any, *, order: int = 0) -> Optional[dict[str, Any]]:
         "order": int(raw.get("order") if raw.get("order") is not None else order),
         "jira_key": jira_key,
         "source": source,
+        "known_issue": _normalize_known_issue_field(raw.get("known_issue")),
         "runs": runs,
         "created_at": str(raw.get("created_at") or now),
         "updated_at": str(raw.get("updated_at") or now),
@@ -144,6 +151,7 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
         "note": str(raw.get("note") or "")[:2000],
+        "known_issue": _normalize_known_issue_field(raw.get("known_issue")),
     }
 
 
@@ -643,6 +651,114 @@ def set_run_failure_class(
         "error": "run_not_found",
         "message": f"Run {rid!r} on case {cid!r} was not found.",
         "security_level": lvl,
+    }
+
+
+def set_known_issue_link(
+    plan_id: str,
+    case_id: str,
+    *,
+    note: str = "",
+    jira_key: str = "",
+    run_id: str | None = None,
+    clear: bool = False,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Link (or clear) known-issue note + optional Jira key (KAN-153 / B6).
+
+    Run result is never flipped to pass. Nothing is transitioned in Jira.
+    """
+    from plans.known_issue import normalize_known_issue
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    cid = (case_id or "").strip()
+    rid = (run_id or "").strip() or None
+
+    payload = None if clear else normalize_known_issue(
+        {"note": note, "jira_key": jira_key, "linked": True}
+    )
+    if not clear and payload is None:
+        return {
+            "status": "error",
+            "error": "known_issue_empty",
+            "message": "Provide a known-issue note and/or Jira key, or clear=true.",
+            "security_level": lvl,
+        }
+
+    cases = list((plan.get("suite") or {}).get("cases") or [])
+    target_case: Optional[dict[str, Any]] = None
+    target_run: Optional[dict[str, Any]] = None
+    for case in cases:
+        if case.get("id") != cid:
+            continue
+        target_case = case
+        if rid:
+            for run in case.get("runs") or []:
+                if run.get("id") == rid:
+                    target_run = run
+                    break
+        break
+
+    if target_case is None:
+        return {
+            "status": "error",
+            "error": "case_not_found",
+            "message": f"Case {cid!r} was not found on plan {plan_id!r}.",
+            "security_level": lvl,
+        }
+    if rid and target_run is None:
+        return {
+            "status": "error",
+            "error": "run_not_found",
+            "message": f"Run {rid!r} on case {cid!r} was not found.",
+            "security_level": lvl,
+        }
+
+    now = _utcnow()
+    prior_result = target_run.get("result") if target_run else None
+
+    if clear:
+        target_case.pop("known_issue", None)
+        if target_run is not None:
+            target_run.pop("known_issue", None)
+    else:
+        assert payload is not None
+        target_case["known_issue"] = dict(payload)
+        if target_run is not None:
+            target_run["known_issue"] = dict(payload)
+            target_run["failure_class"] = "known_issue"
+            if prior_result is not None:
+                target_run["result"] = prior_result
+
+    target_case["updated_at"] = now
+    plan["suite"] = {"cases": cases}
+    plan["updated_at"] = now
+    _write_plan(plan, level=lvl)
+
+    result_after = target_run.get("result") if target_run else None
+    return {
+        "status": "ok",
+        "security_level": lvl,
+        "plan": plan,
+        "case": target_case,
+        "run": target_run,
+        "known_issue": None if clear else payload,
+        "label": None if clear else "known",
+        "result": result_after,
+        "result_unchanged": True,
+        "jira_transitioned": False,
+        "create_bug_allowed": False,
+        "message": (
+            "Known issue cleared."
+            if clear
+            else "Known issue linked. Run stays red underneath and is labelled known. "
+            "Nothing was transitioned in Jira."
+        ),
     }
 
 

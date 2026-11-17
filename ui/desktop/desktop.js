@@ -1283,6 +1283,10 @@
   let activePauseId = "";
   const planDefectPreview = document.getElementById("plan-defect-preview");
   const planRunFailureClass = document.getElementById("plan-run-failure-class");
+  const planKnownNote = document.getElementById("plan-known-note");
+  const planKnownJira = document.getElementById("plan-known-jira");
+  const planKnownSave = document.getElementById("plan-known-save");
+  const planKnownClear = document.getElementById("plan-known-clear");
   const planRunFailureSave = document.getElementById("plan-run-failure-save");
   const planCaseDetail = document.getElementById("plan-case-detail");
   const planDefectOut = document.getElementById("plan-defect-out");
@@ -1342,6 +1346,7 @@
     stories: document.getElementById("rpt-stories"),
     bugs: document.getElementById("rpt-bugs"),
     evidence: document.getElementById("rpt-evidence"),
+    known_issues: document.getElementById("rpt-known-issues"),
   };
   const rptSave = document.getElementById("rpt-save");
   const appDrawerHint = document.getElementById("app-drawer-hint");
@@ -1546,13 +1551,23 @@
     }
   }
 
+  function isKnownLabel(obj) {
+    if (!obj) return false;
+    if (obj.failure_class === "known_issue") return true;
+    return !!(obj.known_issue && obj.known_issue.linked);
+  }
+
   function lastRunLine(caseObj) {
     const runs = (caseObj && caseObj.runs) || [];
     if (!runs.length) return "";
     const last = runs[runs.length - 1];
     const parts = [last.result || "pending"];
     if (last.duration_ms != null) parts.push(last.duration_ms + "ms");
-    if (last.failure_class) parts.push(last.failure_class);
+    if (isKnownLabel(last) || isKnownLabel(caseObj)) {
+      parts.push("known");
+    } else if (last.failure_class) {
+      parts.push(last.failure_class);
+    }
     const ev = last.evidence || [];
     for (let i = 0; i < ev.length; i++) {
       if (String(ev[i]).toLowerCase().indexOf(".png") >= 0) {
@@ -1591,8 +1606,12 @@
           (c.name || "") +
           (c.jira_key ? " · Jira " + c.jira_key : "") +
           (kind === "manual-draft" && !c.jira_key ? " · manual-draft" : "") +
+          (isKnownLabel(c) ? " · known" : "") +
           (src ? "\n   source: " + src : "") +
           (c.note ? "\n   note: " + c.note : "") +
+          (c.known_issue && c.known_issue.note
+            ? "\n   known: " + c.known_issue.note
+            : "") +
           lastRunLine(c)
         );
       })
@@ -1634,15 +1653,21 @@
       );
       const payload = await res.json();
       if (payload.status !== "ok" || !planCaseDetail) return;
+      const ki = payload.known_issue || {};
       const lines = [
         "Case: " + (payload.name || ""),
         "Jira: " + (payload.jira_key || "—"),
         "Source: " + (payload.source_kind || "manual-draft") + " — " + (payload.source_ref || "—"),
         payload.manual_draft ? "Marked manual-draft (no Jira/doc source)" : "",
+        payload.known_label ? "Label: known (not a new regression)" : "",
+        ki.note ? "Known note: " + ki.note : "",
+        ki.jira_key ? "Known Jira: " + ki.jira_key : "",
         payload.last_run_summary ? "Last run: " + payload.last_run_summary : "Last run: (none)",
       ].filter(Boolean);
       planCaseDetail.hidden = false;
       planCaseDetail.textContent = lines.join("\n");
+      if (planKnownNote) planKnownNote.value = ki.note || "";
+      if (planKnownJira) planKnownJira.value = ki.jira_key || "";
       if (payload.last_run && payload.last_run.id) {
         lastCaseRunId = payload.last_run.id;
         if (planRunFailureClass && payload.last_run.failure_class) {
@@ -3111,6 +3136,57 @@
     });
   }
 
+  async function postKnownIssue(clear) {
+    if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
+      if (planStatus) planStatus.textContent = "Enter a case id.";
+      return;
+    }
+    try {
+      const res = await fetch(
+        "/api/plans/" +
+          encodeURIComponent(openPlanId) +
+          "/cases/" +
+          encodeURIComponent(planCaseId.value.trim()) +
+          "/known-issue",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            note: planKnownNote ? planKnownNote.value : "",
+            jira_key: planKnownJira ? planKnownJira.value : "",
+            run_id: lastCaseRunId || "",
+            clear: !!clear,
+          }),
+        }
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok") {
+        if (planStatus) planStatus.textContent = payload.message || "Could not save known issue.";
+        return;
+      }
+      if (payload.plan) renderPlanCases(payload.plan);
+      await refreshCaseDetail();
+      if (planStatus) {
+        planStatus.textContent =
+          payload.message ||
+          (clear ? "Known issue cleared." : "Known issue linked (labelled known).");
+      }
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Known issue save failed.";
+    }
+  }
+
+  if (planKnownSave) {
+    planKnownSave.addEventListener("click", function () {
+      postKnownIssue(false);
+    });
+  }
+  if (planKnownClear) {
+    planKnownClear.addEventListener("click", function () {
+      postKnownIssue(true);
+    });
+  }
+
   if (planDefectPreview) {
     planDefectPreview.addEventListener("click", async function () {
       if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
@@ -3813,6 +3889,7 @@
         stories: !!(rptChecks.stories && rptChecks.stories.checked),
         bugs: !!(rptChecks.bugs && rptChecks.bugs.checked),
         evidence: !!(rptChecks.evidence && rptChecks.evidence.checked),
+        known_issues: !!(rptChecks.known_issues && rptChecks.known_issues.checked),
       };
       try {
         const res = await fetch("/api/report-sections", {

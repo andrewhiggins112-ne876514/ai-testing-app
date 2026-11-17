@@ -53,6 +53,7 @@ from plans.store import (
     get_plan,
     list_plans,
     reorder_cases as plan_reorder_cases,
+    set_known_issue_link as plan_set_known_issue_link,
     set_run_failure_class as plan_set_run_failure_class,
     update_case as plan_update_case,
 )
@@ -100,6 +101,7 @@ class ReportSectionsRequest(BaseModel):
     stories: bool = True
     bugs: bool = True
     evidence: bool = True
+    known_issues: bool = True
 
 
 class DocIngestRequest(BaseModel):
@@ -252,6 +254,15 @@ class PlanRunRequest(BaseModel):
 
 class PlanFailureClassRequest(BaseModel):
     failure_class: str = ""
+
+
+class PlanKnownIssueRequest(BaseModel):
+    """Link known-issue note + optional Jira key (KAN-153). No Jira writes."""
+
+    note: str = ""
+    jira_key: str = ""
+    run_id: str = ""
+    clear: bool = False
 
 
 class PlanCaseRunRequest(BaseModel):
@@ -782,6 +793,23 @@ async def post_plan_run_failure_class(
         case_id,
         run_id,
         req.failure_class,
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/known-issue")
+async def post_plan_case_known_issue(
+    plan_id: str,
+    case_id: str,
+    req: PlanKnownIssueRequest,
+):
+    """Link known-issue note + optional Jira key; run stays red (KAN-153). No Jira writes."""
+    return plan_set_known_issue_link(
+        plan_id,
+        case_id,
+        note=req.note,
+        jira_key=req.jira_key,
+        run_id=req.run_id or None,
+        clear=bool(req.clear),
     )
 
 

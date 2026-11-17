@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-153** — Test-all B6 — Known issues and exclusions |
-| **Start task** | **KAN-154** (`test`, Relates → KAN-153) |
+| **Jira story** | **KAN-155** — Test-all B7 — Notes on a case and on a run |
+| **Start task** | **KAN-156** (`test`, Relates → KAN-155) |
 | **Epic** | **KAN-118** — Test-all B — Failures and evidence |
-| **Roadmap ID** | TESTALL-B / FR-PLAN-4 / FR-REP-2 |
+| **Roadmap ID** | TESTALL-B / FR-PLAN-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-154** |
-| **Shipped** | … **KAN-143** B1; **KAN-145** B2; **KAN-147** B3; **KAN-149** B4; **KAN-151** B5 |
+| **Test ticket** | **KAN-156** |
+| **Shipped** | … **KAN-143** B1; **KAN-145** B2; **KAN-147** B3; **KAN-149** B4; **KAN-151** B5; **KAN-153** B6 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-16 — KAN-153 — B6 known issues and exclusions
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-153
+- **Done:** Case/run can link known-issue note + optional Jira key via `POST /api/plans/…/known-issue`. Failed runs stay red and are labelled **known**. Reports gain `known_issues` section toggle (include/exclude). Nothing auto-transitioned in Jira. Plans desk38 UI + Gradio Reports checkbox.
+- **Files:** `plans/known_issue.py`, `plans/store.py`, `plans/run_case.py`, `reports/sections.py`, `main.py`, `ui/desktop/*`, `ui/gradio_app.py`, `desktop_app.py`, `tests/test_plan_run_case.py`, `tests/test_report_sections.py`
+- **Verify:** `pytest tests/test_plan_run_case.py tests/test_report_sections.py -v` (23 passed). Live `/api/report-sections` includes `known_issues`; desk38 HTML has `plan-known-save` + `rpt-known-issues`.
+- **Jira:** close-out **KAN-153** + **KAN-154**
+- **Next:** **KAN-155** B7 notes on a case and on a run
 
 ### 2026-11-16 — KAN-151 — B5 rerun failed only
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-151
