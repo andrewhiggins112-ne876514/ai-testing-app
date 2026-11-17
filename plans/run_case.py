@@ -92,7 +92,11 @@ def _map_playwright_result(pw: dict[str, Any]) -> tuple[str, str | None, list[st
             if isinstance(step, dict) and step.get("classification"):
                 classification = str(step["classification"])
                 break
-    failure_class = classification or ("environment" if "timeout" in err.lower() else "product_bug")
+    from plans.timeouts import is_timeout_error
+
+    failure_class = classification or (
+        "environment" if is_timeout_error(err) else "product_bug"
+    )
     if status == "fail":
         return "fail", failure_class, evidence
     return "error", failure_class or "tool", evidence
@@ -345,11 +349,20 @@ async def _execute_case(
         }
 
     from plugins.playwright_runner import run_playwright
+    from plans.timeouts import (
+        case_step_timeout_ms,
+        is_timeout_error,
+        timeout_failure_message,
+    )
 
     spec = _case_spec(target_case)
     generated = generate_steps_from_spec(spec, url=target_url)
     steps = list(generated.get("steps") or [])
     url = target_url or str(generated.get("url") or "")
+    step_timeout_ms = case_step_timeout_ms(target_case)
+    # Runner click_timeout is milliseconds; retry is half the budget (min 500).
+    click_timeout = step_timeout_ms
+    retry_timeout = max(500, step_timeout_ms // 2)
 
     with heal_run_context(
         run_id=reserved_run_id,
@@ -366,6 +379,8 @@ async def _execute_case(
             session_id=session_id,
             headless=False,
             reject_incomplete=False,
+            click_timeout=click_timeout,
+            retry_timeout=retry_timeout,
             pause_on_fail=bool(pause_on_fail),
             pause_decision=pause_decision if pause_on_fail else None,
         )
@@ -374,7 +389,13 @@ async def _execute_case(
     if pw.get("error") and result == "pass":
         result = "fail"
 
-    note = str(pw.get("error") or "")[:500]
+    raw_err = str(pw.get("error") or "")
+    if is_timeout_error(raw_err):
+        note = timeout_failure_message(raw_err, step_timeout_ms=step_timeout_ms)
+        if failure_class not in {"tool"}:
+            failure_class = failure_class or "environment"
+    else:
+        note = raw_err[:500]
     if pw.get("pause_decision") == "stop" and not note:
         note = "Stopped after pause on fail."
     recorded = add_run(
@@ -413,6 +434,7 @@ async def _execute_case(
         "pause_on_fail": bool(pause_on_fail),
         "pause_decision": pw.get("pause_decision"),
         "suite_run_id": suite_rid,
+        "step_timeout_ms": step_timeout_ms,
         "playwright": {
             "status": pw.get("status"),
             "error": pw.get("error"),
@@ -491,6 +513,7 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
         src = case.get("source") if isinstance(case.get("source"), dict) else {}
         kind = str(src.get("kind") or "manual-draft")
         from plans.known_issue import is_known_labelled
+        from plans.timeouts import case_step_timeout_ms
 
         last = (case.get("runs") or [])[-1] if case.get("runs") else None
         known = is_known_labelled(last) or is_known_labelled(case)
@@ -506,6 +529,7 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "jira_key": case.get("jira_key") or "",
             "tags": list(case.get("tags") or []),
             "priority": int(case.get("priority") or 0),
+            "step_timeout_ms": case_step_timeout_ms(case),
             "enabled": bool(case.get("enabled", True)),
             "archived": bool(case.get("archived", False)),
             "quarantined": bool(qstat.get("quarantined")),

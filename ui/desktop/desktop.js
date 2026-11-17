@@ -1387,6 +1387,7 @@
   const planCaseNote = document.getElementById("plan-case-note");
   const planCaseTags = document.getElementById("plan-case-tags");
   const planCasePriority = document.getElementById("plan-case-priority");
+  const planCaseStepTimeout = document.getElementById("plan-case-step-timeout");
   const planRunNote = document.getElementById("plan-run-note");
   const planNotesSave = document.getElementById("plan-notes-save");
   const planCaseEnabled = document.getElementById("plan-case-enabled");
@@ -2940,6 +2941,9 @@
         "Runs kept: " + (payload.run_count != null ? payload.run_count : 0),
         "Source: " + (payload.source_kind || "manual-draft") + " — " + (payload.source_ref || "—"),
         payload.manual_draft ? "Marked manual-draft (no Jira/doc source)" : "",
+        "Step timeout: " +
+          (payload.step_timeout_ms != null ? payload.step_timeout_ms : 10000) +
+          " ms",
         payload.note ? "Case note: " + payload.note : "",
         payload.tester_note ? "Run note: " + payload.tester_note : "",
         payload.known_label ? "Label: known (not a new regression)" : "",
@@ -2961,6 +2965,12 @@
       if (planCasePriority) {
         planCasePriority.value =
           payload.priority != null ? String(payload.priority) : "0";
+      }
+      if (planCaseStepTimeout) {
+        planCaseStepTimeout.value =
+          payload.step_timeout_ms != null
+            ? String(payload.step_timeout_ms)
+            : "10000";
       }
       if (planCaseEnabled) planCaseEnabled.checked = payload.enabled !== false;
       if (planCaseArchived) planCaseArchived.checked = !!payload.archived;
@@ -4491,6 +4501,9 @@
               priority: planCasePriority
                 ? parseInt(planCasePriority.value || "0", 10) || 0
                 : 0,
+              step_timeout_ms: planCaseStepTimeout
+                ? parseInt(planCaseStepTimeout.value || "10000", 10) || 10000
+                : 10000,
             }),
           }
         );

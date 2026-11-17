@@ -64,6 +64,7 @@ from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
 from plans.parallel import parallel_cap_info
+from plans.timeouts import step_timeout_info
 from plans.rerun_failed import rerun_failed_cases
 from plans.run_by_tag import run_cases_by_tag, select_cases_for_tag
 from plans.run_case import case_detail, run_single_case
@@ -329,6 +330,7 @@ class PlanCaseUpdateRequest(BaseModel):
     order: int | None = None
     priority: int | None = None
     tags: list[str] | None = None
+    step_timeout_ms: int | None = None
 
 
 class PlanQuarantineRequest(BaseModel):
@@ -877,6 +879,12 @@ async def get_plan_parallel_cap():
     return parallel_cap_info()
 
 
+@app.get("/api/plans/step-timeout")
+async def get_plan_step_timeout():
+    """Visible step timeout default matching the current runner (KAN-187 / D5)."""
+    return step_timeout_info()
+
+
 @app.get("/api/plans/{plan_id}/coverage-gaps")
 async def get_plan_coverage_gaps(
     plan_id: str,
@@ -1030,7 +1038,7 @@ async def post_plan_case(plan_id: str, req: PlanCaseRequest):
 
 @app.post("/api/plans/{plan_id}/cases/{case_id}")
 async def post_plan_case_update(plan_id: str, case_id: str, req: PlanCaseUpdateRequest):
-    """Rename / note / enable-disable / archive / order a case (KAN-133 / KAN-177)."""
+    """Rename / note / enable-disable / archive / order / step timeout a case (KAN-133 / KAN-177 / KAN-187)."""
     return plan_update_case(
         plan_id,
         case_id,
@@ -1041,6 +1049,7 @@ async def post_plan_case_update(plan_id: str, case_id: str, req: PlanCaseUpdateR
         order=req.order,
         priority=req.priority,
         tags=list(req.tags) if req.tags is not None else None,
+        step_timeout_ms=req.step_timeout_ms,
     )
 
 

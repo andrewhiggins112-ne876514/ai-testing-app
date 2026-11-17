@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-187** — D5 Timeouts visible on the case |
-| **Start task** | **KAN-188** (`test`, Relates → KAN-187) |
+| **Jira story** | **KAN-189** — D6 Local notification when a run finishes |
+| **Start task** | **KAN-190** (`test`, Relates → KAN-189) |
 | **Epic** | Test-all D (see catalogue) |
-| **Roadmap ID** | D5 / FR-PLAN-2 |
+| **Roadmap ID** | D6 / FR-UI-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-188** |
-| **Shipped** | … **KAN-185** D4 credential status (desk57); **KAN-183** D3 named environments (desk56); **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
+| **Test ticket** | **KAN-190** |
+| **Shipped** | … **KAN-187** D5 timeouts on case (desk58); **KAN-185** D4 credential status (desk57); **KAN-183** D3 named environments (desk56); **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all D after D5 → D6…, or **KAN-260** Lab tools in App menu when prioritised |
+| **Next after this** | continue Test-all D after D6 → D7…, or **KAN-260** Lab tools in App menu when prioritised |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-187 — D5 Timeouts visible on the case
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-187
+- **Done:** Case stores editable `step_timeout_ms` (default 10000 = current Playwright click timeout). Runner uses case budget; timeout failure notes always say timeout and include the budget. API `GET /api/plans/step-timeout` + case update/detail. Desktop Plans Edit selected case field (desk58). No silent timeout inflation heal.
+- **Files:** `plans/timeouts.py`, `plans/store.py`, `plans/run_case.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_timeouts.py` (+ desk58 cache-bust)
+- **Verify:** `pytest tests/test_plan_timeouts.py` + related (42 passed). Live `GET /api/plans/step-timeout` → default 10000; desk58 HTML has `plan-case-step-timeout`; `desktop_app.py` → App ▦ → Plans → Step timeout 10000 visible.
+- **Jira:** close-out **KAN-187** + **KAN-188**
+- **Next:** **KAN-189** D6 local notification when a run finishes (test **KAN-190**)
 
 ### 2026-11-17 — KAN-185 — D4 Credential status without revealing secrets
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-185

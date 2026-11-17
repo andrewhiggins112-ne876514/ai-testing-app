@@ -130,6 +130,16 @@ def _normalize_case(raw: Any, *, order: int = 0) -> Optional[dict[str, Any]]:
         "active": bool(quarantine_raw.get("active", False)),
     }
     quarantined = bool(raw.get("quarantined", False)) or bool(quarantine.get("active"))
+    from plans.timeouts import DEFAULT_STEP_TIMEOUT_MS, resolve_step_timeout_ms
+
+    timeout_resolved = resolve_step_timeout_ms(
+        raw.get("step_timeout_ms", DEFAULT_STEP_TIMEOUT_MS)
+    )
+    step_timeout_ms = (
+        int(timeout_resolved["step_timeout_ms"])
+        if timeout_resolved.get("status") == "ok"
+        else DEFAULT_STEP_TIMEOUT_MS
+    )
     return {
         "id": cid,
         "name": name[:120],
@@ -139,6 +149,7 @@ def _normalize_case(raw: Any, *, order: int = 0) -> Optional[dict[str, Any]]:
         "quarantine": quarantine,
         "tags": tags,
         "priority": int(raw.get("priority") or 0),
+        "step_timeout_ms": step_timeout_ms,
         "note": str(raw.get("note") or "")[:2000],
         "order": int(raw.get("order") if raw.get("order") is not None else order),
         "jira_key": jira_key,
@@ -1042,11 +1053,13 @@ def update_case(
     order: int | None = None,
     priority: int | None = None,
     tags: list[str] | None = None,
+    step_timeout_ms: int | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
     """Edit a case before any run (KAN-133 / FR-PLAN-1/2). Local only.
 
     Archive (KAN-177 / C11) sets archived=True without deleting runs or evidence.
+    Step timeout (KAN-187 / D5) is editable before run; default matches runner.
     """
     from settings.store import get_security_level
 
@@ -1097,6 +1110,18 @@ def update_case(
             if t and t not in cleaned:
                 cleaned.append(t[:40])
         target["tags"] = cleaned
+    if step_timeout_ms is not None:
+        from plans.timeouts import resolve_step_timeout_ms
+
+        resolved = resolve_step_timeout_ms(step_timeout_ms)
+        if resolved.get("status") != "ok":
+            return {
+                **resolved,
+                "security_level": lvl,
+                "plan_id": plan_id,
+                "case_id": cid,
+            }
+        target["step_timeout_ms"] = int(resolved["step_timeout_ms"])
     target["updated_at"] = now
     cases.sort(key=lambda c: (int(c.get("order") or 0), c.get("created_at") or "", c["id"]))
     plan["suite"] = {"cases": cases}
