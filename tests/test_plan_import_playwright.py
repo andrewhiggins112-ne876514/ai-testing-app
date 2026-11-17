@@ -154,11 +154,11 @@ class PlanImportPlaywrightTests(unittest.TestCase):
         self.assertFalse(payload.get("external_files_deleted"))
         self.assertGreaterEqual(payload.get("cases_added"), 1)
 
-    def test_desktop_ui_has_import_controls_desk64(self):
+    def test_desktop_ui_has_import_controls_desk65(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk64", html)
-        self.assertIn("desk64", desk)
+        self.assertIn("desk65", html)
+        self.assertIn("desk65", desk)
         self.assertIn("plan-pw-path", html)
         self.assertIn("plan-import-pw-btn", html)
         self.assertIn("plan-import-pw-add-btn", html)

@@ -1552,6 +1552,16 @@
   const localAuditStatus = document.getElementById("local-audit-status");
   const redactionStatusEl = document.getElementById("redaction-status");
   const redactionShotWarn = document.getElementById("redaction-screenshot-warn");
+  const backupSummary = document.getElementById("backup-summary");
+  const backupIncludeSettings = document.getElementById("backup-include-settings");
+  const backupIncludeSecrets = document.getElementById("backup-include-secrets");
+  const backupCreate = document.getElementById("backup-create");
+  const backupRefresh = document.getElementById("backup-refresh");
+  const backupSelect = document.getElementById("backup-select");
+  const backupRestorePropose = document.getElementById("backup-restore-propose");
+  const backupRestoreConfirm = document.getElementById("backup-restore-confirm");
+  const backupStatus = document.getElementById("backup-status");
+  let pendingBackupPath = "";
   let pendingPrivacyCategories = null;
   const docText = document.getElementById("doc-text");
   const docParse = document.getElementById("doc-parse");
@@ -3332,6 +3342,59 @@
     }
   }
 
+  function fillBackupSelect(rows) {
+    if (!backupSelect) return;
+    const previous = backupSelect.value || pendingBackupPath || "";
+    backupSelect.innerHTML = "";
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = rows && rows.length ? "— select a backup —" : "— no backups yet —";
+    backupSelect.appendChild(blank);
+    (rows || []).forEach(function (row) {
+      const opt = document.createElement("option");
+      opt.value = row.path || "";
+      opt.textContent =
+        (row.filename || "backup") +
+        " · " +
+        (row.security_level || "?") +
+        (row.include_secrets ? " · secrets" : "") +
+        (row.bytes ? " · " + row.bytes + " B" : "");
+      backupSelect.appendChild(opt);
+    });
+    if (previous) {
+      backupSelect.value = previous;
+      if (backupSelect.value !== previous) backupSelect.value = "";
+    }
+  }
+
+  async function loadBackupStatus() {
+    try {
+      const res = await fetch("/api/backup?limit=20");
+      const data = await res.json();
+      if (backupSummary) {
+        backupSummary.textContent =
+          "Active " +
+          (data.security_level || "?") +
+          ": " +
+          (data.plans_count || 0) +
+          " plan(s), " +
+          (data.evidence_indexes_count || 0) +
+          " evidence index(es). Secrets default off. Cloud: off.";
+      }
+      fillBackupSelect((data && data.recent_backups) || []);
+      pendingBackupPath = "";
+      if (backupRestoreConfirm) backupRestoreConfirm.disabled = true;
+      if (backupStatus && backupStatus.textContent === "Ready") {
+        /* keep Ready */
+      } else if (backupStatus && !pendingBackupPath) {
+        backupStatus.textContent = "Ready";
+      }
+    } catch (err) {
+      if (backupSummary) backupSummary.textContent = "Backup: could not load.";
+      if (backupStatus) backupStatus.textContent = "Could not load backups.";
+    }
+  }
+
   async function loadLocalAudit() {
     if (!localAuditList) return;
     try {
@@ -3735,6 +3798,7 @@
       loadPrivacyStatus();
       loadLocalAudit();
       loadRedactionStatus();
+      loadBackupStatus();
     }
     if (name === "documents") loadDocUploads();
     if (name === "heal") {
@@ -6058,6 +6122,126 @@
   if (localAuditRefresh) {
     localAuditRefresh.addEventListener("click", function () {
       loadLocalAudit();
+    });
+  }
+
+  if (backupRefresh) {
+    backupRefresh.addEventListener("click", function () {
+      if (backupStatus) backupStatus.textContent = "Refreshing…";
+      loadBackupStatus().then(function () {
+        if (backupStatus) backupStatus.textContent = "Ready";
+      });
+    });
+  }
+
+  if (backupCreate) {
+    backupCreate.addEventListener("click", async function () {
+      if (backupStatus) backupStatus.textContent = "Creating backup…";
+      try {
+        const res = await fetch("/api/backup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            include_settings: !!(backupIncludeSettings && backupIncludeSettings.checked),
+            include_secrets: !!(backupIncludeSecrets && backupIncludeSecrets.checked),
+          }),
+        });
+        const payload = await res.json();
+        if (!res.ok || payload.status === "error") {
+          if (backupStatus) {
+            backupStatus.textContent =
+              (payload && payload.message) || "Backup failed.";
+          }
+          return;
+        }
+        if (backupStatus) {
+          backupStatus.textContent = payload.message || "Backup created.";
+        }
+        await loadBackupStatus();
+        if (payload.path && backupSelect) {
+          backupSelect.value = payload.path;
+        }
+      } catch (err) {
+        if (backupStatus) backupStatus.textContent = "Could not create backup.";
+      }
+    });
+  }
+
+  if (backupRestorePropose) {
+    backupRestorePropose.addEventListener("click", async function () {
+      const path = (backupSelect && backupSelect.value) || "";
+      if (!path) {
+        if (backupStatus) backupStatus.textContent = "Select a backup first.";
+        return;
+      }
+      if (backupStatus) backupStatus.textContent = "Proposing restore…";
+      try {
+        const res = await fetch("/api/backup/restore", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: path, confirm: false }),
+        });
+        const payload = await res.json();
+        if (payload.status === "confirmation_required") {
+          pendingBackupPath = path;
+          if (backupRestoreConfirm) backupRestoreConfirm.disabled = false;
+          const prev = payload.preview || {};
+          if (backupStatus) {
+            backupStatus.textContent =
+              (payload.message || "Confirm restore?") +
+              " Plans in backup: " +
+              (prev.plans_in_backup || 0) +
+              "; evidence indexes: " +
+              (prev.evidence_indexes_in_backup || 0) +
+              ".";
+          }
+          return;
+        }
+        if (backupStatus) {
+          backupStatus.textContent =
+            (payload && payload.message) || payload.status || "Restore blocked.";
+        }
+        pendingBackupPath = "";
+        if (backupRestoreConfirm) backupRestoreConfirm.disabled = true;
+      } catch (err) {
+        if (backupStatus) backupStatus.textContent = "Could not propose restore.";
+      }
+    });
+  }
+
+  if (backupRestoreConfirm) {
+    backupRestoreConfirm.addEventListener("click", async function () {
+      const path =
+        pendingBackupPath || (backupSelect && backupSelect.value) || "";
+      if (!path) {
+        if (backupStatus) backupStatus.textContent = "Nothing pending to restore.";
+        return;
+      }
+      if (backupStatus) backupStatus.textContent = "Restoring…";
+      try {
+        const res = await fetch("/api/backup/restore", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: path, confirm: true }),
+        });
+        const payload = await res.json();
+        if (!res.ok || payload.status === "error") {
+          if (backupStatus) {
+            backupStatus.textContent =
+              (payload && payload.message) || "Restore failed.";
+          }
+          return;
+        }
+        pendingBackupPath = "";
+        if (backupRestoreConfirm) backupRestoreConfirm.disabled = true;
+        if (backupStatus) {
+          backupStatus.textContent = payload.message || "Restored.";
+        }
+        await loadBackupStatus();
+        await loadPrivacyStatus();
+      } catch (err) {
+        if (backupStatus) backupStatus.textContent = "Could not confirm restore.";
+      }
     });
   }
 

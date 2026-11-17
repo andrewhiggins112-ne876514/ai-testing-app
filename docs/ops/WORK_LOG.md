@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-199** — E4 Backup and restore of this lab |
-| **Start task** | **KAN-200** (`test`, Relates → KAN-199) |
+| **Jira story** | **KAN-201** — E5 Read last plan while Jira is down |
+| **Start task** | **KAN-202** (`test`, Relates → KAN-201) |
 | **Epic** | Test-all E (see catalogue) |
-| **Roadmap ID** | E4 / FR-SET-1 + FR-SEC-1 |
+| **Roadmap ID** | E5 / FR-CONN-1 + FR-PLAN-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-200** |
-| **Shipped** | … **KAN-260** Lab tools App menu (desk64); **KAN-197** E3 redact secrets (desk63); **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
+| **Test ticket** | **KAN-202** |
+| **Shipped** | … **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all E after E4 → E5… |
+| **Next after this** | continue Test-all E after E5 → E6… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-199 — E4 Backup and restore of this lab
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-199
+- **Done:** Local lab backup zip under `%LOCALAPPDATA%\ai_testing_app\backups\`: plans + runs + evidence index for the active security level; optional settings (secrets stripped); credentials/secrets off by default. Restore requires confirm, refuses OFFICIAL/SECRET mix and level mismatch, reports what it replaced. Security panel Backup & restore UI (desk65). No cloud backup.
+- **Files:** `settings/backup.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_lab_backup.py` (+ desk65 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_lab_backup.py` + related Security suite (37 passed). Live `GET/POST /api/backup` → created OFFICIAL zip, secrets_default false, cloud false; desk65 HTML has `backup-create` / `backup-restore-confirm`. `desktop_app.py` opened desk65 (Computer Use window focus contested by other apps; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-199** + **KAN-200**
+- **Next:** **KAN-201** E5 Read last plan while Jira is down (test **KAN-202**)
 
 ### 2026-11-17 — KAN-260 — Lab tools in App menu (UI-NAV-IA-5)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-260

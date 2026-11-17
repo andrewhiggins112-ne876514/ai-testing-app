@@ -111,6 +111,7 @@ from settings.environments import (
 from settings.ollama_models import list_ollama_models
 from settings.local_audit import list_local_audit
 from settings.privacy import delete_local_data, privacy_status, telemetry_enabled
+from settings.backup import backup_status, create_backup, list_backups, restore_backup
 from reports.redact import redaction_status
 from settings.store import (
     app_settings_status,
@@ -187,6 +188,17 @@ class DeleteLocalDataRequest(BaseModel):
     categories: list[str] | None = None
     confirm: bool = False
     session_id: str = "desktop"
+
+
+class LabBackupCreateRequest(BaseModel):
+    include_settings: bool = False
+    include_secrets: bool = False
+
+
+class LabBackupRestoreRequest(BaseModel):
+    path: str = ""
+    filename: str = ""
+    confirm: bool = False
 
 
 class AppSettingsRequest(BaseModel):
@@ -566,6 +578,34 @@ async def get_local_audit_api(limit: int = 100):
 async def get_redaction_api():
     """Export/evidence redaction policy (KAN-197 / E3). Never echoes secrets."""
     return redaction_status()
+
+
+@app.get("/api/backup")
+async def get_lab_backup_api(limit: int = 20):
+    """Lab backup status + recent local zips (KAN-199 / E4). No cloud."""
+    status = backup_status()
+    status["recent_backups"] = list_backups(limit=limit)
+    return status
+
+
+@app.post("/api/backup")
+async def post_lab_backup_api(req: LabBackupCreateRequest):
+    """Create a local level-scoped lab backup zip. Secrets off by default."""
+    return create_backup(
+        include_settings=bool(req.include_settings),
+        include_secrets=bool(req.include_secrets),
+    )
+
+
+@app.post("/api/backup/restore")
+async def post_lab_backup_restore_api(req: LabBackupRestoreRequest):
+    """Restore a lab backup. Requires confirm; refuses OFFICIAL/SECRET mix."""
+    path = (req.path or "").strip()
+    if not path and (req.filename or "").strip():
+        from settings.backup import backups_dir
+
+        path = str(backups_dir() / req.filename.strip())
+    return restore_backup(path, confirm=bool(req.confirm))
 
 
 @app.get("/api/app-settings")

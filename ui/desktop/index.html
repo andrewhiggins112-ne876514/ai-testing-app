@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk64" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk65" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -338,6 +338,29 @@
           </p>
           <p id="redaction-status" class="drawer-hint" role="status">Redaction: —</p>
           <p id="redaction-screenshot-warn" class="drawer-hint" hidden></p>
+          <h3 class="orb-section-label">Backup &amp; restore</h3>
+          <p class="drawer-hint">
+            Local zip of plans, runs, and evidence index for the active security level.
+            Settings optional; secrets (credentials) off by default. Restore needs confirm and
+            refuses mixing OFFICIAL with SECRET. No cloud backup.
+          </p>
+          <p id="backup-summary" class="drawer-hint">Backup: —</p>
+          <label class="check-row"><input type="checkbox" id="backup-include-settings" /> Include settings (no secrets)</label>
+          <label class="check-row"><input type="checkbox" id="backup-include-secrets" /> Include secrets (credentials) — off by default</label>
+          <div class="btn-row">
+            <button type="button" id="backup-create" class="save-btn">Create backup</button>
+            <button type="button" id="backup-refresh" class="save-btn secondary">Refresh list</button>
+          </div>
+          <label class="stack-label">Recent backups
+            <select id="backup-select">
+              <option value="">— no backups yet —</option>
+            </select>
+          </label>
+          <div class="btn-row">
+            <button type="button" id="backup-restore-propose" class="save-btn">Restore…</button>
+            <button type="button" id="backup-restore-confirm" class="save-btn secondary" disabled>Confirm restore</button>
+          </div>
+          <p id="backup-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-reports" class="app-section" hidden>
           <h3 class="orb-section-label">Report library</h3>
@@ -775,6 +798,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk64"></script>
+  <script src="/ui/desktop/desktop.js?v=desk65"></script>
 </body>
 </html>
