@@ -113,6 +113,11 @@ from reports.export_pack import (
     export_pack_status,
     last_export_pack,
 )
+from installer.second_pc import (
+    create_second_pc_pack,
+    last_second_pc_pack,
+    second_pc_status,
+)
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.connection_health import connection_health
 from settings.credential_status import (
@@ -574,6 +579,12 @@ class ExportPackRequest(BaseModel):
     documents: bool | None = None
 
 
+class SecondPcPackRequest(BaseModel):
+    """Build a clean second-PC install pack (KAN-237 / G11). No secrets."""
+
+    session_id: str = "desktop"
+
+
 def _orb_from_settings() -> dict:
     s = load_settings()
     return {
@@ -731,6 +742,24 @@ async def get_export_pack_api():
 async def get_export_pack_last_api():
     """Last export pack summary for the home HUD widget (KAN-213)."""
     return last_export_pack()
+
+
+@app.get("/api/installer/second-pc")
+async def get_second_pc_installer_api():
+    """Second Windows PC install-pack status (KAN-237 / G11 / SALES-1)."""
+    return second_pc_status()
+
+
+@app.get("/api/installer/second-pc/last")
+async def get_second_pc_installer_last_api():
+    """Last second-PC install pack summary (KAN-237)."""
+    return last_second_pc_pack()
+
+
+@app.post("/api/installer/second-pc-pack")
+async def post_second_pc_pack_api(req: SecondPcPackRequest = SecondPcPackRequest()):
+    """Write a secret-free install folder for another Windows PC (KAN-237 / G11)."""
+    return create_second_pc_pack(session_id=req.session_id or "desktop")
 
 
 @app.post("/api/export-pack")

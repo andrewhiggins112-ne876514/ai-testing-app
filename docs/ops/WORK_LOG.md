@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-237** — G11 Installer for a second Windows PC |
-| **Start task** | **KAN-238** (`test`, Relates → KAN-237) |
+| **Jira story** | **KAN-239** — G12 Scheduled local run |
+| **Start task** | **KAN-240** (`test`, Relates → KAN-239) |
 | **Epic** | Test-all G (see catalogue) |
-| **Roadmap ID** | G11 / FR-UI-2 |
+| **Roadmap ID** | G12 / FR-PLAN-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-238** |
-| **Shipped** | … **KAN-233** G9 Another framework runner (desk82); **KAN-231** G8 Sandbox as run env; **KAN-229** G7; **KAN-227** G6; **KAN-225** G5; **KAN-223** G4; **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
+| **Test ticket** | **KAN-240** |
+| **Shipped** | … **KAN-237** G11 Installer second PC (desk83); **KAN-233** G9; **KAN-231** G8; **KAN-229** G7; **KAN-227** G6; **KAN-225** G5; **KAN-223** G4; **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all G after G11 → G12… (G10 voice deferred) |
+| **Next after this** | continue Test-all G after G12 (G10 voice deferred) |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-237 — G11 Installer for a second Windows PC
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-237
+- **Done:** Secret-free second-PC install pack (SALES-1 / G11): curated source copy + INSTALL.md + SetupSecondPC.ps1 + RunDesktop.cmd + pack_manifest (no shared cloud account, telemetry off by default, not a company-rollout claim). Settings → App “Build install pack”; `GET/POST /api/installer/second-pc*` + desk83.
+- **Files:** `installer/second_pc.py`, `installer/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_second_pc_installer.py` (+ desk83 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_second_pc_installer.py` 2 passed. Live `GET /api/installer/second-pc` → secrets false / cloud false / telemetry default false; `POST …/second-pc-pack` → ok pack folder; desk83 HTML has `set-second-pc-pack`. `desktop_app.py` opened desk83 (orb home; Computer Use Settings click contested; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-237** + **KAN-238**
+- **Next:** **KAN-239** G12 Scheduled local run (test **KAN-240**); G10 voice still deferred
 
 ### 2026-11-17 — KAN-233 — G9 Another framework runner
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-233

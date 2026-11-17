@@ -159,7 +159,7 @@ class PlanSandboxRunTests(unittest.TestCase):
         self.assertIsNone(out.get("sandbox"))
         self.assertTrue(out.get("default_profile"))
 
-    def test_api_run_sandboxes_and_ui_desk82(self):
+    def test_api_run_sandboxes_and_ui_desk83(self):
         client = TestClient(main.app)
         disabled = client.get("/api/plans/run-sandboxes")
         self.assertEqual(disabled.status_code, 200)
@@ -196,8 +196,8 @@ class PlanSandboxRunTests(unittest.TestCase):
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
         self.assertIn("plan-sandbox-select", html)
         self.assertIn("plan-sandbox-hint", html)
-        self.assertIn("desk82", html)
-        self.assertIn("desk82", desk)
+        self.assertIn("desk83", html)
+        self.assertIn("desk83", desk)
 
     def test_api_case_run_refuses_sandbox_when_disabled(self):
         set_plugin_enabled(False)

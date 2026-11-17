@@ -1487,6 +1487,8 @@
   const setSummary = document.getElementById("set-summary");
   const setSave = document.getElementById("set-save");
   const setStatus = document.getElementById("set-status");
+  const setSecondPcPack = document.getElementById("set-second-pc-pack");
+  const setSecondPcStatus = document.getElementById("set-second-pc-status");
   const connLevel = document.getElementById("conn-level");
   const connHealthBtn = document.getElementById("conn-health-btn");
   const connHealthOut = document.getElementById("conn-health-out");
@@ -2300,9 +2302,33 @@
       if (!res.ok) return;
       applyAppSettings(await res.json());
       await loadOllamaModels();
+      await loadSecondPcStatus();
       if (setStatus) setStatus.textContent = "Ready";
     } catch (err) {
       if (setStatus) setStatus.textContent = "Could not load app settings.";
+    }
+  }
+
+  async function loadSecondPcStatus() {
+    if (!setSecondPcStatus) return;
+    try {
+      const res = await fetch("/api/installer/second-pc");
+      if (!res.ok) return;
+      const data = await res.json();
+      const last = data && data.last ? data.last : null;
+      if (last && last.exported_at) {
+        setSecondPcStatus.textContent =
+          "Last pack: " +
+          (last.folder_name || "") +
+          " · " +
+          last.exported_at +
+          " · secrets: none · cloud account: no · telemetry default: off";
+      } else {
+        setSecondPcStatus.textContent =
+          "Install pack: not built yet · secrets never included · no shared cloud account";
+      }
+    } catch (err) {
+      setSecondPcStatus.textContent = "Could not load install-pack status.";
     }
   }
 
@@ -5400,6 +5426,42 @@
         }
       } catch (err) {
         if (setStatus) setStatus.textContent = "Could not save app settings.";
+      }
+    });
+  }
+
+  if (setSecondPcPack) {
+    setSecondPcPack.addEventListener("click", async function () {
+      if (setSecondPcStatus) {
+        setSecondPcStatus.textContent = "Building second-PC install pack…";
+      }
+      try {
+        const res = await fetch("/api/installer/second-pc-pack", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: "desktop" }),
+        });
+        const data = await res.json();
+        if (!data || data.status !== "ok") {
+          if (setSecondPcStatus) {
+            setSecondPcStatus.textContent =
+              (data && (data.message || data.error)) ||
+              "Install pack failed.";
+          }
+          return;
+        }
+        if (setSecondPcStatus) {
+          setSecondPcStatus.textContent =
+            "Pack " +
+            (data.folder_name || "") +
+            " · " +
+            (data.path || "") +
+            " · secrets: none · cloud: no · telemetry default: off. Copy folder to the second PC, run SetupSecondPC.ps1, then RunDesktop.cmd.";
+        }
+      } catch (err) {
+        if (setSecondPcStatus) {
+          setSecondPcStatus.textContent = "Could not build install pack.";
+        }
       }
     });
   }

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk82" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk83" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -342,6 +342,17 @@
             <p class="drawer-hint">Local notice when a run finishes with pass and fail counts (D6). No email or cloud push. Notices never include secrets or page text.</p>
             <label class="check-row"><input type="checkbox" id="set-run-finish-notify" checked /> Local notice when a run finishes</label>
             <p id="set-run-notify-status" class="drawer-hint" role="status">Notices: on (default)</p>
+            <h4 class="orb-section-label">Second Windows PC</h4>
+            <p class="drawer-hint" id="set-second-pc-hint">
+              Build a clean install folder for another Windows PC (G11 / SALES-1).
+              No secrets and no shared cloud account are included. Telemetry stays off by default.
+              On the second PC: run Setup, open the desktop app, enter local connections, draft a plan.
+              This is not a company-rollout claim by itself.
+            </p>
+            <div class="btn-row">
+              <button type="button" id="set-second-pc-pack" class="save-btn secondary">Build install pack</button>
+            </div>
+            <p id="set-second-pc-status" class="drawer-hint" role="status">Install pack: not built yet</p>
             <p id="set-store-path" class="drawer-hint">Local store: —</p>
             <p id="set-creds" class="drawer-hint">Jira credentials: —</p>
             <h4 class="orb-section-label">Credential status</h4>
@@ -964,6 +975,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk82"></script>
+  <script src="/ui/desktop/desktop.js?v=desk83"></script>
 </body>
 </html>
