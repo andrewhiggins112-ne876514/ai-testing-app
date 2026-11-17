@@ -20,10 +20,10 @@ Downloadable local **test-all** app. Connect once. **One home** = orb + chat; ro
 | G Widen as plugins | **KAN-123** | later (G10=voice↔KAN-81) |
 | H Future workplace (design) | **KAN-124** | FUTURE |
 
-**Active Build story:** **KAN-213** (F6 Read-only export pack; test **KAN-214**)  
-**Next after KAN-213:** Test-all **F7**…  
+**Active Build story:** **KAN-215** (F7 Home checklist widget; test **KAN-216**)  
+**Next after KAN-215:** Test-all G…  
 **Deferred:** **KAN-81** / **KAN-82** voice until mic (G10 **KAN-235**)
-**Shipped:** A1–A9 (**KAN-125…KAN-141**); B1–B7; C1–C11; D1–D7; E1–E5 (**KAN-193**, **KAN-195**, **KAN-197**, **KAN-199** desk65, **KAN-201** desk66); **KAN-203** F1 Tester HUD (desk67); **KAN-205** F2 Manager HUD (desk68); **KAN-207** F3 Release HUD (desk69); **KAN-209** F4 Coverage HUD (desk70); **KAN-211** F5 Keyboard (desk71); **KAN-260** Lab tools App menu (desk64); UI-NAV-IA + App menu (**KAN-247…249**, **KAN-253**, **KAN-257**)
+**Shipped:** A1–A9 (**KAN-125…KAN-141**); B1–B7; C1–C11; D1–D7; E1–E5 (**KAN-193**, **KAN-195**, **KAN-197**, **KAN-199** desk65, **KAN-201** desk66); **KAN-203** F1 Tester HUD (desk67); **KAN-205** F2 Manager HUD (desk68); **KAN-207** F3 Release HUD (desk69); **KAN-209** F4 Coverage HUD (desk70); **KAN-211** F5 Keyboard (desk71); **KAN-213** F6 Read-only export pack (desk72); **KAN-260** Lab tools App menu (desk64); UI-NAV-IA + App menu (**KAN-247…249**, **KAN-253**, **KAN-257**)
 Stories/tests continue through **KAN-245** / **KAN-246** (H3).
 
 ## Sequence

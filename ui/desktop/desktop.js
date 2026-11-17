@@ -1527,6 +1527,7 @@
   const rptRunSelect = document.getElementById("rpt-run-select");
   const rptRunRefresh = document.getElementById("rpt-run-refresh");
   const rptExportRun = document.getElementById("rpt-export-run");
+  const rptExportPack = document.getElementById("rpt-export-pack");
   const healRunFilter = document.getElementById("heal-run-filter");
   const appDrawerHint = document.getElementById("app-drawer-hint");
   const secLevel = document.getElementById("sec-level");
@@ -1852,6 +1853,61 @@
       loadReportLibrary();
     } catch (err) {
       if (rptStatus) rptStatus.textContent = "Could not export chosen run.";
+    }
+  }
+
+  async function exportChosenPack() {
+    if (!rptRunSelect || !rptRunSelect.value) {
+      if (rptStatus) rptStatus.textContent = "Choose a run to export as a pack.";
+      return;
+    }
+    const parts = rptRunSelect.value.split("|");
+    const planId = parts[0] || "";
+    const caseId = parts[1] || "";
+    const runId = parts[2] || "";
+    if (!planId || !caseId || !runId) {
+      if (rptStatus) rptStatus.textContent = "Chosen run is incomplete.";
+      return;
+    }
+    if (rptStatus) rptStatus.textContent = "Writing read-only pack…";
+    try {
+      const body = Object.assign({}, reportSectionBody(), {
+        plan_id: planId,
+        case_id: caseId,
+        run_id: runId,
+      });
+      const res = await fetch("/api/export-pack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!data || data.status !== "ok") {
+        if (rptStatus) {
+          rptStatus.textContent =
+            (data && (data.message || data.error)) || "Pack export failed.";
+        }
+        return;
+      }
+      if (rptStatus) {
+        let text =
+          "Read-only pack " +
+          (data.folder_name || data.pack_id || "") +
+          " · level " +
+          (data.security_level || "") +
+          " · " +
+          (data.exported_at || "") +
+          ". Open README.md without this app. Redaction hits: " +
+          (data.redaction_hits || 0) +
+          ".";
+        if (data.screenshot_redaction_warning) {
+          text += " " + data.screenshot_redaction_warning;
+        }
+        rptStatus.textContent = text;
+      }
+      loadExportPackHud();
+    } catch (err) {
+      if (rptStatus) rptStatus.textContent = "Could not write read-only pack.";
     }
   }
 
@@ -3728,6 +3784,7 @@
   const hudCovCoveredToggle = document.getElementById("hud-cov-covered-toggle");
   const hudCovPartialToggle = document.getElementById("hud-cov-partial-toggle");
   const hudCovMissingToggle = document.getElementById("hud-cov-missing-toggle");
+  const hudExportLastToggle = document.getElementById("hud-export-last-toggle");
   const hudSecurityPanel = document.getElementById("hud-security");
   const hudReportsPanel = document.getElementById("hud-reports");
   const hudLabPanel = document.getElementById("hud-lab");
@@ -3747,6 +3804,9 @@
   const hudCovCoveredPanel = document.getElementById("hud-cov-covered");
   const hudCovPartialPanel = document.getElementById("hud-cov-partial");
   const hudCovMissingPanel = document.getElementById("hud-cov-missing");
+  const hudExportLastPanel = document.getElementById("hud-export-last");
+  const hudExportLastBody = document.getElementById("hud-export-last-body");
+  const hudExportLastOpen = document.getElementById("hud-export-last-open");
   const hudSecurityLevel = document.getElementById("hud-security-level");
   const hudReportsBody = document.getElementById("hud-reports-body");
   const hudLabMessage = document.getElementById("hud-lab-message");
@@ -3813,6 +3873,7 @@
     covCovered: false,
     covPartial: false,
     covMissing: false,
+    exportLast: false,
   };
   let labHomeEmpty = false;
   let hubCloseTimer = 0;
@@ -4313,6 +4374,7 @@
       covCovered: !!(flags && flags.covCovered),
       covPartial: !!(flags && flags.covPartial),
       covMissing: !!(flags && flags.covMissing),
+      exportLast: !!(flags && flags.exportLast),
     };
     if (hudSecurityToggle) hudSecurityToggle.checked = hudFlags.security;
     if (hudReportsToggle) hudReportsToggle.checked = hudFlags.reports;
@@ -4337,6 +4399,7 @@
     if (hudCovCoveredToggle) hudCovCoveredToggle.checked = hudFlags.covCovered;
     if (hudCovPartialToggle) hudCovPartialToggle.checked = hudFlags.covPartial;
     if (hudCovMissingToggle) hudCovMissingToggle.checked = hudFlags.covMissing;
+    if (hudExportLastToggle) hudExportLastToggle.checked = hudFlags.exportLast;
     const home = !openAreaName;
     if (hudSecurityPanel) hudSecurityPanel.hidden = !(home && hudFlags.security);
     if (hudReportsPanel) hudReportsPanel.hidden = !(home && hudFlags.reports);
@@ -4396,6 +4459,9 @@
     if (hudCovMissingPanel) {
       hudCovMissingPanel.hidden = !(home && hudFlags.covMissing);
     }
+    if (hudExportLastPanel) {
+      hudExportLastPanel.hidden = !(home && hudFlags.exportLast);
+    }
   }
 
   function defaultHudFlags() {
@@ -4419,6 +4485,7 @@
       covCovered: false,
       covPartial: false,
       covMissing: false,
+      exportLast: false,
     };
   }
 
@@ -4456,6 +4523,7 @@
       covCovered: !!(hudCovCoveredToggle && hudCovCoveredToggle.checked),
       covPartial: !!(hudCovPartialToggle && hudCovPartialToggle.checked),
       covMissing: !!(hudCovMissingToggle && hudCovMissingToggle.checked),
+      exportLast: !!(hudExportLastToggle && hudExportLastToggle.checked),
     };
     applyHud(flags);
     try {
@@ -4489,6 +4557,9 @@
       flags.covMissing
     ) {
       loadCoverageHud();
+    }
+    if (flags.exportLast) {
+      loadExportPackHud();
     }
   }
 
@@ -4924,6 +4995,35 @@
     }
   }
 
+  function renderExportPackHud(payload) {
+    if (!hudExportLastBody) return;
+    const available = !!(payload && payload.available);
+    if (!available) {
+      hudExportLastBody.textContent = "No pack yet";
+      if (hudExportLastOpen) hudExportLastOpen.hidden = true;
+      return;
+    }
+    const when = payload.last_export_time || "unknown time";
+    const level = payload.security_level || "";
+    const folder = payload.folder_name || payload.pack_id || "";
+    hudExportLastBody.textContent =
+      (level ? level + " · " : "") + when + (folder ? " · " + folder : "");
+    if (hudExportLastOpen) hudExportLastOpen.hidden = false;
+  }
+
+  async function loadExportPackHud() {
+    try {
+      const res = await fetch("/api/export-pack/last");
+      if (!res.ok) {
+        renderExportPackHud(null);
+        return;
+      }
+      renderExportPackHud(await res.json());
+    } catch (err) {
+      renderExportPackHud(null);
+    }
+  }
+
   if (hudSecurityToggle) hudSecurityToggle.addEventListener("change", saveHud);
   if (hudReportsToggle) hudReportsToggle.addEventListener("change", saveHud);
   if (hudLabToggle) hudLabToggle.addEventListener("change", saveHud);
@@ -4953,6 +5053,9 @@
   if (hudCovMissingToggle) {
     hudCovMissingToggle.addEventListener("change", saveHud);
   }
+  if (hudExportLastToggle) {
+    hudExportLastToggle.addEventListener("change", saveHud);
+  }
   if (hudTesterLastOpen) {
     hudTesterLastOpen.addEventListener("click", function () {
       if (testerHudLastPlanId) openPlansOnCase(testerHudLastPlanId, "", "");
@@ -4960,6 +5063,11 @@
   }
   if (hudMgrPassOpen) {
     hudMgrPassOpen.addEventListener("click", function () {
+      openArea("reports");
+    });
+  }
+  if (hudExportLastOpen) {
+    hudExportLastOpen.addEventListener("click", function () {
       openArea("reports");
     });
   }
@@ -4982,6 +5090,7 @@
   loadManagerHud();
   loadReleaseHud();
   loadCoverageHud();
+  loadExportPackHud();
   applyAreaLayout(loadAreaLayout());
 
   if (hudLabConn) {
@@ -7358,6 +7467,11 @@
   if (rptExportRun) {
     rptExportRun.addEventListener("click", function () {
       exportChosenRun();
+    });
+  }
+  if (rptExportPack) {
+    rptExportPack.addEventListener("click", function () {
+      exportChosenPack();
     });
   }
   if (healRunFilter) {

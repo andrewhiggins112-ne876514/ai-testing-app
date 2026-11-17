@@ -203,7 +203,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Test-all **F6** — **KAN-213** Read-only export pack (test **KAN-214**). A–D + E1–E5 + F1–F5 + **KAN-260** Lab tools App menu shipped (**desk71** Keyboard). Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
+**Still open / next:** Test-all **F7** — **KAN-215** Home checklist widget (test **KAN-216**). A–D + E1–E5 + F1–F6 + **KAN-260** Lab tools App menu shipped (**desk72** export pack). Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -235,7 +235,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-JIRA-6 | Shipped (429 Retry-After backoff + readable auth/rate-limit errors) | **Done** **KAN-91** |
 | FR-REP-1 | Shipped (stories covered + bugs by story/area) | **Done** **KAN-67** |
 | FR-REP-2 | Shipped (placement → Report Settings under FR-SET-4) | **Done** KAN-51; UI move **Done** **KAN-247** / **KAN-249** |
-| FR-REP-3 | Baseline export Done; deepen E3 | **Done** KAN-11 baseline; **deepen E3** **KAN-197** (redact secrets in exports — Done desk63) |
+| FR-REP-3 | Baseline export Done; deepen E3 + F6 pack | **Done** KAN-11 baseline; **deepen E3** **KAN-197** (desk63); **F6** read-only pack **KAN-213** (desk72) |
 | FR-REP-4 | Reports area = library/viewer (not section editor) | **Done** — **KAN-247** (desk41) |
 | FR-SEC-1, FR-SEC-3 | Shipped isolation + confirm | **Done** KAN-15, **KAN-16** |
 | FR-SEC-5 | Baseline secrets scoping Done; deepen E3 | **Done** KAN-15/16 baseline; **deepen E3** **KAN-197** (evidence/export redaction — Done desk63) |
@@ -264,7 +264,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 |------|--------|-------|
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN**. Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
-| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; Active Build **KAN-213** F6; E1–E5 + F1–F5 + KAN-260 Done |
+| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; Active Build **KAN-215** F7; E1–E5 + F1–F6 + KAN-260 Done |
 | Nav IA — Reports data / menu / Settings hub | **Shipped** KAN-247…249 | Gradio + desktop compact menu |
 | Desktop compact App menu (match Gradio) | **Shipped** KAN-253 / **KAN-257** | Compact `▦`; Lab tools restored **KAN-260** |
 | Coverage gaps (C4) | **Shipped** KAN-163 (desk45) | No-case / all-disabled lists; filter; no auto-create |

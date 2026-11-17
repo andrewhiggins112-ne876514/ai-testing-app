@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk71" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk72" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -212,6 +212,12 @@
       <h4 class="hud-widget-title">AC missing</h4>
       <p id="hud-cov-missing-empty" class="hud-widget-body">No missing lines</p>
       <div id="hud-cov-missing-list" class="hud-row-list" role="list"></div>
+    </aside>
+
+    <aside id="hud-export-last" class="shell-surface hud-widget hud-export-last movable-widget" data-widget="hud-export-last" hidden aria-label="Last export pack HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Last export pack</h4>
+      <p id="hud-export-last-body" class="hud-widget-body">No pack yet</p>
+      <button type="button" id="hud-export-last-open" class="save-btn secondary hud-lab-btn" hidden>Open Reports</button>
     </aside>
 
     <div id="area-layer" class="area-layer" hidden>
@@ -481,7 +487,12 @@
           <div class="btn-row">
             <button type="button" id="rpt-run-refresh" class="save-btn secondary">Refresh runs</button>
             <button type="button" id="rpt-export-run" class="save-btn">Export chosen run</button>
+            <button type="button" id="rpt-export-pack" class="save-btn secondary">Export read-only pack</button>
           </div>
+          <p class="drawer-hint" id="rpt-export-pack-hint">
+            Read-only pack writes a local folder (report, matrix, evidence) labelled with security level and time.
+            Open README.md without this app. Secrets redacted (E3). Not a cloud shared drive.
+          </p>
           <p id="rpt-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-documents" class="app-section" hidden>
@@ -897,6 +908,8 @@
           <label class="check-row"><input type="checkbox" id="hud-cov-covered-toggle" /> Covered AC lines</label>
           <label class="check-row"><input type="checkbox" id="hud-cov-partial-toggle" /> Partial AC lines</label>
           <label class="check-row"><input type="checkbox" id="hud-cov-missing-toggle" /> Missing AC lines</label>
+          <h3 class="orb-section-label">Export pack</h3>
+          <label class="check-row"><input type="checkbox" id="hud-export-last-toggle" /> Last export pack time</label>
           <h3 class="orb-section-label">Keyboard</h3>
           <div id="keyboard-shortcuts-doc" class="drawer-hint" data-keyboard-shortcuts="1" role="note" aria-label="Keyboard shortcuts">
             <p><kbd>Alt</kbd>+<kbd>R</kbd> — Run selected case (Plans)</p>
@@ -911,6 +924,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk71"></script>
+  <script src="/ui/desktop/desktop.js?v=desk72"></script>
 </body>
 </html>

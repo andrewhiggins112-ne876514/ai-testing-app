@@ -99,6 +99,11 @@ from reports.exporter import (
     list_saved_reports,
     screenshot_path_for_report,
 )
+from reports.export_pack import (
+    create_export_pack,
+    export_pack_status,
+    last_export_pack,
+)
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.connection_health import connection_health
 from settings.credential_status import (
@@ -435,7 +440,24 @@ class PlanExportRunRequest(BaseModel):
     bugs: bool | None = None
     evidence: bool | None = None
     known_issues: bool | None = None
+    traceability: bool | None = None
+    documents: bool | None = None
     session_id: str = "plan-export"
+
+
+class ExportPackRequest(BaseModel):
+    """Read-only export pack for a plan case run (KAN-213 / F6)."""
+
+    plan_id: str = ""
+    case_id: str = ""
+    run_id: str = ""
+    summary: bool | None = None
+    stories: bool | None = None
+    bugs: bool | None = None
+    evidence: bool | None = None
+    known_issues: bool | None = None
+    traceability: bool | None = None
+    documents: bool | None = None
 
 
 def _orb_from_settings() -> dict:
@@ -583,6 +605,43 @@ async def get_local_audit_api(limit: int = 100):
 async def get_redaction_api():
     """Export/evidence redaction policy (KAN-197 / E3). Never echoes secrets."""
     return redaction_status()
+
+
+@app.get("/api/export-pack")
+async def get_export_pack_api():
+    """Read-only export pack status + last pack time (KAN-213 / F6). Local only."""
+    return export_pack_status()
+
+
+@app.get("/api/export-pack/last")
+async def get_export_pack_last_api():
+    """Last export pack summary for the home HUD widget (KAN-213)."""
+    return last_export_pack()
+
+
+@app.post("/api/export-pack")
+async def post_export_pack_api(req: ExportPackRequest):
+    """Write a read-only pack folder: report, matrix, evidence (KAN-213 / F6)."""
+    overrides = {
+        key: getattr(req, key)
+        for key in (
+            "summary",
+            "stories",
+            "bugs",
+            "evidence",
+            "known_issues",
+            "traceability",
+            "documents",
+        )
+        if getattr(req, key) is not None
+    }
+    sections = normalize_sections(overrides) if overrides else None
+    return create_export_pack(
+        (req.plan_id or "").strip(),
+        (req.case_id or "").strip(),
+        (req.run_id or "").strip(),
+        sections=sections,
+    )
 
 
 @app.get("/api/backup")
@@ -1411,7 +1470,15 @@ async def post_plan_run_export(
     """Export a chosen run using the Reports section picker (KAN-159 / FR-REP-2)."""
     overrides = {
         key: getattr(req, key)
-        for key in ("summary", "stories", "bugs", "evidence", "known_issues")
+        for key in (
+            "summary",
+            "stories",
+            "bugs",
+            "evidence",
+            "known_issues",
+            "traceability",
+            "documents",
+        )
         if getattr(req, key) is not None
     }
     sections = normalize_sections(overrides) if overrides else None
@@ -1421,6 +1488,36 @@ async def post_plan_run_export(
         run_id,
         sections=sections,
         session_id=req.session_id or "plan-export",
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/runs/{run_id}/export-pack")
+async def post_plan_run_export_pack(
+    plan_id: str,
+    case_id: str,
+    run_id: str,
+    req: PlanExportRunRequest = PlanExportRunRequest(),
+):
+    """Write a read-only pack folder for a chosen run (KAN-213 / F6 / FR-REP-3)."""
+    overrides = {
+        key: getattr(req, key)
+        for key in (
+            "summary",
+            "stories",
+            "bugs",
+            "evidence",
+            "known_issues",
+            "traceability",
+            "documents",
+        )
+        if getattr(req, key) is not None
+    }
+    sections = normalize_sections(overrides) if overrides else None
+    return create_export_pack(
+        plan_id,
+        case_id,
+        run_id,
+        sections=sections,
     )
 
 

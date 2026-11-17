@@ -1174,6 +1174,13 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   min-height: 110px;
 }
 
+.hud-export-last {
+  left: 520px;
+  top: 400px;
+  width: 220px;
+  min-height: 96px;
+}
+
 .hud-row-list {
   display: flex;
   flex-direction: column;
