@@ -151,6 +151,7 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
         "note": str(raw.get("note") or "")[:2000],
+        "tester_note": str(raw.get("tester_note") or "")[:2000],
         "known_issue": _normalize_known_issue_field(raw.get("known_issue")),
     }
 
@@ -759,6 +760,105 @@ def set_known_issue_link(
             else "Known issue linked. Run stays red underneath and is labelled known. "
             "Nothing was transitioned in Jira."
         ),
+    }
+
+
+def set_plan_notes(
+    plan_id: str,
+    case_id: str,
+    *,
+    case_note: str | None = None,
+    run_note: str | None = None,
+    run_id: str | None = None,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Set local exploratory notes on a case and/or a run (KAN-155 / B7).
+
+    Case note → ``case.note``. Run note → ``run.tester_note`` (does not overwrite
+    system/error ``run.note``). Level-scoped with the plan. No session recorder.
+    """
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    cid = (case_id or "").strip()
+    rid = (run_id or "").strip() or None
+
+    if case_note is None and run_note is None:
+        return {
+            "status": "error",
+            "error": "notes_empty",
+            "message": "Provide case_note and/or run_note.",
+            "security_level": lvl,
+        }
+
+    want_run_note = run_note is not None
+    run_note_text = str(run_note)[:2000] if want_run_note else ""
+
+    cases = list((plan.get("suite") or {}).get("cases") or [])
+    target_case: Optional[dict[str, Any]] = None
+    target_run: Optional[dict[str, Any]] = None
+    for case in cases:
+        if case.get("id") != cid:
+            continue
+        target_case = case
+        if rid:
+            for run in case.get("runs") or []:
+                if run.get("id") == rid:
+                    target_run = run
+                    break
+        elif want_run_note:
+            runs = case.get("runs") or []
+            if runs:
+                target_run = runs[-1]
+                rid = str(target_run.get("id") or "") or None
+        break
+
+    if target_case is None:
+        return {
+            "status": "error",
+            "error": "case_not_found",
+            "message": f"Case {cid!r} was not found on plan {plan_id!r}.",
+            "security_level": lvl,
+        }
+    if want_run_note and target_run is None:
+        # Allow case-only save when UI sends empty run_note with no runs yet.
+        if rid or run_note_text.strip():
+            return {
+                "status": "error",
+                "error": "run_not_found",
+                "message": (
+                    f"Run {rid!r} on case {cid!r} was not found."
+                    if rid
+                    else f"Case {cid!r} has no runs to attach a run note."
+                ),
+                "security_level": lvl,
+            }
+        want_run_note = False
+
+    now = _utcnow()
+    if case_note is not None:
+        target_case["note"] = str(case_note)[:2000]
+    if want_run_note and target_run is not None:
+        target_run["tester_note"] = run_note_text
+
+    target_case["updated_at"] = now
+    plan["suite"] = {"cases": cases}
+    plan["updated_at"] = now
+    _write_plan(plan, level=lvl)
+    return {
+        "status": "ok",
+        "security_level": lvl,
+        "plan": plan,
+        "case": target_case,
+        "run": target_run,
+        "case_note": target_case.get("note") or "",
+        "tester_note": (target_run.get("tester_note") if target_run else "") or "",
+        "run_id": rid,
+        "message": "Notes saved locally (level-scoped with the plan).",
     }
 
 

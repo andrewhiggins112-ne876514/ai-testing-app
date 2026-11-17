@@ -78,8 +78,8 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**Test-all B7** — next story after B6 (**KAN-155** notes on case/run). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.  
-**Shipped:** A1–A9 as before; **B1–B5** as before; **B6 KAN-153** known issues/exclusions (`plans/known_issue.py`, report `known_issues`, desk38).
+**Test-all C1** — next story after B7 (**KAN-157** same plan in Gradio). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.  
+**Shipped:** A1–A9 as before; **B1–B6** as before; **B7 KAN-155** notes on case/run (`plans/notes.py`, evidence notes, desk39).
 
 **Council CR (2026-11-16):** Test-all vision locked; 48-story catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
 

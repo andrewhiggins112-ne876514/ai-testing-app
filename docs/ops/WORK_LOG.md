@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-155** — Test-all B7 — Notes on a case and on a run |
-| **Start task** | **KAN-156** (`test`, Relates → KAN-155) |
-| **Epic** | **KAN-118** — Test-all B — Failures and evidence |
-| **Roadmap ID** | TESTALL-B / FR-PLAN-4 |
+| **Jira story** | **KAN-157** — Test-all C1 — Same plan in Gradio |
+| **Start task** | **KAN-158** (`test`, Relates → KAN-157) |
+| **Epic** | **KAN-119** — Test-all C — Plan the whole project |
+| **Roadmap ID** | TESTALL-C / FR-UI-2 + FR-PLAN-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-156** |
-| **Shipped** | … **KAN-143** B1; **KAN-145** B2; **KAN-147** B3; **KAN-149** B4; **KAN-151** B5; **KAN-153** B6 |
+| **Test ticket** | **KAN-158** |
+| **Shipped** | … **KAN-143** B1; **KAN-145** B2; **KAN-147** B3; **KAN-149** B4; **KAN-151** B5; **KAN-153** B6; **KAN-155** B7 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-155 — B7 notes on a case and on a run
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-155
+- **Done:** Local exploratory notes on a case (`case.note`) and on a run (`run.tester_note`, preserves system/error `run.note`). `POST /api/plans/…/notes` + Plans desk39 Case/Run note fields + Save notes. Notes appear under Evidence in report export when that section is on. Level-scoped with the plan.
+- **Files:** `plans/notes.py`, `plans/store.py`, `plans/run_case.py`, `plans/__init__.py`, `reports/sections.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_plan_run_case.py`, `tests/test_report_sections.py`
+- **Verify:** `pytest tests/test_plan_run_case.py tests/test_report_sections.py -v` (26 passed). Live desk39 HTML has `plan-notes-save` + `plan-run-note`.
+- **Jira:** close-out **KAN-155** + **KAN-156**
+- **Next:** **KAN-157** C1 same plan in Gradio
 
 ### 2026-11-16 — KAN-153 — B6 known issues and exclusions
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-153

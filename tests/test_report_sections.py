@@ -231,6 +231,56 @@ class ReportSectionsTests(unittest.TestCase):
         self.assertNotIn("## Bugs", text)
         self.assertNotIn("By story:", text)
 
+    def test_evidence_includes_notes_when_section_on(self):
+        """KAN-155 / B7: notes appear in export when evidence section is on."""
+        result = {
+            "status": "fail",
+            "title": "With notes",
+            "screenshot": "C:/shot.png",
+            "case_note": "Explorer saw blank panel",
+            "tester_note": "Reproduced on second click",
+            "case_name": "Panel open",
+            "run_id": "r1",
+            "steps": [],
+        }
+        on = build_sections(
+            result,
+            "",
+            normalize_sections(
+                {
+                    "evidence": True,
+                    "summary": False,
+                    "stories": False,
+                    "bugs": False,
+                    "known_issues": False,
+                }
+            ),
+        )
+        self.assertEqual(set(on), {"evidence"})
+        notes = on["evidence"].get("notes") or []
+        texts = [n.get("text") for n in notes if isinstance(n, dict)]
+        self.assertIn("Explorer saw blank panel", texts)
+        self.assertIn("Reproduced on second click", texts)
+        md = render_markdown(on)
+        self.assertIn("## Evidence", md)
+        self.assertIn("Notes:", md)
+        self.assertIn("Explorer saw blank panel", md)
+        off = build_sections(
+            result,
+            "",
+            normalize_sections(
+                {
+                    "evidence": False,
+                    "summary": True,
+                    "stories": False,
+                    "bugs": False,
+                    "known_issues": False,
+                }
+            ),
+        )
+        self.assertNotIn("evidence", off)
+        self.assertNotIn("Explorer saw blank panel", render_markdown(off))
+
     def test_known_issues_section_include_exclude(self):
         result = {
             "status": "fail",

@@ -268,6 +268,8 @@ def build_sections(
             "counts_by_area": _counts_map(by_area),
         }
     if flags["evidence"]:
+        from plans.notes import notes_from_result
+
         links = []
         shot = body.get("screenshot")
         if shot:
@@ -279,9 +281,11 @@ def build_sections(
                     links.append(dict(item))
                 elif isinstance(item, str) and item.strip():
                     links.append({"kind": "link", "path": item.strip()})
+        note_items = notes_from_result(body)
         sections["evidence"] = {
             "screenshot": shot,
             "links": links,
+            "notes": note_items,
         }
     if flags.get("known_issues"):
         from plans.known_issue import known_issues_from_result
@@ -407,6 +411,25 @@ def render_markdown(sections: Mapping[str, Any]) -> str:
         for link in sections["evidence"].get("links") or []:
             if isinstance(link, Mapping) and link.get("kind") != "screenshot":
                 lines.append(f"- {link.get('kind', 'link')}: {link.get('path', '')}")
+        notes = sections["evidence"].get("notes") or []
+        if notes:
+            lines.append("")
+            lines.append("Notes:")
+            for item in notes:
+                if not isinstance(item, Mapping):
+                    continue
+                text = item.get("text") or ""
+                if not text:
+                    continue
+                scope = item.get("scope") or "note"
+                name = item.get("case_name") or item.get("case_id") or ""
+                rid = item.get("run_id") or ""
+                label = f"{scope}"
+                if name:
+                    label += f" · {name}"
+                if rid:
+                    label += f" · run {rid}"
+                lines.append(f"- {label}: {text}")
         lines.append("")
 
     if "known_issues" in sections and isinstance(sections["known_issues"], Mapping):

@@ -378,14 +378,59 @@ class PlanRunCaseTests(unittest.TestCase):
         ).json()
         self.assertFalse(saved.get("known_issues"))
 
-    def test_desktop_cache_bust_desk38(self):
+    def test_plan_notes_case_and_run_level_scoped(self):
+        from plans.store import set_plan_notes
+
+        created = create_plan("Notes")
+        pid = created["plan"]["id"]
+        cid = add_case(pid, "Explore")["case"]["id"]
+        rid = add_run(pid, cid, result="fail", note="system error")["run"]["id"]
+        out = set_plan_notes(
+            pid,
+            cid,
+            case_note="Saw flicker on load",
+            run_note="Retried twice; still red",
+            run_id=rid,
+        )
+        self.assertEqual(out.get("status"), "ok")
+        self.assertEqual(out.get("case_note"), "Saw flicker on load")
+        self.assertEqual(out.get("tester_note"), "Retried twice; still red")
+        run = out.get("run") or {}
+        self.assertEqual(run.get("note"), "system error")
+        self.assertEqual(run.get("tester_note"), "Retried twice; still red")
+        plan = get_plan(pid)["plan"]
+        detail = case_detail(plan, cid)
+        self.assertEqual(detail.get("note"), "Saw flicker on load")
+        self.assertEqual(detail.get("tester_note"), "Retried twice; still red")
+
+    def test_api_plan_notes(self):
+        client = TestClient(main.app)
+        created = create_plan("NotesAPI")
+        pid = created["plan"]["id"]
+        cid = add_case(pid, "Y")["case"]["id"]
+        rid = add_run(pid, cid, result="pass")["run"]["id"]
+        res = client.post(
+            f"/api/plans/{pid}/cases/{cid}/notes",
+            json={
+                "case_note": "case ok",
+                "run_note": "run ok",
+                "run_id": rid,
+            },
+        )
+        body = res.json()
+        self.assertEqual(body.get("status"), "ok")
+        self.assertEqual(body.get("case_note"), "case ok")
+        self.assertEqual(body.get("tester_note"), "run ok")
+
+    def test_desktop_cache_bust_desk39(self):
         root = os.path.dirname(os.path.dirname(__file__))
         html = open(os.path.join(root, "ui", "desktop", "index.html"), encoding="utf-8").read()
         desk = open(os.path.join(root, "desktop_app.py"), encoding="utf-8").read()
-        self.assertIn("desk38", desk)
+        self.assertIn("desk39", desk)
+        self.assertIn("plan-notes-save", html)
+        self.assertIn("plan-run-note", html)
         self.assertIn("plan-known-save", html)
         self.assertIn("rpt-known-issues", html)
-        self.assertIn("plan-rerun-failed", html)
 
 
 if __name__ == "__main__":

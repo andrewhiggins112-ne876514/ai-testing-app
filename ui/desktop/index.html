@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk38" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk39" />
 </head>
 <body>
   <div id="app">
@@ -361,9 +361,15 @@
           <label class="stack-label">Rename
             <input type="text" id="plan-case-name" placeholder="Case name" autocomplete="off" />
           </label>
-          <label class="stack-label">Note
-            <input type="text" id="plan-case-note" placeholder="Tester note" autocomplete="off" />
+          <label class="stack-label">Case note
+            <input type="text" id="plan-case-note" placeholder="Exploratory note on this case" autocomplete="off" />
           </label>
+          <label class="stack-label">Run note (last / selected run)
+            <input type="text" id="plan-run-note" placeholder="Exploratory note on the run" autocomplete="off" />
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-notes-save" class="save-btn secondary">Save notes</button>
+          </div>
           <label class="stack-label"><input type="checkbox" id="plan-case-enabled" checked /> Enabled (disabled cases are skipped by later runs)</label>
           <div class="btn-row">
             <button type="button" id="plan-case-save" class="save-btn">Save case edits</button>
@@ -508,6 +514,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk38"></script>
+  <script src="/ui/desktop/desktop.js?v=desk39"></script>
 </body>
 </html>

@@ -1269,6 +1269,8 @@
   const planCaseId = document.getElementById("plan-case-id");
   const planCaseName = document.getElementById("plan-case-name");
   const planCaseNote = document.getElementById("plan-case-note");
+  const planRunNote = document.getElementById("plan-run-note");
+  const planNotesSave = document.getElementById("plan-notes-save");
   const planCaseEnabled = document.getElementById("plan-case-enabled");
   const planCaseSave = document.getElementById("plan-case-save");
   const planCaseUp = document.getElementById("plan-case-up");
@@ -1659,6 +1661,8 @@
         "Jira: " + (payload.jira_key || "—"),
         "Source: " + (payload.source_kind || "manual-draft") + " — " + (payload.source_ref || "—"),
         payload.manual_draft ? "Marked manual-draft (no Jira/doc source)" : "",
+        payload.note ? "Case note: " + payload.note : "",
+        payload.tester_note ? "Run note: " + payload.tester_note : "",
         payload.known_label ? "Label: known (not a new regression)" : "",
         ki.note ? "Known note: " + ki.note : "",
         ki.jira_key ? "Known Jira: " + ki.jira_key : "",
@@ -1666,6 +1670,8 @@
       ].filter(Boolean);
       planCaseDetail.hidden = false;
       planCaseDetail.textContent = lines.join("\n");
+      if (planCaseNote && payload.note != null) planCaseNote.value = payload.note || "";
+      if (planRunNote) planRunNote.value = payload.tester_note || "";
       if (planKnownNote) planKnownNote.value = ki.note || "";
       if (planKnownJira) planKnownJira.value = ki.jira_key || "";
       if (payload.last_run && payload.last_run.id) {
@@ -2812,6 +2818,54 @@
         if (planStatus) planStatus.textContent = "Case saved locally.";
       } catch (err) {
         if (planStatus) planStatus.textContent = "Case save request failed.";
+      }
+    });
+  }
+
+  if (planNotesSave) {
+    planNotesSave.addEventListener("click", async function () {
+      if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
+        if (planStatus) planStatus.textContent = "Pick a case id first.";
+        return;
+      }
+      if (planStatus) planStatus.textContent = "Saving notes…";
+      try {
+        const body = {
+          case_note: planCaseNote ? planCaseNote.value : "",
+        };
+        if (lastCaseRunId) {
+          body.run_id = lastCaseRunId;
+          body.run_note = planRunNote ? planRunNote.value : "";
+        } else if (planRunNote && planRunNote.value.trim()) {
+          body.run_note = planRunNote.value;
+        }
+        const res = await fetch(
+          "/api/plans/" +
+            encodeURIComponent(openPlanId) +
+            "/cases/" +
+            encodeURIComponent(planCaseId.value.trim()) +
+            "/notes",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          }
+        );
+        const payload = await res.json();
+        if (payload.status !== "ok") {
+          if (planStatus) {
+            planStatus.textContent = payload.message || "Notes save failed.";
+          }
+          return;
+        }
+        if (payload.plan) renderPlanCases(payload.plan);
+        await refreshCaseDetail();
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message || "Notes saved locally (level-scoped).";
+        }
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Notes save request failed.";
       }
     });
   }

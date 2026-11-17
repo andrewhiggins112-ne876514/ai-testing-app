@@ -54,6 +54,7 @@ from plans.store import (
     list_plans,
     reorder_cases as plan_reorder_cases,
     set_known_issue_link as plan_set_known_issue_link,
+    set_plan_notes as plan_set_plan_notes,
     set_run_failure_class as plan_set_run_failure_class,
     update_case as plan_update_case,
 )
@@ -263,6 +264,14 @@ class PlanKnownIssueRequest(BaseModel):
     jira_key: str = ""
     run_id: str = ""
     clear: bool = False
+
+
+class PlanNotesRequest(BaseModel):
+    """Local exploratory notes on a case and/or run (KAN-155). Level-scoped."""
+
+    case_note: str | None = None
+    run_note: str | None = None
+    run_id: str = ""
 
 
 class PlanCaseRunRequest(BaseModel):
@@ -810,6 +819,22 @@ async def post_plan_case_known_issue(
         jira_key=req.jira_key,
         run_id=req.run_id or None,
         clear=bool(req.clear),
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/notes")
+async def post_plan_case_notes(
+    plan_id: str,
+    case_id: str,
+    req: PlanNotesRequest,
+):
+    """Save local exploratory notes on a case and/or run (KAN-155). Level-scoped."""
+    return plan_set_plan_notes(
+        plan_id,
+        case_id,
+        case_note=req.case_note,
+        run_note=req.run_note,
+        run_id=req.run_id or None,
     )
 
 
