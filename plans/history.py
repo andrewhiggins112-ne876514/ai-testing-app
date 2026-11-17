@@ -188,11 +188,13 @@ def summarize_suite_run(
         parallel_count = int(suite_run.get("parallel_count") or 1)
     except (TypeError, ValueError):
         parallel_count = 1
+    env_name = str(suite_run.get("environment_name") or "").strip()[:40] or None
     return {
         "id": str(suite_run.get("id") or ""),
         "mode": str(suite_run.get("mode") or "suite"),
         "tag": suite_run.get("tag"),
         "parallel_count": max(1, parallel_count),
+        "environment_name": env_name,
         "started_at": suite_run.get("started_at"),
         "finished_at": suite_run.get("finished_at"),
         "duration_ms": duration_ms,

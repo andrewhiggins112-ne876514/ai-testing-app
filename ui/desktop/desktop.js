@@ -1403,6 +1403,10 @@
   const planCaseUp = document.getElementById("plan-case-up");
   const planCaseDown = document.getElementById("plan-case-down");
   const planParallelCount = document.getElementById("plan-parallel-count");
+  const planEnvActive = document.getElementById("plan-env-active");
+  const planEnvActivate = document.getElementById("plan-env-activate");
+  const planEnvRefresh = document.getElementById("plan-env-refresh");
+  const planEnvStatus = document.getElementById("plan-env-status");
   const planRunTag = document.getElementById("plan-run-tag");
   const planRunByTag = document.getElementById("plan-run-by-tag");
   const planRunTagSmoke = document.getElementById("plan-run-tag-smoke");
@@ -1438,6 +1442,12 @@
   const setTargetUrl = document.getElementById("set-target-url");
   const setTargetExe = document.getElementById("set-target-exe");
   const setApiEndpoint = document.getElementById("set-api-endpoint");
+  const setEnvActive = document.getElementById("set-env-active");
+  const setEnvName = document.getElementById("set-env-name");
+  const setEnvSave = document.getElementById("set-env-save");
+  const setEnvActivate = document.getElementById("set-env-activate");
+  const setEnvDelete = document.getElementById("set-env-delete");
+  const envStatus = document.getElementById("env-status");
   const setTestFramework = document.getElementById("set-test-framework");
   const setPlaywrightMode = document.getElementById("set-playwright-mode");
   const setStorePath = document.getElementById("set-store-path");
@@ -1765,6 +1775,79 @@
     }
   }
 
+  function fillEnvironmentSelect(selectEl, payload) {
+    if (!selectEl) return;
+    const envs = payload.environments || payload.named_environments || [];
+    const activeId = payload.active_environment_id || "";
+    const previous = selectEl.value;
+    selectEl.innerHTML = "";
+    if (!envs.length) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "(none yet)";
+      selectEl.appendChild(opt);
+      return;
+    }
+    envs.forEach(function (env) {
+      const opt = document.createElement("option");
+      opt.value = env.id || "";
+      const label = (env.name || env.id || "env") +
+        (env.target_url ? " — " + env.target_url : "");
+      opt.textContent = label;
+      selectEl.appendChild(opt);
+    });
+    const prefer = activeId || previous;
+    if (prefer) {
+      selectEl.value = prefer;
+    }
+  }
+
+  function applyEnvironments(payload) {
+    if (!payload) return;
+    fillEnvironmentSelect(setEnvActive, payload);
+    fillEnvironmentSelect(planEnvActive, payload);
+    const activeName =
+      payload.active_environment_name ||
+      (payload.environment && payload.environment.name) ||
+      "—";
+    const level = payload.security_level || "—";
+    const count = (payload.environments || payload.named_environments || []).length;
+    const line =
+      "Active: " +
+      activeName +
+      " · " +
+      count +
+      " named · level " +
+      level +
+      " (unchanged on switch)";
+    if (envStatus) envStatus.textContent = line;
+    if (planEnvStatus) planEnvStatus.textContent = "Environment: " + activeName;
+    const active = (payload.environments || payload.named_environments || []).find(
+      function (e) {
+        return e.id === payload.active_environment_id;
+      }
+    );
+    if (active) {
+      if (setEnvName) setEnvName.value = active.name || "";
+      if (setTargetUrl) setTargetUrl.value = active.target_url || "";
+      if (setTargetExe) setTargetExe.value = active.target_app_path || "";
+      if (setApiEndpoint) setApiEndpoint.value = active.api_endpoint || "";
+    }
+  }
+
+  async function loadEnvironments() {
+    try {
+      const res = await fetch("/api/environments");
+      const payload = await res.json();
+      applyEnvironments(payload);
+      return payload;
+    } catch (err) {
+      if (envStatus) envStatus.textContent = "Could not load environments.";
+      if (planEnvStatus) planEnvStatus.textContent = "Environment: unavailable";
+      return null;
+    }
+  }
+
   function applyAppSettings(payload) {
     if (!payload) return;
     if (setJiraUrl) {
@@ -1787,13 +1870,23 @@
       }
       setOllamaModel.value = wanted;
     }
-    if (setTargetUrl) {
+    applyEnvironments(payload);
+    if (setTargetUrl && !(payload.named_environments || []).length) {
       setTargetUrl.value = payload.target_url || "";
     }
-    if (setTargetExe) {
+    if (setTargetExe && !(payload.named_environments || []).length) {
       setTargetExe.value = payload.target_app_path || "";
     }
-    if (setApiEndpoint) {
+    if (setApiEndpoint && !(payload.named_environments || []).length) {
+      setApiEndpoint.value = payload.api_endpoint || "";
+    }
+    if (setTargetUrl && payload.target_url && !setTargetUrl.value) {
+      setTargetUrl.value = payload.target_url || "";
+    }
+    if (setTargetExe && payload.target_app_path && !setTargetExe.value) {
+      setTargetExe.value = payload.target_app_path || "";
+    }
+    if (setApiEndpoint && payload.api_endpoint && !setApiEndpoint.value) {
       setApiEndpoint.value = payload.api_endpoint || "";
     }
     if (setTestFramework) {
@@ -3836,6 +3929,149 @@
       } catch (err) {
         if (setStatus) setStatus.textContent = "Could not save app settings.";
       }
+    });
+  }
+
+  if (setEnvSave) {
+    setEnvSave.addEventListener("click", async function () {
+      if (envStatus) envStatus.textContent = "Saving environment…";
+      try {
+        const selectedId =
+          setEnvActive && setEnvActive.value ? setEnvActive.value : "";
+        const nameVal =
+          setEnvName && setEnvName.value ? setEnvName.value.trim() : "";
+        const selectedLabel =
+          setEnvActive && setEnvActive.selectedOptions && setEnvActive.selectedOptions[0]
+            ? String(setEnvActive.selectedOptions[0].textContent || "")
+                .split(" — ")[0]
+                .trim()
+            : "";
+        // Same name as selected → update; otherwise create a new named target.
+        const envId =
+          selectedId && selectedLabel.toLowerCase() === nameVal.toLowerCase()
+            ? selectedId
+            : null;
+        const res = await fetch("/api/environments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: nameVal,
+            target_url:
+              setTargetUrl && setTargetUrl.value ? setTargetUrl.value.trim() : "",
+            target_app_path:
+              setTargetExe && setTargetExe.value ? setTargetExe.value.trim() : "",
+            api_endpoint:
+              setApiEndpoint && setApiEndpoint.value
+                ? setApiEndpoint.value.trim()
+                : "",
+            env_id: envId,
+            activate: true,
+          }),
+        });
+        const payload = await res.json();
+        applyEnvironments(payload);
+        await loadAppSettings();
+        if (envStatus) {
+          envStatus.textContent =
+            payload.message ||
+            (payload.status === "ok" ? "Environment saved." : "Save failed.");
+        }
+      } catch (err) {
+        if (envStatus) envStatus.textContent = "Could not save environment.";
+      }
+    });
+  }
+
+  async function activateSelectedEnvironment(selectEl, statusEl) {
+    const envId = selectEl && selectEl.value ? selectEl.value : "";
+    if (!envId) {
+      if (statusEl) statusEl.textContent = "Pick an environment first.";
+      return;
+    }
+    if (statusEl) statusEl.textContent = "Activating…";
+    try {
+      const res = await fetch("/api/environments/activate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ env_id: envId }),
+      });
+      const payload = await res.json();
+      applyEnvironments(payload);
+      await loadAppSettings();
+      if (statusEl) {
+        statusEl.textContent =
+          payload.message ||
+          (payload.status === "ok" ? "Activated." : "Activate failed.");
+      }
+    } catch (err) {
+      if (statusEl) statusEl.textContent = "Could not activate environment.";
+    }
+  }
+
+  if (setEnvActivate) {
+    setEnvActivate.addEventListener("click", function () {
+      activateSelectedEnvironment(setEnvActive, envStatus);
+    });
+  }
+
+  if (planEnvActivate) {
+    planEnvActivate.addEventListener("click", function () {
+      activateSelectedEnvironment(planEnvActive, planEnvStatus);
+    });
+  }
+
+  if (planEnvRefresh) {
+    planEnvRefresh.addEventListener("click", function () {
+      loadEnvironments();
+    });
+  }
+
+  if (setEnvDelete) {
+    setEnvDelete.addEventListener("click", async function () {
+      const envId = setEnvActive && setEnvActive.value ? setEnvActive.value : "";
+      if (!envId) {
+        if (envStatus) envStatus.textContent = "Pick an environment to delete.";
+        return;
+      }
+      if (envStatus) envStatus.textContent = "Deleting…";
+      try {
+        const res = await fetch(
+          "/api/environments/" + encodeURIComponent(envId) + "/delete",
+          { method: "POST" }
+        );
+        const payload = await res.json();
+        applyEnvironments(payload);
+        await loadAppSettings();
+        if (envStatus) {
+          envStatus.textContent =
+            payload.message ||
+            (payload.status === "ok" ? "Deleted." : "Delete failed.");
+        }
+      } catch (err) {
+        if (envStatus) envStatus.textContent = "Could not delete environment.";
+      }
+    });
+  }
+
+  if (setEnvActive) {
+    setEnvActive.addEventListener("change", function () {
+      const id = setEnvActive.value;
+      const opts = setEnvActive.options || [];
+      // Prefill name/url fields from the selected option's sibling data via reload.
+      loadEnvironments().then(function (payload) {
+        if (!payload) return;
+        const envs = payload.environments || [];
+        const match = envs.find(function (e) {
+          return e.id === id;
+        });
+        if (!match) return;
+        if (setEnvName) setEnvName.value = match.name || "";
+        if (setTargetUrl) setTargetUrl.value = match.target_url || "";
+        if (setTargetExe) setTargetExe.value = match.target_app_path || "";
+        if (setApiEndpoint) setApiEndpoint.value = match.api_endpoint || "";
+        if (setEnvActive) setEnvActive.value = id;
+        void opts;
+      });
     });
   }
 

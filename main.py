@@ -92,6 +92,12 @@ from reports.exporter import (
 )
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.connection_health import connection_health
+from settings.environments import (
+    activate_environment,
+    delete_environment,
+    list_environments,
+    upsert_environment,
+)
 from settings.ollama_models import list_ollama_models
 from settings.privacy import delete_local_data, privacy_status, telemetry_enabled
 from settings.store import (
@@ -178,6 +184,21 @@ class AppSettingsRequest(BaseModel):
     playwright_mode: str | None = None
     playwright_headless: bool | None = None
     ollama_model: str | None = None
+
+
+class NamedEnvironmentRequest(BaseModel):
+    """Create/update a named target under the active security level (KAN-183 / D3)."""
+
+    name: str = ""
+    target_url: str = ""
+    target_app_path: str = ""
+    api_endpoint: str = ""
+    env_id: str | None = None
+    activate: bool = False
+
+
+class ActivateEnvironmentRequest(BaseModel):
+    env_id: str = ""
 
 
 class TestFrameworkRequest(BaseModel):
@@ -535,6 +556,37 @@ async def get_ollama_models_api():
 async def get_connection_health_api():
     """Connect-once health: Jira, Ollama, target — no secrets (KAN-127 / FR-CONN-1)."""
     return connection_health()
+
+
+@app.get("/api/environments")
+async def get_environments_api():
+    """Named targets under the active security level (KAN-183 / D3)."""
+    return list_environments()
+
+
+@app.post("/api/environments")
+async def post_environments_api(req: NamedEnvironmentRequest):
+    """Create or update a named target. Credentials stay in the level store."""
+    return upsert_environment(
+        name=req.name,
+        target_url=req.target_url,
+        target_app_path=req.target_app_path,
+        api_endpoint=req.api_endpoint,
+        env_id=req.env_id,
+        activate=bool(req.activate),
+    )
+
+
+@app.post("/api/environments/activate")
+async def post_environments_activate_api(req: ActivateEnvironmentRequest):
+    """Switch active named target without changing security level."""
+    return activate_environment(req.env_id)
+
+
+@app.post("/api/environments/{env_id}/delete")
+async def post_environments_delete_api(env_id: str):
+    """Remove a named target. Does not echo or move secrets into plans."""
+    return delete_environment(env_id)
 
 
 @app.get("/api/test-framework")

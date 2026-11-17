@@ -220,7 +220,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-TEST-3 | Done (smoke + structured steps) | **Done** KAN-47 smoke; **KAN-87** steps (`wait_window`/`type_text`/…) |
 | FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
 | FR-TEST-5 | Shipped baseline import/run; in-suite import deepen | **Done** **KAN-59**; Test-all **C8** **KAN-171** |
-| FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; D3/D4 later |
+| FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; **D3** named envs **KAN-183**; D4 later |
 | FR-PLAN-1…2 | Partial (A1+A5+A6+C11) | **KAN-125** store + **KAN-133** edit/disable/reorder + **KAN-135** starter/empty home + **KAN-177** archive; run UI A7 |
 | FR-PLAN-3…4 | Partial (A4+C3–C10) | **KAN-131** one story; **KAN-161** project-wide draft; **KAN-163** coverage gaps; **KAN-165** AC drift; **KAN-167** C6 matrix; **KAN-169** C7 tags; **KAN-171** C8 import; **KAN-173** C9 search; **KAN-175** C10 history; **KAN-177** C11 archive Done |
 | FR-CI-1 | Future (design) | Test-all **H2** |

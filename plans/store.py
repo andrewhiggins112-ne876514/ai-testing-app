@@ -173,6 +173,8 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
     suite_run_id = str(raw.get("suite_run_id") or "").strip()
     if suite_run_id and not _ID_SAFE.match(suite_run_id):
         suite_run_id = ""
+    # D3: environment name only — never credentials (KAN-183).
+    env_name = str(raw.get("environment_name") or "").strip()[:40] or None
     return {
         "id": rid,
         "result": result,
@@ -180,6 +182,7 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
         "failure_class": failure_class,
         "evidence": evidence,
         "suite_run_id": suite_run_id or None,
+        "environment_name": env_name,
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
         "note": str(raw.get("note") or "")[:2000],
@@ -222,11 +225,14 @@ def _normalize_suite_run(raw: Any) -> Optional[dict[str, Any]]:
         parallel_count = 1
     if parallel_count < 1:
         parallel_count = 1
+    # D3: named environment used for this suite run (name only).
+    env_name = str(raw.get("environment_name") or "").strip()[:40] or None
     return {
         "id": sid,
         "mode": mode,
         "tag": tag,
         "parallel_count": parallel_count,
+        "environment_name": env_name,
         "source_suite_run_id": source,
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
@@ -542,9 +548,11 @@ def add_run(
     finished_at: str | None = None,
     suite_run_id: str | None = None,
     run_id: str | None = None,
+    environment_name: str | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
     """Attach a run record to a case (execution itself is later stories)."""
+    from settings.environments import active_environment_name
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
@@ -570,6 +578,7 @@ def add_run(
     rid = (run_id or "").strip()
     if rid and not _ID_SAFE.match(rid):
         rid = ""
+    env_label = (environment_name if environment_name is not None else active_environment_name())
     run = _normalize_run(
         {
             "id": rid or _new_id("r"),
@@ -578,6 +587,7 @@ def add_run(
             "failure_class": failure_class,
             "evidence": evidence or [],
             "suite_run_id": suite_run_id,
+            "environment_name": env_label,
             "started_at": started_at or now,
             "finished_at": finished_at or now,
             "note": note,
@@ -605,10 +615,12 @@ def start_suite_run(
     source_suite_run_id: str | None = None,
     tag: str | None = None,
     parallel_count: int = 1,
+    environment_name: str | None = None,
     skipped: list[dict[str, str]] | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
-    """Create a suite-level run id linked to this plan (KAN-151 / KAN-169 / KAN-179)."""
+    """Create a suite-level run id linked to this plan (KAN-151 / KAN-169 / KAN-179 / KAN-183)."""
+    from settings.environments import active_environment_name
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
@@ -623,12 +635,16 @@ def start_suite_run(
         pcount = 1
     if pcount < 1:
         pcount = 1
+    env_label = (
+        environment_name if environment_name is not None else active_environment_name()
+    )
     suite_run = _normalize_suite_run(
         {
             "id": _new_id("sr"),
             "mode": mode,
             "tag": (str(tag or "").strip().lower()[:40] or None),
             "parallel_count": pcount,
+            "environment_name": env_label,
             "source_suite_run_id": source_suite_run_id,
             "started_at": now,
             "finished_at": None,

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk55" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk56" />
 </head>
 <body>
   <div id="app">
@@ -160,6 +160,20 @@
             <h4 class="orb-section-label">Connect-once checklist</h4>
             <p class="drawer-hint">Save connection keys, then check whether Jira, Ollama, and the target URL are reachable. Security level switches still require confirm in Security.</p>
             <p id="conn-level" class="drawer-hint">Security level: —</p>
+            <h4 class="orb-section-label">Named environments</h4>
+            <p class="drawer-hint" id="env-hint">Store more than one named target (local / test / staging) under the active security level. Switching environment does not change security level. Credentials stay in the level store — never copied into a plan. Runs record the environment name used.</p>
+            <label class="stack-label">Active environment
+              <select id="set-env-active" aria-describedby="env-hint">
+                <option value="">(none yet)</option>
+              </select>
+            </label>
+            <div class="btn-row">
+              <button type="button" id="set-env-activate" class="save-btn secondary">Activate selected</button>
+              <button type="button" id="set-env-delete" class="save-btn secondary">Delete selected</button>
+            </div>
+            <label class="stack-label">Environment name
+              <input type="text" id="set-env-name" placeholder="local" maxlength="40" autocomplete="off" />
+            </label>
             <label class="stack-label">Target application URL
               <input type="url" id="set-target-url" placeholder="https://app.example.com" autocomplete="off" />
             </label>
@@ -169,6 +183,10 @@
             <label class="stack-label">Messaging / API endpoint
               <input type="text" id="set-api-endpoint" placeholder="amqps://broker.example.com/vhost or https://…" autocomplete="off" />
             </label>
+            <div class="btn-row">
+              <button type="button" id="set-env-save" class="save-btn">Save as named environment</button>
+            </div>
+            <p id="env-status" class="drawer-hint" role="status">Environments: —</p>
             <label class="stack-label">Jira base URL
               <input type="url" id="set-jira-url" placeholder="https://your-site.atlassian.net" autocomplete="off" />
             </label>
@@ -497,6 +515,18 @@
             <button type="button" id="plan-quarantine-clear" class="save-btn secondary">Clear quarantine</button>
             <button type="button" id="plan-flake-refresh" class="save-btn secondary">Refresh flake</button>
           </div>
+          <h4 class="orb-section-label">Named environment</h4>
+          <p class="drawer-hint" id="plan-env-hint">Suite and case runs record the active environment name. Credentials stay in Settings (level store), not on the plan. Switching here does not change security level.</p>
+          <label class="stack-label">Active environment
+            <select id="plan-env-active" aria-describedby="plan-env-hint">
+              <option value="">(none yet)</option>
+            </select>
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-env-activate" class="save-btn secondary">Activate for runs</button>
+            <button type="button" id="plan-env-refresh" class="save-btn secondary">Refresh environments</button>
+          </div>
+          <p id="plan-env-status" class="drawer-hint" role="status">Environment: —</p>
           <h4 class="orb-section-label">Suite parallel</h4>
           <p class="drawer-hint" id="plan-parallel-hint">Suite runs are sequential by default (1). Cap this stage: 2. The run record stores the count used; values above the cap are refused.</p>
           <label class="stack-label">Parallel count
@@ -675,6 +705,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk55"></script>
+  <script src="/ui/desktop/desktop.js?v=desk56"></script>
 </body>
 </html>

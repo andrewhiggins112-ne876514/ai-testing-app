@@ -23,6 +23,8 @@ _SCOPED_KEYS = (
     "target_url",
     "target_app_path",
     "api_endpoint",
+    "named_environments",
+    "active_environment_id",
     "playwright_suite_path",
     "multi_sandboxes",
 )
@@ -89,6 +91,9 @@ def _defaults() -> dict:
         "target_url": "",
         "target_app_path": "",
         "api_endpoint": "",
+        # D3 / FR-CONN-1: multiple named targets under the active level (KAN-183)
+        "named_environments": [],
+        "active_environment_id": "",
         # FR-TEST-5: path to an existing Playwright project (level-scoped)
         "playwright_suite_path": "",
         # FR-PLUG-2: desktop .exe smoke plugin (KAN-47)
@@ -288,17 +293,20 @@ def app_settings_status() -> dict:
     api_endpoint = (data.get("api_endpoint") or "").strip()
     suite_path = (data.get("playwright_suite_path") or "").strip()
     telem = bool(data.get("telemetry_enabled", False))
+    from settings.environments import list_environments
     from settings.ollama_models import default_model_name, get_ollama_model
 
     ollama_model = get_ollama_model()
     ollama_model_saved = (data.get("ollama_model") or "").strip()
+    env_info = list_environments()
+    active_env_name = env_info.get("active_environment_name") or "(none)"
     summary = "\n".join(
         [
             f"Local store: {settings_path()}",
             f"Level: {level} | Browser profile: {browser_profile_dir(level)}",
             creds_label,
             f"Jira project: {(data.get('jira_project') or '').strip() or '(not set)'}",
-            f"Target URL: {target_url or '(not set)'} | Messaging: {api_endpoint or '(not set)'}",
+            f"Active environment: {active_env_name} | Target URL: {target_url or '(not set)'} | Messaging: {api_endpoint or '(not set)'}",
             f"Ollama model: {ollama_model or default_model_name()}",
             f"Desktop plugin: {'on' if desk_on else 'off'} | target_app_path: {app_path or '(not set)'}",
             f"Playwright suite path: {suite_path or '(not set)'}",
@@ -321,6 +329,9 @@ def app_settings_status() -> dict:
         "target_url": target_url,
         "target_app_path": app_path,
         "api_endpoint": api_endpoint,
+        "active_environment_id": env_info.get("active_environment_id"),
+        "active_environment_name": env_info.get("active_environment_name"),
+        "named_environments": env_info.get("environments") or [],
         "playwright_suite_path": suite_path,
         "ollama_model": ollama_model,
         "ollama_model_saved": ollama_model_saved,
@@ -492,6 +503,11 @@ def save_app_settings(
             normalize_playwright_mode(mode_raw),
             confirm=True,
         )
+    # Keep the active named environment mirrored to flat target fields (D3).
+    if any(v is not None for v in (target_url, target_app_path, api_endpoint)):
+        from settings.environments import sync_active_from_flat_targets
+
+        sync_active_from_flat_targets()
     payload = app_settings_status()
     payload.update({"status": "updated", "message": "Saved."})
     return payload

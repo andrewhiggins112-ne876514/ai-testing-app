@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-183** — D3 Named environments |
-| **Start task** | **KAN-184** (`test`, Relates → KAN-183) |
+| **Jira story** | **KAN-185** — D4 Credential status without revealing secrets |
+| **Start task** | **KAN-186** (`test`, Relates → KAN-185) |
 | **Epic** | Test-all D (see catalogue) |
-| **Roadmap ID** | D3 / FR-CONN-1 + FR-LEARN-2 |
+| **Roadmap ID** | D4 / FR-SEC-5 + FR-JIRA-7 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-184** |
-| **Shipped** | … **KAN-181** D2 flake/quarantine (desk55); **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
+| **Test ticket** | **KAN-186** |
+| **Shipped** | … **KAN-183** D3 named environments (desk56); **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all D after D3 → D4…, or **KAN-260** Lab tools in App menu when prioritised |
+| **Next after this** | continue Test-all D after D4 → D5…, or **KAN-260** Lab tools in App menu when prioritised |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-183 — D3 Named environments
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-183
+- **Done:** Level-scoped named targets (local/test/staging). Connection stores more than one under the active security level. Activate switches target URL/exe/messaging without changing security level. Credentials stay in the level store — never copied into a plan. Case runs and suite runs record `environment_name`. API `GET/POST /api/environments`, activate, delete. Desktop Settings + Plans controls (desk56).
+- **Files:** `settings/environments.py`, `settings/store.py`, `plans/store.py`, `plans/history.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_named_environments.py` (+ desk56 cache-bust)
+- **Verify:** `pytest tests/test_named_environments.py` + related (32 passed). Live create local+staging + activate staging keeps OFFICIAL; desk56 HTML has `set-env-active` / `plan-env-active`; `desktop_app.py` opened (desk56).
+- **Jira:** close-out **KAN-183** + **KAN-184**
+- **Next:** **KAN-185** D4 credential status without revealing secrets (test **KAN-186**)
 
 ### 2026-11-17 — KAN-181 — D2 Flake score and quarantine
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-181
