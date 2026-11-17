@@ -422,11 +422,11 @@ class PlanRunCaseTests(unittest.TestCase):
         self.assertEqual(body.get("case_note"), "case ok")
         self.assertEqual(body.get("tester_note"), "run ok")
 
-    def test_desktop_cache_bust_desk65(self):
+    def test_desktop_cache_bust_desk66(self):
         root = os.path.dirname(os.path.dirname(__file__))
         html = open(os.path.join(root, "ui", "desktop", "index.html"), encoding="utf-8").read()
         desk = open(os.path.join(root, "desktop_app.py"), encoding="utf-8").read()
-        self.assertIn("desk65", desk)
+        self.assertIn("desk66", desk)
         self.assertIn("plan-notes-save", html)
         self.assertIn("plan-run-note", html)
         self.assertIn("plan-known-save", html)

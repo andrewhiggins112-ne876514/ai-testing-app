@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk65" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk66" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -492,8 +492,9 @@
             <button type="button" id="plan-doc-add-btn" class="save-btn secondary">Add doc cases to open plan</button>
             <button type="button" id="plan-import-pw-add-btn" class="save-btn secondary">Add Playwright to open plan</button>
           </div>
+          <p id="plan-offline-banner" class="drawer-hint" role="status" hidden data-offline="0"></p>
           <h4 class="orb-section-label">Search plans / cases / failures</h4>
-          <p class="drawer-hint">Matches plan name, case name, Jira key, tag, and failure class within the active security level only. Click a hit to open that case.</p>
+          <p class="drawer-hint">Matches plan name, case name, Jira key, tag, and failure class within the active security level only — works while Jira is down on last stored keys. Results show fetch time. Click a hit to open that case.</p>
           <label class="stack-label">Search
             <input type="text" id="plan-search-q" placeholder="name, KAN-, smoke, product_bug…" autocomplete="off" />
           </label>
@@ -523,7 +524,7 @@
           </div>
           <pre id="plan-drift-out" class="drawer-hint" aria-live="polite" hidden></pre>
           <h4 class="orb-section-label">Traceability matrix</h4>
-          <p class="drawer-hint">Story key, case count, last result, linked bug keys, and known-issue flag in one grid. Keys with no run show as not loaded (never as pass). Click a row to open that case.</p>
+          <p class="drawer-hint">Story key, case count, last result, linked bug keys, and known-issue flag in one grid. Opens on last stored keys while Jira is down; each row shows fetch time. Keys with no run show as not loaded (never as pass). Click a row to open that case.</p>
           <label class="stack-label">Filter matrix
             <input type="text" id="plan-trace-filter" placeholder="KAN- or summary / bug key" autocomplete="off" />
           </label>
@@ -798,6 +799,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk65"></script>
+  <script src="/ui/desktop/desktop.js?v=desk66"></script>
 </body>
 </html>

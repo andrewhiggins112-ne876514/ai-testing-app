@@ -20,10 +20,10 @@ Downloadable local **test-all** app. Connect once. **One home** = orb + chat; ro
 | G Widen as plugins | **KAN-123** | later (G10=voice↔KAN-81) |
 | H Future workplace (design) | **KAN-124** | FUTURE |
 
-**Active Build story:** **KAN-201** (E5 Read last plan while Jira is down; test **KAN-202**)  
-**Next after KAN-201:** Test-all **E6**…  
+**Active Build story:** **KAN-203** (F1 Tester HUD widget pack on orb home; test **KAN-204**)  
+**Next after KAN-203:** Test-all **F2**…  
 **Deferred:** **KAN-81** / **KAN-82** voice until mic (G10 **KAN-235**)  
-**Shipped:** A1–A9 (**KAN-125…KAN-141**); B1–B7; C1–C11; D1–D7; E1–E4 (**KAN-193**, **KAN-195**, **KAN-197**, **KAN-199** desk65); **KAN-260** Lab tools App menu (desk64); UI-NAV-IA + App menu (**KAN-247…249**, **KAN-253**, **KAN-257**)  
+**Shipped:** A1–A9 (**KAN-125…KAN-141**); B1–B7; C1–C11; D1–D7; E1–E5 (**KAN-193**, **KAN-195**, **KAN-197**, **KAN-199** desk65, **KAN-201** desk66); **KAN-260** Lab tools App menu (desk64); UI-NAV-IA + App menu (**KAN-247…249**, **KAN-253**, **KAN-257**)  
 Stories/tests continue through **KAN-245** / **KAN-246** (H3).
 
 ## Sequence

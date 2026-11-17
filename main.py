@@ -61,6 +61,7 @@ from plans.quarantine import (
     set_quarantine as plan_set_quarantine,
     suite_flake_report,
 )
+from plans.offline_read import offline_plan_view, offline_read_status
 from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
@@ -949,9 +950,15 @@ async def get_plans_search(q: str = "", limit: int = 50):
     """Search plans, cases, and failures in the active security level (KAN-173 / C9).
 
     Matches plan name, case name, Jira key, tag, and failure class.
-    Does not search across OFFICIAL/SECRET.
+    Does not search across OFFICIAL/SECRET. Works offline on stored data (KAN-201 / E5).
     """
     return search_plans(q or "", limit=limit)
+
+
+@app.get("/api/plans/offline-read")
+async def get_plans_offline_read():
+    """E5: last plan readable while Jira is down — local search/matrix; network actions gated."""
+    return offline_read_status(probe=True)
 
 
 @app.get("/api/plans/parallel-cap")
@@ -1005,11 +1012,20 @@ async def get_plan_coverage_gaps(
 
 @app.get("/api/plans/{plan_id}/traceability")
 async def get_plan_traceability(plan_id: str, q: str = ""):
-    """C6 traceability matrix: story → cases → last result → bugs → known (KAN-167)."""
+    """C6 traceability matrix: story → cases → last result → bugs → known (KAN-167).
+
+    Local-only; works while Jira is down with fetch-time labels (KAN-201 / E5).
+    """
     out = plan_traceability_matrix(plan_id, filter_text=q or "")
     if out.get("status") != "ok" or not degraded_status().get("jira_up"):
         out = {**out, "degraded": degraded_status()}
     return out
+
+
+@app.get("/api/plans/{plan_id}/offline-read")
+async def get_plan_offline_read(plan_id: str):
+    """E5: open one plan's last stored keys and results while Jira is down."""
+    return offline_plan_view(plan_id)
 
 
 @app.get("/api/plans/{plan_id}/suite-history")

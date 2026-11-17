@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-201** — E5 Read last plan while Jira is down |
-| **Start task** | **KAN-202** (`test`, Relates → KAN-201) |
-| **Epic** | Test-all E (see catalogue) |
-| **Roadmap ID** | E5 / FR-CONN-1 + FR-PLAN-1 |
+| **Jira story** | **KAN-203** — F1 Tester HUD widget pack on orb home |
+| **Start task** | **KAN-204** (`test`, Relates → KAN-203) |
+| **Epic** | Test-all F (see catalogue) |
+| **Roadmap ID** | F1 / FR-UI-1 + FR-UI-6 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-202** |
-| **Shipped** | … **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
+| **Test ticket** | **KAN-204** |
+| **Shipped** | … **KAN-201** E5 offline last plan (desk66); **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all E after E5 → E6… |
+| **Next after this** | continue Test-all F after F1 → F2… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-201 — E5 Read last plan while Jira is down
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-201
+- **Done:** Offline last-plan read: with Jira down, search and traceability matrix stay on stored keys/results; network actions (draft from story/project, drift check/refresh, read Jira story, Jira write) disabled with reasons; stored rows labelled with fetch time (`jira_snapshots.captured_at` + run finish). `GET /api/plans/offline-read` + `GET /api/plans/{id}/offline-read`. Plans UI banner + desk66. Writing to Jira while offline remains out of scope.
+- **Files:** `plans/offline_read.py`, `plans/search.py`, `plans/traceability.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_offline_read.py` (+ desk66 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_plan_offline_read.py` (+ search/traceability) 13 passed. Live `GET /api/plans/offline-read` → offline true, search/matrix offline true, jira_write_while_offline false, 6 network actions disabled; desk66 HTML has `plan-offline-banner`. `desktop_app.py` opened desk66 (Computer Use focus contested by other apps; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-201** + **KAN-202**
+- **Next:** **KAN-203** F1 Tester HUD widget pack on orb home (test **KAN-204**)
 
 ### 2026-11-17 — KAN-199 — E4 Backup and restore of this lab
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-199

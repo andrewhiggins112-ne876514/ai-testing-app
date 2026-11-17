@@ -1431,11 +1431,13 @@
   const planCaseDetail = document.getElementById("plan-case-detail");
   const planDefectOut = document.getElementById("plan-defect-out");
   const planDegradedHint = document.getElementById("plan-degraded-hint");
+  const planOfflineBanner = document.getElementById("plan-offline-banner");
   const planStatus = document.getElementById("plan-status");
   let openPlanId = "";
   let openPlanCases = [];
   let lastCaseRunId = "";
   let lastSuiteRunId = "";
+  let planOfflineState = null;
   const jiraReadKey = document.getElementById("jira-read-key");
   const jiraReadBtn = document.getElementById("jira-read-btn");
   const jiraReadOut = document.getElementById("jira-read-out");
@@ -2479,12 +2481,17 @@
     }
     const hint = document.createElement("div");
     hint.className = "drawer-hint";
-    hint.textContent = "Story | Cases | Last | Bugs | Known — click a row to open the case";
+    hint.textContent =
+      "Story | Cases | Last | Bugs | Known | Fetch time — click a row to open the case" +
+      (payload && payload.matrix_works_offline
+        ? " (local; works while Jira is down)"
+        : "");
     planTraceMatrix.appendChild(hint);
     rows.forEach(function (r) {
       const bugs = (r.linked_bug_keys || []).join(", ") || "—";
       const known = r.known_issue ? "yes" : "no";
       const last = r.last_result || "not_loaded";
+      const fetchLabel = r.fetch_time_label || "fetch time unknown";
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "save-btn secondary plan-trace-row";
@@ -2494,6 +2501,7 @@
       btn.style.marginTop = "0.35rem";
       btn.dataset.caseId = r.primary_case_id || "";
       btn.dataset.storyKey = r.story_key || "";
+      btn.dataset.fetchTime = fetchLabel;
       btn.textContent =
         (r.story_key || "?") +
         " | " +
@@ -2503,12 +2511,14 @@
         " | " +
         bugs +
         " | " +
-        known;
+        known +
+        " | " +
+        fetchLabel;
       if (!r.primary_case_id) {
         btn.disabled = true;
-        btn.title = "No case to open for this story";
+        btn.title = "No case to open for this story · " + fetchLabel;
       } else {
-        btn.title = "Open case " + r.primary_case_id;
+        btn.title = "Open case " + r.primary_case_id + " · " + fetchLabel;
         btn.addEventListener("click", function () {
           openTraceabilityRow(r);
         });
@@ -2551,7 +2561,8 @@
       (hits.length === 1 ? "" : "s") +
       " · " +
       (payload.security_level || "") +
-      (payload.truncated ? " (truncated)" : "");
+      (payload.truncated ? " (truncated)" : "") +
+      (payload.search_works_offline ? " · local (works offline)" : "");
     planSearchResults.appendChild(hint);
     hits.forEach(function (hit, idx) {
       const btn = document.createElement("button");
@@ -2563,6 +2574,7 @@
       btn.style.marginTop = "0.35rem";
       btn.setAttribute("role", "listitem");
       const matched = (hit.matched_fields || []).join(", ");
+      const fetchLabel = hit.fetch_time_label || "";
       btn.textContent =
         idx +
         1 +
@@ -2571,9 +2583,11 @@
         (hit.case_name ? " · " + hit.case_name : "") +
         (hit.jira_key ? " · " + hit.jira_key : "") +
         (hit.failure_class ? " · " + hit.failure_class : "") +
-        (matched ? " [" + matched + "]" : "");
+        (matched ? " [" + matched + "]" : "") +
+        (fetchLabel ? " · " + fetchLabel : "");
+      btn.dataset.fetchTime = fetchLabel || "fetch time unknown";
       btn.title = hit.case_id
-        ? "Open case " + hit.case_id
+        ? "Open case " + hit.case_id + (fetchLabel ? " · " + fetchLabel : "")
         : "Open plan " + (hit.plan_id || "");
       btn.addEventListener("click", function () {
         openPlanSearchHit(hit);
@@ -3056,6 +3070,65 @@
     }
   }
 
+  function applyOfflineNetworkActions(payload) {
+    planOfflineState = payload || null;
+    const actions = (payload && payload.network_actions) || [];
+    const byId = {};
+    actions.forEach(function (a) {
+      if (a && a.id) byId[a.id] = a;
+    });
+    function gate(el, actionId) {
+      if (!el) return;
+      const action = byId[actionId];
+      if (!action) return;
+      const enable = !!action.enabled;
+      el.disabled = !enable;
+      if (!enable) {
+        el.title = action.reason || "Jira unavailable — network action disabled.";
+        el.setAttribute("data-offline-disabled", "1");
+      } else {
+        el.removeAttribute("data-offline-disabled");
+        if (el.getAttribute("title") && el.getAttribute("title").indexOf("Jira") === 0) {
+          el.removeAttribute("title");
+        }
+      }
+    }
+    gate(planDraftBtn, "draft_from_story");
+    gate(planDraftProjectBtn, "draft_from_project");
+    gate(planDriftCheckBtn, "acceptance_drift_check");
+    gate(planDriftRefreshBtn, "acceptance_drift_refresh");
+    gate(jiraReadBtn, "read_jira_issue");
+    gate(document.getElementById("hud-lab-draft"), "draft_from_story");
+  }
+
+  async function refreshOfflineReadBanner() {
+    try {
+      const res = await fetch("/api/plans/offline-read");
+      const payload = await res.json();
+      applyOfflineNetworkActions(payload);
+      if (planOfflineBanner) {
+        if (payload.offline) {
+          planOfflineBanner.hidden = false;
+          planOfflineBanner.dataset.offline = "1";
+          planOfflineBanner.textContent =
+            payload.message ||
+            "Jira is down — search and matrix use last stored keys. Network actions disabled.";
+        } else {
+          planOfflineBanner.hidden = true;
+          planOfflineBanner.dataset.offline = "0";
+          planOfflineBanner.textContent = "";
+        }
+      }
+      return payload;
+    } catch (err) {
+      if (planOfflineBanner) {
+        planOfflineBanner.hidden = true;
+        planOfflineBanner.dataset.offline = "0";
+      }
+      return null;
+    }
+  }
+
   async function refreshPlanDegradedHint() {
     if (!planDegradedHint) return;
     try {
@@ -3075,6 +3148,7 @@
     } catch (err) {
       planDegradedHint.hidden = true;
     }
+    await refreshOfflineReadBanner();
   }
 
   async function refreshCaseDetail() {
@@ -3808,7 +3882,10 @@
     }
     if (name === "desktop") loadDesktopPlugin();
     if (name === "suites") loadPlaywrightSuite();
-    if (name === "plans") loadPlanList(openPlanId);
+    if (name === "plans") {
+      loadPlanList(openPlanId);
+      refreshOfflineReadBanner();
+    }
     if (name === "sandboxes") loadMultiSandboxPlugin();
   }
 

@@ -174,13 +174,19 @@ def search_plans(
                 }
             )
 
+    from plans.offline_read import annotate_search_hits
+
+    annotated = annotate_search_hits(hits, level=lvl)
     return {
         "status": "ok",
         "security_level": lvl,
         "query": needle,
-        "hits": hits,
-        "count": len(hits),
+        "hits": annotated,
+        "count": len(annotated),
         "truncated": truncated,
         "cross_level": False,
         "plans_root": str(plans_dir(lvl)),
+        "search_works_offline": True,
+        "local_only": True,
+        "jira_write": False,
     }

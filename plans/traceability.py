@@ -196,8 +196,13 @@ def plan_traceability_matrix(
     if loaded.get("status") != "ok":
         return loaded
 
+    from plans.offline_read import annotate_trace_rows
+
     plan = loaded["plan"]
     out = traceability_from_plan(plan, filter_text=filter_text)
+    out["rows"] = annotate_trace_rows(plan, list(out.get("rows") or []))
     out["security_level"] = loaded.get("security_level")
     out["jira_write"] = False
+    out["matrix_works_offline"] = True
+    out["local_only"] = True
     return out

@@ -22,6 +22,7 @@ from plans.quarantine import (
     set_quarantine,
     suite_flake_report,
 )
+from plans.offline_read import offline_plan_view, offline_read_status
 from plans.search import search_plans
 from plans.timeouts import (
     DEFAULT_STEP_TIMEOUT_MS,
@@ -72,6 +73,8 @@ __all__ = [
     "flake_score",
     "is_actively_quarantined",
     "list_suite_history",
+    "offline_plan_view",
+    "offline_read_status",
     "search_plans",
     "set_known_issue_link",
     "set_plan_notes",

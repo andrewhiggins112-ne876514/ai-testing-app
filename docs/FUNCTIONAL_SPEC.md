@@ -203,7 +203,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Test-all **E5** — **KAN-201** read last plan while Jira is down (test **KAN-202**). A–D + E1–E4 + **KAN-260** Lab tools App menu shipped (**desk65** backup UI). Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
+**Still open / next:** Test-all **F1** — **KAN-203** Tester HUD widget pack (test **KAN-204**). A–D + E1–E5 + **KAN-260** Lab tools App menu shipped (**desk66** offline last plan). Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -221,8 +221,8 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-TEST-3 | Done (smoke + structured steps) | **Done** KAN-47 smoke; **KAN-87** steps (`wait_window`/`type_text`/…) |
 | FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
 | FR-TEST-5 | Shipped baseline import/run; in-suite import deepen | **Done** **KAN-59**; Test-all **C8** **KAN-171** |
-| FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; **D3** named envs **KAN-183**; **D4** credential status **KAN-185** Done |
-| FR-PLAN-1…2 | Partial (A1+A5+A6+C11) | **KAN-125** store + **KAN-133** edit/disable/reorder + **KAN-135** starter/empty home + **KAN-177** archive; run UI A7 |
+| FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; **D3** named envs **KAN-183**; **D4** credential status **KAN-185**; **E5** offline last plan **KAN-201** Done |
+| FR-PLAN-1…2 | Partial (A1+A5+A6+C11+E5) | **KAN-125** store + **KAN-133** edit/disable/reorder + **KAN-135** starter/empty home + **KAN-177** archive; run UI A7; **KAN-201** offline search/matrix |
 | FR-PLAN-3…4 | Partial (A4+C3–C10) | **KAN-131** one story; **KAN-161** project-wide draft; **KAN-163** coverage gaps; **KAN-165** AC drift; **KAN-167** C6 matrix; **KAN-169** C7 tags; **KAN-171** C8 import; **KAN-173** C9 search; **KAN-175** C10 history; **KAN-177** C11 archive Done |
 | FR-CI-1 | Future (design) | Test-all **H2** |
 | FR-MAN-1 | Future (design) | Test-all **H1** |
@@ -264,7 +264,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 |------|--------|-------|
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN**. Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
-| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; Active Build **KAN-201** E5; E1–E4 + KAN-260 Done |
+| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; Active Build **KAN-203** F1; E1–E5 + KAN-260 Done |
 | Nav IA — Reports data / menu / Settings hub | **Shipped** KAN-247…249 | Gradio + desktop compact menu |
 | Desktop compact App menu (match Gradio) | **Shipped** KAN-253 / **KAN-257** | Compact `▦`; Lab tools restored **KAN-260** |
 | Coverage gaps (C4) | **Shipped** KAN-163 (desk45) | No-case / all-disabled lists; filter; no auto-create |
