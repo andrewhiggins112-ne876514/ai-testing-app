@@ -736,6 +736,19 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   color: var(--muted);
 }
 
+.drawer-hint kbd,
+#keyboard-shortcuts-doc kbd,
+#plan-keyboard-hint kbd {
+  display: inline-block;
+  padding: 0 5px;
+  margin: 0 1px;
+  font: 600 10px/1.5 ui-monospace, Consolas, monospace;
+  color: var(--cyan, #50cdff);
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 45%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--cyan, #50cdff) 12%, transparent);
+}
+
 .orb-controls,
 .widget-controls {
   display: flex;

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk70" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk71" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -718,6 +718,7 @@
           </div>
           <pre id="plan-tag-run-out" class="drawer-hint" aria-live="polite" hidden></pre>
           <label class="stack-label"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail (headed browser stays open until Continue or Stop; off by default)</label>
+          <p id="plan-keyboard-hint" class="drawer-hint" data-keyboard-shortcuts="1">Shortcuts: <kbd>Alt</kbd>+<kbd>R</kbd> run selected case · <kbd>Alt</kbd>+<kbd>N</kbd> next failure · <kbd>Esc</kbd> Back to orb. No shortcut confirms Jira write or approves heal.</p>
           <div class="btn-row">
             <button type="button" id="plan-case-run" class="save-btn">Run selected case (headed)</button>
             <button type="button" id="plan-rerun-failed" class="save-btn secondary">Rerun failed only</button>
@@ -896,6 +897,13 @@
           <label class="check-row"><input type="checkbox" id="hud-cov-covered-toggle" /> Covered AC lines</label>
           <label class="check-row"><input type="checkbox" id="hud-cov-partial-toggle" /> Partial AC lines</label>
           <label class="check-row"><input type="checkbox" id="hud-cov-missing-toggle" /> Missing AC lines</label>
+          <h3 class="orb-section-label">Keyboard</h3>
+          <div id="keyboard-shortcuts-doc" class="drawer-hint" data-keyboard-shortcuts="1" role="note" aria-label="Keyboard shortcuts">
+            <p><kbd>Alt</kbd>+<kbd>R</kbd> — Run selected case (Plans)</p>
+            <p><kbd>Alt</kbd>+<kbd>N</kbd> — Next failure (open plan or last-run fails)</p>
+            <p><kbd>Esc</kbd> — Back to orb (close area / hub / drawers)</p>
+            <p>No shortcuts confirm Jira write or approve heal.</p>
+          </div>
         </div>
       </div>
     </aside>
@@ -903,6 +911,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk70"></script>
+  <script src="/ui/desktop/desktop.js?v=desk71"></script>
 </body>
 </html>

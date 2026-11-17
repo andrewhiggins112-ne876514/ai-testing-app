@@ -4186,33 +4186,64 @@
       applyAreaLayout(input.value);
     });
   });
-  document.addEventListener("keydown", function (ev) {
-    if (ev.key !== "Escape") return;
+  /* F5 keyboard: Alt+R run selected, Alt+N next failure, Esc Back to orb.
+     Explicitly no shortcuts for Jira write confirm or heal approve. */
+  const KEYBOARD_SHORTCUTS = {
+    run_selected: "Alt+R",
+    next_failure: "Alt+N",
+    back_to_orb: "Escape",
+    never: ["jira_write_confirm", "heal_approve"],
+  };
+
+  function backToOrbFromKeyboard() {
     const hubOpen = isHubOpen();
     const appOpen = !!(appDrawer && appDrawer.classList.contains("open"));
     const screenOpen = !!(screenDrawer && screenDrawer.classList.contains("open"));
-    if (!hubOpen && !openAreaName && !appOpen && !screenOpen) return;
-    if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA")) {
-      ev.target.blur();
-    }
+    if (!hubOpen && !openAreaName && !appOpen && !screenOpen) return false;
     if (hubOpen) {
       setHubOpen(false);
-      ev.preventDefault();
-      return;
+      return true;
     }
     if (openAreaName) {
       closeArea();
-      ev.preventDefault();
-      return;
+      return true;
     }
     if (appOpen) {
       setDrawer(appDrawer, appToggle, false);
-      ev.preventDefault();
-      return;
+      return true;
     }
     if (screenOpen) {
       setDrawer(screenDrawer, screenToggle, false);
+      return true;
+    }
+    return false;
+  }
+
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Escape") {
+      const hubOpen = isHubOpen();
+      const appOpen = !!(appDrawer && appDrawer.classList.contains("open"));
+      const screenOpen = !!(screenDrawer && screenDrawer.classList.contains("open"));
+      if (!hubOpen && !openAreaName && !appOpen && !screenOpen) return;
+      if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA")) {
+        ev.target.blur();
+      }
+      if (backToOrbFromKeyboard()) {
+        ev.preventDefault();
+      }
+      return;
+    }
+
+    if (!ev.altKey || ev.ctrlKey || ev.metaKey || ev.shiftKey) return;
+    const key = String(ev.key || "").toLowerCase();
+    if (key === "r") {
       ev.preventDefault();
+      runSelectedCaseFromKeyboard();
+      return;
+    }
+    if (key === "n") {
+      ev.preventDefault();
+      selectNextFailureFromKeyboard();
     }
   });
 
@@ -6028,51 +6059,136 @@
     }
   }
 
-  if (planCaseRun) {
-    planCaseRun.addEventListener("click", async function () {
-      if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
-        if (planStatus) planStatus.textContent = "Enter a case id to run.";
+  function caseLastResultIsFail(caseObj) {
+    const runs = (caseObj && caseObj.runs) || [];
+    if (!runs.length) return false;
+    const r = String((runs[runs.length - 1] && runs[runs.length - 1].result) || "")
+      .toLowerCase();
+    return r === "fail" || r === "error";
+  }
+
+  function failedCaseIndexesInOpenPlan() {
+    const out = [];
+    for (let i = 0; i < openPlanCases.length; i++) {
+      const c = openPlanCases[i];
+      if (!c || c.archived) continue;
+      if (caseLastResultIsFail(c)) out.push(i);
+    }
+    return out;
+  }
+
+  async function runSelectedCaseFromKeyboard() {
+    if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
+      if (planStatus) {
+        planStatus.textContent =
+          "Alt+R: open a plan and select a case id first.";
+      }
+      return;
+    }
+    if (openAreaName !== "plans") {
+      openArea("plans");
+    }
+    const pauseOn = !!(planPauseOnFail && planPauseOnFail.checked);
+    activePauseId = "";
+    setPauseActionsVisible(false);
+    if (planStatus) {
+      planStatus.textContent = pauseOn
+        ? "Running case (headed, pause on fail)…"
+        : "Running case (headed)…";
+    }
+    try {
+      const res = await fetch(
+        "/api/plans/" +
+          encodeURIComponent(openPlanId) +
+          "/cases/" +
+          encodeURIComponent(planCaseId.value.trim()) +
+          "/run",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pause_on_fail: pauseOn }),
+        }
+      );
+      const payload = await res.json();
+      if (
+        payload.status !== "ok" &&
+        payload.status !== "paused" &&
+        payload.pause_state !== "paused"
+      ) {
+        if (planStatus) {
+          planStatus.textContent = payload.message || "Run failed.";
+        }
         return;
       }
-      const pauseOn = !!(planPauseOnFail && planPauseOnFail.checked);
-      activePauseId = "";
-      setPauseActionsVisible(false);
+      applyPlanRunPayload(payload);
+      if (payload.pause_state !== "paused" && payload.status !== "paused") {
+        await refreshCaseDetail();
+      }
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Run request failed.";
+    }
+  }
+
+  async function selectNextFailureFromKeyboard() {
+    if (openPlanId && openPlanCases.length) {
+      const fails = failedCaseIndexesInOpenPlan();
+      if (fails.length) {
+        const cur = selectedCaseIndex();
+        let pick = fails[0];
+        for (let j = 0; j < fails.length; j++) {
+          if (fails[j] > cur) {
+            pick = fails[j];
+            break;
+          }
+        }
+        const caseObj = openPlanCases[pick];
+        if (openAreaName !== "plans") openArea("plans");
+        if (planCaseId) planCaseId.value = caseObj.id || "";
+        if (planCaseName) planCaseName.value = caseObj.name || "";
+        await refreshCaseDetail();
+        if (planStatus) {
+          planStatus.textContent =
+            "Next failure → " +
+            (caseObj.name || caseObj.id || "?") +
+            " (" +
+            (pick + 1) +
+            "/" +
+            openPlanCases.length +
+            ")";
+        }
+        return;
+      }
+    }
+
+    const hudFails =
+      (testerHudCache && testerHudCache.failed_cases) || [];
+    if (!hudFails.length) {
       if (planStatus) {
-        planStatus.textContent = pauseOn
-          ? "Running case (headed, pause on fail)…"
-          : "Running case (headed)…";
+        planStatus.textContent =
+          "Alt+N: no failed cases on the open plan or last run.";
       }
-      try {
-        const res = await fetch(
-          "/api/plans/" +
-            encodeURIComponent(openPlanId) +
-            "/cases/" +
-            encodeURIComponent(planCaseId.value.trim()) +
-            "/run",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ pause_on_fail: pauseOn }),
-          }
-        );
-        const payload = await res.json();
-        if (
-          payload.status !== "ok" &&
-          payload.status !== "paused" &&
-          payload.pause_state !== "paused"
-        ) {
-          if (planStatus) {
-            planStatus.textContent = payload.message || "Run failed.";
-          }
-          return;
-        }
-        applyPlanRunPayload(payload);
-        if (payload.pause_state !== "paused" && payload.status !== "paused") {
-          await refreshCaseDetail();
-        }
-      } catch (err) {
-        if (planStatus) planStatus.textContent = "Run request failed.";
+      return;
+    }
+    const curId =
+      planCaseId && planCaseId.value ? planCaseId.value.trim() : "";
+    let idx = -1;
+    for (let i = 0; i < hudFails.length; i++) {
+      if (hudFails[i] && hudFails[i].case_id === curId) {
+        idx = i;
+        break;
       }
+    }
+    const next = hudFails[(idx + 1) % hudFails.length];
+    await openPlansOnCase(next.plan_id, next.case_id, next.case_name);
+    if (planStatus) {
+      planStatus.textContent =
+        "Next failure → " + (next.case_name || next.case_id || "?");
+    }
+  }
+
+  if (planCaseRun) {
+    planCaseRun.addEventListener("click", function () {
+      runSelectedCaseFromKeyboard();
     });
   }
 

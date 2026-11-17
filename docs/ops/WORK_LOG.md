@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-211** — F5 Keyboard on orb home and inside areas |
-| **Start task** | **KAN-212** (`test`, Relates → KAN-211) |
+| **Jira story** | **KAN-213** — F6 Read-only export pack |
+| **Start task** | **KAN-214** (`test`, Relates → KAN-213) |
 | **Epic** | Test-all F (see catalogue) |
-| **Roadmap ID** | F5 / FR-UI-1 |
+| **Roadmap ID** | F6 / FR-REP-3 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-212** |
-| **Shipped** | … **KAN-209** F4 Coverage HUD (desk70); **KAN-207** F3 Release HUD (desk69); **KAN-205** F2 Manager HUD (desk68); **KAN-203** F1 Tester HUD (desk67); **KAN-201** E5 offline last plan (desk66); **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
+| **Test ticket** | **KAN-214** |
+| **Shipped** | … **KAN-211** F5 Keyboard shortcuts (desk71); **KAN-209** F4 Coverage HUD (desk70); **KAN-207** F3 Release HUD (desk69); **KAN-205** F2 Manager HUD (desk68); **KAN-203** F1 Tester HUD (desk67); **KAN-201** E5 offline last plan (desk66); **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all F after F5 → F6… |
+| **Next after this** | continue Test-all F after F6 → F7… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-211 — F5 Keyboard on orb home and inside areas
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-211
+- **Done:** Documented power-user shortcuts on orb home + Plans: Alt+R run selected case, Alt+N next failure (open plan fails, else Tester HUD last-run fails), Esc Back to orb. Explicitly no shortcuts for Jira write confirm or heal approve. Screen drawer Keyboard doc + Plans hint; desk71.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_keyboard_shortcuts.py` (+ desk71 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_keyboard_shortcuts.py` 1 passed. Live desk71 HTML has `keyboard-shortcuts-doc` / `plan-keyboard-hint`; JS has run/next/back handlers and never-list for jira_write_confirm + heal_approve. `desktop_app.py` opened desk71 (orb home visible).
+- **Jira:** close-out **KAN-211** + **KAN-212**
+- **Next:** **KAN-213** F6 Read-only export pack (test **KAN-214**)
 
 ### 2026-11-17 — KAN-209 — F4 Coverage HUD widget pack on orb home
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-209
