@@ -79,6 +79,7 @@ from plans.seed_case import add_seed_case
 from plans.visual_case import add_visual_case, update_case_baseline
 from plans.a11y_case import add_a11y_browser_case, enable_a11y_on_case
 from plans.perf_case import add_perf_budget_case, set_performance_budget
+from plans.framework_case import add_framework_case
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
 from plans.home_checklist import home_checklist_summary
@@ -400,6 +401,15 @@ class PlanPerfBudgetRequest(BaseModel):
 
     budget_ms: int | None = None
     clear: bool = False
+
+
+class PlanFrameworkCaseRequest(BaseModel):
+    """Add a framework-selection case (KAN-233 / G9). Selenium/Cypress stub until runners exist."""
+
+    name: str = ""
+    framework: str = "selenium"
+    note: str = ""
+    tags: list[str] | None = None
 
 
 class JiraIssueRequest(BaseModel):
@@ -1462,6 +1472,18 @@ async def post_plan_perf_case(plan_id: str, req: PlanPerfCaseRequest):
         plan_id,
         req.name or "",
         budget_ms=req.budget_ms,
+        note=req.note or "",
+        tags=list(req.tags or []),
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/framework")
+async def post_plan_framework_case(plan_id: str, req: PlanFrameworkCaseRequest):
+    """Add a framework-selection case; Selenium/Cypress → not-implemented (KAN-233 / G9)."""
+    return add_framework_case(
+        plan_id,
+        req.name or "",
+        framework=req.framework or "selenium",
         note=req.note or "",
         tags=list(req.tags or []),
     )

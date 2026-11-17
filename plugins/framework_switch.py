@@ -142,19 +142,50 @@ def attempt_run(framework: str | None = None, action: str = "run") -> dict[str, 
     """
     Stub entry for 'run with selected framework'.
     Playwright → ok stub (real runners stay on playwright_* tools).
-    Others → not_implemented (AC for KAN-79).
+    Others → not_implemented (AC for KAN-79 / KAN-233 G9).
     """
     fw = normalize_framework(framework or get_framework())
     if fw != DEFAULT_FRAMEWORK:
-        return not_implemented_result(fw, action=action)
+        payload = not_implemented_result(fw, action=action)
+        payload["implemented"] = False
+        return payload
     return {
         "status": "ok",
         "ok": True,
         "framework": fw,
         "action": (action or "run").strip() or "run",
         "plugin": "framework_switch",
+        "implemented": True,
         "message": (
             "Playwright is the active framework. "
             "Use run_playwright or run_playwright_suite to execute tests."
         ),
+    }
+
+
+def plan_run_result(framework: str | None = None, action: str = "run") -> dict[str, Any]:
+    """
+    Plan/suite mapping for a selected framework (KAN-233 / G9).
+
+    Selenium/Cypress → not_implemented, never passed.
+    Playwright → ready (pass on the framework-selection case only).
+    """
+    raw = attempt_run(framework=framework, action=action)
+    fw = str(raw.get("framework") or normalize_framework(framework))
+    if raw.get("status") == "not_implemented" or not raw.get("ok", False):
+        return {
+            **raw,
+            "result": "error",
+            "failure_class": "tool",
+            "passed": False,
+            "framework": fw,
+            "implemented": False,
+        }
+    return {
+        **raw,
+        "result": "pass",
+        "failure_class": None,
+        "passed": True,
+        "framework": fw,
+        "implemented": True,
     }

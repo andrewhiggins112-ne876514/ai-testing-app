@@ -15,7 +15,17 @@ from typing import Any, Optional
 
 _ID_SAFE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
 _CASE_SOURCE_KINDS = frozenset(
-    {"manual-draft", "jira", "document", "playwright", "desktop", "api", "seed", "visual"}
+    {
+        "manual-draft",
+        "jira",
+        "document",
+        "playwright",
+        "desktop",
+        "api",
+        "seed",
+        "visual",
+        "framework",
+    }
 )
 _RUN_RESULTS = frozenset({"pass", "fail", "error", "skipped", "pending"})
 
@@ -248,6 +258,10 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
         }
     # G8: named sandbox used as run environment (KAN-231) — name only.
     sandbox_name = str(raw.get("sandbox") or "").strip()[:40] or None
+    # G9: selected automation framework on the run (KAN-233) — id only.
+    framework_name = str(raw.get("framework") or "").strip().lower()[:40] or None
+    if framework_name and framework_name not in {"playwright", "selenium", "cypress"}:
+        framework_name = None
     return {
         "id": rid,
         "result": result,
@@ -257,6 +271,7 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
         "suite_run_id": suite_run_id or None,
         "environment_name": env_name,
         "sandbox": sandbox_name,
+        "framework": framework_name,
         "mock": mock_flag,
         "seed_fixture": seed_name,
         "visual_baseline": visual_name,
@@ -643,6 +658,7 @@ def add_run(
     run_id: str | None = None,
     environment_name: str | None = None,
     sandbox: str | None = None,
+    framework: str | None = None,
     mock: bool = False,
     seed_fixture: str | None = None,
     visual_baseline: str | None = None,
@@ -716,6 +732,7 @@ def add_run(
             "suite_run_id": suite_run_id,
             "environment_name": env_label,
             "sandbox": sandbox_label,
+            "framework": (str(framework or "").strip().lower()[:40] or None),
             "mock": bool(mock),
             "seed_fixture": seed_fixture,
             "visual_baseline": visual_baseline,

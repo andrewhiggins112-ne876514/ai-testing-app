@@ -1363,6 +1363,8 @@
   const planUpdateBaselineBtn = document.getElementById("plan-update-baseline-btn");
   const planAddA11yBtn = document.getElementById("plan-add-a11y-btn");
   const planAddPerfBtn = document.getElementById("plan-add-perf-btn");
+  const planFrameworkSelect = document.getElementById("plan-framework-select");
+  const planAddFrameworkBtn = document.getElementById("plan-add-framework-btn");
   const planPwPath = document.getElementById("plan-pw-path");
   const planRefreshBtn = document.getElementById("plan-refresh-btn");
   const planList = document.getElementById("plan-list");
@@ -2461,6 +2463,7 @@
                 ? " · mock/contract"
                 : " · api/messaging"
               : "") +
+            (kind === "framework" ? " · framework " + (src || "") : "") +
             (kind === "manual-draft" && !c.jira_key ? " · manual-draft" : "") +
             (isKnownLabel(c) ? " · known" : "") +
             (isQuarantinedCase(c) ? " · quarantined" : "") +
@@ -6070,6 +6073,55 @@
   if (planAddPerfBtn) {
     planAddPerfBtn.addEventListener("click", function () {
       addPerfCaseToOpenPlan();
+    });
+  }
+
+  async function addFrameworkCaseToOpenPlan() {
+    if (!openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      return;
+    }
+    const fw =
+      planFrameworkSelect && planFrameworkSelect.value
+        ? String(planFrameworkSelect.value).trim().toLowerCase()
+        : "selenium";
+    if (planStatus) planStatus.textContent = "Adding framework case…";
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + "/cases/framework",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ framework: fw || "selenium" }),
+        }
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok" || !payload.plan) {
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message || "Could not add framework case.";
+        }
+        return;
+      }
+      renderPlanCases(payload.plan);
+      if (payload.case && planCaseId) {
+        planCaseId.value = payload.case.id || "";
+      }
+      if (typeof refreshLabHome === "function") await refreshLabHome();
+      if (planStatus) {
+        planStatus.textContent =
+          "Framework case added — Selenium/Cypress return not-implemented and do not mark passed; Playwright remains default.";
+      }
+    } catch (err) {
+      if (planStatus) {
+        planStatus.textContent = "Framework case request failed.";
+      }
+    }
+  }
+
+  if (planAddFrameworkBtn) {
+    planAddFrameworkBtn.addEventListener("click", function () {
+      addFrameworkCaseToOpenPlan();
     });
   }
 

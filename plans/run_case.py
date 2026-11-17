@@ -527,6 +527,87 @@ async def _execute_seed_case(
     }
 
 
+async def _execute_framework_case(
+    plan_id: str,
+    target_case: dict[str, Any],
+    *,
+    level: str,
+    suite_run_id: str | None,
+    reserved_run_id: str,
+    started: float,
+) -> dict[str, Any]:
+    """Run one framework-selection case (KAN-233 / G9). Same run model."""
+    from plans.framework_case import parse_framework_ref, write_framework_evidence
+    from plugins.framework_switch import plan_run_result
+
+    cid = target_case["id"]
+    src = target_case.get("source") if isinstance(target_case.get("source"), dict) else {}
+    parsed = parse_framework_ref(str(src.get("ref") or ""))
+    fw = str(parsed.get("framework") or "playwright")
+
+    fw_payload = await asyncio.to_thread(
+        plan_run_result,
+        framework=fw,
+        action="run_case",
+    )
+    duration_ms = int((time.monotonic() - started) * 1000)
+    evidence = write_framework_evidence(
+        run_id=reserved_run_id,
+        plan_id=plan_id,
+        case_id=cid,
+        framework_result=fw_payload,
+    )
+    result = str(fw_payload.get("result") or "error")
+    # Hard guarantee: Selenium/Cypress never mark passed (G9 AC).
+    if fw != "playwright" and result == "pass":
+        result = "error"
+        fw_payload = {
+            **fw_payload,
+            "result": "error",
+            "passed": False,
+            "failure_class": "tool",
+        }
+    failure_class = fw_payload.get("failure_class")
+    if result != "pass" and not failure_class:
+        failure_class = "tool"
+    note = str(fw_payload.get("message") or "")[:500]
+    recorded = add_run(
+        plan_id,
+        cid,
+        result=result,
+        duration_ms=duration_ms,
+        failure_class=failure_class if result != "pass" else None,
+        evidence=evidence,
+        note=note,
+        suite_run_id=suite_run_id,
+        run_id=reserved_run_id,
+        framework=fw,
+        level=level,
+    )
+    return {
+        "status": "ok",
+        "message": f"Case {cid} finished: {result}.",
+        "security_level": level,
+        "playwright_mode": None,
+        "target_up": True,
+        "only_case_id": cid,
+        "runner": "framework_switch",
+        "pause_on_fail": False,
+        "suite_run_id": suite_run_id,
+        "framework": {
+            "status": fw_payload.get("status"),
+            "framework": fw,
+            "implemented": bool(fw_payload.get("implemented")),
+            "plugin": fw_payload.get("plugin") or "framework_switch",
+            "message": fw_payload.get("message"),
+            "passed": bool(fw_payload.get("passed")) and result == "pass",
+        },
+        "plan": recorded.get("plan"),
+        "case": recorded.get("case"),
+        "run": recorded.get("run"),
+    }
+
+
 def _map_visual_result(visual: dict[str, Any]) -> tuple[str, str | None]:
     """Map visual_baseline output to plan run result + failure_class."""
     status = str(visual.get("status") or "fail").lower()
@@ -919,6 +1000,71 @@ async def _execute_case(
             current_path=current_path,
         )
 
+    if _source_kind(target_case) == "framework":
+        return await _execute_framework_case(
+            plan_id,
+            target_case,
+            level=level,
+            suite_run_id=suite_rid,
+            reserved_run_id=reserved_run_id,
+            started=started,
+        )
+
+    # G9: settings-level Selenium/Cypress must not mark browser cases passed.
+    from plugins.framework_switch import (
+        DEFAULT_FRAMEWORK,
+        get_framework,
+        plan_run_result,
+    )
+
+    active_fw = get_framework()
+    if active_fw != DEFAULT_FRAMEWORK:
+        from plans.framework_case import write_framework_evidence
+
+        fw_payload = plan_run_result(framework=active_fw, action="run_case")
+        duration_ms = int((time.monotonic() - started) * 1000)
+        evidence = write_framework_evidence(
+            run_id=reserved_run_id,
+            plan_id=plan_id,
+            case_id=cid,
+            framework_result=fw_payload,
+        )
+        note = str(fw_payload.get("message") or "")[:500]
+        recorded = add_run(
+            plan_id,
+            cid,
+            result=str(fw_payload.get("result") or "error"),
+            duration_ms=duration_ms,
+            failure_class=fw_payload.get("failure_class") or "tool",
+            evidence=evidence,
+            note=note,
+            suite_run_id=suite_rid,
+            run_id=reserved_run_id,
+            framework=active_fw,
+            level=level,
+        )
+        return {
+            "status": "ok",
+            "message": note or f"Framework {active_fw} is not implemented.",
+            "security_level": level,
+            "playwright_mode": None,
+            "target_up": False,
+            "only_case_id": cid,
+            "runner": "framework_switch",
+            "pause_on_fail": False,
+            "suite_run_id": suite_rid,
+            "framework": {
+                "status": fw_payload.get("status"),
+                "framework": active_fw,
+                "implemented": False,
+                "plugin": "framework_switch",
+                "message": fw_payload.get("message"),
+            },
+            "plan": recorded.get("plan"),
+            "case": recorded.get("case"),
+            "run": recorded.get("run"),
+        }
+
     # G8: sandbox URL overrides default target when the sandbox names one.
     settings_url = (load_settings().get("target_url") or "").strip()
     sandbox_url_s = str(sandbox_url or "").strip()
@@ -1216,6 +1362,7 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
         mock_fixture = ""
         seed_fixture = ""
         visual_baseline = ""
+        framework = ""
         if kind == "api":
             mock_fixture = str(
                 parse_api_ref(str(src.get("ref") or "")).get("mock_fixture") or ""
@@ -1232,6 +1379,12 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             visual_baseline = str(
                 parse_visual_ref(str(src.get("ref") or "")).get("baseline") or ""
             ).strip()
+        if kind == "framework":
+            from plans.framework_case import parse_framework_ref
+
+            framework = str(
+                parse_framework_ref(str(src.get("ref") or "")).get("framework") or ""
+            ).strip()
         if kind == "api":
             runner_name = "contract_mock" if mock_fixture else "api_messaging_runner"
         elif kind == "desktop":
@@ -1240,6 +1393,8 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             runner_name = "seed_fixture"
         elif kind == "visual":
             runner_name = "visual_baseline"
+        elif kind == "framework":
+            runner_name = "framework_switch"
         elif kind == "playwright":
             runner_name = "playwright_suite"
         else:
@@ -1266,6 +1421,8 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "api_case": kind == "api",
             "seed_case": kind == "seed",
             "visual_case": kind == "visual",
+            "framework_case": kind == "framework",
+            "framework": framework,
             "mock_fixture": mock_fixture,
             "seed_fixture": seed_fixture,
             "visual_baseline": visual_baseline,

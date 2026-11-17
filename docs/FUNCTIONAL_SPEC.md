@@ -1,4 +1,4 @@
-# Functional Specification — AI Testing Application
+﻿# Functional Specification — AI Testing Application
 
 **Version:** 1.1  
 **Date:** 2026-11-16  
@@ -203,7 +203,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Test-all **G9** — **KAN-233** Another framework runner (test **KAN-234**). A–D + E1–E5 + F1–F7 + **G1** Desktop (**KAN-217** desk74) + **G2** API/messaging (**KAN-219** desk75) + **G3** Contract/mock (**KAN-221** desk76) + **G4** Seed/fixtures (**KAN-223** desk77) + **G5** Visual baseline (**KAN-225** desk78) + **G6** Accessibility (**KAN-227** desk79) + **G7** Performance budget (**KAN-229** desk80) + **G8** Sandbox as run env (**KAN-231** desk81) + **KAN-260** Lab tools App menu shipped. Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
+**Still open / next:** Test-all **G11** — **KAN-237** Installer for a second Windows PC (test **KAN-238**). A–D + E1–E5 + F1–F7 + **G1**–**G9** (**KAN-233** desk82) + **KAN-260** Lab tools App menu shipped. Voice **KAN-81** deferred (mic; later plugin G10 **KAN-235**). Cut nothing; sequence plugins in epics G–H.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -249,7 +249,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-SET-4 | Settings hub with category switch (App / Report / …) | **Done** — **KAN-249** (desk42) |
 | FR-PLUG-1 | Shipped registry + local multi-sandbox orchestration | **Done** KAN-55 stub + **KAN-95** (test **KAN-96**) |
 | FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |
-| FR-PLUG-3 | Stub shipped (Playwright default; others not-implemented) | **Done** **KAN-79** (test **KAN-80**) |
+| FR-PLUG-3 | Stub + plan-case select (Playwright default; Selenium/Cypress not-implemented, never pass) | **Done** **KAN-79** + **KAN-233** G9 (test **KAN-234**) |
 | FR-SET-1 | Shipped local store | **Done** KAN-16 |
 
 **Open product track:** Test-all Stories A1–H3 (see catalogue / Jira epics “Test-all A–H”). Voice **KAN-81** / **KAN-82** deferred. FR gap pass KAN-83…KAN-99 is **Done** as baselines.
@@ -264,7 +264,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 |------|--------|-------|
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN**. Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
-| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; Active Build **KAN-233** G9; G1–G8 + E1–E5 + F1–F7 + KAN-260 Done |
+| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; Active Build **KAN-237** G11; G1–G9 + E1–E5 + F1–F7 + KAN-260 Done |
 | Nav IA — Reports data / menu / Settings hub | **Shipped** KAN-247…249 | Gradio + desktop compact menu |
 | Desktop compact App menu (match Gradio) | **Shipped** KAN-253 / **KAN-257** | Compact `▦`; Lab tools restored **KAN-260** |
 | Coverage gaps (C4) | **Shipped** KAN-163 (desk45) | No-case / all-disabled lists; filter; no auto-create |

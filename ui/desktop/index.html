@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk81" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk82" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -605,6 +605,15 @@
             <button type="button" id="plan-update-baseline-btn" class="save-btn secondary">Update visual baseline</button>
             <button type="button" id="plan-add-a11y-btn" class="save-btn secondary">Add accessibility check case</button>
             <button type="button" id="plan-add-perf-btn" class="save-btn secondary">Add performance budget case</button>
+            <label class="stack-label" for="plan-framework-select">Framework for new case
+              <select id="plan-framework-select" aria-describedby="plan-framework-hint">
+                <option value="playwright">Playwright (default)</option>
+                <option value="selenium" selected>Selenium (not implemented)</option>
+                <option value="cypress">Cypress (not implemented)</option>
+              </select>
+            </label>
+            <p class="drawer-hint" id="plan-framework-hint">G9: case can select a framework. Playwright stays the default ready runner. Selenium/Cypress return not-implemented and never mark passed until a real runner exists. Settings framework switch stub is kept.</p>
+            <button type="button" id="plan-add-framework-btn" class="save-btn secondary">Add framework case</button>
           </div>
           <p id="plan-offline-banner" class="drawer-hint" role="status" hidden data-offline="0"></p>
           <h4 class="orb-section-label">Search plans / cases / failures</h4>
@@ -955,6 +964,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk81"></script>
+  <script src="/ui/desktop/desktop.js?v=desk82"></script>
 </body>
 </html>
