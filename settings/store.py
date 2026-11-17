@@ -19,6 +19,7 @@ _SCOPED_KEYS = (
     "jira_email",
     "jira_api_token",
     "github_token",
+    "target_secret",
     "jira_project",
     "target_url",
     "target_app_path",
@@ -68,6 +69,8 @@ def _defaults() -> dict:
         "jira_email": "",
         "jira_api_token": "",
         "github_token": "",
+        # D4 / FR-SEC-5: AUT / target auth secret — status only in UI (KAN-185)
+        "target_secret": "",
         "orb_style": "lightning",
         "orb_calm_color": "#50cdff",
         "orb_thinking_color": "#b388ff",
@@ -284,6 +287,7 @@ def app_settings_status() -> dict:
     desk_on = bool(data.get("plugin_desktop_enabled", True))
     multi_on = bool(data.get("plugin_multi_sandbox_enabled", False))
     from plugins.framework_switch import DEFAULT_FRAMEWORK, list_frameworks, normalize_framework
+    from settings.credential_status import credential_field_status
 
     test_framework = normalize_framework(data.get("test_framework"))
     playwright_headless = bool(data.get("playwright_headless", False))
@@ -300,11 +304,13 @@ def app_settings_status() -> dict:
     ollama_model_saved = (data.get("ollama_model") or "").strip()
     env_info = list_environments()
     active_env_name = env_info.get("active_environment_name") or "(none)"
+    cred_fields = credential_field_status()
     summary = "\n".join(
         [
             f"Local store: {settings_path()}",
             f"Level: {level} | Browser profile: {browser_profile_dir(level)}",
             creds_label,
+            cred_fields.get("summary") or "",
             f"Jira project: {(data.get('jira_project') or '').strip() or '(not set)'}",
             f"Active environment: {active_env_name} | Target URL: {target_url or '(not set)'} | Messaging: {api_endpoint or '(not set)'}",
             f"Ollama model: {ollama_model or default_model_name()}",
@@ -325,6 +331,11 @@ def app_settings_status() -> dict:
         "jira_credentials_status": creds_status,
         "jira_credentials_label": creds_label,
         "jira_credentials_configured": creds_status == "configured",
+        "credential_fields": cred_fields.get("fields") or [],
+        "credential_summary": cred_fields.get("summary") or "",
+        "jira_email_status": cred_fields.get("jira_email"),
+        "jira_api_token_status": cred_fields.get("jira_api_token"),
+        "target_secret_status": cred_fields.get("target_secret"),
         "plugin_desktop_enabled": desk_on,
         "target_url": target_url,
         "target_app_path": app_path,

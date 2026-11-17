@@ -255,6 +255,11 @@ def connection_checklist() -> dict[str, Any]:
     }
 
 
+def check_jira_auth() -> dict[str, Any]:
+    """Public Jira auth probe for test-connection (KAN-185). Never returns secrets."""
+    return _check_jira()
+
+
 def connection_health() -> dict[str, Any]:
     """Run Jira / Ollama / target probes. Never includes secrets."""
     checks = [_check_jira(), _check_ollama(), _check_target()]

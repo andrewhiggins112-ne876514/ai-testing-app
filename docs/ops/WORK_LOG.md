@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-185** — D4 Credential status without revealing secrets |
-| **Start task** | **KAN-186** (`test`, Relates → KAN-185) |
+| **Jira story** | **KAN-187** — D5 Timeouts visible on the case |
+| **Start task** | **KAN-188** (`test`, Relates → KAN-187) |
 | **Epic** | Test-all D (see catalogue) |
-| **Roadmap ID** | D4 / FR-SEC-5 + FR-JIRA-7 |
+| **Roadmap ID** | D5 / FR-PLAN-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-186** |
-| **Shipped** | … **KAN-183** D3 named environments (desk56); **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
+| **Test ticket** | **KAN-188** |
+| **Shipped** | … **KAN-185** D4 credential status (desk57); **KAN-183** D3 named environments (desk56); **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all D after D4 → D5…, or **KAN-260** Lab tools in App menu when prioritised |
+| **Next after this** | continue Test-all D after D5 → D6…, or **KAN-260** Lab tools in App menu when prioritised |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-185 — D4 Credential status without revealing secrets
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-185
+- **Done:** Per-field set/missing for Jira email, Jira API token, and target secret (never values). Test-connection uses stored Jira secret and returns success or human-readable auth error. Clear-secret is confirm-gated; `credentials_audit.jsonl` records clear events with no old value. Level-scoped `target_secret` key. API `GET /api/credentials/status`, `POST …/test-connection`, `…/clear`, `…/target-secret`. Desktop Settings Credential status UI (desk57).
+- **Files:** `settings/credential_status.py`, `settings/store.py`, `settings/connection_health.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_credential_status.py` (+ desk57 cache-bust)
+- **Verify:** `pytest tests/test_credential_status.py` + related (43 passed). Live `GET /api/credentials/status` → set/missing only; `POST /api/credentials/test-connection` → success without secrets; desk57 HTML has `cred-status-list` / `cred-test-btn` / `cred-clear-confirm-btn`; `desktop_app.py` opened (desk57).
+- **Jira:** close-out **KAN-185** + **KAN-186**
+- **Next:** **KAN-187** D5 timeouts visible on the case (test **KAN-188**)
 
 ### 2026-11-17 — KAN-183 — D3 Named environments
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-183

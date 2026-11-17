@@ -1452,6 +1452,18 @@
   const setPlaywrightMode = document.getElementById("set-playwright-mode");
   const setStorePath = document.getElementById("set-store-path");
   const setCreds = document.getElementById("set-creds");
+  const credStatusList = document.getElementById("cred-status-list");
+  const credStatusSummary = document.getElementById("cred-status-summary");
+  const setTargetSecret = document.getElementById("set-target-secret");
+  const credSaveTargetBtn = document.getElementById("cred-save-target-btn");
+  const credTestBtn = document.getElementById("cred-test-btn");
+  const credTestOut = document.getElementById("cred-test-out");
+  const credClearEmailBtn = document.getElementById("cred-clear-email-btn");
+  const credClearTokenBtn = document.getElementById("cred-clear-token-btn");
+  const credClearTargetBtn = document.getElementById("cred-clear-target-btn");
+  const credClearConfirmBtn = document.getElementById("cred-clear-confirm-btn");
+  const credStatus = document.getElementById("cred-status");
+  let pendingClearKey = "";
   const setSummary = document.getElementById("set-summary");
   const setSave = document.getElementById("set-save");
   const setStatus = document.getElementById("set-status");
@@ -1914,6 +1926,7 @@
         payload.jira_credentials_label ||
         "Jira credentials: " + (payload.jira_credentials_status || "—");
     }
+    applyCredentialStatus(payload);
     if (setSummary) {
       const lines = (payload.summary || "")
         .split("\n")
@@ -1999,6 +2012,104 @@
         ollamaModelStatus.textContent =
           "Could not list models: " + (err && err.message ? err.message : err);
       }
+    }
+  }
+
+  function applyCredentialStatus(payload) {
+    if (!payload) return;
+    const fields =
+      payload.fields ||
+      payload.credential_fields ||
+      [
+        {
+          label: "Jira email",
+          state: payload.jira_email || payload.jira_email_status || "—",
+        },
+        {
+          label: "Jira API token",
+          state: payload.jira_api_token || payload.jira_api_token_status || "—",
+        },
+        {
+          label: "Target secret",
+          state: payload.target_secret || payload.target_secret_status || "—",
+        },
+      ];
+    if (credStatusList) {
+      credStatusList.innerHTML = "";
+      fields.forEach(function (row) {
+        const li = document.createElement("li");
+        li.textContent =
+          (row.label || row.key || "Field") + ": " + (row.state || "—");
+        credStatusList.appendChild(li);
+      });
+    }
+    if (credStatusSummary) {
+      credStatusSummary.textContent =
+        payload.summary ||
+        payload.credential_summary ||
+        "Credential status: —";
+    }
+    if (setTargetSecret) {
+      setTargetSecret.value = "";
+    }
+  }
+
+  function resetClearSecretPending() {
+    pendingClearKey = "";
+    if (credClearConfirmBtn) credClearConfirmBtn.disabled = true;
+  }
+
+  async function proposeClearSecret(key) {
+    if (!key) return;
+    if (credStatus) credStatus.textContent = "Proposing clear…";
+    try {
+      const res = await fetch("/api/credentials/clear", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: key, confirm: false }),
+      });
+      const payload = await res.json();
+      if (payload.status === "confirmation_required") {
+        pendingClearKey = key;
+        if (credClearConfirmBtn) credClearConfirmBtn.disabled = false;
+        if (credStatus) {
+          credStatus.textContent =
+            payload.message ||
+            "Confirm clear (value never shown). Press Confirm clear.";
+        }
+        return;
+      }
+      if (credStatus) {
+        credStatus.textContent = payload.message || "Clear propose failed.";
+      }
+    } catch (err) {
+      if (credStatus) credStatus.textContent = "Could not propose clear.";
+    }
+  }
+
+  async function confirmClearSecret() {
+    if (!pendingClearKey) {
+      if (credStatus) credStatus.textContent = "Propose a clear first.";
+      return;
+    }
+    if (credStatus) credStatus.textContent = "Clearing…";
+    try {
+      const res = await fetch("/api/credentials/clear", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: pendingClearKey, confirm: true }),
+      });
+      const payload = await res.json();
+      applyCredentialStatus(payload);
+      resetClearSecretPending();
+      if (credStatus) {
+        credStatus.textContent =
+          payload.message ||
+          (payload.status === "cleared" ? "Cleared." : "Clear failed.");
+      }
+      await loadAppSettings();
+    } catch (err) {
+      if (credStatus) credStatus.textContent = "Could not clear secret.";
     }
   }
 
@@ -5148,6 +5259,78 @@
             (err && err.message ? err.message : err);
         }
       }
+    });
+  }
+
+  if (credTestBtn) {
+    credTestBtn.addEventListener("click", async function () {
+      if (credStatus) credStatus.textContent = "Testing connection…";
+      if (credTestOut) {
+        credTestOut.hidden = false;
+        credTestOut.textContent = "…";
+      }
+      try {
+        const res = await fetch("/api/credentials/test-connection", {
+          method: "POST",
+        });
+        const payload = await res.json();
+        const check = payload.check || {};
+        const line =
+          (payload.result || check.state || "unknown") +
+          " — " +
+          (payload.message || check.message || "");
+        if (credTestOut) {
+          credTestOut.hidden = false;
+          credTestOut.textContent = line;
+        }
+        if (credStatus) {
+          credStatus.textContent =
+            payload.message || "Test connection finished.";
+        }
+      } catch (err) {
+        if (credStatus) credStatus.textContent = "Test connection failed.";
+      }
+    });
+  }
+
+  if (credSaveTargetBtn) {
+    credSaveTargetBtn.addEventListener("click", async function () {
+      const value = setTargetSecret ? setTargetSecret.value : "";
+      if (credStatus) credStatus.textContent = "Saving target secret…";
+      try {
+        const res = await fetch("/api/credentials/target-secret", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ value: value, confirm: true }),
+        });
+        const payload = await res.json();
+        applyCredentialStatus(payload);
+        if (credStatus) {
+          credStatus.textContent =
+            payload.message ||
+            (payload.status === "updated" ? "Target secret saved." : "Save failed.");
+        }
+        await loadAppSettings();
+      } catch (err) {
+        if (credStatus) credStatus.textContent = "Could not save target secret.";
+      }
+    });
+  }
+
+  [
+    credClearEmailBtn,
+    credClearTokenBtn,
+    credClearTargetBtn,
+  ].forEach(function (btn) {
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      proposeClearSecret(btn.getAttribute("data-clear-key") || "");
+    });
+  });
+
+  if (credClearConfirmBtn) {
+    credClearConfirmBtn.addEventListener("click", function () {
+      confirmClearSecret();
     });
   }
 

@@ -92,6 +92,12 @@ from reports.exporter import (
 )
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.connection_health import connection_health
+from settings.credential_status import (
+    clear_secret as clear_credential_secret,
+    credential_field_status,
+    set_target_secret,
+    test_connection as test_credential_connection,
+)
 from settings.environments import (
     activate_environment,
     delete_environment,
@@ -184,6 +190,16 @@ class AppSettingsRequest(BaseModel):
     playwright_mode: str | None = None
     playwright_headless: bool | None = None
     ollama_model: str | None = None
+
+
+class ClearSecretRequest(BaseModel):
+    key: str
+    confirm: bool = False
+
+
+class TargetSecretRequest(BaseModel):
+    value: str = ""
+    confirm: bool = True
 
 
 class NamedEnvironmentRequest(BaseModel):
@@ -556,6 +572,30 @@ async def get_ollama_models_api():
 async def get_connection_health_api():
     """Connect-once health: Jira, Ollama, target — no secrets (KAN-127 / FR-CONN-1)."""
     return connection_health()
+
+
+@app.get("/api/credentials/status")
+async def get_credentials_status_api():
+    """Set/missing for Jira email, token, target secret — never values (KAN-185 / D4)."""
+    return credential_field_status()
+
+
+@app.post("/api/credentials/test-connection")
+async def post_credentials_test_connection_api():
+    """Test Jira with stored secrets; success or human-readable auth error (KAN-185)."""
+    return test_credential_connection()
+
+
+@app.post("/api/credentials/clear")
+async def post_credentials_clear_api(req: ClearSecretRequest):
+    """Clear one secret after confirm. Audit never stores the old value (KAN-185)."""
+    return clear_credential_secret(req.key, confirm=bool(req.confirm))
+
+
+@app.post("/api/credentials/target-secret")
+async def post_credentials_target_secret_api(req: TargetSecretRequest):
+    """Save target secret to level store. Response never echoes the value (KAN-185)."""
+    return set_target_secret(req.value, confirm=bool(req.confirm))
 
 
 @app.get("/api/environments")
