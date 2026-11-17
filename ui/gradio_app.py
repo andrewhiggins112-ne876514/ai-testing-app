@@ -1856,6 +1856,207 @@ def refresh_reports_ui(selected: str | None = None):
     return gr.update(choices=choices, value=chosen), text, shot, payload, meta
 
 
+# --- Plans tab (KAN-157 / C1): same level-scoped store as desktop ---
+_NONE_PLAN = "(no plans)"
+_NONE_CASE = "(no cases)"
+_PLAN_SEP = " · "
+
+
+def _plan_choice_label(plan: dict) -> str:
+    name = str(plan.get("name") or "Untitled").strip() or "Untitled"
+    pid = str(plan.get("id") or "").strip()
+    return f"{name}{_PLAN_SEP}{pid}"
+
+
+def _parse_plan_choice(choice: str | None) -> str | None:
+    text = (choice or "").strip()
+    if not text or text == _NONE_PLAN:
+        return None
+    if _PLAN_SEP in text:
+        return text.rsplit(_PLAN_SEP, 1)[-1].strip() or None
+    return text
+
+
+def _case_choice_label(case: dict) -> str:
+    name = str(case.get("name") or "Untitled case").strip() or "Untitled case"
+    cid = str(case.get("id") or "").strip()
+    enabled = case.get("enabled", True)
+    flag = "" if enabled else " [disabled]"
+    return f"{name}{_PLAN_SEP}{cid}{flag}"
+
+
+def _parse_case_choice(choice: str | None) -> str | None:
+    text = (choice or "").strip()
+    if not text or text == _NONE_CASE:
+        return None
+    # Strip optional [disabled] suffix then take id after last separator.
+    if text.endswith(" [disabled]"):
+        text = text[: -len(" [disabled]")].rstrip()
+    if _PLAN_SEP in text:
+        return text.rsplit(_PLAN_SEP, 1)[-1].strip() or None
+    return text
+
+
+def list_plan_choices():
+    """Plan dropdown labels for the active security level (same store as desktop)."""
+    from plans.store import list_plans
+
+    listed = list_plans()
+    plans = listed.get("plans") or []
+    if not plans:
+        return [_NONE_PLAN]
+    return [_plan_choice_label(p) for p in plans]
+
+
+def list_case_choices(plan_choice: str | None = None):
+    from plans.store import get_plan
+
+    pid = _parse_plan_choice(plan_choice)
+    if not pid:
+        return [_NONE_CASE]
+    loaded = get_plan(pid)
+    if loaded.get("status") != "ok":
+        return [_NONE_CASE]
+    cases = list(((loaded.get("plan") or {}).get("suite") or {}).get("cases") or [])
+    if not cases:
+        return [_NONE_CASE]
+    return [_case_choice_label(c) for c in cases]
+
+
+def format_plan_case_detail(plan_choice: str | None = None, case_choice: str | None = None) -> str:
+    """Markdown detail for selected plan/case including last-run (refresh sees desktop runs)."""
+    from plans.run_case import case_detail
+    from plans.store import get_plan, list_plans
+    from settings.store import get_security_level
+
+    level = get_security_level()
+    listed = list_plans()
+    lines = [
+        f"**Security level:** {level}",
+        f"**Plans on this level:** {listed.get('count', 0)}",
+    ]
+    pid = _parse_plan_choice(plan_choice)
+    if not pid:
+        lines.append("_No plan selected. Draft or open a plan in the desktop app, then Refresh._")
+        return "\n\n".join(lines)
+
+    loaded = get_plan(pid)
+    if loaded.get("status") != "ok":
+        lines.append(f"_Could not load plan:_ {loaded.get('message') or loaded.get('error')}")
+        return "\n\n".join(lines)
+
+    plan = loaded["plan"]
+    lines.extend(
+        [
+            f"**Plan:** {plan.get('name') or pid}",
+            f"**Id:** `{pid}`",
+            f"**Intent:** {(plan.get('intent') or '').strip() or '_none_'}",
+        ]
+    )
+    cid = _parse_case_choice(case_choice)
+    if not cid:
+        case_count = len(((plan.get("suite") or {}).get("cases") or []))
+        lines.append(f"**Cases:** {case_count}. Select a case to see last run.")
+        return "\n\n".join(lines)
+
+    detail = case_detail(plan, cid)
+    if detail.get("status") != "ok":
+        lines.append(f"_Case not found:_ {cid}")
+        return "\n\n".join(lines)
+
+    lines.extend(
+        [
+            f"**Case:** {detail.get('name') or cid}",
+            f"**Case id:** `{cid}`",
+            f"**Jira:** {(detail.get('jira_key') or '').strip() or '_none_'}",
+            f"**Source:** {detail.get('source_kind') or 'manual-draft'}"
+            + (
+                f" — `{detail.get('source_ref')}`"
+                if (detail.get("source_ref") or "").strip()
+                else ""
+            ),
+            f"**Manual draft:** {'yes' if detail.get('manual_draft') else 'no'}",
+            f"**Last run:** {(detail.get('last_run_summary') or '_none yet_')}",
+        ]
+    )
+    note = (detail.get("note") or "").strip()
+    if note:
+        lines.append(f"**Case note:** {note}")
+    tester_note = (detail.get("tester_note") or "").strip()
+    if tester_note:
+        lines.append(f"**Run note:** {tester_note}")
+    if detail.get("known_label"):
+        lines.append("**Label:** known")
+    return "\n\n".join(lines)
+
+
+def refresh_plans_ui(plan_choice: str | None = None, case_choice: str | None = None):
+    """Refresh plan/case dropdowns from the local store (picks up desktop changes)."""
+    from settings.store import get_security_level
+
+    plan_choices = list_plan_choices()
+    preferred_plan = (plan_choice or "").strip()
+    if preferred_plan in plan_choices and preferred_plan != _NONE_PLAN:
+        chosen_plan = preferred_plan
+    else:
+        chosen_plan = plan_choices[0]
+
+    case_choices = list_case_choices(chosen_plan)
+    preferred_case = (case_choice or "").strip()
+    if preferred_case in case_choices and preferred_case != _NONE_CASE:
+        chosen_case = preferred_case
+    else:
+        chosen_case = case_choices[0]
+
+    detail = format_plan_case_detail(chosen_plan, chosen_case)
+    level = get_security_level()
+    count = 0 if plan_choices == [_NONE_PLAN] else len(plan_choices)
+    status = f"{level}: {count} plan(s). Refresh reloads the same store the desktop uses."
+    return (
+        gr.update(choices=plan_choices, value=chosen_plan),
+        gr.update(choices=case_choices, value=chosen_case),
+        detail,
+        status,
+    )
+
+
+def _run_coro_sync(coro):
+    """Run an async coroutine from a Gradio sync handler (may already have a loop)."""
+    import asyncio
+    import concurrent.futures
+
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(asyncio.run, coro).result(timeout=600)
+
+
+def run_gradio_plan_case(plan_choice: str | None, case_choice: str | None):
+    """Start the same single-case headed run path as desktop (KAN-137 / A7)."""
+    from plans.run_case import run_single_case
+
+    pid = _parse_plan_choice(plan_choice)
+    cid = _parse_case_choice(case_choice)
+    if not pid:
+        plan_u, case_u, detail, _ = refresh_plans_ui(plan_choice, case_choice)
+        return plan_u, case_u, detail, "Select a plan first."
+    if not cid:
+        plan_u, case_u, detail, _ = refresh_plans_ui(plan_choice, case_choice)
+        return plan_u, case_u, detail, "Select a case to run."
+
+    out = _run_coro_sync(run_single_case(pid, cid, session_id="gradio-plan-run"))
+    plan_u, case_u, detail, _ = refresh_plans_ui(plan_choice, case_choice)
+    if out.get("status") == "ok":
+        run = out.get("run") or {}
+        msg = out.get("message") or f"Case finished: {run.get('result') or 'done'}."
+    else:
+        msg = out.get("message") or out.get("error") or "Run failed."
+    return plan_u, case_u, detail, msg
+
+
 def new_session_id():
     return str(uuid.uuid4())
 
@@ -2257,6 +2458,59 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     gr.Button("Refresh plugins").click(
                         plugins_list_summary, outputs=[plugins_box]
                     )
+        with gr.Tab("Plans"):
+            _plan_choices = list_plan_choices()
+            _case_choices = list_case_choices(_plan_choices[0] if _plan_choices else None)
+            with gr.Column(elem_id="plans-panel"):
+                gr.HTML('<div class="panel-title">Plans</div>')
+                gr.HTML(
+                    '<div class="panel-hint">Same local plans as the desktop app for the active '
+                    "security level. Refresh after a desktop run to see results here. Single-case "
+                    "run uses the headed Playwright path (FR-UI-2 / FR-PLAN-1).</div>"
+                )
+                plan_pick = gr.Dropdown(
+                    choices=_plan_choices,
+                    value=_plan_choices[0],
+                    label="Plan",
+                    interactive=True,
+                )
+                case_pick = gr.Dropdown(
+                    choices=_case_choices,
+                    value=_case_choices[0],
+                    label="Case",
+                    interactive=True,
+                )
+                plan_detail = gr.Markdown(format_plan_case_detail(_plan_choices[0], _case_choices[0]))
+                plan_status = gr.Textbox(
+                    value="Ready",
+                    label="Status",
+                    interactive=False,
+                    max_lines=2,
+                )
+                with gr.Row():
+                    plan_refresh_btn = gr.Button("Refresh", variant="secondary")
+                    plan_run_btn = gr.Button("Run case", variant="primary")
+                plan_refresh_btn.click(
+                    refresh_plans_ui,
+                    [plan_pick, case_pick],
+                    [plan_pick, case_pick, plan_detail, plan_status],
+                )
+                plan_run_btn.click(
+                    run_gradio_plan_case,
+                    [plan_pick, case_pick],
+                    [plan_pick, case_pick, plan_detail, plan_status],
+                )
+                plan_pick.change(
+                    refresh_plans_ui,
+                    [plan_pick, case_pick],
+                    [plan_pick, case_pick, plan_detail, plan_status],
+                )
+                case_pick.change(
+                    format_plan_case_detail,
+                    [plan_pick, case_pick],
+                    [plan_detail],
+                )
+
         with gr.Tab("Reports"):
             _report_choices = list_report_choices()
             _sec = load_report_sections()
@@ -2367,6 +2621,10 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
     demo.load(
         refresh_reports_ui,
         outputs=[report_pick, report_md, report_image, report_json, report_meta],
+    )
+    demo.load(
+        refresh_plans_ui,
+        outputs=[plan_pick, case_pick, plan_detail, plan_status],
     )
     demo.load(
         current_report_sections,

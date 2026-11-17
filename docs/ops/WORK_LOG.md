@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-157** — Test-all C1 — Same plan in Gradio |
-| **Start task** | **KAN-158** (`test`, Relates → KAN-157) |
+| **Jira story** | **KAN-159** — Test-all C2 — Report sections and heal review for a run |
+| **Start task** | **KAN-160** (`test`, Relates → KAN-159) |
 | **Epic** | **KAN-119** — Test-all C — Plan the whole project |
-| **Roadmap ID** | TESTALL-C / FR-UI-2 + FR-PLAN-1 |
+| **Roadmap ID** | TESTALL-C / FR-REP-2 + FR-HEAL-2 + FR-PLAN-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/test_all_catalogue.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-158** |
-| **Shipped** | … **KAN-143** B1; **KAN-145** B2; **KAN-147** B3; **KAN-149** B4; **KAN-151** B5; **KAN-153** B6; **KAN-155** B7 |
+| **Test ticket** | **KAN-160** |
+| **Shipped** | … **KAN-155** B7; **KAN-157** C1 same plan in Gradio |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-157 — C1 same plan in Gradio
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-157
+- **Done:** Gradio **Plans** tab lists level-scoped plans from the same store as desktop; case picker + last-run detail; Refresh reloads desktop results; **Run case** calls `run_single_case` (headed A7 path). Chat/Settings/Reports/Documents tabs kept.
+- **Files:** `ui/gradio_app.py`, `tests/test_plans_tab.py`
+- **Verify:** `pytest tests/test_plans_tab.py -v` (5 passed). Live Gradio `/config` has tabitem Plans + `plans-panel` + Run case; Computer Use showed Plans among tabs on `127.0.0.1:7860`.
+- **Jira:** close-out **KAN-157** + **KAN-158**
+- **Next:** **KAN-159** C2 report sections and heal review for a run
 
 ### 2026-11-17 — KAN-155 — B7 notes on a case and on a run
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-155
