@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-193** — E1 Document privacy for uploads |
-| **Start task** | **KAN-194** (`test`, Relates → KAN-193) |
+| **Jira story** | **KAN-195** — E2 Audit log for local side effects |
+| **Start task** | **KAN-196** (`test`, Relates → KAN-195) |
 | **Epic** | Test-all E (see catalogue) |
-| **Roadmap ID** | E1 / FR-SEC-2 / FR-LEARN-5 |
+| **Roadmap ID** | E2 / FR-SEC-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-194** |
-| **Shipped** | … **KAN-191** D7 duration on run/case (desk60); **KAN-189** D6 local run-finish notify (desk59); **KAN-187** D5 timeouts; **KAN-185** D4 credential status; **KAN-183** D3 named environments; **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-257** App menu |
+| **Test ticket** | **KAN-196** |
+| **Shipped** | … **KAN-193** E1 document privacy uploads (desk61); **KAN-191** D7 duration (desk60); **KAN-189** D6 run-finish notify (desk59); **KAN-187** D5 timeouts; **KAN-185** D4 credential status; **KAN-183** D3 named environments; **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all E after E1 → E2…, or **KAN-260** Lab tools in App menu when prioritised |
+| **Next after this** | continue Test-all E after E2 → E3…, or **KAN-260** Lab tools in App menu when prioritised |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-193 — E1 Document privacy for uploads
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-193
+- **Done:** Local upload registry records filename, time, security level, and consent (consent flips true when extracted settings are confirmed). Privacy inventory includes `uploads`; confirm-gated delete-local-data can wipe them. Report section `documents` defaults off so exports omit document bodies unless opted in. Documents UI lists local uploads (desk61). No cloud sync.
+- **Files:** `plugins/doc_uploads.py`, `plugins/doc_ingest.py`, `settings/privacy.py`, `reports/sections.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_doc_privacy_uploads.py`, `tests/test_report_sections.py` (+ desk61 cache-bust)
+- **Verify:** `pytest tests/test_doc_privacy_uploads.py` + related (25 passed). Live `GET /api/privacy` includes uploads; `GET /api/doc-uploads` bodies=false cloud=false; `GET /api/report-sections` documents=false; desk61 HTML has `rpt-documents` / `priv-uploads` / `doc-uploads-list`; `desktop_app.py` opened (desk61).
+- **Jira:** close-out **KAN-193** + **KAN-194**
+- **Next:** **KAN-195** E2 audit log for local side effects (test **KAN-196**)
 
 ### 2026-11-17 — KAN-191 — D7 Duration on the run and the case
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-191

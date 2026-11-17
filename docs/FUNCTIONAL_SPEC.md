@@ -278,7 +278,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | Model tool-calling reliability | **Done** baseline | **KAN-61** |
 | Self-healing guardrails (policy) | **Done** (KAN-49) | Review UI **Done** (KAN-75) |
 | Security isolation | **Done** (KAN-15) | GDPR **KAN-69**; prompt-injection **KAN-71** |
-| Document ingestion | **Done** baseline (KAN-45) | Deepen via FR-PLAN-3 / E1 |
+| Document ingestion | **Done** baseline (KAN-45) | Privacy uploads **Done** E1 (**KAN-193** desk61) |
 
 ---
 

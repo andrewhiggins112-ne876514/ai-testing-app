@@ -46,6 +46,7 @@ class ReportSectionsTests(unittest.TestCase):
                 "evidence": True,
                 "known_issues": True,
                 "traceability": True,
+                "documents": False,
             },
         )
         result = {

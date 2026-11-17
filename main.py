@@ -21,6 +21,7 @@ from plugins.desktop_runner import (
     set_plugin_enabled as set_desktop_plugin_enabled,
 )
 from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
+from plugins.doc_uploads import list_uploads
 from plugins.heal_policy import approve_heal, list_pending_heals, reject_heal
 from plugins.framework_switch import (
     attempt_run as framework_attempt_run,
@@ -147,6 +148,8 @@ class ReportSectionsRequest(BaseModel):
     bugs: bool = True
     evidence: bool = True
     known_issues: bool = True
+    traceability: bool = True
+    documents: bool = False
 
 
 class DocIngestRequest(BaseModel):
@@ -670,6 +673,12 @@ async def api_doc_ingest(req: DocIngestRequest):
     if (req.filename or "").strip():
         kwargs["filename"] = req.filename
     return ingest_document(**kwargs)
+
+
+@app.get("/api/doc-uploads")
+async def api_doc_uploads(include_bodies: bool = False):
+    """E1: list local upload metadata (bodies off by default; no cloud sync)."""
+    return list_uploads(include_bodies=bool(include_bodies))
 
 
 @app.post("/api/doc-ingest/apply")

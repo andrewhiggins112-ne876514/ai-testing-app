@@ -20,9 +20,17 @@ DELETABLE_CATEGORIES = (
     "sessions",
     "browser_profiles",
     "plans",
+    "uploads",
 )
 
-_DEFAULT_WIPE = ("reports", "screenshots", "heal_audit", "jira_write_audit", "sessions")
+_DEFAULT_WIPE = (
+    "reports",
+    "screenshots",
+    "heal_audit",
+    "jira_write_audit",
+    "sessions",
+    "uploads",
+)
 
 CONSENT_NOTE = (
     "Extracted document data is never stored without your explicit confirmation "
@@ -40,6 +48,7 @@ def _category_path(category: str) -> Path:
         "sessions": root / "sessions",
         "browser_profiles": root / "browser_profiles",
         "plans": root / "plans",
+        "uploads": root / "uploads",
     }
     if category not in mapping:
         raise ValueError(f"Unknown category: {category!r}")
@@ -79,6 +88,11 @@ def local_data_inventory(
     out: Dict[str, Dict[str, Any]] = {}
     for name in chosen:
         if name not in DELETABLE_CATEGORIES:
+            continue
+        if name == "uploads":
+            from plugins.doc_uploads import uploads_inventory
+
+            out[name] = uploads_inventory()
             continue
         out[name] = _path_stats(_category_path(name))
     return out
@@ -127,7 +141,14 @@ def _wipe_target(path: Path) -> Dict[str, Any]:
         return {"path": str(safe), "deleted": True, "kind": "file"}
     shutil.rmtree(safe)
     # Keep expected folder structure for later writers.
-    if safe.name in {"reports", "screenshots", "sessions", "browser_profiles", "plans"}:
+    if safe.name in {
+        "reports",
+        "screenshots",
+        "sessions",
+        "browser_profiles",
+        "plans",
+        "uploads",
+    }:
         safe.mkdir(parents=True, exist_ok=True)
     return {"path": str(safe), "deleted": True, "kind": "directory"}
 
@@ -163,6 +184,11 @@ def delete_local_data(
 
     removed: List[Dict[str, Any]] = []
     for name in chosen:
+        if name == "uploads":
+            from plugins.doc_uploads import wipe_uploads
+
+            removed.append({"category": name, **wipe_uploads()})
+            continue
         removed.append({"category": name, **_wipe_target(_category_path(name))})
 
     return {

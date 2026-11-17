@@ -11,6 +11,7 @@ SECTION_KEYS = (
     "evidence",
     "known_issues",
     "traceability",
+    "documents",
 )
 SECTION_LABELS = {
     "summary": "Summary",
@@ -19,13 +20,17 @@ SECTION_LABELS = {
     "evidence": "Evidence",
     "known_issues": "Known issues",
     "traceability": "Traceability",
+    "documents": "Documents",
 }
+
+# E1: document bodies stay out of exports unless the user opts in.
+_SECTION_DEFAULT_OFF = frozenset({"documents"})
 
 _JIRA_KEY = re.compile(r"\b([A-Z][A-Z0-9]+-\d+)\b")
 
 
 def default_sections() -> dict[str, bool]:
-    return {key: True for key in SECTION_KEYS}
+    return {key: (key not in _SECTION_DEFAULT_OFF) for key in SECTION_KEYS}
 
 
 def normalize_sections(raw: Mapping[str, Any] | None) -> dict[str, bool]:
@@ -317,6 +322,25 @@ def build_sections(
             "count": len(rows),
             "label": "traceability matrix",
         }
+    if flags.get("documents"):
+        # Opt-in only: include local upload bodies when the documents section is on.
+        doc_items: list[dict[str, Any]] = []
+        raw_docs = body.get("documents")
+        if isinstance(raw_docs, list) and raw_docs:
+            for item in raw_docs:
+                if isinstance(item, Mapping):
+                    doc_items.append(dict(item))
+        else:
+            from plugins.doc_uploads import uploads_for_export
+
+            doc_items = uploads_for_export(include_bodies=True)
+        sections["documents"] = {
+            "items": doc_items,
+            "count": len(doc_items),
+            "bodies_included": True,
+            "cloud_sync": False,
+            "label": "documents",
+        }
     return sections
 
 
@@ -501,6 +525,36 @@ def render_markdown(sections: Mapping[str, Any]) -> str:
                 lines.append(f"| {story} | {cases_n} | {last} | {bugs} | {known} |")
         else:
             lines.append("| — | 0 | not_loaded | — | no |")
+        lines.append("")
+
+    if "documents" in sections and isinstance(sections["documents"], Mapping):
+        docs = sections["documents"]
+        lines.append("## Documents")
+        lines.append("")
+        lines.append(
+            f"Count: {docs.get('count', 0)} "
+            f"(bodies included; local only; cloud_sync={bool(docs.get('cloud_sync'))})"
+        )
+        items = docs.get("items") or []
+        if items:
+            for item in items:
+                if not isinstance(item, Mapping):
+                    continue
+                name = item.get("filename") or item.get("id") or "upload"
+                level = item.get("security_level") or ""
+                when = item.get("uploaded_at") or ""
+                consent = "yes" if item.get("consent") else "no"
+                lines.append(
+                    f"- {name} · level {level} · {when} · consent {consent}"
+                )
+                body = str(item.get("body") or "")
+                if body:
+                    lines.append("")
+                    lines.append("```")
+                    lines.append(body[:4000])
+                    lines.append("```")
+        else:
+            lines.append("None recorded.")
         lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"

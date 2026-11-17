@@ -222,6 +222,13 @@ def _public_diff(diff: Dict[str, Any]) -> Dict[str, Any]:
     return {k: {"from": v["from"], "to": v["to"]} for k, v in diff.items()}
 
 
+def _record_local_upload(filename: str, body: str) -> Dict[str, Any]:
+    """E1: always register upload metadata locally (consent starts false)."""
+    from plugins.doc_uploads import record_upload
+
+    return record_upload(filename=filename, text=body, consent=False)
+
+
 def _store_pending(
     session_id: str,
     *,
@@ -229,6 +236,7 @@ def _store_pending(
     format_name: str,
     diff: Dict[str, Any],
     test_ideas: List[str],
+    upload_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     proposal_id = str(uuid.uuid4())
     record = {
@@ -239,6 +247,7 @@ def _store_pending(
         "format": format_name,
         "diff": diff,
         "test_ideas": test_ideas,
+        "upload_id": upload_id,
         "expires": time.monotonic() + _CONFIRM_TTL,
     }
     _PENDING[str(session_id)] = record
@@ -248,6 +257,7 @@ def _store_pending(
         "proposal_id": proposal_id,
         "filename": filename,
         "format": format_name,
+        "upload_id": upload_id,
         "settings_diff": _public_diff(diff),
         "test_ideas": test_ideas,
         "note": (
@@ -271,17 +281,25 @@ def ingest_document(
     if loaded.get("status") != "ok":
         return loaded
     body = loaded["text"]
+    upload = _record_local_upload(str(loaded["filename"]), body)
     meta = injection_meta(body)
     excerpt = wrap_untrusted("document", redact_secrets_for_model(body[:2000]))
     proposed = extract_settings_proposals(body)
     ideas = extract_test_ideas(body)
     diff = _diff_against_store(proposed)
+    upload_meta = {
+        "upload": upload,
+        "upload_id": upload.get("id"),
+        "upload_recorded": True,
+        "consent": bool(upload.get("consent")),
+    }
     if not diff and not ideas:
         return {
             "status": "empty",
             "filename": loaded["filename"],
             "message": "No settings hints or test ideas found in the document.",
             **meta,
+            **upload_meta,
             "excerpt_for_model": excerpt,
         }
     if not diff:
@@ -291,8 +309,9 @@ def ingest_document(
             "format": loaded["format"],
             "settings_diff": {},
             "test_ideas": ideas,
-            "note": "No settings changes proposed; settings file unchanged.",
+            "note": "No settings changes proposed; settings file unchanged. Upload recorded locally.",
             **meta,
+            **upload_meta,
             "excerpt_for_model": excerpt,
         }
     result = _store_pending(
@@ -301,8 +320,10 @@ def ingest_document(
         format_name=loaded["format"],
         diff=diff,
         test_ideas=ideas,
+        upload_id=str(upload.get("id") or "") or None,
     )
     result.update(meta)
+    result.update(upload_meta)
     result["excerpt_for_model"] = excerpt
     return result
 
@@ -376,13 +397,24 @@ def apply_proposal(
             "consent_required": True,
         }
     result = apply_settings_diff(payload, confirm=True)
+    upload_id = str(record.get("upload_id") or "").strip()
+    consent_update: Dict[str, Any] | None = None
+    if upload_id:
+        from plugins.doc_uploads import set_upload_consent
+
+        consent_update = set_upload_consent(upload_id, consent=True)
     _drop(record)
-    return {
+    out = {
         "status": "applied",
         "proposal_id": record.get("proposal_id"),
         "updated": result.get("updated") or shown,
         "skipped": [k for k in diff if k not in selected],
+        "upload_id": upload_id or None,
+        "consent": True if upload_id else None,
     }
+    if consent_update is not None:
+        out["upload_consent"] = consent_update
+    return out
 
 
 def resolve_doc_ingest(session_id: str, user_message: str) -> Optional[Dict[str, Any]]:

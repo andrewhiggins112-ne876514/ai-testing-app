@@ -1511,6 +1511,7 @@
     evidence: document.getElementById("rpt-evidence"),
     known_issues: document.getElementById("rpt-known-issues"),
     traceability: document.getElementById("rpt-traceability"),
+    documents: document.getElementById("rpt-documents"),
   };
   const rptSave = document.getElementById("rpt-save");
   const rptLibrarySelect = document.getElementById("rpt-library-select");
@@ -1539,6 +1540,7 @@
     screenshots: document.getElementById("priv-screenshots"),
     heal_audit: document.getElementById("priv-heal"),
     sessions: document.getElementById("priv-sessions"),
+    uploads: document.getElementById("priv-uploads"),
     browser_profiles: document.getElementById("priv-profiles"),
   };
   const privPropose = document.getElementById("priv-propose");
@@ -1553,7 +1555,42 @@
   const docConfirm = document.getElementById("doc-confirm");
   const docDecline = document.getElementById("doc-decline");
   const docStatus = document.getElementById("doc-status");
+  const docUploadsRefresh = document.getElementById("doc-uploads-refresh");
+  const docUploadsList = document.getElementById("doc-uploads-list");
   let docProposalId = "";
+
+  async function loadDocUploads() {
+    if (!docUploadsList) return;
+    try {
+      const res = await fetch("/api/doc-uploads");
+      const data = await res.json();
+      docUploadsList.innerHTML = "";
+      const rows = (data && data.uploads) || [];
+      if (!rows.length) {
+        const li = document.createElement("li");
+        li.textContent = "No local uploads yet.";
+        docUploadsList.appendChild(li);
+        return;
+      }
+      rows.forEach(function (row) {
+        const li = document.createElement("li");
+        li.textContent =
+          (row.filename || "upload") +
+          " · " +
+          (row.security_level || "?") +
+          " · " +
+          (row.uploaded_at || "") +
+          " · consent " +
+          (row.consent ? "yes" : "no");
+        docUploadsList.appendChild(li);
+      });
+    } catch (err) {
+      docUploadsList.innerHTML = "";
+      const li = document.createElement("li");
+      li.textContent = "Could not load uploads.";
+      docUploadsList.appendChild(li);
+    }
+  }
 
   function applyReportSections(flags) {
     Object.keys(rptChecks).forEach(function (key) {
@@ -1579,6 +1616,7 @@
       evidence: !!(rptChecks.evidence && rptChecks.evidence.checked),
       known_issues: !!(rptChecks.known_issues && rptChecks.known_issues.checked),
       traceability: !!(rptChecks.traceability && rptChecks.traceability.checked),
+      documents: !!(rptChecks.documents && rptChecks.documents.checked),
     };
   }
 
@@ -3612,6 +3650,7 @@
       loadSecurityStatus();
       loadPrivacyStatus();
     }
+    if (name === "documents") loadDocUploads();
     if (name === "heal") {
       loadExportableRuns().then(function () {
         loadHealProposals();
@@ -6005,15 +6044,29 @@
         }
         renderDocProposal(data);
         if (docStatus) {
+          const uploadBit = data.upload
+            ? " Upload recorded (" +
+              (data.upload.filename || "file") +
+              ", consent " +
+              (data.upload.consent ? "yes" : "no") +
+              ")."
+            : "";
           docStatus.textContent =
-            data.note ||
-            (data.status === "ideas_only"
-              ? "Test ideas only — settings unchanged."
-              : "Review the diff, then Confirm or Decline.");
+            (data.note ||
+              (data.status === "ideas_only"
+                ? "Test ideas only — settings unchanged."
+                : "Review the diff, then Confirm or Decline.")) + uploadBit;
         }
+        loadDocUploads();
       } catch (err) {
         if (docStatus) docStatus.textContent = "Could not parse the document.";
       }
+    });
+  }
+
+  if (docUploadsRefresh) {
+    docUploadsRefresh.addEventListener("click", function () {
+      loadDocUploads();
     });
   }
 
@@ -6054,8 +6107,11 @@
         if (docStatus) {
           const updated = Object.keys(data.updated || {});
           docStatus.textContent =
-            "Stored: " + (updated.length ? updated.join(", ") : "nothing") + ".";
+            "Stored: " +
+            (updated.length ? updated.join(", ") : "nothing") +
+            (data.consent ? " · upload consent yes." : ".");
         }
+        loadDocUploads();
       } catch (err) {
         if (docStatus) docStatus.textContent = "Could not apply settings.";
       }

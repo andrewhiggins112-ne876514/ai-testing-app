@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk60" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk61" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -281,6 +281,7 @@
             <label class="check-row"><input type="checkbox" id="rpt-evidence" checked /> Evidence</label>
             <label class="check-row"><input type="checkbox" id="rpt-known-issues" checked /> Known issues</label>
             <label class="check-row"><input type="checkbox" id="rpt-traceability" checked /> Traceability matrix</label>
+            <label class="check-row"><input type="checkbox" id="rpt-documents" /> Documents (bodies — off by default)</label>
             <button type="button" id="rpt-save" class="save-btn">Save sections</button>
             <p id="rpt-sections-status" class="drawer-hint" role="status">Ready</p>
           </div>
@@ -303,7 +304,7 @@
           <h3 class="orb-section-label">Privacy &amp; local data</h3>
           <p class="drawer-hint">
             No telemetry by default. Extracted document data needs explicit consent before storage.
-            Wipe local artifacts (reports, screenshots, heal audit, sessions, browser profiles) with confirmation.
+            Wipe local artifacts (reports, screenshots, heal audit, sessions, uploads, browser profiles) with confirmation.
             Credentials and settings.json are not deleted here.
           </p>
           <p id="priv-telemetry" class="drawer-hint">Telemetry: —</p>
@@ -312,6 +313,7 @@
           <label class="check-row"><input type="checkbox" id="priv-screenshots" checked /> Screenshots</label>
           <label class="check-row"><input type="checkbox" id="priv-heal" checked /> Heal audit</label>
           <label class="check-row"><input type="checkbox" id="priv-sessions" checked /> Sessions</label>
+          <label class="check-row"><input type="checkbox" id="priv-uploads" checked /> Uploaded documents</label>
           <label class="check-row"><input type="checkbox" id="priv-profiles" /> Browser profiles</label>
           <div class="btn-row">
             <button type="button" id="priv-propose" class="save-btn">Delete local data…</button>
@@ -359,7 +361,7 @@
         </div>
         <div id="app-section-documents" class="app-section" hidden>
           <h3 class="orb-section-label">Document ingestion</h3>
-          <p class="drawer-hint">Paste a Markdown/text spec. Explicit consent required before storing extracted settings (GDPR). Decline leaves the settings file unchanged.</p>
+          <p class="drawer-hint">Paste a Markdown/text spec. Uploads record file name, time, security level, and consent locally (no cloud sync). Explicit consent is required before storing extracted settings (GDPR). Decline leaves the settings file unchanged. Exports omit document bodies unless the Documents report section is on.</p>
           <label class="stack-label">Spec text
             <textarea id="doc-text" rows="8" placeholder="# Spec&#10;Target: https://example.com&#10;Jira project: KAN"></textarea>
           </label>
@@ -374,6 +376,12 @@
               <button type="button" id="doc-decline" class="save-btn secondary">Decline</button>
             </div>
           </div>
+          <h3 class="orb-section-label">Local uploads</h3>
+          <p class="drawer-hint">Privacy inventory includes these. Delete them from Security → Privacy with confirm.</p>
+          <div class="btn-row">
+            <button type="button" id="doc-uploads-refresh" class="save-btn secondary">Refresh uploads</button>
+          </div>
+          <ul id="doc-uploads-list" class="doc-ideas" aria-live="polite"></ul>
           <p id="doc-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-heal" class="app-section" hidden>
@@ -738,6 +746,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk60"></script>
+  <script src="/ui/desktop/desktop.js?v=desk61"></script>
 </body>
 </html>
