@@ -589,7 +589,23 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
 }
 
 #app-drawer.app-menu-panel .app-nav {
+  gap: 10px;
+}
+
+#app-drawer.app-menu-panel .app-nav-group {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
+}
+
+#app-drawer.app-menu-panel .app-nav-group-label {
+  margin: 0;
+  padding: 0 2px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted, rgba(180, 210, 230, 0.72));
 }
 
 #app-drawer.app-menu-panel .app-nav-item {

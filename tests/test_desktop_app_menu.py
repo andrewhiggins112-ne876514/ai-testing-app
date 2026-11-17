@@ -1,8 +1,10 @@
-"""KAN-253 / KAN-256 / follow-up — Desktop compact App menu (Gradio-style ▦ popover)."""
+"""KAN-253 / KAN-256 / KAN-260 — Desktop compact App menu (Primary + Lab tools)."""
 from __future__ import annotations
 
 import unittest
 from pathlib import Path
+
+from ui.app_areas import LAB_APP_MENU_AREAS, PRIMARY_APP_MENU_AREAS
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -20,21 +22,34 @@ class DesktopAppMenuTests(unittest.TestCase):
         self.assertNotIn('class="side-drawer app-drawer', html)
         self.assertNotIn('class="tab-nav"', html)
         self.assertNotIn('<nav class="top-tabs">', html)
-        self.assertIn("desk63", html)
+        self.assertIn("desk64", html)
         self.assertIn('data-default-along="16"', html)
 
-    def test_app_nav_matches_gradio_areas(self):
+    def test_app_nav_has_primary_and_lab_groups(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         nav_start = html.index('class="app-nav"')
         nav_end = html.index("</nav>", nav_start)
         nav = html[nav_start:nav_end]
-        # Compact App menu = Gradio areas only (not the old 9-item tall list).
-        for section in ("chat", "settings", "plans", "reports", "documents"):
+        self.assertIn('data-nav-group="primary"', nav)
+        self.assertIn('data-nav-group="lab"', nav)
+        self.assertIn("Primary", nav)
+        self.assertIn("Lab tools", nav)
+        for section in PRIMARY_APP_MENU_AREAS:
             self.assertIn(f'data-section="{section}"', nav)
-        for section in ("security", "heal", "desktop", "suites", "sandboxes"):
-            self.assertNotIn(f'data-section="{section}"', nav)
+        for section in LAB_APP_MENU_AREAS:
+            self.assertIn(f'data-section="{section}"', nav)
         # Drift UI from C5 must remain after menu merge.
         self.assertIn("plan-drift-check-btn", html)
+
+    def test_app_areas_constants_match_story(self):
+        self.assertEqual(
+            PRIMARY_APP_MENU_AREAS,
+            ("chat", "settings", "plans", "reports", "documents"),
+        )
+        self.assertEqual(
+            LAB_APP_MENU_AREAS,
+            ("security", "heal", "desktop", "suites", "sandboxes"),
+        )
 
     def test_area_host_not_nested_in_app_menu(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
@@ -52,6 +67,8 @@ class DesktopAppMenuTests(unittest.TestCase):
         self.assertIn("position: fixed", css)
         self.assertIn("height: fit-content", css)
         self.assertIn(".app-menu-title", css)
+        self.assertIn(".app-nav-group", css)
+        self.assertIn(".app-nav-group-label", css)
         self.assertIn("KAN-256", css)
 
     def test_js_positions_compact_panel(self):
@@ -66,12 +83,12 @@ class DesktopAppMenuTests(unittest.TestCase):
         self.assertIn("isCompactAppMenu(drawer)", js)
         self.assertIn("postAcceptanceDrift", js)
 
-    def test_cache_bust_desk63(self):
+    def test_cache_bust_desk64(self):
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk63", app)
-        self.assertIn("desktop.css?v=desk63", html)
-        self.assertIn("desktop.js?v=desk63", html)
+        self.assertIn("desk64", app)
+        self.assertIn("desktop.css?v=desk64", html)
+        self.assertIn("desktop.js?v=desk64", html)
 
     def test_open_area_still_closes_menu(self):
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")

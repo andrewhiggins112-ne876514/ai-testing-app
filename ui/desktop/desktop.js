@@ -3908,7 +3908,7 @@
   document.querySelectorAll(".app-nav-item[data-section], .hub-spoke[data-section]").forEach(function (btn) {
     btn.addEventListener("click", function () {
       const section = btn.getAttribute("data-section");
-      /* Gradio parity: Chat = home (close area). Extra tools stay on orb hub. */
+      /* Chat = home (close area). Lab tools + Primary areas open via openArea. */
       if (section === "chat") {
         closeArea();
         document.querySelectorAll(".app-nav-item[data-section]").forEach(function (nav) {

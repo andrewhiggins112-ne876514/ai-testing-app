@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-260** — Lab tools in App menu |
-| **Start task** | (linked `test` Relates → KAN-260; create if missing) |
-| **Epic** | UI / Designer priority (reach gap) |
-| **Roadmap ID** | UI-LAB-MENU |
+| **Jira story** | **KAN-199** — E4 Backup and restore of this lab |
+| **Start task** | **KAN-200** (`test`, Relates → KAN-199) |
+| **Epic** | Test-all E (see catalogue) |
+| **Roadmap ID** | E4 / FR-SET-1 + FR-SEC-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | (create `test` Relates if none) |
-| **Shipped** | … **KAN-197** E3 redact secrets (desk63); **KAN-195** E2 local side-effects audit (desk62); **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
+| **Test ticket** | **KAN-200** |
+| **Shipped** | … **KAN-260** Lab tools App menu (desk64); **KAN-197** E3 redact secrets (desk63); **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | Resume Test-all **E4** (backup/restore) after KAN-260 |
+| **Next after this** | continue Test-all E after E4 → E5… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-260 — Lab tools in App menu (UI-NAV-IA-5)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-260
+- **Done:** Compact ▦ App menu now has Primary + Lab tools groups. Lab tools (Security, Heal review, Desktop, Suites, Sandboxes) reachable in every layout mode; orb hub spokes kept as accelerators. Spec FR-UI-8. `ui/app_areas.py` constants. desk64 cache-bust.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.css`, `ui/desktop/desktop.js`, `ui/app_areas.py`, `desktop_app.py`, `tests/test_desktop_app_menu.py` (+ desk64 across UI tests), `docs/FUNCTIONAL_SPEC.md`
+- **Verify:** `pytest tests/test_desktop_app_menu.py` + nav suite (8 + 20 passed). Live HTML at `:8765` has Primary/Lab tools + sandboxes. `desktop_app.py` opened desk64 (Computer Use click targeting flaky on DPI; HTML + pytest evidence).
+- **Jira:** close-out **KAN-260** + **KAN-262**
+- **Next:** **KAN-199** E4 Backup and restore of this lab (test **KAN-200**)
 
 ### 2026-11-17 — KAN-197 — E3 Redact secrets in evidence and exports
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-197

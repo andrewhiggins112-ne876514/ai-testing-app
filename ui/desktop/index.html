@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk63" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk64" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -706,13 +706,24 @@
       <div class="shell-surface app-menu-inner">
         <h2 class="app-menu-title">App</h2>
         <nav class="app-nav" aria-label="Application sections">
-          <button type="button" class="app-nav-item" data-section="chat" aria-pressed="false">Chat</button>
-          <button type="button" class="app-nav-item" data-section="settings" aria-pressed="false">Settings</button>
-          <button type="button" class="app-nav-item" data-section="plans" aria-pressed="false">Plans</button>
-          <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
-          <button type="button" class="app-nav-item" data-section="documents" aria-pressed="false">Documents</button>
+          <div class="app-nav-group" data-nav-group="primary" role="group" aria-labelledby="app-nav-primary-label">
+            <p class="app-nav-group-label" id="app-nav-primary-label">Primary</p>
+            <button type="button" class="app-nav-item" data-section="chat" aria-pressed="false">Chat</button>
+            <button type="button" class="app-nav-item" data-section="settings" aria-pressed="false">Settings</button>
+            <button type="button" class="app-nav-item" data-section="plans" aria-pressed="false">Plans</button>
+            <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
+            <button type="button" class="app-nav-item" data-section="documents" aria-pressed="false">Documents</button>
+          </div>
+          <div class="app-nav-group" data-nav-group="lab" role="group" aria-labelledby="app-nav-lab-label">
+            <p class="app-nav-group-label" id="app-nav-lab-label">Lab tools</p>
+            <button type="button" class="app-nav-item" data-section="security" aria-pressed="false">Security</button>
+            <button type="button" class="app-nav-item" data-section="heal" aria-pressed="false">Heal review</button>
+            <button type="button" class="app-nav-item" data-section="desktop" aria-pressed="false">Desktop</button>
+            <button type="button" class="app-nav-item" data-section="suites" aria-pressed="false">Suites</button>
+            <button type="button" class="app-nav-item" data-section="sandboxes" aria-pressed="false">Sandboxes</button>
+          </div>
         </nav>
-        <p class="drawer-hint" id="app-drawer-hint">Chat returns home. Settings / Plans / Reports / Documents open that area. Extra tools stay on the orb hub.</p>
+        <p class="drawer-hint" id="app-drawer-hint">Primary opens Chat home or Settings / Plans / Reports / Documents. Lab tools open Security, Heal, Desktop, Suites, or Sandboxes. Orb hub still mirrors Lab tools when layout is orb hub.</p>
       </div>
     </aside>
 
@@ -764,6 +775,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk63"></script>
+  <script src="/ui/desktop/desktop.js?v=desk64"></script>
 </body>
 </html>
