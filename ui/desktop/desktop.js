@@ -1426,6 +1426,13 @@
   const planRunTagSmoke = document.getElementById("plan-run-tag-smoke");
   const planRunTagRegression = document.getElementById("plan-run-tag-regression");
   const planTagRunOut = document.getElementById("plan-tag-run-out");
+  const planScheduleTag = document.getElementById("plan-schedule-tag");
+  const planScheduleTime = document.getElementById("plan-schedule-time");
+  const planScheduleSave = document.getElementById("plan-schedule-save");
+  const planScheduleClear = document.getElementById("plan-schedule-clear");
+  const planScheduleTick = document.getElementById("plan-schedule-tick");
+  const planScheduleStatus = document.getElementById("plan-schedule-status");
+  const planScheduleOut = document.getElementById("plan-schedule-out");
   const planCaseRun = document.getElementById("plan-case-run");
   const planRerunFailed = document.getElementById("plan-rerun-failed");
   const planRerunOut = document.getElementById("plan-rerun-out");
@@ -6682,6 +6689,199 @@
       runPlanByTag("regression");
     });
   }
+
+  function renderScheduleInfo(payload) {
+    if (!payload) return;
+    const sch = payload.schedule;
+    if (planScheduleStatus) {
+      if (payload.enabled && sch) {
+        planScheduleStatus.textContent =
+          "Schedule: " +
+          (sch.tag || "?") +
+          " at " +
+          (sch.time_local || "?") +
+          " (sequential" +
+          (payload.has_saved_connection ? ", connection saved" : ", no saved connection") +
+          ")";
+      } else {
+        planScheduleStatus.textContent = "Schedule: off";
+      }
+    }
+    if (sch && planScheduleTag && !planScheduleTag.value) {
+      planScheduleTag.value = sch.tag || "";
+    }
+    if (sch && planScheduleTime && sch.time_local) {
+      planScheduleTime.value = sch.time_local;
+    }
+    if (planScheduleOut) {
+      const hist = payload.history || [];
+      const miss = payload.recorded_misses || [];
+      const lines = [
+        payload.message || "",
+        payload.action ? "Action: " + payload.action : null,
+        payload.fired ? "Fired: yes" : null,
+        payload.run && payload.run.suite_run_id
+          ? "Suite run: " + payload.run.suite_run_id
+          : null,
+        "",
+        "Recent history:",
+        hist.length
+          ? hist
+              .slice()
+              .reverse()
+              .slice(0, 5)
+              .map(function (h) {
+                return (
+                  "- " +
+                  (h.due_at || "?") +
+                  " → " +
+                  (h.outcome || "?") +
+                  (h.reason ? " (" + h.reason + ")" : "")
+                );
+              })
+              .join("\n")
+          : "(none)",
+        miss.length
+          ? "\nJust recorded as not run:\n" +
+            miss
+              .map(function (h) {
+                return "- " + (h.due_at || "?") + " (" + (h.reason || "") + ")";
+              })
+              .join("\n")
+          : null,
+      ].filter(function (line) {
+        return line !== null;
+      });
+      planScheduleOut.hidden = false;
+      planScheduleOut.textContent = lines.join("\n");
+    }
+  }
+
+  async function refreshPlanSchedule() {
+    try {
+      const res = await fetch("/api/plans/schedule");
+      const payload = await res.json();
+      if (payload.status === "ok") {
+        renderScheduleInfo(payload);
+      }
+    } catch (err) {
+      if (planScheduleStatus) {
+        planScheduleStatus.textContent = "Schedule: (unavailable)";
+      }
+    }
+  }
+
+  if (planScheduleSave) {
+    planScheduleSave.addEventListener("click", async function () {
+      if (!openPlanId) {
+        if (planStatus) planStatus.textContent = "Open a plan first.";
+        return;
+      }
+      const tag = (planScheduleTag && planScheduleTag.value
+        ? planScheduleTag.value
+        : planRunTag
+          ? planRunTag.value
+          : ""
+      ).trim();
+      const timeLocal = planScheduleTime ? planScheduleTime.value : "";
+      if (planStatus) planStatus.textContent = "Saving local schedule…";
+      try {
+        const res = await fetch("/api/plans/schedule", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            plan_id: openPlanId,
+            tag: tag,
+            time_local: timeLocal,
+          }),
+        });
+        const payload = await res.json();
+        renderScheduleInfo(payload);
+        if (planStatus) {
+          planStatus.textContent = payload.message || "Schedule saved.";
+        }
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Schedule save failed.";
+      }
+    });
+  }
+
+  if (planScheduleClear) {
+    planScheduleClear.addEventListener("click", async function () {
+      if (planStatus) planStatus.textContent = "Clearing schedule…";
+      try {
+        const res = await fetch("/api/plans/schedule/clear", { method: "POST" });
+        const payload = await res.json();
+        renderScheduleInfo(payload);
+        if (planStatus) {
+          planStatus.textContent = payload.message || "Schedule cleared.";
+        }
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Schedule clear failed.";
+      }
+    });
+  }
+
+  if (planScheduleTick) {
+    planScheduleTick.addEventListener("click", async function () {
+      if (planStatus) planStatus.textContent = "Checking schedule…";
+      try {
+        const res = await fetch("/api/plans/schedule/tick", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fire: true }),
+        });
+        const payload = await res.json();
+        renderScheduleInfo(payload);
+        if (payload.plan) {
+          /* no-op: tick may not return plan */
+        }
+        if (payload.run && payload.run.suite_run_id) {
+          lastSuiteRunId = payload.run.suite_run_id;
+        }
+        showLocalRunNotice(payload.local_notice || (payload.run && payload.run.local_notice));
+        if (planStatus) {
+          planStatus.textContent = payload.message || "Schedule checked.";
+        }
+        if (openPlanId) {
+          try {
+            const pref = await fetch("/api/plans/" + encodeURIComponent(openPlanId));
+            const prefPayload = await pref.json();
+            if (prefPayload.status === "ok" && prefPayload.plan) {
+              renderPlanCases(prefPayload.plan);
+            }
+          } catch (e2) {
+            /* ignore refresh errors */
+          }
+        }
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Schedule check failed.";
+      }
+    });
+  }
+
+  // Background tick while the desktop shell is open (local only).
+  setInterval(function () {
+    fetch("/api/plans/schedule/tick", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fire: true }),
+    })
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (payload) {
+        if (payload && payload.status === "ok") {
+          if (payload.fired || (payload.recorded_misses || []).length) {
+            renderScheduleInfo(payload);
+          }
+        }
+      })
+      .catch(function () {
+        /* ignore background tick errors */
+      });
+  }, 60000);
+  refreshPlanSchedule();
 
   if (planNotesSave) {
     planNotesSave.addEventListener("click", async function () {

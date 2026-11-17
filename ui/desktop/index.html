@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk83" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk84" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -778,6 +778,21 @@
             <button type="button" id="plan-run-tag-regression" class="save-btn secondary">Run regression</button>
           </div>
           <pre id="plan-tag-run-out" class="drawer-hint" aria-live="polite" hidden></pre>
+          <h4 class="orb-section-label">Scheduled local run</h4>
+          <p class="drawer-hint" id="plan-schedule-hint">Schedule one tagged run on this PC. Uses sequential runs and your saved connection. Missed slots (PC off) are recorded as not run — never as pass. Off until you create one. Not cloud-hosted.</p>
+          <label class="stack-label">Schedule tag
+            <input type="text" id="plan-schedule-tag" list="plan-run-tag-suggestions" placeholder="smoke" autocomplete="off" aria-describedby="plan-schedule-hint" />
+          </label>
+          <label class="stack-label">Local time (HH:MM)
+            <input type="time" id="plan-schedule-time" value="08:00" />
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-schedule-save" class="save-btn">Save schedule</button>
+            <button type="button" id="plan-schedule-clear" class="save-btn secondary">Clear schedule</button>
+            <button type="button" id="plan-schedule-tick" class="save-btn secondary">Check due now</button>
+          </div>
+          <p id="plan-schedule-status" class="drawer-hint" role="status">Schedule: off</p>
+          <pre id="plan-schedule-out" class="drawer-hint" aria-live="polite" hidden></pre>
           <label class="stack-label"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail (headed browser stays open until Continue or Stop; off by default)</label>
           <p id="plan-keyboard-hint" class="drawer-hint" data-keyboard-shortcuts="1">Shortcuts: <kbd>Alt</kbd>+<kbd>R</kbd> run selected case · <kbd>Alt</kbd>+<kbd>N</kbd> next failure · <kbd>Esc</kbd> Back to orb. No shortcut confirms Jira write or approves heal.</p>
           <div class="btn-row">
@@ -975,6 +990,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk83"></script>
+  <script src="/ui/desktop/desktop.js?v=desk84"></script>
 </body>
 </html>

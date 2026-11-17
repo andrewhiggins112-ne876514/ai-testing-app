@@ -72,6 +72,12 @@ from plans.run_notify import notify_info, set_notify_enabled
 from plans.timeouts import step_timeout_info
 from plans.rerun_failed import rerun_failed_cases
 from plans.run_by_tag import run_cases_by_tag, select_cases_for_tag
+from plans.schedule import (
+    clear_schedule,
+    schedule_info,
+    set_schedule,
+    tick_schedule,
+)
 from plans.run_case import case_detail, run_single_case
 from plans.desktop_case import add_desktop_case
 from plans.api_case import add_api_case, add_contract_case
@@ -549,6 +555,20 @@ class PlanRunByTagRequest(BaseModel):
     tag: str = ""
     parallel: int = 1
     sandbox_id: str = ""
+
+
+class PlanScheduleRequest(BaseModel):
+    """Create/replace the single local tagged schedule (KAN-239 / G12). Not cloud-hosted."""
+
+    plan_id: str = ""
+    tag: str = ""
+    time_local: str = ""
+
+
+class PlanScheduleTickRequest(BaseModel):
+    """Optional: skip firing (evaluate misses only). Default fires when due."""
+
+    fire: bool = True
 
 
 class PlanExportRunRequest(BaseModel):
@@ -1201,6 +1221,34 @@ async def post_plan_run_notify(body: RunNotifyRequest):
 async def get_plan_duration_info():
     """D7 duration on run/case — local only, no upload (KAN-191)."""
     return duration_info()
+
+
+@app.get("/api/plans/schedule")
+async def get_plan_schedule():
+    """Local scheduled tagged run status (KAN-239 / G12). Off until created; not cloud."""
+    return schedule_info()
+
+
+@app.post("/api/plans/schedule")
+async def post_plan_schedule(body: PlanScheduleRequest):
+    """Create or replace one local schedule: plan + tag + HH:MM (KAN-239 / G12)."""
+    return set_schedule(body.plan_id or "", body.tag or "", body.time_local or "")
+
+
+@app.post("/api/plans/schedule/clear")
+async def post_plan_schedule_clear():
+    """Clear the local schedule — feature off until created again (KAN-239 / G12)."""
+    return clear_schedule()
+
+
+@app.post("/api/plans/schedule/tick")
+async def post_plan_schedule_tick(body: PlanScheduleTickRequest | None = None):
+    """Evaluate due/missed slots; fire sequential tag run inside the window (KAN-239 / G12).
+
+    Missed schedules (PC off past the fire window) are recorded as not_run, never pass.
+    """
+    req = body or PlanScheduleTickRequest()
+    return await tick_schedule(fire=bool(req.fire))
 
 
 @app.get("/api/plans/{plan_id}/coverage-gaps")

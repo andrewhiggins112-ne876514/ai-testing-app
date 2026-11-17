@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-239** — G12 Scheduled local run |
-| **Start task** | **KAN-240** (`test`, Relates → KAN-239) |
-| **Epic** | Test-all G (see catalogue) |
-| **Roadmap ID** | G12 / FR-PLAN-2 |
+| **Jira story** | **KAN-241** — H1 Plan manual session capture (design only) |
+| **Start task** | **KAN-242** (`test`, Relates → KAN-241) |
+| **Epic** | Test-all H (see catalogue) |
+| **Roadmap ID** | H1 / FR-MAN-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-240** |
-| **Shipped** | … **KAN-237** G11 Installer second PC (desk83); **KAN-233** G9; **KAN-231** G8; **KAN-229** G7; **KAN-227** G6; **KAN-225** G5; **KAN-223** G4; **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
+| **Test ticket** | **KAN-242** |
+| **Shipped** | … **KAN-239** G12 Scheduled local run (desk84); **KAN-237** G11; **KAN-233** G9; **KAN-231** G8; **KAN-229** G7; **KAN-227** G6; **KAN-225** G5; **KAN-223** G4; **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all G after G12 (G10 voice deferred) |
+| **Next after this** | H2 (**KAN-243**) after H1 design; G10 voice still deferred |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-239 — G12 Scheduled local run
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-239
+- **Done:** One local tagged schedule on this PC (plan + tag + HH:MM). Sequential only (D1 default). Uses saved connection. Missed slots (PC off past fire window) recorded as `not_run`, never pass. Off until created; not cloud-hosted. Plans UI Scheduled local run + `GET/POST /api/plans/schedule*` + desk84.
+- **Files:** `plans/schedule.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_schedule.py` (+ desk84 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_plan_schedule.py` 7 passed. Live `GET /api/plans/schedule` → enabled false / off_until_created true / cloud false; desk84 HTML has `plan-schedule-save`. `desktop_app.py` opened desk84 (orb home; Computer Use contested; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-239** + **KAN-240**
+- **Next:** **KAN-241** H1 Plan manual session capture — design only (test **KAN-242**); G10 voice still deferred
 
 ### 2026-11-17 — KAN-237 — G11 Installer for a second Windows PC
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-237
