@@ -72,6 +72,7 @@ from plans.timeouts import step_timeout_info
 from plans.rerun_failed import rerun_failed_cases
 from plans.run_by_tag import run_cases_by_tag, select_cases_for_tag
 from plans.run_case import case_detail, run_single_case
+from plans.desktop_case import add_desktop_case
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
 from plans.home_checklist import home_checklist_summary
@@ -306,6 +307,15 @@ class PlanImportPlaywrightRequest(BaseModel):
     suite_path: str = ""
     plan_id: str = ""
     plan_name: str = ""
+
+
+class PlanDesktopCaseRequest(BaseModel):
+    """Add a desktop-typed case to the open suite (KAN-217 / G1)."""
+
+    name: str = ""
+    exe_path: str = ""
+    note: str = ""
+    tags: list[str] | None = None
 
 
 class JiraIssueRequest(BaseModel):
@@ -1251,6 +1261,18 @@ async def post_plan_case(plan_id: str, req: PlanCaseRequest):
         enabled=bool(req.enabled),
         source_kind=req.source_kind or "manual-draft",
         source_ref=req.source_ref or "",
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/desktop")
+async def post_plan_desktop_case(plan_id: str, req: PlanDesktopCaseRequest):
+    """Add a desktop-typed case; runs via desktop_runner, not Playwright (KAN-217)."""
+    return add_desktop_case(
+        plan_id,
+        req.name or "",
+        exe_path=req.exe_path or "",
+        note=req.note or "",
+        tags=list(req.tags or []),
     )
 
 

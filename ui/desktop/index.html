@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk73" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk74" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -566,7 +566,7 @@
         </div>
         <div id="app-section-plans" class="app-section" hidden>
           <h3 class="orb-section-label">Plans</h3>
-          <p class="drawer-hint">Draft a local plan from one Jira story, optional document text, a capped project batch, or an imported Playwright project. Edit cases before any run. Nothing is written to Jira from this screen. Import never deletes external Playwright files; Suites still runs via npx.</p>
+          <p class="drawer-hint">Draft a local plan from one Jira story, optional document text, a capped project batch, or an imported Playwright project. Add a desktop-typed case to run the connected .exe via the desktop plugin on the same suite (browser cases stay Playwright). Edit cases before any run. Nothing is written to Jira from this screen. Import never deletes external Playwright files; Suites still runs via npx.</p>
           <label class="stack-label">Issue key
             <input type="text" id="plan-issue-key" placeholder="KAN-131" autocomplete="off" />
           </label>
@@ -597,6 +597,7 @@
             <button type="button" id="plan-load-btn" class="save-btn secondary">Open plan</button>
             <button type="button" id="plan-doc-add-btn" class="save-btn secondary">Add doc cases to open plan</button>
             <button type="button" id="plan-import-pw-add-btn" class="save-btn secondary">Add Playwright to open plan</button>
+            <button type="button" id="plan-add-desktop-btn" class="save-btn secondary">Add desktop case</button>
           </div>
           <p id="plan-offline-banner" class="drawer-hint" role="status" hidden data-offline="0"></p>
           <h4 class="orb-section-label">Search plans / cases / failures</h4>
@@ -936,6 +937,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk73"></script>
+  <script src="/ui/desktop/desktop.js?v=desk74"></script>
 </body>
 </html>

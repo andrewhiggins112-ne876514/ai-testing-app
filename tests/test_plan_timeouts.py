@@ -123,7 +123,7 @@ class PlanTimeoutsTests(unittest.TestCase):
         self.assertEqual(kwargs.get("click_timeout"), 2500)
         self.assertEqual(kwargs.get("retry_timeout"), 1250)
 
-    def test_api_step_timeout_and_desktop_ui_desk73(self):
+    def test_api_step_timeout_and_desktop_ui_desk74(self):
         client = TestClient(main.app)
         info = client.get("/api/plans/step-timeout").json()
         self.assertEqual(info.get("status"), "ok")
@@ -146,8 +146,8 @@ class PlanTimeoutsTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk73", html)
-        self.assertIn("desk73", desk)
+        self.assertIn("desk74", html)
+        self.assertIn("desk74", desk)
         self.assertIn("plan-case-step-timeout", html)
         self.assertIn("planCaseStepTimeout", js)
         self.assertIn("step_timeout_ms", js)

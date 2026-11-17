@@ -191,6 +191,102 @@ def _map_suite_result(suite_out: dict[str, Any]) -> tuple[str, str | None, list[
     return "error", "tool", evidence
 
 
+def _map_desktop_result(desk: dict[str, Any]) -> tuple[str, str | None, list[str]]:
+    """Map desktop_runner output to plan run result + failure_class."""
+    status = str(desk.get("status") or "fail").lower()
+    err = (desk.get("error") or desk.get("message") or "").strip()
+    if status == "pass":
+        return "pass", None, []
+    if status == "disabled":
+        return "error", "tool", []
+    low = err.lower()
+    if (
+        "no exe path" in low
+        or "path not found" in low
+        or "not a file" in low
+        or "windows-only" in low
+    ):
+        return "error", "environment", []
+    if status == "fail":
+        return "fail", "product_bug", []
+    return "error", "tool", []
+
+
+async def _execute_desktop_case(
+    plan_id: str,
+    target_case: dict[str, Any],
+    *,
+    level: str,
+    suite_run_id: str | None,
+    reserved_run_id: str,
+    started: float,
+) -> dict[str, Any]:
+    """Run one desktop-typed case via desktop_runner (not Playwright)."""
+    from plans.desktop_case import parse_desktop_ref, write_desktop_evidence
+    from plugins.desktop_runner import run_desktop
+    from plans.timeouts import case_step_timeout_ms
+    from settings.store import load_settings
+
+    cid = target_case["id"]
+    src = target_case.get("source") if isinstance(target_case.get("source"), dict) else {}
+    parsed = parse_desktop_ref(str(src.get("ref") or ""))
+    settings = load_settings()
+    exe_path = (parsed.get("exe_path") or "").strip() or str(
+        settings.get("target_app_path") or ""
+    ).strip()
+    steps = parsed.get("steps")
+    timeout_ms = case_step_timeout_ms(target_case)
+    timeout_s = max(0.5, min(float(timeout_ms) / 1000.0, 120.0))
+
+    desk = await asyncio.to_thread(
+        run_desktop,
+        exe_path=exe_path,
+        timeout_s=timeout_s,
+        steps=steps,
+    )
+    duration_ms = int((time.monotonic() - started) * 1000)
+    result, failure_class, _ = _map_desktop_result(desk)
+    evidence = write_desktop_evidence(
+        run_id=reserved_run_id,
+        plan_id=plan_id,
+        case_id=cid,
+        desktop=desk,
+    )
+    note = str(desk.get("error") or desk.get("message") or desk.get("logs") or "")[:500]
+    recorded = add_run(
+        plan_id,
+        cid,
+        result=result,
+        duration_ms=duration_ms,
+        failure_class=failure_class,
+        evidence=evidence,
+        note=note,
+        suite_run_id=suite_run_id,
+        run_id=reserved_run_id,
+        level=level,
+    )
+    return {
+        "status": "ok",
+        "message": f"Case {cid} finished: {result}.",
+        "security_level": level,
+        "playwright_mode": None,
+        "target_up": bool(exe_path),
+        "only_case_id": cid,
+        "runner": "desktop_runner",
+        "pause_on_fail": False,
+        "suite_run_id": suite_run_id,
+        "desktop": {
+            "status": desk.get("status"),
+            "error": desk.get("error"),
+            "exe_path": desk.get("exe_path"),
+            "plugin": desk.get("plugin") or "desktop_runner",
+        },
+        "plan": recorded.get("plan"),
+        "case": recorded.get("case"),
+        "run": recorded.get("run"),
+    }
+
+
 async def _execute_playwright_imported_case(
     plan_id: str,
     target_case: dict[str, Any],
@@ -308,6 +404,16 @@ async def _execute_case(
 
     if _source_kind(target_case) == "playwright":
         return await _execute_playwright_imported_case(
+            plan_id,
+            target_case,
+            level=level,
+            suite_run_id=suite_rid,
+            reserved_run_id=reserved_run_id,
+            started=started,
+        )
+
+    if _source_kind(target_case) == "desktop":
+        return await _execute_desktop_case(
             plan_id,
             target_case,
             level=level,
@@ -543,6 +649,12 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "source_kind": kind,
             "source_ref": src.get("ref") or "",
             "manual_draft": kind == "manual-draft" and not (case.get("jira_key") or "").strip(),
+            "desktop_case": kind == "desktop",
+            "runner": (
+                "desktop_runner"
+                if kind == "desktop"
+                else ("playwright_suite" if kind == "playwright" else "playwright")
+            ),
             "last_run": last,
             "last_run_summary": _last_run_summary(case),
             "last_failure": flake.get("last_failure"),

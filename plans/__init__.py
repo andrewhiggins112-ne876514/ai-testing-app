@@ -12,6 +12,7 @@ from plans.drift import (
     refresh_acceptance_drafts,
 )
 from plans.import_playwright import import_playwright_project
+from plans.desktop_case import add_desktop_case
 from plans.duration import duration_info
 from plans.history import compare_suite_runs, list_suite_history
 from plans.quarantine import (
@@ -60,6 +61,7 @@ __all__ = [
     "DEFAULT_FLAKE_WINDOW",
     "DEFAULT_STEP_TIMEOUT_MS",
     "add_case",
+    "add_desktop_case",
     "case_step_timeout_ms",
     "resolve_step_timeout_ms",
     "step_timeout_info",
