@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-17 — Council CR — Nav IA (Reports data → menu → Settings hub)
+- **Agent/chat:** Advisory Council Room — Designer CR after Gradio top tabs + settings-like area pages
+- **Done (docs/Jira only):** Spec updated FR-UI-1/2/7, FR-SET-3/4, FR-REP-2/4. ROADMAP UI-NAV-IA-1…3. Sequence locked: (1) Reports library + move section toggles, (2) Gradio menu button, (3) Settings category hub. Active Build **unchanged: KAN-159**.
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `PROJECT_MEMORY.md`, `docs/ops/ROADMAP.md`, `docs/ops/KAN102_NAV_WIDGETS_PLAN.md`, this log
+- **Verify:** n/a (no product code)
+- **Jira:** **KAN-247** (test **KAN-250**) Reports data; **KAN-248** (test **KAN-251**) Gradio menu; **KAN-249** (test **KAN-252**) Settings hub — epic **KAN-27**; Relates + comments on KAN-102/103/159
+- **Next:** pick-up still **KAN-159**; then **KAN-247** UI-NAV-IA-1
+
 ### 2026-11-17 — KAN-157 — C1 same plan in Gradio
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-157
 - **Done:** Gradio **Plans** tab lists level-scoped plans from the same store as desktop; case picker + last-run detail; Refresh reloads desktop results; **Run case** calls `run_single_case` (headed A7 path). Chat/Settings/Reports/Documents tabs kept.

@@ -24,6 +24,9 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Depends | Notes |
 |----|------|---------|-------|
+| UI-NAV-IA-1 | Reports area = library/viewer; section toggles → Report Settings | UI-DESK-4 + after KAN-159 | **KAN-247** / test **KAN-250**; epic **KAN-27**; FR-REP-4 |
+| UI-NAV-IA-2 | Gradio menu button (no persistent top tab bar) | UI-NAV-IA-1 | **KAN-248** / test **KAN-251**; FR-UI-1/2 |
+| UI-NAV-IA-3 | Settings hub category switch (App / Report / …) | UI-NAV-IA-1 | **KAN-249** / test **KAN-252**; FR-SET-4 |
 | UI-CHAT | Minimal chat UX polish / Gradio Settings+Reports gaps | UI-6 | **done** — KAN-10 Settings/Reports polish (2026-11-15) |
 | JIRA-R | Richer tickets (AC + test steps) | — | **done** (2026-11-15) — multi-audience template + enrich script |
 | JIRA-B | Backlog structure (epics/stories/tests/bugs) | JIRA-R | **done** (2026-11-15) — KAN-20…29; Story→`test`+Relates; Task=dev; Bug=defects |

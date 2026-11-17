@@ -102,8 +102,9 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 
 ### 3.6 Reporting
 - **FR-REP-1:** Generate reports with metrics such as tests passed/failed, stories covered (by Jira key), bugs raised per story or functional area, progress, etc.
-- **FR-REP-2:** Reports are customisable — user chooses which sections to include or exclude.
+- **FR-REP-2:** Reports are customisable — user chooses which sections to include or exclude. Section include/exclude is **Report Settings** (FR-SET-4), applied to the next JSON/Markdown export — not the primary content of the Reports area. *(CR 2026-11-17 — content vs settings.)*
 - **FR-REP-3:** Reports can be exported (current exporter exists; polish later).
+- **FR-REP-4:** The **Reports** area lists and opens saved reports for the active security level (markdown detail, screenshot, raw JSON as available). Empty state explains how a run produces a report. A deep link opens Settings → Report. The Reports surface does **not** host the section-include editor. *(CR 2026-11-17.)*
 
 ### 3.7 Security and Isolation
 - **FR-SEC-1:** Support UK security classifications OFFICIAL and SECRET from the start via isolation of credentials and browser profiles.
@@ -116,8 +117,8 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - **FR-SEC-5:** Secrets never leave the local settings store or are written to client-side code / logs.
 
 ### 3.8 UI and Desktop Experience
-- **FR-UI-1:** Conversational interface is primary on the **agent home screen** (chat + central orb). **One home for everyone** — there is no separate Tester/Manager/PO landing. App drawer and screen drawer are secondary shells for navigation and layout — not replacements for the home canvas.
-- **FR-UI-2:** Native Windows desktop window (pywebview + Edge WebView2) is the preferred experience. Gradio remains available.
+- **FR-UI-1:** Conversational interface is primary on the **agent home screen** (chat + central orb). **One home for everyone** — there is no separate Tester/Manager/PO landing. App drawer and screen drawer are secondary shells for navigation and layout — not replacements for the home canvas. App areas open from the **App menu button** (desktop `▦` drawer; Gradio equivalent). A **persistent top tab bar is not app navigation**. *(CR 2026-11-17 — menu button nav.)*
+- **FR-UI-2:** Native Windows desktop window (pywebview + Edge WebView2) is the preferred experience. Gradio remains available and must follow the same **menu-button navigation** and **content-vs-settings** split (FR-UI-7, FR-SET-4, FR-REP-4). Gradio does **not** have to implement desktop area layouts A–E.
 - **FR-UI-3:** Visual orb styles (Mystic, Aether, Neural, Apex and classic canvas styles) with per-style settings, live controls, and theme accent that follows the active style. **Orb settings** (style, size, spin, glow, colours) live in the **Screen drawer** only — not under App → Settings. The active style accent (CSS variables such as `--cyan`, border, glow, and muted text) also paints App nav, area surfaces (overlay, stage, split, floating), HUD chips, hub spokes, and the App Settings layout picker — not only the orb canvas. *(CR 2026-11-16 — layout modes × style theme.)*
 - **FR-UI-4:** Movable / resizable panels and widgets (UI-6). Layout persists in localStorage.
 - **FR-UI-5:** Widget settings (transparency, border, background) apply live to shell surfaces.
@@ -128,7 +129,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
   - `orb_hub` — orb click shows spokes, then the area opens as an overlay (mockup C)
   - `split` — docked panel beside the home orb; Esc closes it (mockup D)
   - `floating` — one movable area window; the orb stays full size (mockup E)
-  Esc or Back returns home. Accents follow the active orb style (FR-UI-3). *(Product decision 2026-11-16 — configurable A–E, not a single mockup pick.)*
+  Esc or Back returns home. Accents follow the active orb style (FR-UI-3). *(Product decision 2026-11-16 — configurable A–E, not a single mockup pick.)* An area surface shows that area’s **content** (lists, viewers, run results, proposals). **Configuration** for the area lives under Settings categories (FR-SET-4), with a deep link from the area. *(CR 2026-11-17.)*
 
 ### 3.9 Plugins and Extensibility
 - **FR-PLUG-1:** Modular plugin architecture. New capabilities (desktop testing, richer reporting, multi-sandbox, performance, security testing, etc.) are addable without rewriting the core.
@@ -138,7 +139,8 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 ### 3.10 Settings and Local Store
 - **FR-SET-1:** All user settings, credentials, orb presets, and layout live under the local app data directory (`%LOCALAPPDATA%\ai_testing_app\`). Never committed to git.
 - **FR-SET-2:** Document ingestion proposes settings; user must confirm before they are written.
-- **FR-SET-3:** **App Settings** (connectors, Jira URL, credentials status, **App area layout**, configuration for other areas) is a **dedicated App area screen** — separate from **Orb settings** (FR-UI-3) in the Screen drawer. App → Settings is main application configuration, not orb visual controls. The layout control lists overlay, stage, orb hub, split, and floating.
+- **FR-SET-3:** **App Settings** (connectors, Jira URL / project, Ollama model, test framework, Playwright headed/headless, **App area layout**, credential *status*) is the **App** category on the Settings hub — separate from **Orb settings** (FR-UI-3) in the Screen drawer / gear. Secrets never render. The layout control lists overlay, stage, orb hub, split, and floating. App Settings is **not** every area’s toggles dumped into one scroll. *(CR 2026-11-17.)*
+- **FR-SET-4:** **Settings hub** — one Settings surface with a **category switch** that stays on Settings (Slice categories: **App**, **Report**; later: other area configs as needed). **Report** holds section include/exclude for the next export (FR-REP-2). Security level confirm and GDPR local-data delete stay on the **Security** area (may be linked from Settings). Plugin / suite / sandbox enable flags may move into further categories in follow-on stories. *(CR 2026-11-17.)*
 
 ---
 
@@ -231,15 +233,17 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-JIRA-5, FR-JIRA-7 | Shipped confirm + local creds + write audit | **Done** KAN-12, **KAN-16**, **KAN-99** |
 | FR-JIRA-6 | Shipped (429 Retry-After backoff + readable auth/rate-limit errors) | **Done** **KAN-91** |
 | FR-REP-1 | Shipped (stories covered + bugs by story/area) | **Done** **KAN-67** |
-| FR-REP-2 | Shipped | **Done** KAN-51 |
+| FR-REP-2 | Shipped (placement → Report Settings under FR-SET-4) | **Done** KAN-51; UI move **open** nav-IA Story 1 |
 | FR-REP-3 | Shipped baseline export | **Done** KAN-11 |
+| FR-REP-4 | Reports area = library/viewer (not section editor) | **Open** — **KAN-247** (after KAN-159) |
 | FR-SEC-1, FR-SEC-3, FR-SEC-5 | Shipped isolation + confirm + secrets scoping | **Done** KAN-15, **KAN-16** |
 | FR-SEC-2 | Done | **KAN-69** |
 | FR-SEC-4 | Done | **KAN-71** |
 | FR-UI-1…5 | Baseline shipped | **Done** KAN-10/41/53/73; Voice **KAN-81** deferred (mic; last) |
 | FR-UI-6 | Baseline Security + Reports + Lab checklist; role packs later | **Done** **KAN-103** / **KAN-107** / **KAN-104** + **KAN-135** empty-lab checklist; Test-all **F1–F7** |
-| FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix | **Done** **KAN-103** / **KAN-104** (desk22g) |
-| FR-SET-3 | Shipped — App Settings screen vs Orb settings (Screen drawer) | **Done** Task **KAN-108** under KAN-103 |
+| FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix; content vs config | **Done** shell **KAN-103** / **KAN-104**; content-vs-config **open** KAN-247…249 |
+| FR-SET-3 | Shipped — App Settings vs Orb settings; tightened App category | **Done** Task **KAN-108**; tighten **open** **KAN-249** |
+| FR-SET-4 | Settings hub with category switch (App / Report / …) | **Open** — **KAN-249** |
 | FR-PLUG-1 | Shipped registry + local multi-sandbox orchestration | **Done** KAN-55 stub + **KAN-95** (test **KAN-96**) |
 | FR-PLUG-2 | Shipped toggles | **Done** KAN-47/55 toggles |
 | FR-PLUG-3 | Stub shipped (Playwright default; others not-implemented) | **Done** **KAN-79** (test **KAN-80**) |
@@ -257,7 +261,8 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 |------|--------|-------|
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN**. Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
-| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; alpha A1–A9 first |
+| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; alpha A1–A9 first; Active Build **KAN-159** C2 |
+| Nav IA — Reports data / menu / Settings hub | **CR accepted 2026-11-17** | Sequence: (1) Reports library + move section toggles, (2) Gradio menu button, (3) Settings category hub. Epic **KAN-27**. Does not replace KAN-159. |
 | Voice input | Deferred | **KAN-81**; mic; later G10 |
 | Model tool-calling reliability | **Done** baseline | **KAN-61** |
 | Self-healing guardrails (policy) | **Done** (KAN-49) | Review UI **Done** (KAN-75) |
