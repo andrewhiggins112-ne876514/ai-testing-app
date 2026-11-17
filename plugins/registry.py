@@ -59,6 +59,16 @@ _MANIFESTS: list[dict[str, Any]] = [
         "default_enabled": True,
     },
     {
+        "id": "seed_fixture",
+        "name": "Seed data and fixtures",
+        "description": (
+            "Level-scoped named seed fixtures (user/row) for cases that assume data; "
+            "missing fixture fails as environment (opt-in per case; KAN-223 / G4)."
+        ),
+        "toggle_key": None,
+        "default_enabled": True,
+    },
+    {
         "id": "doc_ingest",
         "name": "Document ingestion",
         "description": "Parse specs into settings proposals (confirm before write).",

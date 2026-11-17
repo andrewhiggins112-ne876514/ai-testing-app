@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-223** — G4 Seed data and fixtures |
-| **Start task** | **KAN-224** (`test`, Relates → KAN-223) |
+| **Jira story** | **KAN-225** — G5 Visual baseline screenshots |
+| **Start task** | **KAN-226** (`test`, Relates → KAN-225) |
 | **Epic** | Test-all G (see catalogue) |
-| **Roadmap ID** | G4 / FR-PLUG-1 / FR-PLAN-2 |
+| **Roadmap ID** | G5 / FR-TEST-4 / FR-PLAN-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-224** |
-| **Shipped** | … **KAN-221** G3 Contract/mock (desk76); **KAN-219** G2 API/messaging (desk75); **KAN-217** G1 Desktop cases (desk74); **KAN-215** F7; **KAN-213** F6; … **KAN-260** Lab tools; **KAN-257** App menu |
+| **Test ticket** | **KAN-226** |
+| **Shipped** | … **KAN-223** G4 Seed/fixtures (desk77); **KAN-221** G3 Contract/mock (desk76); **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all G after G4 → G5… |
+| **Next after this** | continue Test-all G after G5 → G6… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-223 — G4 Seed data and fixtures
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-223
+- **Done:** Plan cases may name a level-scoped seed fixture (`source.kind=seed`). `seed_fixture` plugin loads named JSON under `%LOCALAPPDATA%/ai_testing_app/fixtures/{level}/`; default `seed_user.json` ensured on add. Run stores `seed_fixture` name; missing fixture → `failure_class=environment`. No global silent injection. Plans UI “Add seed/fixture case”; `POST /api/plans/{id}/cases/seed` + desk77.
+- **Files:** `plugins/seed_fixture.py`, `plugins/registry.py`, `plans/seed_case.py`, `plans/run_case.py`, `plans/store.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_seed_fixture.py` (+ desk77 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_plan_seed_fixture.py` 7 passed. Live `POST /api/plans/.../cases/seed` → kind seed; run → runner seed_fixture, `run.seed_fixture=seed_user.json`, pass. Missing fixture → environment. desk77 HTML has `plan-add-seed-btn`. `desktop_app.py` opened desk77 (orb home; Computer Use focus contested; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-223** + **KAN-224**
+- **Next:** **KAN-225** G5 Visual baseline screenshots (test **KAN-226**)
 
 ### 2026-11-17 — KAN-221 — G3 Contract and mock responses
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-221

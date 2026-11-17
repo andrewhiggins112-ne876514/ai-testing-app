@@ -428,6 +428,105 @@ async def _execute_desktop_case(
     }
 
 
+def _map_seed_result(seed: dict[str, Any]) -> tuple[str, str | None]:
+    """Map seed_fixture output to plan run result + failure_class."""
+    status = str(seed.get("status") or "fail").lower()
+    cls = str(seed.get("classification") or "").strip().lower() or None
+    err = str(seed.get("error") or seed.get("message") or "").lower()
+    if status == "pass":
+        return "pass", None
+    if cls == "environment" or any(
+        needle in err
+        for needle in (
+            "seed fixture not found",
+            "no seed fixture",
+            "invalid seed fixture",
+            "seed fixture unreadable",
+            "seed fixture name required",
+            "no silent injection",
+        )
+    ):
+        return "error", "environment"
+    if status == "fail":
+        return "fail", cls or "product_bug"
+    return "error", cls or "tool"
+
+
+async def _execute_seed_case(
+    plan_id: str,
+    target_case: dict[str, Any],
+    *,
+    level: str,
+    suite_run_id: str | None,
+    reserved_run_id: str,
+    started: float,
+) -> dict[str, Any]:
+    """Run one seed/fixture case via seed_fixture plugin (KAN-223 / G4)."""
+    from plans.seed_case import parse_seed_ref, write_seed_evidence
+    from plugins.seed_fixture import apply_seed_fixture
+
+    cid = target_case["id"]
+    src = target_case.get("source") if isinstance(target_case.get("source"), dict) else {}
+    parsed = parse_seed_ref(str(src.get("ref") or ""))
+    fixture_name = str(parsed.get("fixture") or "").strip()
+    steps = parsed.get("steps")
+
+    seed = await asyncio.to_thread(
+        apply_seed_fixture,
+        fixture=fixture_name,
+        steps=steps,
+        level=level,
+    )
+    duration_ms = int((time.monotonic() - started) * 1000)
+    result, failure_class = _map_seed_result(seed)
+    evidence = write_seed_evidence(
+        run_id=reserved_run_id,
+        plan_id=plan_id,
+        case_id=cid,
+        seed=seed,
+    )
+    stored_name = str(seed.get("fixture") or fixture_name or "").strip() or None
+    note_parts = []
+    if stored_name:
+        note_parts.append(f"seed_fixture={stored_name}")
+    note_parts.append(str(seed.get("message") or seed.get("error") or ""))
+    note = " | ".join(p for p in note_parts if p)[:500]
+    recorded = add_run(
+        plan_id,
+        cid,
+        result=result,
+        duration_ms=duration_ms,
+        failure_class=failure_class,
+        evidence=evidence,
+        note=note,
+        suite_run_id=suite_run_id,
+        run_id=reserved_run_id,
+        seed_fixture=stored_name,
+        level=level,
+    )
+    return {
+        "status": "ok",
+        "message": f"Case {cid} finished: {result}.",
+        "security_level": level,
+        "playwright_mode": None,
+        "target_up": True,
+        "only_case_id": cid,
+        "runner": "seed_fixture",
+        "pause_on_fail": False,
+        "suite_run_id": suite_run_id,
+        "seed": {
+            "status": seed.get("status"),
+            "error": seed.get("error"),
+            "fixture": seed.get("fixture"),
+            "plugin": seed.get("plugin") or "seed_fixture",
+            "steps": seed.get("steps") or [],
+        },
+        "plan": recorded.get("plan"),
+        "case": recorded.get("case"),
+        "run": recorded.get("run"),
+    }
+
+
 async def _execute_playwright_imported_case(
     plan_id: str,
     target_case: dict[str, Any],
@@ -565,6 +664,16 @@ async def _execute_case(
 
     if _source_kind(target_case) == "api":
         return await _execute_api_case(
+            plan_id,
+            target_case,
+            level=level,
+            suite_run_id=suite_rid,
+            reserved_run_id=reserved_run_id,
+            started=started,
+        )
+
+    if _source_kind(target_case) == "seed":
+        return await _execute_seed_case(
             plan_id,
             target_case,
             level=level,
@@ -784,14 +893,23 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
         flake = flake_score(case)
         qstat = quarantine_status(case)
         mock_fixture = ""
+        seed_fixture = ""
         if kind == "api":
             mock_fixture = str(
                 parse_api_ref(str(src.get("ref") or "")).get("mock_fixture") or ""
+            ).strip()
+        if kind == "seed":
+            from plans.seed_case import parse_seed_ref
+
+            seed_fixture = str(
+                parse_seed_ref(str(src.get("ref") or "")).get("fixture") or ""
             ).strip()
         if kind == "api":
             runner_name = "contract_mock" if mock_fixture else "api_messaging_runner"
         elif kind == "desktop":
             runner_name = "desktop_runner"
+        elif kind == "seed":
+            runner_name = "seed_fixture"
         elif kind == "playwright":
             runner_name = "playwright_suite"
         else:
@@ -816,7 +934,9 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "manual_draft": kind == "manual-draft" and not (case.get("jira_key") or "").strip(),
             "desktop_case": kind == "desktop",
             "api_case": kind == "api",
+            "seed_case": kind == "seed",
             "mock_fixture": mock_fixture,
+            "seed_fixture": seed_fixture,
             "runner": runner_name,
             "last_run": last,
             "last_run_summary": _last_run_summary(case),

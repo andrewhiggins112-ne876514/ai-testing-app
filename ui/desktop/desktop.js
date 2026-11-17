@@ -1358,6 +1358,7 @@
   const planAddDesktopBtn = document.getElementById("plan-add-desktop-btn");
   const planAddApiBtn = document.getElementById("plan-add-api-btn");
   const planAddContractBtn = document.getElementById("plan-add-contract-btn");
+  const planAddSeedBtn = document.getElementById("plan-add-seed-btn");
   const planPwPath = document.getElementById("plan-pw-path");
   const planRefreshBtn = document.getElementById("plan-refresh-btn");
   const planList = document.getElementById("plan-list");
@@ -5804,6 +5805,49 @@
   if (planAddContractBtn) {
     planAddContractBtn.addEventListener("click", function () {
       addContractCaseToOpenPlan();
+    });
+  }
+
+  async function addSeedCaseToOpenPlan() {
+    if (!openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      return;
+    }
+    if (planStatus) planStatus.textContent = "Adding seed/fixture case…";
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + "/cases/seed",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok" || !payload.plan) {
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message || "Could not add seed/fixture case.";
+        }
+        return;
+      }
+      renderPlanCases(payload.plan);
+      if (payload.case && planCaseId) {
+        planCaseId.value = payload.case.id || "";
+      }
+      if (typeof refreshLabHome === "function") await refreshLabHome();
+      if (planStatus) {
+        planStatus.textContent =
+          "Seed/fixture case added — named local fixture; run stores name.";
+      }
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Seed/fixture case request failed.";
+    }
+  }
+
+  if (planAddSeedBtn) {
+    planAddSeedBtn.addEventListener("click", function () {
+      addSeedCaseToOpenPlan();
     });
   }
 

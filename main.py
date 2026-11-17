@@ -74,6 +74,7 @@ from plans.run_by_tag import run_cases_by_tag, select_cases_for_tag
 from plans.run_case import case_detail, run_single_case
 from plans.desktop_case import add_desktop_case
 from plans.api_case import add_api_case, add_contract_case
+from plans.seed_case import add_seed_case
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
 from plans.home_checklist import home_checklist_summary
@@ -338,6 +339,15 @@ class PlanContractCaseRequest(BaseModel):
     name: str = ""
     mock_fixture: str = ""
     expect_status: int | None = None
+    note: str = ""
+    tags: list[str] | None = None
+
+
+class PlanSeedCaseRequest(BaseModel):
+    """Add a seed/fixture case naming a local level-scoped fixture (KAN-223 / G4)."""
+
+    name: str = ""
+    fixture: str = ""
     note: str = ""
     tags: list[str] | None = None
 
@@ -1324,6 +1334,18 @@ async def post_plan_contract_case(plan_id: str, req: PlanContractCaseRequest):
         req.name or "",
         mock_fixture=req.mock_fixture or "",
         expect_status=req.expect_status,
+        note=req.note or "",
+        tags=list(req.tags or []),
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/seed")
+async def post_plan_seed_case(plan_id: str, req: PlanSeedCaseRequest):
+    """Add a seed/fixture case naming a local fixture (KAN-223 / G4)."""
+    return add_seed_case(
+        plan_id,
+        req.name or "",
+        fixture=req.fixture or "",
         note=req.note or "",
         tags=list(req.tags or []),
     )

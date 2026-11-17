@@ -14,6 +14,7 @@ from plans.drift import (
 from plans.import_playwright import import_playwright_project
 from plans.desktop_case import add_desktop_case
 from plans.api_case import add_api_case, add_contract_case
+from plans.seed_case import add_seed_case
 from plans.duration import duration_info
 from plans.history import compare_suite_runs, list_suite_history
 from plans.quarantine import (
@@ -64,6 +65,7 @@ __all__ = [
     "add_case",
     "add_api_case",
     "add_contract_case",
+    "add_seed_case",
     "add_desktop_case",
     "case_step_timeout_ms",
     "resolve_step_timeout_ms",

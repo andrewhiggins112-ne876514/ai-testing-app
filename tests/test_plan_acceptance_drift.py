@@ -195,12 +195,12 @@ class AcceptanceDriftTests(unittest.IsolatedAsyncioTestCase):
         # No silent delete of the old case
         self.assertEqual(len(plan["suite"]["cases"]), 1 + out["added_case_count"])
 
-    def test_desktop_ui_has_drift_controls_desk76(self):
+    def test_desktop_ui_has_drift_controls_desk77(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk76", html)
-        self.assertIn("desk76", app)
+        self.assertIn("desk77", html)
+        self.assertIn("desk77", app)
         self.assertIn("plan-drift-check-btn", html)
         self.assertIn("plan-drift-keep-btn", html)
         self.assertIn("plan-drift-refresh-btn", html)
