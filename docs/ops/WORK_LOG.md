@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-159** — Test-all C2 — Report sections and heal review for a run |
-| **Start task** | **KAN-160** (`test`, Relates → KAN-159) |
-| **Epic** | **KAN-119** — Test-all C — Plan the whole project |
-| **Roadmap ID** | TESTALL-C / FR-REP-2 + FR-HEAL-2 + FR-PLAN-4 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/test_all_catalogue.json` |
+| **Jira story** | **KAN-247** — UI-NAV-IA-1 — Reports area = library/viewer; section toggles → Report Settings |
+| **Start task** | **KAN-250** (`test`, Relates → KAN-247) |
+| **Epic** | **KAN-27** — Desktop / Gradio shell |
+| **Roadmap ID** | UI-NAV-IA-1 / FR-REP-4 + FR-SET-4 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-160** |
-| **Shipped** | … **KAN-155** B7; **KAN-157** C1 same plan in Gradio |
+| **Test ticket** | **KAN-250** |
+| **Shipped** | … **KAN-157** C1; **KAN-159** C2 report sections + heal review for a run |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-159 — C2 report sections and heal review for a run
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-159
+- **Done:** Plan case runs pre-allocate `run_id` and stamp locator heals via `heal_run_context`. Reports area keeps section toggles and can **Export chosen run** (`GET /api/plans/exportable-runs`, `POST …/runs/{run_id}/export`). Heal review shows run on cards + optional run filter (`GET /api/heal/proposals?run_id=`). Approve/reject unchanged; no suite auto-commit. Screens kept (desk40).
+- **Files:** `plugins/heal_policy.py`, `plans/run_case.py`, `plans/store.py`, `plans/run_report.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_plan_run_report.py`, `tests/test_heal_review.py`, `tests/test_plan_run_case.py`
+- **Verify:** `pytest tests/test_plan_run_report.py tests/test_heal_review.py tests/test_plan_run_case.py -v` (27 passed). Live `/ui/desktop/?v=desk40` has `rpt-export-run` + `heal-run-filter`; `/api/plans/exportable-runs` + `/api/heal/proposals` OK; desktop window opened.
+- **Jira:** close-out **KAN-159** + **KAN-160**
+- **Next:** **KAN-247** UI-NAV-IA-1 Reports library / move section toggles (test **KAN-250**)
 
 ### 2026-11-17 — Council CR — Nav IA (Reports data → menu → Settings hub)
 - **Agent/chat:** Advisory Council Room — Designer CR after Gradio top tabs + settings-like area pages

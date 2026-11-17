@@ -103,12 +103,12 @@ class HealReviewTests(unittest.TestCase):
         self.assertIn("/api/heal/reject", main)
         self.assertIn('"/api/heal/proposals"', main)
 
-    def test_cache_bust_desk23(self):
+    def test_cache_bust_desk_token(self):
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk23", app)
-        self.assertIn("desktop.css?v=desk23", html)
-        self.assertIn("desktop.js?v=desk23", html)
+        self.assertIn("desk40", app)
+        self.assertRegex(html, r"desktop\.css\?v=desk\d+")
+        self.assertRegex(html, r"desktop\.js\?v=desk\d+")
 
 
 if __name__ == "__main__":

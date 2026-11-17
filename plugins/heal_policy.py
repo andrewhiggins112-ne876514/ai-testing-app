@@ -7,16 +7,75 @@ are always refused. Real product bugs stay red.
 """
 from __future__ import annotations
 
+import contextvars
 import hashlib
 import json
 import os
 import re
 import tempfile
 import uuid
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterator, List, Optional
+
+# Optional plan-run linkage for heal audit (KAN-159 / FR-PLAN-4).
+_heal_run_context: contextvars.ContextVar[Dict[str, str]] = contextvars.ContextVar(
+    "heal_run_context", default={}
+)
+
+
+def get_heal_run_context() -> Dict[str, str]:
+    """Return the current run linkage (run_id / plan_id / case_id / suite_run_id)."""
+    raw = _heal_run_context.get()
+    return dict(raw) if isinstance(raw, dict) else {}
+
+
+def set_heal_run_context(
+    *,
+    run_id: str | None = None,
+    plan_id: str | None = None,
+    case_id: str | None = None,
+    suite_run_id: str | None = None,
+) -> contextvars.Token:
+    """Attach plan-run ids to subsequent heal audit lines."""
+    ctx: Dict[str, str] = {}
+    for key, value in (
+        ("run_id", run_id),
+        ("plan_id", plan_id),
+        ("case_id", case_id),
+        ("suite_run_id", suite_run_id),
+    ):
+        text = str(value or "").strip()
+        if text:
+            ctx[key] = text[:64]
+    return _heal_run_context.set(ctx)
+
+
+def reset_heal_run_context(token: contextvars.Token) -> None:
+    _heal_run_context.reset(token)
+
+
+@contextmanager
+def heal_run_context(
+    *,
+    run_id: str | None = None,
+    plan_id: str | None = None,
+    case_id: str | None = None,
+    suite_run_id: str | None = None,
+) -> Iterator[Dict[str, str]]:
+    """Context manager so plan case runs stamp heals with their run id."""
+    token = set_heal_run_context(
+        run_id=run_id,
+        plan_id=plan_id,
+        case_id=case_id,
+        suite_run_id=suite_run_id,
+    )
+    try:
+        yield get_heal_run_context()
+    finally:
+        reset_heal_run_context(token)
 
 CLASSIFICATIONS = frozenset(
     {"product_bug", "test_defect", "intended_change", "environment"}
@@ -251,6 +310,9 @@ def record_approved_or_pending(
         "proposal": decision.proposal_diff or decision.message,
         "message": decision.message,
     }
+    for key, value in get_heal_run_context().items():
+        if value and key not in entry:
+            entry[key] = value
     try:
         append_heal_log(entry)
     except Exception:
@@ -335,6 +397,10 @@ def _public_proposal(entry: Dict[str, Any]) -> Dict[str, Any]:
         "message": entry.get("message") or "",
         "approver": entry.get("approver"),
         "review_status": entry.get("review_status"),
+        "run_id": entry.get("run_id") or None,
+        "plan_id": entry.get("plan_id") or None,
+        "case_id": entry.get("case_id") or None,
+        "suite_run_id": entry.get("suite_run_id") or None,
         "evidence": {
             "original": evidence.get("original"),
             "proposed": evidence.get("proposed") or evidence.get("used"),
@@ -344,14 +410,29 @@ def _public_proposal(entry: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def list_pending_heals(*, path: Optional[Path] = None) -> Dict[str, Any]:
-    """Pending locator heals awaiting human approve/reject (FR-HEAL-2)."""
-    pending = [
-        _public_proposal(e)
-        for e in _read_audit_entries(path)
-        if e.get("allowed") and (e.get("review_status") or "") == "pending_review"
-    ]
-    return {"pending": pending, "count": len(pending)}
+def list_pending_heals(
+    *,
+    path: Optional[Path] = None,
+    run_id: str | None = None,
+) -> Dict[str, Any]:
+    """Pending locator heals awaiting human approve/reject (FR-HEAL-2).
+
+    When ``run_id`` is set, only heals stamped for that plan run are returned
+    (KAN-159 — heal review for a run).
+    """
+    want = (run_id or "").strip()
+    pending = []
+    for entry in _read_audit_entries(path):
+        if not entry.get("allowed") or (entry.get("review_status") or "") != "pending_review":
+            continue
+        if want and str(entry.get("run_id") or "").strip() != want:
+            continue
+        pending.append(_public_proposal(entry))
+    return {
+        "pending": pending,
+        "count": len(pending),
+        "run_id": want or None,
+    }
 
 
 def resolve_heal(

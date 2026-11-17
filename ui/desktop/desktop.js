@@ -1351,6 +1351,10 @@
     known_issues: document.getElementById("rpt-known-issues"),
   };
   const rptSave = document.getElementById("rpt-save");
+  const rptRunSelect = document.getElementById("rpt-run-select");
+  const rptRunRefresh = document.getElementById("rpt-run-refresh");
+  const rptExportRun = document.getElementById("rpt-export-run");
+  const healRunFilter = document.getElementById("heal-run-filter");
   const appDrawerHint = document.getElementById("app-drawer-hint");
   const secLevel = document.getElementById("sec-level");
   const secProfile = document.getElementById("sec-profile");
@@ -1394,6 +1398,106 @@
       applyReportSections(await res.json());
     } catch (err) {
       /* keep checkbox defaults */
+    }
+  }
+
+  function reportSectionBody() {
+    return {
+      summary: !!(rptChecks.summary && rptChecks.summary.checked),
+      stories: !!(rptChecks.stories && rptChecks.stories.checked),
+      bugs: !!(rptChecks.bugs && rptChecks.bugs.checked),
+      evidence: !!(rptChecks.evidence && rptChecks.evidence.checked),
+      known_issues: !!(rptChecks.known_issues && rptChecks.known_issues.checked),
+    };
+  }
+
+  function fillRunSelect(selectEl, runs, emptyLabel) {
+    if (!selectEl) return;
+    const previous = selectEl.value || "";
+    selectEl.innerHTML = "";
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = emptyLabel || "— select a run —";
+    selectEl.appendChild(blank);
+    (runs || []).forEach(function (row) {
+      const opt = document.createElement("option");
+      opt.value = [row.plan_id, row.case_id, row.run_id].join("|");
+      opt.textContent = row.label || row.run_id;
+      opt.dataset.planId = row.plan_id || "";
+      opt.dataset.caseId = row.case_id || "";
+      opt.dataset.runId = row.run_id || "";
+      selectEl.appendChild(opt);
+    });
+    if (previous) {
+      selectEl.value = previous;
+      if (selectEl.value !== previous) selectEl.value = "";
+    }
+  }
+
+  async function loadExportableRuns() {
+    try {
+      const res = await fetch("/api/plans/exportable-runs?limit=50");
+      if (!res.ok) return;
+      const data = await res.json();
+      const runs = (data && data.runs) || [];
+      fillRunSelect(rptRunSelect, runs, "— select a run —");
+      fillRunSelect(healRunFilter, runs, "All pending");
+    } catch (err) {
+      /* keep prior options */
+    }
+  }
+
+  async function exportChosenRun() {
+    if (!rptRunSelect || !rptRunSelect.value) {
+      if (rptStatus) rptStatus.textContent = "Choose a run to export.";
+      return;
+    }
+    const parts = rptRunSelect.value.split("|");
+    const planId = parts[0] || "";
+    const caseId = parts[1] || "";
+    const runId = parts[2] || "";
+    if (!planId || !caseId || !runId) {
+      if (rptStatus) rptStatus.textContent = "Chosen run is incomplete.";
+      return;
+    }
+    if (rptStatus) rptStatus.textContent = "Exporting…";
+    try {
+      const res = await fetch(
+        "/api/plans/" +
+          encodeURIComponent(planId) +
+          "/cases/" +
+          encodeURIComponent(caseId) +
+          "/runs/" +
+          encodeURIComponent(runId) +
+          "/export",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(reportSectionBody()),
+        }
+      );
+      const data = await res.json();
+      if (!data || data.status !== "ok") {
+        if (rptStatus) {
+          rptStatus.textContent =
+            (data && (data.message || data.error)) || "Export failed.";
+        }
+        return;
+      }
+      if (rptStatus) {
+        const n = data.heal_pending_count || 0;
+        rptStatus.textContent =
+          "Exported run " +
+          runId +
+          ". " +
+          n +
+          " pending heal(s) for this run — open Heal review to approve/reject (no auto-commit).";
+      }
+      if (healRunFilter) {
+        healRunFilter.value = [planId, caseId, runId].join("|");
+      }
+    } catch (err) {
+      if (rptStatus) rptStatus.textContent = "Could not export chosen run.";
     }
   }
 
@@ -2171,16 +2275,29 @@
 
   function loadAreaData(name) {
     if (name === "settings") loadAppSettings();
-    if (name === "reports") loadReportSections();
+    if (name === "reports") {
+      loadReportSections();
+      loadExportableRuns();
+    }
     if (name === "security") {
       loadSecurityStatus();
       loadPrivacyStatus();
     }
-    if (name === "heal") loadHealProposals();
+    if (name === "heal") {
+      loadExportableRuns().then(function () {
+        loadHealProposals();
+      });
+    }
     if (name === "desktop") loadDesktopPlugin();
     if (name === "suites") loadPlaywrightSuite();
     if (name === "plans") loadPlanList(openPlanId);
     if (name === "sandboxes") loadMultiSandboxPlugin();
+  }
+
+  function selectedHealRunId() {
+    if (!healRunFilter || !healRunFilter.value) return "";
+    const parts = healRunFilter.value.split("|");
+    return parts[2] || "";
   }
 
   function renderHealProposals(payload) {
@@ -2190,7 +2307,9 @@
     if (!pending.length) {
       const empty = document.createElement("p");
       empty.className = "heal-empty drawer-hint";
-      empty.textContent = "No pending heal proposals.";
+      empty.textContent = selectedHealRunId()
+        ? "No pending heal proposals for this run."
+        : "No pending heal proposals.";
       healList.appendChild(empty);
       return;
     }
@@ -2203,6 +2322,7 @@
       meta.textContent = [
         item.kind || "locator",
         item.classification || "unclassified",
+        item.run_id ? "run " + item.run_id : "",
         item.timestamp || "",
       ]
         .filter(Boolean)
@@ -2234,13 +2354,24 @@
   async function loadHealProposals() {
     if (healStatus) healStatus.textContent = "Loading…";
     try {
-      const res = await fetch("/api/heal/proposals");
+      const runId = selectedHealRunId();
+      const url = runId
+        ? "/api/heal/proposals?run_id=" + encodeURIComponent(runId)
+        : "/api/heal/proposals";
+      const res = await fetch(url);
       const data = await res.json();
       renderHealProposals(data);
       if (healStatus) {
         const n = (data && data.count) || 0;
-        healStatus.textContent =
-          n === 0 ? "No pending heals." : n + " pending heal(s).";
+        if (n === 0) {
+          healStatus.textContent = runId
+            ? "No pending heals for this run."
+            : "No pending heals.";
+        } else {
+          healStatus.textContent = runId
+            ? n + " pending heal(s) for this run."
+            : n + " pending heal(s).";
+        }
       }
     } catch (err) {
       if (healStatus) healStatus.textContent = "Could not load heal proposals.";
@@ -3936,15 +4067,25 @@
     });
   }
 
+  if (rptRunRefresh) {
+    rptRunRefresh.addEventListener("click", function () {
+      loadExportableRuns();
+      if (rptStatus) rptStatus.textContent = "Run list refreshed.";
+    });
+  }
+  if (rptExportRun) {
+    rptExportRun.addEventListener("click", function () {
+      exportChosenRun();
+    });
+  }
+  if (healRunFilter) {
+    healRunFilter.addEventListener("change", function () {
+      loadHealProposals();
+    });
+  }
   if (rptSave) {
     rptSave.addEventListener("click", async function () {
-      const body = {
-        summary: !!(rptChecks.summary && rptChecks.summary.checked),
-        stories: !!(rptChecks.stories && rptChecks.stories.checked),
-        bugs: !!(rptChecks.bugs && rptChecks.bugs.checked),
-        evidence: !!(rptChecks.evidence && rptChecks.evidence.checked),
-        known_issues: !!(rptChecks.known_issues && rptChecks.known_issues.checked),
-      };
+      const body = reportSectionBody();
       try {
         const res = await fetch("/api/report-sections", {
           method: "POST",

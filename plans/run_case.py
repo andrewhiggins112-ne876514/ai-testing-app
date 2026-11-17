@@ -157,6 +157,8 @@ async def _execute_case(
     pause_decision: Callable[[dict[str, Any]], Awaitable[str]] | None = None,
     suite_run_id: str | None = None,
 ) -> dict[str, Any]:
+    from plans.store import new_run_id
+    from plugins.heal_policy import heal_run_context
     from settings.store import load_settings
 
     resolved = _resolve_case(plan_id, case_id, level=level)
@@ -169,6 +171,8 @@ async def _execute_case(
     target_probe = _check_target()
     started = time.monotonic()
     suite_rid = (suite_run_id or "").strip() or None
+    # Pre-allocate so locator heals during Playwright stamp this run (KAN-159).
+    reserved_run_id = new_run_id()
 
     if not target_url or not target_probe.get("up"):
         msg = target_probe.get("message") or "Target URL is not configured or unreachable."
@@ -182,6 +186,7 @@ async def _execute_case(
             evidence=[],
             note=msg[:500],
             suite_run_id=suite_rid,
+            run_id=reserved_run_id,
             level=level,
         )
         return {
@@ -205,18 +210,24 @@ async def _execute_case(
     steps = list(generated.get("steps") or [])
     url = target_url or str(generated.get("url") or "")
 
-    pw = await run_playwright(
-        url=url,
-        mode="run",
-        steps=steps,
-        security_level=level,
-        request_text=spec,
-        session_id=session_id,
-        headless=False,
-        reject_incomplete=False,
-        pause_on_fail=bool(pause_on_fail),
-        pause_decision=pause_decision if pause_on_fail else None,
-    )
+    with heal_run_context(
+        run_id=reserved_run_id,
+        plan_id=plan_id,
+        case_id=cid,
+        suite_run_id=suite_rid,
+    ):
+        pw = await run_playwright(
+            url=url,
+            mode="run",
+            steps=steps,
+            security_level=level,
+            request_text=spec,
+            session_id=session_id,
+            headless=False,
+            reject_incomplete=False,
+            pause_on_fail=bool(pause_on_fail),
+            pause_decision=pause_decision if pause_on_fail else None,
+        )
     duration_ms = int((time.monotonic() - started) * 1000)
     result, failure_class, evidence = _map_playwright_result(pw)
     if pw.get("error") and result == "pass":
@@ -234,6 +245,7 @@ async def _execute_case(
         evidence=evidence,
         note=note,
         suite_run_id=suite_rid,
+        run_id=reserved_run_id,
         level=level,
     )
     run_id = (recorded.get("run") or {}).get("id")

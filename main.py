@@ -44,6 +44,7 @@ from plans.draft import add_document_draft_cases, draft_plan_from_issue
 from plans.pause_session import get_session, public_session, signal_decision
 from plans.rerun_failed import rerun_failed_cases
 from plans.run_case import case_detail, run_single_case
+from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
 from plans.store import (
     add_case as plan_add_case,
@@ -286,6 +287,17 @@ class PlanRerunFailedRequest(BaseModel):
     source_suite_run_id: str = ""
 
 
+class PlanExportRunRequest(BaseModel):
+    """Export a chosen plan case run with optional section overrides (KAN-159)."""
+
+    summary: bool | None = None
+    stories: bool | None = None
+    bugs: bool | None = None
+    evidence: bool | None = None
+    known_issues: bool | None = None
+    session_id: str = "plan-export"
+
+
 def _orb_from_settings() -> dict:
     s = load_settings()
     return {
@@ -482,8 +494,9 @@ async def api_doc_ingest_decline(req: DocIngestDeclineRequest):
 
 
 @app.get("/api/heal/proposals")
-async def api_heal_proposals():
-    return list_pending_heals()
+async def api_heal_proposals(run_id: str = ""):
+    """Pending heals; optional ``run_id`` filters to that plan run (KAN-159)."""
+    return list_pending_heals(run_id=run_id or None)
 
 
 @app.post("/api/heal/approve")
@@ -646,6 +659,12 @@ async def get_plans_home():
 async def post_plan_starter(req: PlanStarterRequest):
     """Create a starter template plan with editable cases (KAN-135). No Jira writes."""
     return create_starter_plan(name=req.name or "Starter plan")
+
+
+@app.get("/api/plans/exportable-runs")
+async def get_plans_exportable_runs(limit: int = 50):
+    """Recent case runs for the Reports section picker export (KAN-159)."""
+    return list_exportable_runs(limit=limit)
 
 
 @app.get("/api/plans/{plan_id}")
@@ -842,6 +861,29 @@ async def post_plan_case_notes(
 async def get_plan_defect_preview(plan_id: str, case_id: str, run_id: str = ""):
     """Preview defect packet before Jira create — confirm still required (KAN-147)."""
     return defect_packet_preview(plan_id, case_id, run_id=run_id or None)
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/runs/{run_id}/export")
+async def post_plan_run_export(
+    plan_id: str,
+    case_id: str,
+    run_id: str,
+    req: PlanExportRunRequest = PlanExportRunRequest(),
+):
+    """Export a chosen run using the Reports section picker (KAN-159 / FR-REP-2)."""
+    overrides = {
+        key: getattr(req, key)
+        for key in ("summary", "stories", "bugs", "evidence", "known_issues")
+        if getattr(req, key) is not None
+    }
+    sections = normalize_sections(overrides) if overrides else None
+    return export_plan_run(
+        plan_id,
+        case_id,
+        run_id,
+        sections=sections,
+        session_id=req.session_id or "plan-export",
+    )
 
 
 app.mount("/ui", StaticFiles(directory=str(_UI_DIR)), name="ui")

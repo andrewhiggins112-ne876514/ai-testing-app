@@ -27,6 +27,11 @@ def _new_id(prefix: str = "") -> str:
     return f"{prefix}{raw}" if prefix else raw
 
 
+def new_run_id() -> str:
+    """Allocate a case-run id before Playwright so heals can stamp it (KAN-159)."""
+    return _new_id("r")
+
+
 def plans_dir(level: str | None = None) -> Path:
     from settings.store import app_data_dir, get_security_level
 
@@ -402,6 +407,7 @@ def add_run(
     started_at: str | None = None,
     finished_at: str | None = None,
     suite_run_id: str | None = None,
+    run_id: str | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
     """Attach a run record to a case (execution itself is later stories)."""
@@ -427,9 +433,12 @@ def add_run(
             "security_level": lvl,
         }
     now = _utcnow()
+    rid = (run_id or "").strip()
+    if rid and not _ID_SAFE.match(rid):
+        rid = ""
     run = _normalize_run(
         {
-            "id": _new_id("r"),
+            "id": rid or _new_id("r"),
             "result": result,
             "duration_ms": duration_ms,
             "failure_class": failure_class,
