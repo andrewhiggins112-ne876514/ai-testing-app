@@ -21,6 +21,8 @@ class GradioMenuNavTests(unittest.TestCase):
         self.assertIn('elem_id="app-menu-nav-documents"', src)
         self.assertIn("select_app_area", src)
         self.assertIn("GRADIO_APP_AREAS", src)
+        self.assertIn("PRIMARY_APP_MENU_AREAS", src)
+        self.assertIn("from ui.app_areas import", src)
         # Tab strip must not be the navigation surface.
         self.assertIn(".tab-nav", src)
         self.assertIn("display: none", src)

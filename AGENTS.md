@@ -13,7 +13,7 @@
   1. **Story comment** that states clearly what **the agent did** to complete the story (implementation summary + files + how to verify). Prefer `python scripts/jira_kan_slice_closeout.py --story KAN-XX --done "…" --files "…" --verify "…" --pytest-cmd "…" --mark-done` (REST; never print tokens). Do not leave a Done story with only WORK_LOG and no Jira comment.
   2. **Linked test ticket** (`issuetype=test`, Relates → story): comment with unit-test / verification evidence (exact pytest command + pass count), then transition that test ticket to **Done**. If none exists, create issuetype **`test`**, Relates-link it, comment evidence, then Done.
   3. Transition the **story** to Done only after the story comment is posted.
-  Then **commit and `git push origin main`**. Do not leave finished slice work unpushed.
+  Then **commit and `git push origin main`**. Do not leave finished slice work unpushed. **Do not mark Done for a fix that only exists on a feature branch** (KAN-256 lesson: branch-only = Designer still sees old UI).
 - **KAN issue types:** **Epic** / **Story** / **Task** (dev work under a story — e.g. one Task per FR to check off) / **`test`** (verification) / **Bug** (defects) / **Subtask**. Do not use Task for tests or bugs.
 - **Bugs found during development (mandatory — standing instruction):** Any bug found while implementing, testing, verifying (pytest / Computer Use / AUT), or reviewing a slice **must** be raised as a Jira **Bug** on project **KAN** and **Relates**-linked to the relevant **Story** (and its linked **test** ticket; create if missing). Do **not** silently fix and move on; do **not** leave the defect only in chat or WORK_LOG.
   1. Create the **Bug** immediately when found (REST if Atlassian MCP fails). Standing authorization — no extra human confirm.
@@ -27,7 +27,7 @@
 - Primary home is **Cursor IDE**.
 - **Build lane (unchanged):** fresh default Agent chat → **“pick up where we left off”** (reads `docs/ops/WORK_LOG.md` Active slice) → implement that story.
 - **Council Room (review / creative):** fresh Agent chat → type **`/council`** (slash menu; not a mode dropdown item). Multi-persona debate; may update docs/Jira/`AGENTS.md`/rules after human agree. **No product feature coding.** Guide: `docs/ops/ADVISORY_COUNCIL.md`. Skill: `advisory-council`. Do **not** treat pick-up as a coding handoff inside the council chat.
-- **Product UI = desktop app** (`desktop_app.py`). Run and test it as a native window (Computer Use). Do not fall back to browser tabs of the shell or Gradio unless the slice says so.
+- **Product UI = desktop app** (`desktop_app.py`). Run and test it as a native window (Computer Use). Do not fall back to browser tabs of the shell or Gradio unless the slice says so. **Desktop-first:** Gradio-only chrome is never enough for App menu / Settings / Reports IA — those slices are not Done until desktop matches. See `docs/ops/SHELL_VERIFY.md` (false-green traps after KAN-253/256/257).
 - Do not ask the human to paste coding prompts into browser Grok / AFK Pilot / other tools.
 - Ops docs: `docs/ops/HOW_WE_WORK.md`, `docs/ops/TEAM.md`, `docs/ops/ROADMAP.md`, `docs/ops/ADVISORY_COUNCIL.md`.
 - Custom agents: `.cursor/agents/` — **Grok family only** (Build: `implementer`/`ui-orb`/`architect` → 4.7; `doc-keeper`/`verifier`/`explorer-cheap` → 4.5. Council: `council` → 4.7; most `council-*` → 4.5). User pays Grok Premium; do not assign Composer/Claude/GPT/Copilot as “free”.

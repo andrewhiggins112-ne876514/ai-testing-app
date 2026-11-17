@@ -39,6 +39,15 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-17 — Shell verify hardening (anti false-green after KAN-253/256/257)
+- **Agent/chat:** Designer — investigate why App menu “fixes” kept passing while UI unchanged; tighten tests; desktop-first parity
+- **Root cause:** (1) KAN-253 pytest only string-matched class names → false green while tall rail remained; (2) Computer Use notes lacked geometry checks; (3) KAN-256 fix lived on feature branch only until KAN-257; (4) Gradio got menu first while desktop lagged — agents treated Gradio as enough
+- **Done:** `ui/app_areas.py` canonical areas; Gradio imports it; strict `test_desktop_app_menu.py` (nav parity, host not under menu, CSS popover geometry); `docs/ops/SHELL_VERIFY.md`; AGENTS / slice-workflow / work-log-handoff / verifier updates. Product chrome on desktop already matches Gradio App menu (KAN-257 desk47). Active **unchanged: KAN-167**.
+- **Files:** `ui/app_areas.py`, `ui/gradio_app.py`, `tests/test_desktop_app_menu.py`, `tests/test_gradio_menu_nav.py`, `docs/ops/SHELL_VERIFY.md`, `AGENTS.md`, `.cursor/skills/slice-workflow/SKILL.md`, `.cursor/rules/work-log-handoff.mdc`, `.cursor/agents/verifier.md`, this log
+- **Verify:** `pytest tests/test_desktop_app_menu.py tests/test_gradio_menu_nav.py -v` (14 passed)
+- **Jira:** **KAN-258** (test **KAN-259**) Done under epic **KAN-27**; Relates KAN-253/256/257
+- **Next:** Active remains **KAN-167** C6
+
 ### 2026-11-17 — KAN-257 — Desktop App menu still tall (KAN-256 never on main)
 - **Agent/chat:** Designer report — desktop ▦ still old 9-item menu vs Gradio Chat…Documents
 - **Done:** Root cause: **KAN-256** popover fix lived only on branch `cursor/kan-256-desktop-app-menu-popover` and never merged. Landed popover + moved `#area-section-host` into `#area-body`; App nav aligned to Gradio (Chat/Settings/Plans/Reports/Documents); hub keeps extra tools; C5 drift UI preserved. desk47.

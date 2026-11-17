@@ -16,7 +16,7 @@ When the user says **pick up where we left off**, **continue**, **next slice**, 
 5. Read that Jira story’s description (**REST fallback** if Atlassian MCP fails) for Requirements + AC.
 6. Start implementing that story immediately. One slice only. While the Test-all track is active: add in-app plan/suite / widgets; **do not remove** Gradio, orb, layouts, voice, desktop plugin, sandboxes, or framework stubs.
 7. Prefer free/Auto/Composer unless the slice needs a stronger model.
-8. Verify visible product UI via **`desktop_app.py` + Computer Use** (native window). Do not open the desktop shell in a browser. IronBee browser only for AUT pages or Gradio-only slices.
+8. Verify visible product UI via **`desktop_app.py` + Computer Use** (native window). Do not open the desktop shell in a browser. IronBee browser only for AUT pages or Gradio-only slices. **Desktop-first:** shell chrome (App menu, Settings hub, Reports library) is not Done until desktop matches; Gradio-only is insufficient. App menu Computer Use must show a compact popover under ▦ (areas from `ui/app_areas.py`), not a tall APP rail — see `docs/ops/SHELL_VERIFY.md`.
 
 ## After every finished (or paused) slice
 

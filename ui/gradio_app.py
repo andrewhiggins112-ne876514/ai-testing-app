@@ -29,6 +29,7 @@ from plugins.playwright_suite import (
 )
 from plugins.registry import list_plugins
 from plugins.doc_ingest import apply_proposal, decline_proposal, ingest_document
+from ui.app_areas import PRIMARY_APP_MENU_AREAS as GRADIO_APP_AREAS
 from reports.exporter import reports_dir
 from reports.sections import (
     SECTION_KEYS,
@@ -321,10 +322,6 @@ def delete_orb_preset(name):
 def toggle_orb_settings(is_open: bool):
     nxt = not bool(is_open)
     return nxt, gr.update(visible=nxt)
-
-
-# Gradio app areas (KAN-248 / UI-NAV-IA-2) — menu button, not a top tab strip.
-GRADIO_APP_AREAS = ("Chat", "Settings", "Plans", "Reports", "Documents")
 
 
 def toggle_app_menu(is_open: bool):
