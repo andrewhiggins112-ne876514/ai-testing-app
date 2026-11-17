@@ -3710,9 +3710,19 @@
   const hudSecurityToggle = document.getElementById("hud-security-toggle");
   const hudReportsToggle = document.getElementById("hud-reports-toggle");
   const hudLabToggle = document.getElementById("hud-lab-toggle");
+  const hudTesterConnToggle = document.getElementById("hud-tester-conn-toggle");
+  const hudTesterLastToggle = document.getElementById("hud-tester-last-toggle");
+  const hudTesterFailsToggle = document.getElementById("hud-tester-fails-toggle");
+  const hudTesterQuarantineToggle = document.getElementById(
+    "hud-tester-quarantine-toggle"
+  );
   const hudSecurityPanel = document.getElementById("hud-security");
   const hudReportsPanel = document.getElementById("hud-reports");
   const hudLabPanel = document.getElementById("hud-lab");
+  const hudTesterConnPanel = document.getElementById("hud-tester-conn");
+  const hudTesterLastPanel = document.getElementById("hud-tester-last");
+  const hudTesterFailsPanel = document.getElementById("hud-tester-fails");
+  const hudTesterQuarantinePanel = document.getElementById("hud-tester-quarantine");
   const hudSecurityLevel = document.getElementById("hud-security-level");
   const hudReportsBody = document.getElementById("hud-reports-body");
   const hudLabMessage = document.getElementById("hud-lab-message");
@@ -3721,11 +3731,33 @@
   const hudLabDraft = document.getElementById("hud-lab-draft");
   const hudLabStarter = document.getElementById("hud-lab-starter");
   const hudLabIssue = document.getElementById("hud-lab-issue");
+  const hudTesterConnBody = document.getElementById("hud-tester-conn-body");
+  const hudTesterConnList = document.getElementById("hud-tester-conn-list");
+  const hudTesterLastBody = document.getElementById("hud-tester-last-body");
+  const hudTesterLastOpen = document.getElementById("hud-tester-last-open");
+  const hudTesterFailsEmpty = document.getElementById("hud-tester-fails-empty");
+  const hudTesterFailsList = document.getElementById("hud-tester-fails-list");
+  const hudTesterQuarantineEmpty = document.getElementById(
+    "hud-tester-quarantine-empty"
+  );
+  const hudTesterQuarantineList = document.getElementById(
+    "hud-tester-quarantine-list"
+  );
   let areaLayout = "overlay";
   let openAreaName = "";
-  let hudFlags = { security: false, reports: false, lab: false };
+  let hudFlags = {
+    security: false,
+    reports: false,
+    lab: false,
+    testerConn: false,
+    testerLast: false,
+    testerFails: false,
+    testerQuarantine: false,
+  };
   let labHomeEmpty = false;
   let hubCloseTimer = 0;
+  let testerHudLastPlanId = "";
+  let testerHudCache = null;
 
   if (areaBody && sectionHost) {
     areaBody.appendChild(sectionHost);
@@ -4169,10 +4201,20 @@
       security: !!(flags && flags.security),
       reports: !!(flags && flags.reports),
       lab: !!(flags && flags.lab),
+      testerConn: !!(flags && flags.testerConn),
+      testerLast: !!(flags && flags.testerLast),
+      testerFails: !!(flags && flags.testerFails),
+      testerQuarantine: !!(flags && flags.testerQuarantine),
     };
     if (hudSecurityToggle) hudSecurityToggle.checked = hudFlags.security;
     if (hudReportsToggle) hudReportsToggle.checked = hudFlags.reports;
     if (hudLabToggle) hudLabToggle.checked = hudFlags.lab;
+    if (hudTesterConnToggle) hudTesterConnToggle.checked = hudFlags.testerConn;
+    if (hudTesterLastToggle) hudTesterLastToggle.checked = hudFlags.testerLast;
+    if (hudTesterFailsToggle) hudTesterFailsToggle.checked = hudFlags.testerFails;
+    if (hudTesterQuarantineToggle) {
+      hudTesterQuarantineToggle.checked = hudFlags.testerQuarantine;
+    }
     const home = !openAreaName;
     if (hudSecurityPanel) hudSecurityPanel.hidden = !(home && hudFlags.security);
     if (hudReportsPanel) hudReportsPanel.hidden = !(home && hudFlags.reports);
@@ -4180,14 +4222,39 @@
     if (hudLabPanel) {
       hudLabPanel.hidden = !(home && (labHomeEmpty || hudFlags.lab));
     }
+    // Tester pack is home-only (hidden while any App area is open).
+    if (hudTesterConnPanel) {
+      hudTesterConnPanel.hidden = !(home && hudFlags.testerConn);
+    }
+    if (hudTesterLastPanel) {
+      hudTesterLastPanel.hidden = !(home && hudFlags.testerLast);
+    }
+    if (hudTesterFailsPanel) {
+      hudTesterFailsPanel.hidden = !(home && hudFlags.testerFails);
+    }
+    if (hudTesterQuarantinePanel) {
+      hudTesterQuarantinePanel.hidden = !(home && hudFlags.testerQuarantine);
+    }
+  }
+
+  function defaultHudFlags() {
+    return {
+      security: false,
+      reports: false,
+      lab: false,
+      testerConn: false,
+      testerLast: false,
+      testerFails: false,
+      testerQuarantine: false,
+    };
   }
 
   function loadHud() {
     try {
       const raw = localStorage.getItem(HUD_KEY);
-      applyHud(raw ? JSON.parse(raw) : { security: false, reports: false, lab: false });
+      applyHud(raw ? JSON.parse(raw) : defaultHudFlags());
     } catch (err) {
-      applyHud({ security: false, reports: false, lab: false });
+      applyHud(defaultHudFlags());
     }
   }
 
@@ -4196,12 +4263,26 @@
       security: !!(hudSecurityToggle && hudSecurityToggle.checked),
       reports: !!(hudReportsToggle && hudReportsToggle.checked),
       lab: !!(hudLabToggle && hudLabToggle.checked),
+      testerConn: !!(hudTesterConnToggle && hudTesterConnToggle.checked),
+      testerLast: !!(hudTesterLastToggle && hudTesterLastToggle.checked),
+      testerFails: !!(hudTesterFailsToggle && hudTesterFailsToggle.checked),
+      testerQuarantine: !!(
+        hudTesterQuarantineToggle && hudTesterQuarantineToggle.checked
+      ),
     };
     applyHud(flags);
     try {
       localStorage.setItem(HUD_KEY, JSON.stringify(flags));
     } catch (err) {
       console.warn("hud save failed", err);
+    }
+    if (
+      flags.testerConn ||
+      flags.testerLast ||
+      flags.testerFails ||
+      flags.testerQuarantine
+    ) {
+      loadTesterHud();
     }
   }
 
@@ -4225,13 +4306,159 @@
     }
   }
 
+  function clearHudRowList(el) {
+    if (!el) return;
+    while (el.firstChild) el.removeChild(el.firstChild);
+  }
+
+  function appendHudRow(listEl, label, title, onClick) {
+    if (!listEl) return;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "hud-row-btn";
+    btn.textContent = label;
+    if (title) btn.title = title;
+    btn.addEventListener("click", onClick);
+    listEl.appendChild(btn);
+  }
+
+  async function openPlansOnCase(planId, caseId, caseName) {
+    if (!planId) return;
+    if (openAreaName !== "plans") {
+      openArea("plans");
+    }
+    await loadPlanList(planId);
+    await openPlan(planId);
+    if (caseId && planCaseId) {
+      planCaseId.value = caseId;
+      if (planCaseName && caseName) planCaseName.value = caseName;
+      await refreshCaseDetail();
+      if (planCaseId.focus) planCaseId.focus();
+      if (planStatus) {
+        planStatus.textContent =
+          "HUD → case " + caseId + " in " + planId;
+      }
+    } else if (planStatus) {
+      planStatus.textContent = "HUD → plan " + planId;
+    }
+  }
+
+  function renderTesterHud(payload) {
+    testerHudCache = payload || null;
+    const conn = (payload && payload.connection) || {};
+    if (hudTesterConnBody) {
+      hudTesterConnBody.textContent =
+        conn.message ||
+        ("Health: " + (conn.overall || "unknown"));
+    }
+    clearHudRowList(hudTesterConnList);
+    (conn.checks || []).forEach(function (c) {
+      const state = c.up ? "up" : c.state || "down";
+      appendHudRow(
+        hudTesterConnList,
+        (c.label || c.id || "?") + ": " + state,
+        c.message || "",
+        function () {
+          openArea("settings");
+        }
+      );
+    });
+
+    const last = payload && payload.last_run;
+    testerHudLastPlanId = last && last.plan_id ? last.plan_id : "";
+    if (hudTesterLastBody) {
+      if (!last) {
+        hudTesterLastBody.textContent = "No suite run yet";
+      } else {
+        const bits = [];
+        if (typeof last.pass === "number") bits.push(last.pass + " pass");
+        if (typeof last.fail === "number") bits.push(last.fail + " fail");
+        if (typeof last.error === "number" && last.error) {
+          bits.push(last.error + " error");
+        }
+        hudTesterLastBody.textContent =
+          (last.plan_name || last.plan_id || "Plan") +
+          (bits.length ? " — " + bits.join(", ") : "");
+      }
+    }
+    if (hudTesterLastOpen) {
+      hudTesterLastOpen.hidden = !testerHudLastPlanId;
+    }
+
+    const fails = (payload && payload.failed_cases) || [];
+    clearHudRowList(hudTesterFailsList);
+    if (hudTesterFailsEmpty) {
+      hudTesterFailsEmpty.hidden = fails.length > 0;
+      hudTesterFailsEmpty.textContent = fails.length
+        ? ""
+        : "No fails on last run";
+    }
+    fails.forEach(function (row) {
+      appendHudRow(
+        hudTesterFailsList,
+        (row.case_name || row.case_id || "?") +
+          (row.result ? " · " + row.result : ""),
+        (row.plan_name || row.plan_id || "") +
+          (row.failure_class ? " · " + row.failure_class : ""),
+        function () {
+          openPlansOnCase(row.plan_id, row.case_id, row.case_name);
+        }
+      );
+    });
+
+    const quarantine = (payload && payload.quarantined_cases) || [];
+    clearHudRowList(hudTesterQuarantineList);
+    if (hudTesterQuarantineEmpty) {
+      hudTesterQuarantineEmpty.hidden = quarantine.length > 0;
+      hudTesterQuarantineEmpty.textContent = quarantine.length
+        ? ""
+        : "Nothing quarantined";
+    }
+    quarantine.forEach(function (row) {
+      appendHudRow(
+        hudTesterQuarantineList,
+        row.case_name || row.case_id || "?",
+        (row.reason || "quarantined") +
+          (row.expires_at ? " · until " + row.expires_at : ""),
+        function () {
+          openPlansOnCase(row.plan_id, row.case_id, row.case_name);
+        }
+      );
+    });
+  }
+
+  async function loadTesterHud() {
+    try {
+      const res = await fetch("/api/plans/tester-hud");
+      if (!res.ok) {
+        renderTesterHud(null);
+        return;
+      }
+      renderTesterHud(await res.json());
+    } catch (err) {
+      renderTesterHud(null);
+    }
+  }
+
   if (hudSecurityToggle) hudSecurityToggle.addEventListener("change", saveHud);
   if (hudReportsToggle) hudReportsToggle.addEventListener("change", saveHud);
   if (hudLabToggle) hudLabToggle.addEventListener("change", saveHud);
+  if (hudTesterConnToggle) hudTesterConnToggle.addEventListener("change", saveHud);
+  if (hudTesterLastToggle) hudTesterLastToggle.addEventListener("change", saveHud);
+  if (hudTesterFailsToggle) hudTesterFailsToggle.addEventListener("change", saveHud);
+  if (hudTesterQuarantineToggle) {
+    hudTesterQuarantineToggle.addEventListener("change", saveHud);
+  }
+  if (hudTesterLastOpen) {
+    hudTesterLastOpen.addEventListener("click", function () {
+      if (testerHudLastPlanId) openPlansOnCase(testerHudLastPlanId, "", "");
+    });
+  }
   loadHud();
   loadHudReports();
   loadSecurityStatus();
   refreshLabHome();
+  loadTesterHud();
   applyAreaLayout(loadAreaLayout());
 
   if (hudLabConn) {

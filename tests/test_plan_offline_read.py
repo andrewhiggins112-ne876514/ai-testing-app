@@ -149,7 +149,7 @@ class PlanOfflineReadTests(unittest.TestCase):
         self.assertEqual(rows[0]["summary"], "From snapshot")
         self.assertEqual(rows[0]["snapshot_captured_at"], "2026-01-01T00:00:00+00:00")
 
-    def test_api_offline_read_and_desktop_ui_desk66(self):
+    def test_api_offline_read_and_desktop_ui_desk67(self):
         pid, _ = self._seed_plan()
         client = TestClient(main.app)
         with patch("plans.offline_read.degraded_status") as mock_deg:
@@ -186,8 +186,8 @@ class PlanOfflineReadTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk66", html)
-        self.assertIn("desk66", desk)
+        self.assertIn("desk67", html)
+        self.assertIn("desk67", desk)
         self.assertIn("plan-offline-banner", html)
         self.assertIn("refreshOfflineReadBanner", js)
         self.assertIn("applyOfflineNetworkActions", js)

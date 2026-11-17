@@ -1049,6 +1049,63 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   min-height: 160px;
 }
 
+.hud-tester-conn {
+  right: 72px;
+  bottom: 280px;
+  width: 200px;
+  min-height: 96px;
+}
+
+.hud-tester-last {
+  right: 72px;
+  bottom: 140px;
+  width: 200px;
+  min-height: 96px;
+}
+
+.hud-tester-fails {
+  left: 72px;
+  bottom: 260px;
+  width: 220px;
+  min-height: 110px;
+}
+
+.hud-tester-quarantine {
+  left: 240px;
+  bottom: 140px;
+  width: 220px;
+  min-height: 110px;
+}
+
+.hud-row-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  max-height: 140px;
+  overflow: auto;
+}
+
+.hud-row-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 5px 8px;
+  font-size: 11px;
+  line-height: 1.35;
+  border-radius: 8px;
+  border: 1px solid rgba(80, 205, 255, 0.22);
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(232, 244, 255, 0.9);
+  cursor: pointer;
+}
+
+.hud-row-btn:hover,
+.hud-row-btn:focus-visible {
+  border-color: rgba(80, 205, 255, 0.55);
+  outline: none;
+}
+
 .hud-lab-actions {
   display: flex;
   flex-direction: column;

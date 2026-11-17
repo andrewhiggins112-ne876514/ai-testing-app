@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-203** — F1 Tester HUD widget pack on orb home |
-| **Start task** | **KAN-204** (`test`, Relates → KAN-203) |
+| **Jira story** | **KAN-205** — F2 Manager HUD widget pack on orb home |
+| **Start task** | **KAN-206** (`test`, Relates → KAN-205) |
 | **Epic** | Test-all F (see catalogue) |
-| **Roadmap ID** | F1 / FR-UI-1 + FR-UI-6 |
+| **Roadmap ID** | F2 / FR-UI-6 + FR-REP-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-204** |
-| **Shipped** | … **KAN-201** E5 offline last plan (desk66); **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
+| **Test ticket** | **KAN-206** |
+| **Shipped** | … **KAN-203** F1 Tester HUD (desk67); **KAN-201** E5 offline last plan (desk66); **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all F after F1 → F2… |
+| **Next after this** | continue Test-all F after F2 → F3… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-203 — F1 Tester HUD widget pack on orb home
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-203
+- **Done:** Optional Tester HUD pack on orb home: connection health, last run, failed cases, quarantined cases. Screen drawer toggles; home-only (hidden while App area open); rows deep-link into Plans on that case. No separate Tester home. `GET /api/plans/tester-hud` + desk67.
+- **Files:** `plans/tester_hud.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_tester_hud.py` (+ desk67 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_tester_hud.py` (+ hud widgets) 7 passed. Live `GET /api/plans/tester-hud` → home_only true, separate_tester_home false, connection checks present; desk67 HTML has tester HUD ids/toggles. `desktop_app.py` opened desk67 (orb home visible; Computer Use drawer click contested by other apps; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-203** + **KAN-204**
+- **Next:** **KAN-205** F2 Manager HUD widget pack on orb home (test **KAN-206**)
 
 ### 2026-11-17 — KAN-201 — E5 Read last plan while Jira is down
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-201

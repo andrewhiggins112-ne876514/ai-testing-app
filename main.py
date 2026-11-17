@@ -74,6 +74,7 @@ from plans.run_by_tag import run_cases_by_tag, select_cases_for_tag
 from plans.run_case import case_detail, run_single_case
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
+from plans.tester_hud import tester_hud_summary
 from plans.store import (
     add_case as plan_add_case,
     add_run as plan_add_run,
@@ -1120,6 +1121,12 @@ async def post_plan_acceptance_drift_refresh(
 async def get_plans_home():
     """Orb-home empty state + checklist when no plans exist (KAN-135)."""
     return lab_home_status()
+
+
+@app.get("/api/plans/tester-hud")
+async def get_plans_tester_hud():
+    """Tester HUD pack: connection, last run, fails, quarantine (KAN-203 / F1)."""
+    return tester_hud_summary()
 
 
 @app.post("/api/plans/starter")

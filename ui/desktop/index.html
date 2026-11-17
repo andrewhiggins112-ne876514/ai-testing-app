@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk66" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk67" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -128,6 +128,27 @@
         <button type="button" id="hud-lab-starter" class="save-btn hud-lab-btn">Start a template</button>
       </div>
       <p id="hud-lab-status" class="drawer-hint" role="status"></p>
+    </aside>
+
+    <aside id="hud-tester-conn" class="shell-surface hud-widget hud-tester-conn movable-widget" data-widget="hud-tester-conn" hidden aria-label="Connection health HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Connection</h4>
+      <p id="hud-tester-conn-body" class="hud-widget-body">Checking…</p>
+      <div id="hud-tester-conn-list" class="hud-row-list" role="list"></div>
+    </aside>
+    <aside id="hud-tester-last" class="shell-surface hud-widget hud-tester-last movable-widget" data-widget="hud-tester-last" hidden aria-label="Last run HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Last run</h4>
+      <p id="hud-tester-last-body" class="hud-widget-body">No suite run yet</p>
+      <button type="button" id="hud-tester-last-open" class="save-btn secondary hud-lab-btn" hidden>Open in Plans</button>
+    </aside>
+    <aside id="hud-tester-fails" class="shell-surface hud-widget hud-tester-fails movable-widget" data-widget="hud-tester-fails" hidden aria-label="Failed cases HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Failed cases</h4>
+      <p id="hud-tester-fails-empty" class="hud-widget-body">No fails on last run</p>
+      <div id="hud-tester-fails-list" class="hud-row-list" role="list"></div>
+    </aside>
+    <aside id="hud-tester-quarantine" class="shell-surface hud-widget hud-tester-quarantine movable-widget" data-widget="hud-tester-quarantine" hidden aria-label="Quarantined cases HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Quarantine</h4>
+      <p id="hud-tester-quarantine-empty" class="hud-widget-body">Nothing quarantined</p>
+      <div id="hud-tester-quarantine-list" class="hud-row-list" role="list"></div>
     </aside>
 
     <div id="area-layer" class="area-layer" hidden>
@@ -788,10 +809,15 @@
           <label>Border <input id="ctrl-widget-border" type="color" value="#50cdff" /></label>
           <label>Background <input id="ctrl-widget-bg" type="color" value="#000000" /></label>
           <h3 class="orb-section-label">HUD widgets</h3>
-          <p class="drawer-hint">Home mini panels only. They are not App area content. Lab checklist also auto-shows when there is no plan yet.</p>
+          <p class="drawer-hint">Home mini panels only. They are not App area content. Lab checklist also auto-shows when there is no plan yet. Tester pack stays on orb home (no separate Tester route).</p>
           <label class="check-row"><input type="checkbox" id="hud-security-toggle" /> Security status</label>
           <label class="check-row"><input type="checkbox" id="hud-reports-toggle" /> Reports mini</label>
           <label class="check-row"><input type="checkbox" id="hud-lab-toggle" /> Lab checklist</label>
+          <h3 class="orb-section-label">Tester HUD pack</h3>
+          <label class="check-row"><input type="checkbox" id="hud-tester-conn-toggle" /> Connection health</label>
+          <label class="check-row"><input type="checkbox" id="hud-tester-last-toggle" /> Last run</label>
+          <label class="check-row"><input type="checkbox" id="hud-tester-fails-toggle" /> Failed cases</label>
+          <label class="check-row"><input type="checkbox" id="hud-tester-quarantine-toggle" /> Quarantined cases</label>
         </div>
       </div>
     </aside>
@@ -799,6 +825,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk66"></script>
+  <script src="/ui/desktop/desktop.js?v=desk67"></script>
 </body>
 </html>
