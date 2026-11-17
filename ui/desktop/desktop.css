@@ -1105,6 +1105,34 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   min-height: 110px;
 }
 
+.hud-rel-env {
+  right: 72px;
+  top: 300px;
+  width: 200px;
+  min-height: 96px;
+}
+
+.hud-rel-last {
+  right: 288px;
+  top: 300px;
+  width: 220px;
+  min-height: 96px;
+}
+
+.hud-rel-uncovered {
+  right: 72px;
+  top: 440px;
+  width: 220px;
+  min-height: 110px;
+}
+
+.hud-rel-bugs {
+  right: 308px;
+  top: 440px;
+  width: 220px;
+  min-height: 110px;
+}
+
 .hud-row-list {
   display: flex;
   flex-direction: column;

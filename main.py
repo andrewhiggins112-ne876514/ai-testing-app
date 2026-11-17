@@ -75,6 +75,7 @@ from plans.run_case import case_detail, run_single_case
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
 from plans.manager_hud import manager_hud_summary
+from plans.release_hud import release_hud_summary
 from plans.tester_hud import tester_hud_summary
 from plans.store import (
     add_case as plan_add_case,
@@ -1134,6 +1135,12 @@ async def get_plans_tester_hud():
 async def get_plans_manager_hud():
     """Manager HUD pack: pass rate, known issues, gaps, bugs (KAN-205 / F2)."""
     return manager_hud_summary()
+
+
+@app.get("/api/plans/release-hud")
+async def get_plans_release_hud():
+    """Release HUD pack: env, last run, uncovered, open bugs (KAN-207 / F3)."""
+    return release_hud_summary()
 
 
 @app.post("/api/plans/starter")

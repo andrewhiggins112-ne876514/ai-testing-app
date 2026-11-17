@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk68" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk69" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -170,6 +170,27 @@
       <h4 class="hud-widget-title">Bugs from plan</h4>
       <p id="hud-mgr-bugs-empty" class="hud-widget-body">No product bugs</p>
       <div id="hud-mgr-bugs-list" class="hud-row-list" role="list"></div>
+    </aside>
+
+    <aside id="hud-rel-env" class="shell-surface hud-widget hud-rel-env movable-widget" data-widget="hud-rel-env" hidden aria-label="Environment HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Environment</h4>
+      <p id="hud-rel-env-body" class="hud-widget-body">No named environment</p>
+      <button type="button" id="hud-rel-env-open" class="save-btn secondary hud-lab-btn" hidden>Open readiness</button>
+    </aside>
+    <aside id="hud-rel-last" class="shell-surface hud-widget hud-rel-last movable-widget" data-widget="hud-rel-last" hidden aria-label="Last run HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Last run</h4>
+      <p id="hud-rel-last-body" class="hud-widget-body">No suite run yet</p>
+      <button type="button" id="hud-rel-last-open" class="save-btn secondary hud-lab-btn" hidden>Open readiness</button>
+    </aside>
+    <aside id="hud-rel-uncovered" class="shell-surface hud-widget hud-rel-uncovered movable-widget" data-widget="hud-rel-uncovered" hidden aria-label="Uncovered stories HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Uncovered stories</h4>
+      <p id="hud-rel-uncovered-empty" class="hud-widget-body">No uncovered stories</p>
+      <div id="hud-rel-uncovered-list" class="hud-row-list" role="list"></div>
+    </aside>
+    <aside id="hud-rel-bugs" class="shell-surface hud-widget hud-rel-bugs movable-widget" data-widget="hud-rel-bugs" hidden aria-label="Open product bugs HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Open product bugs</h4>
+      <p id="hud-rel-bugs-empty" class="hud-widget-body">No open product bugs</p>
+      <div id="hud-rel-bugs-list" class="hud-row-list" role="list"></div>
     </aside>
 
     <div id="area-layer" class="area-layer" hidden>
@@ -830,7 +851,7 @@
           <label>Border <input id="ctrl-widget-border" type="color" value="#50cdff" /></label>
           <label>Background <input id="ctrl-widget-bg" type="color" value="#000000" /></label>
           <h3 class="orb-section-label">HUD widgets</h3>
-          <p class="drawer-hint">Home mini panels only. They are not App area content. Lab checklist also auto-shows when there is no plan yet. Tester and Manager packs stay on orb home (no separate role homes).</p>
+          <p class="drawer-hint">Home mini panels only. They are not App area content. Lab checklist also auto-shows when there is no plan yet. Tester, Manager, and Release packs stay on orb home (no separate role homes). Release readiness ticks stay in Reports.</p>
           <label class="check-row"><input type="checkbox" id="hud-security-toggle" /> Security status</label>
           <label class="check-row"><input type="checkbox" id="hud-reports-toggle" /> Reports mini</label>
           <label class="check-row"><input type="checkbox" id="hud-lab-toggle" /> Lab checklist</label>
@@ -844,6 +865,11 @@
           <label class="check-row"><input type="checkbox" id="hud-mgr-known-toggle" /> Known-issue count</label>
           <label class="check-row"><input type="checkbox" id="hud-mgr-gaps-toggle" /> Stories with no cases</label>
           <label class="check-row"><input type="checkbox" id="hud-mgr-bugs-toggle" /> Bugs from plan</label>
+          <h3 class="orb-section-label">Release HUD pack</h3>
+          <label class="check-row"><input type="checkbox" id="hud-rel-env-toggle" /> Environment name</label>
+          <label class="check-row"><input type="checkbox" id="hud-rel-last-toggle" /> Last run</label>
+          <label class="check-row"><input type="checkbox" id="hud-rel-uncovered-toggle" /> Uncovered stories</label>
+          <label class="check-row"><input type="checkbox" id="hud-rel-bugs-toggle" /> Open product bugs</label>
         </div>
       </div>
     </aside>
@@ -851,6 +877,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk68"></script>
+  <script src="/ui/desktop/desktop.js?v=desk69"></script>
 </body>
 </html>

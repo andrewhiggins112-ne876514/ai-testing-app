@@ -3720,6 +3720,10 @@
   const hudMgrKnownToggle = document.getElementById("hud-mgr-known-toggle");
   const hudMgrGapsToggle = document.getElementById("hud-mgr-gaps-toggle");
   const hudMgrBugsToggle = document.getElementById("hud-mgr-bugs-toggle");
+  const hudRelEnvToggle = document.getElementById("hud-rel-env-toggle");
+  const hudRelLastToggle = document.getElementById("hud-rel-last-toggle");
+  const hudRelUncoveredToggle = document.getElementById("hud-rel-uncovered-toggle");
+  const hudRelBugsToggle = document.getElementById("hud-rel-bugs-toggle");
   const hudSecurityPanel = document.getElementById("hud-security");
   const hudReportsPanel = document.getElementById("hud-reports");
   const hudLabPanel = document.getElementById("hud-lab");
@@ -3731,6 +3735,10 @@
   const hudMgrKnownPanel = document.getElementById("hud-mgr-known");
   const hudMgrGapsPanel = document.getElementById("hud-mgr-gaps");
   const hudMgrBugsPanel = document.getElementById("hud-mgr-bugs");
+  const hudRelEnvPanel = document.getElementById("hud-rel-env");
+  const hudRelLastPanel = document.getElementById("hud-rel-last");
+  const hudRelUncoveredPanel = document.getElementById("hud-rel-uncovered");
+  const hudRelBugsPanel = document.getElementById("hud-rel-bugs");
   const hudSecurityLevel = document.getElementById("hud-security-level");
   const hudReportsBody = document.getElementById("hud-reports-body");
   const hudLabMessage = document.getElementById("hud-lab-message");
@@ -3759,6 +3767,14 @@
   const hudMgrGapsList = document.getElementById("hud-mgr-gaps-list");
   const hudMgrBugsEmpty = document.getElementById("hud-mgr-bugs-empty");
   const hudMgrBugsList = document.getElementById("hud-mgr-bugs-list");
+  const hudRelEnvBody = document.getElementById("hud-rel-env-body");
+  const hudRelEnvOpen = document.getElementById("hud-rel-env-open");
+  const hudRelLastBody = document.getElementById("hud-rel-last-body");
+  const hudRelLastOpen = document.getElementById("hud-rel-last-open");
+  const hudRelUncoveredEmpty = document.getElementById("hud-rel-uncovered-empty");
+  const hudRelUncoveredList = document.getElementById("hud-rel-uncovered-list");
+  const hudRelBugsEmpty = document.getElementById("hud-rel-bugs-empty");
+  const hudRelBugsList = document.getElementById("hud-rel-bugs-list");
   let areaLayout = "overlay";
   let openAreaName = "";
   let hudFlags = {
@@ -3773,6 +3789,10 @@
     mgrKnown: false,
     mgrGaps: false,
     mgrBugs: false,
+    relEnv: false,
+    relLast: false,
+    relUncovered: false,
+    relBugs: false,
   };
   let labHomeEmpty = false;
   let hubCloseTimer = 0;
@@ -3780,6 +3800,7 @@
   let testerHudCache = null;
   let managerHudPlanId = "";
   let managerHudCache = null;
+  let releaseHudCache = null;
 
   if (areaBody && sectionHost) {
     areaBody.appendChild(sectionHost);
@@ -4231,6 +4252,10 @@
       mgrKnown: !!(flags && flags.mgrKnown),
       mgrGaps: !!(flags && flags.mgrGaps),
       mgrBugs: !!(flags && flags.mgrBugs),
+      relEnv: !!(flags && flags.relEnv),
+      relLast: !!(flags && flags.relLast),
+      relUncovered: !!(flags && flags.relUncovered),
+      relBugs: !!(flags && flags.relBugs),
     };
     if (hudSecurityToggle) hudSecurityToggle.checked = hudFlags.security;
     if (hudReportsToggle) hudReportsToggle.checked = hudFlags.reports;
@@ -4245,6 +4270,12 @@
     if (hudMgrKnownToggle) hudMgrKnownToggle.checked = hudFlags.mgrKnown;
     if (hudMgrGapsToggle) hudMgrGapsToggle.checked = hudFlags.mgrGaps;
     if (hudMgrBugsToggle) hudMgrBugsToggle.checked = hudFlags.mgrBugs;
+    if (hudRelEnvToggle) hudRelEnvToggle.checked = hudFlags.relEnv;
+    if (hudRelLastToggle) hudRelLastToggle.checked = hudFlags.relLast;
+    if (hudRelUncoveredToggle) {
+      hudRelUncoveredToggle.checked = hudFlags.relUncovered;
+    }
+    if (hudRelBugsToggle) hudRelBugsToggle.checked = hudFlags.relBugs;
     const home = !openAreaName;
     if (hudSecurityPanel) hudSecurityPanel.hidden = !(home && hudFlags.security);
     if (hudReportsPanel) hudReportsPanel.hidden = !(home && hudFlags.reports);
@@ -4278,6 +4309,19 @@
     if (hudMgrBugsPanel) {
       hudMgrBugsPanel.hidden = !(home && hudFlags.mgrBugs);
     }
+    // Release pack is home-only (no separate Release home; readiness in Reports).
+    if (hudRelEnvPanel) {
+      hudRelEnvPanel.hidden = !(home && hudFlags.relEnv);
+    }
+    if (hudRelLastPanel) {
+      hudRelLastPanel.hidden = !(home && hudFlags.relLast);
+    }
+    if (hudRelUncoveredPanel) {
+      hudRelUncoveredPanel.hidden = !(home && hudFlags.relUncovered);
+    }
+    if (hudRelBugsPanel) {
+      hudRelBugsPanel.hidden = !(home && hudFlags.relBugs);
+    }
   }
 
   function defaultHudFlags() {
@@ -4293,6 +4337,10 @@
       mgrKnown: false,
       mgrGaps: false,
       mgrBugs: false,
+      relEnv: false,
+      relLast: false,
+      relUncovered: false,
+      relBugs: false,
     };
   }
 
@@ -4320,6 +4368,12 @@
       mgrKnown: !!(hudMgrKnownToggle && hudMgrKnownToggle.checked),
       mgrGaps: !!(hudMgrGapsToggle && hudMgrGapsToggle.checked),
       mgrBugs: !!(hudMgrBugsToggle && hudMgrBugsToggle.checked),
+      relEnv: !!(hudRelEnvToggle && hudRelEnvToggle.checked),
+      relLast: !!(hudRelLastToggle && hudRelLastToggle.checked),
+      relUncovered: !!(
+        hudRelUncoveredToggle && hudRelUncoveredToggle.checked
+      ),
+      relBugs: !!(hudRelBugsToggle && hudRelBugsToggle.checked),
     };
     applyHud(flags);
     try {
@@ -4337,6 +4391,14 @@
     }
     if (flags.mgrPass || flags.mgrKnown || flags.mgrGaps || flags.mgrBugs) {
       loadManagerHud();
+    }
+    if (
+      flags.relEnv ||
+      flags.relLast ||
+      flags.relUncovered ||
+      flags.relBugs
+    ) {
+      loadReleaseHud();
     }
   }
 
@@ -4589,6 +4651,101 @@
     }
   }
 
+  function openReleaseReadiness() {
+    // AC: readiness ticks stay on Reports — not a separate Release home.
+    openArea("reports");
+  }
+
+  function renderReleaseHud(payload) {
+    releaseHudCache = payload || null;
+    const env = (payload && payload.environment) || {};
+    if (hudRelEnvBody) {
+      if (!env.name) {
+        hudRelEnvBody.textContent = "No named environment";
+      } else {
+        const bits = [env.name];
+        if (env.target_url_set) bits.push("URL set");
+        if (env.target_app_path_set) bits.push("exe set");
+        hudRelEnvBody.textContent = bits.join(" · ");
+      }
+    }
+    if (hudRelEnvOpen) {
+      hudRelEnvOpen.hidden = false;
+    }
+
+    const last = (payload && payload.last_run) || {};
+    if (hudRelLastBody) {
+      if (!last.plan_id && !last.case_count) {
+        hudRelLastBody.textContent = "No suite run yet";
+      } else {
+        const bits = [];
+        if (last.pass_rate_percent != null) {
+          bits.push(last.pass_rate_percent + "% pass");
+        }
+        if (typeof last.pass === "number") bits.push(last.pass + " pass");
+        if (typeof last.fail === "number") bits.push(last.fail + " fail");
+        if (typeof last.error === "number" && last.error) {
+          bits.push(last.error + " error");
+        }
+        if (last.environment_name) bits.push("env " + last.environment_name);
+        hudRelLastBody.textContent =
+          (last.plan_name || last.plan_id || "Plan") +
+          (bits.length ? " — " + bits.join(", ") : "");
+      }
+    }
+    if (hudRelLastOpen) {
+      hudRelLastOpen.hidden = !(last && last.plan_id);
+    }
+
+    const uncovered = (payload && payload.uncovered_stories) || [];
+    clearHudRowList(hudRelUncoveredList);
+    if (hudRelUncoveredEmpty) {
+      hudRelUncoveredEmpty.hidden = uncovered.length > 0;
+      hudRelUncoveredEmpty.textContent = uncovered.length
+        ? ""
+        : "No uncovered stories";
+    }
+    uncovered.forEach(function (row) {
+      appendHudRow(
+        hudRelUncoveredList,
+        row.story_key || "?",
+        (row.summary || "uncovered") + " → Reports readiness",
+        openReleaseReadiness
+      );
+    });
+
+    const bugs = (payload && payload.open_product_bugs) || [];
+    clearHudRowList(hudRelBugsList);
+    if (hudRelBugsEmpty) {
+      hudRelBugsEmpty.hidden = bugs.length > 0;
+      hudRelBugsEmpty.textContent = bugs.length
+        ? ""
+        : "No open product bugs";
+    }
+    bugs.forEach(function (row) {
+      appendHudRow(
+        hudRelBugsList,
+        (row.case_name || row.case_id || "?") +
+          (row.jira_key ? " · " + row.jira_key : ""),
+        (row.plan_name || row.plan_id || "") + " · product_bug → Reports",
+        openReleaseReadiness
+      );
+    });
+  }
+
+  async function loadReleaseHud() {
+    try {
+      const res = await fetch("/api/plans/release-hud");
+      if (!res.ok) {
+        renderReleaseHud(null);
+        return;
+      }
+      renderReleaseHud(await res.json());
+    } catch (err) {
+      renderReleaseHud(null);
+    }
+  }
+
   if (hudSecurityToggle) hudSecurityToggle.addEventListener("change", saveHud);
   if (hudReportsToggle) hudReportsToggle.addEventListener("change", saveHud);
   if (hudLabToggle) hudLabToggle.addEventListener("change", saveHud);
@@ -4602,6 +4759,12 @@
   if (hudMgrKnownToggle) hudMgrKnownToggle.addEventListener("change", saveHud);
   if (hudMgrGapsToggle) hudMgrGapsToggle.addEventListener("change", saveHud);
   if (hudMgrBugsToggle) hudMgrBugsToggle.addEventListener("change", saveHud);
+  if (hudRelEnvToggle) hudRelEnvToggle.addEventListener("change", saveHud);
+  if (hudRelLastToggle) hudRelLastToggle.addEventListener("change", saveHud);
+  if (hudRelUncoveredToggle) {
+    hudRelUncoveredToggle.addEventListener("change", saveHud);
+  }
+  if (hudRelBugsToggle) hudRelBugsToggle.addEventListener("change", saveHud);
   if (hudTesterLastOpen) {
     hudTesterLastOpen.addEventListener("click", function () {
       if (testerHudLastPlanId) openPlansOnCase(testerHudLastPlanId, "", "");
@@ -4612,12 +4775,19 @@
       openArea("reports");
     });
   }
+  if (hudRelEnvOpen) {
+    hudRelEnvOpen.addEventListener("click", openReleaseReadiness);
+  }
+  if (hudRelLastOpen) {
+    hudRelLastOpen.addEventListener("click", openReleaseReadiness);
+  }
   loadHud();
   loadHudReports();
   loadSecurityStatus();
   refreshLabHome();
   loadTesterHud();
   loadManagerHud();
+  loadReleaseHud();
   applyAreaLayout(loadAreaLayout());
 
   if (hudLabConn) {
