@@ -39,6 +39,15 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-17 — Council/CR — Lab tools missing after compact App menu
+- **Agent/chat:** Designer — Sandboxes (and other Lab areas) missing from ▦ after Primary-five menu
+- **Root cause:** Compact menu kept Chat/Settings/Plans/Reports/Documents only; Security/Heal/Desktop/Suites/Sandboxes left on orb-hub spokes, which only appear when layout is `orb_hub` (default is overlay) → areas feel gone
+- **Done (docs/Jira only):** Spec **FR-UI-8** + FR-UI-1 Lab group; ROADMAP **UI-NAV-IA-5** + **UI-NAV-IA-6**. Active Build **unchanged: KAN-169**.
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `docs/ops/ROADMAP.md`, `PROJECT_MEMORY.md`, this log
+- **Verify:** n/a (stories filed; no product code)
+- **Jira:** **KAN-260** (test **KAN-262**) Lab tools in App menu; **KAN-261** (test **KAN-263**) Settings plugin categories follow-on; Relates KAN-257
+- **Next:** Active remains **KAN-169**; then **KAN-260** when prioritised
+
 ### 2026-11-17 — KAN-167 — C6 traceability matrix
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-167
 - **Done:** Plan-level traceability matrix: story key, case count, last result, linked bug keys, known-issue flag. Keys with no runs are `not_loaded` (never fake pass). `GET /api/plans/{id}/traceability`; Desktop Plans grid with row→open case; report section `traceability` on export (run_report attaches rows). desk48.

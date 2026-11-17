@@ -117,7 +117,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - **FR-SEC-5:** Secrets never leave the local settings store or are written to client-side code / logs.
 
 ### 3.8 UI and Desktop Experience
-- **FR-UI-1:** Conversational interface is primary on the **agent home screen** (chat + central orb). **One home for everyone** — there is no separate Tester/Manager/PO landing. App menu and screen drawer are secondary shells for navigation and layout — not replacements for the home canvas. App areas open from a **compact App menu**: `▦` button toggles a small App panel (nav list only); choosing an item closes the panel and opens the dedicated area surface (FR-UI-7). A **tall persistent App side drawer** and a **persistent top tab bar** are not app navigation. *(CR 2026-11-17 menu button; CR 2026-11-17b — desktop matches Gradio compact menu.)*
+- **FR-UI-1:** Conversational interface is primary on the **agent home screen** (chat + central orb). **One home for everyone** — there is no separate Tester/Manager/PO landing. App menu and screen drawer are secondary shells for navigation and layout — not replacements for the home canvas. App areas open from a **compact App menu**: `▦` button toggles a small App panel (nav list only); choosing an item closes the panel and opens the dedicated area surface (FR-UI-7). The compact menu has two groups: **Primary** — Chat, Settings, Plans, Reports, Documents; **Lab tools** — Security, Heal review, Desktop, Suites, Sandboxes (FR-UI-8). A **tall persistent App side drawer** and a **persistent top tab bar** are not app navigation. *(CR 2026-11-17 menu button; CR 2026-11-17b — desktop matches Gradio compact menu; CR 2026-11-17c — Lab tools must stay discoverable.)*
 - **FR-UI-2:** Native Windows desktop window (pywebview + Edge WebView2) is the **primary product UI**. The app is intended for desktop use, not as a browser product. Gradio (`run_ui.py`) remains a secondary lab/dev shell and must follow the same **compact menu-button navigation** and **content-vs-settings** split (FR-UI-7, FR-SET-4, FR-REP-4). Gradio does **not** have to implement desktop area layouts A–E. *(CR 2026-11-17b — desktop-first.)*
 - **FR-UI-3:** Visual orb styles (Mystic, Aether, Neural, Apex and classic canvas styles) with per-style settings, live controls, and theme accent that follows the active style. **Orb settings** (style, size, spin, glow, colours) live in the **Screen drawer** only — not under App → Settings. The active style accent (CSS variables such as `--cyan`, border, glow, and muted text) also paints App nav, area surfaces (overlay, stage, split, floating), HUD chips, hub spokes, and the App Settings layout picker — not only the orb canvas. *(CR 2026-11-16 — layout modes × style theme.)*
 - **FR-UI-4:** Movable / resizable panels and widgets (UI-6). Layout persists in localStorage.
@@ -130,6 +130,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
   - `split` — docked panel beside the home orb; Esc closes it (mockup D)
   - `floating` — one movable area window; the orb stays full size (mockup E)
   Esc or Back returns home. Accents follow the active orb style (FR-UI-3). *(Product decision 2026-11-16 — configurable A–E, not a single mockup pick.)* An area surface shows that area’s **content** (lists, viewers, run results, proposals). **Configuration** for the area lives under Settings categories (FR-SET-4), with a deep link from the area. *(CR 2026-11-17.)*
+- **FR-UI-8:** **Lab tools navigation** — Security, Heal review, Desktop, Suites, and Sandboxes remain dedicated area surfaces and must be **reachable from home in every App area layout** (not only when layout is `orb_hub`). Default placement: a **Lab tools** group inside the compact App menu under the Primary group (still a popover, not a tall rail). Orb-hub spokes may mirror these as accelerators when layout is `orb_hub`. Gradio need not expose every Lab tool. *(CR 2026-11-17c — after compact menu dropped Lab items from ▦.)*
 
 ### 3.9 Plugins and Extensibility
 - **FR-PLUG-1:** Modular plugin architecture. New capabilities (desktop testing, richer reporting, multi-sandbox, performance, security testing, etc.) are addable without rewriting the core.
@@ -242,6 +243,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-UI-1…5 | Baseline shipped; UI-1 compact desktop App menu | **Done** KAN-10/41/53/73; Voice **KAN-81** deferred; compact desktop menu **KAN-253** (desk44) |
 | FR-UI-6 | Baseline Security + Reports + Lab checklist; role packs later | **Done** **KAN-103** / **KAN-107** / **KAN-104** + **KAN-135** empty-lab checklist; Test-all **F1–F7** |
 | FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix; content vs config | **Done** shell **KAN-103** / **KAN-104**; content-vs-config **KAN-247…249** |
+| FR-UI-8 | Lab tools always discoverable (Security, Heal, Desktop, Suites, Sandboxes) | **Open** — **KAN-260** (UI-NAV-IA-5) |
 | FR-SET-3 | Shipped — App Settings vs Orb settings; App category on Settings hub | **Done** Task **KAN-108**; hub **KAN-249** |
 | FR-SET-4 | Settings hub with category switch (App / Report / …) | **Done** — **KAN-249** (desk42) |
 | FR-PLUG-1 | Shipped registry + local multi-sandbox orchestration | **Done** KAN-55 stub + **KAN-95** (test **KAN-96**) |
@@ -263,7 +265,8 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | Real credentials | Local store only | Never in chat or repo |
 | Test-all in-app plan/suite | **Active CR** | Catalogue A–H; alpha A1–A9 first; Active Build **KAN-159** C2 |
 | Nav IA — Reports data / menu / Settings hub | **Shipped** KAN-247…249 | Gradio compact menu done; desktop still tall App drawer until follow-on |
-| Desktop compact App menu (match Gradio) | **Shipped** KAN-253 (desk44) | Compact `▦` panel |
+| Desktop compact App menu (match Gradio) | **Shipped** KAN-253…**KAN-257** (desk47) | Primary ▦ = Chat/Settings/Plans/Reports/Documents |
+| Lab tools navigation (Sandboxes et al.) | **CR accepted 2026-11-17c** | FR-UI-8 / UI-NAV-IA-5 — Lab areas must open without `orb_hub` layout. Active stays Test-all C. |
 | Coverage gaps (C4) | **Shipped** KAN-163 (desk45) | No-case / all-disabled lists; filter; no auto-create |
 | Acceptance drift (C5) | **Shipped** KAN-165 (desk46) | Stale on summary/AC change; Keep/Refresh; runs preserved |
 | Traceability matrix (C6) | **Shipped** KAN-167 (desk48) | Story → cases → last result → bugs → known; not_loaded never pass; export section; Active → **KAN-169** C7 |
