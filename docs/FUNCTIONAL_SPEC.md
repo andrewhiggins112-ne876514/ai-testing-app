@@ -202,7 +202,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Test-all catalogue — alpha **A2–A9** (A1 plan model shipped **KAN-125**). Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
+**Still open / next:** Test-all **E3** — **KAN-197** redact secrets in evidence/exports (test **KAN-198**). After E3 → **KAN-260** (lab tools on App menu), then E4…. A–D + E1–E2 shipped. Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -220,7 +220,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-TEST-3 | Done (smoke + structured steps) | **Done** KAN-47 smoke; **KAN-87** steps (`wait_window`/`type_text`/…) |
 | FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
 | FR-TEST-5 | Shipped baseline import/run; in-suite import deepen | **Done** **KAN-59**; Test-all **C8** **KAN-171** |
-| FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; **D3** named envs **KAN-183**; D4 later |
+| FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; **D3** named envs **KAN-183**; **D4** credential status **KAN-185** Done |
 | FR-PLAN-1…2 | Partial (A1+A5+A6+C11) | **KAN-125** store + **KAN-133** edit/disable/reorder + **KAN-135** starter/empty home + **KAN-177** archive; run UI A7 |
 | FR-PLAN-3…4 | Partial (A4+C3–C10) | **KAN-131** one story; **KAN-161** project-wide draft; **KAN-163** coverage gaps; **KAN-165** AC drift; **KAN-167** C6 matrix; **KAN-169** C7 tags; **KAN-171** C8 import; **KAN-173** C9 search; **KAN-175** C10 history; **KAN-177** C11 archive Done |
 | FR-CI-1 | Future (design) | Test-all **H2** |
@@ -233,10 +233,11 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-JIRA-5, FR-JIRA-7 | Shipped confirm + local creds + write audit | **Done** KAN-12, **KAN-16**, **KAN-99** |
 | FR-JIRA-6 | Shipped (429 Retry-After backoff + readable auth/rate-limit errors) | **Done** **KAN-91** |
 | FR-REP-1 | Shipped (stories covered + bugs by story/area) | **Done** **KAN-67** |
-| FR-REP-2 | Shipped (placement → Report Settings under FR-SET-4) | **Done** KAN-51; UI move **open** nav-IA Story 1 |
-| FR-REP-3 | Shipped baseline export | **Done** KAN-11 |
+| FR-REP-2 | Shipped (placement → Report Settings under FR-SET-4) | **Done** KAN-51; UI move **Done** **KAN-247** / **KAN-249** |
+| FR-REP-3 | Baseline export Done; deepen E3 | **Done** KAN-11 baseline; **deepen E3** **KAN-197** (redact secrets in exports — open) |
 | FR-REP-4 | Reports area = library/viewer (not section editor) | **Done** — **KAN-247** (desk41) |
-| FR-SEC-1, FR-SEC-3, FR-SEC-5 | Shipped isolation + confirm + secrets scoping | **Done** KAN-15, **KAN-16** |
+| FR-SEC-1, FR-SEC-3 | Shipped isolation + confirm | **Done** KAN-15, **KAN-16** |
+| FR-SEC-5 | Baseline secrets scoping Done; deepen E3 | **Done** KAN-15/16 baseline; **deepen E3** **KAN-197** (evidence/export redaction — open) |
 | FR-SEC-2 | Done | **KAN-69** |
 | FR-SEC-4 | Done | **KAN-71** |
 | FR-UI-1…5 | Baseline shipped; UI-1 compact desktop App menu | **Done** KAN-10/41/53/73; Voice **KAN-81** deferred; compact desktop menu **KAN-253** (desk44) |
@@ -261,9 +262,9 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 |------|--------|-------|
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN**. Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
-| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; alpha A1–A9 first; Active Build **KAN-159** C2 |
-| Nav IA — Reports data / menu / Settings hub | **Shipped** KAN-247…249 | Gradio compact menu done; desktop still tall App drawer until follow-on |
-| Desktop compact App menu (match Gradio) | **Shipped** KAN-253 (desk44) | Compact `▦` panel |
+| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; Active Build **KAN-197** E3; after E3 → **KAN-260** then E4… |
+| Nav IA — Reports data / menu / Settings hub | **Shipped** KAN-247…249 | Gradio + desktop compact menu; lab tools hub-only until **KAN-260** |
+| Desktop compact App menu (match Gradio) | **Shipped** KAN-253 / **KAN-257** | Compact `▦` five areas; Security/Heal/Desktop/Suites/Sandboxes → **KAN-260** |
 | Coverage gaps (C4) | **Shipped** KAN-163 (desk45) | No-case / all-disabled lists; filter; no auto-create |
 | Acceptance drift (C5) | **Shipped** KAN-165 (desk46) | Stale on summary/AC change; Keep/Refresh; runs preserved |
 | Traceability matrix (C6) | **Shipped** KAN-167 (desk48) | Story → cases → last result → bugs → known; not_loaded never pass; export section |
@@ -273,7 +274,9 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | Suite history / compare two runs (C10) | **Shipped** KAN-175 (desk52) | Past runs: time, duration, pass/fail, tag; compare changed results; known labelled; level-local |
 | Duration on run and case (D7) | **Shipped** KAN-191 (desk60) | Case + suite store duration; compare shows duration change; local only, no upload |
 | Archive case without deleting history (C11) | **Shipped** KAN-177 (desk53) | Soft-archive hides from runs/default list; Show archived filter; evidence kept; unarchive restores |
-| Sequential default + parallel cap (D1) | **Shipped** KAN-179 (desk54) | Default parallel=1; max 2 visible; suite_run stores count; refuse above cap; Active → **KAN-181** D2 |
+| Sequential default + parallel cap (D1) | **Shipped** KAN-179 (desk54) | Default parallel=1; max 2 visible; suite_run stores count; refuse above cap |
+| E3 redact secrets in evidence/exports | **Active** KAN-197 | Pattern + stored-token redact; hit count; screenshot warn; not a wipe |
+| Lab tools in App menu | **Next after E3** KAN-260 | Restore Security/Heal/Desktop/Suites/Sandboxes on ▦; keep orb hub |
 | Voice input | Deferred | **KAN-81**; mic; later G10 |
 | Model tool-calling reliability | **Done** baseline | **KAN-61** |
 | Self-healing guardrails (policy) | **Done** (KAN-49) | Review UI **Done** (KAN-75) |

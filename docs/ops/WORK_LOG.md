@@ -17,7 +17,7 @@
 | **Test ticket** | **KAN-198** |
 | **Shipped** | … **KAN-195** E2 local side-effects audit (desk62); **KAN-193** E1 document privacy uploads (desk61); **KAN-191** D7 duration (desk60); **KAN-189** D6 run-finish notify (desk59); **KAN-187** D5 timeouts; **KAN-185** D4 credential status; **KAN-183** D3 named environments; **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all E after E3 → E4…, or **KAN-260** Lab tools in App menu when prioritised |
+| **Next after this** | **KAN-260** Lab tools in App menu (Designer priority after E3; then resume E4…) |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — Council review — track / gaps / cut-nothing
+- **Agent/chat:** Cursor IDE Agent `/council` — Review mode (no product code)
+- **Done:** Confirmed on track at **KAN-197** E3. Cut-nothing holds in tree; reach gap = five lab tools hub-only on default overlay (already **KAN-260**). Designer chose **KAN-260** as next after E3 (before E4). Doc drift patched: ROADMAP Now → TESTALL-E/E3; PROJECT_MEMORY / FUNCTIONAL_SPEC §5–§6 / TEST_ALL_BACKLOG Active → KAN-197; Active slice Next → KAN-260. Jira comments on **KAN-260**, **KAN-81**, **KAN-235**.
+- **Files:** `docs/ops/WORK_LOG.md`, `docs/ops/ROADMAP.md`, `docs/ops/TEST_ALL_BACKLOG.md`, `PROJECT_MEMORY.md`, `docs/FUNCTIONAL_SPEC.md`
+- **Verify:** Active slice still KAN-197; Next after this = KAN-260; ROADMAP Now = TESTALL-E
+- **Jira:** comments on KAN-260 / KAN-81 / KAN-235 (no status change)
+- **Next:** Build chat — pick up **KAN-197**; after Done → **KAN-260**
 
 ### 2026-11-17 — KAN-195 — E2 Audit log for local side effects
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-195

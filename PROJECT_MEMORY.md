@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-16 (KAN-125 A1 plan/suite/case/run model)
+Last updated: 2026-11-17 (Council review — Active KAN-197 E3; next after E3 = KAN-260)
 
 ## Original Vision
 A downloadable local-first **“test all”** application. The tester connects once (Jira, targets, docs, security level) and does testing work **inside the app**. Conversation (text first; voice later as a plugin) is the way in; the **orb + chat home is one home for everyone**; role needs are **HUD widgets**; App areas are full-window work.
@@ -40,7 +40,7 @@ Long-term goal: the most-used local/on-prem testing hub for testers, developers,
 - **Desktop-first compact App menu CR (2026-11-17b):** Desktop (`desktop_app.py`) is the **primary** product UI — not intended for browser use. Compact `▦` App menu shipped **KAN-253** (desk44 / test **KAN-254**).
 
 ## Current State
-**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (48 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1 KAN-179** sequential default + parallel cap; **D2 KAN-181** flake score + quarantine; **D3 KAN-183** named environments (desk56); **D4 KAN-185** credential status without revealing secrets (desk57); **D5 KAN-187** timeouts visible on the case (desk58); **D6 KAN-189** local notification when a run finishes (desk59); **D7 KAN-191** duration on the run and the case (desk60); **E1 KAN-193** document privacy for uploads (desk61); **E2 KAN-195** local side-effects audit (desk62). **Active Build: KAN-197** E3 redact secrets in evidence and exports (test **KAN-198**). Not KAN-81 voice.
+**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (~61 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1–D7 Done;** **E1 KAN-193** document privacy for uploads (desk61); **E2 KAN-195** local side-effects audit (desk62). **Active Build: KAN-197** E3 redact secrets in evidence and exports (test **KAN-198**). **After E3 → KAN-260** (lab tools back on ▦ App menu), then E4…. Not KAN-81 voice. Council review 2026-11-17: cut-nothing holds in tree; default ▦ hides Security/Heal/Desktop/Suites/Sandboxes (hub-only on overlay) — reach gap, not deletion.
 
 Skeleton + substantial features exist:
 - `plans/store.py` — **FR-PLAN-1/2 (KAN-125 + KAN-133 + KAN-177):** level-scoped plan → suite → cases → runs under `plans/{OFFICIAL|SECRET}/`; list/get isolated by active security level; create does not rewrite settings/reports/Playwright files; **update_case / reorder_cases / cases_for_run** (disable/archive skip later runs; archive never deletes runs/evidence); API `GET/POST /api/plans*`, case update, reorder, runnable
@@ -129,7 +129,7 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-161** C3 project-wide draft in batches — **Done** (KAN-162; `draft_plan_from_project` + desk43 Plans batch UI)
 - **KAN-177** C11 archive case without deleting history — **Done** (KAN-178; soft-archive + Show archived filter; desk53)
 - **KAN-179** D1 sequential default + parallel cap — **Done** (KAN-180; desk54; default 1 / max 2; refuse above; store count)
-- Next Active: **KAN-183** D3 named environments (test KAN-184). **KAN-81** Voice — **deferred** until mic (last; test KAN-82)
+- Next Active: **KAN-197** E3 redact secrets in evidence/exports (test **KAN-198**). After E3 → **KAN-260** lab tools in App menu. **KAN-81** Voice — **deferred** until mic (last; test KAN-82 / G10 **KAN-235**)
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -152,6 +152,6 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **Test-all A7** — next alpha story (**KAN-137**; see WORK_LOG Active slice).
-2. Continue **A8–A9** in order, then Epic B (failures for developers).
-3. **KAN-81** voice stays deferred (mic; catalogue G10) — do not pick up while deferred.
+1. **Test-all E3** — **KAN-197** redact secrets in evidence/exports (test **KAN-198**; see WORK_LOG Active slice).
+2. **KAN-260** — restore Security / Heal / Desktop / Suites / Sandboxes on the compact App menu (Designer priority after E3); then resume E4….
+3. **KAN-81** voice stays deferred (mic; catalogue G10 / **KAN-235**) — do not pick up while deferred.

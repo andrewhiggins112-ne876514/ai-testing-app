@@ -20,8 +20,10 @@ Downloadable local **test-all** app. Connect once. **One home** = orb + chat; ro
 | G Widen as plugins | **KAN-123** | later (G10=voice↔KAN-81) |
 | H Future workplace (design) | **KAN-124** | FUTURE |
 
-**Active Build story:** **KAN-135** (A6) · test **KAN-136**  
-**Shipped:** **KAN-125** (A1), **KAN-127** (A2), **KAN-129** (A3), **KAN-131** (A4), **KAN-133** (A5)  
+**Active Build story:** **KAN-197** (E3 redact secrets in evidence/exports) · test **KAN-198**  
+**Next after E3:** **KAN-260** Lab tools in App menu (Designer priority), then E4…  
+**Deferred:** **KAN-81** / **KAN-82** voice until mic (G10 **KAN-235**)  
+**Shipped:** A1–A9 (**KAN-125…KAN-141**); B1–B7; C1–C11; D1–D7; E1–E2 (**KAN-193**, **KAN-195**); UI-NAV-IA + App menu (**KAN-247…249**, **KAN-253**, **KAN-257**)  
 Stories/tests continue through **KAN-245** / **KAN-246** (H3).
 
 ## Sequence
