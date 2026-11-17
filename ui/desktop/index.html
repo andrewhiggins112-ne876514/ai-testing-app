@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk40" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk41" />
 </head>
 <body>
   <div id="app">
@@ -235,6 +235,15 @@
           <p id="set-creds" class="drawer-hint">Jira credentials: —</p>
           <p id="set-summary" class="drawer-hint">Summary: —</p>
           <p id="set-status" class="drawer-hint" role="status">Ready</p>
+          <h3 class="orb-section-label" id="report-settings-heading">Report Settings</h3>
+          <p class="drawer-hint">Choose which blocks appear in the next JSON/Markdown export (FR-REP-2). The Reports area is the library of saved reports.</p>
+          <label class="check-row"><input type="checkbox" id="rpt-summary" checked /> Summary</label>
+          <label class="check-row"><input type="checkbox" id="rpt-stories" checked /> Stories</label>
+          <label class="check-row"><input type="checkbox" id="rpt-bugs" checked /> Bugs</label>
+          <label class="check-row"><input type="checkbox" id="rpt-evidence" checked /> Evidence</label>
+          <label class="check-row"><input type="checkbox" id="rpt-known-issues" checked /> Known issues</label>
+          <button type="button" id="rpt-save" class="save-btn">Save sections</button>
+          <p id="rpt-sections-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-security" class="app-section" hidden>
           <h3 class="orb-section-label">Security level</h3>
@@ -271,16 +280,32 @@
           <p id="priv-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-reports" class="app-section" hidden>
-          <h3 class="orb-section-label">Report sections</h3>
-          <p class="drawer-hint">Choose which blocks appear in the next JSON/Markdown export.</p>
-          <label class="check-row"><input type="checkbox" id="rpt-summary" checked /> Summary</label>
-          <label class="check-row"><input type="checkbox" id="rpt-stories" checked /> Stories</label>
-          <label class="check-row"><input type="checkbox" id="rpt-bugs" checked /> Bugs</label>
-          <label class="check-row"><input type="checkbox" id="rpt-evidence" checked /> Evidence</label>
-          <label class="check-row"><input type="checkbox" id="rpt-known-issues" checked /> Known issues</label>
-          <button type="button" id="rpt-save" class="save-btn">Save sections</button>
+          <h3 class="orb-section-label">Report library</h3>
+          <p class="drawer-hint">
+            Saved Markdown/JSON reports for this machine. Section include/exclude lives under
+            Settings → Report Settings.
+          </p>
+          <p id="rpt-empty" class="drawer-hint" hidden>
+            No saved reports yet. Run a plan case or export a run below — files land in the local
+            reports folder outside the repo.
+          </p>
+          <label class="stack-label">Saved report
+            <select id="rpt-library-select">
+              <option value="">— no reports yet —</option>
+            </select>
+          </label>
+          <div class="btn-row">
+            <button type="button" id="rpt-library-refresh" class="save-btn secondary">Refresh library</button>
+            <button type="button" id="rpt-open-settings" class="save-btn secondary">Report settings</button>
+          </div>
+          <pre id="rpt-markdown" class="report-viewer" aria-live="polite">Select a report to read its markdown.</pre>
+          <img id="rpt-screenshot" class="report-shot" alt="Report screenshot" hidden />
+          <details class="report-json-wrap">
+            <summary>Raw JSON</summary>
+            <pre id="rpt-json" class="report-viewer">No JSON found</pre>
+          </details>
           <h3 class="orb-section-label">Export a run</h3>
-          <p class="drawer-hint">Pick a plan case run; export uses the section toggles above. Locator heals for that run stay in Heal review (approve/reject; no auto-commit).</p>
+          <p class="drawer-hint">Pick a plan case run; export uses Settings → Report Settings. Locator heals for that run stay in Heal review (approve/reject; no auto-commit).</p>
           <label class="stack-label">Chosen run
             <select id="rpt-run-select">
               <option value="">— select a run —</option>
@@ -531,6 +556,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk40"></script>
+  <script src="/ui/desktop/desktop.js?v=desk41"></script>
 </body>
 </html>

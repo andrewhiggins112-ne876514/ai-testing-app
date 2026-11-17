@@ -2458,6 +2458,31 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     gr.Button("Refresh plugins").click(
                         plugins_list_summary, outputs=[plugins_box]
                     )
+                gr.HTML('<div class="orb-section-label" id="report-settings-heading">Report Settings</div>')
+                gr.HTML(
+                    '<div class="panel-hint">Section include/exclude for the next JSON/Markdown export '
+                    "(FR-REP-2). The Reports tab is the saved-report library.</div>"
+                )
+                _sec = load_report_sections()
+                sec_summary = gr.Checkbox(value=_sec["summary"], label="Summary (status, counts, steps)")
+                sec_stories = gr.Checkbox(value=_sec["stories"], label="Stories (Jira keys)")
+                sec_bugs = gr.Checkbox(value=_sec["bugs"], label="Bugs")
+                sec_evidence = gr.Checkbox(value=_sec["evidence"], label="Evidence (screenshot links)")
+                sec_known = gr.Checkbox(
+                    value=_sec.get("known_issues", True),
+                    label="Known issues (exclusions; not new regressions)",
+                )
+                sections_status = gr.Textbox(
+                    value="Ready",
+                    label="Section profile",
+                    interactive=False,
+                    max_lines=1,
+                )
+                gr.Button("Save sections", variant="primary").click(
+                    save_report_section_toggles,
+                    [sec_summary, sec_stories, sec_bugs, sec_evidence, sec_known],
+                    [sections_status],
+                )
         with gr.Tab("Plans"):
             _plan_choices = list_plan_choices()
             _case_choices = list_case_choices(_plan_choices[0] if _plan_choices else None)
@@ -2513,33 +2538,12 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
 
         with gr.Tab("Reports"):
             _report_choices = list_report_choices()
-            _sec = load_report_sections()
             with gr.Column(elem_id="reports-panel"):
                 gr.HTML('<div class="panel-title">Reports</div>')
                 gr.HTML(
-                    '<div class="panel-hint">Run exports land outside the repo under the local reports '
-                    "folder. Pick a report or refresh after a test run. Section toggles apply to the "
-                    "next export (JSON and Markdown).</div>"
-                )
-                gr.HTML('<div class="orb-section-label">Sections</div>')
-                sec_summary = gr.Checkbox(value=_sec["summary"], label="Summary (status, counts, steps)")
-                sec_stories = gr.Checkbox(value=_sec["stories"], label="Stories (Jira keys)")
-                sec_bugs = gr.Checkbox(value=_sec["bugs"], label="Bugs")
-                sec_evidence = gr.Checkbox(value=_sec["evidence"], label="Evidence (screenshot links)")
-                sec_known = gr.Checkbox(
-                    value=_sec.get("known_issues", True),
-                    label="Known issues (exclusions; not new regressions)",
-                )
-                sections_status = gr.Textbox(
-                    value="Ready",
-                    label="Section profile",
-                    interactive=False,
-                    max_lines=1,
-                )
-                gr.Button("Save sections", variant="primary").click(
-                    save_report_section_toggles,
-                    [sec_summary, sec_stories, sec_bugs, sec_evidence, sec_known],
-                    [sections_status],
+                    '<div class="panel-hint">Saved-report library (FR-REP-4). Run exports land outside '
+                    "the repo under the local reports folder. Section include/exclude is under "
+                    "Settings → Report Settings.</div>"
                 )
                 gr.HTML('<div class="orb-section-label">Library</div>')
                 report_pick = gr.Dropdown(
@@ -2628,7 +2632,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
     )
     demo.load(
         current_report_sections,
-        outputs=[sec_summary, sec_stories, sec_bugs, sec_evidence],
+        outputs=[sec_summary, sec_stories, sec_bugs, sec_evidence, sec_known],
     )
     demo.load(current_orb_inputs, outputs=orb_inputs)
 

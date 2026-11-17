@@ -752,6 +752,47 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   opacity: 0.8;
 }
 
+.report-viewer {
+  white-space: pre-wrap;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--cyan-border);
+  background: rgba(0, 0, 0, 0.28);
+  max-height: 240px;
+  overflow: auto;
+  color: var(--text);
+}
+
+.report-shot {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--cyan-border);
+  object-fit: contain;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.report-shot[hidden] {
+  display: none !important;
+}
+
+.report-json-wrap {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.report-json-wrap summary {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
 .doc-diff {
   display: flex;
   flex-direction: column;

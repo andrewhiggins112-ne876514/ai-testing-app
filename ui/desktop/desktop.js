@@ -1343,6 +1343,7 @@
   const msStatus = document.getElementById("ms-status");
   const sandboxesSection = document.getElementById("app-section-sandboxes");
   const rptStatus = document.getElementById("rpt-status");
+  const rptSectionsStatus = document.getElementById("rpt-sections-status");
   const rptChecks = {
     summary: document.getElementById("rpt-summary"),
     stories: document.getElementById("rpt-stories"),
@@ -1351,6 +1352,14 @@
     known_issues: document.getElementById("rpt-known-issues"),
   };
   const rptSave = document.getElementById("rpt-save");
+  const rptLibrarySelect = document.getElementById("rpt-library-select");
+  const rptLibraryRefresh = document.getElementById("rpt-library-refresh");
+  const rptOpenSettings = document.getElementById("rpt-open-settings");
+  const rptEmpty = document.getElementById("rpt-empty");
+  const rptMarkdown = document.getElementById("rpt-markdown");
+  const rptScreenshot = document.getElementById("rpt-screenshot");
+  const rptJson = document.getElementById("rpt-json");
+  const reportSettingsHeading = document.getElementById("report-settings-heading");
   const rptRunSelect = document.getElementById("rpt-run-select");
   const rptRunRefresh = document.getElementById("rpt-run-refresh");
   const rptExportRun = document.getElementById("rpt-export-run");
@@ -1447,6 +1456,103 @@
     }
   }
 
+  function clearReportViewer(message) {
+    if (rptMarkdown) rptMarkdown.textContent = message || "Select a report to read its markdown.";
+    if (rptJson) rptJson.textContent = "No JSON found";
+    if (rptScreenshot) {
+      rptScreenshot.hidden = true;
+      rptScreenshot.removeAttribute("src");
+    }
+  }
+
+  async function loadReportDetail(reportId) {
+    if (!reportId) {
+      clearReportViewer("No reports yet. Export a run or wait for a plan case export.");
+      return;
+    }
+    try {
+      const res = await fetch("/api/reports/" + encodeURIComponent(reportId));
+      if (!res.ok) {
+        clearReportViewer("Could not load that report.");
+        return;
+      }
+      const data = await res.json();
+      if (rptMarkdown) rptMarkdown.textContent = data.markdown || "No markdown for this report.";
+      if (rptJson) {
+        try {
+          rptJson.textContent = JSON.stringify(data.json || {}, null, 2);
+        } catch (err) {
+          rptJson.textContent = "No JSON found";
+        }
+      }
+      if (rptScreenshot) {
+        if (data.has_screenshot) {
+          rptScreenshot.src =
+            "/api/reports/" + encodeURIComponent(reportId) + "/screenshot?t=" + Date.now();
+          rptScreenshot.hidden = false;
+        } else {
+          rptScreenshot.hidden = true;
+          rptScreenshot.removeAttribute("src");
+        }
+      }
+    } catch (err) {
+      clearReportViewer("Could not load that report.");
+    }
+  }
+
+  async function loadReportLibrary() {
+    try {
+      const res = await fetch("/api/reports?limit=50");
+      if (!res.ok) return;
+      const data = await res.json();
+      const rows = (data && data.reports) || [];
+      const previous = rptLibrarySelect ? rptLibrarySelect.value || "" : "";
+      if (rptLibrarySelect) {
+        rptLibrarySelect.innerHTML = "";
+        if (!rows.length) {
+          const blank = document.createElement("option");
+          blank.value = "";
+          blank.textContent = "— no reports yet —";
+          rptLibrarySelect.appendChild(blank);
+        } else {
+          rows.forEach(function (row) {
+            const opt = document.createElement("option");
+            opt.value = row.id || "";
+            opt.textContent = row.label || row.id || "report";
+            rptLibrarySelect.appendChild(opt);
+          });
+          if (previous && Array.from(rptLibrarySelect.options).some(function (o) {
+            return o.value === previous;
+          })) {
+            rptLibrarySelect.value = previous;
+          }
+        }
+      }
+      if (rptEmpty) rptEmpty.hidden = rows.length > 0;
+      const chosen = rptLibrarySelect ? rptLibrarySelect.value : "";
+      if (chosen) {
+        await loadReportDetail(chosen);
+      } else {
+        clearReportViewer(
+          (data && data.empty_hint) ||
+            "No saved reports yet. Run a plan case or export a run."
+        );
+      }
+    } catch (err) {
+      if (rptEmpty) rptEmpty.hidden = false;
+      clearReportViewer("Could not load the report library.");
+    }
+  }
+
+  function openReportSettings() {
+    openArea("settings");
+    if (reportSettingsHeading && typeof reportSettingsHeading.scrollIntoView === "function") {
+      window.setTimeout(function () {
+        reportSettingsHeading.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 60);
+    }
+  }
+
   async function exportChosenRun() {
     if (!rptRunSelect || !rptRunSelect.value) {
       if (rptStatus) rptStatus.textContent = "Choose a run to export.";
@@ -1496,6 +1602,7 @@
       if (healRunFilter) {
         healRunFilter.value = [planId, caseId, runId].join("|");
       }
+      loadReportLibrary();
     } catch (err) {
       if (rptStatus) rptStatus.textContent = "Could not export chosen run.";
     }
@@ -2274,9 +2381,13 @@
   }
 
   function loadAreaData(name) {
-    if (name === "settings") loadAppSettings();
+    if (name === "settings") {
+      loadAppSettings();
+      loadReportSections();
+    }
     if (name === "reports") {
       loadReportSections();
+      loadReportLibrary();
       loadExportableRuns();
     }
     if (name === "security") {
@@ -4098,15 +4209,29 @@
         const enabled = Object.keys(saved).filter(function (k) {
           return saved[k];
         });
-        if (rptStatus) {
-          rptStatus.textContent =
-            "Saved. Next export includes: " +
-            (enabled.length ? enabled.join(", ") : "(none)") +
-            ".";
-        }
+        const msg =
+          "Saved. Next export includes: " +
+          (enabled.length ? enabled.join(", ") : "(none)") +
+          ".";
+        if (rptSectionsStatus) rptSectionsStatus.textContent = msg;
       } catch (err) {
-        if (rptStatus) rptStatus.textContent = "Could not save section profile.";
+        if (rptSectionsStatus) rptSectionsStatus.textContent = "Could not save section profile.";
       }
+    });
+  }
+  if (rptLibraryRefresh) {
+    rptLibraryRefresh.addEventListener("click", function () {
+      loadReportLibrary();
+    });
+  }
+  if (rptLibrarySelect) {
+    rptLibrarySelect.addEventListener("change", function () {
+      loadReportDetail(rptLibrarySelect.value || "");
+    });
+  }
+  if (rptOpenSettings) {
+    rptOpenSettings.addEventListener("click", function () {
+      openReportSettings();
     });
   }
 

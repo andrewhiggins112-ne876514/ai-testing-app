@@ -24,7 +24,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Depends | Notes |
 |----|------|---------|-------|
-| UI-NAV-IA-1 | Reports area = library/viewer; section toggles → Report Settings | UI-DESK-4 + after KAN-159 | **KAN-247** / test **KAN-250**; epic **KAN-27**; FR-REP-4 |
+| UI-NAV-IA-1 | Reports area = library/viewer; section toggles → Report Settings | UI-DESK-4 + after KAN-159 | **done** — **KAN-247** / test **KAN-250** (desk41) |
 | UI-NAV-IA-2 | Gradio menu button (no persistent top tab bar) | UI-NAV-IA-1 | **KAN-248** / test **KAN-251**; FR-UI-1/2 |
 | UI-NAV-IA-3 | Settings hub category switch (App / Report / …) | UI-NAV-IA-1 | **KAN-249** / test **KAN-252**; FR-SET-4 |
 | UI-CHAT | Minimal chat UX polish / Gradio Settings+Reports gaps | UI-6 | **done** — KAN-10 Settings/Reports polish (2026-11-15) |
@@ -81,8 +81,8 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**UI-NAV-IA-1** — next after C2 (**KAN-247** Reports library / section toggles → Report Settings; test **KAN-250**). Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.  
-**Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157** Gradio Plans; **C2 KAN-159** export chosen run + heal review by run.
+**UI-NAV-IA-2** — next (**KAN-248** Gradio menu button; test **KAN-251**), then **KAN-249** Settings hub. Alpha A1–A9 closed. Do **not** start **KAN-81** while deferred.  
+**Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1 KAN-247** Reports library + Report Settings (desk41).
 
 **Council CR (2026-11-16):** Test-all vision locked; 48-story catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
 

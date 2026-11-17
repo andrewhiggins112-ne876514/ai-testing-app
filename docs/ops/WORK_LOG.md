@@ -8,14 +8,14 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-247** — UI-NAV-IA-1 — Reports area = library/viewer; section toggles → Report Settings |
-| **Start task** | **KAN-250** (`test`, Relates → KAN-247) |
+| **Jira story** | **KAN-248** — UI-NAV-IA-2 — Gradio menu button (no persistent top tab bar) |
+| **Start task** | **KAN-251** (`test`, Relates → KAN-248) |
 | **Epic** | **KAN-27** — Desktop / Gradio shell |
-| **Roadmap ID** | UI-NAV-IA-1 / FR-REP-4 + FR-SET-4 |
+| **Roadmap ID** | UI-NAV-IA-2 / FR-UI-1 + FR-UI-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/KAN102_NAV_WIDGETS_PLAN.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-250** |
-| **Shipped** | … **KAN-157** C1; **KAN-159** C2 report sections + heal review for a run |
+| **Test ticket** | **KAN-251** |
+| **Shipped** | … **KAN-159** C2; **KAN-247** Reports library + Report Settings |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
@@ -37,6 +37,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-247 — UI-NAV-IA-1 Reports library / Report Settings
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-247
+- **Done:** Reports area is a saved-report library (list/open markdown + screenshot + raw JSON; empty hint; Export chosen run kept). Section include/exclude + Save moved under Settings → Report Settings with deep link from Reports. Gradio same split. APIs `GET /api/reports`, `GET /api/reports/{id}`, `GET /api/reports/{id}/screenshot`. desk41.
+- **Files:** `reports/exporter.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_reports_library.py`, cache-bust refs
+- **Verify:** `pytest tests/test_reports_library.py tests/test_report_sections.py tests/test_reports_tab.py tests/test_plan_run_report.py tests/test_heal_review.py tests/test_plan_run_case.py -v` (43 passed). Live desk41 HTML has `rpt-library-select` + `report-settings-heading`; toggles not in Reports block; `/api/reports` + `/api/report-sections` OK; `desktop_app.py` opened.
+- **Jira:** close-out **KAN-247** + **KAN-250**
+- **Next:** **KAN-248** Gradio menu button (test **KAN-251**)
 
 ### 2026-11-17 — KAN-159 — C2 report sections and heal review for a run
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-159

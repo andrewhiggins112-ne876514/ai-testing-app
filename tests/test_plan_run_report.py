@@ -144,7 +144,7 @@ class PlanRunReportTests(unittest.TestCase):
         self.assertIn("/api/plans/exportable-runs", js)
         self.assertIn("exportable-runs", main)
         self.assertIn("/runs/{run_id}/export", main)
-        self.assertIn("desk40", desk)
+        self.assertIn("desk41", desk)
         self.assertIn('id="app-section-reports"', html)
         self.assertIn('id="app-section-heal"', html)
 

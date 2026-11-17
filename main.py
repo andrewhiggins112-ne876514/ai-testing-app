@@ -10,7 +10,8 @@ Run with: py -3 -m uvicorn main:app --reload
 from pathlib import Path
 
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from agent.agent import Agent
@@ -61,7 +62,12 @@ from plans.store import (
 )
 from settings.degraded import degraded_status, ollama_chat_blocked
 from plugins.registry import list_plugins
-from reports.exporter import latest_summary as latest_report_summary
+from reports.exporter import (
+    get_saved_report,
+    latest_summary as latest_report_summary,
+    list_saved_reports,
+    screenshot_path_for_report,
+)
 from reports.sections import load_report_sections, normalize_sections, save_report_sections
 from settings.connection_health import connection_health
 from settings.ollama_models import list_ollama_models
@@ -385,6 +391,28 @@ async def set_report_sections(req: ReportSectionsRequest):
 @app.get("/api/reports/latest-summary")
 async def get_latest_report_summary():
     return latest_report_summary()
+
+
+@app.get("/api/reports")
+async def get_reports_library(limit: int = 50):
+    """List saved report files for the Reports library (FR-REP-4)."""
+    return list_saved_reports(limit=limit)
+
+
+@app.get("/api/reports/{report_id}")
+async def get_report_detail(report_id: str):
+    detail = get_saved_report(report_id)
+    if not detail.get("found"):
+        raise HTTPException(status_code=404, detail="Report not found")
+    return detail
+
+
+@app.get("/api/reports/{report_id}/screenshot")
+async def get_report_screenshot(report_id: str):
+    path = screenshot_path_for_report(report_id)
+    if path is None:
+        raise HTTPException(status_code=404, detail="Screenshot not found")
+    return FileResponse(path)
 
 
 @app.get("/api/security-level")

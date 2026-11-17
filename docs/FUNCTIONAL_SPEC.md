@@ -235,7 +235,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-REP-1 | Shipped (stories covered + bugs by story/area) | **Done** **KAN-67** |
 | FR-REP-2 | Shipped (placement → Report Settings under FR-SET-4) | **Done** KAN-51; UI move **open** nav-IA Story 1 |
 | FR-REP-3 | Shipped baseline export | **Done** KAN-11 |
-| FR-REP-4 | Reports area = library/viewer (not section editor) | **Open** — **KAN-247** (after KAN-159) |
+| FR-REP-4 | Reports area = library/viewer (not section editor) | **Done** — **KAN-247** (desk41) |
 | FR-SEC-1, FR-SEC-3, FR-SEC-5 | Shipped isolation + confirm + secrets scoping | **Done** KAN-15, **KAN-16** |
 | FR-SEC-2 | Done | **KAN-69** |
 | FR-SEC-4 | Done | **KAN-71** |
