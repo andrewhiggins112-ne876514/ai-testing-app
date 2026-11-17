@@ -1416,6 +1416,9 @@
   const planEnvActivate = document.getElementById("plan-env-activate");
   const planEnvRefresh = document.getElementById("plan-env-refresh");
   const planEnvStatus = document.getElementById("plan-env-status");
+  const planSandboxSelect = document.getElementById("plan-sandbox-select");
+  const planSandboxRefresh = document.getElementById("plan-sandbox-refresh");
+  const planSandboxStatus = document.getElementById("plan-sandbox-status");
   const planRunTag = document.getElementById("plan-run-tag");
   const planRunByTag = document.getElementById("plan-run-by-tag");
   const planRunTagSmoke = document.getElementById("plan-run-tag-smoke");
@@ -4068,6 +4071,7 @@
     if (name === "plans") {
       loadPlanList(openPlanId);
       refreshOfflineReadBanner();
+      loadPlanRunSandboxes();
     }
     if (name === "sandboxes") loadMultiSandboxPlugin();
   }
@@ -5491,6 +5495,84 @@
     });
   }
 
+  function selectedSandboxId() {
+    if (!planSandboxSelect) return "";
+    return (planSandboxSelect.value || "").trim();
+  }
+
+  function updatePlanSandboxStatus() {
+    if (!planSandboxStatus) return;
+    const sid = selectedSandboxId();
+    if (!sid) {
+      planSandboxStatus.textContent = "Sandbox: default profile";
+      return;
+    }
+    const opt = planSandboxSelect.options[planSandboxSelect.selectedIndex];
+    const label = opt ? opt.textContent : sid;
+    planSandboxStatus.textContent = "Sandbox: " + label;
+  }
+
+  async function loadPlanRunSandboxes() {
+    if (!planSandboxSelect) return;
+    const previous = selectedSandboxId();
+    try {
+      const res = await fetch("/api/plans/run-sandboxes");
+      const payload = await res.json();
+      planSandboxSelect.innerHTML = "";
+      const def = document.createElement("option");
+      def.value = "";
+      def.textContent = "Normal browser profile (default)";
+      planSandboxSelect.appendChild(def);
+      const enabled = !!payload.plugin_enabled;
+      const boxes = payload.sandboxes || [];
+      if (!enabled) {
+        planSandboxSelect.disabled = true;
+        if (planSandboxStatus) {
+          planSandboxStatus.textContent =
+            payload.message ||
+            "Sandbox plugin disabled — using normal browser profile.";
+        }
+        return;
+      }
+      planSandboxSelect.disabled = false;
+      boxes.forEach(function (box) {
+        if (!box || !box.id) return;
+        const opt = document.createElement("option");
+        opt.value = box.id;
+        opt.textContent =
+          (box.label || box.id) +
+          (box.url ? " — " + box.url : "") +
+          (box.status ? " [" + box.status + "]" : "");
+        planSandboxSelect.appendChild(opt);
+      });
+      if (previous) {
+        planSandboxSelect.value = previous;
+        if (planSandboxSelect.value !== previous) {
+          planSandboxSelect.value = "";
+        }
+      }
+      updatePlanSandboxStatus();
+      if (planSandboxStatus && payload.message && !selectedSandboxId()) {
+        planSandboxStatus.textContent =
+          "Sandbox: default profile — " + payload.message;
+      }
+    } catch (err) {
+      if (planSandboxStatus) {
+        planSandboxStatus.textContent = "Could not load run sandboxes.";
+      }
+    }
+  }
+
+  if (planSandboxRefresh) {
+    planSandboxRefresh.addEventListener("click", function () {
+      loadPlanRunSandboxes();
+    });
+  }
+
+  if (planSandboxSelect) {
+    planSandboxSelect.addEventListener("change", updatePlanSandboxStatus);
+  }
+
   if (setEnvDelete) {
     setEnvDelete.addEventListener("click", async function () {
       const envId = setEnvActive && setEnvActive.value ? setEnvActive.value : "";
@@ -6384,7 +6466,11 @@
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tag: tag, parallel: parallel }),
+          body: JSON.stringify({
+            tag: tag,
+            parallel: parallel,
+            sandbox_id: selectedSandboxId(),
+          }),
         }
       );
       const payload = await res.json();
@@ -6668,7 +6754,10 @@
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pause_on_fail: pauseOn }),
+          body: JSON.stringify({
+            pause_on_fail: pauseOn,
+            sandbox_id: selectedSandboxId(),
+          }),
         }
       );
       const payload = await res.json();
@@ -6780,6 +6869,7 @@
             body: JSON.stringify({
               source_suite_run_id: lastSuiteRunId || "",
               parallel: parallel,
+              sandbox_id: selectedSandboxId(),
             }),
           }
         );

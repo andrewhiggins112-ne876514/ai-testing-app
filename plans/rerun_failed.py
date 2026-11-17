@@ -141,8 +141,10 @@ async def rerun_failed_cases(
     source_suite_run_id: str | None = None,
     session_id: str = "plan-rerun-failed",
     parallel: Any = None,
+    sandbox_id: str | None = None,
 ) -> dict[str, Any]:
-    """Rerun failed cases; return new suite_run id + skip reasons + parallel_count."""
+    """Rerun failed cases; return new suite_run id + skip reasons + parallel_count (+ sandbox)."""
+    from plans.sandbox_run import resolve_run_sandbox
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
@@ -152,6 +154,11 @@ async def rerun_failed_cases(
 
     parallel_count = int(resolved["parallel_count"])
     sequential = bool(resolved["sequential"])
+
+    sandbox_res = resolve_run_sandbox(sandbox_id)
+    if sandbox_res.get("status") != "ok":
+        return {**sandbox_res, "security_level": lvl, "plan_id": plan_id}
+    sandbox_name = sandbox_res.get("sandbox_name")
 
     loaded = get_plan(plan_id, level=lvl)
     if loaded.get("status") != "ok":
@@ -182,6 +189,7 @@ async def rerun_failed_cases(
         mode="rerun_failed",
         source_suite_run_id=selection.get("source_suite_run_id"),
         parallel_count=parallel_count,
+        sandbox=sandbox_name,
         skipped=skipped,
         level=lvl,
     )
@@ -198,6 +206,7 @@ async def rerun_failed_cases(
             session_id=f"{session_id}-{cid}",
             pause_on_fail=False,
             suite_run_id=suite_run_id,
+            sandbox_id=sandbox_id,
         )
         run = payload.get("run") or {}
         rid = str(run.get("id") or "")
@@ -248,6 +257,8 @@ async def rerun_failed_cases(
             "parallel_count": parallel_count,
             "parallel_max": resolved.get("parallel_max"),
             "sequential": sequential,
+            "sandbox": sandbox_name,
+            "default_profile": bool(sandbox_res.get("default_profile")),
             "skipped": skipped,
             "case_results": case_results,
             "suite_run": finished.get("suite_run") or suite_run,

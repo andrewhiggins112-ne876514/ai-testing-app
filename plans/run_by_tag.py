@@ -81,8 +81,10 @@ async def run_cases_by_tag(
     level: str | None = None,
     session_id: str = "plan-run-by-tag",
     parallel: Any = None,
+    sandbox_id: str | None = None,
 ) -> dict[str, Any]:
-    """Run all cases with ``tag``; store suite_run id + tag + parallel_count."""
+    """Run all cases with ``tag``; store suite_run id + tag + parallel_count (+ sandbox)."""
+    from plans.sandbox_run import resolve_run_sandbox
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
@@ -92,6 +94,11 @@ async def run_cases_by_tag(
 
     parallel_count = int(resolved["parallel_count"])
     sequential = bool(resolved["sequential"])
+
+    sandbox_res = resolve_run_sandbox(sandbox_id)
+    if sandbox_res.get("status") != "ok":
+        return {**sandbox_res, "security_level": lvl, "plan_id": plan_id}
+    sandbox_name = sandbox_res.get("sandbox_name")
 
     loaded = get_plan(plan_id, level=lvl)
     if loaded.get("status") != "ok":
@@ -115,6 +122,7 @@ async def run_cases_by_tag(
         mode="tag",
         tag=needle,
         parallel_count=parallel_count,
+        sandbox=sandbox_name,
         skipped=suite_skipped,
         level=lvl,
     )
@@ -131,6 +139,7 @@ async def run_cases_by_tag(
             session_id=f"{session_id}-{cid}",
             pause_on_fail=False,
             suite_run_id=suite_run_id,
+            sandbox_id=sandbox_id,
         )
         run = payload.get("run") or {}
         rid = str(run.get("id") or "")
@@ -181,6 +190,8 @@ async def run_cases_by_tag(
             "parallel_count": parallel_count,
             "parallel_max": resolved.get("parallel_max"),
             "sequential": sequential,
+            "sandbox": sandbox_name,
+            "default_profile": bool(sandbox_res.get("default_profile")),
             "to_run": to_run,
             "skipped": skipped,
             "not_selected": not_selected,

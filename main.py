@@ -66,6 +66,7 @@ from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
 from plans.parallel import parallel_cap_info
+from plans.sandbox_run import list_run_sandboxes
 from plans.duration import duration_info
 from plans.run_notify import notify_info, set_notify_enabled
 from plans.timeouts import step_timeout_info
@@ -510,25 +511,29 @@ class PlanCaseRunRequest(BaseModel):
     """Optional run flags. pause_on_fail is off by default (KAN-149).
 
     update_baseline is explicit opt-in for visual cases only (KAN-225 / G5).
+    sandbox_id selects a multi-sandbox record when the plugin is enabled (KAN-231 / G8).
     """
 
     pause_on_fail: bool = False
     update_baseline: bool = False
     current_path: str = ""
+    sandbox_id: str = ""
 
 
 class PlanRerunFailedRequest(BaseModel):
-    """Optional source suite run for rerun-failed (KAN-151) + parallel (KAN-179)."""
+    """Optional source suite run for rerun-failed (KAN-151) + parallel (KAN-179) + sandbox (KAN-231)."""
 
     source_suite_run_id: str = ""
     parallel: int = 1
+    sandbox_id: str = ""
 
 
 class PlanRunByTagRequest(BaseModel):
-    """Run all cases carrying a tag (KAN-169 / C7); parallel capped (KAN-179 / D1)."""
+    """Run all cases carrying a tag (KAN-169 / C7); parallel capped (KAN-179 / D1) + sandbox (KAN-231)."""
 
     tag: str = ""
     parallel: int = 1
+    sandbox_id: str = ""
 
 
 class PlanExportRunRequest(BaseModel):
@@ -1129,6 +1134,12 @@ async def get_plan_parallel_cap():
     return parallel_cap_info()
 
 
+@app.get("/api/plans/run-sandboxes")
+async def get_plan_run_sandboxes():
+    """Sandboxes selectable as the run environment when the plugin is on (KAN-231 / G8)."""
+    return list_run_sandboxes()
+
+
 @app.get("/api/plans/step-timeout")
 async def get_plan_step_timeout():
     """Visible step timeout default matching the current runner (KAN-187 / D5)."""
@@ -1567,6 +1578,7 @@ async def post_plan_case_run(
         pause_on_fail=bool(body.pause_on_fail),
         update_baseline=bool(body.update_baseline),
         current_path=(body.current_path or "").strip() or None,
+        sandbox_id=(body.sandbox_id or "").strip() or None,
     )
 
 
@@ -1586,6 +1598,7 @@ async def post_plan_rerun_failed(
         source_suite_run_id=(body.source_suite_run_id or "").strip() or None,
         session_id="desktop",
         parallel=body.parallel,
+        sandbox_id=(body.sandbox_id or "").strip() or None,
     )
 
 
@@ -1624,6 +1637,7 @@ async def post_plan_run_by_tag(
         body.tag or "",
         session_id="desktop",
         parallel=body.parallel,
+        sandbox_id=(body.sandbox_id or "").strip() or None,
     )
 
 

@@ -373,6 +373,7 @@ async def run_playwright(
     headless: Optional[bool] = None,
     pause_on_fail: bool = False,
     pause_decision: Optional[Callable[[Dict[str, Any]], Awaitable[str]]] = None,
+    profile_dir: Optional[str] = None,
 ) -> Dict[str, Any]:
     result: Dict[str, Any] = {
         "status": "fail",
@@ -415,6 +416,8 @@ async def run_playwright(
         # Always attach assessment (flag incomplete even when allowed to run).
         result["step_quality"] = assess_steps(steps)
 
+    from pathlib import Path
+
     from settings.store import browser_profile_dir, get_security_level
 
     level = (security_level or "").strip().upper() or get_security_level()
@@ -424,10 +427,17 @@ async def run_playwright(
     try:
         if browser is None:
             # FR-SEC-1: isolated persistent profile per OFFICIAL / SECRET level.
+            # G8: optional sandbox profile_dir overrides the default level profile.
             started = await async_playwright().start()
-            profile = browser_profile_dir(level)
+            override = (profile_dir or "").strip()
+            if override:
+                profile = Path(override)
+            else:
+                profile = browser_profile_dir(level)
             profile.mkdir(parents=True, exist_ok=True)
             result["browser_profile"] = str(profile)
+            if override:
+                result["sandbox_profile"] = True
             context = await started.chromium.launch_persistent_context(
                 str(profile),
                 headless=use_headless,

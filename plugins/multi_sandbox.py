@@ -96,6 +96,11 @@ def _normalize_id(raw: str) -> Optional[str]:
     return value.lower()
 
 
+def normalize_sandbox_id(raw: str) -> Optional[str]:
+    """Public id normalizer for run selection (KAN-231 / G8)."""
+    return _normalize_id(raw)
+
+
 def _sanitize_record(raw: Any) -> Optional[dict[str, Any]]:
     if not isinstance(raw, dict):
         return None

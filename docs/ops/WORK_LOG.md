@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-231** — G8 Sandbox chosen as the run environment |
-| **Start task** | **KAN-232** (`test`, Relates → KAN-231) |
+| **Jira story** | **KAN-233** — G9 Another framework runner |
+| **Start task** | **KAN-234** (`test`, Relates → KAN-233) |
 | **Epic** | Test-all G (see catalogue) |
-| **Roadmap ID** | G8 / FR-PLUG-1 |
+| **Roadmap ID** | G9 / FR-PLUG-3 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-232** |
-| **Shipped** | … **KAN-229** G7 Performance budget (desk80); **KAN-227** G6 Accessibility (desk79); **KAN-225** G5 Visual baseline (desk78); **KAN-223** G4 Seed/fixtures (desk77); **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
+| **Test ticket** | **KAN-234** |
+| **Shipped** | … **KAN-231** G8 Sandbox as run env (desk81); **KAN-229** G7 Performance budget (desk80); **KAN-227** G6 Accessibility (desk79); **KAN-225** G5 Visual baseline (desk78); **KAN-223** G4; **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all G after G8 → G9… |
+| **Next after this** | continue Test-all G after G9 → G11… (G10 voice deferred) |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-231 — G8 Sandbox chosen as the run environment
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-231
+- **Done:** When multi-sandbox plugin enabled, plan/suite runs can name one existing sandbox; run + suite_run store `sandbox` name; blank selection keeps normal browser profile (`profile_dir` override in Playwright). Sandboxes screen still manages records. Parallel still D1-capped. Plans UI “Run sandbox” select + `GET /api/plans/run-sandboxes` + desk81.
+- **Files:** `plans/sandbox_run.py`, `plugins/multi_sandbox.py`, `plugins/playwright_runner.py`, `plugins/registry.py`, `plans/store.py`, `plans/run_case.py`, `plans/run_by_tag.py`, `plans/rerun_failed.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_sandbox_run.py` (+ desk81 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_plan_sandbox_run.py tests/test_multi_sandbox.py` 17 passed. Live `GET /api/plans/run-sandboxes` → plugin off empty / on lists sandboxes; desk81 HTML has `plan-sandbox-select`. `desktop_app.py` opened desk81 (orb home; Computer Use Plans click contested; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-231** + **KAN-232**
+- **Next:** **KAN-233** G9 Another framework runner (test **KAN-234**)
 
 ### 2026-11-17 — KAN-229 — G7 Performance budget plugin
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-229

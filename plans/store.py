@@ -246,6 +246,8 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
             "local_only": True,
             "cloud_apm": False,
         }
+    # G8: named sandbox used as run environment (KAN-231) — name only.
+    sandbox_name = str(raw.get("sandbox") or "").strip()[:40] or None
     return {
         "id": rid,
         "result": result,
@@ -254,6 +256,7 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
         "evidence": evidence,
         "suite_run_id": suite_run_id or None,
         "environment_name": env_name,
+        "sandbox": sandbox_name,
         "mock": mock_flag,
         "seed_fixture": seed_name,
         "visual_baseline": visual_name,
@@ -303,6 +306,8 @@ def _normalize_suite_run(raw: Any) -> Optional[dict[str, Any]]:
         parallel_count = 1
     # D3: named environment used for this suite run (name only).
     env_name = str(raw.get("environment_name") or "").strip()[:40] or None
+    # G8: sandbox name used as run environment (KAN-231).
+    sandbox_name = str(raw.get("sandbox") or "").strip()[:40] or None
     # D7: persist suite duration when known (KAN-191).
     from plans.duration import coerce_duration_ms, wall_duration_ms
 
@@ -315,6 +320,7 @@ def _normalize_suite_run(raw: Any) -> Optional[dict[str, Any]]:
         "tag": tag,
         "parallel_count": parallel_count,
         "environment_name": env_name,
+        "sandbox": sandbox_name,
         "source_suite_run_id": source,
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
@@ -636,6 +642,7 @@ def add_run(
     suite_run_id: str | None = None,
     run_id: str | None = None,
     environment_name: str | None = None,
+    sandbox: str | None = None,
     mock: bool = False,
     seed_fixture: str | None = None,
     visual_baseline: str | None = None,
@@ -674,6 +681,7 @@ def add_run(
     if not rid:
         rid = _new_id("r")
     env_label = (environment_name if environment_name is not None else active_environment_name())
+    sandbox_label = str(sandbox or "").strip()[:40] or None
     # G7: apply case performance budget (local duration only; KAN-229).
     budget_ms = _coerce_performance_budget_ms(target.get("performance_budget_ms"))
     if performance is None:
@@ -707,6 +715,7 @@ def add_run(
             "evidence": evidence or [],
             "suite_run_id": suite_run_id,
             "environment_name": env_label,
+            "sandbox": sandbox_label,
             "mock": bool(mock),
             "seed_fixture": seed_fixture,
             "visual_baseline": visual_baseline,
@@ -740,10 +749,11 @@ def start_suite_run(
     tag: str | None = None,
     parallel_count: int = 1,
     environment_name: str | None = None,
+    sandbox: str | None = None,
     skipped: list[dict[str, str]] | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
-    """Create a suite-level run id linked to this plan (KAN-151 / KAN-169 / KAN-179 / KAN-183)."""
+    """Create a suite-level run id linked to this plan (KAN-151 / KAN-169 / KAN-179 / KAN-183 / KAN-231)."""
     from settings.environments import active_environment_name
     from settings.store import get_security_level
 
@@ -762,6 +772,7 @@ def start_suite_run(
     env_label = (
         environment_name if environment_name is not None else active_environment_name()
     )
+    sandbox_label = str(sandbox or "").strip()[:40] or None
     suite_run = _normalize_suite_run(
         {
             "id": _new_id("sr"),
@@ -769,6 +780,7 @@ def start_suite_run(
             "tag": (str(tag or "").strip().lower()[:40] or None),
             "parallel_count": pcount,
             "environment_name": env_label,
+            "sandbox": sandbox_label,
             "source_suite_run_id": source_suite_run_id,
             "started_at": now,
             "finished_at": None,

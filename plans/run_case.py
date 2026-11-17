@@ -837,7 +837,9 @@ async def _execute_case(
     suite_run_id: str | None = None,
     update_baseline: bool = False,
     current_path: str | None = None,
+    sandbox_id: str | None = None,
 ) -> dict[str, Any]:
+    from plans.sandbox_run import resolve_run_sandbox
     from plans.store import new_run_id
     from plugins.heal_policy import heal_run_context
     from settings.store import load_settings
@@ -845,6 +847,18 @@ async def _execute_case(
     resolved = _resolve_case(plan_id, case_id, level=level)
     if resolved.get("status") != "ok":
         return resolved
+
+    sandbox_res = resolve_run_sandbox(sandbox_id)
+    if sandbox_res.get("status") != "ok":
+        return {
+            **sandbox_res,
+            "security_level": level,
+            "plan_id": plan_id,
+            "case_id": (case_id or "").strip(),
+        }
+    sandbox_name = sandbox_res.get("sandbox_name")
+    sandbox_profile = sandbox_res.get("profile_dir")
+    sandbox_url = sandbox_res.get("url")
 
     target_case = resolved["case"]
     cid = target_case["id"]
@@ -905,8 +919,36 @@ async def _execute_case(
             current_path=current_path,
         )
 
-    target_url = (load_settings().get("target_url") or "").strip()
-    target_probe = _check_target()
+    # G8: sandbox URL overrides default target when the sandbox names one.
+    settings_url = (load_settings().get("target_url") or "").strip()
+    sandbox_url_s = str(sandbox_url or "").strip()
+    target_url = sandbox_url_s or settings_url
+    if sandbox_url_s and sandbox_url_s != settings_url:
+        if not (
+            sandbox_url_s.startswith("https://") or sandbox_url_s.startswith("http://")
+        ):
+            target_probe = {
+                "up": False,
+                "message": "Sandbox URL must start with http:// or https://.",
+            }
+        else:
+            # Lightweight reachability for the named sandbox URL.
+            try:
+                import httpx
+
+                with httpx.Client(timeout=httpx.Timeout(5.0, connect=3.0), follow_redirects=True) as client:
+                    resp = client.get(sandbox_url_s)
+                target_probe = {
+                    "up": True,
+                    "message": f"Sandbox URL reachable (HTTP {resp.status_code}).",
+                }
+            except Exception as exc:  # noqa: BLE001 — environment failure
+                target_probe = {
+                    "up": False,
+                    "message": f"Sandbox URL unreachable: {str(exc)[:160]}",
+                }
+    else:
+        target_probe = _check_target()
 
     if not target_url or not target_probe.get("up"):
         msg = target_probe.get("message") or "Target URL is not configured or unreachable."
@@ -921,6 +963,7 @@ async def _execute_case(
             note=msg[:500],
             suite_run_id=suite_rid,
             run_id=reserved_run_id,
+            sandbox=sandbox_name,
             level=level,
         )
         return {
@@ -932,6 +975,7 @@ async def _execute_case(
             "only_case_id": cid,
             "pause_on_fail": bool(pause_on_fail),
             "suite_run_id": suite_rid,
+            "sandbox": sandbox_name,
             "plan": recorded.get("plan"),
             "case": recorded.get("case"),
             "run": recorded.get("run"),
@@ -972,6 +1016,7 @@ async def _execute_case(
             retry_timeout=retry_timeout,
             pause_on_fail=bool(pause_on_fail),
             pause_decision=pause_decision if pause_on_fail else None,
+            profile_dir=sandbox_profile,
         )
     duration_ms = int((time.monotonic() - started) * 1000)
     result, failure_class, evidence = _map_playwright_result(pw)
@@ -1035,6 +1080,7 @@ async def _execute_case(
         note=note,
         suite_run_id=suite_rid,
         run_id=reserved_run_id,
+        sandbox=sandbox_name,
         a11y=a11y_payload,
         level=level,
     )
@@ -1062,11 +1108,14 @@ async def _execute_case(
         "pause_on_fail": bool(pause_on_fail),
         "pause_decision": pw.get("pause_decision"),
         "suite_run_id": suite_rid,
+        "sandbox": sandbox_name,
+        "default_profile": bool(sandbox_res.get("default_profile")),
         "step_timeout_ms": step_timeout_ms,
         "playwright": {
             "status": pw.get("status"),
             "error": pw.get("error"),
             "screenshot": pw.get("screenshot"),
+            "browser_profile": pw.get("browser_profile"),
         },
         "a11y": a11y_payload,
         "plan": recorded.get("plan"),
@@ -1084,6 +1133,7 @@ async def run_single_case(
     pause_on_fail: bool = False,
     update_baseline: bool = False,
     current_path: str | None = None,
+    sandbox_id: str | None = None,
 ) -> dict[str, Any]:
     from settings.store import get_security_level
 
@@ -1100,6 +1150,7 @@ async def run_single_case(
                 pause_on_fail=False,
                 update_baseline=bool(update_baseline),
                 current_path=current_path,
+                sandbox_id=sandbox_id,
             )
         )
 
@@ -1122,6 +1173,7 @@ async def run_single_case(
                 pause_on_fail=True,
                 update_baseline=bool(update_baseline),
                 current_path=current_path,
+                sandbox_id=sandbox_id,
                 pause_decision=pause_decision,
             )
             session.result_payload = attach_standalone_case_notice(payload)

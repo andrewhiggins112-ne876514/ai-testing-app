@@ -184,7 +184,7 @@ class PlanA11yTests(unittest.TestCase):
         a11y = result.get("a11y") or (result.get("run") or {}).get("a11y") or {}
         self.assertEqual(int(a11y.get("violation_count") or 0), 0)
 
-    def test_api_a11y_and_ui_desk80(self):
+    def test_api_a11y_and_ui_desk81(self):
         client = TestClient(main.app)
         created = client.post("/api/plans", json={"name": "A11yAPI"})
         self.assertEqual(created.status_code, 200)
@@ -198,9 +198,9 @@ class PlanA11yTests(unittest.TestCase):
 
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         self.assertIn("plan-add-a11y-btn", html)
-        self.assertIn("desk80", html)
+        self.assertIn("desk81", html)
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk80", desk)
+        self.assertIn("desk81", desk)
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         self.assertIn("cases/a11y", js)
         self.assertIn("plan-add-a11y-btn", js)

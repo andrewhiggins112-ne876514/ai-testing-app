@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk80" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk81" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -724,6 +724,17 @@
             <button type="button" id="plan-env-refresh" class="save-btn secondary">Refresh environments</button>
           </div>
           <p id="plan-env-status" class="drawer-hint" role="status">Environment: —</p>
+          <h4 class="orb-section-label">Run sandbox</h4>
+          <p class="drawer-hint" id="plan-sandbox-hint">When the multi-sandbox plugin is enabled, choose one existing sandbox as the run environment. Leave blank for the normal browser profile. Run records store the sandbox name. Manage records on the Sandboxes screen. Parallel stays capped by Suite parallel (D1).</p>
+          <label class="stack-label">Sandbox for this run
+            <select id="plan-sandbox-select" aria-describedby="plan-sandbox-hint">
+              <option value="">Normal browser profile (default)</option>
+            </select>
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-sandbox-refresh" class="save-btn secondary">Refresh sandboxes</button>
+          </div>
+          <p id="plan-sandbox-status" class="drawer-hint" role="status">Sandbox: default profile</p>
           <h4 class="orb-section-label">Suite parallel</h4>
           <p class="drawer-hint" id="plan-parallel-hint">Suite runs are sequential by default (1). Cap this stage: 2. The run record stores the count used; values above the cap are refused.</p>
           <label class="stack-label">Parallel count
@@ -944,6 +955,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk80"></script>
+  <script src="/ui/desktop/desktop.js?v=desk81"></script>
 </body>
 </html>

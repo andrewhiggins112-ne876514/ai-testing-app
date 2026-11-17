@@ -20,10 +20,10 @@ Downloadable local **test-all** app. Connect once. **One home** = orb + chat; ro
 | G Widen as plugins | **KAN-123** | later (G10=voice↔KAN-81) |
 | H Future workplace (design) | **KAN-124** | FUTURE |
 
-**Active Build story:** **KAN-231** (G8 Sandbox chosen as the run environment; test **KAN-232**)
-**Next after KAN-231:** Test-all G9…
+**Active Build story:** **KAN-233** (G9 Another framework runner; test **KAN-234**)
+**Next after KAN-233:** Test-all G11… (G10 voice deferred with KAN-81)
 **Deferred:** **KAN-81** / **KAN-82** voice until mic (G10 **KAN-235**)
-**Shipped:** A1–A9 (**KAN-125…KAN-141**); B1–B7; C1–C11; D1–D7; E1–E5; **F1–F7** (**KAN-215** desk73); **G1** (**KAN-217** desk74); **G2** (**KAN-219** desk75); **G3** (**KAN-221** desk76); **G4** (**KAN-223** desk77); **G5** (**KAN-225** desk78); **G6** (**KAN-227** desk79); **G7** (**KAN-229** desk80); **KAN-260** Lab tools App menu (desk64); UI-NAV-IA + App menu (**KAN-247…249**, **KAN-253**, **KAN-257**)
+**Shipped:** A1–A9 (**KAN-125…KAN-141**); B1–B7; C1–C11; D1–D7; E1–E5; **F1–F7** (**KAN-215** desk73); **G1** (**KAN-217** desk74); **G2** (**KAN-219** desk75); **G3** (**KAN-221** desk76); **G4** (**KAN-223** desk77); **G5** (**KAN-225** desk78); **G6** (**KAN-227** desk79); **G7** (**KAN-229** desk80); **G8** (**KAN-231** desk81); **KAN-260** Lab tools App menu (desk64); UI-NAV-IA + App menu (**KAN-247…249**, **KAN-253**, **KAN-257**)
 Stories/tests continue through **KAN-245** / **KAN-246** (H3).
 
 ## Sequence

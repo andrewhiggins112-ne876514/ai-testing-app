@@ -203,7 +203,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Test-all **G8** — **KAN-231** Sandbox chosen as the run environment (test **KAN-232**). A–D + E1–E5 + F1–F7 + **G1** Desktop (**KAN-217** desk74) + **G2** API/messaging (**KAN-219** desk75) + **G3** Contract/mock (**KAN-221** desk76) + **G4** Seed/fixtures (**KAN-223** desk77) + **G5** Visual baseline (**KAN-225** desk78) + **G6** Accessibility (**KAN-227** desk79) + **G7** Performance budget (**KAN-229** desk80) + **KAN-260** Lab tools App menu shipped. Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
+**Still open / next:** Test-all **G9** — **KAN-233** Another framework runner (test **KAN-234**). A–D + E1–E5 + F1–F7 + **G1** Desktop (**KAN-217** desk74) + **G2** API/messaging (**KAN-219** desk75) + **G3** Contract/mock (**KAN-221** desk76) + **G4** Seed/fixtures (**KAN-223** desk77) + **G5** Visual baseline (**KAN-225** desk78) + **G6** Accessibility (**KAN-227** desk79) + **G7** Performance budget (**KAN-229** desk80) + **G8** Sandbox as run env (**KAN-231** desk81) + **KAN-260** Lab tools App menu shipped. Voice **KAN-81** deferred (mic; later plugin G10). Cut nothing; sequence plugins in epics G–H.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -264,7 +264,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 |------|--------|-------|
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN**. Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
-| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; Active Build **KAN-231** G8; G1–G7 + E1–E5 + F1–F7 + KAN-260 Done |
+| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; Active Build **KAN-233** G9; G1–G8 + E1–E5 + F1–F7 + KAN-260 Done |
 | Nav IA — Reports data / menu / Settings hub | **Shipped** KAN-247…249 | Gradio + desktop compact menu |
 | Desktop compact App menu (match Gradio) | **Shipped** KAN-253 / **KAN-257** | Compact `▦`; Lab tools restored **KAN-260** |
 | Coverage gaps (C4) | **Shipped** KAN-163 (desk45) | No-case / all-disabled lists; filter; no auto-create |

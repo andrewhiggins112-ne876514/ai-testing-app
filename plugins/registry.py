@@ -22,7 +22,8 @@ _MANIFESTS: list[dict[str, Any]] = [
         "name": "Multi-sandbox orchestration",
         "description": (
             "Local multi-sandbox env records, status, and prepare "
-            "(max 4; no cloud farms)."
+            "(max 4; no cloud farms). When enabled, a plan/suite run may "
+            "select one sandbox as the browser profile (KAN-231 / G8)."
         ),
         "toggle_key": "plugin_multi_sandbox_enabled",
         "default_enabled": False,
