@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk48" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk49" />
 </head>
 <body>
   <div id="app">
@@ -429,6 +429,12 @@
           <label class="stack-label">Case note
             <input type="text" id="plan-case-note" placeholder="Exploratory note on this case" autocomplete="off" />
           </label>
+          <label class="stack-label">Tags (comma-separated; include smoke / regression for daily slices)
+            <input type="text" id="plan-case-tags" placeholder="smoke, regression" autocomplete="off" />
+          </label>
+          <label class="stack-label">Priority (higher runs first in a tag run)
+            <input type="number" id="plan-case-priority" min="0" step="1" value="0" autocomplete="off" />
+          </label>
           <label class="stack-label">Run note (last / selected run)
             <input type="text" id="plan-run-note" placeholder="Exploratory note on the run" autocomplete="off" />
           </label>
@@ -441,6 +447,21 @@
             <button type="button" id="plan-case-up" class="save-btn secondary">Move up</button>
             <button type="button" id="plan-case-down" class="save-btn secondary">Move down</button>
           </div>
+          <h4 class="orb-section-label">Run by tag</h4>
+          <p class="drawer-hint">Runs all cases with the chosen tag sequentially. Untagged cases are omitted and listed as not selected. Suite run stores the run id and tag used. Smoke and regression are first-class tags.</p>
+          <label class="stack-label">Tag
+            <input type="text" id="plan-run-tag" list="plan-run-tag-suggestions" placeholder="smoke" autocomplete="off" />
+            <datalist id="plan-run-tag-suggestions">
+              <option value="smoke"></option>
+              <option value="regression"></option>
+            </datalist>
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-run-by-tag" class="save-btn">Run by tag</button>
+            <button type="button" id="plan-run-tag-smoke" class="save-btn secondary">Run smoke</button>
+            <button type="button" id="plan-run-tag-regression" class="save-btn secondary">Run regression</button>
+          </div>
+          <pre id="plan-tag-run-out" class="drawer-hint" aria-live="polite" hidden></pre>
           <label class="stack-label"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail (headed browser stays open until Continue or Stop; off by default)</label>
           <div class="btn-row">
             <button type="button" id="plan-case-run" class="save-btn">Run selected case (headed)</button>
@@ -596,6 +617,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk48"></script>
+  <script src="/ui/desktop/desktop.js?v=desk49"></script>
 </body>
 </html>

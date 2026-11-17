@@ -205,9 +205,11 @@ def _normalize_suite_run(raw: Any) -> Optional[dict[str, Any]]:
     source = str(raw.get("source_suite_run_id") or "").strip() or None
     if source and not _ID_SAFE.match(source):
         source = None
+    tag = str(raw.get("tag") or "").strip().lower()[:40] or None
     return {
         "id": sid,
         "mode": mode,
+        "tag": tag,
         "source_suite_run_id": source,
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
@@ -584,10 +586,11 @@ def start_suite_run(
     *,
     mode: str = "suite",
     source_suite_run_id: str | None = None,
+    tag: str | None = None,
     skipped: list[dict[str, str]] | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
-    """Create a suite-level run id linked to this plan (KAN-151)."""
+    """Create a suite-level run id linked to this plan (KAN-151 / KAN-169)."""
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
@@ -600,6 +603,7 @@ def start_suite_run(
         {
             "id": _new_id("sr"),
             "mode": mode,
+            "tag": (str(tag or "").strip().lower()[:40] or None),
             "source_suite_run_id": source_suite_run_id,
             "started_at": now,
             "finished_at": None,

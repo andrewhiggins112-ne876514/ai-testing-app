@@ -55,6 +55,7 @@ from plans.drift import (
 from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
 from plans.rerun_failed import rerun_failed_cases
+from plans.run_by_tag import run_cases_by_tag, select_cases_for_tag
 from plans.run_case import case_detail, run_single_case
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
@@ -316,6 +317,12 @@ class PlanRerunFailedRequest(BaseModel):
     """Optional source suite run for rerun-failed (KAN-151)."""
 
     source_suite_run_id: str = ""
+
+
+class PlanRunByTagRequest(BaseModel):
+    """Run all cases carrying a tag sequentially (KAN-169 / C7)."""
+
+    tag: str = ""
 
 
 class PlanExportRunRequest(BaseModel):
@@ -901,6 +908,39 @@ async def post_plan_rerun_failed(
     return await rerun_failed_cases(
         plan_id,
         source_suite_run_id=(body.source_suite_run_id or "").strip() or None,
+        session_id="desktop",
+    )
+
+
+@app.get("/api/plans/{plan_id}/run-by-tag")
+async def get_plan_run_by_tag_preview(plan_id: str, tag: str = ""):
+    """Preview which cases a tag run would execute (KAN-169 / C7)."""
+    loaded = get_plan(plan_id)
+    if loaded.get("status") != "ok":
+        return loaded
+    selection = select_cases_for_tag(loaded["plan"], tag)
+    if selection.get("status") != "ok":
+        return {**selection, "plan_id": plan_id, "security_level": loaded.get("security_level")}
+    return {
+        **selection,
+        "plan_id": plan_id,
+        "security_level": loaded.get("security_level"),
+    }
+
+
+@app.post("/api/plans/{plan_id}/run-by-tag")
+async def post_plan_run_by_tag(
+    plan_id: str,
+    req: PlanRunByTagRequest | None = None,
+):
+    """Run all cases with a chosen tag sequentially; store suite_run id + tag (KAN-169).
+
+    Untagged cases are omitted and listed as not_selected. Sequential only.
+    """
+    body = req or PlanRunByTagRequest()
+    return await run_cases_by_tag(
+        plan_id,
+        body.tag or "",
         session_id="desktop",
     )
 

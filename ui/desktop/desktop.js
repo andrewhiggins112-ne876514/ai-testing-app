@@ -1373,12 +1373,19 @@
   const planCaseId = document.getElementById("plan-case-id");
   const planCaseName = document.getElementById("plan-case-name");
   const planCaseNote = document.getElementById("plan-case-note");
+  const planCaseTags = document.getElementById("plan-case-tags");
+  const planCasePriority = document.getElementById("plan-case-priority");
   const planRunNote = document.getElementById("plan-run-note");
   const planNotesSave = document.getElementById("plan-notes-save");
   const planCaseEnabled = document.getElementById("plan-case-enabled");
   const planCaseSave = document.getElementById("plan-case-save");
   const planCaseUp = document.getElementById("plan-case-up");
   const planCaseDown = document.getElementById("plan-case-down");
+  const planRunTag = document.getElementById("plan-run-tag");
+  const planRunByTag = document.getElementById("plan-run-by-tag");
+  const planRunTagSmoke = document.getElementById("plan-run-tag-smoke");
+  const planRunTagRegression = document.getElementById("plan-run-tag-regression");
+  const planTagRunOut = document.getElementById("plan-tag-run-out");
   const planCaseRun = document.getElementById("plan-case-run");
   const planRerunFailed = document.getElementById("plan-rerun-failed");
   const planRerunOut = document.getElementById("plan-rerun-out");
@@ -1936,6 +1943,8 @@
         const en = c.enabled === false ? "OFF" : "ON";
         const src = (c.source && c.source.ref) || "";
         const kind = (c.source && c.source.kind) || "manual-draft";
+        const tags = (c.tags || []).join(", ");
+        const pri = c.priority != null ? c.priority : 0;
         return (
           idx +
           1 +
@@ -1948,6 +1957,8 @@
           (c.jira_key ? " · Jira " + c.jira_key : "") +
           (kind === "manual-draft" && !c.jira_key ? " · manual-draft" : "") +
           (isKnownLabel(c) ? " · known" : "") +
+          (tags ? " · tags " + tags : "") +
+          (pri ? " · P" + pri : "") +
           (src ? "\n   source: " + src : "") +
           (c.note ? "\n   note: " + c.note : "") +
           (c.known_issue && c.known_issue.note
@@ -2247,9 +2258,12 @@
       const payload = await res.json();
       if (payload.status !== "ok" || !planCaseDetail) return;
       const ki = payload.known_issue || {};
+      const caseTags = Array.isArray(payload.tags) ? payload.tags : [];
       const lines = [
         "Case: " + (payload.name || ""),
         "Jira: " + (payload.jira_key || "—"),
+        "Tags: " + (caseTags.length ? caseTags.join(", ") : "—"),
+        "Priority: " + (payload.priority != null ? payload.priority : 0),
         "Source: " + (payload.source_kind || "manual-draft") + " — " + (payload.source_ref || "—"),
         payload.manual_draft ? "Marked manual-draft (no Jira/doc source)" : "",
         payload.note ? "Case note: " + payload.note : "",
@@ -2262,6 +2276,11 @@
       planCaseDetail.hidden = false;
       planCaseDetail.textContent = lines.join("\n");
       if (planCaseNote && payload.note != null) planCaseNote.value = payload.note || "";
+      if (planCaseTags) planCaseTags.value = caseTags.join(", ");
+      if (planCasePriority) {
+        planCasePriority.value =
+          payload.priority != null ? String(payload.priority) : "0";
+      }
       if (planRunNote) planRunNote.value = payload.tester_note || "";
       if (planKnownNote) planKnownNote.value = ki.note || "";
       if (planKnownJira) planKnownJira.value = ki.jira_key || "";
@@ -3542,6 +3561,17 @@
               name: planCaseName ? planCaseName.value : null,
               note: planCaseNote ? planCaseNote.value : null,
               enabled: planCaseEnabled ? !!planCaseEnabled.checked : true,
+              tags: planCaseTags
+                ? planCaseTags.value
+                    .split(",")
+                    .map(function (t) {
+                      return t.trim();
+                    })
+                    .filter(Boolean)
+                : [],
+              priority: planCasePriority
+                ? parseInt(planCasePriority.value || "0", 10) || 0
+                : 0,
             }),
           }
         );
@@ -3554,9 +3584,126 @@
         }
         if (payload.plan) renderPlanCases(payload.plan);
         if (planStatus) planStatus.textContent = "Case saved locally.";
+        await refreshCaseDetail();
       } catch (err) {
         if (planStatus) planStatus.textContent = "Case save request failed.";
       }
+    });
+  }
+
+  async function runPlanByTag(tagValue) {
+    if (!openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      return;
+    }
+    const tag = (tagValue || "").trim().toLowerCase();
+    if (!tag) {
+      if (planStatus) planStatus.textContent = "Enter a tag (e.g. smoke or regression).";
+      return;
+    }
+    if (planRunTag) planRunTag.value = tag;
+    if (planStatus) {
+      planStatus.textContent = "Running tag " + tag + " (sequential)…";
+    }
+    if (planTagRunOut) {
+      planTagRunOut.hidden = false;
+      planTagRunOut.textContent = "Running…";
+    }
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + "/run-by-tag",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tag: tag }),
+        }
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok") {
+        if (planStatus) {
+          planStatus.textContent = payload.message || "Tag run failed.";
+        }
+        if (planTagRunOut) {
+          planTagRunOut.textContent = payload.message || "Tag run failed.";
+        }
+        return;
+      }
+      if (payload.suite_run_id) lastSuiteRunId = payload.suite_run_id;
+      if (payload.plan) renderPlanCases(payload.plan);
+      const skipped = payload.skipped || [];
+      const notSelected = payload.not_selected || [];
+      const results = payload.case_results || [];
+      const lines = [
+        payload.message || "Tag run finished.",
+        "Suite run: " + (payload.suite_run_id || "—"),
+        "Tag: " + (payload.tag || tag),
+        "Sequential: " + (payload.sequential ? "yes" : "no"),
+        "",
+        "Executed:",
+        results.length
+          ? results
+              .map(function (r) {
+                return (
+                  "- " +
+                  (r.case_id || "?") +
+                  " → " +
+                  (r.result || r.status || "?")
+                );
+              })
+              .join("\n")
+          : "(none)",
+        "",
+        "Skipped:",
+        skipped.length
+          ? skipped
+              .map(function (s) {
+                return "- " + (s.case_id || "?") + " — " + (s.reason || "");
+              })
+              .join("\n")
+          : "(none)",
+        "",
+        "Not selected (untagged for this run):",
+        notSelected.length
+          ? notSelected
+              .map(function (s) {
+                return "- " + (s.case_id || "?");
+              })
+              .join("\n")
+          : "(none)",
+      ];
+      if (planTagRunOut) {
+        planTagRunOut.hidden = false;
+        planTagRunOut.textContent = lines.join("\n");
+      }
+      if (planStatus) {
+        planStatus.textContent =
+          (payload.message || "Tag run finished.") +
+          " Tag=" +
+          (payload.tag || tag);
+      }
+      await refreshCaseDetail();
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Tag run request failed.";
+      if (planTagRunOut) {
+        planTagRunOut.hidden = false;
+        planTagRunOut.textContent = "Tag run request failed.";
+      }
+    }
+  }
+
+  if (planRunByTag) {
+    planRunByTag.addEventListener("click", function () {
+      runPlanByTag(planRunTag ? planRunTag.value : "");
+    });
+  }
+  if (planRunTagSmoke) {
+    planRunTagSmoke.addEventListener("click", function () {
+      runPlanByTag("smoke");
+    });
+  }
+  if (planRunTagRegression) {
+    planRunTagRegression.addEventListener("click", function () {
+      runPlanByTag("regression");
     });
   }
 

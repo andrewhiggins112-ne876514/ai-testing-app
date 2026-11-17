@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-169** — C7 tags, priority, smoke and regression |
-| **Start task** | **KAN-170** (`test`, Relates → KAN-169) |
+| **Jira story** | **KAN-171** — C8 import Playwright project into suite |
+| **Start task** | **KAN-172** (`test`, Relates → KAN-171) |
 | **Epic** | Test-all C (see catalogue) |
-| **Roadmap ID** | C7 / FR-PLAN-2 |
+| **Roadmap ID** | C8 / FR-TEST-5 / FR-PLAN-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-170** |
-| **Shipped** | … **KAN-167** C6 traceability (desk48); **KAN-257** App menu; **KAN-165** C5; **KAN-163** C4 |
+| **Test ticket** | **KAN-172** |
+| **Shipped** | … **KAN-169** C7 tags/smoke/regression (desk49); **KAN-167** C6; **KAN-257** App menu; **KAN-165** C5 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all C after C7 |
+| **Next after this** | continue Test-all C after C8 (or **KAN-260** Lab tools in App menu when prioritised) |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-169 — C7 tags, priority, smoke and regression
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-169
+- **Done:** Cases keep priority + tags (smoke/regression first-class). Sequential tag run: `plans/run_by_tag.py`; suite_run stores id + tag used; untagged listed as `not_selected`. API `GET/POST /api/plans/{id}/run-by-tag`. Desktop Plans: tag/priority edit, Run by tag / Run smoke / Run regression. desk49.
+- **Files:** `plans/run_by_tag.py`, `plans/store.py`, `plans/run_case.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_run_by_tag.py` (+ desk49 cache-bust tests)
+- **Verify:** `pytest tests/test_plan_run_by_tag.py tests/test_plan_run_case.py tests/test_desktop_app_menu.py tests/test_plan_edit.py tests/test_plan_traceability.py tests/test_plan_coverage_gaps.py tests/test_plan_acceptance_drift.py tests/test_nav_overlap.py tests/test_orb_hub.py tests/test_settings_hub.py tests/test_reports_library.py -q` (65 passed). Live `/ui/desktop/?v=desk49` has `plan-case-tags` + `plan-run-by-tag`; `desktop_app.py` opened.
+- **Jira:** close-out **KAN-169** + **KAN-170**
+- **Next:** **KAN-171** C8 import Playwright into suite (test **KAN-172**)
 
 ### 2026-11-17 — KAN-167 — C6 traceability matrix
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-167

@@ -359,6 +359,8 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "name": case.get("name"),
             "note": case.get("note") or "",
             "jira_key": case.get("jira_key") or "",
+            "tags": list(case.get("tags") or []),
+            "priority": int(case.get("priority") or 0),
             "source_kind": kind,
             "source_ref": src.get("ref") or "",
             "manual_draft": kind == "manual-draft" and not (case.get("jira_key") or "").strip(),

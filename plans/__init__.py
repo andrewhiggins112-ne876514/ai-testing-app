@@ -12,6 +12,7 @@ from plans.drift import (
     refresh_acceptance_drafts,
 )
 from plans.traceability import plan_traceability_matrix
+from plans.run_by_tag import WELL_KNOWN_TAGS, run_cases_by_tag, select_cases_for_tag
 from plans.starter import create_starter_plan, lab_home_status
 from plans.store import (
     add_case,
@@ -53,6 +54,9 @@ __all__ = [
     "plan_traceability_matrix",
     "plans_dir",
     "reorder_cases",
+    "run_cases_by_tag",
+    "select_cases_for_tag",
     "update_case",
     "upsert_jira_snapshot",
+    "WELL_KNOWN_TAGS",
 ]
