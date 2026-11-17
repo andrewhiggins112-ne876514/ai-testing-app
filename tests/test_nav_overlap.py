@@ -32,9 +32,9 @@ class NavOverlapTests(unittest.TestCase):
     def test_cache_bust_current(self):
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk46", app)
-        self.assertIn("desktop.css?v=desk46", html)
-        self.assertIn("desktop.js?v=desk46", html)
+        self.assertIn("desk47", app)
+        self.assertIn("desktop.css?v=desk47", html)
+        self.assertIn("desktop.js?v=desk47", html)
 
 
 if __name__ == "__main__":

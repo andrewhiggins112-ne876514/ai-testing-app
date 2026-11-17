@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk46" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk47" />
 </head>
 <body>
   <div id="app">
@@ -136,28 +136,8 @@
           <button type="button" id="area-back" class="save-btn secondary">Back</button>
           <h2 id="area-title" class="area-title">Settings</h2>
         </header>
-        <div id="area-body" class="area-body"></div>
-      </section>
-    </div>
-
-    <button id="app-drawer-toggle" class="icon-btn drawer-toggle app-drawer-toggle" type="button"
-      data-edge-snap="1" data-default-edge="left"
-      aria-label="Open app menu" aria-expanded="false" aria-controls="app-drawer" title="App menu (drag to edge)">▦</button>
-    <aside id="app-drawer" class="app-menu-panel edge-left" aria-hidden="true" data-compact-app-menu="1">
-      <div class="drawer-inner shell-surface app-menu-inner">
-        <h2 class="panel-title app-menu-title">App</h2>
-        <nav class="app-nav" aria-label="Application sections">
-          <button type="button" class="app-nav-item" data-section="settings" aria-pressed="false">Settings</button>
-          <button type="button" class="app-nav-item" data-section="security" aria-pressed="false">Security</button>
-          <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
-          <button type="button" class="app-nav-item" data-section="documents" aria-pressed="false">Documents</button>
-          <button type="button" class="app-nav-item" data-section="heal" aria-pressed="false">Heal review</button>
-          <button type="button" class="app-nav-item" data-section="desktop" aria-pressed="false">Desktop</button>
-          <button type="button" class="app-nav-item" data-section="suites" aria-pressed="false">Suites</button>
-          <button type="button" class="app-nav-item" data-section="plans" aria-pressed="false">Plans</button>
-          <button type="button" class="app-nav-item" data-section="sandboxes" aria-pressed="false">Sandboxes</button>
-        </nav>
-        <div id="area-section-host">
+        <div id="area-body" class="area-body">
+          <div id="area-section-host">
         <div id="app-section-settings" class="app-section" hidden>
           <h3 class="orb-section-label">Settings</h3>
           <p class="drawer-hint">One Settings hub (FR-SET-4). Switch category without leaving Settings. Orb colours stay in the Screen drawer; security level and local-data wipe stay under Security.</p>
@@ -537,7 +517,24 @@
           <p id="ms-status" class="drawer-hint" role="status">Ready</p>
         </div>
         </div>
-        <p class="drawer-hint" id="app-drawer-hint">Choose an area. It opens in the layout set under App Settings.</p>
+        </div>
+      </section>
+    </div>
+
+    <button id="app-drawer-toggle" class="icon-btn drawer-toggle app-drawer-toggle" type="button"
+      data-edge-snap="1" data-default-edge="left" data-default-along="16"
+      aria-label="Open app menu" aria-expanded="false" aria-controls="app-drawer" title="App menu">▦</button>
+    <aside id="app-drawer" class="app-menu-panel" aria-hidden="true" data-compact-app-menu="1" role="menu" aria-label="App menu">
+      <div class="shell-surface app-menu-inner">
+        <h2 class="app-menu-title">App</h2>
+        <nav class="app-nav" aria-label="Application sections">
+          <button type="button" class="app-nav-item" data-section="chat" aria-pressed="false">Chat</button>
+          <button type="button" class="app-nav-item" data-section="settings" aria-pressed="false">Settings</button>
+          <button type="button" class="app-nav-item" data-section="plans" aria-pressed="false">Plans</button>
+          <button type="button" class="app-nav-item" data-section="reports" aria-pressed="false">Reports</button>
+          <button type="button" class="app-nav-item" data-section="documents" aria-pressed="false">Documents</button>
+        </nav>
+        <p class="drawer-hint" id="app-drawer-hint">Chat returns home. Settings / Plans / Reports / Documents open that area. Extra tools stay on the orb hub.</p>
       </div>
     </aside>
 
@@ -589,6 +586,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk46"></script>
+  <script src="/ui/desktop/desktop.js?v=desk47"></script>
 </body>
 </html>

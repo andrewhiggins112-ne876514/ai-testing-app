@@ -15,7 +15,7 @@
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
 | **Test ticket** | **KAN-168** |
-| **Shipped** | … **KAN-165** C5 acceptance drift (desk46); **KAN-163** C4; **KAN-253** App menu; **KAN-161** C3 |
+| **Shipped** | … **KAN-257** desktop App menu popover landed (desk47); **KAN-165** C5; **KAN-163** C4; **KAN-253** |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
 | **Next after this** | continue Test-all C after C6 |
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-257 — Desktop App menu still tall (KAN-256 never on main)
+- **Agent/chat:** Designer report — desktop ▦ still old 9-item menu vs Gradio Chat…Documents
+- **Done:** Root cause: **KAN-256** popover fix lived only on branch `cursor/kan-256-desktop-app-menu-popover` and never merged. Landed popover + moved `#area-section-host` into `#area-body`; App nav aligned to Gradio (Chat/Settings/Plans/Reports/Documents); hub keeps extra tools; C5 drift UI preserved. desk47.
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_desktop_app_menu.py` (+ desk47 cache-bust)
+- **Verify:** pytest menu + related (27 passed). Live desk47 nav has 5 Gradio areas only.
+- **Jira:** Bug **KAN-257** Relates KAN-253/254/256; Fix comment + Done
+- **Next:** Active remains **KAN-167** C6
 
 ### 2026-11-17 — KAN-165 — C5 acceptance text drift
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-165
