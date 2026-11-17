@@ -1353,6 +1353,9 @@
   const planBatchSize = document.getElementById("plan-batch-size");
   const planDraftBtn = document.getElementById("plan-draft-btn");
   const planDraftProjectBtn = document.getElementById("plan-draft-project-btn");
+  const planImportPwBtn = document.getElementById("plan-import-pw-btn");
+  const planImportPwAddBtn = document.getElementById("plan-import-pw-add-btn");
+  const planPwPath = document.getElementById("plan-pw-path");
   const planRefreshBtn = document.getElementById("plan-refresh-btn");
   const planList = document.getElementById("plan-list");
   const planLoadBtn = document.getElementById("plan-load-btn");
@@ -3435,6 +3438,66 @@
       } catch (err) {
         if (planStatus) planStatus.textContent = "Project draft request failed.";
       }
+    });
+  }
+
+  async function importPlaywrightIntoPlan(attachToOpen) {
+    const pathValue =
+      planPwPath && planPwPath.value ? planPwPath.value.trim() : "";
+    if (!pathValue) {
+      if (planStatus) {
+        planStatus.textContent =
+          "Enter a Playwright project path (or set one under Suites).";
+      }
+      return;
+    }
+    if (attachToOpen && !openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      return;
+    }
+    if (planStatus) {
+      planStatus.textContent = attachToOpen
+        ? "Adding Playwright cases to open plan…"
+        : "Importing Playwright project into suite…";
+    }
+    try {
+      const body = { suite_path: pathValue };
+      if (attachToOpen) body.plan_id = openPlanId;
+      const res = await fetch("/api/plans/import-playwright", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const payload = await res.json();
+      if (payload.status !== "ok" || !payload.plan) {
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message || "Playwright import failed.";
+        }
+        return;
+      }
+      await loadPlanList(payload.plan.id);
+      openPlanId = payload.plan.id;
+      renderPlanCases(payload.plan);
+      if (typeof refreshLabHome === "function") await refreshLabHome();
+      if (planStatus) {
+        planStatus.textContent =
+          payload.message ||
+          "Playwright cases imported. External files unchanged.";
+      }
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Playwright import request failed.";
+    }
+  }
+
+  if (planImportPwBtn) {
+    planImportPwBtn.addEventListener("click", function () {
+      importPlaywrightIntoPlan(false);
+    });
+  }
+  if (planImportPwAddBtn) {
+    planImportPwAddBtn.addEventListener("click", function () {
+      importPlaywrightIntoPlan(true);
     });
   }
 

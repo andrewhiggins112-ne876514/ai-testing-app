@@ -52,6 +52,7 @@ from plans.drift import (
     keep_acceptance_drafts,
     refresh_acceptance_drafts,
 )
+from plans.import_playwright import import_playwright_project
 from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
 from plans.rerun_failed import rerun_failed_cases
@@ -210,7 +211,16 @@ class PlaywrightSuitePathRequest(BaseModel):
 class PlaywrightSuiteRunRequest(BaseModel):
     suite_path: str = ""
     grep: str = ""
+    test_file: str = ""
     timeout_s: float = 300.0
+
+
+class PlanImportPlaywrightRequest(BaseModel):
+    """Import Playwright project tests as in-app suite cases (KAN-171 / C8)."""
+
+    suite_path: str = ""
+    plan_id: str = ""
+    plan_name: str = ""
 
 
 class JiraIssueRequest(BaseModel):
@@ -668,6 +678,7 @@ async def post_playwright_suite_run(req: PlaywrightSuiteRunRequest):
     return run_playwright_suite(
         suite_path=req.suite_path or "",
         grep=req.grep or "",
+        test_file=req.test_file or "",
         timeout_s=float(req.timeout_s or 300.0),
     )
 
@@ -724,6 +735,19 @@ async def post_plan_draft_project(req: PlanProjectDraftRequest):
     if out.get("status") != "ok" or not degraded_status().get("jira_up"):
         out = {**out, "degraded": degraded_status()}
     return out
+
+
+@app.post("/api/plans/import-playwright")
+async def post_plan_import_playwright(req: PlanImportPlaywrightRequest):
+    """Import Playwright project tests as suite cases (KAN-171 / C8).
+
+    External project files are never deleted. Suites-area npx run stays available.
+    """
+    return import_playwright_project(
+        suite_path=req.suite_path or "",
+        plan_id=(req.plan_id or "").strip() or None,
+        plan_name=req.plan_name or "",
+    )
 
 
 @app.get("/api/plans/{plan_id}/coverage-gaps")

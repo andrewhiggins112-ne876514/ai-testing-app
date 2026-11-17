@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 _ID_SAFE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
-_CASE_SOURCE_KINDS = frozenset({"manual-draft", "jira", "document"})
+_CASE_SOURCE_KINDS = frozenset({"manual-draft", "jira", "document", "playwright"})
 _RUN_RESULTS = frozenset({"pass", "fail", "error", "skipped", "pending"})
 
 
@@ -65,7 +65,16 @@ def _normalize_sources(raw: Any) -> dict[str, list[str]]:
         text = str(name or "").strip()
         if text and text not in documents:
             documents.append(text[:200])
-    return {"jira_keys": jira_keys, "documents": documents}
+    playwright_suites: list[str] = []
+    for path in raw.get("playwright_suites") or []:
+        text = str(path or "").strip()
+        if text and text not in playwright_suites:
+            playwright_suites.append(text[:500])
+    return {
+        "jira_keys": jira_keys,
+        "documents": documents,
+        "playwright_suites": playwright_suites,
+    }
 
 
 def _normalize_jira_snapshots(raw: Any) -> dict[str, dict[str, Any]]:
@@ -1150,6 +1159,30 @@ def record_document_source(
     key = (jira_key or "").strip().upper()[:32]
     if key and key not in sources["jira_keys"]:
         sources["jira_keys"].append(key)
+    plan["sources"] = sources
+    plan["updated_at"] = _utcnow()
+    _write_plan(plan, level=lvl)
+    return {"status": "ok", "security_level": lvl, "plan": plan}
+
+
+def record_playwright_source(
+    plan_id: str,
+    suite_path: str,
+    *,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Record an imported Playwright project path on the plan (never deletes external files)."""
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    sources = _normalize_sources(plan.get("sources"))
+    path = (suite_path or "").strip()[:500]
+    if path and path not in sources["playwright_suites"]:
+        sources["playwright_suites"].append(path)
     plan["sources"] = sources
     plan["updated_at"] = _utcnow()
     _write_plan(plan, level=lvl)

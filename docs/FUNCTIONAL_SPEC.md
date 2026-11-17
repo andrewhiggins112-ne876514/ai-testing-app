@@ -219,7 +219,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-TEST-2 | Done (headed + headless setting) | **Done** KAN-9 baseline; **KAN-83** headless mode |
 | FR-TEST-3 | Done (smoke + structured steps) | **Done** KAN-47 smoke; **KAN-87** steps (`wait_window`/`type_text`/…) |
 | FR-TEST-4, FR-TEST-6 | Shipped (evidence + negatives/quality) | **Done** KAN-57 |
-| FR-TEST-5 | Shipped baseline import/run; in-suite import deepen | **Done** **KAN-59**; Test-all **C8** |
+| FR-TEST-5 | Shipped baseline import/run; in-suite import deepen | **Done** **KAN-59**; Test-all **C8** **KAN-171** |
 | FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; D3/D4 later |
 | FR-PLAN-1…2 | Partial (A1+A5+A6) | **KAN-125** store + **KAN-133** edit/disable/reorder + **KAN-135** starter/empty home; run UI later A7 |
 | FR-PLAN-3…4 | Partial (A4+C3–C7) | **KAN-131** one story; **KAN-161** project-wide draft; **KAN-163** coverage gaps; **KAN-165** AC drift; **KAN-167** C6 matrix; **KAN-169** C7 tags; C8 import next |
@@ -267,7 +267,8 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | Coverage gaps (C4) | **Shipped** KAN-163 (desk45) | No-case / all-disabled lists; filter; no auto-create |
 | Acceptance drift (C5) | **Shipped** KAN-165 (desk46) | Stale on summary/AC change; Keep/Refresh; runs preserved |
 | Traceability matrix (C6) | **Shipped** KAN-167 (desk48) | Story → cases → last result → bugs → known; not_loaded never pass; export section |
-| Tags / smoke / regression (C7) | **Shipped** KAN-169 (desk49) | Case tags+priority; sequential run-by-tag; suite_run stores tag; untagged = not_selected; Active → **KAN-171** C8 |
+| Tags / smoke / regression (C7) | **Shipped** KAN-169 (desk49) | Case tags+priority; sequential run-by-tag; suite_run stores tag; untagged = not_selected |
+| Import Playwright into suite (C8) | **Shipped** KAN-171 (desk50) | Project → plan cases (`source=playwright`); npx Suites unchanged; single-case suite run; external files never deleted; Active → **KAN-173** C9 |
 | Voice input | Deferred | **KAN-81**; mic; later G10 |
 | Model tool-calling reliability | **Done** baseline | **KAN-61** |
 | Self-healing guardrails (policy) | **Done** (KAN-49) | Review UI **Done** (KAN-75) |

@@ -40,7 +40,7 @@ Long-term goal: the most-used local/on-prem testing hub for testers, developers,
 - **Desktop-first compact App menu CR (2026-11-17b):** Desktop (`desktop_app.py`) is the **primary** product UI — not intended for browser use. Compact `▦` App menu shipped **KAN-253** (desk44 / test **KAN-254**).
 
 ## Current State
-**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (48 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C7 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **C7 KAN-169** tags/priority/smoke/regression (desk49). **Active Build: KAN-171** C8 import Playwright into suite (test **KAN-172**). Not KAN-81 voice.
+**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (48 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C8 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **C8 KAN-171** import Playwright into suite (desk50). **Active Build: KAN-173** C9 search plans/cases/failures (test **KAN-174**). Not KAN-81 voice.
 
 Skeleton + substantial features exist:
 - `plans/store.py` — **FR-PLAN-1/2 (KAN-125 + KAN-133):** level-scoped plan → suite → cases → runs under `plans/{OFFICIAL|SECRET}/`; list/get isolated by active security level; create does not rewrite settings/reports/Playwright files; **update_case / reorder_cases / cases_for_run** (disable skips later runs); API `GET/POST /api/plans*`, case update, reorder, runnable
@@ -49,8 +49,9 @@ Skeleton + substantial features exist:
 - `plans/drift.py` — **FR-PLAN-3 / FR-JIRA-1 (KAN-165 / C5):** acceptance text drift — on-demand re-read; stale when summary/AC differ; old vs new; Keep or Refresh; refresh never deletes runs; `POST /api/plans/{id}/acceptance-drift` (+ `/keep`, `/refresh`); snapshots on draft (desk46)
 - `plans/traceability.py` — **FR-REP-1 / FR-PLAN-4 (KAN-167 / C6):** traceability matrix — story key, case count, last result, linked bug keys, known-issue flag; no-run keys are `not_loaded` (never fake pass); `GET /api/plans/{id}/traceability`; report section `traceability`; desk48 Plans grid row opens case
 - `plans/run_by_tag.py` — **FR-PLAN-2 (KAN-169 / C7):** case tags + priority; sequential run-by-tag (smoke/regression first-class); suite_run stores id + tag; untagged → `not_selected`; `GET/POST /api/plans/{id}/run-by-tag`; desk49 Plans tag/priority edit + Run smoke/regression
+- `plans/import_playwright.py` — **FR-TEST-5 / FR-PLAN-2 (KAN-171 / C8):** import Playwright project tests as in-app suite cases (`source.kind=playwright`); never deletes external files; Suites npx path unchanged; `POST /api/plans/import-playwright`; desk50 Plans import controls
 - `plans/starter.py` — **FR-UI-1/6 + FR-PLAN-1 (KAN-135):** orb-home empty state (`lab_home_status`) + starter template plan with editable cases; `GET /api/plans/home`, `POST /api/plans/starter`
-- `plans/run_case.py` — **FR-PLAN-2/4 + FR-TEST-2/4 (KAN-137):** single-case headed Playwright run; pass/fail/duration/screenshot on that case only; env errors never pass; **KAN-149** optional `pause_on_fail`; optional `suite_run_id` on recorded runs; case_detail exposes tags/priority
+- `plans/run_case.py` — **FR-PLAN-2/4 + FR-TEST-2/4 (KAN-137):** single-case headed Playwright run; pass/fail/duration/screenshot on that case only; env errors never pass; **KAN-149** optional `pause_on_fail`; optional `suite_run_id` on recorded runs; case_detail exposes tags/priority; **KAN-171** imported Playwright cases run via `playwright_suite` (npx) one at a time
 - `plans/rerun_failed.py` — **FR-PLAN-2 (KAN-151 / B5):** rerun failed/error cases sequentially; new suite_run id on same plan; disabled/quarantined skipped with reason
 - `plans/pause_session.py` — **FR-TEST-2 / FR-PLAN-2 (KAN-149):** pause-on-fail sessions; Continue/Stop; off by default; headed browser held open on step fail
 - `settings/degraded.py` — **FR-CONN-1 (KAN-139):** `/api/degraded-mode` + Ollama-down chat block; saved plans still open
@@ -65,7 +66,7 @@ Skeleton + substantial features exist:
 - `plugins/heal_policy.py` — central FR-HEAL-1…5 guardrails (classify; refuse weaken/skip/timeout/AUT; locator-only pending review + audit); **KAN-75:** `list_pending_heals` / `approve_heal` / `reject_heal` rewrite audit `review_status` (no suite auto-commit); **KAN-159:** `heal_run_context` stamps `run_id` / plan / case; `list_pending_heals(run_id=…)`
 - `plugins/playwright_steps.py` — generate happy + negative/edge drafts; assess/reject visibility-only flows (FR-TEST-6); used by agent `generate_playwright_steps` (KAN-57); **from Jira AC** via `generate_steps_from_jira` + `issue_key` (KAN-85)
 - `plugins/playwright_runner.py` — steps (+ `expect_visible`), click + fill locator self-heal via heal_policy (assertions never healed), failure screenshots always + success via `playwright_success_evidence`; **persistent browser profile per security level** (KAN-15); **headed/headless** from `playwright_headless` setting or run override (KAN-83); **pause_on_fail** keeps browser open until continue/stop (KAN-149)
-- `plugins/playwright_suite.py` — import/list/run existing Playwright projects via `npx playwright test` (KAN-59 / FR-TEST-5); settings `playwright_suite_path`; suite CLI `--headed` when product mode is headed (KAN-83)
+- `plugins/playwright_suite.py` — import/list/run existing Playwright projects via `npx playwright test` (KAN-59 / FR-TEST-5); settings `playwright_suite_path`; suite CLI `--headed` when product mode is headed (KAN-83); optional `test_file` for single-case suite runs (KAN-171)
 - `plugins/desktop_runner.py` — Windows `.exe` smoke + structured steps (KAN-47/KAN-87); `wait_window`/`type_text`/… via ctypes; toggle `plugin_desktop_enabled`; does not fork Playwright
 - `plugins/multi_sandbox.py` — multi-sandbox orchestration (KAN-55 stub → **KAN-95**); toggle `plugin_multi_sandbox_enabled` default off; level-scoped `multi_sandboxes` records; list/plan/prepare/status/upsert/remove; local profile prepare; max 4; no cloud farms
 - `plugins/registry.py` — lightweight plugin manifests + `list_plugins()` (FR-PLUG-1/2); includes `test_framework` / frameworks list (FR-PLUG-3)
@@ -116,7 +117,7 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-155** B7 notes on a case and on a run — **Done** (KAN-156; `plans/notes.py` + evidence notes + desk39)
 - **KAN-157** C1 same plan in Gradio — **Done** (KAN-158; Gradio Plans tab + `tests/test_plans_tab.py`)
 - **KAN-161** C3 project-wide draft in batches — **Done** (KAN-162; `draft_plan_from_project` + desk43 Plans batch UI)
-- Next Active: **KAN-171** C8 import Playwright into suite (test KAN-172). **KAN-81** Voice — **deferred** until mic (last; test KAN-82)
+- Next Active: **KAN-173** C9 search plans/cases/failures (test KAN-174). **KAN-81** Voice — **deferred** until mic (last; test KAN-82)
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 

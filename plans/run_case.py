@@ -147,6 +147,119 @@ def _resolve_case(
     }
 
 
+def _source_kind(case: dict[str, Any]) -> str:
+    src = case.get("source") if isinstance(case.get("source"), dict) else {}
+    return str(src.get("kind") or "manual-draft").strip().lower()
+
+
+def _map_suite_result(suite_out: dict[str, Any]) -> tuple[str, str | None, list[str]]:
+    """Map playwright_suite.run_suite output to plan run result."""
+    status = str(suite_out.get("status") or "fail").lower()
+    evidence: list[str] = []
+    for item in suite_out.get("evidence") or []:
+        text = str(item)
+        if text and text not in evidence:
+            evidence.append(text)
+    err = (suite_out.get("error") or suite_out.get("message") or "").strip()
+    if status == "pass":
+        return "pass", None, evidence
+    if "npx" in err.lower() or "not found" in err.lower() or "timed out" in err.lower():
+        return "error", "environment", evidence
+    if status == "fail":
+        return "fail", "product_bug", evidence
+    return "error", "tool", evidence
+
+
+async def _execute_playwright_imported_case(
+    plan_id: str,
+    target_case: dict[str, Any],
+    *,
+    level: str,
+    suite_run_id: str | None,
+    reserved_run_id: str,
+    started: float,
+) -> dict[str, Any]:
+    """Run one imported Playwright case via npx (does not invent JSON steps)."""
+    from plans.import_playwright import decode_playwright_ref
+    from plugins.playwright_suite import run_suite
+
+    cid = target_case["id"]
+    src = target_case.get("source") if isinstance(target_case.get("source"), dict) else {}
+    ref = decode_playwright_ref(str(src.get("ref") or ""))
+    suite_path = ref.get("suite_path") or ""
+    if not suite_path:
+        duration_ms = int((time.monotonic() - started) * 1000)
+        recorded = add_run(
+            plan_id,
+            cid,
+            result="error",
+            duration_ms=duration_ms,
+            failure_class="tool",
+            evidence=[],
+            note="Imported Playwright case is missing suite_path in source ref.",
+            suite_run_id=suite_run_id,
+            run_id=reserved_run_id,
+            level=level,
+        )
+        return {
+            "status": "ok",
+            "message": "Imported Playwright case is missing suite path.",
+            "security_level": level,
+            "playwright_mode": "headed",
+            "target_up": True,
+            "only_case_id": cid,
+            "runner": "playwright_suite",
+            "suite_run_id": suite_run_id,
+            "plan": recorded.get("plan"),
+            "case": recorded.get("case"),
+            "run": recorded.get("run"),
+        }
+
+    suite_out = await asyncio.to_thread(
+        run_suite,
+        suite_path=suite_path,
+        grep=ref.get("grep") or ref.get("title") or "",
+        test_file=ref.get("file") or "",
+        timeout_s=300.0,
+    )
+    duration_ms = int((time.monotonic() - started) * 1000)
+    result, failure_class, evidence = _map_suite_result(suite_out)
+    note = str(suite_out.get("error") or suite_out.get("message") or "")[:500]
+    recorded = add_run(
+        plan_id,
+        cid,
+        result=result,
+        duration_ms=duration_ms,
+        failure_class=failure_class,
+        evidence=evidence,
+        note=note,
+        suite_run_id=suite_run_id,
+        run_id=reserved_run_id,
+        level=level,
+    )
+    return {
+        "status": "ok",
+        "message": f"Case {cid} finished: {result}.",
+        "security_level": level,
+        "playwright_mode": suite_out.get("playwright_mode") or "headed",
+        "target_up": True,
+        "only_case_id": cid,
+        "runner": "playwright_suite",
+        "pause_on_fail": False,
+        "suite_run_id": suite_run_id,
+        "playwright_suite": {
+            "status": suite_out.get("status"),
+            "error": suite_out.get("error"),
+            "passed": suite_out.get("passed"),
+            "failed": suite_out.get("failed"),
+            "suite_path": suite_out.get("suite_path"),
+        },
+        "plan": recorded.get("plan"),
+        "case": recorded.get("case"),
+        "run": recorded.get("run"),
+    }
+
+
 async def _execute_case(
     plan_id: str,
     case_id: str,
@@ -167,12 +280,23 @@ async def _execute_case(
 
     target_case = resolved["case"]
     cid = target_case["id"]
-    target_url = (load_settings().get("target_url") or "").strip()
-    target_probe = _check_target()
     started = time.monotonic()
     suite_rid = (suite_run_id or "").strip() or None
     # Pre-allocate so locator heals during Playwright stamp this run (KAN-159).
     reserved_run_id = new_run_id()
+
+    if _source_kind(target_case) == "playwright":
+        return await _execute_playwright_imported_case(
+            plan_id,
+            target_case,
+            level=level,
+            suite_run_id=suite_rid,
+            reserved_run_id=reserved_run_id,
+            started=started,
+        )
+
+    target_url = (load_settings().get("target_url") or "").strip()
+    target_probe = _check_target()
 
     if not target_url or not target_probe.get("up"):
         msg = target_probe.get("message") or "Target URL is not configured or unreachable."

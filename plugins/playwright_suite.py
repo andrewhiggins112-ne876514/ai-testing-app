@@ -147,6 +147,7 @@ def list_suite_tests(suite_path: str = "") -> dict[str, Any]:
 def run_suite(
     suite_path: str = "",
     grep: str = "",
+    test_file: str = "",
     timeout_s: float = 300.0,
 ) -> dict[str, Any]:
     """Run an imported Playwright suite via `npx playwright test`."""
@@ -164,6 +165,8 @@ def run_suite(
         "error": None,
         "message": None,
         "plugin": "playwright_suite",
+        "test_file": None,
+        "grep": None,
     }
     root, err = _resolve_root(suite_path)
     if err:
@@ -189,9 +192,15 @@ def run_suite(
     # CLI defaults to headless; pass --headed when product setting is headed.
     if not use_headless:
         args.append("--headed")
+    file_clean = (test_file or "").strip().replace("\\", "/")
+    if file_clean:
+        # Constrain to one file when running a single imported case (KAN-171).
+        args.append(file_clean)
+        result["test_file"] = file_clean
     grep_clean = (grep or "").strip()
     if grep_clean:
         args.extend(["--grep", grep_clean])
+        result["grep"] = grep_clean
 
     cli = _npx_playwright(args, cwd=root, timeout_s=max(30.0, float(timeout_s)))
     result["exit_code"] = cli.get("returncode")

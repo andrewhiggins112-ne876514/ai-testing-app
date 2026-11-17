@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk49" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk50" />
 </head>
 <body>
   <div id="app">
@@ -363,7 +363,7 @@
         </div>
         <div id="app-section-plans" class="app-section" hidden>
           <h3 class="orb-section-label">Plans</h3>
-          <p class="drawer-hint">Draft a local plan from one Jira story, optional document text, or a capped batch from the configured project. Edit cases before any run. Nothing is written to Jira from this screen.</p>
+          <p class="drawer-hint">Draft a local plan from one Jira story, optional document text, a capped project batch, or an imported Playwright project. Edit cases before any run. Nothing is written to Jira from this screen. Import never deletes external Playwright files; Suites still runs via npx.</p>
           <label class="stack-label">Issue key
             <input type="text" id="plan-issue-key" placeholder="KAN-131" autocomplete="off" />
           </label>
@@ -376,9 +376,13 @@
           <label class="stack-label">Project batch size (cap 1–25)
             <input type="number" id="plan-batch-size" min="1" max="25" value="5" step="1" />
           </label>
+          <label class="stack-label">Playwright project path (import into suite)
+            <input type="text" id="plan-pw-path" placeholder="D:\path\to\playwright-project" autocomplete="off" />
+          </label>
           <div class="btn-row">
             <button type="button" id="plan-draft-btn" class="save-btn">Draft from story</button>
             <button type="button" id="plan-draft-project-btn" class="save-btn secondary">Draft from project</button>
+            <button type="button" id="plan-import-pw-btn" class="save-btn secondary">Import Playwright</button>
             <button type="button" id="plan-refresh-btn" class="save-btn secondary">Refresh list</button>
           </div>
           <label class="stack-label">Saved plans
@@ -389,6 +393,7 @@
           <div class="btn-row">
             <button type="button" id="plan-load-btn" class="save-btn secondary">Open plan</button>
             <button type="button" id="plan-doc-add-btn" class="save-btn secondary">Add doc cases to open plan</button>
+            <button type="button" id="plan-import-pw-add-btn" class="save-btn secondary">Add Playwright to open plan</button>
           </div>
           <pre id="plan-intent" class="drawer-hint" aria-live="polite" hidden></pre>
           <div id="plan-cases" class="drawer-hint" aria-live="polite"></div>
@@ -617,6 +622,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk49"></script>
+  <script src="/ui/desktop/desktop.js?v=desk50"></script>
 </body>
 </html>
