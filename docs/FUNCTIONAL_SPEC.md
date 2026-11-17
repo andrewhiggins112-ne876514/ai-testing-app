@@ -117,13 +117,13 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - **FR-SEC-5:** Secrets never leave the local settings store or are written to client-side code / logs.
 
 ### 3.8 UI and Desktop Experience
-- **FR-UI-1:** Conversational interface is primary on the **agent home screen** (chat + central orb). **One home for everyone** — there is no separate Tester/Manager/PO landing. App drawer and screen drawer are secondary shells for navigation and layout — not replacements for the home canvas. App areas open from the **App menu button** (desktop `▦` drawer; Gradio equivalent). A **persistent top tab bar is not app navigation**. *(CR 2026-11-17 — menu button nav.)*
-- **FR-UI-2:** Native Windows desktop window (pywebview + Edge WebView2) is the preferred experience. Gradio remains available and must follow the same **menu-button navigation** and **content-vs-settings** split (FR-UI-7, FR-SET-4, FR-REP-4). Gradio does **not** have to implement desktop area layouts A–E.
+- **FR-UI-1:** Conversational interface is primary on the **agent home screen** (chat + central orb). **One home for everyone** — there is no separate Tester/Manager/PO landing. App menu and screen drawer are secondary shells for navigation and layout — not replacements for the home canvas. App areas open from a **compact App menu**: `▦` button toggles a small App panel (nav list only); choosing an item closes the panel and opens the dedicated area surface (FR-UI-7). A **tall persistent App side drawer** and a **persistent top tab bar** are not app navigation. *(CR 2026-11-17 menu button; CR 2026-11-17b — desktop matches Gradio compact menu.)*
+- **FR-UI-2:** Native Windows desktop window (pywebview + Edge WebView2) is the **primary product UI**. The app is intended for desktop use, not as a browser product. Gradio (`run_ui.py`) remains a secondary lab/dev shell and must follow the same **compact menu-button navigation** and **content-vs-settings** split (FR-UI-7, FR-SET-4, FR-REP-4). Gradio does **not** have to implement desktop area layouts A–E. *(CR 2026-11-17b — desktop-first.)*
 - **FR-UI-3:** Visual orb styles (Mystic, Aether, Neural, Apex and classic canvas styles) with per-style settings, live controls, and theme accent that follows the active style. **Orb settings** (style, size, spin, glow, colours) live in the **Screen drawer** only — not under App → Settings. The active style accent (CSS variables such as `--cyan`, border, glow, and muted text) also paints App nav, area surfaces (overlay, stage, split, floating), HUD chips, hub spokes, and the App Settings layout picker — not only the orb canvas. *(CR 2026-11-16 — layout modes × style theme.)*
 - **FR-UI-4:** Movable / resizable panels and widgets (UI-6). Layout persists in localStorage.
 - **FR-UI-5:** Widget settings (transparency, border, background) apply live to shell surfaces.
 - **FR-UI-6:** **Agent-home HUD widgets** — optional toggleable widgets on the agent home screen (status chips, mini panels, role packs for tester / manager / release / coverage, checklist, etc.). Visibility and layout controls sit alongside existing Screen drawer toggles (chat output widget, orb visibility, widget chrome) — not as App → Settings list content. Widgets summarise and deep-link into App areas; they do not replace Plan/Suite, Reports, Heal, or Settings surfaces.
-- **FR-UI-7:** **Dedicated area screens** — each App-nav area (Settings, Security, Reports, Documents, Desktop, Suites, Sandboxes, and future areas) opens its own **dedicated surface**. The App drawer is a navigation list only; it must **not** expand inline `app-section-*` blocks. **App area layout** (App Settings, not Orb settings) chooses how that surface appears, persisted in `localStorage` key `desktop-area-layout-v1`:
+- **FR-UI-7:** **Dedicated area screens** — each App-nav area (Settings, Security, Reports, Documents, Desktop, Suites, Sandboxes, Plans, Heal review, and future areas) opens its own **dedicated surface**. The App menu panel is a **compact navigation list only**; it must **not** expand inline `app-section-*` blocks and must **not** remain a full-height side rail while an area is open. **App area layout** (App Settings, not Orb settings) chooses how that surface appears, persisted in `localStorage` key `desktop-area-layout-v1`:
   - `overlay` — full-bleed glass over a dimmed home (mockup A)
   - `stage` — area stage with the orb scaled to a corner pip (mockup B)
   - `orb_hub` — orb click shows spokes, then the area opens as an overlay (mockup C)
@@ -239,7 +239,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-SEC-1, FR-SEC-3, FR-SEC-5 | Shipped isolation + confirm + secrets scoping | **Done** KAN-15, **KAN-16** |
 | FR-SEC-2 | Done | **KAN-69** |
 | FR-SEC-4 | Done | **KAN-71** |
-| FR-UI-1…5 | Baseline shipped | **Done** KAN-10/41/53/73; Voice **KAN-81** deferred (mic; last) |
+| FR-UI-1…5 | Baseline shipped; UI-1 compact desktop App menu | **Done** KAN-10/41/53/73; Voice **KAN-81** deferred; compact desktop menu **KAN-253** (desk44) |
 | FR-UI-6 | Baseline Security + Reports + Lab checklist; role packs later | **Done** **KAN-103** / **KAN-107** / **KAN-104** + **KAN-135** empty-lab checklist; Test-all **F1–F7** |
 | FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix; content vs config | **Done** shell **KAN-103** / **KAN-104**; content-vs-config **KAN-247…249** |
 | FR-SET-3 | Shipped — App Settings vs Orb settings; App category on Settings hub | **Done** Task **KAN-108**; hub **KAN-249** |
@@ -262,7 +262,8 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN**. Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
 | Test-all in-app plan/suite | **Active CR** | Catalogue A–H; alpha A1–A9 first; Active Build **KAN-159** C2 |
-| Nav IA — Reports data / menu / Settings hub | **CR accepted 2026-11-17** | Sequence: (1) Reports library + move section toggles, (2) Gradio menu button, (3) Settings category hub. Epic **KAN-27**. Does not replace KAN-159. |
+| Nav IA — Reports data / menu / Settings hub | **Shipped** KAN-247…249 | Gradio compact menu done; desktop still tall App drawer until follow-on |
+| Desktop compact App menu (match Gradio) | **Shipped** KAN-253 (desk44) | Compact `▦` panel; Active Build → **KAN-163** C4 |
 | Voice input | Deferred | **KAN-81**; mic; later G10 |
 | Model tool-calling reliability | **Done** baseline | **KAN-61** |
 | Self-healing guardrails (policy) | **Done** (KAN-49) | Review UI **Done** (KAN-75) |

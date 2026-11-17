@@ -8,15 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-163** — Test-all C4 — Coverage gaps |
+| **Jira story** | **KAN-163** — C4 coverage gaps |
 | **Start task** | **KAN-164** (`test`, Relates → KAN-163) |
-| **Epic** | Test-all C (plan growth) |
-| **Roadmap ID** | C4 / FR-PLAN-3 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` + `docs/ops/test_all_catalogue.json` |
+| **Epic** | Test-all C (see catalogue) |
+| **Roadmap ID** | C4 / FR coverage gaps |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
 | **Test ticket** | **KAN-164** |
-| **Shipped** | … **KAN-249** Settings hub; **KAN-161** C3 project-wide draft in batches |
+| **Shipped** | … **KAN-253** desktop compact App menu (desk44); **KAN-249** Settings hub; **KAN-161** C3 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
+| **Next after this** | continue Test-all C after C4 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -37,6 +38,22 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-253 — UI-NAV-IA-4 Desktop compact App menu
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-253
+- **Done:** Replaced tall App side drawer with Gradio-style compact `▦` panel (`app-menu-panel`, nav list only). Panel positions beside the edge-snap toggle; choosing an area closes the panel and opens the dedicated surface (layouts A–E unchanged). Screen drawer stays a resizable tall rail. desk44. Stale orb-hub spoke-count test updated to 9 (Plans); open Bug for SVG lines/nodes still at 7.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.css`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_desktop_app_menu.py`, `tests/test_gradio_menu_nav.py`, `tests/test_nav_overlap.py`, `tests/test_orb_hub.py`, `tests/test_settings_hub.py`, `tests/test_reports_library.py`
+- **Verify:** `pytest tests/test_desktop_app_menu.py tests/test_gradio_menu_nav.py tests/test_nav_overlap.py tests/test_settings_hub.py tests/test_reports_library.py tests/test_orb_hub.py -v` (27 passed). Computer Use: `desktop_app.py` → ▦ opens compact APP panel (not full-height rail) → Settings opens overlay area.
+- **Jira:** close-out **KAN-253** + **KAN-254** Done; Bug **KAN-255** (Relates KAN-253/254/109) — orb-hub SVG 7 lines vs 9 spokes
+- **Next:** **KAN-163** C4 coverage gaps (test **KAN-164**)
+
+### 2026-11-17 — Council CR — Desktop compact App menu (match Gradio)
+- **Agent/chat:** Advisory Council Room — Designer side-by-side desktop vs Gradio; desktop still tall APP drawer
+- **Done (docs/Jira only):** Spec FR-UI-1/2/7 — desktop is primary product; App nav = compact `▦` panel like Gradio (not tall side rail). ROADMAP **UI-NAV-IA-4**. **Active Build → KAN-253** (Designer: do desktop menu before resuming C4). After **KAN-253** Done → **KAN-163**.
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `PROJECT_MEMORY.md`, `docs/ops/ROADMAP.md`, `docs/ops/KAN102_NAV_WIDGETS_PLAN.md`, this log
+- **Verify:** n/a (no product code)
+- **Jira:** **KAN-253** (test **KAN-254**) under epic **KAN-27**; Relates KAN-248 / KAN-103 / KAN-102; Active reprioritise comments
+- **Next:** Build pick-up → **KAN-253**; then **KAN-163** C4
 
 ### 2026-11-17 — KAN-161 — C3 project-wide draft in batches
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-161

@@ -410,9 +410,50 @@
     return parseFloat(raw) || defaultDrawerSize(edge);
   }
 
+  function isCompactAppMenu(drawer) {
+    return !!(drawer && drawer === appDrawer && drawer.dataset.compactAppMenu === "1");
+  }
+
+  function positionAppMenuPanel() {
+    /* Compact ▦ panel beside the toggle — not a full-height side rail (KAN-253). */
+    if (!appDrawer || !appToggle) return;
+    const edge = appToggle.dataset.edge || "left";
+    const tr = appToggle.getBoundingClientRect();
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const panelW = Math.min(280, W - 24);
+    const gap = 8;
+    clearPos(appDrawer);
+    appDrawer.classList.remove("edge-left", "edge-right", "edge-top", "edge-bottom");
+    appDrawer.classList.add("edge-" + edge);
+    appDrawer.style.width = panelW + "px";
+    appDrawer.style.maxHeight = Math.min(H - 48, 520) + "px";
+    if (edge === "left") {
+      appDrawer.style.left = clamp(tr.right + gap, 12, Math.max(12, W - panelW - 12)) + "px";
+      appDrawer.style.top = clamp(tr.top, 12, Math.max(12, H - 120)) + "px";
+      return;
+    }
+    if (edge === "right") {
+      appDrawer.style.left = clamp(tr.left - gap - panelW, 12, Math.max(12, W - panelW - 12)) + "px";
+      appDrawer.style.top = clamp(tr.top, 12, Math.max(12, H - 120)) + "px";
+      return;
+    }
+    if (edge === "top") {
+      appDrawer.style.left = clamp(tr.left, 12, Math.max(12, W - panelW - 12)) + "px";
+      appDrawer.style.top = clamp(tr.bottom + gap, 12, Math.max(12, H - 120)) + "px";
+      return;
+    }
+    appDrawer.style.left = clamp(tr.left, 12, Math.max(12, W - panelW - 12)) + "px";
+    appDrawer.style.bottom = clamp(H - tr.top + gap, 12, Math.max(12, H - 120)) + "px";
+  }
+
   function parkToggleOnOpenDrawer(toggle, drawer) {
-    /* Keep the edge toggle as a seam tab so it cannot cover App/Screen nav (KAN-101 / KAN-113). */
+    /* Keep the edge toggle as a seam tab so it cannot cover Screen nav (KAN-101 / KAN-113). */
     if (!toggle || !drawer || !drawer.classList.contains("open")) return;
+    if (isCompactAppMenu(drawer)) {
+      positionAppMenuPanel();
+      return;
+    }
     const edge = toggle.dataset.edge || "left";
     const size = currentDrawerSize(drawer, edge);
     const W = window.innerWidth;
@@ -476,6 +517,14 @@
       document.documentElement.classList.toggle("drawer-app-open", open);
     } else if (drawer === screenDrawer) {
       document.documentElement.classList.toggle("drawer-screen-open", open);
+    }
+    if (isCompactAppMenu(drawer)) {
+      if (open) {
+        positionAppMenuPanel();
+      } else {
+        restoreTogglePlacement(toggle);
+      }
+      return;
     }
     if (open) {
       syncDrawerEdge(toggle, drawer);
@@ -764,6 +813,10 @@
   }
 
   function syncDrawerEdge(toggle, drawer) {
+    if (isCompactAppMenu(drawer)) {
+      if (drawer.classList.contains("open")) positionAppMenuPanel();
+      return;
+    }
     const edge = toggle.dataset.edge || "left";
     drawer.classList.remove("edge-left", "edge-right", "edge-top", "edge-bottom");
     drawer.classList.add("edge-" + edge);
@@ -902,6 +955,10 @@
       const along = saved && typeof saved.along === "number" ? saved.along : null;
       placeToggle(el, edge, along);
       const drawer = toggleDrawerMap.get(el);
+      if (isCompactAppMenu(drawer)) {
+        if (drawer.classList.contains("open")) positionAppMenuPanel();
+        return;
+      }
       syncDrawerEdge(el, drawer);
       const drawerSaved = layout.drawers && layout.drawers[drawer.id];
       applyDrawerSize(
@@ -1211,7 +1268,8 @@
     bindWidgetDrag(el);
     bindWidgetResize(el);
   });
-  [appDrawer, screenDrawer].forEach(bindDrawerResize);
+  /* Screen drawer stays resizable; App is a compact menu panel (KAN-253). */
+  if (screenDrawer) bindDrawerResize(screenDrawer);
 
   const settingsSection = document.getElementById("app-section-settings");
   const securitySection = document.getElementById("app-section-security");

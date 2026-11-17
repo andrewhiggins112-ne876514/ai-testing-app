@@ -4,6 +4,10 @@
 
 **Addendum 2026-11-17 (Council CR):** Content vs settings — Reports area shows saved-report **data**; section include/exclude lives under **Settings → Report**. Gradio must use a **menu button** (no persistent top tab strip), matching desktop `▦`. Settings becomes a **category hub** (App / Report / …). Security stays its own area. Build order: UI-NAV-IA-1 → UI-NAV-IA-2 → UI-NAV-IA-3 after Active **KAN-159**. Spec: FR-UI-1/2/7, FR-SET-3/4, FR-REP-2/4.
 
+**Addendum 2026-11-17b:** Desktop is the **primary** product (not browser). Gradio compact App menu (KAN-248) is the chrome target: desktop must replace the tall App side drawer with the same **compact `▦` → small App panel** pattern. Choosing an area still opens dedicated surfaces (layouts A–E). ROADMAP **UI-NAV-IA-4**.
+
+**Shipped 2026-11-17 — UI-NAV-IA-4 / KAN-253 (desk44):** Desktop App nav is now `#app-drawer.app-menu-panel` (compact panel beside `▦`), not a tall `side-drawer` rail. Screen drawer unchanged.
+
 **Canonical spec:** `docs/FUNCTIONAL_SPEC.md` — FR-UI-1/3/6/7, FR-SET-3/4, FR-REP-4.
 
 **Jira:** Bug **KAN-102** | Story **KAN-103** (epic KAN-27) | test **KAN-104** | Tasks **KAN-106** (area screens), **KAN-107** (HUD widgets), **KAN-108** (App vs Orb settings), **KAN-109** (orb hub later), **KAN-110** (KAN-101 overlap). Duplicate Story **KAN-105** — cancelled; use KAN-103 only.

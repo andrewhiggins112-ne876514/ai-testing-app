@@ -70,10 +70,12 @@ class GradioMenuNavTests(unittest.TestCase):
         self.assertFalse(open_flag)
         self.assertFalse(panel.get("visible"))
 
-    def test_desktop_still_uses_drawer_not_top_tabs(self):
+    def test_desktop_uses_compact_menu_not_top_tabs(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         self.assertIn('id="app-drawer-toggle"', html)
         self.assertIn('id="app-drawer"', html)
+        self.assertIn("app-menu-panel", html)
+        self.assertIn('data-compact-app-menu="1"', html)
         self.assertNotIn('class="tab-nav"', html)
         self.assertNotIn("<nav class=\"top-tabs\">", html)
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk43" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk44" />
 </head>
 <body>
   <div id="app">
@@ -142,10 +142,10 @@
 
     <button id="app-drawer-toggle" class="icon-btn drawer-toggle app-drawer-toggle" type="button"
       data-edge-snap="1" data-default-edge="left"
-      aria-label="Open app menu" aria-expanded="false" aria-controls="app-drawer" title="App (drag to edge)">▦</button>
-    <aside id="app-drawer" class="side-drawer app-drawer edge-left" aria-hidden="true">
-      <div class="drawer-inner shell-surface">
-        <h2 class="panel-title">App</h2>
+      aria-label="Open app menu" aria-expanded="false" aria-controls="app-drawer" title="App menu (drag to edge)">▦</button>
+    <aside id="app-drawer" class="app-menu-panel edge-left" aria-hidden="true" data-compact-app-menu="1">
+      <div class="drawer-inner shell-surface app-menu-inner">
+        <h2 class="panel-title app-menu-title">App</h2>
         <nav class="app-nav" aria-label="Application sections">
           <button type="button" class="app-nav-item" data-section="settings" aria-pressed="false">Settings</button>
           <button type="button" class="app-nav-item" data-section="security" aria-pressed="false">Security</button>
@@ -571,6 +571,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk43"></script>
+  <script src="/ui/desktop/desktop.js?v=desk44"></script>
 </body>
 </html>

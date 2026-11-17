@@ -533,6 +533,65 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   gap: 12px;
 }
 
+/* Compact App menu (KAN-253) — ▦ opens a small panel, not a tall side rail. */
+#app-drawer.app-menu-panel {
+  position: absolute;
+  z-index: 12;
+  width: min(280px, calc(100vw - 24px));
+  max-height: min(70vh, 520px);
+  height: auto;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+
+#app-drawer.app-menu-panel.open {
+  pointer-events: auto;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+#app-drawer.app-menu-panel .app-menu-inner {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: min(70vh, 520px);
+  overflow: auto;
+  margin: 0;
+  border-radius: 14px;
+  padding: 12px 12px 10px;
+  gap: 10px;
+  border: 1px solid var(--cyan-dim);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+
+#app-drawer.app-menu-panel .app-menu-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+#app-drawer.app-menu-panel .app-nav {
+  gap: 6px;
+}
+
+#app-drawer.app-menu-panel .app-nav-item {
+  padding: 8px 10px;
+  font-size: 13px;
+  min-height: 34px;
+}
+
+#app-drawer.app-menu-panel .drawer-resize-handle {
+  display: none;
+}
+
 .app-nav {
   display: flex;
   flex-direction: column;
