@@ -1091,11 +1091,13 @@ def update_case(
     tags: list[str] | None = None,
     step_timeout_ms: int | None = None,
     level: str | None = None,
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     """Edit a case before any run (KAN-133 / FR-PLAN-1/2). Local only.
 
     Archive (KAN-177 / C11) sets archived=True without deleting runs or evidence.
     Step timeout (KAN-187 / D5) is editable before run; default matches runner.
+    Successful edits append a local side-effects audit line (KAN-195 / E2).
     """
     from settings.store import get_security_level
 
@@ -1119,24 +1121,31 @@ def update_case(
             "security_level": lvl,
         }
     now = _utcnow()
+    fields_changed: list[str] = []
     if name is not None:
         text = str(name).strip() or "Untitled case"
         target["name"] = text[:120]
+        fields_changed.append("name")
     if note is not None:
         target["note"] = str(note)[:2000]
+        fields_changed.append("note")
     if enabled is not None:
         target["enabled"] = bool(enabled)
+        fields_changed.append("enabled")
     if archived is not None:
         # Soft archive only — never clears runs/evidence (KAN-177).
         target["archived"] = bool(archived)
+        fields_changed.append("archived")
     if order is not None:
         try:
             target["order"] = int(order)
+            fields_changed.append("order")
         except (TypeError, ValueError):
             pass
     if priority is not None:
         try:
             target["priority"] = int(priority)
+            fields_changed.append("priority")
         except (TypeError, ValueError):
             pass
     if tags is not None:
@@ -1146,6 +1155,7 @@ def update_case(
             if t and t not in cleaned:
                 cleaned.append(t[:40])
         target["tags"] = cleaned
+        fields_changed.append("tags")
     if step_timeout_ms is not None:
         from plans.timeouts import resolve_step_timeout_ms
 
@@ -1158,11 +1168,25 @@ def update_case(
                 "case_id": cid,
             }
         target["step_timeout_ms"] = int(resolved["step_timeout_ms"])
+        fields_changed.append("step_timeout_ms")
     target["updated_at"] = now
     cases.sort(key=lambda c: (int(c.get("order") or 0), c.get("created_at") or "", c["id"]))
     plan["suite"] = {"cases": cases}
     plan["updated_at"] = now
     _write_plan(plan, level=lvl)
+    if fields_changed:
+        try:
+            from settings.local_audit import audit_plan_case_edit
+
+            audit_plan_case_edit(
+                plan_id=str(plan.get("id") or plan_id),
+                case_id=cid,
+                level=lvl,
+                session_id=session_id,
+                fields_changed=fields_changed,
+            )
+        except OSError:
+            pass
     return {"status": "ok", "security_level": lvl, "plan": plan, "case": target}
 
 

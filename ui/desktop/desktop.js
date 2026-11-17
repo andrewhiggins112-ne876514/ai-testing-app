@@ -1541,11 +1541,15 @@
     heal_audit: document.getElementById("priv-heal"),
     sessions: document.getElementById("priv-sessions"),
     uploads: document.getElementById("priv-uploads"),
+    local_side_effects_audit: document.getElementById("priv-local-audit"),
     browser_profiles: document.getElementById("priv-profiles"),
   };
   const privPropose = document.getElementById("priv-propose");
   const privConfirm = document.getElementById("priv-confirm");
   const privStatus = document.getElementById("priv-status");
+  const localAuditRefresh = document.getElementById("local-audit-refresh");
+  const localAuditList = document.getElementById("local-audit-list");
+  const localAuditStatus = document.getElementById("local-audit-status");
   let pendingPrivacyCategories = null;
   const docText = document.getElementById("doc-text");
   const docParse = document.getElementById("doc-parse");
@@ -3291,6 +3295,49 @@
     }
   }
 
+  async function loadLocalAudit() {
+    if (!localAuditList) return;
+    try {
+      const res = await fetch("/api/local-audit?limit=40");
+      const data = await res.json();
+      localAuditList.innerHTML = "";
+      const rows = (data && data.entries) || [];
+      if (!rows.length) {
+        const li = document.createElement("li");
+        li.textContent = "No local side-effect events yet.";
+        localAuditList.appendChild(li);
+      } else {
+        rows.forEach(function (row) {
+          const li = document.createElement("li");
+          const bits = [
+            row.timestamp || "",
+            row.action || "",
+            row.plan_id ? "plan " + row.plan_id : "",
+            row.case_id ? "case " + row.case_id : "",
+            row.security_level || "",
+            row.session_id ? "session " + row.session_id : "",
+          ].filter(Boolean);
+          li.textContent = bits.join(" · ");
+          localAuditList.appendChild(li);
+        });
+      }
+      if (localAuditStatus) {
+        localAuditStatus.textContent =
+          "Jira write audit remains" +
+          (data && data.jira_write_audit_exists ? " (file present)" : "") +
+          ". Cloud SIEM: off.";
+      }
+    } catch (err) {
+      if (localAuditList) {
+        localAuditList.innerHTML = "";
+        const li = document.createElement("li");
+        li.textContent = "Could not load local audit.";
+        localAuditList.appendChild(li);
+      }
+      if (localAuditStatus) localAuditStatus.textContent = "Could not load local audit.";
+    }
+  }
+
   async function postPrivacyDelete(categories, confirm) {
     const res = await fetch("/api/privacy/delete", {
       method: "POST",
@@ -3649,6 +3696,7 @@
     if (name === "security") {
       loadSecurityStatus();
       loadPrivacyStatus();
+      loadLocalAudit();
     }
     if (name === "documents") loadDocUploads();
     if (name === "heal") {
@@ -5962,9 +6010,16 @@
           privStatus.textContent =
             payload.message || "Local artifacts deleted.";
         }
+        await loadLocalAudit();
       } catch (err) {
         if (privStatus) privStatus.textContent = "Could not confirm delete.";
       }
+    });
+  }
+
+  if (localAuditRefresh) {
+    localAuditRefresh.addEventListener("click", function () {
+      loadLocalAudit();
     });
   }
 

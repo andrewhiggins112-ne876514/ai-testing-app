@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk61" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk62" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -314,12 +314,23 @@
           <label class="check-row"><input type="checkbox" id="priv-heal" checked /> Heal audit</label>
           <label class="check-row"><input type="checkbox" id="priv-sessions" checked /> Sessions</label>
           <label class="check-row"><input type="checkbox" id="priv-uploads" checked /> Uploaded documents</label>
+          <label class="check-row"><input type="checkbox" id="priv-local-audit" /> Local side-effects audit</label>
           <label class="check-row"><input type="checkbox" id="priv-profiles" /> Browser profiles</label>
           <div class="btn-row">
             <button type="button" id="priv-propose" class="save-btn">Delete local data…</button>
             <button type="button" id="priv-confirm" class="save-btn secondary" disabled>Confirm delete</button>
           </div>
           <p id="priv-status" class="drawer-hint" role="status">Ready</p>
+          <h3 class="orb-section-label">Local side-effects audit</h3>
+          <p class="drawer-hint">
+            Plan edits, quarantines, and privacy wipes are logged locally (time, action, plan/case id, level, session).
+            No tokens or document bodies. Jira write audit remains a separate file.
+          </p>
+          <div class="btn-row">
+            <button type="button" id="local-audit-refresh" class="save-btn">Refresh audit</button>
+          </div>
+          <ul id="local-audit-list" class="drawer-hint" aria-live="polite"></ul>
+          <p id="local-audit-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-reports" class="app-section" hidden>
           <h3 class="orb-section-label">Report library</h3>
@@ -746,6 +757,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk61"></script>
+  <script src="/ui/desktop/desktop.js?v=desk62"></script>
 </body>
 </html>

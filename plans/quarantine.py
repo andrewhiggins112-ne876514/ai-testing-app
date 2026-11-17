@@ -160,6 +160,7 @@ def set_quarantine(
     expires_at: str,
     level: str | None = None,
     now: datetime | None = None,
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     """Quarantine a case — requires reason and expiry. Keeps runs/last failure."""
     from settings.store import get_security_level
@@ -210,9 +211,10 @@ def set_quarantine(
         }
 
     stamp = _utcnow()
+    expires_iso = exp.replace(microsecond=0).isoformat()
     target["quarantine"] = {
         "reason": why[:500],
-        "expires_at": exp.replace(microsecond=0).isoformat(),
+        "expires_at": expires_iso,
         "active": True,
         "set_at": stamp,
     }
@@ -221,6 +223,20 @@ def set_quarantine(
     plan["suite"] = {"cases": cases}
     plan["updated_at"] = stamp
     _write_plan(plan, level=lvl)
+    try:
+        from settings.local_audit import audit_quarantine
+
+        audit_quarantine(
+            "quarantine_set",
+            plan_id=str(plan.get("id") or plan_id),
+            case_id=cid,
+            level=lvl,
+            session_id=session_id,
+            reason=why[:500],
+            expires_at=expires_iso,
+        )
+    except OSError:
+        pass
     flake = flake_score(target)
     return {
         "status": "ok",
@@ -243,6 +259,7 @@ def clear_quarantine(
     case_id: str,
     *,
     level: str | None = None,
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     """Manually return a case to the selectable set before expiry."""
     from settings.store import get_security_level
@@ -281,6 +298,18 @@ def clear_quarantine(
     plan["suite"] = {"cases": cases}
     plan["updated_at"] = stamp
     _write_plan(plan, level=lvl)
+    try:
+        from settings.local_audit import audit_quarantine
+
+        audit_quarantine(
+            "quarantine_clear",
+            plan_id=str(plan.get("id") or plan_id),
+            case_id=cid,
+            level=lvl,
+            session_id=session_id,
+        )
+    except OSError:
+        pass
     return {
         "status": "ok",
         "security_level": lvl,

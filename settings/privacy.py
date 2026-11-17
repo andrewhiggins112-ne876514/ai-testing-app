@@ -17,6 +17,7 @@ DELETABLE_CATEGORIES = (
     "screenshots",
     "heal_audit",
     "jira_write_audit",
+    "local_side_effects_audit",
     "sessions",
     "browser_profiles",
     "plans",
@@ -45,6 +46,7 @@ def _category_path(category: str) -> Path:
         "screenshots": root / "screenshots",
         "heal_audit": root / "heal_audit.jsonl",
         "jira_write_audit": root / "jira_write_audit.jsonl",
+        "local_side_effects_audit": root / "local_side_effects_audit.jsonl",
         "sessions": root / "sessions",
         "browser_profiles": root / "browser_profiles",
         "plans": root / "plans",
@@ -157,6 +159,7 @@ def delete_local_data(
     categories: Optional[Sequence[str]] = None,
     *,
     confirm: bool = False,
+    session_id: str | None = None,
 ) -> Dict[str, Any]:
     """Wipe configurable local artifacts. Requires confirm=True (destructive)."""
     chosen = _normalize_categories(categories)
@@ -181,6 +184,19 @@ def delete_local_data(
             ),
             "consent_note": CONSENT_NOTE,
         }
+
+    # Audit before wipe so the event survives even if the audit file itself is wiped.
+    try:
+        from settings.local_audit import audit_local_wipe
+        from settings.store import get_security_level
+
+        audit_local_wipe(
+            categories=chosen,
+            level=get_security_level(),
+            session_id=session_id,
+        )
+    except OSError:
+        pass
 
     removed: List[Dict[str, Any]] = []
     for name in chosen:

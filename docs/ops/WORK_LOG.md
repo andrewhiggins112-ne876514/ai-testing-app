@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-195** — E2 Audit log for local side effects |
-| **Start task** | **KAN-196** (`test`, Relates → KAN-195) |
+| **Jira story** | **KAN-197** — E3 Redact secrets in evidence and exports |
+| **Start task** | **KAN-198** (`test`, Relates → KAN-197) |
 | **Epic** | Test-all E (see catalogue) |
-| **Roadmap ID** | E2 / FR-SEC-2 |
+| **Roadmap ID** | E3 / FR-SEC-5 + FR-REP-3 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-196** |
-| **Shipped** | … **KAN-193** E1 document privacy uploads (desk61); **KAN-191** D7 duration (desk60); **KAN-189** D6 run-finish notify (desk59); **KAN-187** D5 timeouts; **KAN-185** D4 credential status; **KAN-183** D3 named environments; **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-257** App menu |
+| **Test ticket** | **KAN-198** |
+| **Shipped** | … **KAN-195** E2 local side-effects audit (desk62); **KAN-193** E1 document privacy uploads (desk61); **KAN-191** D7 duration (desk60); **KAN-189** D6 run-finish notify (desk59); **KAN-187** D5 timeouts; **KAN-185** D4 credential status; **KAN-183** D3 named environments; **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all E after E2 → E3…, or **KAN-260** Lab tools in App menu when prioritised |
+| **Next after this** | continue Test-all E after E3 → E4…, or **KAN-260** Lab tools in App menu when prioritised |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-195 — E2 Audit log for local side effects
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-195
+- **Done:** Local side-effects audit (`local_side_effects_audit.jsonl`) records plan case edits, quarantine set/clear, and confirmed privacy wipes with time, action, plan/case id, level, session. Scrubs tokens and document bodies. `GET /api/local-audit` + Security panel list (desk62). Jira write audit remains separate; no cloud SIEM.
+- **Files:** `settings/local_audit.py`, `settings/privacy.py`, `plans/store.py`, `plans/quarantine.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_local_side_effects_audit.py` (+ desk62 cache-bust)
+- **Verify:** `pytest tests/test_local_side_effects_audit.py` + related (32 passed in batch). Live `GET /api/local-audit` → jira_write_audit_remains true, cloud_siem false; confirmed wipe appends `local_data_wipe`; desk62 HTML has `local-audit-list` / `priv-local-audit`; `desktop_app.py` opened (desk62).
+- **Jira:** close-out **KAN-195** + **KAN-196**
+- **Next:** **KAN-197** E3 redact secrets in evidence and exports (test **KAN-198**)
 
 ### 2026-11-17 — KAN-193 — E1 Document privacy for uploads
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-193

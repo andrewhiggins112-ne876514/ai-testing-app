@@ -109,6 +109,7 @@ from settings.environments import (
     upsert_environment,
 )
 from settings.ollama_models import list_ollama_models
+from settings.local_audit import list_local_audit
 from settings.privacy import delete_local_data, privacy_status, telemetry_enabled
 from settings.store import (
     app_settings_status,
@@ -184,6 +185,7 @@ class SecurityLevelRequest(BaseModel):
 class DeleteLocalDataRequest(BaseModel):
     categories: list[str] | None = None
     confirm: bool = False
+    session_id: str = "desktop"
 
 
 class AppSettingsRequest(BaseModel):
@@ -343,6 +345,7 @@ class PlanCaseUpdateRequest(BaseModel):
     priority: int | None = None
     tags: list[str] | None = None
     step_timeout_ms: int | None = None
+    session_id: str = "desktop"
 
 
 class PlanQuarantineRequest(BaseModel):
@@ -350,6 +353,7 @@ class PlanQuarantineRequest(BaseModel):
 
     reason: str = ""
     expires_at: str = ""
+    session_id: str = "desktop"
 
 
 class PlanReorderRequest(BaseModel):
@@ -544,7 +548,17 @@ async def get_privacy_api():
 
 @app.post("/api/privacy/delete")
 async def post_privacy_delete_api(req: DeleteLocalDataRequest):
-    return delete_local_data(req.categories, confirm=bool(req.confirm))
+    return delete_local_data(
+        req.categories,
+        confirm=bool(req.confirm),
+        session_id=req.session_id or "desktop",
+    )
+
+
+@app.get("/api/local-audit")
+async def get_local_audit_api(limit: int = 100):
+    """Local side-effects audit for Security (KAN-195 / E2). No tokens/bodies."""
+    return list_local_audit(limit=limit)
 
 
 @app.get("/api/app-settings")
@@ -988,13 +1002,22 @@ async def post_plan_case_quarantine(
         case_id,
         reason=req.reason or "",
         expires_at=req.expires_at or "",
+        session_id=req.session_id or "desktop",
     )
 
 
 @app.post("/api/plans/{plan_id}/cases/{case_id}/quarantine/clear")
-async def post_plan_case_quarantine_clear(plan_id: str, case_id: str):
+async def post_plan_case_quarantine_clear(
+    plan_id: str,
+    case_id: str,
+    req: PlanQuarantineRequest = PlanQuarantineRequest(),
+):
     """Clear quarantine early so the case returns to the selectable set (KAN-181)."""
-    return plan_clear_quarantine(plan_id, case_id)
+    return plan_clear_quarantine(
+        plan_id,
+        case_id,
+        session_id=req.session_id or "desktop",
+    )
 
 
 @app.post("/api/plans/{plan_id}/acceptance-drift")
@@ -1088,6 +1111,7 @@ async def post_plan_case_update(plan_id: str, case_id: str, req: PlanCaseUpdateR
         priority=req.priority,
         tags=list(req.tags) if req.tags is not None else None,
         step_timeout_ms=req.step_timeout_ms,
+        session_id=req.session_id or "desktop",
     )
 
 
