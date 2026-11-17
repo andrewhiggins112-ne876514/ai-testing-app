@@ -75,6 +75,7 @@ from plans.run_case import case_detail, run_single_case
 from plans.desktop_case import add_desktop_case
 from plans.api_case import add_api_case, add_contract_case
 from plans.seed_case import add_seed_case
+from plans.visual_case import add_visual_case, update_case_baseline
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
 from plans.home_checklist import home_checklist_summary
@@ -352,6 +353,22 @@ class PlanSeedCaseRequest(BaseModel):
     tags: list[str] | None = None
 
 
+class PlanVisualCaseRequest(BaseModel):
+    """Add an opt-in visual baseline case (KAN-225 / G5)."""
+
+    name: str = ""
+    baseline: str = ""
+    url: str = ""
+    note: str = ""
+    tags: list[str] | None = None
+
+
+class PlanVisualBaselineUpdateRequest(BaseModel):
+    """Explicit update-baseline only (never auto on mismatch)."""
+
+    current_path: str = ""
+
+
 class JiraIssueRequest(BaseModel):
     issue_key: str = ""
 
@@ -458,9 +475,14 @@ class PlanNotesRequest(BaseModel):
 
 
 class PlanCaseRunRequest(BaseModel):
-    """Optional run flags. pause_on_fail is off by default (KAN-149)."""
+    """Optional run flags. pause_on_fail is off by default (KAN-149).
+
+    update_baseline is explicit opt-in for visual cases only (KAN-225 / G5).
+    """
 
     pause_on_fail: bool = False
+    update_baseline: bool = False
+    current_path: str = ""
 
 
 class PlanRerunFailedRequest(BaseModel):
@@ -1351,6 +1373,41 @@ async def post_plan_seed_case(plan_id: str, req: PlanSeedCaseRequest):
     )
 
 
+@app.post("/api/plans/{plan_id}/cases/visual")
+async def post_plan_visual_case(plan_id: str, req: PlanVisualCaseRequest):
+    """Add an opt-in visual baseline case (KAN-225 / G5). Off unless case opts in."""
+    return add_visual_case(
+        plan_id,
+        req.name or "",
+        baseline=req.baseline or "",
+        url=req.url or "",
+        note=req.note or "",
+        tags=list(req.tags or []),
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/visual-baseline")
+async def post_plan_visual_baseline_update(
+    plan_id: str,
+    case_id: str,
+    req: PlanVisualBaselineUpdateRequest | None = None,
+):
+    """Explicitly store/update the visual baseline image (KAN-225 / G5)."""
+    body = req or PlanVisualBaselineUpdateRequest()
+    path = (body.current_path or "").strip()
+    if path:
+        return update_case_baseline(plan_id, case_id, current_path=path)
+    # Capture then store when no path provided (explicit update action).
+    out = await run_single_case(
+        plan_id,
+        case_id,
+        session_id="desktop",
+        update_baseline=True,
+    )
+    out["explicit_update"] = True
+    return out
+
+
 @app.post("/api/plans/{plan_id}/cases/{case_id}")
 async def post_plan_case_update(plan_id: str, case_id: str, req: PlanCaseUpdateRequest):
     """Rename / note / enable-disable / archive / order / step timeout a case (KAN-133 / KAN-177 / KAN-187)."""
@@ -1415,6 +1472,8 @@ async def post_plan_case_run(
         case_id,
         session_id="desktop",
         pause_on_fail=bool(body.pause_on_fail),
+        update_baseline=bool(body.update_baseline),
+        current_path=(body.current_path or "").strip() or None,
     )
 
 

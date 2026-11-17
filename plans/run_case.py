@@ -527,6 +527,215 @@ async def _execute_seed_case(
     }
 
 
+def _map_visual_result(visual: dict[str, Any]) -> tuple[str, str | None]:
+    """Map visual_baseline output to plan run result + failure_class."""
+    status = str(visual.get("status") or "fail").lower()
+    cls = str(visual.get("classification") or "").strip().lower() or None
+    if status == "pass":
+        return "pass", None
+    if cls == "environment":
+        return "error", "environment"
+    if status == "fail":
+        return "fail", cls or "product_bug"
+    return "error", cls or "tool"
+
+
+async def _execute_visual_case(
+    plan_id: str,
+    target_case: dict[str, Any],
+    *,
+    level: str,
+    suite_run_id: str | None,
+    reserved_run_id: str,
+    started: float,
+    update_baseline: bool = False,
+    current_path: str | None = None,
+) -> dict[str, Any]:
+    """Run one opt-in visual baseline case (KAN-225 / G5). One browser at a time."""
+    from plans.visual_case import parse_visual_ref, write_visual_evidence
+    from plugins.visual_baseline import apply_visual_baseline, capture_page_screenshot
+    from settings.store import load_settings
+
+    cid = target_case["id"]
+    src = target_case.get("source") if isinstance(target_case.get("source"), dict) else {}
+    parsed = parse_visual_ref(str(src.get("ref") or ""))
+    baseline_name = str(parsed.get("baseline") or "").strip()
+    page_url = str(parsed.get("url") or "").strip() or str(
+        load_settings().get("target_url") or ""
+    ).strip()
+
+    shot_path = (current_path or "").strip() or None
+    capture: dict[str, Any] | None = None
+    if not shot_path:
+        if not page_url:
+            duration_ms = int((time.monotonic() - started) * 1000)
+            visual = {
+                "plugin": "visual_baseline",
+                "status": "fail",
+                "error": "No URL for visual capture.",
+                "message": "No URL for visual capture.",
+                "classification": "environment",
+                "baseline": baseline_name or None,
+                "matched": False,
+                "updated": False,
+            }
+            evidence = write_visual_evidence(
+                run_id=reserved_run_id,
+                plan_id=plan_id,
+                case_id=cid,
+                visual=visual,
+            )
+            recorded = add_run(
+                plan_id,
+                cid,
+                result="error",
+                duration_ms=duration_ms,
+                failure_class="environment",
+                evidence=evidence,
+                note=visual["error"],
+                suite_run_id=suite_run_id,
+                run_id=reserved_run_id,
+                visual_baseline=baseline_name or None,
+                level=level,
+            )
+            return {
+                "status": "ok",
+                "message": visual["error"],
+                "security_level": level,
+                "playwright_mode": None,
+                "target_up": False,
+                "only_case_id": cid,
+                "runner": "visual_baseline",
+                "pause_on_fail": False,
+                "suite_run_id": suite_run_id,
+                "visual": visual,
+                "plan": recorded.get("plan"),
+                "case": recorded.get("case"),
+                "run": recorded.get("run"),
+            }
+        capture = await capture_page_screenshot(
+            page_url,
+            security_level=level,
+            run_id=reserved_run_id,
+            headless=True,
+        )
+        shot_path = str(capture.get("screenshot") or "").strip() or None
+        if not shot_path:
+            duration_ms = int((time.monotonic() - started) * 1000)
+            err = str(capture.get("error") or "Visual capture failed.")[:500]
+            visual = {
+                "plugin": "visual_baseline",
+                "status": "fail",
+                "error": err,
+                "message": err,
+                "classification": "environment",
+                "baseline": baseline_name or None,
+                "matched": False,
+                "updated": False,
+            }
+            evidence = write_visual_evidence(
+                run_id=reserved_run_id,
+                plan_id=plan_id,
+                case_id=cid,
+                visual=visual,
+            )
+            recorded = add_run(
+                plan_id,
+                cid,
+                result="error",
+                duration_ms=duration_ms,
+                failure_class="environment",
+                evidence=evidence,
+                note=err,
+                suite_run_id=suite_run_id,
+                run_id=reserved_run_id,
+                visual_baseline=baseline_name or None,
+                level=level,
+            )
+            return {
+                "status": "ok",
+                "message": err,
+                "security_level": level,
+                "playwright_mode": (capture.get("playwright") or {}).get("playwright_mode"),
+                "target_up": True,
+                "only_case_id": cid,
+                "runner": "visual_baseline",
+                "one_browser": True,
+                "pause_on_fail": False,
+                "suite_run_id": suite_run_id,
+                "visual": visual,
+                "plan": recorded.get("plan"),
+                "case": recorded.get("case"),
+                "run": recorded.get("run"),
+            }
+
+    visual = await asyncio.to_thread(
+        apply_visual_baseline,
+        baseline=baseline_name,
+        current_path=shot_path,
+        update_baseline=bool(update_baseline),
+        level=level,
+    )
+    duration_ms = int((time.monotonic() - started) * 1000)
+    result, failure_class = _map_visual_result(visual)
+    evidence = write_visual_evidence(
+        run_id=reserved_run_id,
+        plan_id=plan_id,
+        case_id=cid,
+        visual=visual,
+    )
+    stored_name = str(visual.get("baseline") or baseline_name or "").strip() or None
+    note_parts = []
+    if stored_name:
+        note_parts.append(f"visual_baseline={stored_name}")
+    if update_baseline:
+        note_parts.append("update_baseline=explicit")
+    note_parts.append(str(visual.get("message") or visual.get("error") or ""))
+    note = " | ".join(p for p in note_parts if p)[:500]
+    recorded = add_run(
+        plan_id,
+        cid,
+        result=result,
+        duration_ms=duration_ms,
+        failure_class=failure_class,
+        evidence=evidence,
+        note=note,
+        suite_run_id=suite_run_id,
+        run_id=reserved_run_id,
+        visual_baseline=stored_name,
+        level=level,
+    )
+    return {
+        "status": "ok",
+        "message": f"Case {cid} finished: {result}.",
+        "security_level": level,
+        "playwright_mode": (
+            (capture or {}).get("playwright") or {}
+        ).get("playwright_mode")
+        if capture
+        else None,
+        "target_up": True,
+        "only_case_id": cid,
+        "runner": "visual_baseline",
+        "one_browser": True,
+        "pause_on_fail": False,
+        "suite_run_id": suite_run_id,
+        "visual": {
+            "status": visual.get("status"),
+            "error": visual.get("error"),
+            "baseline": visual.get("baseline"),
+            "baseline_path": visual.get("baseline_path"),
+            "current_path": visual.get("current_path"),
+            "matched": visual.get("matched"),
+            "updated": visual.get("updated"),
+            "plugin": visual.get("plugin") or "visual_baseline",
+        },
+        "plan": recorded.get("plan"),
+        "case": recorded.get("case"),
+        "run": recorded.get("run"),
+    }
+
+
 async def _execute_playwright_imported_case(
     plan_id: str,
     target_case: dict[str, Any],
@@ -626,6 +835,8 @@ async def _execute_case(
     pause_on_fail: bool = False,
     pause_decision: Callable[[dict[str, Any]], Awaitable[str]] | None = None,
     suite_run_id: str | None = None,
+    update_baseline: bool = False,
+    current_path: str | None = None,
 ) -> dict[str, Any]:
     from plans.store import new_run_id
     from plugins.heal_policy import heal_run_context
@@ -680,6 +891,18 @@ async def _execute_case(
             suite_run_id=suite_rid,
             reserved_run_id=reserved_run_id,
             started=started,
+        )
+
+    if _source_kind(target_case) == "visual":
+        return await _execute_visual_case(
+            plan_id,
+            target_case,
+            level=level,
+            suite_run_id=suite_rid,
+            reserved_run_id=reserved_run_id,
+            started=started,
+            update_baseline=bool(update_baseline),
+            current_path=current_path,
         )
 
     target_url = (load_settings().get("target_url") or "").strip()
@@ -819,6 +1042,8 @@ async def run_single_case(
     level: str | None = None,
     session_id: str = "plan-run",
     pause_on_fail: bool = False,
+    update_baseline: bool = False,
+    current_path: str | None = None,
 ) -> dict[str, Any]:
     from settings.store import get_security_level
 
@@ -833,6 +1058,8 @@ async def run_single_case(
                 level=lvl,
                 session_id=session_id,
                 pause_on_fail=False,
+                update_baseline=bool(update_baseline),
+                current_path=current_path,
             )
         )
 
@@ -853,6 +1080,8 @@ async def run_single_case(
                 level=lvl,
                 session_id=session_id,
                 pause_on_fail=True,
+                update_baseline=bool(update_baseline),
+                current_path=current_path,
                 pause_decision=pause_decision,
             )
             session.result_payload = attach_standalone_case_notice(payload)
@@ -894,6 +1123,7 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
         qstat = quarantine_status(case)
         mock_fixture = ""
         seed_fixture = ""
+        visual_baseline = ""
         if kind == "api":
             mock_fixture = str(
                 parse_api_ref(str(src.get("ref") or "")).get("mock_fixture") or ""
@@ -904,12 +1134,20 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             seed_fixture = str(
                 parse_seed_ref(str(src.get("ref") or "")).get("fixture") or ""
             ).strip()
+        if kind == "visual":
+            from plans.visual_case import parse_visual_ref
+
+            visual_baseline = str(
+                parse_visual_ref(str(src.get("ref") or "")).get("baseline") or ""
+            ).strip()
         if kind == "api":
             runner_name = "contract_mock" if mock_fixture else "api_messaging_runner"
         elif kind == "desktop":
             runner_name = "desktop_runner"
         elif kind == "seed":
             runner_name = "seed_fixture"
+        elif kind == "visual":
+            runner_name = "visual_baseline"
         elif kind == "playwright":
             runner_name = "playwright_suite"
         else:
@@ -935,8 +1173,10 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "desktop_case": kind == "desktop",
             "api_case": kind == "api",
             "seed_case": kind == "seed",
+            "visual_case": kind == "visual",
             "mock_fixture": mock_fixture,
             "seed_fixture": seed_fixture,
+            "visual_baseline": visual_baseline,
             "runner": runner_name,
             "last_run": last,
             "last_run_summary": _last_run_summary(case),

@@ -69,6 +69,16 @@ _MANIFESTS: list[dict[str, Any]] = [
         "default_enabled": True,
     },
     {
+        "id": "visual_baseline",
+        "name": "Visual baseline screenshots",
+        "description": (
+            "Opt-in per-case baseline PNG compare; mismatch links both images; "
+            "update-baseline is explicit; one browser at a time (KAN-225 / G5)."
+        ),
+        "toggle_key": None,
+        "default_enabled": True,
+    },
+    {
         "id": "doc_ingest",
         "name": "Document ingestion",
         "description": "Parse specs into settings proposals (confirm before write).",

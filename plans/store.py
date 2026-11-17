@@ -15,7 +15,7 @@ from typing import Any, Optional
 
 _ID_SAFE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
 _CASE_SOURCE_KINDS = frozenset(
-    {"manual-draft", "jira", "document", "playwright", "desktop", "api", "seed"}
+    {"manual-draft", "jira", "document", "playwright", "desktop", "api", "seed", "visual"}
 )
 _RUN_RESULTS = frozenset({"pass", "fail", "error", "skipped", "pending"})
 
@@ -192,6 +192,8 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
     mock_flag = bool(raw.get("mock"))
     # G4: run stores named seed fixture when a case selected one (KAN-223).
     seed_name = str(raw.get("seed_fixture") or "").strip()[:120] or None
+    # G5: run stores named visual baseline when a case opted in (KAN-225).
+    visual_name = str(raw.get("visual_baseline") or "").strip()[:120] or None
     return {
         "id": rid,
         "result": result,
@@ -202,6 +204,7 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
         "environment_name": env_name,
         "mock": mock_flag,
         "seed_fixture": seed_name,
+        "visual_baseline": visual_name,
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
         "note": str(raw.get("note") or "")[:2000],
@@ -577,6 +580,7 @@ def add_run(
     environment_name: str | None = None,
     mock: bool = False,
     seed_fixture: str | None = None,
+    visual_baseline: str | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
     """Attach a run record to a case (execution itself is later stories)."""
@@ -618,6 +622,7 @@ def add_run(
             "environment_name": env_label,
             "mock": bool(mock),
             "seed_fixture": seed_fixture,
+            "visual_baseline": visual_baseline,
             "started_at": started_at or now,
             "finished_at": finished_at or now,
             "note": note,

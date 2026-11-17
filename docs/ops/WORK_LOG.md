@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-225** — G5 Visual baseline screenshots |
-| **Start task** | **KAN-226** (`test`, Relates → KAN-225) |
+| **Jira story** | **KAN-227** — G6 Accessibility checks plugin |
+| **Start task** | **KAN-228** (`test`, Relates → KAN-227) |
 | **Epic** | Test-all G (see catalogue) |
-| **Roadmap ID** | G5 / FR-TEST-4 / FR-PLAN-2 |
+| **Roadmap ID** | G6 / FR-PLUG-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-226** |
-| **Shipped** | … **KAN-223** G4 Seed/fixtures (desk77); **KAN-221** G3 Contract/mock (desk76); **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
+| **Test ticket** | **KAN-228** |
+| **Shipped** | … **KAN-225** G5 Visual baseline (desk78); **KAN-223** G4 Seed/fixtures (desk77); **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all G after G5 → G6… |
+| **Next after this** | continue Test-all G after G6 → G7… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-225 — G5 Visual baseline screenshots
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-225
+- **Done:** Opt-in visual baseline cases (`source.kind=visual`). Level-scoped PNG baselines under `%LOCALAPPDATA%/ai_testing_app/baselines/{level}/`. Compare on run; mismatch fails with baseline + current linked in evidence. Update-baseline is explicit only (`POST …/visual-baseline` or `update_baseline=true`). Off unless case opts in; one browser at a time (capture lock). Plans UI “Add visual baseline case” + “Update visual baseline”; `POST /api/plans/{id}/cases/visual` + desk78.
+- **Files:** `plugins/visual_baseline.py`, `plugins/registry.py`, `plans/visual_case.py`, `plans/run_case.py`, `plans/store.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_visual_baseline.py` (+ desk78 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_plan_visual_baseline.py` 11 passed. Live `POST /api/plans/.../cases/visual` → kind visual; run with current_path → runner visual_baseline pass + `run.visual_baseline`. desk78 HTML has `plan-add-visual-btn` / `plan-update-baseline-btn`. `desktop_app.py` opened desk78 (orb home; Computer Use Plans click contested; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-225** + **KAN-226**
+- **Next:** **KAN-227** G6 Accessibility checks plugin (test **KAN-228**)
 
 ### 2026-11-17 — KAN-223 — G4 Seed data and fixtures
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-223

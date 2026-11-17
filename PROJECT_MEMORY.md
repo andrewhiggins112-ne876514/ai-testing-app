@@ -40,7 +40,7 @@ Long-term goal: the most-used local/on-prem testing hub for testers, developers,
 - **Desktop-first compact App menu CR (2026-11-17b):** Desktop (`desktop_app.py`) is the **primary** product UI — not intended for browser use. Compact `▦` App menu shipped **KAN-253** (desk44 / test **KAN-254**).
 
 ## Current State
-**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (~61 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1–D7 Done;** **E1–E5 Done;** **KAN-260** Lab tools on ▦ App menu (desk64 / FR-UI-8). **Active Build: KAN-225** G5 Visual baseline screenshots (test **KAN-226**). **G4 Done** (**KAN-223** seed data/fixtures; desk77). **G3 Done** (**KAN-221** contract/mock fixtures; desk76). **G2 Done** (**KAN-219** API/messaging cases on same suite; desk75). **G1 Done** (**KAN-217** desktop-typed cases; desk74). **F1–F7 Done** (F7 Home checklist **KAN-215** desk73; F6 export pack **KAN-213** desk72). Not KAN-81 voice.
+**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (~61 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1–D7 Done;** **E1–E5 Done;** **KAN-260** Lab tools on ▦ App menu (desk64 / FR-UI-8). **Active Build: KAN-227** G6 Accessibility checks plugin (test **KAN-228**). **G5 Done** (**KAN-225** visual baseline screenshots; desk78). **G4 Done** (**KAN-223** seed data/fixtures; desk77). **G3 Done** (**KAN-221** contract/mock fixtures; desk76). **G2 Done** (**KAN-219** API/messaging cases on same suite; desk75). **G1 Done** (**KAN-217** desktop-typed cases; desk74). **F1–F7 Done** (F7 Home checklist **KAN-215** desk73; F6 export pack **KAN-213** desk72). Not KAN-81 voice.
 
 Skeleton + substantial features exist:
 - `plans/store.py` — **FR-PLAN-1/2 (KAN-125 + KAN-133 + KAN-177):** level-scoped plan → suite → cases → runs under `plans/{OFFICIAL|SECRET}/`; list/get isolated by active security level; create does not rewrite settings/reports/Playwright files; **update_case / reorder_cases / cases_for_run** (disable/archive skip later runs; archive never deletes runs/evidence); API `GET/POST /api/plans*`, case update, reorder, runnable
@@ -143,7 +143,8 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-219** G2 API and messaging checks — **Done** (KAN-220; `plans/api_case.py` + `plugins/api_messaging_runner.py`; `source.kind=api`; status + redacted body; Plans Add API/messaging case; desk75)
 - **KAN-221** G3 Contract/mock — **Done** (KAN-222; `plugins/contract_mock.py`; desk76)
 - **KAN-223** G4 Seed data and fixtures — **Done** (KAN-224; `plugins/seed_fixture.py` + `plans/seed_case.py`; `source.kind=seed`; run stores name; missing → environment; desk77)
-- Next Active: **KAN-225** G5 Visual baseline screenshots (test **KAN-226**). **KAN-81** Voice — **deferred** until mic (last; test KAN-82 / G10 **KAN-235**)
+- **KAN-225** G5 Visual baseline screenshots — **Done** (KAN-226; `plugins/visual_baseline.py` + `plans/visual_case.py`; `source.kind=visual`; mismatch links both images; explicit update-baseline; desk78)
+- Next Active: **KAN-227** G6 Accessibility checks plugin (test **KAN-228**). **KAN-81** Voice — **deferred** until mic (last; test KAN-82 / G10 **KAN-235**)
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -166,6 +167,6 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-225** — G5 Visual baseline screenshots (see WORK_LOG Active slice; test **KAN-226**).
-2. Continue Test-all G after G5.
+1. **KAN-227** — G6 Accessibility checks plugin (see WORK_LOG Active slice; test **KAN-228**).
+2. Continue Test-all G after G6.
 3. **KAN-81** voice stays deferred (mic; catalogue G10 / **KAN-235**) — do not pick up while deferred.

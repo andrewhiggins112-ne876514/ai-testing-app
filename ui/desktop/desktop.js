@@ -1359,6 +1359,8 @@
   const planAddApiBtn = document.getElementById("plan-add-api-btn");
   const planAddContractBtn = document.getElementById("plan-add-contract-btn");
   const planAddSeedBtn = document.getElementById("plan-add-seed-btn");
+  const planAddVisualBtn = document.getElementById("plan-add-visual-btn");
+  const planUpdateBaselineBtn = document.getElementById("plan-update-baseline-btn");
   const planPwPath = document.getElementById("plan-pw-path");
   const planRefreshBtn = document.getElementById("plan-refresh-btn");
   const planList = document.getElementById("plan-list");
@@ -5848,6 +5850,97 @@
   if (planAddSeedBtn) {
     planAddSeedBtn.addEventListener("click", function () {
       addSeedCaseToOpenPlan();
+    });
+  }
+
+  async function addVisualCaseToOpenPlan() {
+    if (!openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      return;
+    }
+    if (planStatus) planStatus.textContent = "Adding visual baseline case…";
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + "/cases/visual",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok" || !payload.plan) {
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message || "Could not add visual baseline case.";
+        }
+        return;
+      }
+      renderPlanCases(payload.plan);
+      if (payload.case && planCaseId) {
+        planCaseId.value = payload.case.id || "";
+      }
+      if (typeof refreshLabHome === "function") await refreshLabHome();
+      if (planStatus) {
+        planStatus.textContent =
+          "Visual baseline case added — opt-in compare; update-baseline is explicit.";
+      }
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Visual baseline case request failed.";
+    }
+  }
+
+  if (planAddVisualBtn) {
+    planAddVisualBtn.addEventListener("click", function () {
+      addVisualCaseToOpenPlan();
+    });
+  }
+
+  async function updateVisualBaselineForSelectedCase() {
+    if (!openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      return;
+    }
+    const cid = planCaseId && planCaseId.value ? planCaseId.value.trim() : "";
+    if (!cid) {
+      if (planStatus) planStatus.textContent = "Select a visual case first.";
+      return;
+    }
+    if (planStatus) planStatus.textContent = "Updating visual baseline (explicit)…";
+    try {
+      const res = await fetch(
+        "/api/plans/" +
+          encodeURIComponent(openPlanId) +
+          "/cases/" +
+          encodeURIComponent(cid) +
+          "/visual-baseline",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok") {
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message || "Could not update visual baseline.";
+        }
+        return;
+      }
+      if (payload.plan) renderPlanCases(payload.plan);
+      if (planStatus) {
+        planStatus.textContent =
+          "Visual baseline updated explicitly (not auto on mismatch).";
+      }
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Update visual baseline failed.";
+    }
+  }
+
+  if (planUpdateBaselineBtn) {
+    planUpdateBaselineBtn.addEventListener("click", function () {
+      updateVisualBaselineForSelectedCase();
     });
   }
 
