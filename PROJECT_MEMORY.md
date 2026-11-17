@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-17 (KAN-213 F6 export pack desk72; Active KAN-215 F7)
+Last updated: 2026-11-17 (KAN-215 F7 home checklist desk73; Active KAN-217 G1)
 
 ## Original Vision
 A downloadable local-first **“test all”** application. The tester connects once (Jira, targets, docs, security level) and does testing work **inside the app**. Conversation (text first; voice later as a plugin) is the way in; the **orb + chat home is one home for everyone**; role needs are **HUD widgets**; App areas are full-window work.
@@ -40,7 +40,7 @@ Long-term goal: the most-used local/on-prem testing hub for testers, developers,
 - **Desktop-first compact App menu CR (2026-11-17b):** Desktop (`desktop_app.py`) is the **primary** product UI — not intended for browser use. Compact `▦` App menu shipped **KAN-253** (desk44 / test **KAN-254**).
 
 ## Current State
-**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (~61 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1–D7 Done;** **E1–E5 Done;** **KAN-260** Lab tools on ▦ App menu (desk64 / FR-UI-8). **Active Build: KAN-215** F7 Home checklist widget (test **KAN-216**). F6 Read-only export pack Done (**KAN-213** desk72); F5 Keyboard Done (**KAN-211** desk71); F4 Coverage HUD Done (**KAN-209** desk70); F3 Release HUD Done (**KAN-207** desk69); F2 Manager HUD Done (**KAN-205** desk68); F1 Tester HUD Done (**KAN-203** desk67). Not KAN-81 voice.
+**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (~61 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1–D7 Done;** **E1–E5 Done;** **KAN-260** Lab tools on ▦ App menu (desk64 / FR-UI-8). **Active Build: KAN-217** G1 Desktop cases on the same suite (test **KAN-218**). **F1–F7 Done** (F7 Home checklist **KAN-215** desk73; F6 export pack **KAN-213** desk72). Not KAN-81 voice.
 
 Skeleton + substantial features exist:
 - `plans/store.py` — **FR-PLAN-1/2 (KAN-125 + KAN-133 + KAN-177):** level-scoped plan → suite → cases → runs under `plans/{OFFICIAL|SECRET}/`; list/get isolated by active security level; create does not rewrite settings/reports/Playwright files; **update_case / reorder_cases / cases_for_run** (disable/archive skip later runs; archive never deletes runs/evidence); API `GET/POST /api/plans*`, case update, reorder, runnable
@@ -138,7 +138,8 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-209** F4 Coverage HUD — **Done** (KAN-210; `plans/coverage_hud.py` + `/api/plans/coverage-hud`; open-story AC covered/partial/missing widgets; opens Plans; no Jira write; desk70)
 - **KAN-211** F5 Keyboard — **Done** (KAN-212; Alt+R run selected, Alt+N next failure, Esc Back to orb; documented in Screen drawer + Plans; never Jira-write/heal-approve; desk71)
 - **KAN-213** F6 Read-only export pack — **Done** (KAN-214; `reports/export_pack.py` + `/api/export-pack`; folder with report/matrix/evidence + LABEL; E3 redaction; last-export HUD; desk72)
-- Next Active: **KAN-215** F7 Home checklist widget (test **KAN-216**). **KAN-81** Voice — **deferred** until mic (last; test KAN-82 / G10 **KAN-235**)
+- **KAN-215** F7 Home checklist widget — **Done** (KAN-216; `plans/home_checklist.py` + `/api/plans/home-checklist`; connection/first plan/first run; auto-hide when done; desk73)
+- Next Active: **KAN-217** G1 Desktop cases on the same suite (test **KAN-218**). **KAN-81** Voice — **deferred** until mic (last; test KAN-82 / G10 **KAN-235**)
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -161,6 +162,6 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-215** — F7 Home checklist widget (see WORK_LOG Active slice; test **KAN-216**).
-2. Continue Test-all → G… after F7.
+1. **KAN-217** — G1 Desktop cases on the same suite (see WORK_LOG Active slice; test **KAN-218**).
+2. Continue Test-all G after G1.
 3. **KAN-81** voice stays deferred (mic; catalogue G10 / **KAN-235**) — do not pick up while deferred.

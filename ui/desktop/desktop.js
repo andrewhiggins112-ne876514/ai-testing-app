@@ -3785,9 +3785,15 @@
   const hudCovPartialToggle = document.getElementById("hud-cov-partial-toggle");
   const hudCovMissingToggle = document.getElementById("hud-cov-missing-toggle");
   const hudExportLastToggle = document.getElementById("hud-export-last-toggle");
+  const hudChecklistToggle = document.getElementById("hud-checklist-toggle");
   const hudSecurityPanel = document.getElementById("hud-security");
   const hudReportsPanel = document.getElementById("hud-reports");
   const hudLabPanel = document.getElementById("hud-lab");
+  const hudChecklistPanel = document.getElementById("hud-checklist");
+  const hudChecklistMessage = document.getElementById("hud-checklist-message");
+  const hudChecklistSteps = document.getElementById("hud-checklist-steps");
+  const hudChecklistConn = document.getElementById("hud-checklist-conn");
+  const hudChecklistPlans = document.getElementById("hud-checklist-plans");
   const hudTesterConnPanel = document.getElementById("hud-tester-conn");
   const hudTesterLastPanel = document.getElementById("hud-tester-last");
   const hudTesterFailsPanel = document.getElementById("hud-tester-fails");
@@ -3874,8 +3880,10 @@
     covPartial: false,
     covMissing: false,
     exportLast: false,
+    checklist: false,
   };
   let labHomeEmpty = false;
+  let checklistAllDone = false;
   let hubCloseTimer = 0;
   let testerHudLastPlanId = "";
   let testerHudCache = null;
@@ -4375,10 +4383,12 @@
       covPartial: !!(flags && flags.covPartial),
       covMissing: !!(flags && flags.covMissing),
       exportLast: !!(flags && flags.exportLast),
+      checklist: !!(flags && flags.checklist),
     };
     if (hudSecurityToggle) hudSecurityToggle.checked = hudFlags.security;
     if (hudReportsToggle) hudReportsToggle.checked = hudFlags.reports;
     if (hudLabToggle) hudLabToggle.checked = hudFlags.lab;
+    if (hudChecklistToggle) hudChecklistToggle.checked = hudFlags.checklist;
     if (hudTesterConnToggle) hudTesterConnToggle.checked = hudFlags.testerConn;
     if (hudTesterLastToggle) hudTesterLastToggle.checked = hudFlags.testerLast;
     if (hudTesterFailsToggle) hudTesterFailsToggle.checked = hudFlags.testerFails;
@@ -4406,6 +4416,13 @@
     // Empty lab auto-shows checklist on home; toggle keeps it available when plans exist.
     if (hudLabPanel) {
       hudLabPanel.hidden = !(home && (labHomeEmpty || hudFlags.lab));
+    }
+    // First-hour checklist auto-shows until done; hide when done; reopen from drawer.
+    if (hudChecklistPanel) {
+      hudChecklistPanel.hidden = !(
+        home &&
+        (!checklistAllDone || hudFlags.checklist)
+      );
     }
     // Tester pack is home-only (hidden while any App area is open).
     if (hudTesterConnPanel) {
@@ -4486,6 +4503,7 @@
       covPartial: false,
       covMissing: false,
       exportLast: false,
+      checklist: false,
     };
   }
 
@@ -4524,6 +4542,7 @@
       covPartial: !!(hudCovPartialToggle && hudCovPartialToggle.checked),
       covMissing: !!(hudCovMissingToggle && hudCovMissingToggle.checked),
       exportLast: !!(hudExportLastToggle && hudExportLastToggle.checked),
+      checklist: !!(hudChecklistToggle && hudChecklistToggle.checked),
     };
     applyHud(flags);
     try {
@@ -4561,6 +4580,7 @@
     if (flags.exportLast) {
       loadExportPackHud();
     }
+    loadHomeChecklistHud();
   }
 
   async function refreshLabHome() {
@@ -4576,6 +4596,7 @@
             : "Plans ready for this level.");
       }
       applyHud(hudFlags);
+      loadHomeChecklistHud();
     } catch (err) {
       labHomeEmpty = false;
       if (hudLabStatus) hudLabStatus.textContent = "Could not load lab home status.";
@@ -5024,6 +5045,54 @@
     }
   }
 
+  function renderHomeChecklistHud(payload) {
+    checklistAllDone = !!(payload && payload.all_done);
+    if (hudChecklistMessage) {
+      hudChecklistMessage.textContent =
+        (payload && payload.message) ||
+        "Connection · first plan · first run";
+    }
+    if (hudChecklistSteps) {
+      hudChecklistSteps.innerHTML = "";
+      const steps = (payload && payload.steps) || [];
+      steps.forEach(function (step) {
+        const li = document.createElement("li");
+        li.setAttribute("role", "listitem");
+        li.dataset.done = step.done ? "true" : "false";
+        const mark = document.createElement("span");
+        mark.className = "hud-checklist-mark";
+        mark.textContent = step.done ? "✓" : "○";
+        mark.setAttribute("aria-hidden", "true");
+        const body = document.createElement("span");
+        body.textContent =
+          (step.label || "") +
+          (step.hint ? " — " + step.hint : "");
+        li.appendChild(mark);
+        li.appendChild(body);
+        hudChecklistSteps.appendChild(li);
+      });
+    }
+    applyHud(hudFlags);
+  }
+
+  async function loadHomeChecklistHud() {
+    try {
+      const res = await fetch("/api/plans/home-checklist");
+      if (!res.ok) {
+        renderHomeChecklistHud(null);
+        return;
+      }
+      const payload = await res.json();
+      if (!payload || payload.status !== "ok" || !Array.isArray(payload.steps)) {
+        renderHomeChecklistHud(null);
+        return;
+      }
+      renderHomeChecklistHud(payload);
+    } catch (err) {
+      renderHomeChecklistHud(null);
+    }
+  }
+
   if (hudSecurityToggle) hudSecurityToggle.addEventListener("change", saveHud);
   if (hudReportsToggle) hudReportsToggle.addEventListener("change", saveHud);
   if (hudLabToggle) hudLabToggle.addEventListener("change", saveHud);
@@ -5055,6 +5124,19 @@
   }
   if (hudExportLastToggle) {
     hudExportLastToggle.addEventListener("change", saveHud);
+  }
+  if (hudChecklistToggle) {
+    hudChecklistToggle.addEventListener("change", saveHud);
+  }
+  if (hudChecklistConn) {
+    hudChecklistConn.addEventListener("click", function () {
+      openArea("settings");
+    });
+  }
+  if (hudChecklistPlans) {
+    hudChecklistPlans.addEventListener("click", function () {
+      openArea("plans");
+    });
   }
   if (hudTesterLastOpen) {
     hudTesterLastOpen.addEventListener("click", function () {
@@ -5091,6 +5173,7 @@
   loadReleaseHud();
   loadCoverageHud();
   loadExportPackHud();
+  loadHomeChecklistHud();
   applyAreaLayout(loadAreaLayout());
 
   if (hudLabConn) {

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk72" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk73" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -218,6 +218,17 @@
       <h4 class="hud-widget-title">Last export pack</h4>
       <p id="hud-export-last-body" class="hud-widget-body">No pack yet</p>
       <button type="button" id="hud-export-last-open" class="save-btn secondary hud-lab-btn" hidden>Open Reports</button>
+    </aside>
+
+    <aside id="hud-checklist" class="shell-surface hud-widget hud-checklist movable-widget" data-widget="hud-checklist" hidden aria-label="First-hour checklist" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">First-hour checklist</h4>
+      <p id="hud-checklist-message" class="hud-widget-body">Connection · first plan · first run</p>
+      <ul id="hud-checklist-steps" class="hud-checklist-steps" role="list"></ul>
+      <div class="hud-lab-actions">
+        <button type="button" id="hud-checklist-conn" class="save-btn secondary hud-lab-btn">Open Settings</button>
+        <button type="button" id="hud-checklist-plans" class="save-btn secondary hud-lab-btn">Open Plans</button>
+      </div>
+      <p class="drawer-hint">Does not block chat or App areas. Hides when done; reopen from Screen drawer.</p>
     </aside>
 
     <div id="area-layer" class="area-layer" hidden>
@@ -884,10 +895,11 @@
           <label>Border <input id="ctrl-widget-border" type="color" value="#50cdff" /></label>
           <label>Background <input id="ctrl-widget-bg" type="color" value="#000000" /></label>
           <h3 class="orb-section-label">HUD widgets</h3>
-          <p class="drawer-hint">Home mini panels only. They are not App area content. Lab checklist also auto-shows when there is no plan yet. Tester, Manager, Release, and Coverage packs stay on orb home (no separate role homes). Release readiness ticks stay in Reports. Coverage lines open Plan/Suite and never edit Jira.</p>
+          <p class="drawer-hint">Home mini panels only. They are not App area content. Lab checklist also auto-shows when there is no plan yet. First-hour checklist (connection → first plan → first run) auto-shows until done, then hides; reopen it here. Tester, Manager, Release, and Coverage packs stay on orb home (no separate role homes). Release readiness ticks stay in Reports. Coverage lines open Plan/Suite and never edit Jira. Nothing here is a forced wizard.</p>
           <label class="check-row"><input type="checkbox" id="hud-security-toggle" /> Security status</label>
           <label class="check-row"><input type="checkbox" id="hud-reports-toggle" /> Reports mini</label>
           <label class="check-row"><input type="checkbox" id="hud-lab-toggle" /> Lab checklist</label>
+          <label class="check-row"><input type="checkbox" id="hud-checklist-toggle" /> First-hour checklist</label>
           <h3 class="orb-section-label">Tester HUD pack</h3>
           <label class="check-row"><input type="checkbox" id="hud-tester-conn-toggle" /> Connection health</label>
           <label class="check-row"><input type="checkbox" id="hud-tester-last-toggle" /> Last run</label>
@@ -924,6 +936,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk72"></script>
+  <script src="/ui/desktop/desktop.js?v=desk73"></script>
 </body>
 </html>

@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-215** — F7 Home checklist widget |
-| **Start task** | **KAN-216** (`test`, Relates → KAN-215) |
-| **Epic** | Test-all F (see catalogue) |
-| **Roadmap ID** | F7 / FR-UI-6 |
+| **Jira story** | **KAN-217** — G1 Desktop cases on the same suite |
+| **Start task** | **KAN-218** (`test`, Relates → KAN-217) |
+| **Epic** | Test-all G (see catalogue) |
+| **Roadmap ID** | G1 / FR-TEST-3 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-216** |
-| **Shipped** | … **KAN-213** F6 Read-only export pack (desk72); **KAN-211** F5 Keyboard shortcuts (desk71); **KAN-209** F4 Coverage HUD (desk70); **KAN-207** F3 Release HUD (desk69); **KAN-205** F2 Manager HUD (desk68); **KAN-203** F1 Tester HUD (desk67); **KAN-201** E5 offline last plan (desk66); **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
+| **Test ticket** | **KAN-218** |
+| **Shipped** | … **KAN-215** F7 Home checklist (desk73); **KAN-213** F6 export pack (desk72); **KAN-211** F5; **KAN-209** F4; **KAN-207** F3; **KAN-205** F2; **KAN-203** F1; **KAN-201** E5; **KAN-199** E4; **KAN-260** Lab tools; … **KAN-177** C11; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all F after F7 → G… |
+| **Next after this** | continue Test-all G after G1 → G2… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-215 — F7 Home checklist widget
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-215
+- **Done:** First-hour checklist HUD on orb home: connection → first plan → first run. Auto-shows until all done, then hides; reopen from Screen drawer. Deep-links to Settings/Plans; does not block chat or App areas (not a forced wizard). `GET /api/plans/home-checklist` + desk73.
+- **Files:** `plans/home_checklist.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_home_checklist.py` (+ desk73 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_home_checklist.py` 3 passed. Live `GET /api/plans/home-checklist` → home_only true, forced_wizard false, steps connection/first_plan/first_run; desk73 HTML has `hud-checklist` / `hud-checklist-toggle`. `desktop_app.py` opened desk73 with checklist 2/3 visible.
+- **Jira:** close-out **KAN-215** + **KAN-216**
+- **Next:** **KAN-217** G1 Desktop cases on the same suite (test **KAN-218**)
 
 ### 2026-11-17 — KAN-213 — F6 Read-only export pack
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-213

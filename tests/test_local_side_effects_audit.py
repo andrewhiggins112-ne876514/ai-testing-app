@@ -156,12 +156,12 @@ class LocalSideEffectsAuditTests(unittest.TestCase):
         # Jira write audit category remains available for wipe inventory.
         self.assertIn("jira_write_audit", status["deletable_categories"])
 
-    def test_desktop_security_opens_local_audit_desk72(self):
+    def test_desktop_security_opens_local_audit_desk73(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk72", html)
-        self.assertIn("desk72", desk)
+        self.assertIn("desk73", html)
+        self.assertIn("desk73", desk)
         self.assertIn('id="local-audit-list"', html)
         self.assertIn('id="local-audit-refresh"', html)
         self.assertIn('id="priv-local-audit"', html)

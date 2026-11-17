@@ -1062,6 +1062,42 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   min-height: 160px;
 }
 
+.hud-checklist {
+  left: 72px;
+  top: 220px;
+  width: 220px;
+  min-height: 160px;
+}
+
+.hud-checklist-steps {
+  list-style: none;
+  margin: 6px 0 8px;
+  padding: 0;
+}
+
+.hud-checklist-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 6px;
+  color: rgba(232, 244, 255, 0.78);
+}
+
+.hud-checklist-steps li[data-done="true"] {
+  color: rgba(120, 220, 160, 0.92);
+}
+
+.hud-checklist-mark {
+  flex: 0 0 auto;
+  width: 1.1em;
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+.hud-checklist-steps li[data-done="true"] .hud-checklist-mark {
+  color: rgba(120, 220, 160, 0.95);
+}
+
 .hud-tester-conn {
   right: 72px;
   bottom: 280px;

@@ -74,6 +74,7 @@ from plans.run_by_tag import run_cases_by_tag, select_cases_for_tag
 from plans.run_case import case_detail, run_single_case
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
+from plans.home_checklist import home_checklist_summary
 from plans.coverage_hud import coverage_hud_summary
 from plans.manager_hud import manager_hud_summary
 from plans.release_hud import release_hud_summary
@@ -1183,6 +1184,12 @@ async def post_plan_acceptance_drift_refresh(
 async def get_plans_home():
     """Orb-home empty state + checklist when no plans exist (KAN-135)."""
     return lab_home_status()
+
+
+@app.get("/api/plans/home-checklist")
+async def get_plans_home_checklist():
+    """First-hour home checklist: connection, first plan, first run (KAN-215 / F7)."""
+    return home_checklist_summary()
 
 
 @app.get("/api/plans/tester-hud")
