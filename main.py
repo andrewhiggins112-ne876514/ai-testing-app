@@ -64,6 +64,7 @@ from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
 from plans.parallel import parallel_cap_info
+from plans.duration import duration_info
 from plans.run_notify import notify_info, set_notify_enabled
 from plans.timeouts import step_timeout_info
 from plans.rerun_failed import rerun_failed_cases
@@ -907,6 +908,12 @@ async def post_plan_run_notify(body: RunNotifyRequest):
     return set_notify_enabled(bool(body.enabled))
 
 
+@app.get("/api/plans/duration")
+async def get_plan_duration_info():
+    """D7 duration on run/case — local only, no upload (KAN-191)."""
+    return duration_info()
+
+
 @app.get("/api/plans/{plan_id}/coverage-gaps")
 async def get_plan_coverage_gaps(
     plan_id: str,
@@ -946,7 +953,7 @@ async def get_plan_suite_history(plan_id: str):
 
 @app.get("/api/plans/{plan_id}/suite-compare")
 async def get_plan_suite_compare(plan_id: str, a: str = "", b: str = ""):
-    """C10 compare two suite runs; cases that changed result; known issues labelled (KAN-175)."""
+    """C10/D7 compare two suite runs: result changes + duration changes (KAN-175 / KAN-191)."""
     return compare_suite_runs(plan_id, a, b)
 
 

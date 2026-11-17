@@ -238,6 +238,12 @@ def _normalize_suite_run(raw: Any) -> Optional[dict[str, Any]]:
         parallel_count = 1
     # D3: named environment used for this suite run (name only).
     env_name = str(raw.get("environment_name") or "").strip()[:40] or None
+    # D7: persist suite duration when known (KAN-191).
+    from plans.duration import coerce_duration_ms, wall_duration_ms
+
+    duration_ms = coerce_duration_ms(raw.get("duration_ms"))
+    if duration_ms is None:
+        duration_ms = wall_duration_ms(raw.get("started_at"), raw.get("finished_at"))
     return {
         "id": sid,
         "mode": mode,
@@ -247,6 +253,7 @@ def _normalize_suite_run(raw: Any) -> Optional[dict[str, Any]]:
         "source_suite_run_id": source,
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
+        "duration_ms": duration_ms,
         "case_runs": case_runs,
         "skipped": skipped,
     }
@@ -726,6 +733,35 @@ def finish_suite_run(
                 sk.append({"case_id": cid[:64], "reason": reason})
         target["skipped"] = sk
     target["finished_at"] = now
+    # D7: store duration on the suite run (local only). Prefer sum of linked
+    # case durations when wall clock is 0 (timestamps are second-precision).
+    from plans.duration import coerce_duration_ms, wall_duration_ms
+
+    wall = wall_duration_ms(target.get("started_at"), now)
+    case_sum = 0
+    any_case_dur = False
+    by_ids: dict[tuple[str, str], dict[str, Any]] = {}
+    for case in (plan.get("suite") or {}).get("cases") or []:
+        if not isinstance(case, dict):
+            continue
+        cid = str(case.get("id") or "")
+        for run in case.get("runs") or []:
+            if isinstance(run, dict) and run.get("id"):
+                by_ids[(cid, str(run["id"]))] = run
+    for link in target.get("case_runs") or []:
+        if not isinstance(link, dict):
+            continue
+        run = by_ids.get((str(link.get("case_id") or ""), str(link.get("run_id") or "")))
+        if not run:
+            continue
+        d = coerce_duration_ms(run.get("duration_ms"))
+        if d is not None:
+            case_sum += d
+            any_case_dur = True
+    if any_case_dur and (wall is None or wall == 0 or case_sum > wall):
+        target["duration_ms"] = case_sum
+    else:
+        target["duration_ms"] = wall if wall is not None else (case_sum if any_case_dur else None)
     plan["updated_at"] = now
     _write_plan(plan, level=lvl)
     return {

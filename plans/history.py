@@ -2,36 +2,21 @@
 
 Lists past suite runs with time, duration, pass/fail, and tag.
 Compare highlights cases whose result changed; known issues stay labelled.
+D7 (KAN-191): compare also surfaces duration change on the suite and cases.
 History is always scoped to the active security level (never cross-level).
+Local only — no upload.
 """
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Any
 
+from plans.duration import (
+    coerce_duration_ms,
+    duration_delta_ms,
+    resolve_suite_duration_ms,
+)
 from plans.known_issue import is_known_labelled, normalize_known_issue
 from plans.store import get_plan
-
-
-def _parse_iso(value: Any) -> datetime | None:
-    text = str(value or "").strip()
-    if not text:
-        return None
-    try:
-        if text.endswith("Z"):
-            text = text[:-1] + "+00:00"
-        return datetime.fromisoformat(text)
-    except ValueError:
-        return None
-
-
-def _wall_duration_ms(suite_run: dict[str, Any]) -> int | None:
-    start = _parse_iso(suite_run.get("started_at"))
-    end = _parse_iso(suite_run.get("finished_at"))
-    if start is None or end is None:
-        return None
-    delta = int((end - start).total_seconds() * 1000)
-    return max(0, delta)
 
 
 def _plan_cases(plan: dict[str, Any]) -> list[dict[str, Any]]:
@@ -147,11 +132,7 @@ def _case_outcome_row(
         label = "known"
         if ki and ki.get("jira_key"):
             label = f"known:{ki['jira_key']}"
-    duration = run.get("duration_ms")
-    try:
-        duration_ms = int(duration) if duration is not None else None
-    except (TypeError, ValueError):
-        duration_ms = None
+    duration_ms = coerce_duration_ms(run.get("duration_ms"))
     return {
         "case_id": case_id,
         "case_name": str(case.get("name") or "")[:200],
@@ -182,8 +163,10 @@ def summarize_suite_run(
         if o.get("duration_ms") is not None:
             duration_sum += int(o["duration_ms"])
             any_duration = True
-    wall = _wall_duration_ms(suite_run)
-    duration_ms = duration_sum if any_duration else wall
+    duration_ms = resolve_suite_duration_ms(
+        suite_run,
+        case_duration_sum_ms=duration_sum if any_duration else None,
+    )
     try:
         parallel_count = int(suite_run.get("parallel_count") or 1)
     except (TypeError, ValueError):
@@ -267,7 +250,7 @@ def compare_suite_runs(
     *,
     level: str | None = None,
 ) -> dict[str, Any]:
-    """Compare two suite runs; return cases whose result changed. Known issues labelled."""
+    """Compare two suite runs; result changes + duration changes. Known issues labelled."""
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
@@ -277,7 +260,9 @@ def compare_suite_runs(
             **loaded,
             "cross_level": False,
             "changes": [],
+            "duration_changes": [],
             "unchanged": 0,
+            "upload": False,
         }
     plan = loaded["plan"]
     a_id = (run_a or "").strip()
@@ -290,7 +275,9 @@ def compare_suite_runs(
             "security_level": lvl,
             "cross_level": False,
             "changes": [],
+            "duration_changes": [],
             "unchanged": 0,
+            "upload": False,
         }
     if a_id == b_id:
         return {
@@ -300,7 +287,9 @@ def compare_suite_runs(
             "security_level": lvl,
             "cross_level": False,
             "changes": [],
+            "duration_changes": [],
             "unchanged": 0,
+            "upload": False,
         }
     sr_a = _find_suite_run(plan, a_id)
     sr_b = _find_suite_run(plan, b_id)
@@ -313,13 +302,16 @@ def compare_suite_runs(
             "security_level": lvl,
             "cross_level": False,
             "changes": [],
+            "duration_changes": [],
             "unchanged": 0,
+            "upload": False,
         }
 
     outcomes_a = {o["case_id"]: o for o in _runs_for_suite(plan, sr_a)}
     outcomes_b = {o["case_id"]: o for o in _runs_for_suite(plan, sr_b)}
     all_ids = sorted(set(outcomes_a) | set(outcomes_b))
     changes: list[dict[str, Any]] = []
+    duration_changes: list[dict[str, Any]] = []
     unchanged = 0
     for cid in all_ids:
         left = outcomes_a.get(cid)
@@ -333,23 +325,47 @@ def compare_suite_runs(
         label = None
         if known:
             label = (right or left or {}).get("known_issue_label") or "known"
-        if left_result == right_result:
+        dur_a = left.get("duration_ms") if left else None
+        dur_b = right.get("duration_ms") if right else None
+        delta = duration_delta_ms(dur_a, dur_b)
+        if left_result != right_result:
+            changes.append(
+                {
+                    "case_id": cid,
+                    "case_name": name,
+                    "result_a": left_result,
+                    "result_b": right_result,
+                    "duration_ms_a": dur_a,
+                    "duration_ms_b": dur_b,
+                    "duration_delta_ms": delta,
+                    "known_issue": known,
+                    "known_issue_label": label,
+                    "known_issue_a": known_a,
+                    "known_issue_b": known_b,
+                }
+            )
+        else:
             unchanged += 1
-            continue
-        changes.append(
-            {
-                "case_id": cid,
-                "case_name": name,
-                "result_a": left_result,
-                "result_b": right_result,
-                "duration_ms_a": left.get("duration_ms") if left else None,
-                "duration_ms_b": right.get("duration_ms") if right else None,
-                "known_issue": known,
-                "known_issue_label": label,
-                "known_issue_a": known_a,
-                "known_issue_b": known_b,
-            }
-        )
+            # D7: same result but duration changed — surface as duration signal.
+            if delta is not None and delta != 0:
+                duration_changes.append(
+                    {
+                        "case_id": cid,
+                        "case_name": name,
+                        "result": left_result,
+                        "duration_ms_a": dur_a,
+                        "duration_ms_b": dur_b,
+                        "duration_delta_ms": delta,
+                        "known_issue": known,
+                        "known_issue_label": label,
+                    }
+                )
+
+    summary_a = summarize_suite_run(plan, sr_a)
+    summary_b = summarize_suite_run(plan, sr_b)
+    suite_delta = duration_delta_ms(
+        summary_a.get("duration_ms"), summary_b.get("duration_ms")
+    )
 
     return {
         "status": "ok",
@@ -357,9 +373,16 @@ def compare_suite_runs(
         "cross_level": False,
         "plan_id": plan["id"],
         "plan_name": plan.get("name"),
-        "run_a": summarize_suite_run(plan, sr_a),
-        "run_b": summarize_suite_run(plan, sr_b),
+        "run_a": summary_a,
+        "run_b": summary_b,
+        "duration_ms_a": summary_a.get("duration_ms"),
+        "duration_ms_b": summary_b.get("duration_ms"),
+        "duration_delta_ms": suite_delta,
         "changes": changes,
         "changed": len(changes),
+        "duration_changes": duration_changes,
+        "duration_changed": len(duration_changes),
         "unchanged": unchanged,
+        "upload": False,
+        "cloud_perf": False,
     }

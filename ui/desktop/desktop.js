@@ -2718,6 +2718,14 @@
     );
   }
 
+  function formatDurationDelta(ms) {
+    if (ms == null || ms === "") return "";
+    const n = Number(ms);
+    if (!isFinite(n) || n === 0) return "±0";
+    const sign = n > 0 ? "+" : "−";
+    return sign + formatDurationMs(Math.abs(n));
+  }
+
   function renderSuiteCompare(payload) {
     if (!planCompareOut) return;
     planCompareOut.innerHTML = "";
@@ -2731,19 +2739,43 @@
       return;
     }
     const changes = payload.changes || [];
+    const durationChanges = payload.duration_changes || [];
     const head = document.createElement("div");
     head.textContent =
-      "Changed " +
+      "Result changed " +
       (payload.changed != null ? payload.changed : changes.length) +
+      " · duration changed " +
+      (payload.duration_changed != null
+        ? payload.duration_changed
+        : durationChanges.length) +
       " · unchanged " +
       (payload.unchanged != null ? payload.unchanged : 0) +
-      (payload.cross_level === false ? " · level-local" : "");
+      (payload.cross_level === false ? " · level-local" : "") +
+      (payload.upload === false ? " · no upload" : "");
     planCompareOut.appendChild(head);
+    const suiteDur = document.createElement("div");
+    suiteDur.textContent =
+      "Suite duration " +
+      formatDurationMs(payload.duration_ms_a) +
+      " → " +
+      formatDurationMs(payload.duration_ms_b) +
+      (payload.duration_delta_ms != null
+        ? " (" + formatDurationDelta(payload.duration_delta_ms) + ")"
+        : "");
+    planCompareOut.appendChild(suiteDur);
+    function bindCaseOpen(btn, c) {
+      if (!c || !c.case_id) return;
+      btn.title = "Open case " + c.case_id;
+      btn.addEventListener("click", function () {
+        if (planCaseId) planCaseId.value = c.case_id;
+        if (planCaseName && c.case_name) planCaseName.value = c.case_name;
+        refreshCaseDetail();
+      });
+    }
     if (!changes.length) {
       const none = document.createElement("div");
       none.textContent = "No cases changed result between these runs.";
       planCompareOut.appendChild(none);
-      return;
     }
     changes.forEach(function (c) {
       const btn = document.createElement("button");
@@ -2754,25 +2786,61 @@
       btn.style.textAlign = "left";
       btn.style.marginTop = "0.35rem";
       btn.setAttribute("role", "listitem");
+      const durBit =
+        c.duration_ms_a != null || c.duration_ms_b != null
+          ? " · " +
+            formatDurationMs(c.duration_ms_a) +
+            " → " +
+            formatDurationMs(c.duration_ms_b) +
+            (c.duration_delta_ms != null
+              ? " (" + formatDurationDelta(c.duration_delta_ms) + ")"
+              : "")
+          : "";
       btn.textContent =
         (c.case_name || c.case_id || "?") +
         " · " +
         (c.result_a || "?") +
         " → " +
         (c.result_b || "?") +
+        durBit +
         (c.known_issue
           ? " · " + (c.known_issue_label || "known")
           : "");
-      if (c.case_id) {
-        btn.title = "Open case " + c.case_id;
-        btn.addEventListener("click", function () {
-          if (planCaseId) planCaseId.value = c.case_id;
-          if (planCaseName && c.case_name) planCaseName.value = c.case_name;
-          refreshCaseDetail();
-        });
-      }
+      bindCaseOpen(btn, c);
       planCompareOut.appendChild(btn);
     });
+    if (durationChanges.length) {
+      const durHead = document.createElement("div");
+      durHead.style.marginTop = "0.5rem";
+      durHead.textContent = "Duration changes (same result):";
+      planCompareOut.appendChild(durHead);
+      durationChanges.forEach(function (c) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "save-btn secondary";
+        btn.style.display = "block";
+        btn.style.width = "100%";
+        btn.style.textAlign = "left";
+        btn.style.marginTop = "0.35rem";
+        btn.setAttribute("role", "listitem");
+        btn.textContent =
+          (c.case_name || c.case_id || "?") +
+          " · " +
+          (c.result || "?") +
+          " · " +
+          formatDurationMs(c.duration_ms_a) +
+          " → " +
+          formatDurationMs(c.duration_ms_b) +
+          (c.duration_delta_ms != null
+            ? " (" + formatDurationDelta(c.duration_delta_ms) + ")"
+            : "") +
+          (c.known_issue
+            ? " · " + (c.known_issue_label || "known")
+            : "");
+        bindCaseOpen(btn, c);
+        planCompareOut.appendChild(btn);
+      });
+    }
   }
 
   async function refreshSuiteHistory() {

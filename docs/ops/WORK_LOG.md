@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-191** — D7 Duration on the run and the case |
-| **Start task** | **KAN-192** (`test`, Relates → KAN-191) |
-| **Epic** | Test-all D (see catalogue) |
-| **Roadmap ID** | D7 / FR-PLAN-4 / FR-REP-1 |
+| **Jira story** | **KAN-193** — E1 Document privacy for uploads |
+| **Start task** | **KAN-194** (`test`, Relates → KAN-193) |
+| **Epic** | Test-all E (see catalogue) |
+| **Roadmap ID** | E1 / FR-SEC-2 / FR-LEARN-5 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-192** |
-| **Shipped** | … **KAN-189** D6 local run-finish notify (desk59); **KAN-187** D5 timeouts on case (desk58); **KAN-185** D4 credential status (desk57); **KAN-183** D3 named environments (desk56); **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
+| **Test ticket** | **KAN-194** |
+| **Shipped** | … **KAN-191** D7 duration on run/case (desk60); **KAN-189** D6 local run-finish notify (desk59); **KAN-187** D5 timeouts; **KAN-185** D4 credential status; **KAN-183** D3 named environments; **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all D after D7 → E…, or **KAN-260** Lab tools in App menu when prioritised |
+| **Next after this** | continue Test-all E after E1 → E2…, or **KAN-260** Lab tools in App menu when prioritised |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-191 — D7 Duration on the run and the case
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-191
+- **Done:** Case runs and suite runs store `duration_ms` locally. Suite finish persists duration (case-sum when wall clock is 0 due to second-precision timestamps). History compare returns suite duration delta plus `duration_changes` for same-result slower/faster cases. `GET /api/plans/duration` documents local-only (no upload). Desktop Plans compare UI shows suite + case duration deltas (desk60).
+- **Files:** `plans/duration.py`, `plans/store.py`, `plans/history.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_duration.py` (+ desk60 cache-bust)
+- **Verify:** `pytest tests/test_plan_duration.py` + related (24 passed). Live `GET /api/plans/duration` → upload/cloud_perf false; desk60 HTML/JS has duration compare; `desktop_app.py` opened (desk60).
+- **Jira:** close-out **KAN-191** + **KAN-192**
+- **Next:** **KAN-193** E1 Document privacy for uploads (test **KAN-194**)
 
 ### 2026-11-17 — KAN-189 — D6 Local notification when a run finishes
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-189

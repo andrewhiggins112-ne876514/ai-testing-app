@@ -271,6 +271,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | Import Playwright into suite (C8) | **Shipped** KAN-171 (desk50) | Project → plan cases (`source=playwright`); npx Suites unchanged; single-case suite run; external files never deleted |
 | Search plans / cases / failures (C9) | **Shipped** KAN-173 (desk51) | Matches plan name, case name, Jira key, tag, failure class; active level only; hit opens case |
 | Suite history / compare two runs (C10) | **Shipped** KAN-175 (desk52) | Past runs: time, duration, pass/fail, tag; compare changed results; known labelled; level-local |
+| Duration on run and case (D7) | **Shipped** KAN-191 (desk60) | Case + suite store duration; compare shows duration change; local only, no upload |
 | Archive case without deleting history (C11) | **Shipped** KAN-177 (desk53) | Soft-archive hides from runs/default list; Show archived filter; evidence kept; unarchive restores |
 | Sequential default + parallel cap (D1) | **Shipped** KAN-179 (desk54) | Default parallel=1; max 2 visible; suite_run stores count; refuse above cap; Active → **KAN-181** D2 |
 | Voice input | Deferred | **KAN-81**; mic; later G10 |

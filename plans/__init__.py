@@ -12,6 +12,7 @@ from plans.drift import (
     refresh_acceptance_drafts,
 )
 from plans.import_playwright import import_playwright_project
+from plans.duration import duration_info
 from plans.history import compare_suite_runs, list_suite_history
 from plans.quarantine import (
     DEFAULT_FLAKE_WINDOW,
@@ -67,6 +68,7 @@ __all__ = [
     "refresh_acceptance_drafts",
     "import_playwright_project",
     "compare_suite_runs",
+    "duration_info",
     "flake_score",
     "is_actively_quarantined",
     "list_suite_history",
