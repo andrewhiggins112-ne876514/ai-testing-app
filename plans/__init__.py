@@ -6,6 +6,11 @@ from plans.draft import (
     draft_plan_from_issue,
     draft_plan_from_project,
 )
+from plans.drift import (
+    check_acceptance_drift,
+    keep_acceptance_drafts,
+    refresh_acceptance_drafts,
+)
 from plans.starter import create_starter_plan, lab_home_status
 from plans.store import (
     add_case,
@@ -21,6 +26,7 @@ from plans.store import (
     plans_dir,
     reorder_cases,
     update_case,
+    upsert_jira_snapshot,
 )
 
 __all__ = [
@@ -29,6 +35,9 @@ __all__ = [
     "add_run",
     "append_run_evidence",
     "cases_for_run",
+    "check_acceptance_drift",
+    "keep_acceptance_drafts",
+    "refresh_acceptance_drafts",
     "set_known_issue_link",
     "set_plan_notes",
     "set_run_failure_class",
@@ -43,4 +52,5 @@ __all__ = [
     "plans_dir",
     "reorder_cases",
     "update_case",
+    "upsert_jira_snapshot",
 ]

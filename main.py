@@ -47,6 +47,11 @@ from plans.draft import (
     draft_plan_from_issue,
     draft_plan_from_project,
 )
+from plans.drift import (
+    check_acceptance_drift,
+    keep_acceptance_drafts,
+    refresh_acceptance_drafts,
+)
 from plans.pause_session import get_session, public_session, signal_decision
 from plans.rerun_failed import rerun_failed_cases
 from plans.run_case import case_detail, run_single_case
@@ -229,6 +234,12 @@ class PlanProjectDraftRequest(BaseModel):
     batch_size: int = 5
     project: str = ""
     issue_types: list[str] | None = None
+
+
+class PlanAcceptanceDriftRequest(BaseModel):
+    """Optional subset of linked keys for check / keep / refresh (KAN-165 / C5)."""
+
+    keys: list[str] | None = None
 
 
 class PlanStarterRequest(BaseModel):
@@ -721,6 +732,39 @@ async def get_plan_coverage_gaps(
         project=project or None,
         list_max=list_max,
     )
+    if out.get("status") != "ok" or not degraded_status().get("jira_up"):
+        out = {**out, "degraded": degraded_status()}
+    return out
+
+
+@app.post("/api/plans/{plan_id}/acceptance-drift")
+async def post_plan_acceptance_drift(
+    plan_id: str, req: PlanAcceptanceDriftRequest = PlanAcceptanceDriftRequest()
+):
+    """Re-read linked issues; mark stale if summary/AC differ (KAN-165 / C5)."""
+    out = await check_acceptance_drift(plan_id, keys=req.keys)
+    if out.get("status") != "ok" or not degraded_status().get("jira_up"):
+        out = {**out, "degraded": degraded_status()}
+    return out
+
+
+@app.post("/api/plans/{plan_id}/acceptance-drift/keep")
+async def post_plan_acceptance_drift_keep(
+    plan_id: str, req: PlanAcceptanceDriftRequest = PlanAcceptanceDriftRequest()
+):
+    """Keep current drafts; re-baseline snapshots (KAN-165). No case overwrite."""
+    out = await keep_acceptance_drafts(plan_id, keys=req.keys)
+    if out.get("status") != "ok" or not degraded_status().get("jira_up"):
+        out = {**out, "degraded": degraded_status()}
+    return out
+
+
+@app.post("/api/plans/{plan_id}/acceptance-drift/refresh")
+async def post_plan_acceptance_drift_refresh(
+    plan_id: str, req: PlanAcceptanceDriftRequest = PlanAcceptanceDriftRequest()
+):
+    """Refresh drafts from live AC; never deletes cases or runs (KAN-165)."""
+    out = await refresh_acceptance_drafts(plan_id, keys=req.keys)
     if out.get("status") != "ok" or not degraded_status().get("jira_up"):
         out = {**out, "degraded": degraded_status()}
     return out

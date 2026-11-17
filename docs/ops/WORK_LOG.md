@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-165** — C5 acceptance text drift |
-| **Start task** | **KAN-166** (`test`, Relates → KAN-165) |
+| **Jira story** | **KAN-167** — C6 traceability matrix |
+| **Start task** | **KAN-168** (`test`, Relates → KAN-167) |
 | **Epic** | Test-all C (see catalogue) |
-| **Roadmap ID** | C5 / FR-PLAN-3 drift |
+| **Roadmap ID** | C6 / FR-REP-1 + FR-PLAN-4 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-166** |
-| **Shipped** | … **KAN-163** C4 coverage gaps (desk45); **KAN-253** compact App menu; **KAN-161** C3 |
+| **Test ticket** | **KAN-168** |
+| **Shipped** | … **KAN-165** C5 acceptance drift (desk46); **KAN-163** C4; **KAN-253** App menu; **KAN-161** C3 |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all C after C5 |
+| **Next after this** | continue Test-all C after C6 |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-165 — C5 acceptance text drift
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-165
+- **Done:** On demand, re-read linked Jira issues and mark plan snapshots stale when summary/AC differ; show old vs new; Keep re-baselines without changing cases; Refresh disables prior jira cases and adds new AC cases — never deletes cases/runs. Drafts store `jira_snapshots`. desk46.
+- **Files:** `plans/drift.py`, `plans/store.py`, `plans/draft.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_acceptance_drift.py` (+ desk46 cache-bust tests)
+- **Verify:** `pytest tests/test_plan_acceptance_drift.py tests/test_plan_coverage_gaps.py tests/test_plan_draft.py tests/test_plan_project_draft.py tests/test_desktop_app_menu.py tests/test_nav_overlap.py tests/test_orb_hub.py tests/test_settings_hub.py -v` (32 passed). Live `/ui/desktop/?v=desk46` has `plan-drift-check-btn`; `desktop_app.py` opened.
+- **Jira:** close-out **KAN-165** + **KAN-166**
+- **Next:** **KAN-167** C6 traceability matrix (test **KAN-168**)
 
 ### 2026-11-17 — KAN-163 — C4 Coverage gaps
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-163

@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from plans.store import add_case, create_plan, get_plan
+from plans.store import add_case, create_plan, get_plan, upsert_jira_snapshot
 
 _BULLET = re.compile(r"^[ \t]*(?:[-*]|\d+[.)])\s+(.+)$")
 _NUMBERED = re.compile(r"^[ \t]*\d+[.)]\s+(.+)$")
@@ -167,6 +167,14 @@ async def draft_plan_from_issue(
         description=description,
         level=level,
     )
+    upsert_jira_snapshot(
+        plan_id,
+        key,
+        summary=summary,
+        acceptance_criteria=acceptance,
+        stale=False,
+        level=level,
+    )
 
     doc_cases: list[dict[str, Any]] = []
     if (document_text or "").strip():
@@ -309,6 +317,14 @@ async def draft_plan_from_project(
             summary=summary,
             acceptance=acceptance,
             description=description,
+            level=level,
+        )
+        upsert_jira_snapshot(
+            plan_id,
+            key,
+            summary=summary,
+            acceptance_criteria=acceptance,
+            stale=False,
             level=level,
         )
         case_total += len(cases)

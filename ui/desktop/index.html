@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk45" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk46" />
 </head>
 <body>
   <div id="app">
@@ -421,6 +421,14 @@
           </div>
           <div id="plan-coverage-no-case" class="drawer-hint" aria-live="polite"></div>
           <div id="plan-coverage-disabled" class="drawer-hint" aria-live="polite"></div>
+          <h4 class="orb-section-label">Acceptance text drift</h4>
+          <p class="drawer-hint">On demand, re-read linked Jira issues. If summary or acceptance criteria differ from the draft snapshot, the plan is marked stale and old vs new text is shown. Choose Keep (leave drafts) or Refresh (add new cases; prior jira cases are disabled — runs are never deleted).</p>
+          <div class="btn-row">
+            <button type="button" id="plan-drift-check-btn" class="save-btn secondary">Check acceptance drift</button>
+            <button type="button" id="plan-drift-keep-btn" class="save-btn secondary">Keep drafts</button>
+            <button type="button" id="plan-drift-refresh-btn" class="save-btn">Refresh drafts</button>
+          </div>
+          <pre id="plan-drift-out" class="drawer-hint" aria-live="polite" hidden></pre>
           <h4 class="orb-section-label">Edit selected case</h4>
           <label class="stack-label">Case id
             <input type="text" id="plan-case-id" placeholder="c…" autocomplete="off" />
@@ -581,6 +589,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk45"></script>
+  <script src="/ui/desktop/desktop.js?v=desk46"></script>
 </body>
 </html>

@@ -68,6 +68,24 @@ def _normalize_sources(raw: Any) -> dict[str, list[str]]:
     return {"jira_keys": jira_keys, "documents": documents}
 
 
+def _normalize_jira_snapshots(raw: Any) -> dict[str, dict[str, Any]]:
+    """Per-issue summary/AC captured at draft time (KAN-165 / C5)."""
+    if not isinstance(raw, dict):
+        return {}
+    out: dict[str, dict[str, Any]] = {}
+    for key, val in raw.items():
+        k = str(key or "").strip().upper()[:32]
+        if not k or not isinstance(val, dict):
+            continue
+        out[k] = {
+            "summary": str(val.get("summary") or "")[:500],
+            "acceptance_criteria": str(val.get("acceptance_criteria") or "")[:8000],
+            "captured_at": str(val.get("captured_at") or "")[:64],
+            "stale": bool(val.get("stale", False)),
+        }
+    return out
+
+
 def _normalize_case(raw: Any, *, order: int = 0) -> Optional[dict[str, Any]]:
     if not isinstance(raw, dict):
         return None
@@ -223,6 +241,7 @@ def _normalize_plan(raw: dict[str, Any], *, level: str) -> dict[str, Any]:
         "intent": str(raw.get("intent") or "")[:4000],
         "security_level": level,
         "sources": _normalize_sources(raw.get("sources")),
+        "jira_snapshots": _normalize_jira_snapshots(raw.get("jira_snapshots")),
         "suite": {"cases": cases},
         "suite_runs": suite_runs,
         "created_at": str(raw.get("created_at") or now),
@@ -338,6 +357,102 @@ def create_plan(
     )
     _write_plan(plan, level=lvl)
     return {"status": "ok", "security_level": lvl, "plan": plan}
+
+
+def upsert_jira_snapshot(
+    plan_id: str,
+    issue_key: str,
+    *,
+    summary: str = "",
+    acceptance_criteria: str = "",
+    stale: bool = False,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Record or update the draft-time summary/AC for a linked issue (KAN-165)."""
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    key = str(issue_key or "").strip().upper()[:32]
+    if not key:
+        return {
+            "status": "error",
+            "error": "issue_key_required",
+            "message": "Provide a Jira issue key for the snapshot.",
+            "security_level": lvl,
+        }
+    now = _utcnow()
+    snaps = _normalize_jira_snapshots(plan.get("jira_snapshots"))
+    snaps[key] = {
+        "summary": str(summary or "")[:500],
+        "acceptance_criteria": str(acceptance_criteria or "")[:8000],
+        "captured_at": now,
+        "stale": bool(stale),
+    }
+    plan["jira_snapshots"] = snaps
+    sources = _normalize_sources(plan.get("sources"))
+    if key not in sources["jira_keys"]:
+        sources["jira_keys"].append(key)
+    plan["sources"] = sources
+    plan["updated_at"] = now
+    _write_plan(plan, level=lvl)
+    return {
+        "status": "ok",
+        "security_level": lvl,
+        "plan": plan,
+        "snapshot": snaps[key],
+        "issue_key": key,
+    }
+
+
+def set_jira_snapshot_stale(
+    plan_id: str,
+    issue_key: str,
+    *,
+    stale: bool,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Flip the stale flag on an existing snapshot without changing captured text."""
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    loaded = get_plan(plan_id, level=lvl)
+    if loaded.get("status") != "ok":
+        return loaded
+    plan = loaded["plan"]
+    key = str(issue_key or "").strip().upper()[:32]
+    snaps = _normalize_jira_snapshots(plan.get("jira_snapshots"))
+    if key not in snaps:
+        return {
+            "status": "error",
+            "error": "snapshot_missing",
+            "message": f"No Jira snapshot for {key} on this plan.",
+            "security_level": lvl,
+        }
+    snaps[key]["stale"] = bool(stale)
+    plan["jira_snapshots"] = snaps
+    plan["updated_at"] = _utcnow()
+    _write_plan(plan, level=lvl)
+    return {
+        "status": "ok",
+        "security_level": lvl,
+        "plan": plan,
+        "snapshot": snaps[key],
+        "issue_key": key,
+    }
+
+
+def count_plan_runs(plan: dict[str, Any]) -> int:
+    suite = plan.get("suite") if isinstance(plan.get("suite"), dict) else {}
+    cases = suite.get("cases") if isinstance(suite.get("cases"), list) else []
+    total = 0
+    for case in cases:
+        if isinstance(case, dict):
+            total += len(case.get("runs") or [])
+    return total
 
 
 def add_case(

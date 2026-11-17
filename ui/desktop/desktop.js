@@ -1330,6 +1330,10 @@
   const planCoverageBtn = document.getElementById("plan-coverage-btn");
   const planCoverageNoCase = document.getElementById("plan-coverage-no-case");
   const planCoverageDisabled = document.getElementById("plan-coverage-disabled");
+  const planDriftCheckBtn = document.getElementById("plan-drift-check-btn");
+  const planDriftKeepBtn = document.getElementById("plan-drift-keep-btn");
+  const planDriftRefreshBtn = document.getElementById("plan-drift-refresh-btn");
+  const planDriftOut = document.getElementById("plan-drift-out");
   const planCaseId = document.getElementById("plan-case-id");
   const planCaseName = document.getElementById("plan-case-name");
   const planCaseNote = document.getElementById("plan-case-note");
@@ -1977,6 +1981,98 @@
         planCoverageNoCase.textContent = "Could not load coverage gaps.";
       }
       if (planCoverageDisabled) planCoverageDisabled.textContent = "";
+    }
+  }
+
+  function renderAcceptanceDrift(payload) {
+    if (!planDriftOut) return;
+    if (!payload) {
+      planDriftOut.hidden = true;
+      planDriftOut.textContent = "";
+      return;
+    }
+    const lines = [];
+    if (payload.message) lines.push(payload.message);
+    if (payload.stale_count != null) {
+      lines.push("Stale count: " + payload.stale_count);
+    }
+    const items =
+      payload.stale_items && payload.stale_items.length
+        ? payload.stale_items
+        : payload.checked || [];
+    items.forEach(function (row, idx) {
+      lines.push("");
+      lines.push(
+        idx +
+          1 +
+          ". " +
+          (row.key || "?") +
+          (row.stale ? " [STALE]" : " [ok]") +
+          (row.read_ok === false ? " (read failed)" : "")
+      );
+      if (row.message) lines.push("   " + row.message);
+      if (row.stale || (row.old_summary || row.new_summary)) {
+        lines.push("   OLD summary: " + (row.old_summary || "(empty)"));
+        lines.push("   NEW summary: " + (row.new_summary || "(empty)"));
+        lines.push(
+          "   OLD AC:\n" + (row.old_acceptance_criteria || "(empty)")
+        );
+        lines.push(
+          "   NEW AC:\n" + (row.new_acceptance_criteria || "(empty)")
+        );
+      }
+    });
+    if (payload.runs_before != null) {
+      lines.push("");
+      lines.push(
+        "Runs before: " +
+          payload.runs_before +
+          " · after: " +
+          (payload.runs_after != null ? payload.runs_after : "?") +
+          " · deleted: " +
+          (payload.runs_deleted ? "yes" : "no")
+      );
+    }
+    planDriftOut.hidden = false;
+    planDriftOut.textContent = lines.join("\n");
+  }
+
+  async function postAcceptanceDrift(path) {
+    if (!openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      renderAcceptanceDrift({
+        message: "Open a plan with linked Jira keys first.",
+        stale_items: [],
+      });
+      return null;
+    }
+    if (planStatus) planStatus.textContent = "Acceptance drift…";
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + path,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
+      const payload = await res.json();
+      renderAcceptanceDrift(payload);
+      if (payload.status === "ok") {
+        if (payload.plan) renderPlanCases(payload.plan);
+        if (planStatus) planStatus.textContent = payload.message || "Done.";
+        await loadPlanList(openPlanId);
+      } else if (planStatus) {
+        planStatus.textContent = payload.message || "Drift action failed.";
+      }
+      return payload;
+    } catch (err) {
+      renderAcceptanceDrift({
+        message: "Could not reach acceptance-drift API.",
+        stale_items: [],
+      });
+      if (planStatus) planStatus.textContent = "Acceptance drift failed.";
+      return null;
     }
   }
 
@@ -3174,6 +3270,21 @@
   if (planCoverageBtn) {
     planCoverageBtn.addEventListener("click", function () {
       refreshCoverageGaps();
+    });
+  }
+  if (planDriftCheckBtn) {
+    planDriftCheckBtn.addEventListener("click", function () {
+      postAcceptanceDrift("/acceptance-drift");
+    });
+  }
+  if (planDriftKeepBtn) {
+    planDriftKeepBtn.addEventListener("click", function () {
+      postAcceptanceDrift("/acceptance-drift/keep");
+    });
+  }
+  if (planDriftRefreshBtn) {
+    planDriftRefreshBtn.addEventListener("click", function () {
+      postAcceptanceDrift("/acceptance-drift/refresh");
     });
   }
   if (planCoverageFilter) {
