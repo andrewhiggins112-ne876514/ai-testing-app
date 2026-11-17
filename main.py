@@ -64,6 +64,7 @@ from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
 from plans.parallel import parallel_cap_info
+from plans.run_notify import notify_info, set_notify_enabled
 from plans.timeouts import step_timeout_info
 from plans.rerun_failed import rerun_failed_cases
 from plans.run_by_tag import run_cases_by_tag, select_cases_for_tag
@@ -191,6 +192,13 @@ class AppSettingsRequest(BaseModel):
     playwright_mode: str | None = None
     playwright_headless: bool | None = None
     ollama_model: str | None = None
+    run_finish_notify_enabled: bool | None = None
+
+
+class RunNotifyRequest(BaseModel):
+    """Turn local run-finish notices on or off (KAN-189 / D6)."""
+
+    enabled: bool = True
 
 
 class ClearSecretRequest(BaseModel):
@@ -561,6 +569,8 @@ async def post_app_settings_api(req: AppSettingsRequest):
         kwargs["playwright_headless"] = req.playwright_headless
     if req.ollama_model is not None:
         kwargs["ollama_model"] = req.ollama_model
+    if req.run_finish_notify_enabled is not None:
+        kwargs["run_finish_notify_enabled"] = req.run_finish_notify_enabled
     return save_app_settings(**kwargs)
 
 
@@ -883,6 +893,18 @@ async def get_plan_parallel_cap():
 async def get_plan_step_timeout():
     """Visible step timeout default matching the current runner (KAN-187 / D5)."""
     return step_timeout_info()
+
+
+@app.get("/api/plans/run-notify")
+async def get_plan_run_notify():
+    """Local run-finish notice preference (KAN-189 / D6). No email or cloud push."""
+    return notify_info()
+
+
+@app.post("/api/plans/run-notify")
+async def post_plan_run_notify(body: RunNotifyRequest):
+    """Turn local run-finish notices on or off (KAN-189 / D6)."""
+    return set_notify_enabled(bool(body.enabled))
 
 
 @app.get("/api/plans/{plan_id}/coverage-gaps")

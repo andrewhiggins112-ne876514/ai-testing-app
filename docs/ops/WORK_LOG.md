@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-189** — D6 Local notification when a run finishes |
-| **Start task** | **KAN-190** (`test`, Relates → KAN-189) |
+| **Jira story** | **KAN-191** — D7 Duration on the run and the case |
+| **Start task** | **KAN-192** (`test`, Relates → KAN-191) |
 | **Epic** | Test-all D (see catalogue) |
-| **Roadmap ID** | D6 / FR-UI-1 |
+| **Roadmap ID** | D7 / FR-PLAN-4 / FR-REP-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-190** |
-| **Shipped** | … **KAN-187** D5 timeouts on case (desk58); **KAN-185** D4 credential status (desk57); **KAN-183** D3 named environments (desk56); **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
+| **Test ticket** | **KAN-192** |
+| **Shipped** | … **KAN-189** D6 local run-finish notify (desk59); **KAN-187** D5 timeouts on case (desk58); **KAN-185** D4 credential status (desk57); **KAN-183** D3 named environments (desk56); **KAN-181** D2 flake/quarantine; **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all D after D6 → D7…, or **KAN-260** Lab tools in App menu when prioritised |
+| **Next after this** | continue Test-all D after D7 → E…, or **KAN-260** Lab tools in App menu when prioritised |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-189 — D6 Local notification when a run finishes
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-189
+- **Done:** Local run-finish notice with pass/fail counts only (no secrets/page text). No email or cloud push. Preference `run_finish_notify_enabled` (default on) via Settings + `GET/POST /api/plans/run-notify`. Wired into standalone case run, tag run, and rerun-failed. Windows toast best-effort + in-app toast (desk59).
+- **Files:** `plans/run_notify.py`, `plans/run_case.py`, `plans/run_by_tag.py`, `plans/rerun_failed.py`, `settings/store.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_plan_run_notify.py` (+ desk59 cache-bust)
+- **Verify:** `pytest tests/test_plan_run_notify.py` + related (8 + 53 passed). Live `GET /api/plans/run-notify` → enabled, email/cloud false; desk59 HTML has `set-run-finish-notify` / `run-finish-toast`; `desktop_app.py` opened (desk59).
+- **Jira:** close-out **KAN-189** + **KAN-190**
+- **Next:** **KAN-191** D7 duration on the run and the case (test **KAN-192**)
 
 ### 2026-11-17 — KAN-187 — D5 Timeouts visible on the case
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-187

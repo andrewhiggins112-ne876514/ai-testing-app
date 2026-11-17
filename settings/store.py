@@ -115,6 +115,8 @@ def _defaults() -> dict:
         "telemetry_enabled": False,
         # FR-CONN-1 / FR-SET-3: Ollama model the agent chat uses (KAN-129)
         "ollama_model": "",
+        # D6 / FR-UI-1: local notice when a run finishes (KAN-189) — default on
+        "run_finish_notify_enabled": True,
     }
 
 
@@ -297,6 +299,7 @@ def app_settings_status() -> dict:
     api_endpoint = (data.get("api_endpoint") or "").strip()
     suite_path = (data.get("playwright_suite_path") or "").strip()
     telem = bool(data.get("telemetry_enabled", False))
+    run_finish_notify = bool(data.get("run_finish_notify_enabled", True))
     from settings.environments import list_environments
     from settings.ollama_models import default_model_name, get_ollama_model
 
@@ -319,6 +322,7 @@ def app_settings_status() -> dict:
             f"Test framework: {test_framework} (default {DEFAULT_FRAMEWORK})",
             f"Playwright mode: {playwright_mode} (default headed)",
             f"Multi-sandbox plugin: {'on' if multi_on else 'off'}",
+            f"Run-finish notices: {'on' if run_finish_notify else 'off'} (local only)",
             f"Telemetry: {'on' if telem else 'off (default)'} | Extracted-data consent required",
         ]
     )
@@ -351,6 +355,7 @@ def app_settings_status() -> dict:
         "playwright_headless": playwright_headless,
         "playwright_mode": playwright_mode,
         "plugin_multi_sandbox_enabled": multi_on,
+        "run_finish_notify_enabled": run_finish_notify,
         "telemetry_enabled": telem,
         "summary": summary,
     }
@@ -389,6 +394,7 @@ def save_app_settings(
     playwright_headless: bool | str | None = None,
     playwright_mode: str | None = None,
     ollama_model: str | None = None,
+    run_finish_notify_enabled: bool | None = None,
 ) -> dict:
     """Persist App Settings targets for the active security level (FR-LEARN-2/3/4).
 
@@ -512,6 +518,12 @@ def save_app_settings(
         update_setting(
             "playwright_headless",
             normalize_playwright_mode(mode_raw),
+            confirm=True,
+        )
+    if run_finish_notify_enabled is not None:
+        update_setting(
+            "run_finish_notify_enabled",
+            bool(run_finish_notify_enabled),
             confirm=True,
         )
     # Keep the active named environment mirrored to flat target fields (D3).

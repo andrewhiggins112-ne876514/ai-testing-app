@@ -234,19 +234,25 @@ async def rerun_failed_cases(
         f"Rerun failed finished: suite run {suite_run_id} — {mode_label}, "
         f"{ran_n} case(s) executed, {skip_n} skipped."
     )
-    return {
-        "status": "ok",
-        "message": msg,
-        "security_level": lvl,
-        "plan_id": plan_id,
-        "suite_run_id": suite_run_id,
-        "source_suite_run_id": selection.get("source_suite_run_id"),
-        "mode": "rerun_failed",
-        "parallel_count": parallel_count,
-        "parallel_max": resolved.get("parallel_max"),
-        "sequential": sequential,
-        "skipped": skipped,
-        "case_results": case_results,
-        "suite_run": finished.get("suite_run") or suite_run,
-        "plan": plan_out,
-    }
+    from plans.run_notify import attach_suite_notice
+
+    return attach_suite_notice(
+        {
+            "status": "ok",
+            "message": msg,
+            "security_level": lvl,
+            "plan_id": plan_id,
+            "suite_run_id": suite_run_id,
+            "source_suite_run_id": selection.get("source_suite_run_id"),
+            "mode": "rerun_failed",
+            "parallel_count": parallel_count,
+            "parallel_max": resolved.get("parallel_max"),
+            "sequential": sequential,
+            "skipped": skipped,
+            "case_results": case_results,
+            "suite_run": finished.get("suite_run") or suite_run,
+            "plan": plan_out,
+        },
+        case_results,
+        kind="rerun",
+    )

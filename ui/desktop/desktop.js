@@ -1451,6 +1451,10 @@
   const envStatus = document.getElementById("env-status");
   const setTestFramework = document.getElementById("set-test-framework");
   const setPlaywrightMode = document.getElementById("set-playwright-mode");
+  const setRunFinishNotify = document.getElementById("set-run-finish-notify");
+  const setRunNotifyStatus = document.getElementById("set-run-notify-status");
+  const runFinishToast = document.getElementById("run-finish-toast");
+  let runFinishToastTimer = null;
   const setStorePath = document.getElementById("set-store-path");
   const setCreds = document.getElementById("set-creds");
   const credStatusList = document.getElementById("cred-status-list");
@@ -1861,6 +1865,41 @@
     }
   }
 
+  function showLocalRunNotice(notice) {
+    if (!notice || typeof notice !== "object") return;
+    const title = notice.title || "Run finished";
+    const body =
+      notice.body ||
+      (notice.pass != null && notice.fail != null
+        ? notice.pass + " passed, " + notice.fail + " failed"
+        : "");
+    const text = body ? title + " — " + body : title;
+    if (runFinishToast) {
+      runFinishToast.hidden = false;
+      runFinishToast.textContent = text;
+      if (runFinishToastTimer) clearTimeout(runFinishToastTimer);
+      runFinishToastTimer = setTimeout(function () {
+        runFinishToast.hidden = true;
+      }, 6000);
+    }
+    try {
+      if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+        new Notification(title, { body: body || undefined });
+      } else if (
+        typeof Notification !== "undefined" &&
+        Notification.permission !== "denied"
+      ) {
+        Notification.requestPermission().then(function (perm) {
+          if (perm === "granted") {
+            new Notification(title, { body: body || undefined });
+          }
+        });
+      }
+    } catch (_err) {
+      /* local notice only — ignore Notification API failures */
+    }
+  }
+
   function applyAppSettings(payload) {
     if (!payload) return;
     if (setJiraUrl) {
@@ -1911,6 +1950,15 @@
       const mode = (payload.playwright_mode || "").toLowerCase();
       setPlaywrightMode.value =
         mode === "headless" || payload.playwright_headless ? "headless" : "headed";
+    }
+    if (setRunFinishNotify) {
+      setRunFinishNotify.checked = payload.run_finish_notify_enabled !== false;
+    }
+    if (setRunNotifyStatus) {
+      setRunNotifyStatus.textContent =
+        "Notices: " +
+        (payload.run_finish_notify_enabled === false ? "off" : "on") +
+        " (local only; no email or cloud push)";
     }
     if (connLevel) {
       connLevel.textContent =
@@ -4034,6 +4082,9 @@
               setOllamaModel && setOllamaModel.value
                 ? setOllamaModel.value.trim()
                 : "",
+            run_finish_notify_enabled: !!(
+              setRunFinishNotify && setRunFinishNotify.checked
+            ),
           }),
         });
         const payload = await res.json();
@@ -4702,6 +4753,7 @@
       }
       if (payload.suite_run_id) lastSuiteRunId = payload.suite_run_id;
       if (payload.plan) renderPlanCases(payload.plan);
+      showLocalRunNotice(payload.local_notice);
       const skipped = payload.skipped || [];
       const notSelected = payload.not_selected || [];
       const results = payload.case_results || [];
@@ -4711,6 +4763,9 @@
         "Tag: " + (payload.tag || tag),
         "Parallel count: " + (payload.parallel_count != null ? payload.parallel_count : parallel),
         "Sequential: " + (payload.sequential ? "yes" : "no"),
+        payload.pass != null
+          ? "Pass/fail: " + payload.pass + " / " + (payload.fail != null ? payload.fail : 0)
+          : null,
         "",
         "Executed:",
         results.length
@@ -4743,7 +4798,9 @@
               })
               .join("\n")
           : "(none)",
-      ];
+      ].filter(function (line) {
+        return line !== null;
+      });
       if (planTagRunOut) {
         planTagRunOut.hidden = false;
         planTagRunOut.textContent = lines.join("\n");
@@ -4908,6 +4965,7 @@
     }
     activePauseId = "";
     setPauseActionsVisible(false);
+    showLocalRunNotice(payload.local_notice);
     const run = payload.run || {};
     if (planStatus) {
       planStatus.textContent =
@@ -5006,6 +5064,7 @@
         }
         if (payload.suite_run_id) lastSuiteRunId = payload.suite_run_id;
         if (payload.plan) renderPlanCases(payload.plan);
+        showLocalRunNotice(payload.local_notice);
         const skipped = payload.skipped || [];
         const results = payload.case_results || [];
         const lines = [
@@ -5016,6 +5075,9 @@
             : "Source: last failed case results",
           "Parallel count: " + (payload.parallel_count != null ? payload.parallel_count : parallel),
           "Sequential: " + (payload.sequential ? "yes" : "no"),
+          payload.pass != null
+            ? "Pass/fail: " + payload.pass + " / " + (payload.fail != null ? payload.fail : 0)
+            : null,
           "",
           "Executed:",
           results.length
@@ -5039,7 +5101,9 @@
                 })
                 .join("\n")
             : "(none)",
-        ];
+        ].filter(function (line) {
+          return line !== null;
+        });
         if (planRerunOut) {
           planRerunOut.hidden = false;
           planRerunOut.textContent = lines.join("\n");

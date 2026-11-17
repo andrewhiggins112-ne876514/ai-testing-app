@@ -167,21 +167,27 @@ async def run_cases_by_tag(
         f"{mode_label}, {ran_n} case(s) executed, {len(skipped)} skipped, "
         f"{len(not_selected)} not selected."
     )
-    return {
-        "status": "ok",
-        "message": msg,
-        "security_level": lvl,
-        "plan_id": plan_id,
-        "suite_run_id": suite_run_id,
-        "tag": needle,
-        "mode": "tag",
-        "parallel_count": parallel_count,
-        "parallel_max": resolved.get("parallel_max"),
-        "sequential": sequential,
-        "to_run": to_run,
-        "skipped": skipped,
-        "not_selected": not_selected,
-        "case_results": case_results,
-        "suite_run": finished.get("suite_run") or suite_run,
-        "plan": plan_out,
-    }
+    from plans.run_notify import attach_suite_notice
+
+    return attach_suite_notice(
+        {
+            "status": "ok",
+            "message": msg,
+            "security_level": lvl,
+            "plan_id": plan_id,
+            "suite_run_id": suite_run_id,
+            "tag": needle,
+            "mode": "tag",
+            "parallel_count": parallel_count,
+            "parallel_max": resolved.get("parallel_max"),
+            "sequential": sequential,
+            "to_run": to_run,
+            "skipped": skipped,
+            "not_selected": not_selected,
+            "case_results": case_results,
+            "suite_run": finished.get("suite_run") or suite_run,
+            "plan": plan_out,
+        },
+        case_results,
+        kind="tag",
+    )

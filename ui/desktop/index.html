@@ -4,9 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk58" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk59" />
 </head>
 <body>
+  <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
   <div id="app">
     <div id="orb-config" hidden
       data-style="mystic"
@@ -236,6 +237,10 @@
               </select>
             </label>
             <p class="drawer-hint">FR-TEST-2: headed shows Chromium; headless runs quieter without a window.</p>
+            <h4 class="orb-section-label">Run-finish notices</h4>
+            <p class="drawer-hint">Local notice when a run finishes with pass and fail counts (D6). No email or cloud push. Notices never include secrets or page text.</p>
+            <label class="check-row"><input type="checkbox" id="set-run-finish-notify" checked /> Local notice when a run finishes</label>
+            <p id="set-run-notify-status" class="drawer-hint" role="status">Notices: on (default)</p>
             <p id="set-store-path" class="drawer-hint">Local store: —</p>
             <p id="set-creds" class="drawer-hint">Jira credentials: —</p>
             <h4 class="orb-section-label">Credential status</h4>
@@ -733,6 +738,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk58"></script>
+  <script src="/ui/desktop/desktop.js?v=desk59"></script>
 </body>
 </html>

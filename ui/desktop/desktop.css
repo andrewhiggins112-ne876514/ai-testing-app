@@ -1315,3 +1315,27 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   height: min(68vh, 640px);
   border-radius: 16px;
 }
+
+/* D6 / KAN-189 — local in-app notice when a run finishes (counts only) */
+.run-finish-toast {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 12000;
+  max-width: min(420px, 90vw);
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--cyan-border);
+  background: rgba(0, 12, 18, 0.92);
+  color: var(--text);
+  box-shadow: var(--glow);
+  font-size: 14px;
+  line-height: 1.35;
+  pointer-events: none;
+  user-select: none;
+}
+
+.run-finish-toast[hidden] {
+  display: none !important;
+}

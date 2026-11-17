@@ -457,13 +457,17 @@ async def run_single_case(
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
+    from plans.run_notify import attach_standalone_case_notice
+
     if not pause_on_fail:
-        return await _execute_case(
-            plan_id,
-            case_id,
-            level=lvl,
-            session_id=session_id,
-            pause_on_fail=False,
+        return attach_standalone_case_notice(
+            await _execute_case(
+                plan_id,
+                case_id,
+                level=lvl,
+                session_id=session_id,
+                pause_on_fail=False,
+            )
         )
 
     from plans.pause_session import (
@@ -485,7 +489,7 @@ async def run_single_case(
                 pause_on_fail=True,
                 pause_decision=pause_decision,
             )
-            session.result_payload = payload
+            session.result_payload = attach_standalone_case_notice(payload)
             session.message = payload.get("message") or "Run finished."
         except Exception as exc:  # noqa: BLE001 — surface to session
             session.result_payload = {

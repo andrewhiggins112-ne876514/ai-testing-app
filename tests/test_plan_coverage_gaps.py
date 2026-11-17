@@ -179,8 +179,8 @@ class CoverageGapsUiTests(unittest.TestCase):
         self.assertIn("plan-coverage-disabled", html)
         self.assertIn("coverage-gaps", js)
         self.assertIn("refreshCoverageGaps", js)
-        self.assertIn("desk58", html)
-        self.assertIn("desk58", app)
+        self.assertIn("desk59", html)
+        self.assertIn("desk59", app)
 
 
 if __name__ == "__main__":
