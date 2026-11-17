@@ -74,6 +74,7 @@ from plans.run_by_tag import run_cases_by_tag, select_cases_for_tag
 from plans.run_case import case_detail, run_single_case
 from plans.run_report import export_plan_run, list_exportable_runs
 from plans.starter import create_starter_plan, lab_home_status
+from plans.coverage_hud import coverage_hud_summary
 from plans.manager_hud import manager_hud_summary
 from plans.release_hud import release_hud_summary
 from plans.tester_hud import tester_hud_summary
@@ -1141,6 +1142,12 @@ async def get_plans_manager_hud():
 async def get_plans_release_hud():
     """Release HUD pack: env, last run, uncovered, open bugs (KAN-207 / F3)."""
     return release_hud_summary()
+
+
+@app.get("/api/plans/coverage-hud")
+async def get_plans_coverage_hud(story_key: str | None = None):
+    """Coverage HUD pack: open-story AC lines covered/partial/missing (KAN-209 / F4)."""
+    return coverage_hud_summary(story_key=story_key)
 
 
 @app.post("/api/plans/starter")

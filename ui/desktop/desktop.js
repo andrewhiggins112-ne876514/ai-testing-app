@@ -3724,6 +3724,10 @@
   const hudRelLastToggle = document.getElementById("hud-rel-last-toggle");
   const hudRelUncoveredToggle = document.getElementById("hud-rel-uncovered-toggle");
   const hudRelBugsToggle = document.getElementById("hud-rel-bugs-toggle");
+  const hudCovStoryToggle = document.getElementById("hud-cov-story-toggle");
+  const hudCovCoveredToggle = document.getElementById("hud-cov-covered-toggle");
+  const hudCovPartialToggle = document.getElementById("hud-cov-partial-toggle");
+  const hudCovMissingToggle = document.getElementById("hud-cov-missing-toggle");
   const hudSecurityPanel = document.getElementById("hud-security");
   const hudReportsPanel = document.getElementById("hud-reports");
   const hudLabPanel = document.getElementById("hud-lab");
@@ -3739,6 +3743,10 @@
   const hudRelLastPanel = document.getElementById("hud-rel-last");
   const hudRelUncoveredPanel = document.getElementById("hud-rel-uncovered");
   const hudRelBugsPanel = document.getElementById("hud-rel-bugs");
+  const hudCovStoryPanel = document.getElementById("hud-cov-story");
+  const hudCovCoveredPanel = document.getElementById("hud-cov-covered");
+  const hudCovPartialPanel = document.getElementById("hud-cov-partial");
+  const hudCovMissingPanel = document.getElementById("hud-cov-missing");
   const hudSecurityLevel = document.getElementById("hud-security-level");
   const hudReportsBody = document.getElementById("hud-reports-body");
   const hudLabMessage = document.getElementById("hud-lab-message");
@@ -3775,6 +3783,14 @@
   const hudRelUncoveredList = document.getElementById("hud-rel-uncovered-list");
   const hudRelBugsEmpty = document.getElementById("hud-rel-bugs-empty");
   const hudRelBugsList = document.getElementById("hud-rel-bugs-list");
+  const hudCovStoryBody = document.getElementById("hud-cov-story-body");
+  const hudCovStoryOpen = document.getElementById("hud-cov-story-open");
+  const hudCovCoveredEmpty = document.getElementById("hud-cov-covered-empty");
+  const hudCovCoveredList = document.getElementById("hud-cov-covered-list");
+  const hudCovPartialEmpty = document.getElementById("hud-cov-partial-empty");
+  const hudCovPartialList = document.getElementById("hud-cov-partial-list");
+  const hudCovMissingEmpty = document.getElementById("hud-cov-missing-empty");
+  const hudCovMissingList = document.getElementById("hud-cov-missing-list");
   let areaLayout = "overlay";
   let openAreaName = "";
   let hudFlags = {
@@ -3793,6 +3809,10 @@
     relLast: false,
     relUncovered: false,
     relBugs: false,
+    covStory: false,
+    covCovered: false,
+    covPartial: false,
+    covMissing: false,
   };
   let labHomeEmpty = false;
   let hubCloseTimer = 0;
@@ -3801,6 +3821,8 @@
   let managerHudPlanId = "";
   let managerHudCache = null;
   let releaseHudCache = null;
+  let coverageHudCache = null;
+  let coverageHudPlanId = "";
 
   if (areaBody && sectionHost) {
     areaBody.appendChild(sectionHost);
@@ -4256,6 +4278,10 @@
       relLast: !!(flags && flags.relLast),
       relUncovered: !!(flags && flags.relUncovered),
       relBugs: !!(flags && flags.relBugs),
+      covStory: !!(flags && flags.covStory),
+      covCovered: !!(flags && flags.covCovered),
+      covPartial: !!(flags && flags.covPartial),
+      covMissing: !!(flags && flags.covMissing),
     };
     if (hudSecurityToggle) hudSecurityToggle.checked = hudFlags.security;
     if (hudReportsToggle) hudReportsToggle.checked = hudFlags.reports;
@@ -4276,6 +4302,10 @@
       hudRelUncoveredToggle.checked = hudFlags.relUncovered;
     }
     if (hudRelBugsToggle) hudRelBugsToggle.checked = hudFlags.relBugs;
+    if (hudCovStoryToggle) hudCovStoryToggle.checked = hudFlags.covStory;
+    if (hudCovCoveredToggle) hudCovCoveredToggle.checked = hudFlags.covCovered;
+    if (hudCovPartialToggle) hudCovPartialToggle.checked = hudFlags.covPartial;
+    if (hudCovMissingToggle) hudCovMissingToggle.checked = hudFlags.covMissing;
     const home = !openAreaName;
     if (hudSecurityPanel) hudSecurityPanel.hidden = !(home && hudFlags.security);
     if (hudReportsPanel) hudReportsPanel.hidden = !(home && hudFlags.reports);
@@ -4322,6 +4352,19 @@
     if (hudRelBugsPanel) {
       hudRelBugsPanel.hidden = !(home && hudFlags.relBugs);
     }
+    // Coverage pack is home-only (no separate PO home; never edits Jira).
+    if (hudCovStoryPanel) {
+      hudCovStoryPanel.hidden = !(home && hudFlags.covStory);
+    }
+    if (hudCovCoveredPanel) {
+      hudCovCoveredPanel.hidden = !(home && hudFlags.covCovered);
+    }
+    if (hudCovPartialPanel) {
+      hudCovPartialPanel.hidden = !(home && hudFlags.covPartial);
+    }
+    if (hudCovMissingPanel) {
+      hudCovMissingPanel.hidden = !(home && hudFlags.covMissing);
+    }
   }
 
   function defaultHudFlags() {
@@ -4341,6 +4384,10 @@
       relLast: false,
       relUncovered: false,
       relBugs: false,
+      covStory: false,
+      covCovered: false,
+      covPartial: false,
+      covMissing: false,
     };
   }
 
@@ -4374,6 +4421,10 @@
         hudRelUncoveredToggle && hudRelUncoveredToggle.checked
       ),
       relBugs: !!(hudRelBugsToggle && hudRelBugsToggle.checked),
+      covStory: !!(hudCovStoryToggle && hudCovStoryToggle.checked),
+      covCovered: !!(hudCovCoveredToggle && hudCovCoveredToggle.checked),
+      covPartial: !!(hudCovPartialToggle && hudCovPartialToggle.checked),
+      covMissing: !!(hudCovMissingToggle && hudCovMissingToggle.checked),
     };
     applyHud(flags);
     try {
@@ -4399,6 +4450,14 @@
       flags.relBugs
     ) {
       loadReleaseHud();
+    }
+    if (
+      flags.covStory ||
+      flags.covCovered ||
+      flags.covPartial ||
+      flags.covMissing
+    ) {
+      loadCoverageHud();
     }
   }
 
@@ -4746,6 +4805,94 @@
     }
   }
 
+  function openCoverageLine(row) {
+    if (!row) return;
+    openPlansOnCase(row.plan_id || "", row.case_id || "", row.case_name || "");
+  }
+
+  function renderCoverageHud(payload) {
+    coverageHudCache = payload || null;
+    const story = (payload && payload.open_story) || {};
+    coverageHudPlanId = story.plan_id || "";
+    if (hudCovStoryBody) {
+      if (!story.story_key) {
+        hudCovStoryBody.textContent = "No open story";
+      } else {
+        const bits = [
+          (story.covered_count || 0) + " covered",
+          (story.partial_count || 0) + " partial",
+          (story.missing_count || 0) + " missing",
+        ];
+        hudCovStoryBody.textContent =
+          story.story_key +
+          (story.summary ? " — " + story.summary : "") +
+          " · " +
+          bits.join(", ");
+      }
+    }
+    if (hudCovStoryOpen) {
+      hudCovStoryOpen.hidden = !coverageHudPlanId;
+    }
+
+    function fillAcList(rows, emptyEl, listEl, emptyLabel) {
+      clearHudRowList(listEl);
+      if (emptyEl) {
+        emptyEl.hidden = rows.length > 0;
+        emptyEl.textContent = rows.length ? "" : emptyLabel;
+      }
+      rows.forEach(function (row) {
+        appendHudRow(
+          listEl,
+          row.line || "?",
+          (row.status || "") +
+            (row.case_name ? " · " + row.case_name : " · no case") +
+            " → Plans",
+          function () {
+            openCoverageLine(row);
+          }
+        );
+      });
+    }
+
+    fillAcList(
+      (payload && payload.covered) || [],
+      hudCovCoveredEmpty,
+      hudCovCoveredList,
+      "No covered lines"
+    );
+    fillAcList(
+      (payload && payload.partial) || [],
+      hudCovPartialEmpty,
+      hudCovPartialList,
+      "No partial lines"
+    );
+    fillAcList(
+      (payload && payload.missing) || [],
+      hudCovMissingEmpty,
+      hudCovMissingList,
+      "No missing lines"
+    );
+  }
+
+  async function loadCoverageHud() {
+    try {
+      let url = "/api/plans/coverage-hud";
+      const key =
+        hudLabIssue && hudLabIssue.value ? hudLabIssue.value.trim() : "";
+      if (key) {
+        url += "?story_key=" + encodeURIComponent(key);
+      }
+      const res = await fetch(url);
+      if (!res.ok) {
+        renderCoverageHud(null);
+        return;
+      }
+      renderCoverageHud(await res.json());
+    } catch (err) {
+      renderCoverageHud(null);
+    }
+  }
+
   if (hudSecurityToggle) hudSecurityToggle.addEventListener("change", saveHud);
   if (hudReportsToggle) hudReportsToggle.addEventListener("change", saveHud);
   if (hudLabToggle) hudLabToggle.addEventListener("change", saveHud);
@@ -4765,6 +4912,16 @@
     hudRelUncoveredToggle.addEventListener("change", saveHud);
   }
   if (hudRelBugsToggle) hudRelBugsToggle.addEventListener("change", saveHud);
+  if (hudCovStoryToggle) hudCovStoryToggle.addEventListener("change", saveHud);
+  if (hudCovCoveredToggle) {
+    hudCovCoveredToggle.addEventListener("change", saveHud);
+  }
+  if (hudCovPartialToggle) {
+    hudCovPartialToggle.addEventListener("change", saveHud);
+  }
+  if (hudCovMissingToggle) {
+    hudCovMissingToggle.addEventListener("change", saveHud);
+  }
   if (hudTesterLastOpen) {
     hudTesterLastOpen.addEventListener("click", function () {
       if (testerHudLastPlanId) openPlansOnCase(testerHudLastPlanId, "", "");
@@ -4781,6 +4938,11 @@
   if (hudRelLastOpen) {
     hudRelLastOpen.addEventListener("click", openReleaseReadiness);
   }
+  if (hudCovStoryOpen) {
+    hudCovStoryOpen.addEventListener("click", function () {
+      if (coverageHudPlanId) openPlansOnCase(coverageHudPlanId, "", "");
+    });
+  }
   loadHud();
   loadHudReports();
   loadSecurityStatus();
@@ -4788,6 +4950,7 @@
   loadTesterHud();
   loadManagerHud();
   loadReleaseHud();
+  loadCoverageHud();
   applyAreaLayout(loadAreaLayout());
 
   if (hudLabConn) {

@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-209** — F4 Coverage HUD widget pack on orb home |
-| **Start task** | **KAN-210** (`test`, Relates → KAN-209) |
+| **Jira story** | **KAN-211** — F5 Keyboard on orb home and inside areas |
+| **Start task** | **KAN-212** (`test`, Relates → KAN-211) |
 | **Epic** | Test-all F (see catalogue) |
-| **Roadmap ID** | F4 / FR-UI-6 + FR-PLAN-4 |
+| **Roadmap ID** | F5 / FR-UI-1 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-210** |
-| **Shipped** | … **KAN-207** F3 Release HUD (desk69); **KAN-205** F2 Manager HUD (desk68); **KAN-203** F1 Tester HUD (desk67); **KAN-201** E5 offline last plan (desk66); **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
+| **Test ticket** | **KAN-212** |
+| **Shipped** | … **KAN-209** F4 Coverage HUD (desk70); **KAN-207** F3 Release HUD (desk69); **KAN-205** F2 Manager HUD (desk68); **KAN-203** F1 Tester HUD (desk67); **KAN-201** E5 offline last plan (desk66); **KAN-199** E4 backup/restore (desk65); **KAN-260** Lab tools App menu (desk64); **KAN-197** E3; **KAN-195** E2; **KAN-193** E1; **KAN-191** D7; **KAN-189** D6; **KAN-187** D5; **KAN-185** D4; **KAN-183** D3; **KAN-181** D2; **KAN-179** D1; **KAN-177** C11; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all F after F4 → F5… |
+| **Next after this** | continue Test-all F after F5 → F6… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-209 — F4 Coverage HUD widget pack on orb home
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-209
+- **Done:** Optional Coverage HUD pack on orb home: open-story AC lines covered/partial/missing. Screen drawer toggles; home-only (hidden while App area open); choosing a line opens Plan/Suite on linked case; never edits Jira. No separate PO home. `GET /api/plans/coverage-hud` (+ optional `story_key`) + desk70.
+- **Files:** `plans/coverage_hud.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_coverage_hud.py` (+ desk70 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_coverage_hud.py` (+ release/manager/tester) 8 passed. Live `GET /api/plans/coverage-hud` → home_only true, separate_po_home false, jira_write false; desk70 HTML has coverage HUD ids/toggles. `desktop_app.py` opened desk70.
+- **Jira:** close-out **KAN-209** + **KAN-210**
+- **Next:** **KAN-211** F5 Keyboard on orb home and inside areas (test **KAN-212**)
 
 ### 2026-11-17 — KAN-207 — F3 Release HUD widget pack on orb home
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-207

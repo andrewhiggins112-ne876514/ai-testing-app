@@ -92,7 +92,7 @@ class PlanArchiveTests(unittest.TestCase):
         runnable2 = cases_for_run(pid)
         self.assertIn(obsolete["id"], [c["id"] for c in runnable2["cases"]])
 
-    def test_api_archive_and_desktop_ui_desk69(self):
+    def test_api_archive_and_desktop_ui_desk70(self):
         created = create_plan("API archive", intent="c11-api")
         pid = created["plan"]["id"]
         case = add_case(pid, "To archive")["case"]
@@ -122,8 +122,8 @@ class PlanArchiveTests(unittest.TestCase):
 
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk69", html)
-        self.assertIn("desk69", desk)
+        self.assertIn("desk70", html)
+        self.assertIn("desk70", desk)
         self.assertIn("plan-case-archived", html)
         self.assertIn("plan-show-archived", html)
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")

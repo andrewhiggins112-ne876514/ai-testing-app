@@ -1133,6 +1133,34 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   min-height: 110px;
 }
 
+.hud-cov-story {
+  left: 520px;
+  top: 120px;
+  width: 220px;
+  min-height: 96px;
+}
+
+.hud-cov-covered {
+  left: 520px;
+  top: 260px;
+  width: 220px;
+  min-height: 110px;
+}
+
+.hud-cov-partial {
+  left: 756px;
+  top: 120px;
+  width: 220px;
+  min-height: 110px;
+}
+
+.hud-cov-missing {
+  left: 756px;
+  top: 260px;
+  width: 220px;
+  min-height: 110px;
+}
+
 .hud-row-list {
   display: flex;
   flex-direction: column;

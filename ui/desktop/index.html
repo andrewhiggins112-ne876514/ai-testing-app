@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk69" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk70" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -191,6 +191,27 @@
       <h4 class="hud-widget-title">Open product bugs</h4>
       <p id="hud-rel-bugs-empty" class="hud-widget-body">No open product bugs</p>
       <div id="hud-rel-bugs-list" class="hud-row-list" role="list"></div>
+    </aside>
+
+    <aside id="hud-cov-story" class="shell-surface hud-widget hud-cov-story movable-widget" data-widget="hud-cov-story" hidden aria-label="Open story coverage HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">Open story AC</h4>
+      <p id="hud-cov-story-body" class="hud-widget-body">No open story</p>
+      <button type="button" id="hud-cov-story-open" class="save-btn secondary hud-lab-btn" hidden>Open in Plans</button>
+    </aside>
+    <aside id="hud-cov-covered" class="shell-surface hud-widget hud-cov-covered movable-widget" data-widget="hud-cov-covered" hidden aria-label="Covered AC lines HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">AC covered</h4>
+      <p id="hud-cov-covered-empty" class="hud-widget-body">No covered lines</p>
+      <div id="hud-cov-covered-list" class="hud-row-list" role="list"></div>
+    </aside>
+    <aside id="hud-cov-partial" class="shell-surface hud-widget hud-cov-partial movable-widget" data-widget="hud-cov-partial" hidden aria-label="Partial AC lines HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">AC partial</h4>
+      <p id="hud-cov-partial-empty" class="hud-widget-body">No partial lines</p>
+      <div id="hud-cov-partial-list" class="hud-row-list" role="list"></div>
+    </aside>
+    <aside id="hud-cov-missing" class="shell-surface hud-widget hud-cov-missing movable-widget" data-widget="hud-cov-missing" hidden aria-label="Missing AC lines HUD" title="Drag to move · resize from edges">
+      <h4 class="hud-widget-title">AC missing</h4>
+      <p id="hud-cov-missing-empty" class="hud-widget-body">No missing lines</p>
+      <div id="hud-cov-missing-list" class="hud-row-list" role="list"></div>
     </aside>
 
     <div id="area-layer" class="area-layer" hidden>
@@ -851,7 +872,7 @@
           <label>Border <input id="ctrl-widget-border" type="color" value="#50cdff" /></label>
           <label>Background <input id="ctrl-widget-bg" type="color" value="#000000" /></label>
           <h3 class="orb-section-label">HUD widgets</h3>
-          <p class="drawer-hint">Home mini panels only. They are not App area content. Lab checklist also auto-shows when there is no plan yet. Tester, Manager, and Release packs stay on orb home (no separate role homes). Release readiness ticks stay in Reports.</p>
+          <p class="drawer-hint">Home mini panels only. They are not App area content. Lab checklist also auto-shows when there is no plan yet. Tester, Manager, Release, and Coverage packs stay on orb home (no separate role homes). Release readiness ticks stay in Reports. Coverage lines open Plan/Suite and never edit Jira.</p>
           <label class="check-row"><input type="checkbox" id="hud-security-toggle" /> Security status</label>
           <label class="check-row"><input type="checkbox" id="hud-reports-toggle" /> Reports mini</label>
           <label class="check-row"><input type="checkbox" id="hud-lab-toggle" /> Lab checklist</label>
@@ -870,6 +891,11 @@
           <label class="check-row"><input type="checkbox" id="hud-rel-last-toggle" /> Last run</label>
           <label class="check-row"><input type="checkbox" id="hud-rel-uncovered-toggle" /> Uncovered stories</label>
           <label class="check-row"><input type="checkbox" id="hud-rel-bugs-toggle" /> Open product bugs</label>
+          <h3 class="orb-section-label">Coverage HUD pack</h3>
+          <label class="check-row"><input type="checkbox" id="hud-cov-story-toggle" /> Open story AC</label>
+          <label class="check-row"><input type="checkbox" id="hud-cov-covered-toggle" /> Covered AC lines</label>
+          <label class="check-row"><input type="checkbox" id="hud-cov-partial-toggle" /> Partial AC lines</label>
+          <label class="check-row"><input type="checkbox" id="hud-cov-missing-toggle" /> Missing AC lines</label>
         </div>
       </div>
     </aside>
@@ -877,6 +903,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk69"></script>
+  <script src="/ui/desktop/desktop.js?v=desk70"></script>
 </body>
 </html>
