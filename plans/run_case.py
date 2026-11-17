@@ -27,6 +27,8 @@ def _last_run_summary(case: dict[str, Any]) -> str | None:
     parts = [res]
     if dur is not None:
         parts.append(f"{dur}ms")
+    if last.get("mock"):
+        parts.append("mock")
     if is_known_labelled(last) or is_known_labelled(case):
         parts.append("known")
     else:
@@ -213,7 +215,7 @@ def _map_desktop_result(desk: dict[str, Any]) -> tuple[str, str | None, list[str
 
 
 def _map_api_result(api: dict[str, Any]) -> tuple[str, str | None]:
-    """Map api_messaging_runner output to plan run result + failure_class."""
+    """Map api_messaging_runner / contract_mock output to result + failure_class."""
     status = str(api.get("status") or "fail").lower()
     err = (api.get("error") or api.get("message") or "").strip()
     if status == "pass":
@@ -232,6 +234,10 @@ def _map_api_result(api: dict[str, Any]) -> tuple[str, str | None]:
         or "failed to establish" in low
         or "tcp connect" in low
         or "no port for scheme" in low
+        or "mock fixture not found" in low
+        or "no mock fixture" in low
+        or "invalid mock fixture" in low
+        or "mock fixture unreadable" in low
     ):
         return "error", "environment"
     if status == "fail":
@@ -249,15 +255,17 @@ async def _execute_api_case(
     reserved_run_id: str,
     started: float,
 ) -> dict[str, Any]:
-    """Run one API/messaging case via api_messaging_runner."""
+    """Run one API/messaging case via api_messaging_runner or local mock (G3)."""
     from plans.api_case import parse_api_ref, write_api_evidence
     from plugins.api_messaging_runner import run_api_check
+    from plugins.contract_mock import run_mock_response
     from plans.timeouts import case_step_timeout_ms
     from settings.store import load_settings
 
     cid = target_case["id"]
     src = target_case.get("source") if isinstance(target_case.get("source"), dict) else {}
     parsed = parse_api_ref(str(src.get("ref") or ""))
+    mock_fixture = str(parsed.get("mock_fixture") or "").strip()
     settings = load_settings()
     endpoint = (parsed.get("endpoint") or "").strip() or str(
         settings.get("api_endpoint") or ""
@@ -265,14 +273,29 @@ async def _execute_api_case(
     timeout_ms = case_step_timeout_ms(target_case)
     timeout_s = max(0.5, min(float(timeout_ms) / 1000.0, 60.0))
 
-    api = await asyncio.to_thread(
-        run_api_check,
-        endpoint=endpoint,
-        method=str(parsed.get("method") or "GET"),
-        timeout_s=timeout_s,
-        expect_status=parsed.get("expect_status"),
-        body=parsed.get("body"),
-    )
+    if mock_fixture:
+        # Mocks only when the case selects one — no live call.
+        api = await asyncio.to_thread(
+            run_mock_response,
+            fixture=mock_fixture,
+            expect_status=parsed.get("expect_status"),
+            method=str(parsed.get("method") or "GET"),
+            level=level,
+        )
+        runner = "contract_mock"
+        used_mock = True
+    else:
+        api = await asyncio.to_thread(
+            run_api_check,
+            endpoint=endpoint,
+            method=str(parsed.get("method") or "GET"),
+            timeout_s=timeout_s,
+            expect_status=parsed.get("expect_status"),
+            body=parsed.get("body"),
+        )
+        runner = "api_messaging_runner"
+        used_mock = False
+
     duration_ms = int((time.monotonic() - started) * 1000)
     result, failure_class = _map_api_result(api)
     evidence = write_api_evidence(
@@ -281,10 +304,13 @@ async def _execute_api_case(
         case_id=cid,
         api=api,
     )
-    note_parts = [
-        str(api.get("message") or api.get("error") or ""),
-        f"body={api.get('body_summary') or ''}"[:400],
-    ]
+    note_parts = []
+    if used_mock:
+        note_parts.append("mock")
+        if api.get("fixture"):
+            note_parts.append(f"fixture={api.get('fixture')}")
+    note_parts.append(str(api.get("message") or api.get("error") or ""))
+    note_parts.append(f"body={api.get('body_summary') or ''}"[:400])
     note = " | ".join(p for p in note_parts if p)[:500]
     recorded = add_run(
         plan_id,
@@ -296,6 +322,7 @@ async def _execute_api_case(
         note=note,
         suite_run_id=suite_run_id,
         run_id=reserved_run_id,
+        mock=used_mock,
         level=level,
     )
     return {
@@ -303,9 +330,9 @@ async def _execute_api_case(
         "message": f"Case {cid} finished: {result}.",
         "security_level": level,
         "playwright_mode": None,
-        "target_up": bool(endpoint),
+        "target_up": bool(endpoint) if not used_mock else True,
         "only_case_id": cid,
-        "runner": "api_messaging_runner",
+        "runner": runner,
         "pause_on_fail": False,
         "suite_run_id": suite_run_id,
         "api": {
@@ -315,7 +342,10 @@ async def _execute_api_case(
             "endpoint_label": api.get("endpoint_label"),
             "redaction_hits": api.get("redaction_hits"),
             "body_summary": api.get("body_summary"),
-            "plugin": api.get("plugin") or "api_messaging_runner",
+            "plugin": api.get("plugin") or runner,
+            "mock": used_mock,
+            "fixture": api.get("fixture"),
+            "transport": api.get("transport"),
         },
         "plan": recorded.get("plan"),
         "case": recorded.get("case"),
@@ -743,6 +773,7 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             continue
         src = case.get("source") if isinstance(case.get("source"), dict) else {}
         kind = str(src.get("kind") or "manual-draft")
+        from plans.api_case import parse_api_ref
         from plans.known_issue import is_known_labelled
         from plans.timeouts import case_step_timeout_ms
 
@@ -752,6 +783,19 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
 
         flake = flake_score(case)
         qstat = quarantine_status(case)
+        mock_fixture = ""
+        if kind == "api":
+            mock_fixture = str(
+                parse_api_ref(str(src.get("ref") or "")).get("mock_fixture") or ""
+            ).strip()
+        if kind == "api":
+            runner_name = "contract_mock" if mock_fixture else "api_messaging_runner"
+        elif kind == "desktop":
+            runner_name = "desktop_runner"
+        elif kind == "playwright":
+            runner_name = "playwright_suite"
+        else:
+            runner_name = "playwright"
         return {
             "status": "ok",
             "case_id": cid,
@@ -772,15 +816,8 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "manual_draft": kind == "manual-draft" and not (case.get("jira_key") or "").strip(),
             "desktop_case": kind == "desktop",
             "api_case": kind == "api",
-            "runner": (
-                "api_messaging_runner"
-                if kind == "api"
-                else (
-                    "desktop_runner"
-                    if kind == "desktop"
-                    else ("playwright_suite" if kind == "playwright" else "playwright")
-                )
-            ),
+            "mock_fixture": mock_fixture,
+            "runner": runner_name,
             "last_run": last,
             "last_run_summary": _last_run_summary(case),
             "last_failure": flake.get("last_failure"),

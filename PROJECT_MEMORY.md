@@ -40,7 +40,7 @@ Long-term goal: the most-used local/on-prem testing hub for testers, developers,
 - **Desktop-first compact App menu CR (2026-11-17b):** Desktop (`desktop_app.py`) is the **primary** product UI — not intended for browser use. Compact `▦` App menu shipped **KAN-253** (desk44 / test **KAN-254**).
 
 ## Current State
-**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (~61 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1–D7 Done;** **E1–E5 Done;** **KAN-260** Lab tools on ▦ App menu (desk64 / FR-UI-8). **Active Build: KAN-221** G3 Contract and mock responses (test **KAN-222**). **G2 Done** (**KAN-219** API/messaging cases on same suite; desk75). **G1 Done** (**KAN-217** desktop-typed cases; desk74). **F1–F7 Done** (F7 Home checklist **KAN-215** desk73; F6 export pack **KAN-213** desk72). Not KAN-81 voice.
+**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (~61 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1–D7 Done;** **E1–E5 Done;** **KAN-260** Lab tools on ▦ App menu (desk64 / FR-UI-8). **Active Build: KAN-223** G4 Seed data and fixtures (test **KAN-224**). **G3 Done** (**KAN-221** contract/mock fixtures; desk76). **G2 Done** (**KAN-219** API/messaging cases on same suite; desk75). **G1 Done** (**KAN-217** desktop-typed cases; desk74). **F1–F7 Done** (F7 Home checklist **KAN-215** desk73; F6 export pack **KAN-213** desk72). Not KAN-81 voice.
 
 Skeleton + substantial features exist:
 - `plans/store.py` — **FR-PLAN-1/2 (KAN-125 + KAN-133 + KAN-177):** level-scoped plan → suite → cases → runs under `plans/{OFFICIAL|SECRET}/`; list/get isolated by active security level; create does not rewrite settings/reports/Playwright files; **update_case / reorder_cases / cases_for_run** (disable/archive skip later runs; archive never deletes runs/evidence); API `GET/POST /api/plans*`, case update, reorder, runnable
@@ -141,7 +141,7 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-215** F7 Home checklist widget — **Done** (KAN-216; `plans/home_checklist.py` + `/api/plans/home-checklist`; connection/first plan/first run; auto-hide when done; desk73)
 - **KAN-217** G1 Desktop cases on the same suite — **Done** (KAN-218; `plans/desktop_case.py` + run routing; `source.kind=desktop` via desktop_runner; Plans Add desktop case; desk74)
 - **KAN-219** G2 API and messaging checks — **Done** (KAN-220; `plans/api_case.py` + `plugins/api_messaging_runner.py`; `source.kind=api`; status + redacted body; Plans Add API/messaging case; desk75)
-- Next Active: **KAN-221** G3 Contract and mock responses (test **KAN-222**). **KAN-81** Voice — **deferred** until mic (last; test KAN-82 / G10 **KAN-235**)
+- Next Active: **KAN-223** G4 Seed data and fixtures (test **KAN-224**). **KAN-81** Voice — **deferred** until mic (last; test KAN-82 / G10 **KAN-235**)
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -164,6 +164,6 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-221** — G3 Contract and mock responses (see WORK_LOG Active slice; test **KAN-222**).
-2. Continue Test-all G after G3.
+1. **KAN-223** — G4 Seed data and fixtures (see WORK_LOG Active slice; test **KAN-224**).
+2. Continue Test-all G after G4.
 3. **KAN-81** voice stays deferred (mic; catalogue G10 / **KAN-235**) — do not pick up while deferred.

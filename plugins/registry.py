@@ -49,6 +49,16 @@ _MANIFESTS: list[dict[str, Any]] = [
         "default_enabled": True,
     },
     {
+        "id": "contract_mock",
+        "name": "Contract / mock responses",
+        "description": (
+            "Local mock fixtures for API/messaging cases when the real queue is down "
+            "(opt-in per case; KAN-221 / G3)."
+        ),
+        "toggle_key": None,
+        "default_enabled": True,
+    },
+    {
         "id": "doc_ingest",
         "name": "Document ingestion",
         "description": "Parse specs into settings proposals (confirm before write).",

@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-221** — G3 Contract and mock responses |
-| **Start task** | **KAN-222** (`test`, Relates → KAN-221) |
+| **Jira story** | **KAN-223** — G4 Seed data and fixtures |
+| **Start task** | **KAN-224** (`test`, Relates → KAN-223) |
 | **Epic** | Test-all G (see catalogue) |
-| **Roadmap ID** | G3 / FR-PLUG-1 / FR-PLAN-2 |
+| **Roadmap ID** | G4 / FR-PLUG-1 / FR-PLAN-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-222** |
-| **Shipped** | … **KAN-219** G2 API/messaging checks (desk75); **KAN-217** G1 Desktop cases same suite (desk74); **KAN-215** F7 Home checklist (desk73); **KAN-213** F6; **KAN-211** F5; **KAN-209** F4; **KAN-207** F3; **KAN-205** F2; **KAN-203** F1; **KAN-201** E5; **KAN-199** E4; **KAN-260** Lab tools; … **KAN-177** C11; **KAN-257** App menu |
+| **Test ticket** | **KAN-224** |
+| **Shipped** | … **KAN-221** G3 Contract/mock (desk76); **KAN-219** G2 API/messaging (desk75); **KAN-217** G1 Desktop cases (desk74); **KAN-215** F7; **KAN-213** F6; … **KAN-260** Lab tools; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all G after G3 → G4… |
+| **Next after this** | continue Test-all G after G4 → G5… |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-221 — G3 Contract and mock responses
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-221
+- **Done:** API cases may select a local mock fixture (`mock_fixture` in source.ref). `contract_mock` plugin loads level-scoped fixtures under `%LOCALAPPDATA%/ai_testing_app/mocks/{level}/`; default `contract_ok.json` ensured on add. Run record stores `mock: true` + note/evidence say mock. Live API/messaging cases unchanged when no fixture selected. Plans UI “Add mock/contract case”; `POST /api/plans/{id}/cases/contract` + desk76.
+- **Files:** `plugins/contract_mock.py`, `plugins/registry.py`, `plans/api_case.py`, `plans/run_case.py`, `plans/store.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_contract_mock.py` (+ desk76 cache-bust across UI tests)
+- **Verify:** `pytest tests/test_plan_contract_mock.py tests/test_plan_api_case.py` 16 passed. Live `POST /api/plans/.../cases/contract` → kind api + mock_fixture; run → runner contract_mock, `run.mock` true, pass. desk76 HTML has `plan-add-contract-btn`. `desktop_app.py` opened desk76 (orb home; Computer Use Plans click contested; API + HTML + pytest evidence).
+- **Jira:** close-out **KAN-221** + **KAN-222**
+- **Next:** **KAN-223** G4 Seed data and fixtures (test **KAN-224**)
 
 ### 2026-11-17 — KAN-219 — G2 API and messaging checks
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-219

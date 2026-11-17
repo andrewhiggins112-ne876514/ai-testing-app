@@ -188,6 +188,8 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
         suite_run_id = ""
     # D3: environment name only — never credentials (KAN-183).
     env_name = str(raw.get("environment_name") or "").strip()[:40] or None
+    # G3: run record says mock when a contract fixture was used (KAN-221).
+    mock_flag = bool(raw.get("mock"))
     return {
         "id": rid,
         "result": result,
@@ -196,6 +198,7 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
         "evidence": evidence,
         "suite_run_id": suite_run_id or None,
         "environment_name": env_name,
+        "mock": mock_flag,
         "started_at": str(raw.get("started_at") or "") or None,
         "finished_at": str(raw.get("finished_at") or "") or None,
         "note": str(raw.get("note") or "")[:2000],
@@ -569,6 +572,7 @@ def add_run(
     suite_run_id: str | None = None,
     run_id: str | None = None,
     environment_name: str | None = None,
+    mock: bool = False,
     level: str | None = None,
 ) -> dict[str, Any]:
     """Attach a run record to a case (execution itself is later stories)."""
@@ -608,6 +612,7 @@ def add_run(
             "evidence": evidence or [],
             "suite_run_id": suite_run_id,
             "environment_name": env_label,
+            "mock": bool(mock),
             "started_at": started_at or now,
             "finished_at": finished_at or now,
             "note": note,

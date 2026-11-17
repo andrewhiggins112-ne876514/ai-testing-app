@@ -1357,6 +1357,7 @@
   const planImportPwAddBtn = document.getElementById("plan-import-pw-add-btn");
   const planAddDesktopBtn = document.getElementById("plan-add-desktop-btn");
   const planAddApiBtn = document.getElementById("plan-add-api-btn");
+  const planAddContractBtn = document.getElementById("plan-add-contract-btn");
   const planPwPath = document.getElementById("plan-pw-path");
   const planRefreshBtn = document.getElementById("plan-refresh-btn");
   const planList = document.getElementById("plan-list");
@@ -2447,7 +2448,11 @@
             (c.name || "") +
             (c.jira_key ? " · Jira " + c.jira_key : "") +
             (kind === "desktop" ? " · desktop" : "") +
-            (kind === "api" ? " · api/messaging" : "") +
+            (kind === "api"
+              ? src && String(src).indexOf("mock_fixture") >= 0
+                ? " · mock/contract"
+                : " · api/messaging"
+              : "") +
             (kind === "manual-draft" && !c.jira_key ? " · manual-draft" : "") +
             (isKnownLabel(c) ? " · known" : "") +
             (isQuarantinedCase(c) ? " · quarantined" : "") +
@@ -5756,6 +5761,49 @@
   if (planAddApiBtn) {
     planAddApiBtn.addEventListener("click", function () {
       addApiCaseToOpenPlan();
+    });
+  }
+
+  async function addContractCaseToOpenPlan() {
+    if (!openPlanId) {
+      if (planStatus) planStatus.textContent = "Open a plan first.";
+      return;
+    }
+    if (planStatus) planStatus.textContent = "Adding mock/contract case…";
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + "/cases/contract",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
+      const payload = await res.json();
+      if (payload.status !== "ok" || !payload.plan) {
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message || "Could not add mock/contract case.";
+        }
+        return;
+      }
+      renderPlanCases(payload.plan);
+      if (payload.case && planCaseId) {
+        planCaseId.value = payload.case.id || "";
+      }
+      if (typeof refreshLabHome === "function") await refreshLabHome();
+      if (planStatus) {
+        planStatus.textContent =
+          "Mock/contract case added — local fixture; run record marked mock.";
+      }
+    } catch (err) {
+      if (planStatus) planStatus.textContent = "Mock/contract case request failed.";
+    }
+  }
+
+  if (planAddContractBtn) {
+    planAddContractBtn.addEventListener("click", function () {
+      addContractCaseToOpenPlan();
     });
   }
 
