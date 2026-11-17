@@ -54,6 +54,12 @@ from plans.drift import (
 )
 from plans.import_playwright import import_playwright_project
 from plans.history import compare_suite_runs, list_suite_history
+from plans.quarantine import (
+    DEFAULT_FLAKE_WINDOW,
+    clear_quarantine as plan_clear_quarantine,
+    set_quarantine as plan_set_quarantine,
+    suite_flake_report,
+)
 from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.pause_session import get_session, public_session, signal_decision
@@ -286,6 +292,13 @@ class PlanCaseUpdateRequest(BaseModel):
     order: int | None = None
     priority: int | None = None
     tags: list[str] | None = None
+
+
+class PlanQuarantineRequest(BaseModel):
+    """Quarantine requires reason + expiry (KAN-181 / D2). Never counted as pass."""
+
+    reason: str = ""
+    expires_at: str = ""
 
 
 class PlanReorderRequest(BaseModel):
@@ -813,6 +826,37 @@ async def get_plan_suite_history(plan_id: str):
 async def get_plan_suite_compare(plan_id: str, a: str = "", b: str = ""):
     """C10 compare two suite runs; cases that changed result; known issues labelled (KAN-175)."""
     return compare_suite_runs(plan_id, a, b)
+
+
+@app.get("/api/plans/{plan_id}/flake")
+async def get_plan_flake(plan_id: str, window: int = DEFAULT_FLAKE_WINDOW):
+    """D2 flake scores (fail count in last N runs) + quarantine status (KAN-181)."""
+    loaded = get_plan(plan_id)
+    if loaded.get("status") != "ok":
+        return loaded
+    report = suite_flake_report(loaded["plan"], window=window)
+    return {**report, "security_level": loaded.get("security_level")}
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/quarantine")
+async def post_plan_case_quarantine(
+    plan_id: str,
+    case_id: str,
+    req: PlanQuarantineRequest,
+):
+    """Quarantine a case — reason + expiry required; skipped on runs, not a pass (KAN-181)."""
+    return plan_set_quarantine(
+        plan_id,
+        case_id,
+        reason=req.reason or "",
+        expires_at=req.expires_at or "",
+    )
+
+
+@app.post("/api/plans/{plan_id}/cases/{case_id}/quarantine/clear")
+async def post_plan_case_quarantine_clear(plan_id: str, case_id: str):
+    """Clear quarantine early so the case returns to the selectable set (KAN-181)."""
+    return plan_clear_quarantine(plan_id, case_id)
 
 
 @app.post("/api/plans/{plan_id}/acceptance-drift")

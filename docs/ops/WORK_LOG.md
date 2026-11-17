@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready |
-| **Jira story** | **KAN-181** — D2 Flake score and quarantine |
-| **Start task** | **KAN-182** (`test`, Relates → KAN-181) |
+| **Jira story** | **KAN-183** — D3 Named environments |
+| **Start task** | **KAN-184** (`test`, Relates → KAN-183) |
 | **Epic** | Test-all D (see catalogue) |
-| **Roadmap ID** | D2 / FR-PLAN-2 + FR-PLAN-4 |
+| **Roadmap ID** | D3 / FR-CONN-1 + FR-LEARN-2 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-182** |
-| **Shipped** | … **KAN-179** D1 parallel cap (desk54); **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
+| **Test ticket** | **KAN-184** |
+| **Shipped** | … **KAN-181** D2 flake/quarantine (desk55); **KAN-179** D1 parallel cap; **KAN-177** C11; **KAN-175** C10; **KAN-173** C9; **KAN-171** C8; **KAN-169** C7; **KAN-167** C6; **KAN-257** App menu |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; later G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | continue Test-all D after D2 → D3…, or **KAN-260** Lab tools in App menu when prioritised |
+| **Next after this** | continue Test-all D after D3 → D4…, or **KAN-260** Lab tools in App menu when prioritised |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-17 — KAN-181 — D2 Flake score and quarantine
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-181
+- **Done:** Suite flake scores (fail count in last N runs, default 10). Quarantine requires reason + future expiry; quarantined cases skipped and listed on runnable/tag/rerun (never counted as pass). After expiry (or clear) return to selectable set. Raw last failure remains on case detail. desk55 Plans UI.
+- **Files:** `plans/quarantine.py`, `plans/store.py`, `plans/run_case.py`, `plans/run_by_tag.py`, `plans/rerun_failed.py`, `plans/__init__.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `tests/test_plan_quarantine.py` (+ desk55 cache-bust)
+- **Verify:** `pytest tests/test_plan_quarantine.py` + related Plans/UI suite (54 + 45 passed). Live desk55 HTML has quarantine/flake controls; `GET /api/plans/{id}/flake` + quarantine POST; `desktop_app.py` opened (desk55).
+- **Jira:** close-out **KAN-181** + **KAN-182**
+- **Next:** **KAN-183** D3 named environments (test **KAN-184**)
 
 ### 2026-11-17 — KAN-179 — D1 Sequential default and a parallel cap
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-179

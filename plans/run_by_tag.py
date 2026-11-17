@@ -9,22 +9,12 @@ from __future__ import annotations
 from typing import Any
 
 from plans.parallel import map_cases_with_parallel, resolve_parallel_count
+from plans.quarantine import is_actively_quarantined
 from plans.run_case import _execute_case
 from plans.store import finish_suite_run, get_plan, start_suite_run
 
 # First-class tags called out in C7 / FR-PLAN-2 (others allowed too).
 WELL_KNOWN_TAGS = ("smoke", "regression")
-
-
-def _case_quarantined(case: dict[str, Any]) -> bool:
-    if case.get("quarantined") is True:
-        return True
-    q = case.get("quarantine")
-    if isinstance(q, dict) and (
-        q.get("active") or q.get("reason") or q.get("expires_at")
-    ):
-        return True
-    return False
 
 
 def _normalize_tag(tag: str | None) -> str:
@@ -69,7 +59,7 @@ def select_cases_for_tag(plan: dict[str, Any], tag: str) -> dict[str, Any]:
         if not case.get("enabled", True):
             skipped.append({"case_id": cid, "reason": "disabled"})
             continue
-        if _case_quarantined(case):
+        if is_actively_quarantined(case):
             skipped.append({"case_id": cid, "reason": "quarantined"})
             continue
         to_run.append(cid)

@@ -139,6 +139,23 @@ def _resolve_case(
             "security_level": level,
             "case_id": cid,
         }
+    from plans.quarantine import is_actively_quarantined, quarantine_status
+
+    if is_actively_quarantined(target_case):
+        q = quarantine_status(target_case)
+        return {
+            "status": "error",
+            "error": "case_quarantined",
+            "message": (
+                "Quarantined cases are skipped (not counted as pass). "
+                f"Reason: {q.get('reason') or 'quarantine'}; "
+                f"expires {q.get('expires_at') or '—'}."
+            ),
+            "security_level": level,
+            "case_id": cid,
+            "quarantine": q,
+            "counted_as_pass": False,
+        }
     return {
         "status": "ok",
         "plan": plan,
@@ -477,6 +494,10 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
 
         last = (case.get("runs") or [])[-1] if case.get("runs") else None
         known = is_known_labelled(last) or is_known_labelled(case)
+        from plans.quarantine import flake_score, quarantine_status
+
+        flake = flake_score(case)
+        qstat = quarantine_status(case)
         return {
             "status": "ok",
             "case_id": cid,
@@ -487,11 +508,16 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "priority": int(case.get("priority") or 0),
             "enabled": bool(case.get("enabled", True)),
             "archived": bool(case.get("archived", False)),
+            "quarantined": bool(qstat.get("quarantined")),
+            "quarantine": qstat,
+            "flake": flake,
+            "flake_label": flake.get("flake_label"),
             "source_kind": kind,
             "source_ref": src.get("ref") or "",
             "manual_draft": kind == "manual-draft" and not (case.get("jira_key") or "").strip(),
             "last_run": last,
             "last_run_summary": _last_run_summary(case),
+            "last_failure": flake.get("last_failure"),
             "tester_note": (last.get("tester_note") if isinstance(last, dict) else "") or "",
             "known_issue": case.get("known_issue")
             or (last.get("known_issue") if isinstance(last, dict) else None),

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk54" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk55" />
 </head>
 <body>
   <div id="app">
@@ -483,6 +483,20 @@
             <button type="button" id="plan-case-up" class="save-btn secondary">Move up</button>
             <button type="button" id="plan-case-down" class="save-btn secondary">Move down</button>
           </div>
+          <h4 class="orb-section-label">Flake score and quarantine</h4>
+          <p class="drawer-hint" id="plan-flake-hint">Suite lists fail count in the last 10 runs (flake). Quarantine needs a reason and expiry; quarantined cases are skipped and listed on the run — never counted as pass. After expiry they return to the selectable set. Raw last failure stays visible.</p>
+          <p id="plan-flake-summary" class="drawer-hint" aria-live="polite">Flake: —</p>
+          <label class="stack-label">Quarantine reason
+            <input type="text" id="plan-quarantine-reason" placeholder="Flaky locator / intermittent timeout" autocomplete="off" />
+          </label>
+          <label class="stack-label">Quarantine expires (ISO datetime, UTC)
+            <input type="text" id="plan-quarantine-expires" placeholder="2026-12-01T00:00:00+00:00" autocomplete="off" />
+          </label>
+          <div class="btn-row">
+            <button type="button" id="plan-quarantine-set" class="save-btn secondary">Quarantine case</button>
+            <button type="button" id="plan-quarantine-clear" class="save-btn secondary">Clear quarantine</button>
+            <button type="button" id="plan-flake-refresh" class="save-btn secondary">Refresh flake</button>
+          </div>
           <h4 class="orb-section-label">Suite parallel</h4>
           <p class="drawer-hint" id="plan-parallel-hint">Suite runs are sequential by default (1). Cap this stage: 2. The run record stores the count used; values above the cap are refused.</p>
           <label class="stack-label">Parallel count
@@ -661,6 +675,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk54"></script>
+  <script src="/ui/desktop/desktop.js?v=desk55"></script>
 </body>
 </html>

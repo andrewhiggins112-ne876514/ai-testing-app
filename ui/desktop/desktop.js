@@ -1392,6 +1392,13 @@
   const planCaseEnabled = document.getElementById("plan-case-enabled");
   const planCaseArchived = document.getElementById("plan-case-archived");
   const planShowArchived = document.getElementById("plan-show-archived");
+  const planFlakeSummary = document.getElementById("plan-flake-summary");
+  const planQuarantineReason = document.getElementById("plan-quarantine-reason");
+  const planQuarantineExpires = document.getElementById("plan-quarantine-expires");
+  const planQuarantineSet = document.getElementById("plan-quarantine-set");
+  const planQuarantineClear = document.getElementById("plan-quarantine-clear");
+  const planFlakeRefresh = document.getElementById("plan-flake-refresh");
+  let openPlanFlakeById = {};
   const planCaseSave = document.getElementById("plan-case-save");
   const planCaseUp = document.getElementById("plan-case-up");
   const planCaseDown = document.getElementById("plan-case-down");
@@ -1941,6 +1948,68 @@
     return "\n   last run: " + parts.join(" · ");
   }
 
+  function flakeLine(caseObj) {
+    const cid = caseObj && caseObj.id;
+    const row = cid && openPlanFlakeById[cid];
+    if (row && row.flake_label) {
+      return "\n   flake: " + row.flake_label + " fails in last " + (row.window || 10);
+    }
+    const runs = (caseObj && caseObj.runs) || [];
+    if (!runs.length) return "\n   flake: 0/0";
+    const windowN = 10;
+    const recent = runs.slice(-windowN);
+    let fails = 0;
+    for (let i = 0; i < recent.length; i++) {
+      const r = String((recent[i] && recent[i].result) || "").toLowerCase();
+      if (r === "fail" || r === "error") fails += 1;
+    }
+    return "\n   flake: " + fails + "/" + recent.length + " fails in last " + windowN;
+  }
+
+  function isQuarantinedCase(caseObj) {
+    if (!caseObj) return false;
+    const cid = caseObj.id;
+    if (cid && openPlanFlakeById[cid] && openPlanFlakeById[cid].quarantined) {
+      return true;
+    }
+    if (caseObj.quarantined === true) return true;
+    const q = caseObj.quarantine;
+    return !!(q && q.active);
+  }
+
+  async function refreshFlakeReport() {
+    if (!openPlanId) {
+      openPlanFlakeById = {};
+      if (planFlakeSummary) planFlakeSummary.textContent = "Flake: —";
+      return;
+    }
+    try {
+      const res = await fetch(
+        "/api/plans/" + encodeURIComponent(openPlanId) + "/flake"
+      );
+      const payload = await res.json();
+      openPlanFlakeById = {};
+      if (payload.status === "ok" && Array.isArray(payload.cases)) {
+        payload.cases.forEach(function (row) {
+          if (row && row.case_id) openPlanFlakeById[row.case_id] = row;
+        });
+        if (planFlakeSummary) {
+          planFlakeSummary.textContent =
+            "Flake window " +
+            (payload.window || 10) +
+            " · quarantined " +
+            (payload.quarantined_count || 0) +
+            " (skip-only, not a pass)";
+        }
+      } else if (planFlakeSummary) {
+        planFlakeSummary.textContent =
+          payload.message || "Could not load flake scores.";
+      }
+    } catch (err) {
+      if (planFlakeSummary) planFlakeSummary.textContent = "Flake request failed.";
+    }
+  }
+
   function renderPlanCases(plan) {
     openPlanCases = (plan && plan.suite && plan.suite.cases) || [];
     if (planIntent) {
@@ -1981,15 +2050,23 @@
         .map(function (c, idx) {
           const en = c.enabled === false ? "OFF" : "ON";
           const arch = c.archived ? "ARCH" : en;
+          const qflag = isQuarantinedCase(c) ? "QUAR" : arch;
           const src = (c.source && c.source.ref) || "";
           const kind = (c.source && c.source.kind) || "manual-draft";
           const tags = (c.tags || []).join(", ");
           const pri = c.priority != null ? c.priority : 0;
+          const q = c.quarantine || {};
+          const qReason =
+            isQuarantinedCase(c) && (q.reason || (openPlanFlakeById[c.id] && openPlanFlakeById[c.id].quarantine && openPlanFlakeById[c.id].quarantine.reason))
+              ? q.reason ||
+                (openPlanFlakeById[c.id].quarantine &&
+                  openPlanFlakeById[c.id].quarantine.reason)
+              : "";
           return (
             idx +
             1 +
             ". [" +
-            arch +
+            qflag +
             "] " +
             (c.id || "?") +
             " — " +
@@ -1997,6 +2074,7 @@
             (c.jira_key ? " · Jira " + c.jira_key : "") +
             (kind === "manual-draft" && !c.jira_key ? " · manual-draft" : "") +
             (isKnownLabel(c) ? " · known" : "") +
+            (isQuarantinedCase(c) ? " · quarantined" : "") +
             (tags ? " · tags " + tags : "") +
             (pri ? " · P" + pri : "") +
             (src ? "\n   source: " + src : "") +
@@ -2004,6 +2082,8 @@
             (c.known_issue && c.known_issue.note
               ? "\n   known: " + c.known_issue.note
               : "") +
+            (qReason ? "\n   quarantine: " + qReason : "") +
+            flakeLine(c) +
             lastRunLine(c)
           );
         })
@@ -2631,6 +2711,9 @@
       if (payload.status !== "ok" || !planCaseDetail) return;
       const ki = payload.known_issue || {};
       const caseTags = Array.isArray(payload.tags) ? payload.tags : [];
+      const q = payload.quarantine || {};
+      const flake = payload.flake || {};
+      const lastFail = payload.last_failure || flake.last_failure || null;
       const lines = [
         "Case: " + (payload.name || ""),
         "Jira: " + (payload.jira_key || "—"),
@@ -2638,6 +2721,18 @@
         "Priority: " + (payload.priority != null ? payload.priority : 0),
         "Enabled: " + (payload.enabled === false ? "no" : "yes"),
         "Archived: " + (payload.archived ? "yes" : "no"),
+        "Quarantined: " +
+          (payload.quarantined || q.quarantined
+            ? "yes (skipped on run, not a pass)"
+            : q.expired
+              ? "expired — selectable again"
+              : "no"),
+        q.reason ? "Quarantine reason: " + q.reason : "",
+        q.expires_at ? "Quarantine expires: " + q.expires_at : "",
+        "Flake: " +
+          (payload.flake_label || flake.flake_label || "0/0") +
+          " fails in last " +
+          (flake.window || 10),
         "Runs kept: " + (payload.run_count != null ? payload.run_count : 0),
         "Source: " + (payload.source_kind || "manual-draft") + " — " + (payload.source_ref || "—"),
         payload.manual_draft ? "Marked manual-draft (no Jira/doc source)" : "",
@@ -2647,6 +2742,12 @@
         ki.note ? "Known note: " + ki.note : "",
         ki.jira_key ? "Known Jira: " + ki.jira_key : "",
         payload.last_run_summary ? "Last run: " + payload.last_run_summary : "Last run: (none)",
+        lastFail
+          ? "Last failure: " +
+            (lastFail.result || "fail") +
+            (lastFail.failure_class ? " · " + lastFail.failure_class : "") +
+            (lastFail.id ? " · " + lastFail.id : "")
+          : "",
       ].filter(Boolean);
       planCaseDetail.hidden = false;
       planCaseDetail.textContent = lines.join("\n");
@@ -2659,6 +2760,12 @@
       }
       if (planCaseEnabled) planCaseEnabled.checked = payload.enabled !== false;
       if (planCaseArchived) planCaseArchived.checked = !!payload.archived;
+      if (planQuarantineReason && q.reason != null) {
+        planQuarantineReason.value = q.reason || "";
+      }
+      if (planQuarantineExpires && q.expires_at) {
+        planQuarantineExpires.value = q.expires_at;
+      }
       if (planRunNote) planRunNote.value = payload.tester_note || "";
       if (planKnownNote) planKnownNote.value = ki.note || "";
       if (planKnownJira) planKnownJira.value = ki.jira_key || "";
@@ -2722,6 +2829,7 @@
           lastSuiteRunId = finished[finished.length - 1].id || "";
         }
       }
+      await refreshFlakeReport();
       renderPlanCases(payload.plan);
       await refreshCoverageGaps();
       await refreshTraceabilityMatrix();
@@ -4067,6 +4175,121 @@
         suite: { cases: openPlanCases },
         intent: planIntent && !planIntent.hidden ? planIntent.textContent : "",
       });
+    });
+  }
+
+  if (planFlakeRefresh) {
+    planFlakeRefresh.addEventListener("click", async function () {
+      if (!openPlanId) {
+        if (planStatus) planStatus.textContent = "Open a plan first.";
+        return;
+      }
+      await refreshFlakeReport();
+      renderPlanCases({
+        suite: { cases: openPlanCases },
+        intent: planIntent && !planIntent.hidden ? planIntent.textContent : "",
+      });
+      await refreshCaseDetail();
+      if (planStatus) planStatus.textContent = "Flake scores refreshed.";
+    });
+  }
+
+  if (planQuarantineSet) {
+    planQuarantineSet.addEventListener("click", async function () {
+      if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
+        if (planStatus) planStatus.textContent = "Pick a case id first.";
+        return;
+      }
+      const reason =
+        planQuarantineReason && planQuarantineReason.value
+          ? planQuarantineReason.value.trim()
+          : "";
+      const expires =
+        planQuarantineExpires && planQuarantineExpires.value
+          ? planQuarantineExpires.value.trim()
+          : "";
+      if (!reason || !expires) {
+        if (planStatus) {
+          planStatus.textContent =
+            "Quarantine requires a reason and an expiry (ISO datetime).";
+        }
+        return;
+      }
+      if (planStatus) planStatus.textContent = "Quarantining case…";
+      try {
+        const res = await fetch(
+          "/api/plans/" +
+            encodeURIComponent(openPlanId) +
+            "/cases/" +
+            encodeURIComponent(planCaseId.value.trim()) +
+            "/quarantine",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ reason: reason, expires_at: expires }),
+          }
+        );
+        const payload = await res.json();
+        if (payload.status !== "ok") {
+          if (planStatus) {
+            planStatus.textContent = payload.message || "Quarantine failed.";
+          }
+          return;
+        }
+        if (payload.plan) {
+          await refreshFlakeReport();
+          renderPlanCases(payload.plan);
+        }
+        await refreshCaseDetail();
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message ||
+            "Case quarantined (skipped on run, not counted as pass).";
+        }
+      } catch (err) {
+        if (planStatus) planStatus.textContent = "Quarantine request failed.";
+      }
+    });
+  }
+
+  if (planQuarantineClear) {
+    planQuarantineClear.addEventListener("click", async function () {
+      if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
+        if (planStatus) planStatus.textContent = "Pick a case id first.";
+        return;
+      }
+      if (planStatus) planStatus.textContent = "Clearing quarantine…";
+      try {
+        const res = await fetch(
+          "/api/plans/" +
+            encodeURIComponent(openPlanId) +
+            "/cases/" +
+            encodeURIComponent(planCaseId.value.trim()) +
+            "/quarantine/clear",
+          { method: "POST" }
+        );
+        const payload = await res.json();
+        if (payload.status !== "ok") {
+          if (planStatus) {
+            planStatus.textContent =
+              payload.message || "Clear quarantine failed.";
+          }
+          return;
+        }
+        if (payload.plan) {
+          await refreshFlakeReport();
+          renderPlanCases(payload.plan);
+        }
+        await refreshCaseDetail();
+        if (planStatus) {
+          planStatus.textContent =
+            payload.message || "Quarantine cleared — case selectable again.";
+        }
+      } catch (err) {
+        if (planStatus) {
+          planStatus.textContent = "Clear quarantine request failed.";
+        }
+      }
     });
   }
 

@@ -13,6 +13,14 @@ from plans.drift import (
 )
 from plans.import_playwright import import_playwright_project
 from plans.history import compare_suite_runs, list_suite_history
+from plans.quarantine import (
+    DEFAULT_FLAKE_WINDOW,
+    clear_quarantine,
+    flake_score,
+    is_actively_quarantined,
+    set_quarantine,
+    suite_flake_report,
+)
 from plans.search import search_plans
 from plans.traceability import plan_traceability_matrix
 from plans.run_by_tag import WELL_KNOWN_TAGS, run_cases_by_tag, select_cases_for_tag
@@ -35,20 +43,25 @@ from plans.store import (
 )
 
 __all__ = [
+    "DEFAULT_FLAKE_WINDOW",
     "add_case",
     "add_document_draft_cases",
     "add_run",
     "append_run_evidence",
     "cases_for_run",
     "check_acceptance_drift",
+    "clear_quarantine",
     "keep_acceptance_drafts",
     "refresh_acceptance_drafts",
     "import_playwright_project",
     "compare_suite_runs",
+    "flake_score",
+    "is_actively_quarantined",
     "list_suite_history",
     "search_plans",
     "set_known_issue_link",
     "set_plan_notes",
+    "set_quarantine",
     "set_run_failure_class",
     "create_plan",
     "create_starter_plan",
@@ -63,6 +76,7 @@ __all__ = [
     "reorder_cases",
     "run_cases_by_tag",
     "select_cases_for_tag",
+    "suite_flake_report",
     "update_case",
     "upsert_jira_snapshot",
     "WELL_KNOWN_TAGS",

@@ -1126,8 +1126,9 @@ def reorder_cases(
 
 
 def cases_for_run(plan: dict[str, Any] | str, *, level: str | None = None) -> dict[str, Any]:
-    """Cases that later runs should execute — skips disabled and archived (KAN-133)."""
+    """Cases that later runs should execute — skips disabled, archived, quarantine (KAN-133 / D2)."""
     from settings.store import get_security_level
+    from plans.quarantine import is_actively_quarantined
 
     lvl = (level or get_security_level()).strip().upper()
     if isinstance(plan, str):
@@ -1138,17 +1139,25 @@ def cases_for_run(plan: dict[str, Any] | str, *, level: str | None = None) -> di
     else:
         plan_obj = plan
     cases = list((plan_obj.get("suite") or {}).get("cases") or [])
-    runnable = [
-        c
-        for c in cases
-        if c.get("enabled", True) and not c.get("archived", False)
-    ]
+    runnable: list[dict[str, Any]] = []
+    skipped: list[str] = []
+    skipped_reasons: list[dict[str, str]] = []
+    for c in cases:
+        cid = str(c.get("id") or "")
+        if c.get("archived", False):
+            skipped.append(cid)
+            skipped_reasons.append({"case_id": cid, "reason": "archived"})
+            continue
+        if not c.get("enabled", True):
+            skipped.append(cid)
+            skipped_reasons.append({"case_id": cid, "reason": "disabled"})
+            continue
+        if is_actively_quarantined(c):
+            skipped.append(cid)
+            skipped_reasons.append({"case_id": cid, "reason": "quarantined"})
+            continue
+        runnable.append(c)
     runnable.sort(key=lambda c: (int(c.get("order") or 0), c.get("created_at") or "", c["id"]))
-    skipped = [
-        c["id"]
-        for c in cases
-        if (not c.get("enabled", True)) or c.get("archived", False)
-    ]
     return {
         "status": "ok",
         "security_level": lvl,
@@ -1157,6 +1166,7 @@ def cases_for_run(plan: dict[str, Any] | str, *, level: str | None = None) -> di
         "count": len(runnable),
         "skipped_case_ids": skipped,
         "skipped_count": len(skipped),
+        "skipped": skipped_reasons,
     }
 
 
