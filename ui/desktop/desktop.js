@@ -1378,6 +1378,12 @@
   const charterFrameDrag = document.getElementById("charter-frame-drag");
   const charterAssistLive = document.getElementById("charter-assist-live");
   const charterMistLive = document.getElementById("charter-mist-live");
+  const charterSnapMonitor = document.getElementById("charter-snap-monitor");
+  const charterSnapWindow = document.getElementById("charter-snap-window");
+  const charterSnapPicker = document.getElementById("charter-snap-picker");
+  const charterSnapPickerTitle = document.getElementById("charter-snap-picker-title");
+  const charterSnapPickerList = document.getElementById("charter-snap-picker-list");
+  const charterSnapPickerCancel = document.getElementById("charter-snap-picker-cancel");
   const charterNoteInput = document.getElementById("charter-note-input");
   const charterNoteAdd = document.getElementById("charter-note-add");
   const charterStillAdd = document.getElementById("charter-still-add");
@@ -1387,6 +1393,8 @@
   const charterCancelConfirm = document.getElementById("charter-cancel-confirm");
   const charterCancelYes = document.getElementById("charter-cancel-yes");
   const charterCancelNo = document.getElementById("charter-cancel-no");
+  let charterSnapModePending = "";
+  let charterSnapLabel = "";
   let manualOpenSessionId = "";
   let manualPendingProposalId = "";
   let charterFrameState = { x: 0.18, y: 0.16, w: 0.64, h: 0.58 };
@@ -4462,6 +4470,38 @@
     if (charterDockControls) charterDockControls.hidden = on;
   }
 
+  function updateCharterFrameChip(session) {
+    if (!charterFrameChip) return;
+    const noteCount = ((session && session.notes) || []).length;
+    const stillCount = ((session && session.stills) || []).length;
+    const mode = (session && session.frame_mode) || "free";
+    const snap =
+      charterSnapLabel ||
+      (session && session.snap_label) ||
+      "";
+    let prefix = "Recording";
+    if (mode === "monitor" || mode === "window") {
+      prefix = "Snap · " + (snap || mode);
+    }
+    charterFrameChip.textContent =
+      prefix +
+      " · " +
+      (((session && session.charter) || "").slice(0, 36) ||
+        (session && session.id) ||
+        "session") +
+      " · " +
+      noteCount +
+      " notes · " +
+      stillCount +
+      " stills";
+  }
+
+  function hideCharterSnapPicker() {
+    charterSnapModePending = "";
+    if (charterSnapPicker) charterSnapPicker.hidden = true;
+    if (charterSnapPickerList) charterSnapPickerList.innerHTML = "";
+  }
+
   function showCharterFrame(session) {
     if (!charterFrameRoot || !session) return;
     manualOpenSessionId = session.id || "";
@@ -4469,23 +4509,14 @@
       { x: 0.18, y: 0.16, w: 0.64, h: 0.58 },
       session.frame || {}
     );
+    charterSnapLabel = session.snap_label || "";
     applyCharterFrameRect();
     setCharterMistVisible(!!session.armed_mist);
     if (charterAssistLive) charterAssistLive.checked = !!session.agent_assist;
     if (charterMistLive) charterMistLive.checked = !!session.armed_mist;
     showCharterCancelConfirm(false);
-    const noteCount = ((session.notes || [])).length;
-    const stillCount = ((session.stills || [])).length;
-    if (charterFrameChip) {
-      charterFrameChip.textContent =
-        "Recording · " +
-        ((session.charter || "").slice(0, 40) || session.id || "session") +
-        " · " +
-        noteCount +
-        " notes · " +
-        stillCount +
-        " stills";
-    }
+    hideCharterSnapPicker();
+    updateCharterFrameChip(session);
     charterFrameRoot.hidden = false;
     charterFrameRoot.setAttribute("aria-hidden", "false");
     setManualLoopStage("recording");
@@ -4494,9 +4525,11 @@
   function hideCharterFrame() {
     if (!charterFrameRoot) return;
     showCharterCancelConfirm(false);
+    hideCharterSnapPicker();
     charterFrameRoot.hidden = true;
     charterFrameRoot.setAttribute("aria-hidden", "true");
     setCharterMistVisible(false);
+    charterSnapLabel = "";
   }
 
   function scheduleFrameSave() {
@@ -4504,18 +4537,116 @@
     if (charterFrameSaveTimer) clearTimeout(charterFrameSaveTimer);
     charterFrameSaveTimer = setTimeout(async function () {
       try {
-        await fetch(
+        // Manual drag/resize → free-region (clears absolute snap bbox).
+        charterSnapLabel = "";
+        const res = await fetch(
           "/api/manual-sessions/" + encodeURIComponent(manualOpenSessionId) + "/frame",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(charterFrameState),
+            body: JSON.stringify(
+              Object.assign({}, charterFrameState, { frame_mode: "free" })
+            ),
           }
         );
+        const data = await res.json();
+        if (data && data.session) updateCharterFrameChip(data.session);
       } catch (_err) {
         /* ignore transient frame save errors */
       }
     }, 250);
+  }
+
+  async function openCharterSnapPicker(mode) {
+    if (!manualOpenSessionId || !charterSnapPicker || !charterSnapPickerList) return;
+    charterSnapModePending = mode;
+    if (charterSnapPickerTitle) {
+      charterSnapPickerTitle.textContent =
+        mode === "window" ? "Snap to window" : "Snap to monitor";
+    }
+    charterSnapPickerList.innerHTML = "";
+    const loading = document.createElement("p");
+    loading.className = "drawer-hint";
+    loading.textContent = "Loading targets…";
+    charterSnapPickerList.appendChild(loading);
+    charterSnapPicker.hidden = false;
+    try {
+      const res = await fetch("/api/manual-sessions/snap-targets");
+      const data = await res.json();
+      charterSnapPickerList.innerHTML = "";
+      const items =
+        mode === "window" ? data.windows || [] : data.monitors || [];
+      if (!items.length) {
+        const empty = document.createElement("p");
+        empty.className = "drawer-hint";
+        empty.textContent =
+          mode === "window"
+            ? "No visible windows found."
+            : "No monitors found.";
+        charterSnapPickerList.appendChild(empty);
+        return;
+      }
+      items.forEach(function (item) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "charter-snap-option";
+        btn.setAttribute("role", "option");
+        btn.dataset.targetId = item.id || "";
+        btn.textContent =
+          mode === "window"
+            ? item.title || item.id || "Window"
+            : item.label || item.id || "Monitor";
+        charterSnapPickerList.appendChild(btn);
+      });
+    } catch (_err) {
+      charterSnapPickerList.innerHTML = "";
+      const err = document.createElement("p");
+      err.className = "drawer-hint";
+      err.textContent = "Could not load snap targets.";
+      charterSnapPickerList.appendChild(err);
+    }
+  }
+
+  async function applyCharterSnap(targetId) {
+    if (!manualOpenSessionId || !charterSnapModePending || !targetId) return;
+    try {
+      const res = await fetch(
+        "/api/manual-sessions/" +
+          encodeURIComponent(manualOpenSessionId) +
+          "/snap",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: charterSnapModePending,
+            target_id: targetId,
+          }),
+        }
+      );
+      const data = await res.json();
+      if (data.status === "ok" && data.session) {
+        charterFrameState = Object.assign(
+          { x: 0.18, y: 0.16, w: 0.64, h: 0.58 },
+          data.session.frame || {}
+        );
+        charterSnapLabel = data.session.snap_label || "";
+        applyCharterFrameRect();
+        // Mist/assist toggles unchanged by snap.
+        if (charterAssistLive) {
+          charterAssistLive.checked = !!data.session.agent_assist;
+        }
+        if (charterMistLive) {
+          charterMistLive.checked = !!data.session.armed_mist;
+          setCharterMistVisible(!!data.session.armed_mist);
+        }
+        updateCharterFrameChip(data.session);
+        hideCharterSnapPicker();
+      } else if (charterFrameChip) {
+        charterFrameChip.textContent = data.message || "Snap failed";
+      }
+    } catch (_err) {
+      if (charterFrameChip) charterFrameChip.textContent = "Snap failed";
+    }
   }
 
   function showManualReview(session, review) {
@@ -8228,19 +8359,38 @@
           { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }
         );
         const data = await res.json();
-        if (charterFrameChip) {
-          charterFrameChip.textContent =
-            data.status === "ok"
-              ? "Still attached (opt-in) · " +
-                ((data.session && data.session.notes) || []).length +
-                " notes · " +
-                ((data.session && data.session.stills) || []).length +
-                " stills"
-              : data.message || "Still failed";
+        if (data.status === "ok" && data.session) {
+          updateCharterFrameChip(data.session);
+        } else if (charterFrameChip) {
+          charterFrameChip.textContent = data.message || "Still failed";
         }
       } catch (_err) {
         if (charterFrameChip) charterFrameChip.textContent = "Still failed";
       }
+    });
+  }
+  if (charterSnapMonitor) {
+    charterSnapMonitor.addEventListener("click", function () {
+      openCharterSnapPicker("monitor");
+    });
+  }
+  if (charterSnapWindow) {
+    charterSnapWindow.addEventListener("click", function () {
+      openCharterSnapPicker("window");
+    });
+  }
+  if (charterSnapPickerCancel) {
+    charterSnapPickerCancel.addEventListener("click", function () {
+      hideCharterSnapPicker();
+    });
+  }
+  if (charterSnapPickerList) {
+    charterSnapPickerList.addEventListener("click", function (ev) {
+      const btn = ev.target && ev.target.closest
+        ? ev.target.closest(".charter-snap-option")
+        : null;
+      if (!btn) return;
+      applyCharterSnap(btn.dataset.targetId || "");
     });
   }
   if (charterEnd) {

@@ -118,7 +118,7 @@ class ReleaseHudTests(unittest.TestCase):
         for row in payload["open_product_bugs"]:
             self.assertEqual(row["readiness_links_to"], "reports")
 
-    def test_api_release_hud_and_desktop_ui_desk94(self):
+    def test_api_release_hud_and_desktop_ui_desk95(self):
         self._seed()
         client = TestClient(main.app)
         res = client.get("/api/plans/release-hud")
@@ -133,8 +133,8 @@ class ReleaseHudTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk94", html)
-        self.assertIn("desk94", desk)
+        self.assertIn("desk95", html)
+        self.assertIn("desk95", desk)
         self.assertIn('id="hud-rel-env"', html)
         self.assertIn('id="hud-rel-last"', html)
         self.assertIn('id="hud-rel-uncovered"', html)

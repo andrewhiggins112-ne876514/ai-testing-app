@@ -136,7 +136,7 @@ class ManagerHudTests(unittest.TestCase):
         self.assertIn(cid_bug, bug_ids)
         self.assertNotIn(cid_known, bug_ids)
 
-    def test_api_manager_hud_and_desktop_ui_desk94(self):
+    def test_api_manager_hud_and_desktop_ui_desk95(self):
         self._seed()
         client = TestClient(main.app)
         res = client.get("/api/plans/manager-hud")
@@ -150,8 +150,8 @@ class ManagerHudTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk94", html)
-        self.assertIn("desk94", desk)
+        self.assertIn("desk95", html)
+        self.assertIn("desk95", desk)
         self.assertIn('id="hud-mgr-pass"', html)
         self.assertIn('id="hud-mgr-known"', html)
         self.assertIn('id="hud-mgr-gaps"', html)

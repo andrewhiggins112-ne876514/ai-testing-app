@@ -43,6 +43,7 @@ from plugins.playwright_suite import (
 )
 from plans.coverage import plan_coverage_gaps
 from plans.defect_packet import defect_packet_preview
+from plans.charter_snap import list_snap_targets as manual_list_snap_targets
 from plans.manual_session import (
     add_note as manual_add_note,
     attach_still as manual_attach_still,
@@ -55,6 +56,7 @@ from plans.manual_session import (
     list_sessions as manual_list_sessions,
     propose as manual_propose,
     review_session as manual_review_session,
+    snap_session_frame as manual_snap_frame,
     start_session as manual_start_session,
     update_session_frame as manual_update_frame,
     update_session_toggles as manual_update_toggles,
@@ -285,6 +287,14 @@ class ManualSessionFrameRequest(BaseModel):
     y: float = 0.16
     w: float = 0.64
     h: float = 0.58
+    frame_mode: str | None = "free"
+
+
+class ManualSessionSnapRequest(BaseModel):
+    """KAN-287 — snap Charter Frame to monitor or window."""
+
+    mode: str = "monitor"
+    target_id: str = ""
 
 
 class ManualSessionTogglesRequest(BaseModel):
@@ -1967,6 +1977,12 @@ async def get_manual_session_defaults():
     return manual_defaults_info()
 
 
+@app.get("/api/manual-sessions/snap-targets")
+async def get_manual_session_snap_targets():
+    """Monitors + windows for Charter Frame snap (KAN-287)."""
+    return manual_list_snap_targets()
+
+
 @app.get("/api/manual-sessions/open")
 async def get_manual_session_open():
     """Current open Charter Frame session for the active level, if any."""
@@ -2013,7 +2029,14 @@ async def post_manual_session_frame(session_id: str, req: ManualSessionFrameRequ
     return manual_update_frame(
         session_id,
         {"x": req.x, "y": req.y, "w": req.w, "h": req.h},
+        frame_mode=req.frame_mode,
     )
+
+
+@app.post("/api/manual-sessions/{session_id}/snap")
+async def post_manual_session_snap(session_id: str, req: ManualSessionSnapRequest):
+    """Snap Charter Frame to monitor or window bounds (KAN-287)."""
+    return manual_snap_frame(session_id, req.mode, req.target_id)
 
 
 @app.post("/api/manual-sessions/{session_id}/toggles")

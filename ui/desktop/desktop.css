@@ -2113,6 +2113,49 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   flex: 1 1 160px;
 }
 
+/* KAN-287 — window/monitor snap picker */
+.charter-snap-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  padding-top: 6px;
+  border-top: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+}
+
+.charter-snap-picker-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cyan, #50cdff);
+}
+
+.charter-snap-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: auto;
+  max-height: 150px;
+}
+
+.charter-snap-option {
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 35%, transparent);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--text, #e6f2f8);
+  background: color-mix(in srgb, var(--panel, #061018) 88%, transparent);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.charter-snap-option:hover,
+.charter-snap-option:focus {
+  border-color: var(--cyan, #50cdff);
+  outline: none;
+}
+
 /* KAN-273 Lab areas IA — Documents / Heal / Desktop / Sandboxes */
 /* KAN-273/KAN-281 Lab areas — non-overlapping chrome */
 .lab-sticky-toolbar {

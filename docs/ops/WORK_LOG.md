@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-287** — Track2: Charter Frame window/monitor snap |
+| **Jira story** | **KAN-289** — Track2: Page context from headed AUT + annotate still |
 | **Start task** | — |
 | **Epic** | **KAN-279** Council Track 2 — Area chrome + Manual completion |
 | **Roadmap ID** | TRACK2-MAN |
-| **Spec** | FR-MAN-1 completion (window/monitor snap; free-region kept) |
+| **Spec** | FR-MAN-1 completion (page URL/title + annotate-still) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-288** |
-| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; honest assist **KAN-285** (desk94) |
+| **Test ticket** | **KAN-290** |
+| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287** (desk95) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
-| **Next / Shipped** | Pick up **KAN-287**. Then **KAN-289…297**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Pick up **KAN-289**. Then **KAN-291…297**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-287 — Charter Frame window/monitor snap
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-287
+- **Done:** Free-region kept. Snap-to-monitor and snap-to-window via Win32 geometry (`plans/charter_snap.py`); session stores `frame_mode` + absolute `screen_bbox` for stills; drag/resize returns to free and clears bbox; dock Monitor/Window picker; assist/mist unchanged. Cache-bust **desk95**.
+- **Files:** `plans/charter_snap.py`, `plans/manual_session.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_charter_snap.py` (+ desk95 across UI tests), docs
+- **Verify:** `pytest tests/test_charter_snap.py tests/test_manual_session.py tests/test_manual_trustworthy_loop.py tests/test_manual_assist_drafts.py tests/test_manual_ia.py` 29 passed. Non-visual AC — CU not required (tiered policy).
+- **Jira:** close-out **KAN-287** + **KAN-288**
+- **Next:** **KAN-289** Page context from headed AUT + annotate still (test **KAN-290**)
 
 ### 2026-11-18 — KAN-285 — Real agent-assist local drafts (honest assist)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-285

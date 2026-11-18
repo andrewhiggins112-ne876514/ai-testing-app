@@ -1,9 +1,10 @@
-"""FR-MAN-1 Charter Frame (KAN-277 MVP + KAN-285 honest assist drafts).
+"""FR-MAN-1 Charter Frame (KAN-277 MVP + KAN-285 assist + KAN-287 snap).
 
 Level-scoped manual / exploratory sessions under
 ``%LOCALAPPDATA%/ai_testing_app/plans/{LEVEL}/sessions/``.
 No background capture until explicit Start. Jira writes stay preview + confirm.
 Agent assist (default off) produces real local Ollama drafts at End — never note-echo AI.
+Window/monitor snap (KAN-287) stores absolute screen_bbox for stills.
 """
 from __future__ import annotations
 
@@ -94,8 +95,28 @@ def _normalize_frame(raw: Any) -> dict[str, float]:
     return out
 
 
+def _normalize_screen_bbox(raw: Any) -> list[int] | None:
+    if not isinstance(raw, (list, tuple)) or len(raw) != 4:
+        return None
+    try:
+        left, top, right, bottom = (int(v) for v in raw)
+    except (TypeError, ValueError):
+        return None
+    if right - left < 12 or bottom - top < 12:
+        return None
+    return [left, top, right, bottom]
+
+
+def _normalize_frame_mode(raw: Any) -> str:
+    mode = str(raw or "free").strip().lower()
+    if mode in {"free", "monitor", "window"}:
+        return mode
+    return "free"
+
+
 def _public(session: dict[str, Any]) -> dict[str, Any]:
     """Strip nothing secret (sessions never store tokens); stable API shape."""
+    bbox = _normalize_screen_bbox(session.get("screen_bbox"))
     return {
         "id": session.get("id"),
         "level": session.get("level"),
@@ -109,6 +130,9 @@ def _public(session: dict[str, Any]) -> dict[str, Any]:
         "agent_assist": bool(session.get("agent_assist")),
         "armed_mist": bool(session.get("armed_mist")),
         "frame": dict(session.get("frame") or _default_frame()),
+        "frame_mode": _normalize_frame_mode(session.get("frame_mode")),
+        "screen_bbox": bbox,
+        "snap_label": str(session.get("snap_label") or ""),
         "notes": list(session.get("notes") or []),
         "stills": list(session.get("stills") or []),
         "assist_drafts": list(session.get("assist_drafts") or []),
@@ -305,6 +329,9 @@ def start_session(
         "agent_assist": bool(agent_assist),
         "armed_mist": bool(armed_mist),
         "frame": _normalize_frame(frame),
+        "frame_mode": "free",
+        "screen_bbox": None,
+        "snap_label": "",
         "notes": [],
         "stills": [],
         "assist_drafts": [],
@@ -337,6 +364,7 @@ def update_session_frame(
     session_id: str,
     frame: Any,
     *,
+    frame_mode: str | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
     session = _load(session_id, level)
@@ -353,8 +381,67 @@ def update_session_frame(
             "message": "Frame can only be resized while the session is open.",
         }
     session["frame"] = _normalize_frame(frame)
+    mode = _normalize_frame_mode(frame_mode if frame_mode is not None else "free")
+    # Manual drag/resize returns to free-region (clears absolute snap bbox).
+    if mode == "free" or frame_mode is None:
+        session["frame_mode"] = "free"
+        session["screen_bbox"] = None
+        session["snap_label"] = ""
+    else:
+        session["frame_mode"] = mode
     _save(session)
     return {"status": "ok", "session": _public(session)}
+
+
+def snap_session_frame(
+    session_id: str,
+    mode: str,
+    target_id: str,
+    *,
+    level: str | None = None,
+    targets: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Snap Charter Frame to a monitor or window (KAN-287)."""
+    from plans.charter_snap import resolve_snap_target
+
+    session = _load(session_id, level)
+    if session is None:
+        return {
+            "status": "error",
+            "error": "session_not_found",
+            "message": f"No manual session {session_id!r}.",
+        }
+    if session.get("status") != "open":
+        return {
+            "status": "error",
+            "error": "session_not_open",
+            "message": "Snap is only available while the session is open.",
+        }
+
+    resolved = resolve_snap_target(mode, target_id, targets=targets)
+    if resolved.get("status") != "ok":
+        return resolved
+
+    session["frame"] = _normalize_frame(resolved.get("frame"))
+    session["frame_mode"] = _normalize_frame_mode(resolved.get("mode"))
+    session["screen_bbox"] = _normalize_screen_bbox(resolved.get("screen_bbox"))
+    session["snap_label"] = str(resolved.get("label") or "")[:120]
+    _save(session)
+    return {
+        "status": "ok",
+        "message": f"Snapped to {session['snap_label'] or session['frame_mode']}.",
+        "session": _public(session),
+        "snap": {
+            "mode": session["frame_mode"],
+            "target_id": str(resolved.get("target_id") or ""),
+            "label": session["snap_label"],
+            "screen_bbox": session["screen_bbox"],
+            "frame": dict(session["frame"]),
+        },
+        # Toggles / click-through contract unchanged by snap.
+        "agent_assist": bool(session.get("agent_assist")),
+        "armed_mist": bool(session.get("armed_mist")),
+    }
 
 
 def update_session_toggles(
@@ -469,21 +556,24 @@ def attach_still(
     filename = f"{still_id}.png"
     path = out_dir / filename
 
-    bbox = None
-    if isinstance(screen_bbox, (list, tuple)) and len(screen_bbox) == 4:
-        try:
-            bbox = tuple(int(v) for v in screen_bbox)
-        except (TypeError, ValueError):
-            bbox = None
+    # Prefer explicit request bbox, then snapped session screen_bbox.
+    bbox = _normalize_screen_bbox(screen_bbox)
+    if bbox is None:
+        bbox = _normalize_screen_bbox(session.get("screen_bbox"))
 
     captured = False
     capture_error = ""
     try:
         from PIL import ImageGrab
 
-        img = ImageGrab.grab(bbox=bbox) if bbox else ImageGrab.grab()
-        # Crop to relative frame when no absolute bbox provided.
-        if bbox is None:
+        if bbox is not None:
+            img = ImageGrab.grab(bbox=tuple(bbox), all_screens=True)
+        else:
+            try:
+                img = ImageGrab.grab(all_screens=True)
+            except TypeError:
+                img = ImageGrab.grab()
+            # Crop to relative frame when no absolute bbox provided.
             frame = _normalize_frame(session.get("frame"))
             w, h = img.size
             left = int(frame["x"] * w)
@@ -510,6 +600,8 @@ def attach_still(
         "captured": captured,
         "capture_error": capture_error,
         "frame": _normalize_frame(session.get("frame")),
+        "screen_bbox": bbox,
+        "frame_mode": _normalize_frame_mode(session.get("frame_mode")),
         "opt_in": True,
     }
     session.setdefault("stills", []).append(still)
@@ -978,4 +1070,7 @@ def defaults_info() -> dict[str, Any]:
         "honest_assist_drafts": True,
         "assist_drafts_at_end": True,
         "assist_never_silent_jira": True,
+        # KAN-287 — window/monitor snap (free-region kept)
+        "window_monitor_snap": True,
+        "frame_snap_modes": ["free", "monitor", "window"],
     }
