@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | blocked |
+| **Status** | open |
 | **Jira story** | **KAN-310** — Track3: Shared chrome scaffold + retire sticky naming |
 | **Start task** | — |
 | **Epic** | **KAN-307** Council Track 3 — Enterprise area density (Primary) |
@@ -15,9 +15,9 @@
 | **Spec** | FR-UI-10 |
 | **Git** | `main` |
 | **Test ticket** | **KAN-311** |
-| **Shipped** | **KAN-308** Primary wires pack ready for Accept (test **KAN-309**) |
+| **Shipped** | **KAN-308** wires **Accepted** (test **KAN-309**) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Lab density (**TRACK3-LAB**) |
-| **Next / Shipped** | Designer replies **`Accept Track 3 wires`** (or Amend). Until then **do not** start **KAN-310** HTML/CSS. Do **not** voice / FR-MAN-2. |
+| **Next / Shipped** | Build: **KAN-310** shared chrome scaffold (retire sticky names). Do **not** voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — Designer accepted Track 3 wires
+- **Agent/chat:** Build chat — Accept gate
+- **Done:** Designer **`Accept Track 3 wires`**. Marked `TRACK3_AREA_WIRES.md` Accepted; checklist signed. Unblocked geometry **KAN-310…320**. No product feature code in this entry.
+- **Files:** `docs/design/TRACK3_AREA_WIRES.md`, `docs/ops/WORK_LOG.md`, `PROJECT_MEMORY.md`, `docs/ops/ROADMAP.md`, `docs/ops/TRACK3_ACTIVE_POINTER.txt`
+- **Verify:** docs/decision only; wires marker tests still green
+- **Jira:** Accept comments on **KAN-308**, **KAN-310**, epic **KAN-307**
+- **Next:** Build chat **pick up where we left off** → **KAN-310** (test **KAN-311**)
 
 ### 2026-11-18 — KAN-308 — Track3 Slice-0 Primary wires pack
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-308

@@ -2,7 +2,7 @@
 
 **FR:** FR-UI-10 · **Roadmap:** TRACK3-UX  
 **Story:** KAN-308 (test KAN-309)  
-**Status:** **Ready for Designer accept** — Slice-0 wires complete. **No HTML/CSS geometry Build** until Designer replies `Accept Track 3 wires` (or Amend with specifics).  
+**Status:** **Accepted** by Designer (2026-11-18 Build) — reply `Accept Track 3 wires`. Geometry Build (**KAN-310…320**) is unblocked.  
 **Density source:** `docs/design/ENTERPRISE_LAYOUT_NOTE.md` (accepted; tokens shipped KAN-297 — geometry still open).
 
 ## Designer decisions (Council 2026-11-18)
@@ -280,14 +280,12 @@ Density and occlusion must hold in **every** App area layout mode:
 
 ## Accept checklist
 
-- [ ] Plans · Cases wire signed  
-- [ ] Manual idle + review/Confirm wire signed  
-- [ ] Reports library wire signed  
-- [ ] Documents wire signed  
-- [ ] Settings + Security chrome outline signed  
-- [ ] A–E verify contract acknowledged  
-- [ ] Lab marked follow-on (not Track 3 Primary Build)  
+- [x] Plans · Cases wire signed  
+- [x] Manual idle + review/Confirm wire signed  
+- [x] Reports library wire signed  
+- [x] Documents wire signed  
+- [x] Settings + Security chrome outline signed  
+- [x] A–E verify contract acknowledged  
+- [x] Lab marked follow-on (not Track 3 Primary Build)  
 
-**Accept reply in Council/Build:** `Accept Track 3 wires` (or Amend with specifics).
-
-Until Accept: **do not** start HTML/CSS geometry (**KAN-310…320**).
+**Accepted:** Designer `Accept Track 3 wires` (2026-11-18). Next Build: **KAN-310** shared chrome scaffold (then **KAN-312…320**). No HTML/CSS geometry was allowed before this Accept.

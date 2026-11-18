@@ -58,6 +58,7 @@ def test_track3_accept_gate_blocks_geometry() -> None:
     lower = text.lower()
 
     assert "accept track 3 wires" in lower
+    assert "accepted" in lower
     assert "no html/css" in lower or "html/css geometry" in lower
     assert "kan-310" in lower
 
