@@ -137,7 +137,7 @@ class PlanContractMockTests(unittest.TestCase):
         self.assertEqual(out.get("transport"), "mock")
         self.assertEqual(out.get("http_status"), 200)
 
-    def test_api_contract_and_ui_desk98(self):
+    def test_api_contract_and_ui_desk99(self):
         client = TestClient(main.app)
         created = client.post("/api/plans", json={"name": "Contract"})
         self.assertEqual(created.status_code, 200)
@@ -152,8 +152,8 @@ class PlanContractMockTests(unittest.TestCase):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk98", html)
-        self.assertIn("desk98", desk)
+        self.assertIn("desk99", html)
+        self.assertIn("desk99", desk)
         self.assertIn("plan-add-contract-btn", html)
         self.assertIn("addContractCaseToOpenPlan", js)
         self.assertIn("cases/contract", js)

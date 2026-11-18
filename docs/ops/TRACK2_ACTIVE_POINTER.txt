@@ -1,4 +1,6 @@
 epic=KAN-279
 bug=KAN-280
 first_story=KAN-281
-active_story=KAN-285
+active_story=DONE
+last_story=KAN-297
+note=Track2 complete 2026-11-18 — tokens desk99; next = deferred voice or council pick

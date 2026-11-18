@@ -1,8 +1,8 @@
 # Enterprise layout research note (Track 2)
 
 **Story:** KAN-295 (test KAN-296) · **FR:** FR-UI-9, FR-UI-7 · **Roadmap:** TRACK2-UX  
-**Status:** **Accepted** by Designer (2026-11-18 Council) — tokens (**KAN-297**) may proceed.  
-**Scope:** Docs only for KAN-295. Not a component library. CSS/token implement is **KAN-297**.
+**Status:** **Accepted** by Designer (2026-11-18 Council) — tokens shipped as **KAN-297** (desk99).  
+**Scope:** Docs only for KAN-295. Not a component library. CSS/token implement is **KAN-297** (Done).
 
 Calm Windows-enterprise density for the **existing** desktop shell (`desktop_app.py` / `ui/desktop`). Orb home stays primary (FR-UI-1). Accents continue to follow the active orb style (FR-UI-3). Layout modes A–E stay (FR-UI-7).
 
@@ -138,14 +138,12 @@ ASCII wire for **Plans · Cases** (default landing). Chrome outside the scrollpo
 
 ---
 
-## 8. Handoff to KAN-297 (tokens)
+## 8. Handoff to KAN-297 (tokens) — Done
 
-After **human accept** of this note:
+After **human accept** of this note (landed 2026-11-18):
 
-1. Add the proposed `--type-*` / `--space-*` (and optional `--chrome-max`) variables under `:root` in `ui/desktop/desktop.css`.
-2. Point existing area chrome (toolbars, tabs, confirm dock, titles) at those variables — small diff, no new design-system package.
-3. Keep FR-UI-3 accent variables (`--cyan`, borders, glow) as the colour system.
-4. Cache-bust `desktop_app.py`; run area-chrome + Manual confirm tests; run occlusion checklist on the native window.
-5. Do **not** implement voice (KAN-81) or FR-MAN-2 live circles.
-
-Until accept: Active Build may mark KAN-295 Done (note shipped); **KAN-297 stays blocked**.
+1. Added `--type-*` / `--space-*` / `--chrome-*` under `:root` in `ui/desktop/desktop.css` (**KAN-297** / desk99).
+2. Pointed existing area chrome (toolbars, tabs, confirm dock, titles) at those variables — small diff, no new design-system package.
+3. Kept FR-UI-3 accent variables (`--cyan`, borders, glow) as the colour system.
+4. Cache-bust `desktop_app.py`; area-chrome + Manual confirm marker tests green.
+5. Did **not** implement voice (KAN-81) or FR-MAN-2 live circles.

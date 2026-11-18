@@ -7,17 +7,17 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open |
-| **Jira story** | **KAN-297** — Track2: Apply enterprise layout tokens (from accepted **KAN-295** note) |
+| **Status** | deferred |
+| **Jira story** | **KAN-81** — Voice input (deferred until mic) |
 | **Start task** | — |
-| **Epic** | **KAN-279** Council Track 2 — Area chrome + Manual completion |
-| **Roadmap ID** | TRACK2-UX |
-| **Spec** | FR-UI-9 / FR-UI-3 tokens from accepted note |
+| **Epic** | — |
+| **Roadmap ID** | G10 / voice |
+| **Spec** | FR voice — parked |
 | **Git** | `main` |
-| **Test ticket** | **KAN-298** |
-| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287**; page/annotate **KAN-289**; library+GDPR **KAN-291**; propose/confirm harden **KAN-293** (desk98); layout note **KAN-295** accepted 2026-11-18 (`docs/design/ENTERPRISE_LAYOUT_NOTE.md`) |
+| **Test ticket** | **KAN-82** |
+| **Shipped** | Track 2 epic **KAN-279** Done: chrome **KAN-281** … propose/confirm **KAN-293**; layout note **KAN-295** accepted; tokens **KAN-297** (desk99) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
-| **Next / Shipped** | **KAN-297** ready — human accepted layout note. Implement tokens from note. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Council Track 2 complete. Do **not** implement voice / FR-MAN-2. Human/council picks next track. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-18 — KAN-297 — Apply enterprise layout tokens
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-297
+- **Done:** Applied accepted `ENTERPRISE_LAYOUT_NOTE` as `:root` `--type-*` / `--space-*` / `--chrome-*` tokens in `desktop.css`; wired area surface bar, toolbars, Plans tabs, lists, Manual confirm dock, and Lab chrome to those variables; kept FR-UI-3 `--cyan` accents + Segoe local font; marker `data-enterprise-layout-tokens`; cache-bust **desk99**. No nav rewrite, no voice / FR-MAN-2.
+- **Files:** `ui/desktop/desktop.css`, `ui/desktop/index.html`, `desktop_app.py`, `tests/test_enterprise_layout_tokens.py` (+ desk99 across UI tests), docs
+- **Verify:** `pytest tests/test_enterprise_layout_tokens.py tests/test_area_chrome_nonoverlap.py tests/test_enterprise_layout_note.py tests/test_manual_propose_harden.py tests/test_manual_ia.py tests/test_plans_ia.py tests/test_nav_overlap.py` 22 passed. Token/wiring + non-overlap markers primary — CU not required (geometry unchanged; tiered policy).
+- **Jira:** close-out **KAN-297** + **KAN-298**
+- **Next:** Active **deferred** — **KAN-81** voice; Track 2 complete; human/council picks next track
+
 ### 2026-11-18 — Council — Designer accepted KAN-295 layout note
 - **Agent/chat:** Council Room (`/council`) — Accept gate for Track2 UX
 - **Done:** Designer **Accept** of `docs/design/ENTERPRISE_LAYOUT_NOTE.md`. Unblocked **KAN-297** tokens. Clarified: this was a human-accept gate, not an unfinished review story (KAN-295/296 already Done).
@@ -57,8 +65,8 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ### 2026-11-18 — KAN-293 — Manual propose/confirm harden
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-293
-- **Done:** Failure-class select + explicit File-as-Bug; Create Bug blocked for non-`product_bug` unless explicit (FR-HEAL-4 redirect kinds); Propose Bug builds FR-JIRA-4 defect-packet shape; Confirm dock moved outside `.area-work` (`flex-shrink: 0`); Confirm on bug/comment runs `create_bug`/`add_comment` + `resolve_create` (Manual Confirm = human gate) and marks submitted + audited on success; Cancel writes nothing. Cache-bust **desk98**.
-- **Files:** `plans/manual_session.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_manual_propose_harden.py` (+ desk98 across UI tests), docs
+- **Done:** Failure-class select + explicit File-as-Bug; Create Bug blocked for non-`product_bug` unless explicit (FR-HEAL-4 redirect kinds); Propose Bug builds FR-JIRA-4 defect-packet shape; Confirm dock moved outside `.area-work` (`flex-shrink: 0`); Confirm on bug/comment runs `create_bug`/`add_comment` + `resolve_create` (Manual Confirm = human gate) and marks submitted + audited on success; Cancel writes nothing. Cache-bust **desk99**.
+- **Files:** `plans/manual_session.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_manual_propose_harden.py` (+ desk99 across UI tests), docs
 - **Verify:** `pytest tests/test_manual_propose_harden.py tests/test_manual_session.py tests/test_manual_trustworthy_loop.py tests/test_manual_assist_drafts.py tests/test_manual_page_context.py tests/test_charter_snap.py tests/test_manual_ia.py tests/test_manual_session_library.py tests/test_area_chrome_nonoverlap.py` 49 passed. Packet/failure-class/API primary; Confirm dock proven by HTML/CSS markers outside scrollport — CU not required (tiered policy).
 - **Jira:** close-out **KAN-293** + **KAN-294**
 - **Next:** **KAN-295** Enterprise layout research note (docs; test **KAN-296**)

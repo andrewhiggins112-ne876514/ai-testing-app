@@ -158,7 +158,7 @@ class PlanDurationTests(unittest.TestCase):
             99,
         )
 
-    def test_api_and_desktop_ui_desk98(self):
+    def test_api_and_desktop_ui_desk99(self):
         created = create_plan(name="Duration API")
         pid = created["plan"]["id"]
         cid = add_case(pid, name="A")["case"]["id"]
@@ -192,8 +192,8 @@ class PlanDurationTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk98", html)
-        self.assertIn("desk98", desk)
+        self.assertIn("desk99", html)
+        self.assertIn("desk99", desk)
         self.assertIn("duration_changes", js)
         self.assertIn("formatDurationDelta", js)
         self.assertIn("Duration changes (same result)", js)

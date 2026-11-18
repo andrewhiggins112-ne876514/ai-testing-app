@@ -13,6 +13,23 @@
   --shell-glow: 0 0 6px rgba(80, 205, 255, 0.28), 0 0 18px rgba(80, 205, 255, 0.1);
   --orb-size: 360;
   --font: "Segoe UI", "Bahnschrift", "Trebuchet MS", sans-serif;
+
+  /* KAN-297 — enterprise layout tokens (ENTERPRISE_LAYOUT_NOTE.md); accents stay FR-UI-3 */
+  --type-area-title: 600 13px/1.3 var(--font);
+  --type-body: 400 13px/1.35 var(--font);
+  --type-ui: 600 12px/1.35 var(--font);
+  --type-meta: 600 11px/1.2 var(--font);
+  --type-help: 400 11px/1.35 var(--font);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --chrome-max: 120px;
+  --chrome-surface-bar: 40px;
+  --chrome-toolbar: 56px;
+  --chrome-tabs: 36px;
+  --chrome-confirm: 48px;
 }
 
 * { box-sizing: border-box; }
@@ -1449,14 +1466,17 @@ html[data-area-open="true"] .hud-widget {
 .area-surface-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px 0;
+  flex-shrink: 0;
+  gap: var(--space-3);
+  max-height: var(--chrome-surface-bar);
+  padding: var(--space-2) var(--space-3) 0;
+  box-sizing: border-box;
 }
 
 .area-title {
   margin: 0;
-  font-size: 14px;
-  letter-spacing: 0.16em;
+  font: var(--type-area-title);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--cyan);
 }
@@ -1467,7 +1487,7 @@ html[data-area-open="true"] .hud-widget {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: 8px 16px 16px;
+  padding: var(--space-2) var(--space-4) var(--space-4);
 }
 
 #area-section-host {
@@ -1500,8 +1520,9 @@ html[data-area-open="true"] .hud-widget {
   overflow: auto;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding-bottom: 4px;
+  gap: var(--space-1);
+  padding-bottom: var(--space-1);
+  font: var(--type-body);
 }
 
 /* Shared non-overlapping area chrome (was sticky-inside-scrollport) */
@@ -1514,10 +1535,12 @@ html[data-area-open="true"] .hud-widget {
   top: auto;
   z-index: auto;
   flex-shrink: 0;
+  /* Budget target: var(--chrome-toolbar); keep compact via space tokens below */
 }
 
 .plan-section-tabs {
   flex-shrink: 0;
+  /* Budget target: var(--chrome-tabs) */
 }
 
 html[data-area-open="true"][data-area-chrome="overlay"] .area-surface {
@@ -1603,13 +1626,13 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   display: none !important;
 }
 
-/* KAN-265/KAN-281 Plans IA — non-overlapping chrome + section tabs + Add case menu */
+/* KAN-265/KAN-281/KAN-297 Plans IA — non-overlapping chrome + layout tokens */
 .plan-sticky-toolbar {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 0 10px;
-  margin: 0 0 4px;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  margin: 0 0 var(--space-1);
   background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
 }
@@ -1617,7 +1640,7 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .plan-sticky-toolbar .plan-toolbar-actions {
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .plan-sticky-toolbar .plan-toolbar-search {
@@ -1628,14 +1651,15 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 
 .plan-sticky-toolbar .plan-toolbar-status {
   margin: 0;
+  font: var(--type-ui);
   color: var(--cyan, #50cdff);
 }
 
 .plan-section-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin: 4px 0 8px;
+  gap: var(--space-1);
+  margin: var(--space-1) 0 var(--space-2);
 }
 
 .plan-tab {
@@ -1643,10 +1667,10 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 35%, transparent);
   background: transparent;
   color: var(--muted, #9bb4c4);
-  font: 600 11px/1.2 inherit;
+  font: var(--type-meta);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 6px 10px;
+  padding: var(--space-1) 10px;
   border-radius: 8px;
   cursor: pointer;
 }
@@ -1664,7 +1688,7 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .plan-panel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .plan-add-case {
@@ -1672,13 +1696,13 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  gap: var(--space-1);
 }
 
 .plan-add-case-menu {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-1);
   min-width: min(100%, 320px);
   padding: 10px;
   border-radius: 10px;
@@ -1692,8 +1716,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 }
 
 .plan-run-details {
-  margin: 4px 0;
-  padding: 8px 10px;
+  margin: var(--space-1) 0;
+  padding: var(--space-2) 10px;
   border-radius: 8px;
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
 }
@@ -1701,53 +1725,54 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .plan-run-details > summary {
   cursor: pointer;
   color: var(--cyan, #50cdff);
-  font-size: 12px;
-  font-weight: 600;
+  font: var(--type-ui);
 }
 
 .plan-run-details[open] > summary {
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
-/* KAN-269/KAN-281 Suites IA — non-overlapping path/run + primary list + collapsed advanced */
+/* KAN-269/KAN-281/KAN-297 Suites IA — layout tokens */
 .suite-sticky-toolbar {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 0 10px;
-  margin: 0 0 4px;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  margin: 0 0 var(--space-1);
   background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
 }
 
 .suite-sticky-toolbar .suite-toolbar-actions {
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .suite-sticky-toolbar .suite-toolbar-status {
   margin: 0;
+  font: var(--type-ui);
   color: var(--cyan, #50cdff);
 }
 
 .suite-sticky-toolbar .suite-toolbar-saved {
   margin: 0;
+  font: var(--type-meta);
 }
 
 .suite-primary {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 4px 0 10px;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 10px;
 }
 
 .suite-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
   max-height: min(42vh, 360px);
   overflow: auto;
-  padding: 4px 0;
+  padding: var(--space-1) 0;
 }
 
 .suite-list-item {
@@ -1756,8 +1781,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
   background: transparent;
   color: var(--text, #e8f4ff);
-  font: 500 12px/1.35 inherit;
-  padding: 8px 10px;
+  font: var(--type-ui);
+  padding: var(--space-2) 10px;
   border-radius: 8px;
   cursor: pointer;
 }
@@ -1772,8 +1797,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 }
 
 .suite-advanced {
-  margin: 8px 0 4px;
-  padding: 8px 10px;
+  margin: var(--space-2) 0 var(--space-1);
+  padding: var(--space-2) 10px;
   border-radius: 8px;
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
 }
@@ -1781,49 +1806,49 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .suite-advanced > summary {
   cursor: pointer;
   color: var(--muted, #9bb4c4);
-  font-size: 12px;
-  font-weight: 600;
+  font: var(--type-ui);
 }
 
 .suite-advanced[open] > summary {
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   color: var(--cyan, #50cdff);
 }
 
 .rpt-sticky-toolbar {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 0 10px;
-  margin: 0 0 4px;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  margin: 0 0 var(--space-1);
   background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
 }
 
 .rpt-sticky-toolbar .rpt-toolbar-actions {
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .rpt-sticky-toolbar .rpt-toolbar-status {
   margin: 0;
+  font: var(--type-ui);
   color: var(--cyan, #50cdff);
 }
 
 .rpt-primary {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 4px 0 10px;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 10px;
 }
 
 .rpt-library-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
   max-height: min(28vh, 240px);
   overflow: auto;
-  padding: 4px 0;
+  padding: var(--space-1) 0;
 }
 
 .rpt-library-item {
@@ -1832,8 +1857,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
   background: transparent;
   color: var(--text, #e8f4ff);
-  font: 500 12px/1.35 inherit;
-  padding: 8px 10px;
+  font: var(--type-ui);
+  padding: var(--space-2) 10px;
   border-radius: 8px;
   cursor: pointer;
 }
@@ -1854,12 +1879,12 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .rpt-detail {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .rpt-advanced {
-  margin: 8px 0 4px;
-  padding: 8px 10px;
+  margin: var(--space-2) 0 var(--space-1);
+  padding: var(--space-2) 10px;
   border-radius: 8px;
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
 }
@@ -1867,47 +1892,46 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .rpt-advanced > summary {
   cursor: pointer;
   color: var(--muted, #9bb4c4);
-  font-size: 12px;
-  font-weight: 600;
+  font: var(--type-ui);
 }
 
 .rpt-advanced[open] > summary {
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   color: var(--cyan, #50cdff);
 }
 
-/* KAN-275/277/281/283 Manual Primary + trustworthy loop — non-overlapping chrome */
+/* KAN-275/277/281/283/297 Manual Primary + trustworthy loop — layout tokens */
 .manual-sticky-toolbar {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 0 10px;
-  margin: 0 0 4px;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  margin: 0 0 var(--space-1);
   background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
 }
 
 .manual-sticky-toolbar .manual-toolbar-actions {
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .manual-sticky-toolbar .manual-toolbar-status,
 .manual-loop-stage-label {
   margin: 0;
+  font: var(--type-ui);
   color: var(--cyan, #50cdff);
 }
 
 .manual-loop-stage-label {
-  font-weight: 600;
-  font-size: 12px;
+  font: var(--type-ui);
 }
 
 .manual-primary {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 4px 0 10px;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 10px;
 }
 
 /* Review stage: keep Start form out of the way so Propose/Confirm stay clickable */
@@ -1929,8 +1953,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .manual-review {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 8px 0 10px;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 10px;
   padding: 10px;
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 30%, transparent);
@@ -1944,11 +1968,11 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: color-mix(in srgb, var(--cyan, #50cdff) 70%, #fff);
 }
 
-/* KAN-293 — Confirm dock outside .area-work scrollport (always visible when shown) */
+/* KAN-293/KAN-297 — Confirm dock outside .area-work (token padding; budget --chrome-confirm) */
 .manual-confirm-row,
 .manual-confirm-dock {
-  margin-top: 6px;
-  padding-top: 8px;
+  margin-top: var(--space-1);
+  padding-top: var(--space-2);
   border-top: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
 }
 
@@ -1957,8 +1981,9 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  padding: 8px 0 4px;
+  gap: var(--space-2);
+  /* Budget target: var(--chrome-confirm) */
+  padding: var(--space-2) 0 var(--space-1);
   background: color-mix(in srgb, var(--panel, #061018) 94%, transparent);
   border-top: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 34%, transparent);
 }
@@ -1976,7 +2001,7 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .manual-failure-class-row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-1);
   margin: 4px 0 2px;
 }
 
@@ -2241,24 +2266,25 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 }
 
 /* KAN-273 Lab areas IA — Documents / Heal / Desktop / Sandboxes */
-/* KAN-273/KAN-281 Lab areas — non-overlapping chrome */
+/* KAN-273/KAN-281/KAN-297 Lab areas — layout tokens */
 .lab-sticky-toolbar {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 0 10px;
-  margin: 0 0 4px;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  margin: 0 0 var(--space-1);
   background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
 }
 
 .lab-sticky-toolbar .lab-toolbar-actions {
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .lab-sticky-toolbar .lab-toolbar-status {
   margin: 0;
+  font: var(--type-ui);
   color: var(--cyan, #50cdff);
 }
 
@@ -2270,13 +2296,13 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .lab-primary {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 4px 0 10px;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 10px;
 }
 
 .lab-advanced {
-  margin: 8px 0 4px;
-  padding: 8px 10px;
+  margin: var(--space-2) 0 var(--space-1);
+  padding: var(--space-2) 10px;
   border-radius: 8px;
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
 }
@@ -2284,11 +2310,10 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .lab-advanced > summary {
   cursor: pointer;
   color: var(--muted, #9bb4c4);
-  font-size: 12px;
-  font-weight: 600;
+  font: var(--type-help);
 }
 
 .lab-advanced[open] > summary {
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   color: var(--cyan, #50cdff);
 }
