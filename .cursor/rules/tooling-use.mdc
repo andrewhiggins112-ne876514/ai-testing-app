@@ -34,10 +34,19 @@ Always pass `workspaceRoot` = `D:\Projects\ai_testing_app` (or the active worksp
 ## UI verification (desktop app first)
 
 - **Primary product UI** is the **native desktop window**: `.\venv\Scripts\python.exe desktop_app.py` (pywebview + Edge WebView2). Run and verify it **as an application**, not by opening the shell URL in Chrome/Edge/IronBee.
-- **Verify desktop UI** with **Computer Use** (`cursor-computer-use`) against that native window. Do **not** treat `http://127.0.0.1:…/ui/desktop/` in a browser tab as the product.
+- Do **not** treat `http://127.0.0.1:…/ui/desktop/` in a browser tab as the product.
 - **Gradio** (`run_ui.py` / port 7860) only when the slice explicitly targets Gradio. Then IronBee browser is OK for Gradio only.
 - **IronBee browser:** for the *application under test* (Playwright AUT pages) or Gradio-only checks — never as the default way to “open our app”. IronBee Node/Backend stay off unless asked.
 - OS dialogs / Ollama Settings: Computer Use OK.
+
+### Tiered Computer Use (GPU + overlay safety — Council 2026-11-18)
+
+- **pytest / API / HTML first** for non-visual AC. Do not burn GPU on CU loops when markers + API already prove the story.
+- **CU only** for visual / occlusion / clickable chrome (and OS UI). Throttle screenshots; short sessions.
+- **Pre-CU quiet window:** pause Ollama for agent CU verify; prefer classic orb (avoid mystic/aether/neural WebGL + CU + Ollama together on the 1080 Ti). Human demos that need chat+UI together are exempt.
+- **One overlay:** dismiss product Manual/Charter Frame before CU when the slice is not about that overlay. Cursor CU HUD vs product overlay → contested clicks / polluted shots (common in WORK_LOG).
+- **When CU is unsafe:** one quiet retry, then document **CU skipped — unsafe** or **CU flake** on the test ticket; use human checklist. Never soft-pass on “opened orb home.” Occlusion stories still need clickable proof when a quiet desktop is achievable.
+- Build-time agent GPU load ≠ product-runtime GPU budget — do not invent product FRs or in-app verify chrome to fix Cursor CU.
 
 ## Context7
 

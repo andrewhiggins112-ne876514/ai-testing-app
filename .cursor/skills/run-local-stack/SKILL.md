@@ -13,12 +13,21 @@ Target OS: Windows home PC. Do not invent cloud deploy steps.
 .\venv\Scripts\python.exe desktop_app.py
 ```
 
-This starts FastAPI on `127.0.0.1:8765` and opens the **native pywebview window**. Verify that window with **Computer Use**. Do not open `/ui/desktop/` in Chrome/IronBee as the product.
+This starts FastAPI on `127.0.0.1:8765` and opens the **native pywebview window**. Do not open `/ui/desktop/` in Chrome/IronBee as the product.
 
 1. venv / deps: `py -3 -m pip install -r requirements.txt` then `py -3 -m playwright install chromium` if needed.
-2. Ollama running; default model `qwen2.5-coder:7b` (override with `OLLAMA_MODEL`).
+2. Ollama running for product chat; default model `qwen2.5-coder:7b` (override with `OLLAMA_MODEL`).
 3. Desktop app (default): step above. Health: `Invoke-RestMethod http://127.0.0.1:8765/health`.
 4. API-only (no UI): `py -3 -m uvicorn main:app --reload` then `Invoke-RestMethod http://127.0.0.1:8000/health`.
 5. Gradio only when the slice targets Gradio: `.\venv\Scripts\python.exe run_ui.py` (port 7860); IronBee OK for Gradio only.
+
+### Pre–Computer Use checklist (agent verify on 1080 Ti)
+
+Use CU only for visual / occlusion / clickable AC (pytest first otherwise). Before a CU window:
+
+1. Pause Ollama for the short agent CU session (human demos that need chat+UI exempt).
+2. Prefer **classic** orb — avoid mystic/aether/neural WebGL during CU.
+3. Single desktop window focus; dismiss product Manual/Charter Frame unless the slice is about that overlay.
+4. Throttle screenshots; one quiet retry if Cursor CU HUD contests clicks; else note **CU skipped — unsafe** / **CU flake** on the test ticket — never soft-pass.
 
 Never print or request raw API tokens. Settings live under `%LOCALAPPDATA%\ai_testing_app\settings.json`.

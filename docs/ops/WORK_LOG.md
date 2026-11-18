@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-18 — Council CR — Build verify: GPU / Computer Use throttle
+- **Agent/chat:** Council Room (`/council`) — GPU burnout + CU overlay collision risk
+- **Done:** Process/rules CR applied (no product code). Tiered desktop verify: pytest/API first; CU for visual/occlusion only; pause Ollama + classic orb during CU; one overlay; CU skipped/flake honesty — never soft-pass. FR-MAN-2 stays parked. Active Build remains **KAN-285**.
+- **Files:** `AGENTS.md`, `.cursor/rules/tooling-use.mdc`, `.cursor/rules/ironbee-devtools-use.mdc`, `.cursor/skills/run-local-stack/SKILL.md`, `.cursor/skills/slice-workflow/SKILL.md`, `PROJECT_MEMORY.md`, `docs/ops/HOW_WE_WORK.md`
+- **Verify:** docs/rules only (no pytest/product UI)
+- **Jira:** ops Task **KAN-299** created, completion comment, Done — not a product Story
+- **Next:** Build chat continues **KAN-285** under new verify policy
+
 ### 2026-11-18 — KAN-283 — Trustworthy Manual session loop (headed)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-283
 - **Done:** Hardened calm Start→notes/stills→End→review→Propose→Confirm/Cancel loop on desktop. In-app Charter Frame Cancel confirm (no `window.confirm`); loop stages idle/recording/review (`data-manual-loop` / `data-loop-stage`); review hides Start form so Propose/Confirm stay reachable (no sticky-inside-scrollport); Enter-to-note on dock; defaults advertise trustworthy_loop + FR-JIRA-5; Cancel proposal / cancel session write nothing to Jira. Cache-bust **desk93**.

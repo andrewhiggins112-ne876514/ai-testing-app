@@ -52,6 +52,7 @@ This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 M
 - Prefer 7B–8B local models. Those fit in the 11 GB GPU. 14B is the ceiling and may spill onto the CPU. Do not pull 32B or larger models, and do not run two models at once.
 - Leave RAM for Windows, the **desktop app window**, and at most one headed browser (for AUT/Playwright). Do not start extra browsers, stacks, or background jobs unless asked.
 - Disk space is enough for one or two models. Do not download a collection of models.
+- **Build-time GPU / Computer Use (Council 2026-11-18):** Ollama + WebGL orb (mystic/aether/neural) + Cursor Computer Use screenshot loops contend on the 1080 Ti. That is **agent verify load**, not a product FR. Tier verification (below); pause Ollama and prefer classic orb during short CU windows; do not invent in-app verify chrome to “fix” CU.
 - Jira is live: `https://ai-testing-lab.atlassian.net` project **KAN**. Credentials only in `%LOCALAPPDATA%\ai_testing_app\settings.json`. Product-agent Jira writes stay two-step confirm.
 - **If Atlassian MCP fails** (“permission to connect via API token”): do **not** stop — use Jira REST via local settings or `scripts/jira_kan_*.py` (see `.cursor/skills/jira-safe/SKILL.md`). Never print the token.
 - Repo path: `D:\Projects\ai_testing_app`. Ollama: `D:\Program Files\Ollama` with models under `OLLAMA_MODELS`.
@@ -85,12 +86,17 @@ This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 M
 ## Cursor tooling preferences (verified 2026-11-15 — no login how-tos here)
 - **Jira:** try **user-atlassian** first; expect frequent MCP API-token errors → **always** fall back to REST + local settings / `scripts/jira_kan_*.py` (never print tokens).
 - **GitHub:** **plugin-github-github** only. Keep `.cursor/mcp.json` empty (do not revive workspace npx GitHub MCP).
-- **Run / verify product UI as a desktop app:** `.\venv\Scripts\python.exe desktop_app.py` (pywebview). Use **Computer Use** on that native window. Do **not** open `/ui/desktop/` in a browser tab as the product, and do not default to Gradio/`run_ui.py` unless the slice is Gradio-specific.
+- **Run / verify product UI as a desktop app:** `.\venv\Scripts\python.exe desktop_app.py` (pywebview). Do **not** open `/ui/desktop/` in a browser tab as the product, and do not default to Gradio/`run_ui.py` unless the slice is Gradio-specific.
+- **Tiered desktop verify (Council 2026-11-18):**
+  1. **pytest / API / HTML markers** first for non-visual AC — these are the primary Done gate when the story is not about occlusion/clickability.
+  2. **Computer Use** only for visual / occlusion / clickable chrome AC (and OS dialogs / Ollama Settings). Prefer a quiet desktop: pause Ollama for the CU window; classic canvas orb (not mystic/aether/neural); one product overlay at a time; dismiss Manual/Charter Frame before CU when the slice is not about that overlay.
+  3. **CU overlay collision:** Cursor’s Computer Use HUD can contest App-menu / Manual / Charter clicks and pollute screenshots. One quiet retry; if still unsafe → document **CU skipped — unsafe** (or **CU flake**) on the test ticket + human checklist — **never** soft-pass “opened orb home.”
+  4. Close-out must state what CU actually proved vs skipped/flaked. CU captures IDE+desktop — treat agent screenshots as sensitive; do not paste tokens.
 - **IronBee browser:** only for Playwright AUT pages or Gradio-only slices — not for verifying the desktop shell. Never use cursor-ide-browser. IronBee Node/Backend stay **off** unless the user asks.
 - **Supermemory:** **always try** search at pick-up and add after meaningful decisions/slices (`workspaceRoot` = repo root; `container` project for codebase facts). If MCP add/search fails, retry once then continue — do not block the slice.
 - **Context7:** optional; Cloud Connected is enough; ignore Local Error·terminated.
 - **Skip unless asked:** plugin-atlassian (duplicate), cursor-origin (GitHub remotes only), enabling IronBee Node/Backend.
-- **Computer Use:** preferred for our desktop app + OS UI (Ollama Settings, etc.).
+- **Computer Use:** preferred for **visual** desktop + OS UI checks under the tiered policy above — not a mandate for every slice.
 
 ## When stuck
 - Re-read the “Original Vision” and “Key Decisions” sections of PROJECT_MEMORY.md.

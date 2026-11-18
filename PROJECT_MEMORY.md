@@ -106,7 +106,8 @@ Skeleton + substantial features exist:
 - **Jira KAN backlog (2026-11-15):** Ten FR-area epics **KAN-20…KAN-29** from `docs/FUNCTIONAL_SPEC.md`; stories/tests enriched via `scripts/jira_kan_enrich.py` (multi-audience template in `docs/ops/JIRA_TICKET_TEMPLATE.md`). Rebuild: `scripts/jira_kan_rebuild.py`.
 - **Product spec:** `docs/FUNCTIONAL_SPEC.md`. **Work log:** `docs/ops/WORK_LOG.md` (pointer also at `D:\Projects\WORK_LOG.md`).
 - **Ollama models:** `qwen2.5-coder:7b` (app default), `qwen3:8b`, `llama3.2`, plus optional 14b/16b — one loaded at a time on 1080 Ti.
-- **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); **product UI = `desktop_app.py` + Computer Use** (not browser shell); IronBee for AUT/Gradio only; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
+- **IDE tooling verified (2026-11-15):** GitHub plugin OK; Jira via REST fallback (MCP API-token often blocked); **product UI = `desktop_app.py`** (not browser shell); IronBee for AUT/Gradio only; Supermemory authenticated; Context7 optional. See `AGENTS.md` tooling preferences.
+- **Build-time GPU / CU policy (Council 2026-11-18):** Tiered verify — pytest/API/HTML first; Computer Use only for visual/occlusion/clickable chrome. Pause Ollama + classic orb during agent CU windows; one product overlay (dismiss Manual/Charter when not under test). CU HUD vs product overlay → document CU skipped/flake, never soft-pass. Build-time agent GPU ≠ product-runtime GPU; no in-app verify chrome to fix Cursor CU. FR-MAN-2 stays parked.
 
 Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-75** Heal proposal review UI — **Done** (KAN-76; desk23 App → Heal review)

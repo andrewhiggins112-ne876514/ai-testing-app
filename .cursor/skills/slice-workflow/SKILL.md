@@ -10,8 +10,10 @@ description: PM-owned development slice with zero human copy-paste between tools
 2. **Discover** — explorer-cheap or targeted reads (PM/agents — not the human).  
 3. **Plan** — architect if multi-file or security-sensitive.  
 4. **Implement** — PM edits directly, or delegates implementer / ui-orb (Grok 4.7).  
-5. **Verify** — verifier. Run focused tests. Visible product UI: **`desktop_app.py` + Computer Use** (not browser). IronBee only for AUT/Gradio.  
-   **Area-chrome / occlusion stories:** Computer Use must prove primary fields, tabs, and Confirm/Cancel are **clickable** — HTML/CSS markers alone are not enough (Council Track 2).  
+5. **Verify** — verifier. Run focused **pytest / API / HTML** first. Visible product UI: **`desktop_app.py`** (not browser). IronBee only for AUT/Gradio.  
+   **Computer Use (tiered — Council 2026-11-18):** use for visual / occlusion / clickable chrome only. Pre-CU: pause Ollama, classic orb, one product overlay (see `run-local-stack`).  
+   **Area-chrome / occlusion stories:** when a quiet desktop is achievable, CU must prove primary fields, tabs, and Confirm/Cancel are **clickable** — HTML/CSS markers alone are not enough (Council Track 2). If Cursor CU HUD vs Manual/Charter makes CU unsafe after one quiet retry → **CU skipped — unsafe** + human checklist on the test ticket — **never** soft-pass “opened orb home.”  
+   Close-out honesty: state what CU proved vs skipped/flaked.  
 5b. **Bugs found (mandatory)** — Raise a Jira **Bug**, Relates-link to Story + **test** ticket (create if missing), with symptom / expected vs actual / environment / numbered replication steps. Standing authorization. Do not silently fix-only. When fixed: Fix comment + Bug → Done.  
 6. **Memory** — update `PROJECT_MEMORY.md` / `ROADMAP.md`; append `docs/ops/WORK_LOG.md`; set next Active slice.  
 7. **Jira close-out (required)** — run `scripts/jira_kan_slice_closeout.py` (or equivalent REST):
