@@ -104,7 +104,8 @@ This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 M
   - **Python:** host may be 3.15; runtime is the **venv** (often 3.13). `requirements.txt` is unpinned — prefer venv truth over PyPI “latest.”
   - **Budget:** one resolve + one query per library per slice; reuse that cite. Skill: `.cursor/skills/context7-use/SKILL.md` (pointer to plugin `context7-mcp`).
   - **Queries:** library name + API question only — never secrets, `settings.json`, tokens, Jira payloads, AUT customer data, or credential paths.
-  - **If Context7 errors:** do not block the slice; use installed package / official docs; do not invent “latest.” Cloud Connected is enough; ignore Local Error·terminated. Product runtime never calls Context7.
+  - **If Context7 errors:** do not block the slice; use installed package / official docs; do not invent “latest.” Product runtime never calls Context7.
+  - **Local MCP auth:** Marketplace plugin is OAuth-only (often Local Error with no token field). Reliable local path: API key MCP entry `context7` in `%USERPROFILE%\.cursor\mcp.json` via `npx ctx7 setup --cursor --mcp -y` or `scripts/setup_context7_mcp_auth.ps1`. See `docs/ops/CONNECTORS.md`. Ignore plugin OAuth Local Error when user `context7` is green.
 - **Skip unless asked:** plugin-atlassian (duplicate), cursor-origin (GitHub remotes only), enabling IronBee Node/Backend.
 - **Computer Use:** preferred for **visual** desktop + OS UI checks under the tiered policy above — not a mandate for every slice.
 

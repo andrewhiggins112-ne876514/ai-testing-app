@@ -24,6 +24,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | UI-6 | Movable/resizable panels | done | Desktop resize + persist (KAN-53); Gradio orb panel resize parity |
 | OPS-1 | Cursor ops (rules, agents, skills, HOW_WE_WORK) | done | Merged to main via PR #1 |
 | OPS-2 | Beginner Cursor setup + PM-owned workflow | done | Human talks only to PM; Grok guide bot retired |
+| OPS-C7 | Context7 local API-key + 2B library/security/quality review | done | Epic **KAN-300**; Phase1–3 **KAN-301/303/305**; requirements pinned; Active remains **KAN-291** |
 | UI-5 | Orb presets (save/load/delete named configs) | done | Settings `orb_presets` + Gradio accordion controls |
 | UI-ORB-W | WebGL styles mystic / aether / neural | done | Vendored Three.js; classic styles stay canvas |
 | UI-DESK-1 | First native desktop window (pywebview mystic shell) | done | `desktop_app.py` + `ui/desktop/`; Gradio kept |

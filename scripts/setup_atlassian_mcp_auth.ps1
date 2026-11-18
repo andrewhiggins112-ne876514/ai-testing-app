@@ -1,5 +1,6 @@
 ﻿# Configures Cursor user MCP for Atlassian via API-token (Basic auth).
 # Writes ONLY to %USERPROFILE%\.cursor\mcp.json (not the git repo).
+# Merges into existing mcpServers (preserves context7-api-key, supermemory, etc.).
 # Never prints the token or Base64 value. Fully quit and reopen Cursor after.
 #
 # Prefer a Rovo MCP scoped token (agent-interface). Classic Jira tokens often get HTTP 401 here.
@@ -16,6 +17,7 @@ $ErrorActionPreference = "Stop"
 $settingsPath = Join-Path $env:LOCALAPPDATA "ai_testing_app\settings.json"
 $mcpPath = Join-Path $env:USERPROFILE ".cursor\mcp.json"
 $site = "ai-testing-lab.atlassian.net"
+$serverName = "atlassian"
 
 if (-not (Test-Path $settingsPath)) {
     Write-Host "FAIL: missing $settingsPath"
@@ -55,18 +57,39 @@ if (-not (Test-Path $mcpDir)) {
 }
 
 # Literal Basic value in user mcp.json — Cursor header env interpolation is unreliable.
-# This file is outside the repo; do not copy it into git.
-$mcpObj = [ordered]@{
-    mcpServers = [ordered]@{
-        atlassian = [ordered]@{
-            url = "https://mcp.atlassian.com/v2/mcp?site=$site"
-            headers = [ordered]@{
-                Authorization = "Basic $basic"
-            }
-        }
+# Merge: do not wipe context7-api-key / other servers.
+$root = $null
+if (Test-Path $mcpPath) {
+    try {
+        $root = Get-Content $mcpPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    } catch {
+        Write-Host "FAIL: could not parse $mcpPath — fix or move it aside, then re-run."
+        exit 1
     }
 }
-$mcpObj | ConvertTo-Json -Depth 6 | Set-Content -Path $mcpPath -Encoding UTF8
+if ($null -eq $root) {
+    $root = [pscustomobject]@{ mcpServers = [pscustomobject]@{} }
+}
+if (-not ($root.PSObject.Properties.Name -contains "mcpServers") -or $null -eq $root.mcpServers) {
+    $root | Add-Member -NotePropertyName mcpServers -NotePropertyValue ([pscustomobject]@{}) -Force
+}
+
+$entry = [pscustomobject]@{
+    url     = "https://mcp.atlassian.com/v2/mcp?site=$site"
+    headers = [pscustomobject]@{
+        Authorization = "Basic $basic"
+    }
+}
+
+$serversHash = [ordered]@{}
+foreach ($prop in $root.mcpServers.PSObject.Properties) {
+    if ($prop.Name -ne $serverName) {
+        $serversHash[$prop.Name] = $prop.Value
+    }
+}
+$serversHash[$serverName] = $entry
+$root.mcpServers = [pscustomobject]$serversHash
+[System.IO.File]::WriteAllText($mcpPath, ($root | ConvertTo-Json -Depth 8))
 
 # HEAD often returns 400 even when auth is fine. Probe with MCP initialize instead.
 $initFile = Join-Path $env:TEMP "atlassian_mcp_init.json"
@@ -86,7 +109,7 @@ $code = 0
 [int]::TryParse($codeStr, [ref]$code) | Out-Null
 
 Write-Host "OK: token source = $source"
-Write-Host "OK: wrote $mcpPath (user-only; contains secret — keep out of git)"
+Write-Host "OK: merged $serverName into $mcpPath (user-only; contains secret — keep out of git)"
 Write-Host "PROBE: mcp initialize POST -> HTTP $code (ignore HEAD 400 — that is normal)"
 if ($code -eq 200) {
     Write-Host "NEXT: disable Cursor Marketplace Atlassian plugin OAuth (avoid dual auth), fully quit Cursor, reopen."

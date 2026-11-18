@@ -38,7 +38,23 @@ If Cursor Atlassian MCP errors with **permission / API token** (common on this s
 - Product UI: run **`desktop_app.py`** and verify with **Computer Use** (native window). Do not open the desktop shell in a browser.
 - IronBee browser: AUT pages or Gradio-only; Node/Backend off.
 - Supermemory: authenticated for this machine; use when available.
-- Context7: **build-time IDE only** (Council 2026-11-18 stale-advice gate). Required when inventing/changing FastAPI / Pydantic / Playwright / Gradio / pywebview / Ollama HTTP / httpx calls — version-matched to the **venv**, not “latest.” On error: use installed package / official docs; do not block the slice; do not invent APIs. Cloud Connected OK; Local error ignorable. **Product runtime never calls Context7.** See `AGENTS.md` and `.cursor/skills/context7-use/SKILL.md`.
+- Context7: **build-time IDE only** (Council 2026-11-18 stale-advice gate). Required when inventing/changing FastAPI / Pydantic / Playwright / Gradio / pywebview / Ollama HTTP / httpx calls — version-matched to the **venv**, not “latest.” On error: use installed package / official docs; do not block the slice; do not invent APIs. **Product runtime never calls Context7.** See `AGENTS.md` and `.cursor/skills/context7-use/SKILL.md`.
+
+### Context7 local API key (plugin has no token field)
+
+Marketplace **Context7** plugin uses **OAuth only** (`/mcp/oauth`). Cloud can show Connected while local stays Error with no place to paste a key.
+
+**Reliable local path:** API key HTTP MCP entry named `context7` in **user** `%USERPROFILE%\.cursor\mcp.json` (never the repo; workspace `.cursor/mcp.json` stays empty).
+
+1. Create/copy a key at https://context7.com/dashboard — or run `npx ctx7 login` then `npx ctx7 setup --cursor --mcp -y` (merges into user MCP; preserves atlassian/supermemory).
+2. Or paste key and run (does not print the key; **merges** into existing user MCP servers):
+   ```powershell
+   $env:CONTEXT7_API_KEY = '<paste-key>'
+   powershell -ExecutionPolicy Bypass -File .\scripts\setup_context7_mcp_auth.ps1
+   ```
+   Optional: store `context7_api_key` in `%LOCALAPPDATA%\ai_testing_app\settings.json` (local only) and re-run without the env var.
+3. Fully quit and reopen Cursor. Tools & MCP: confirm **`context7`** is green. Plugin OAuth Local Error can be ignored if that entry works.
+4. Probe success = script prints `PROBE: mcp initialize POST -> HTTP 200`.
 
 ## Add when ready (do not rush)
 

@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-18 — Ops Epic KAN-300 — Context7 local + 2B review (Phases 0–3)
+- **Agent/chat:** Agent implementing plan (Context7 local fix + phased 2B)
+- **Done:** Phase0 — `setup_context7_mcp_auth.ps1` + Atlassian merge; `npx ctx7 login` + `setup --cursor --mcp` wrote user MCP `context7` (API key) alongside atlassian/supermemory; CLI `ctx7 library fastapi` verified. Phase1 — pinned `requirements.txt` to venv; Context7-audited call sites (no API-drift fixes needed); `tests/test_requirements_pins.py`. Phase2 — security/GDPR isolation audit; no Bugs. Phase3 — stub honesty intentional (Selenium/Cypress/Gradio charter); restore Active **KAN-291**.
+- **Files:** `scripts/setup_context7_mcp_auth.ps1`, `scripts/setup_atlassian_mcp_auth.ps1`, `scripts/jira_kan_ops_context7_review.py`, `requirements.txt`, `tests/test_requirements_pins.py`, `AGENTS.md`, `docs/ops/CONNECTORS.md`, `PROJECT_MEMORY.md`, `docs/ops/ROADMAP.md`
+- **Verify:** `pytest tests/test_requirements_pins.py tests/test_security_isolation.py tests/test_privacy_gdpr.py` 10 passed; `npx ctx7 library fastapi` OK. Fully quit/reopen Cursor so Tools & MCP shows user `context7` green (plugin OAuth Local Error ignorable).
+- **Jira:** Epic **KAN-300**; stories **KAN-301**/test **302**, **KAN-303**/test **304**, **KAN-305**/test **306**
+- **Next:** Build chat **KAN-291** Manual session library + GDPR wipe (test **KAN-292**)
+
 ### 2026-11-18 — Council CR — Agent stale-advice / Context7 gate
 - **Agent/chat:** Council Room (`/council`) — agents using outdated coding advice
 - **Done:** Claim validated (default behaviour unless forced to look up). Ops-only CR: ranked source order (repo → venv → Context7/official for installed version → memory last); narrow trigger for FastAPI/Pydantic/Playwright/Gradio/pywebview/Ollama HTTP/httpx; thrift does not skip gate; thin `context7-use` pointer skill; no product code; requirements pin deferred.

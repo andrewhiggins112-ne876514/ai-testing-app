@@ -17,8 +17,8 @@ Skip for Python builtins, in-repo modules, and copying an already-working call o
 
 1. Prefer **existing working usage in this repo** and project security rules.
 2. Confirm the **installed** package: `.\venv\Scripts\pip.exe show <pkg>` (or read its files). Host Python ≠ venv Python.
-3. Follow the Cursor plugin skill **`context7-mcp`**: `resolve-library-id` → `query-docs`, scoped to the **installed** version when possible. One resolve + one query per library per slice.
-4. If Context7 MCP errors: use the installed package source or official docs for that version. Continue the slice — do not invent “latest.”
+3. Prefer MCP tools from the user **`context7`** API-key server (see `docs/ops/CONNECTORS.md`). Or follow plugin skill **`context7-mcp`**: `resolve-library-id` → `query-docs`, scoped to the **installed** version. Fallback CLI: `npx ctx7 library` / `npx ctx7 docs`. One resolve + one query per library per slice.
+4. If Context7 MCP errors: use CLI if logged in, else installed package source / official docs. Continue the slice — do not invent “latest.” Plugin OAuth Local Error is OK when user `context7` or CLI works.
 5. Cite package + version + source once on the story/test ticket when the API was version-sensitive.
 
 ## Do not

@@ -1,14 +1,14 @@
 # AI Testing Application - Local AI testing agent
-# Requirements
-fastapi
-uvicorn
-playwright
-httpx
-gradio
-python-dotenv
-pydantic
-pywebview
-Pillow
+# Pins match the working Windows venv (recorded 2026-11-18). Prefer venv truth over PyPI "latest".
+fastapi>=0.163.1,<0.164
+uvicorn>=0.54.0,<0.55
+playwright>=1.65.2,<1.66
+httpx>=0.28.1,<0.29
+gradio>=6.32.0,<6.33
+python-dotenv>=1.0.0
+pydantic>=2.14.3,<2.15
+pywebview>=6.2.1,<6.3
+Pillow>=13.0.0,<14
 # Optional: langgraph if we expand the agent loop later
 # langgraph
 
