@@ -42,19 +42,28 @@ If Cursor Atlassian MCP errors with **permission / API token** (common on this s
 
 ### Context7 local API key (plugin has no token field)
 
-Marketplace **Context7** plugin uses **OAuth only** (`/mcp/oauth`). Cloud can show Connected while local stays Error with no place to paste a key.
+Marketplace **Context7** plugin uses **OAuth only** (`/mcp/oauth`). Cloud can show Connected while local stays Error with **no place to paste a key**. That is expected — do **not** hunt for a token box on the plugin.
 
-**Reliable local path:** API key HTTP MCP entry named `context7` in **user** `%USERPROFILE%\.cursor\mcp.json` (never the repo; workspace `.cursor/mcp.json` stays empty).
+**Where your API key goes (you must supply it once):**
 
-1. Create/copy a key at https://context7.com/dashboard — or run `npx ctx7 login` then `npx ctx7 setup --cursor --mcp -y` (merges into user MCP; preserves atlassian/supermemory).
-2. Or paste key and run (does not print the key; **merges** into existing user MCP servers):
-   ```powershell
-   $env:CONTEXT7_API_KEY = '<paste-key>'
-   powershell -ExecutionPolicy Bypass -File .\scripts\setup_context7_mcp_auth.ps1
-   ```
-   Optional: store `context7_api_key` in `%LOCALAPPDATA%\ai_testing_app\settings.json` (local only) and re-run without the env var.
-3. Fully quit and reopen Cursor. Tools & MCP: confirm **`context7`** is green. Plugin OAuth Local Error can be ignored if that entry works.
-4. Probe success = script prints `PROBE: mcp initialize POST -> HTTP 200`.
+| Place | Path / action | Notes |
+|-------|----------------|-------|
+| **Preferred** | PowerShell env, then run setup script | `$env:CONTEXT7_API_KEY = 'ctx7sk-...'` then `.\scripts\setup_context7_mcp_auth.ps1` |
+| **Durable local** | `%LOCALAPPDATA%\ai_testing_app\settings.json` key `context7_api_key` | Same store as other local secrets; never commit |
+| **Written by script** | `%USERPROFILE%\.cursor\mcp.json` server name **`context7`** | User-only MCP file; **not** the repo; workspace `.cursor/mcp.json` stays empty |
+
+Get a key: https://context7.com/dashboard (starts with `ctx7sk-`).
+
+```powershell
+$env:CONTEXT7_API_KEY = 'ctx7sk-...'   # paste YOUR key
+powershell -ExecutionPolicy Bypass -File .\scripts\setup_context7_mcp_auth.ps1
+```
+
+Default transport is **local stdio** (`npx @upstash/context7-mcp`) — avoids Cursor `streamableHttp … terminated` noise common on this Windows box. Use `-Http` only if you want the remote URL again.
+
+After the script: **fully quit and reopen Cursor** → Tools & MCP → enable **`context7`** (stdio). Ignore plugin OAuth Local Error / terminated logs on the Marketplace server.
+
+**Honest note:** an earlier agent session used `npx ctx7 login` (browser device code) which could place a key without you pasting one into chat. If you want **your** dashboard key instead, run the commands above — the script overwrites the `context7` entry.
 
 ## Add when ready (do not rush)
 

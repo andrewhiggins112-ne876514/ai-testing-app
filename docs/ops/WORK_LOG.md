@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-18 — Context7 local: stdio + clear API-key placement
+- **Agent/chat:** Follow-up — user still saw streamableHttp terminated; never pasted a key
+- **Done:** Switched user MCP `context7` from HTTP to **stdio** (`cmd /c npx @upstash/context7-mcp@latest` + `CONTEXT7_API_KEY` env + Norton CA). Documented exact key places in CONNECTORS (env / local settings / user mcp.json). Script reuses existing key or accepts `$env:CONTEXT7_API_KEY`.
+- **Files:** `scripts/setup_context7_mcp_auth.ps1`, `docs/ops/CONNECTORS.md`, `AGENTS.md`
+- **Verify:** Human: fully quit/reopen Cursor; Tools & MCP enable `context7` (stdio). Ignore plugin OAuth terminated logs. Optional: paste own `ctx7sk-…` from dashboard into env and re-run script.
+- **Jira:** note on **KAN-300** optional
+- **Next:** **KAN-291**
+
 ### 2026-11-18 — Ops Epic KAN-300 — Context7 local + 2B review (Phases 0–3)
 - **Agent/chat:** Agent implementing plan (Context7 local fix + phased 2B)
 - **Done:** Phase0 — `setup_context7_mcp_auth.ps1` + Atlassian merge; `npx ctx7 login` + `setup --cursor --mcp` wrote user MCP `context7` (API key) alongside atlassian/supermemory; CLI `ctx7 library fastapi` verified. Phase1 — pinned `requirements.txt` to venv; Context7-audited call sites (no API-drift fixes needed); `tests/test_requirements_pins.py`. Phase2 — security/GDPR isolation audit; no Bugs. Phase3 — stub honesty intentional (Selenium/Cypress/Gradio charter); restore Active **KAN-291**.

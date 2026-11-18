@@ -1,25 +1,59 @@
-﻿# Configures Cursor user MCP for Context7 via API key (HTTP remote).
+﻿# Configures Cursor user MCP for Context7 via API key.
 # Writes ONLY to %USERPROFILE%\.cursor\mcp.json (not the git repo).
 # Merges into existing mcpServers (preserves atlassian, supermemory, etc.).
 # Never prints the API key. Fully quit and reopen Cursor after.
 #
-# Why: Marketplace Context7 plugin uses OAuth only (no token field). Local reliability
-# uses HTTP MCP server name `context7` on https://mcp.context7.com/mcp (API key).
+# WHERE TO PUT YOUR KEY (pick one):
+#   A) Paste into this PowerShell session, then run the script:
+#        $env:CONTEXT7_API_KEY = 'ctx7sk-...'   # from https://context7.com/dashboard
+#        powershell -ExecutionPolicy Bypass -File .\scripts\setup_context7_mcp_auth.ps1
+#   B) Or save once in local app settings (never commit):
+#        %LOCALAPPDATA%\ai_testing_app\settings.json  →  "context7_api_key": "ctx7sk-..."
+#      then run the script with no env var.
 #
-# Usage:
-#   $env:CONTEXT7_API_KEY = '<paste-key-from-context7.com/dashboard>'
-#   powershell -ExecutionPolicy Bypass -File .\scripts\setup_context7_mcp_auth.ps1
+# Default transport: local stdio (avoids Cursor streamableHttp "terminated" on Windows).
+# Optional: -Http to use remote https://mcp.context7.com/mcp instead.
 #
-# Optional: store key in %LOCALAPPDATA%\ai_testing_app\settings.json as context7_api_key
-# (local-only; never commit). Env var wins when both are set.
+# Why: Marketplace Context7 plugin is OAuth-only (no token field). Use this entry named
+# `context7` for a reliable local connection.
+
+param(
+    [switch]$Http
+)
 
 $ErrorActionPreference = "Stop"
 $mcpPath = Join-Path $env:USERPROFILE ".cursor\mcp.json"
 $settingsPath = Join-Path $env:LOCALAPPDATA "ai_testing_app\settings.json"
-# Name matches `npx ctx7 setup --cursor --mcp` so Tools & MCP shows one API-key server.
-# Marketplace plugin OAuth remains a separate plugin namespace; Local Error there is OK.
 $serverName = "context7"
 $mcpUrl = "https://mcp.context7.com/mcp"
+$nortonPem = Join-Path $env:LOCALAPPDATA "ai_testing_app\norton-web-mail-shield-root.pem"
+
+function Get-ExistingContext7Key {
+    param($root)
+    if ($null -eq $root -or $null -eq $root.mcpServers) { return $null }
+    $existing = $root.mcpServers.PSObject.Properties | Where-Object { $_.Name -eq $serverName }
+    if (-not $existing) { return $null }
+    $val = $existing.Value
+    if ($val.headers -and $val.headers.Authorization) {
+        $auth = [string]$val.headers.Authorization
+        if ($auth -match '^(?i)Bearer\s+(.+)$') { return $Matches[1].Trim() }
+    }
+    if ($val.headers -and $val.headers.'Context7-API-Key') {
+        return [string]$val.headers.'Context7-API-Key'
+    }
+    if ($val.env -and $val.env.CONTEXT7_API_KEY) {
+        return [string]$val.env.CONTEXT7_API_KEY
+    }
+    if ($val.args) {
+        $argsList = @($val.args)
+        for ($i = 0; $i -lt $argsList.Count; $i++) {
+            if ($argsList[$i] -eq '--api-key' -and ($i + 1) -lt $argsList.Count) {
+                return [string]$argsList[$i + 1]
+            }
+        }
+    }
+    return $null
+}
 
 $key = $null
 $source = $null
@@ -35,18 +69,11 @@ if (-not [string]::IsNullOrWhiteSpace($env:CONTEXT7_API_KEY)) {
     }
 }
 
-if ([string]::IsNullOrWhiteSpace($key)) {
-    Write-Host "FAIL: set `$env:CONTEXT7_API_KEY or settings.json context7_api_key (local only)."
-    Write-Host "HINT: create/copy key at https://context7.com/dashboard"
-    exit 1
-}
-
 $mcpDir = Split-Path $mcpPath -Parent
 if (-not (Test-Path $mcpDir)) {
     New-Item -ItemType Directory -Path $mcpDir | Out-Null
 }
 
-# Load existing user mcp.json and merge (do not wipe atlassian/supermemory).
 $root = $null
 if (Test-Path $mcpPath) {
     try {
@@ -63,14 +90,49 @@ if (-not ($root.PSObject.Properties.Name -contains "mcpServers") -or $null -eq $
     $root | Add-Member -NotePropertyName mcpServers -NotePropertyValue ([pscustomobject]@{}) -Force
 }
 
-$entry = [pscustomobject]@{
-    url     = $mcpUrl
-    headers = [pscustomobject]@{
-        Authorization = "Bearer $key"
+if ([string]::IsNullOrWhiteSpace($key)) {
+    $key = Get-ExistingContext7Key $root
+    if (-not [string]::IsNullOrWhiteSpace($key)) {
+        $source = "existing mcp.json context7 entry (reused, not printed)"
     }
 }
 
-# Replace or add context7-api-key without dropping other servers.
+if ([string]::IsNullOrWhiteSpace($key)) {
+    Write-Host "FAIL: no API key found."
+    Write-Host ""
+    Write-Host "Get a key: https://context7.com/dashboard  (looks like ctx7sk-...)"
+    Write-Host "Then either:"
+    Write-Host "  1) `$env:CONTEXT7_API_KEY = 'ctx7sk-...' ; re-run this script"
+    Write-Host "  2) Add `"context7_api_key`": `"ctx7sk-...`" to $settingsPath and re-run"
+    Write-Host ""
+    Write-Host "Do NOT put the key in the git repo or workspace .cursor/mcp.json"
+    exit 1
+}
+
+if ($Http) {
+    $entry = [pscustomobject]@{
+        url     = $mcpUrl
+        headers = [pscustomobject]@{
+            Authorization = "Bearer $key"
+        }
+    }
+    $mode = "HTTP remote (may log streamableHttp terminated on Windows — toggle off/on if red)"
+} else {
+    # Windows-friendly stdio: cmd /c npx … ; key in env (not argv) so it is less likely to leak in process lists.
+    $envMap = [ordered]@{
+        CONTEXT7_API_KEY = $key
+    }
+    if (Test-Path $nortonPem) {
+        $envMap["NODE_EXTRA_CA_CERTS"] = $nortonPem
+    }
+    $entry = [pscustomobject]@{
+        command = "cmd"
+        args    = @("/c", "npx", "-y", "@upstash/context7-mcp@latest", "--transport", "stdio")
+        env     = [pscustomobject]$envMap
+    }
+    $mode = "local stdio (recommended on this PC — avoids streamableHttp terminated)"
+}
+
 $serversHash = [ordered]@{}
 foreach ($prop in $root.mcpServers.PSObject.Properties) {
     if ($prop.Name -ne $serverName) {
@@ -79,36 +141,11 @@ foreach ($prop in $root.mcpServers.PSObject.Properties) {
 }
 $serversHash[$serverName] = $entry
 $root.mcpServers = [pscustomobject]$serversHash
-
-$json = $root | ConvertTo-Json -Depth 8
-# PowerShell ConvertTo-Json can flatten single-property objects oddly; write via .NET for stable UTF8 no BOM issues.
-[System.IO.File]::WriteAllText($mcpPath, $json)
-
-# Probe MCP initialize (never print Authorization).
-$initFile = Join-Path $env:TEMP "context7_mcp_init.json"
-$outFile = Join-Path $env:TEMP "context7_mcp_init_out.txt"
-Set-Content -Path $initFile -Value '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"setup-probe","version":"0.1.0"}}}' -Encoding ascii
-$curlArgs = @(
-    "-sS", "-o", $outFile, "-w", "%{http_code}",
-    "-X", "POST", $mcpUrl,
-    "-H", "Authorization: Bearer $key",
-    "-H", "Accept: application/json, text/event-stream",
-    "-H", "Content-Type: application/json",
-    "-H", "MCP-Protocol-Version: 2024-11-05",
-    "--data-binary", "@$initFile"
-)
-$codeStr = & curl.exe @curlArgs
-$code = 0
-[int]::TryParse($codeStr, [ref]$code) | Out-Null
+[System.IO.File]::WriteAllText($mcpPath, ($root | ConvertTo-Json -Depth 8))
 
 Write-Host "OK: key source = $source"
+Write-Host "OK: mode = $mode"
 Write-Host "OK: merged $serverName into $mcpPath (user-only; keep out of git)"
-Write-Host "PROBE: mcp initialize POST -> HTTP $code"
-if ($code -eq 200) {
-    Write-Host "NEXT: fully quit Cursor and reopen."
-    Write-Host "NEXT: Tools & MCP — confirm '$serverName' is connected (green)."
-    Write-Host "NEXT: plugin OAuth 'context7' Local Error can be ignored if '$serverName' works."
-} else {
-    Write-Host "HINT: HTTP $code — check key at https://context7.com/dashboard and re-run."
-    exit 1
-}
+Write-Host "NEXT: fully quit Cursor and reopen."
+Write-Host "NEXT: Tools & MCP — enable '$serverName' (stdio). Ignore Marketplace plugin OAuth Local Error."
+Write-Host "HINT: if stdio fails, re-run with -Http after confirming the key at the dashboard."
