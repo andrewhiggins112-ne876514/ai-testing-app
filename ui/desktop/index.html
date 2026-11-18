@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk91" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk92" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -258,7 +258,7 @@
 
     <div id="area-layer" class="area-layer" hidden>
       <div id="area-scrim" class="area-scrim"></div>
-      <section id="area-surface" class="shell-surface area-surface" role="region" aria-label="App area">
+      <section id="area-surface" class="shell-surface area-surface" role="region" aria-label="App area" data-area-chrome-nonoverlap="1">
         <header class="area-surface-bar">
           <button type="button" id="area-back" class="save-btn secondary">Back</button>
           <h2 id="area-title" class="area-title">Settings</h2>
@@ -508,6 +508,7 @@
             </div>
             <p id="rpt-status" class="drawer-hint rpt-toolbar-status" role="status">Ready</p>
           </div>
+          <div class="area-work" data-area-work="1">
           <div id="rpt-primary" class="rpt-primary" data-rpt-primary="1">
             <h4 class="orb-section-label">Saved reports</h4>
             <p id="rpt-empty" class="drawer-hint">
@@ -547,6 +548,7 @@
               Open README.md without this app. Secrets redacted (E3). Not a cloud shared drive.
             </p>
           </details>
+          </div>
         </div>
         <div id="app-section-documents" class="app-section" hidden data-lab-areas-ia="1" data-documents-ia="1">
           <h3 class="orb-section-label">Documents</h3>
@@ -557,6 +559,7 @@
             </div>
             <p id="doc-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
+          <div class="area-work" data-area-work="1">
           <div id="doc-primary" class="lab-primary" data-doc-primary="1">
             <h4 class="orb-section-label">Ingest</h4>
             <label class="stack-label">Spec text
@@ -579,6 +582,7 @@
             <summary>Privacy &amp; help</summary>
             <p class="drawer-hint">Paste a Markdown/text spec. Uploads record file name, time, security level, and consent locally (no cloud sync). Explicit consent is required before storing extracted settings (GDPR). Decline leaves the settings file unchanged. Exports omit document bodies unless the Documents report section is on. Privacy inventory includes uploads — delete them from Security → Privacy with confirm.</p>
           </details>
+          </div>
         </div>
         <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1">
           <h3 class="orb-section-label">Heal proposal review</h3>
@@ -593,6 +597,7 @@
             </div>
             <p id="heal-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
+          <div class="area-work" data-area-work="1">
           <div id="heal-primary" class="lab-primary" data-heal-primary="1">
             <h4 class="orb-section-label">Pending proposals</h4>
             <div id="heal-list" class="heal-list" aria-live="polite" data-heal-list="1"></div>
@@ -605,6 +610,7 @@
               Optional run filter shows only heals stamped for that plan run.
             </p>
           </details>
+          </div>
         </div>
         <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1">
           <h3 class="orb-section-label">Desktop .exe plugin</h3>
@@ -615,6 +621,7 @@
             </div>
             <p id="desk-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
+          <div class="area-work" data-area-work="1">
           <div id="desk-primary" class="lab-primary" data-desk-primary="1">
             <h4 class="orb-section-label">Smoke status</h4>
             <p id="desk-path" class="drawer-hint">App path: —</p>
@@ -630,6 +637,7 @@
               <button type="button" id="desk-save" class="save-btn">Save plugin</button>
             </div>
           </details>
+          </div>
         </div>
         <div id="app-section-plans" class="app-section" hidden data-plans-ia="1">
           <h3 class="orb-section-label">Plans</h3>
@@ -660,6 +668,7 @@
             <button type="button" class="plan-tab" role="tab" id="plan-tab-history" data-plan-panel="history" aria-selected="false" aria-controls="plan-panel-history">History</button>
             <button type="button" class="plan-tab" role="tab" id="plan-tab-run" data-plan-panel="run" aria-selected="false" aria-controls="plan-panel-run">Run setup</button>
           </div>
+          <div class="area-work" data-area-work="1">
           <div id="plan-panel-cases" class="plan-panel" role="tabpanel" data-plan-panel="cases" aria-labelledby="plan-tab-cases">
             <pre id="plan-intent" class="drawer-hint" aria-live="polite" hidden></pre>
             <label class="stack-label"><input type="checkbox" id="plan-show-archived" /> Show archived cases (default list hides them; runs and evidence stay)</label>
@@ -917,6 +926,7 @@
             </details>
             <label class="stack-label"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail (headed browser stays open until Continue or Stop; off by default)</label>
           </div>
+          </div>
         </div>
         <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1">
           <h3 class="orb-section-label">Manual</h3>
@@ -929,6 +939,7 @@
             </div>
             <p id="manual-status" class="drawer-hint manual-toolbar-status" role="status">Ready — no session running</p>
           </div>
+          <div class="area-work" data-area-work="1">
           <div id="manual-primary" class="manual-primary" data-manual-primary="1">
             <h4 class="orb-section-label">Start session</h4>
             <label class="stack-label" for="manual-charter">Charter (required)
@@ -974,6 +985,7 @@
             <p class="drawer-hint">Notes + opt-in stills only. No keylog, clipboard, mic, or silent video. Jira writes stay two-step confirm. Live on-screen circles are FR-MAN-2 (parked).</p>
             <ul id="manual-session-list" class="drawer-hint" data-manual-session-list="1"></ul>
           </details>
+          </div>
         </div>
         <div id="app-section-suites" class="app-section" hidden data-suites-ia="1">
           <h3 class="orb-section-label">Playwright suites</h3>
@@ -990,6 +1002,7 @@
             <p id="suite-saved" class="drawer-hint suite-toolbar-saved">Saved path: —</p>
             <p id="suite-status" class="drawer-hint suite-toolbar-status" role="status">Ready</p>
           </div>
+          <div class="area-work" data-area-work="1">
           <div id="suite-primary" class="suite-primary" data-suite-primary="1">
             <h4 class="orb-section-label">Suite list</h4>
             <p id="suite-list-empty" class="drawer-hint">Enter a path and Discover or List tests. Selection runs via npx (FR-TEST-5); external project files are never deleted.</p>
@@ -1002,6 +1015,7 @@
               <button type="button" id="suite-import" class="save-btn secondary">Import / save path</button>
             </div>
           </details>
+          </div>
         </div>
         <div id="app-section-sandboxes" class="app-section" hidden data-lab-areas-ia="1" data-sandboxes-ia="1">
           <h3 class="orb-section-label">Sandboxes</h3>
@@ -1019,6 +1033,7 @@
             </div>
             <p id="ms-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
+          <div class="area-work" data-area-work="1">
           <div id="ms-primary" class="lab-primary" data-ms-primary="1">
             <h4 class="orb-section-label">Sandbox list &amp; status</h4>
             <p id="ms-plugins" class="drawer-hint">Plugins: —</p>
@@ -1043,6 +1058,7 @@
               <button type="button" id="ms-remove" class="save-btn secondary">Remove</button>
             </div>
           </details>
+          </div>
         </div>
         </div>
         </div>
@@ -1156,6 +1172,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk91"></script>
+  <script src="/ui/desktop/desktop.js?v=desk92"></script>
 </body>
 </html>

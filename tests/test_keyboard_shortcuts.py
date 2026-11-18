@@ -8,14 +8,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class KeyboardShortcutsTests(unittest.TestCase):
-    def test_desktop_ui_documents_shortcuts_desk91(self):
+    def test_desktop_ui_documents_shortcuts_desk92(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk91", html)
-        self.assertIn("desk91", app)
-        self.assertIn("desktop.js?v=desk91", html)
+        self.assertIn("desk92", html)
+        self.assertIn("desk92", app)
+        self.assertIn("desktop.js?v=desk92", html)
         self.assertIn('id="keyboard-shortcuts-doc"', html)
         self.assertIn('id="plan-keyboard-hint"', html)
         self.assertIn("data-keyboard-shortcuts", html)

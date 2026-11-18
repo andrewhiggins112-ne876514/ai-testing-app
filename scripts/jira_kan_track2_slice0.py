@@ -48,7 +48,7 @@ BUG: Dict[str, Any] = {
             "multi-row toolbars eat the form viewport.",
             "",
             "Environment",
-            "Windows native desktop_app.py (pywebview / Edge WebView2); desk87–desk91 UI tidy track.",
+            "Windows native desktop_app.py (pywebview / Edge WebView2); desk87–desk92 UI tidy track.",
             "",
             "Replication steps",
             "1. Run .\\venv\\Scripts\\python.exe desktop_app.py",

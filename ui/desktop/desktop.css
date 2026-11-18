@@ -1462,12 +1462,62 @@ html[data-area-open="true"] .hud-widget {
 }
 
 .area-body {
-  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   padding: 8px 16px 16px;
+}
+
+#area-section-host {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .area-body .app-section {
   margin-top: 0;
+}
+
+/* KAN-281 — visible area fills the surface; chrome stays outside the scrollport */
+.app-section:not([hidden]) {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-section:not([hidden]):not(:has(.area-work)) {
+  overflow: auto;
+}
+
+.area-work {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 4px;
+}
+
+/* Shared non-overlapping area chrome (was sticky-inside-scrollport) */
+.plan-sticky-toolbar,
+.suite-sticky-toolbar,
+.rpt-sticky-toolbar,
+.manual-sticky-toolbar,
+.lab-sticky-toolbar {
+  position: static;
+  top: auto;
+  z-index: auto;
+  flex-shrink: 0;
+}
+
+.plan-section-tabs {
+  flex-shrink: 0;
 }
 
 html[data-area-open="true"][data-area-chrome="overlay"] .area-surface {
@@ -1553,11 +1603,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   display: none !important;
 }
 
-/* KAN-265 Plans IA — sticky toolbar + section tabs + Add case menu */
+/* KAN-265/KAN-281 Plans IA — non-overlapping chrome + section tabs + Add case menu */
 .plan-sticky-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 4;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1565,7 +1612,6 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin: 0 0 4px;
   background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
-  backdrop-filter: blur(6px);
 }
 
 .plan-sticky-toolbar .plan-toolbar-actions {
@@ -1663,11 +1709,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin-bottom: 8px;
 }
 
-/* KAN-269 Suites IA — sticky path/run + primary list + collapsed advanced */
+/* KAN-269/KAN-281 Suites IA — non-overlapping path/run + primary list + collapsed advanced */
 .suite-sticky-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 4;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1675,7 +1718,6 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin: 0 0 4px;
   background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
-  backdrop-filter: blur(6px);
 }
 
 .suite-sticky-toolbar .suite-toolbar-actions {
@@ -1749,9 +1791,6 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 }
 
 .rpt-sticky-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 4;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1759,7 +1798,6 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin: 0 0 4px;
   background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
-  backdrop-filter: blur(6px);
 }
 
 .rpt-sticky-toolbar .rpt-toolbar-actions {
@@ -1838,11 +1876,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: var(--cyan, #50cdff);
 }
 
-/* KAN-275/277 Manual Primary + Charter Frame MVP */
+/* KAN-275/277/281 Manual Primary + Charter Frame MVP — non-overlapping chrome */
 .manual-sticky-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 4;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1850,7 +1885,6 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin: 0 0 4px;
   background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
-  backdrop-filter: blur(6px);
 }
 
 .manual-sticky-toolbar .manual-toolbar-actions {
@@ -2029,10 +2063,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 }
 
 /* KAN-273 Lab areas IA — Documents / Heal / Desktop / Sandboxes */
+/* KAN-273/KAN-281 Lab areas — non-overlapping chrome */
 .lab-sticky-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 4;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -2040,7 +2072,6 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin: 0 0 4px;
   background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
-  backdrop-filter: blur(6px);
 }
 
 .lab-sticky-toolbar .lab-toolbar-actions {

@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-281** — Track2: Non-overlapping area chrome (FR-UI-9) |
+| **Jira story** | **KAN-283** — Track2: Trustworthy Manual session loop (headed) |
 | **Start task** | — |
 | **Epic** | **KAN-279** Council Track 2 — Area chrome + Manual completion |
-| **Roadmap ID** | TRACK2-CHROME |
-| **Spec** | FR-UI-9 non-overlap CR; Bug **KAN-280** occlusion |
+| **Roadmap ID** | TRACK2-MAN |
+| **Spec** | FR-MAN-1 completion (trustworthy Start→End→review→confirm) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-282** |
-| **Shipped** | Track 1 Done (**KAN-265…277**); Track 2 Slice-0 seeded (**KAN-279…298**) |
+| **Test ticket** | **KAN-284** |
+| **Shipped** | Track 1 Done; Track 2 chrome **KAN-281** / Bug **KAN-280** (desk92) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
-| **Next / Shipped** | Pick up **KAN-281** first. Then **KAN-283…297** Manual completion + layout note/tokens. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Pick up **KAN-283**. Then **KAN-285…297**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-18 — KAN-281 — Non-overlapping area chrome (FR-UI-9)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-281
+- **Done:** Removed sticky-inside-scrollport occlusion across Plans / Suites / Reports / Manual / Lab. Area chrome is flex-shrink header outside `.area-work` scrollport; `position: sticky` gone from area toolbars. Marker `data-area-chrome-nonoverlap`; eight `data-area-work` wraps. Cache-bust **desk92**. Fixed Bug **KAN-280**.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_area_chrome_nonoverlap.py`, `tests/test_nav_overlap.py` (+ desk92 across UI tests), docs
+- **Verify:** `pytest tests/test_area_chrome_nonoverlap.py tests/test_nav_overlap.py tests/test_plans_ia.py tests/test_suites_ia.py tests/test_reports_ia.py tests/test_manual_ia.py tests/test_lab_areas_ia.py tests/test_desktop_app_menu.py tests/test_manual_session.py` 28 passed. Live `desktop_app.py` desk92: Computer Use opened Plans — toolbar + tabs above work; Rename field focused (I-beam); primary fields/tabs visible and clickable (not covered by chrome). HUD checklist contested early clicks; Open Plans succeeded.
+- **Jira:** close-out **KAN-281** + **KAN-282**; Bug **KAN-280** Fix + Done
+- **Next:** **KAN-283** Trustworthy Manual session loop (test **KAN-284**)
+
 ### 2026-11-18 — Council Track 2 Slice-0 — CR landed (docs + Jira)
 - **Agent/chat:** Cursor IDE Council Room → CR apply (Designer answers: non-overlap; fix-first; full Manual completion backlog; Build gate off KAN-81)
 - **Done:** Amended FR-UI-9 (non-overlapping area chrome) + FR-MAN-1 completion wording in `docs/FUNCTIONAL_SPEC.md`. Seeded epic **KAN-279**, Bug **KAN-280**, Stories **KAN-281…297** + tests **KAN-282…298**. Active → **KAN-281**. Voice / FR-MAN-2 stay parked. No product feature code in this chat.
@@ -49,9 +57,9 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ### 2026-11-18 — KAN-277 — FR-MAN-1 Charter Frame MVP
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-277
-- **Done:** Level-scoped manual sessions under `plans/{LEVEL}/sessions/`; Start/End/Cancel; notes + opt-in stills; assist/mist default OFF; free-region Charter Frame overlay (click-through interior, resize/drag chrome, optional inner mist); End → review → Propose bug/comment/local note/step preview → confirm (Cancel writes nothing to Jira); story required when ticket-bound. Cache-bust **desk91**. Gradio stub points at desktop.
-- **Files:** `plans/manual_session.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_manual_session.py`, `tests/test_manual_session_design.py`, `tests/test_manual_ia.py` (+ desk91 across UI tests), docs
-- **Verify:** `pytest tests/test_manual_session.py tests/test_manual_session_design.py tests/test_manual_ia.py tests/test_nav_overlap.py` 18 passed. Live `desktop_app.py` opened desk91 (orb home). HTML markers `data-charter-frame` / `data-charter-mvp` / `data-manual-start`.
+- **Done:** Level-scoped manual sessions under `plans/{LEVEL}/sessions/`; Start/End/Cancel; notes + opt-in stills; assist/mist default OFF; free-region Charter Frame overlay (click-through interior, resize/drag chrome, optional inner mist); End → review → Propose bug/comment/local note/step preview → confirm (Cancel writes nothing to Jira); story required when ticket-bound. Cache-bust **desk92**. Gradio stub points at desktop.
+- **Files:** `plans/manual_session.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_manual_session.py`, `tests/test_manual_session_design.py`, `tests/test_manual_ia.py` (+ desk92 across UI tests), docs
+- **Verify:** `pytest tests/test_manual_session.py tests/test_manual_session_design.py tests/test_manual_ia.py tests/test_nav_overlap.py` 18 passed. Live `desktop_app.py` opened desk92 (orb home). HTML markers `data-charter-frame` / `data-charter-mvp` / `data-manual-start`.
 - **Jira:** close-out **KAN-277** + **KAN-278**
 - **Next:** Active **deferred** — **KAN-81** voice; do not implement. Human/council picks next track.
 

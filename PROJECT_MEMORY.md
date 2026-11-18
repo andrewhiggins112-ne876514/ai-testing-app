@@ -1,12 +1,12 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-18 (Council Track 2 Slice-0 — Active KAN-281)
+Last updated: 2026-11-18 (KAN-281 non-overlapping chrome desk92 — Active KAN-283)
 
 ## Original Vision
 A downloadable local-first **“test all”** application. The tester connects once (Jira, targets, docs, security level) and does testing work **inside the app**. Conversation (text first; voice later as a plugin) is the way in; the **orb + chat home is one home for everyone**; role needs are **HUD widgets**; App areas are full-window work.
 
-Primary artifacts: **in-app test plan and suite** (view/run in-app). Import existing Playwright projects as input; pipelines section design is in `docs/design/H2_PIPELINES_SECTION.md` (CI not shipped); manual session (**Charter Frame**) per `docs/design/H1_MANUAL_SESSION_CAPTURE.md` §9 — MVP shipped **KAN-277** (desk91); **FR-MAN-1 completion = Council Track 2** (**KAN-279**). Agent drafts from one story or a whole Jira project + uploaded docs; run single or selected cases; evidence; confirm-gated Jira; customisable reports.
+Primary artifacts: **in-app test plan and suite** (view/run in-app). Import existing Playwright projects as input; pipelines section design is in `docs/design/H2_PIPELINES_SECTION.md` (CI not shipped); manual session (**Charter Frame**) per `docs/design/H1_MANUAL_SESSION_CAPTURE.md` §9 — MVP shipped **KAN-277** (desk92); **FR-MAN-1 completion = Council Track 2** (**KAN-279**). Agent drafts from one story or a whole Jira project + uploaded docs; run single or selected cases; evidence; confirm-gated Jira; customisable reports.
 
 Also: self-heal with human review; browser + desktop AUTs; OFFICIAL/SECRET; local/on-prem; plugins for later widen (frameworks, sandboxes, voice, a11y, perf, …). **Cut nothing** already built — sequence and deepen.
 
@@ -42,10 +42,10 @@ Long-term goal: the most-used local/on-prem testing hub for testers, developers,
 - **Council Track 2 (2026-11-18):** Non-overlapping area chrome (**KAN-281** / Bug **KAN-280**); then full FR-MAN-1 completion; enterprise layout note → tokens after accept. Sticky-inside-scrollport no longer required by FR-UI-9.
 
 ## Current State
-**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (~61 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1–D7 Done;** **E1–E5 Done;** **KAN-260** Lab tools on ▦ App menu (desk64 / FR-UI-8). **Catalogue H designs complete:** **H3 Done** (**KAN-245**); **H2 Done** (**KAN-243**); **H1 design Done** (**KAN-241** + Council §9). **Council Track 1** epic **KAN-264** Done (Manual MVP **KAN-277** desk91). **Council Track 2** epic **KAN-279** seeded; Active **KAN-281** non-overlapping chrome. Known defect: sticky area chrome occlusion (**KAN-280**). Voice **KAN-81** / G10 deferred — do not implement. **FR-MAN-2** parked. **G12…G1** + **F1–F7** Done as before.
+**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (~61 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1–D7 Done;** **E1–E5 Done;** **KAN-260** Lab tools on ▦ App menu (desk64 / FR-UI-8). **Catalogue H designs complete:** **H3 Done** (**KAN-245**); **H2 Done** (**KAN-243**); **H1 design Done** (**KAN-241** + Council §9). **Council Track 1** epic **KAN-264** Done (Manual MVP **KAN-277**). **Council Track 2** epic **KAN-279**: chrome **KAN-281** Done (desk92; Bug **KAN-280** fixed — area chrome outside `.area-work` scrollport). Active **KAN-283** trustworthy Manual loop. Voice **KAN-81** / G10 deferred — do not implement. **FR-MAN-2** parked. **G12…G1** + **F1–F7** Done as before.
 
 Skeleton + substantial features exist:
-- `plans/manual_session.py` — **FR-MAN-1 (KAN-277):** Charter Frame MVP; level-scoped sessions under `plans/{LEVEL}/sessions/`; Start/End/Cancel; notes + opt-in stills; assist/mist default off; propose/confirm (no silent Jira); desktop overlay desk91; APIs `/api/manual-sessions*`
+- `plans/manual_session.py` — **FR-MAN-1 (KAN-277):** Charter Frame MVP; level-scoped sessions under `plans/{LEVEL}/sessions/`; Start/End/Cancel; notes + opt-in stills; assist/mist default off; propose/confirm (no silent Jira); desktop overlay desk92; APIs `/api/manual-sessions*`
 - `plans/store.py` — **FR-PLAN-1/2 (KAN-125 + KAN-133 + KAN-177):** level-scoped plan → suite → cases → runs under `plans/{OFFICIAL|SECRET}/`; list/get isolated by active security level; create does not rewrite settings/reports/Playwright files; **update_case / reorder_cases / cases_for_run** (disable/archive skip later runs; archive never deletes runs/evidence); API `GET/POST /api/plans*`, case update, reorder, runnable
 - `plans/draft.py` — **FR-PLAN-3 (KAN-131 + KAN-161):** draft from one Jira issue (+ optional document) or capped project batch (`draft_plan_from_project`, default Stories, batch 1–25); cases keep jira_key + source_ref; never writes to Jira; `POST /api/plans/draft`, `…/draft-document`, `…/draft-project`
 - `plans/coverage.py` — **FR-PLAN-3 / FR-REP-1 (KAN-163 / C4):** coverage gaps — stories with no case vs all cases disabled; filterable; never auto-creates cases; `GET /api/plans/{id}/coverage-gaps`; attached on project draft (desk45)

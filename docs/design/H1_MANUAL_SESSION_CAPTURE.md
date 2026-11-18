@@ -200,7 +200,7 @@ Silent video; keylogger; live OCR/vision circles; YOLO Jira; click-blocking glas
 
 ## 11. Council Track 2 — FR-MAN-1 completion (2026-11-18)
 
-MVP shipped **KAN-277** (desk91). Do **not** reopen KAN-277 as failed. Remaining Build stories (epic Council Track 2):
+MVP shipped **KAN-277** (desk92). Do **not** reopen KAN-277 as failed. Remaining Build stories (epic Council Track 2):
 
 1. Non-overlapping area chrome (FR-UI-9) — fixes sticky occlusion first.
 2. Trustworthy headed Manual loop (Computer Use proven).

@@ -9,8 +9,9 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
 | TRACK1-IA | Plans IA + stub honesty + other area tidy | done | Epic **KAN-264**; **KAN-265/267/269/271/273** Done (desk89 Lab areas tidy) |
-| TRACK1-H1 | Manual shell + Charter Frame MVP | done | **KAN-275** Manual shell (desk90); **KAN-277** Charter Frame MVP (desk91; test **278**); design KAN-241 §9; FR-MAN-2 parked |
-| TRACK2-CHROME | Non-overlapping area chrome (FR-UI-9) | now | Epic **KAN-279**; Story **KAN-281** (test **282**); Bug **KAN-280** occlusion |
+| TRACK1-H1 | Manual shell + Charter Frame MVP | done | **KAN-275** Manual shell (desk90); **KAN-277** Charter Frame MVP (desk92; test **278**); design KAN-241 §9; FR-MAN-2 parked |
+| TRACK2-CHROME | Non-overlapping area chrome (FR-UI-9) | done | **KAN-281** / **KAN-282** desk92; Bug **KAN-280** fixed |
+| TRACK2-MAN | FR-MAN-1 completion (trustworthy loop → …) | now | Active **KAN-283** (test **284**); then **KAN-285…293** |
 | TRACK2-MAN | FR-MAN-1 completion beyond MVP | next | **KAN-283…293** (loop, assist, snap, page context, library/GDPR, propose harden) |
 | TRACK2-UX | Enterprise layout note → tokens | later | **KAN-295** docs note; **KAN-297** tokens after human accepts note |
 | FR-MAN-2 | Live assist / circles | later | Parked until FR-MAN-1 **completion** + DPIA (H1 §10) |
@@ -94,8 +95,8 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**Council Track 1 (2026-11-18):** Epic **KAN-264** Done. **KAN-275** Manual shell; **KAN-277** Charter Frame MVP (desk91).  
-**Council Track 2 (2026-11-18):** Epic **KAN-279**. Active **KAN-281** non-overlapping chrome (Bug **KAN-280**). Then Manual completion **KAN-283…293**, layout note **KAN-295**, tokens **KAN-297** after note accepted. **Park** FR-MAN-2. Voice **KAN-81** deferred — do **not** implement.
+**Council Track 1 (2026-11-18):** Epic **KAN-264** Done. **KAN-275** Manual shell; **KAN-277** Charter Frame MVP (desk92).  
+**Council Track 2 (2026-11-18):** Epic **KAN-279**. Chrome **KAN-281** Done (desk92; Bug **KAN-280** fixed). Active **KAN-283** trustworthy Manual loop. Then **KAN-285…293**, layout note **KAN-295**, tokens **KAN-297** after note accepted. **Park** FR-MAN-2. Voice **KAN-81** deferred — do **not** implement.
 **Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1…4** (**KAN-247…249**, **KAN-253**); **C3 KAN-161**; **C4 KAN-163** coverage gaps (desk45); **C5 KAN-165** acceptance drift (desk46); **C6 KAN-167** traceability matrix (desk48); **C7 KAN-169** tags/priority/smoke/regression (desk49); **C8 KAN-171** import Playwright into suite (desk50); **C9 KAN-173** search plans/cases/failures (desk51); **C10 KAN-175** suite history/compare (desk52); **C11 KAN-177** archive case (desk53); **D1 KAN-179** sequential default + parallel cap (desk54); **D2 KAN-181** flake/quarantine (desk55); **D3 KAN-183** named environments (desk56); **D4 KAN-185** credential status (desk57); **D5 KAN-187** case step timeouts (desk58); **D6 KAN-189** local run-finish notices (desk59); **D7 KAN-191** duration on run/case + compare (desk60); **E1 KAN-193** document privacy for uploads (desk61); **E2 KAN-195** local side-effects audit (desk62); **E3 KAN-197** redact secrets in evidence/exports (desk63); **E4 KAN-199** lab backup/restore (desk65); **E5 KAN-201** offline last plan (desk66).
 
 **Council CR (2026-11-16):** Test-all vision locked; catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
