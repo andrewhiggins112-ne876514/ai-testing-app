@@ -83,6 +83,26 @@ def _path_stats(path: Path) -> Dict[str, Any]:
     return {"exists": True, "path": str(path), "bytes": total, "items": items}
 
 
+def _sessions_inventory() -> Dict[str, Any]:
+    """Legacy chat sessions folder + Manual sessions for the active level."""
+    from plans.manual_session import inventory_manual_sessions
+
+    legacy = _path_stats(_category_path("sessions"))
+    manual = inventory_manual_sessions()
+    return {
+        "exists": bool(legacy.get("exists") or manual.get("exists")),
+        "path": legacy.get("path"),
+        "bytes": int(legacy.get("bytes") or 0) + int(manual.get("bytes") or 0),
+        "items": int(legacy.get("items") or 0) + int(manual.get("items") or 0),
+        "legacy_sessions": legacy,
+        "manual_sessions": manual,
+        "note": (
+            "Includes Manual Charter Frame sessions for the active security "
+            "level under plans/{LEVEL}/sessions (JSON + stills)."
+        ),
+    }
+
+
 def local_data_inventory(
     categories: Optional[Sequence[str]] = None,
 ) -> Dict[str, Dict[str, Any]]:
@@ -95,6 +115,9 @@ def local_data_inventory(
             from plugins.doc_uploads import uploads_inventory
 
             out[name] = uploads_inventory()
+            continue
+        if name == "sessions":
+            out[name] = _sessions_inventory()
             continue
         out[name] = _path_stats(_category_path(name))
     return out
@@ -204,6 +227,22 @@ def delete_local_data(
             from plugins.doc_uploads import wipe_uploads
 
             removed.append({"category": name, **wipe_uploads()})
+            continue
+        if name == "sessions":
+            from plans.manual_session import wipe_manual_sessions
+
+            legacy = _wipe_target(_category_path("sessions"))
+            manual = wipe_manual_sessions()
+            removed.append(
+                {
+                    "category": name,
+                    "deleted": True,
+                    "kind": "sessions_bundle",
+                    "legacy": legacy,
+                    "manual": manual,
+                    "path": legacy.get("path"),
+                }
+            )
             continue
         removed.append({"category": name, **_wipe_target(_category_path(name))})
 

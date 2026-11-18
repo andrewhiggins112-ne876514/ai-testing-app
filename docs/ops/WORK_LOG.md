@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-291** — Track2: Manual session library + GDPR session wipe |
+| **Jira story** | **KAN-293** — Track2: Manual propose/confirm harden (failure class + visibility) |
 | **Start task** | — |
 | **Epic** | **KAN-279** Council Track 2 — Area chrome + Manual completion |
 | **Roadmap ID** | TRACK2-MAN |
-| **Spec** | FR-MAN-1 completion (session library + level GDPR wipe) |
+| **Spec** | FR-MAN-1 completion (propose/confirm harden) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-292** |
-| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287**; page/annotate **KAN-289** (desk96) |
+| **Test ticket** | **KAN-294** |
+| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287**; page/annotate **KAN-289**; library+GDPR **KAN-291** (desk97) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
-| **Next / Shipped** | Pick up **KAN-291**. Then **KAN-293…297**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Pick up **KAN-293**. Then **KAN-295…297**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-291 — Manual session library + GDPR session wipe
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-291
+- **Done:** Level-scoped Manual session library UI (list + Open review / reopen); `POST …/reopen` never writes Jira. Privacy `sessions` wipe now removes Manual drafts+stills for the **active** level only (SECRET untouched); inventory includes `manual_sessions`. Level-switch confirm clears Manual UI so previous level’s open session is not visible. Cache-bust **desk97**.
+- **Files:** `plans/manual_session.py`, `settings/privacy.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_manual_session_library.py` (+ desk97 across UI tests), docs
+- **Verify:** `pytest tests/test_manual_session_library.py tests/test_manual_session.py tests/test_manual_trustworthy_loop.py tests/test_manual_assist_drafts.py tests/test_manual_page_context.py tests/test_charter_snap.py tests/test_manual_ia.py tests/test_privacy_gdpr.py tests/test_local_side_effects_audit.py` 48 passed. Non-visual AC — CU not required (tiered policy).
+- **Jira:** close-out **KAN-291** + **KAN-292**
+- **Next:** **KAN-293** Manual propose/confirm harden (test **KAN-294**)
 
 ### 2026-11-18 — Context7 local: stdio + clear API-key placement
 - **Agent/chat:** Follow-up — user still saw streamableHttp terminated; never pasted a key

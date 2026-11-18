@@ -1,4 +1,4 @@
-"""FR-MAN-1 Charter Frame (KAN-277 MVP + KAN-285 assist + KAN-287 snap + KAN-289).
+"""FR-MAN-1 Charter Frame (KAN-277 MVP + Track 2 through KAN-291).
 
 Level-scoped manual / exploratory sessions under
 ``%LOCALAPPDATA%/ai_testing_app/plans/{LEVEL}/sessions/``.
@@ -6,6 +6,7 @@ No background capture until explicit Start. Jira writes stay preview + confirm.
 Agent assist (default off) produces real local Ollama drafts at End — never note-echo AI.
 Window/monitor snap (KAN-287) stores absolute screen_bbox for stills.
 Page URL/title from known headed AUT + annotate-still (KAN-289); E3 on propose.
+Session library + level-scoped GDPR wipe (KAN-291).
 """
 from __future__ import annotations
 
@@ -252,7 +253,7 @@ def get_open_session(level: str | None = None) -> dict[str, Any] | None:
 
 
 def list_sessions(level: str | None = None) -> dict[str, Any]:
-    """List sessions for the active security level only."""
+    """List sessions for the active security level only (session library)."""
     from settings.store import get_security_level
 
     lvl = (level or get_security_level()).strip().upper()
@@ -268,10 +269,11 @@ def list_sessions(level: str | None = None) -> dict[str, Any]:
                 continue
             if str(data.get("level") or "").upper() != lvl:
                 continue
+            status = str(data.get("status") or "")
             items.append(
                 {
                     "id": data.get("id"),
-                    "status": data.get("status"),
+                    "status": status,
                     "charter": (data.get("charter") or "")[:120],
                     "created_at": data.get("created_at"),
                     "ended_at": data.get("ended_at"),
@@ -280,6 +282,8 @@ def list_sessions(level: str | None = None) -> dict[str, Any]:
                     "jira_story_key": data.get("jira_story_key") or "",
                     "note_count": len(data.get("notes") or []),
                     "still_count": len(data.get("stills") or []),
+                    "reviewable": status in {"ended", "open"},
+                    "level": lvl,
                 }
             )
     open_session = get_open_session(lvl)
@@ -290,7 +294,86 @@ def list_sessions(level: str | None = None) -> dict[str, Any]:
         "open_session_id": (open_session or {}).get("id"),
         "frame_visible": bool(open_session),
         "background_capture": False,
+        "library": True,
+        "gdpr_wipe_category": "sessions",
     }
+
+
+def inventory_manual_sessions(level: str | None = None) -> dict[str, Any]:
+    """Inventory Manual session JSON + still files for one security level."""
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    root = sessions_dir(lvl)
+    if not root.exists():
+        return {
+            "exists": False,
+            "path": str(root),
+            "bytes": 0,
+            "items": 0,
+            "session_count": 0,
+            "level": lvl,
+        }
+    total = 0
+    items = 0
+    session_count = 0
+    for child in root.rglob("*"):
+        if child.is_file():
+            items += 1
+            try:
+                total += child.stat().st_size
+            except OSError:
+                pass
+            if child.suffix == ".json" and child.name.startswith("ms"):
+                session_count += 1
+    return {
+        "exists": True,
+        "path": str(root),
+        "bytes": total,
+        "items": items,
+        "session_count": session_count,
+        "level": lvl,
+    }
+
+
+def wipe_manual_sessions(level: str | None = None) -> dict[str, Any]:
+    """Remove Manual session drafts + stills for one level (GDPR / FR-SEC-2).
+
+    Does not touch other levels, credentials, or plan case JSON.
+    """
+    import shutil
+
+    from settings.store import get_security_level
+
+    lvl = (level or get_security_level()).strip().upper()
+    root = sessions_dir(lvl)
+    before = inventory_manual_sessions(lvl)
+    if root.exists():
+        shutil.rmtree(root)
+    root.mkdir(parents=True, exist_ok=True)
+    _OPEN_BY_LEVEL.pop(lvl, None)
+    return {
+        "deleted": True,
+        "level": lvl,
+        "path": str(root),
+        "removed_items": before.get("items", 0),
+        "removed_sessions": before.get("session_count", 0),
+        "kind": "manual_sessions",
+    }
+
+
+def reopen_review(session_id: str, *, level: str | None = None) -> dict[str, Any]:
+    """Reopen an ended (or open) draft for review/propose — never writes Jira."""
+    result = review_session(session_id, level=level)
+    if result.get("status") != "ok":
+        return result
+    result["reopened"] = True
+    result["writes_jira"] = False
+    result["message"] = (
+        "Reopened local draft for review/propose. "
+        "No Jira write until Propose → Confirm (FR-JIRA-5)."
+    )
+    return result
 
 
 def get_session(session_id: str, level: str | None = None) -> dict[str, Any]:

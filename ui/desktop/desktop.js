@@ -1367,6 +1367,7 @@
   const manualConfirmYes = document.getElementById("manual-confirm-yes");
   const manualConfirmNo = document.getElementById("manual-confirm-no");
   const manualSessionList = document.getElementById("manual-session-list");
+  const manualLibraryLevel = document.getElementById("manual-library-level");
   const manualLoopStageLabel = document.getElementById("manual-loop-stage-label");
   const planStartManual = document.getElementById("plan-start-manual");
   const charterFrameRoot = document.getElementById("charter-frame-root");
@@ -4797,28 +4798,107 @@
     }
   }
 
+  function clearManualUiForLevelSwitch() {
+    /* Previous level's open session must not stay visible after confirm switch. */
+    try {
+      hideCharterFrame();
+    } catch (_err) {
+      /* frame optional */
+    }
+    manualOpenSessionId = "";
+    window.__manualLastEndedId = "";
+    window.__manualProposeSessionId = "";
+    manualPendingProposalId = "";
+    if (manualReview) manualReview.hidden = true;
+    if (manualProposeOut) {
+      manualProposeOut.hidden = true;
+      manualProposeOut.textContent = "";
+    }
+    if (manualConfirmRow) manualConfirmRow.hidden = true;
+    setManualLoopStage("idle");
+    if (manualStatus) {
+      manualStatus.textContent =
+        "Security level switched — Manual library shows this level only";
+    }
+  }
+
+  async function reopenManualFromLibrary(sessionId) {
+    if (!sessionId) return;
+    try {
+      const res = await fetch(
+        "/api/manual-sessions/" + encodeURIComponent(sessionId) + "/reopen",
+        { method: "POST" }
+      );
+      const data = await res.json();
+      if (data.status !== "ok") {
+        if (manualStatus) {
+          manualStatus.textContent =
+            data.message || data.error || "Could not reopen session";
+        }
+        return;
+      }
+      window.__manualLastEndedId = sessionId;
+      openArea("manual");
+      showManualReview(data.session, data.review);
+      if (manualStatus) {
+        manualStatus.textContent =
+          data.message ||
+          "Reopened local draft — Propose then Confirm (no silent Jira)";
+      }
+    } catch (err) {
+      if (manualStatus) {
+        manualStatus.textContent = "Reopen failed: " + (err.message || err);
+      }
+    }
+  }
+
   async function refreshManualSessions() {
     try {
       const res = await fetch("/api/manual-sessions");
       const data = await res.json();
+      if (manualLibraryLevel) {
+        manualLibraryLevel.textContent =
+          "Active level: " + (data.level || "—") + " (isolated)";
+      }
       if (manualSessionList) {
         const rows = data.sessions || [];
-        manualSessionList.innerHTML = rows.length
-          ? rows
-              .slice(0, 12)
-              .map(function (s) {
-                return (
-                  "<li>" +
-                  (s.id || "") +
-                  " · " +
-                  (s.status || "") +
-                  " · " +
-                  (s.charter || "") +
-                  "</li>"
-                );
-              })
-              .join("")
-          : "<li>No sessions on this security level.</li>";
+        if (!rows.length) {
+          manualSessionList.innerHTML =
+            '<li class="manual-session-row"><p class="manual-session-meta">No sessions on this security level.</p></li>';
+        } else {
+          manualSessionList.innerHTML = rows
+            .slice(0, 20)
+            .map(function (s) {
+              const reviewable = !!s.reviewable;
+              const btn = reviewable
+                ? '<button type="button" class="save-btn secondary manual-library-reopen" data-manual-reopen="' +
+                  String(s.id || "").replace(/"/g, "") +
+                  '">Open review</button>'
+                : '<span class="drawer-hint">Not reviewable</span>';
+              return (
+                '<li class="manual-session-row" data-session-id="' +
+                String(s.id || "").replace(/"/g, "") +
+                '" data-session-status="' +
+                String(s.status || "") +
+                '">' +
+                '<p class="manual-session-meta">' +
+                (s.id || "") +
+                " · " +
+                (s.status || "") +
+                " · notes " +
+                (s.note_count || 0) +
+                " · stills " +
+                (s.still_count || 0) +
+                "<br />" +
+                (s.charter || "(no charter)") +
+                "</p>" +
+                '<div class="manual-session-actions">' +
+                btn +
+                "</div></li>"
+              );
+            })
+            .join("");
+        }
       }
       if (data.open_session_id && !manualOpenSessionId) {
         const openRes = await fetch("/api/manual-sessions/open");
@@ -4836,7 +4916,8 @@
       }
     } catch (_err) {
       if (manualSessionList) {
-        manualSessionList.innerHTML = "<li>Could not load sessions.</li>";
+        manualSessionList.innerHTML =
+          '<li class="manual-session-row"><p class="manual-session-meta">Could not load sessions.</p></li>';
       }
     }
   }
@@ -8353,6 +8434,15 @@
       refreshManualSessions();
     });
   }
+  if (manualSessionList) {
+    manualSessionList.addEventListener("click", function (ev) {
+      const t = ev.target;
+      if (!t || !t.getAttribute) return;
+      const sid = t.getAttribute("data-manual-reopen");
+      if (!sid) return;
+      reopenManualFromLibrary(sid);
+    });
+  }
   if (manualStart) {
     manualStart.addEventListener("click", function () {
       startManualSession();
@@ -9390,6 +9480,8 @@
         applySecurityStatus(payload);
         pendingSecurityLevel = "";
         if (secConfirm) secConfirm.disabled = true;
+        clearManualUiForLevelSwitch();
+        refreshManualSessions();
         if (secStatus) {
           secStatus.textContent =
             "Switched to " + (payload.security_level || level) + ".";

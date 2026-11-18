@@ -1951,6 +1951,46 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   border-top: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
 }
 
+.manual-library {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
+}
+
+.manual-session-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.manual-session-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 16%, transparent);
+}
+
+.manual-session-meta {
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted, #9bb4c4);
+  line-height: 1.35;
+}
+
+.manual-session-actions {
+  flex: 0 0 auto;
+}
+
 .manual-advanced {
   margin: 8px 0 4px;
   padding: 8px 10px;

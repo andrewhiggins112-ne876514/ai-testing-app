@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk96" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk97" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -460,7 +460,7 @@
           <h3 class="orb-section-label">Privacy &amp; local data</h3>
           <p class="drawer-hint">
             No telemetry by default. Extracted document data needs explicit consent before storage.
-            Wipe local artifacts (reports, screenshots, heal audit, sessions, uploads, browser profiles) with confirmation.
+            Wipe local artifacts (reports, screenshots, heal audit, sessions including Manual for this level, uploads, browser profiles) with confirmation.
             Credentials and settings.json are not deleted here.
           </p>
           <p id="priv-telemetry" class="drawer-hint">Telemetry: —</p>
@@ -468,7 +468,7 @@
           <label class="check-row"><input type="checkbox" id="priv-reports" checked /> Reports</label>
           <label class="check-row"><input type="checkbox" id="priv-screenshots" checked /> Screenshots</label>
           <label class="check-row"><input type="checkbox" id="priv-heal" checked /> Heal audit</label>
-          <label class="check-row"><input type="checkbox" id="priv-sessions" checked /> Sessions</label>
+          <label class="check-row"><input type="checkbox" id="priv-sessions" checked data-priv-sessions="1" /> Sessions (chat + Manual this level)</label>
           <label class="check-row"><input type="checkbox" id="priv-uploads" checked /> Uploaded documents</label>
           <label class="check-row"><input type="checkbox" id="priv-local-audit" /> Local side-effects audit</label>
           <label class="check-row"><input type="checkbox" id="priv-profiles" /> Browser profiles</label>
@@ -947,19 +947,25 @@
           </div>
           </div>
         </div>
-        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-loop-stage="idle">
+        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-loop-stage="idle">
           <h3 class="orb-section-label">Manual</h3>
-          <p class="drawer-hint">Charter Frame (FR-MAN-1). Calm loop: Start → notes/stills → End → review → Propose → Confirm/Cancel. Esc/Back returns to orb home — Manual is not a second landing. No background capture until Start.</p>
+          <p class="drawer-hint">Charter Frame (FR-MAN-1). Calm loop: Start → notes/stills → End → review → Propose → Confirm/Cancel. Session library is level-scoped; GDPR wipe under Security removes Manual sessions for this level. Esc/Back returns to orb home — Manual is not a second landing. No background capture until Start.</p>
           <div id="manual-sticky-toolbar" class="manual-sticky-toolbar" data-manual-sticky="1">
             <div class="btn-row manual-toolbar-actions">
               <button type="button" id="manual-clear-context" class="save-btn secondary">Clear linked context</button>
               <button type="button" id="manual-open-plans" class="save-btn secondary">Open Plans</button>
-              <button type="button" id="manual-refresh-sessions" class="save-btn secondary">Refresh</button>
+              <button type="button" id="manual-refresh-sessions" class="save-btn secondary" data-manual-library-refresh="1">Refresh library</button>
             </div>
             <p id="manual-loop-stage-label" class="drawer-hint manual-loop-stage-label" data-manual-loop-stage="1" aria-live="polite">Loop: idle — enter a charter to Start</p>
             <p id="manual-status" class="drawer-hint manual-toolbar-status" role="status">Ready — no session running</p>
           </div>
           <div class="area-work" data-area-work="1">
+          <div id="manual-library" class="manual-library" data-manual-library-panel="1">
+            <h4 class="orb-section-label">Session library</h4>
+            <p id="manual-library-level" class="drawer-hint" data-manual-library-level="1">Active level: —</p>
+            <p class="drawer-hint">Ended drafts can be reopened for review/propose. OFFICIAL and SECRET lists never merge. Wipe Manual sessions via Security → Privacy (Sessions).</p>
+            <ul id="manual-session-list" class="manual-session-list" data-manual-session-list="1" role="list"></ul>
+          </div>
           <div id="manual-primary" class="manual-primary" data-manual-primary="1">
             <h4 class="orb-section-label">Start session</h4>
             <label class="stack-label" for="manual-charter">Charter (required)
@@ -1004,8 +1010,7 @@
           </div>
           <details id="manual-advanced" class="manual-advanced" data-manual-advanced="1">
             <summary>About Manual capture</summary>
-            <p class="drawer-hint">Notes + opt-in stills only. No keylog, clipboard, mic, or silent video. Jira writes stay two-step confirm. Live on-screen circles are FR-MAN-2 (parked).</p>
-            <ul id="manual-session-list" class="drawer-hint" data-manual-session-list="1"></ul>
+            <p class="drawer-hint">Notes + opt-in stills only. No keylog, clipboard, mic, or silent video. Jira writes stay two-step confirm. Live on-screen circles are FR-MAN-2 (parked). Session library above lists this level only; GDPR Sessions wipe removes Manual drafts + stills for the active level.</p>
           </details>
           </div>
         </div>
@@ -1194,6 +1199,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk96"></script>
+  <script src="/ui/desktop/desktop.js?v=desk97"></script>
 </body>
 </html>

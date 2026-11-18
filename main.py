@@ -61,6 +61,7 @@ from plans.manual_session import (
     list_sessions as manual_list_sessions,
     propose as manual_propose,
     refresh_page_context as manual_refresh_page_context,
+    reopen_review as manual_reopen_review,
     review_session as manual_review_session,
     snap_session_frame as manual_snap_frame,
     start_session as manual_start_session,
@@ -2132,6 +2133,12 @@ async def post_manual_session_cancel(
 @app.get("/api/manual-sessions/{session_id}/review")
 async def get_manual_session_review(session_id: str):
     return manual_review_session(session_id)
+
+
+@app.post("/api/manual-sessions/{session_id}/reopen")
+async def post_manual_session_reopen(session_id: str):
+    """Reopen an ended draft for review/propose (KAN-291). Never writes Jira."""
+    return manual_reopen_review(session_id)
 
 
 @app.post("/api/manual-sessions/{session_id}/propose")
