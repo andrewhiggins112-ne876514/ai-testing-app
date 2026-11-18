@@ -7,17 +7,17 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | ready |
-| **Jira story** | **KAN-245** — H3 Plan shared use without a cloud (design only) |
-| **Start task** | **KAN-246** (`test`, Relates → KAN-245) |
-| **Epic** | Test-all H (see catalogue) |
-| **Roadmap ID** | H3 / FR-SEC-1 |
+| **Status** | deferred |
+| **Jira story** | **KAN-81** / G10 **KAN-235** — voice (deferred until mic) |
+| **Start task** | — |
+| **Epic** | Test-all G / voice |
+| **Roadmap ID** | G10 / KAN-81 |
 | **Spec** | `docs/FUNCTIONAL_SPEC.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-246** |
-| **Shipped** | … **KAN-243** H2 pipelines design; **KAN-241** H1 manual session design; **KAN-239** G12 Scheduled local run (desk84); **KAN-237** G11; **KAN-233** G9; **KAN-231** G8; **KAN-229** G7; **KAN-227** G6; **KAN-225** G5; **KAN-223** G4; **KAN-221** G3; **KAN-219** G2; **KAN-217** G1; **KAN-215** F7; … **KAN-260** Lab tools; **KAN-257** App menu |
+| **Test ticket** | **KAN-82** (when voice un-deferred) |
+| **Shipped** | … **KAN-245** H3 shared-use design; **KAN-243** H2; **KAN-241** H1; **KAN-239** G12; **KAN-237** G11; **KAN-233** G9; … **KAN-260** Lab tools; **KAN-257** App menu — **catalogue H designs complete** |
 | **Deferred** | **KAN-81** / **KAN-82** voice — until mic; G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next after this** | Catalogue H designs complete after H3; G10 voice still deferred |
+| **Next / Shipped** | Catalogue A–H (designs) complete. Do **not** start voice. Next product track: human/council pick (e.g. deepen H1/H2/H3 implement, or other CR). |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-245 — H3 Plan shared use without a cloud (design only)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-245
+- **Done:** Short FR-SEC-1 design: local/on-prem options (F6 export pack, E4 backup copy, future shared folder), security limits (OFFICIAL/SECRET, no shared creds, confirm import, no cloud multi-tenant). **No network/share service shipped.** Machine outline in `plans/shared_use_design.py`.
+- **Files:** `docs/design/H3_SHARED_USE_WITHOUT_CLOUD.md`, `plans/shared_use_design.py`, `tests/test_shared_use_design.py`, `docs/FUNCTIONAL_SPEC.md`
+- **Verify:** `pytest tests/test_shared_use_design.py` 4 passed (outline AC, doc headings, assert_design_complete, no share/sync surface in product).
+- **Jira:** close-out **KAN-245** + **KAN-246**
+- **Next:** Catalogue H designs complete; Active **deferred** — **KAN-81** / G10 voice (do not implement); human/council picks next track
 
 ### 2026-11-17 — KAN-243 — H2 Plan the pipelines section (design only)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-243
