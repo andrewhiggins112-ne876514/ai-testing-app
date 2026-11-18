@@ -2,7 +2,8 @@
 
 **Story:** KAN-295 (test KAN-296) · **FR:** FR-UI-9, FR-UI-7 · **Roadmap:** TRACK2-UX  
 **Status:** **Accepted** by Designer (2026-11-18 Council) — tokens shipped as **KAN-297** (desk99).  
-**Scope:** Docs only for KAN-295. Not a component library. CSS/token implement is **KAN-297** (Done).
+**Scope:** Docs only for KAN-295. Not a component library. CSS/token implement is **KAN-297** (Done).  
+**Track 3:** Real geometry / density is **FR-UI-10** — see `docs/design/TRACK3_AREA_WIRES.md` (wires accept gate before HTML/CSS).
 
 Calm Windows-enterprise density for the **existing** desktop shell (`desktop_app.py` / `ui/desktop`). Orb home stays primary (FR-UI-1). Accents continue to follow the active orb style (FR-UI-3). Layout modes A–E stay (FR-UI-7).
 

@@ -7,17 +7,17 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | deferred |
-| **Jira story** | **KAN-81** — Voice input (deferred until mic) |
+| **Status** | open |
+| **Jira story** | **KAN-308** — Track3: Slice-0 Primary wires pack (**accept gate** before geometry) |
 | **Start task** | — |
-| **Epic** | — |
-| **Roadmap ID** | G10 / voice |
-| **Spec** | FR voice — parked |
+| **Epic** | **KAN-307** Council Track 3 — Enterprise area density (Primary) |
+| **Roadmap ID** | TRACK3-UX |
+| **Spec** | FR-UI-10 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-82** |
-| **Shipped** | Track 2 epic **KAN-279** Done: chrome **KAN-281** … propose/confirm **KAN-293**; layout note **KAN-295** accepted; tokens **KAN-297** (desk99) |
-| **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
-| **Next / Shipped** | Council Track 2 complete. Do **not** implement voice / FR-MAN-2. Human/council picks next track. |
+| **Test ticket** | **KAN-309** |
+| **Shipped** | Track 2 **KAN-279** Done (tokens **KAN-297** desk99). Track 3 epic seeded |
+| **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Lab density (**TRACK3-LAB**) |
+| **Next / Shipped** | Build: fill `TRACK3_AREA_WIRES.md` → Designer **Accept Track 3 wires** → then **KAN-310**…. Do **not** HTML/CSS geometry until Accept. Do **not** voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — Council Track 3 Slice-0 — CR landed (docs + Jira)
+- **Agent/chat:** Council Room (`/council`) — Designer confirm Track 3
+- **Done:** Expectation gap recorded (KAN-297 tokens ≠ layout redo). Added **FR-UI-10**; wires pack stub; ROADMAP TRACK3-UX now / TRACK3-LAB later. Seeded epic **KAN-307**, stories **KAN-308…320** + tests **KAN-309…321**. Decisions: wire accept gate yes; Primary-only yes; verify all A–E yes. Active → **KAN-308**. No product feature code.
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `docs/design/TRACK3_AREA_WIRES.md`, `docs/design/ENTERPRISE_LAYOUT_NOTE.md`, `docs/ops/ROADMAP.md`, `docs/ops/WORK_LOG.md`, `PROJECT_MEMORY.md`, `scripts/jira_kan_track3_slice0.py`, `docs/ops/TRACK3_ACTIVE_POINTER.txt`
+- **Verify:** `python scripts/jira_kan_track3_slice0.py` created keys
+- **Jira:** epic **KAN-307**; Active **KAN-308**/test **309**; CR comments on KAN-295/297/279
+- **Next:** Build chat **pick up where we left off** → **KAN-308** wires (then stop for Accept before **KAN-310**)
 
 ### 2026-11-18 — KAN-297 — Apply enterprise layout tokens
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-297
