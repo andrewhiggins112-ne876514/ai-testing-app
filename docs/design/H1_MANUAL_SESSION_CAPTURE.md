@@ -209,7 +209,7 @@ MVP shipped **KAN-277** (desk92). Do **not** reopen KAN-277 as failed. Remaining
 5. Page context from headed AUT + annotate still.
 6. Session library + GDPR session wipe.
 7. Propose/confirm harden (failure class + Confirm visibility).
-8. Enterprise layout research note (docs) → tokens only after human accepts.
+8. Enterprise layout research note (docs) → `docs/design/ENTERPRISE_LAYOUT_NOTE.md` (**KAN-295**); tokens (**KAN-297**) only after human accepts.
 
 FR-MAN-2 and voice stay out.
 

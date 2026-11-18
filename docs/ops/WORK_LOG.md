@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-295** — Track2: Enterprise layout research note (docs) |
+| **Jira story** | **KAN-297** — Track2: Apply enterprise layout tokens (**blocked** until human accepts **KAN-295** note) |
 | **Start task** | — |
 | **Epic** | **KAN-279** Council Track 2 — Area chrome + Manual completion |
 | **Roadmap ID** | TRACK2-UX |
-| **Spec** | FR-UI-9 / FR-UI-7 layout note (docs only) |
+| **Spec** | FR-UI-9 / FR-UI-3 tokens from accepted note |
 | **Git** | `main` |
-| **Test ticket** | **KAN-296** |
-| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287**; page/annotate **KAN-289**; library+GDPR **KAN-291**; propose/confirm harden **KAN-293** (desk98) |
+| **Test ticket** | **KAN-298** |
+| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287**; page/annotate **KAN-289**; library+GDPR **KAN-291**; propose/confirm harden **KAN-293** (desk98); layout note **KAN-295** (`docs/design/ENTERPRISE_LAYOUT_NOTE.md`) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
-| **Next / Shipped** | Pick up **KAN-295** (docs note). Then **KAN-297** tokens only after human accepts note. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | **Do not start KAN-297** until human accepts the layout note. If note not yet accepted: stop / ask. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-295 — Enterprise layout research note (docs)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-295
+- **Done:** Shipped local research note for calm Windows-enterprise density: type scale, 4px spacing scale, ~120px chrome budget, occlusion checklist, one Plans Cases wire; hard forbids tall rail / top tab bar / purple SaaS / cloud font CDNs. Tokens coding explicitly deferred to **KAN-297** after human accept.
+- **Files:** `docs/design/ENTERPRISE_LAYOUT_NOTE.md`, `tests/test_enterprise_layout_note.py`, `docs/design/H1_MANUAL_SESSION_CAPTURE.md`, `docs/FUNCTIONAL_SPEC.md`, `docs/ops/ROADMAP.md`, `PROJECT_MEMORY.md`, `docs/ops/WORK_LOG.md`
+- **Verify:** `pytest tests/test_enterprise_layout_note.py` (marker AC). Docs-only — CU not required.
+- **Jira:** close-out **KAN-295** + **KAN-296**
+- **Next:** **KAN-297** layout tokens — **blocked** until human accepts the note; do not implement tokens without accept
 
 ### 2026-11-18 — KAN-293 — Manual propose/confirm harden
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-293
