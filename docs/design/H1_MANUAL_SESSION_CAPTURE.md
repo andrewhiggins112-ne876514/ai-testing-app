@@ -1,7 +1,8 @@
 # H1 — Plan manual session capture (design only)
 
 **Story:** KAN-241 (test KAN-242) · **FR:** FR-MAN-1 · **Band:** FUTURE  
-**Status:** Design complete — **no recorder ships in this story.**
+**Status:** Design complete — **no recorder ships in this story.**  
+**Council CR (2026-11-18):** Charter Frame MVP + toggles — see **§9**. Implement via **new** Build stories (do not reopen KAN-241 as “recorder shipped”). Live mist-watch / circles = **FR-MAN-2** (parked) — see **§10**.
 
 This note is the build contract for a later implementation slice. B7 case/run notes (`plans/notes.py`) stay as today’s exploratory home; H1 extends that into a **session** that can propose ticket updates after confirm.
 
@@ -123,3 +124,87 @@ When a Build story picks up FR-MAN-1 for real:
 | Confirm | §4 |
 | OFFICIAL/SECRET separation | §5 |
 | Does not ship a recorder | Entire doc; `plans/manual_session_design.py` → `recorder_shipped=False` |
+| Council CR Charter Frame (2026-11-18) | §9 |
+| Live assist parked (FR-MAN-2) | §10 |
+
+---
+
+## 9. Council CR — Charter Frame MVP (2026-11-18)
+
+Human track **1** (Plans IA tidy + stub honesty → thin H1). Extends §§1–5; does **not** replace them. **No product recorder in this design-only doc** — Build stories implement later.
+
+### 9.1 Locked product choices
+
+| ID | Choice |
+|----|--------|
+| A3 | **Manual** is a **Primary** App menu area **and** Plans has **Start manual on this case** deep-link. Esc/Back from Manual → orb home (one home). |
+| B1 | Capture frame = free **region** (snipping-tool rectangle). Window/monitor snap later. |
+| C3 | **Story key** required when binding to Jira; **test ticket optional**. Charter-only explore still allowed when not ticket-bound. |
+| D1 | Build order: **Plans IA + stub honesty first**, then H1 Charter Frame. |
+| E2 | Optional light mist **inside the frame** when session is armed; **mist on/off** (must not block testing). |
+| Assist | **Agent assist on/off** — tester can simply record without agent proposals/cues. |
+
+### 9.2 Charter Frame (visual)
+
+- Calm **snip-style** rectangle over the chosen region; soft outer dim; orb accent stroke (`--cyan` / active style).
+- Optional **inner mist** only inside the frame when armed **and** mist toggle is on — never Cursor full-desktop purple fog as product chrome.
+- Frame chrome (edges, session chip, toggles) is the only hit target; default **click-through** to the AUT.
+- Overlay appears **only after** explicit Start; off = no frame, no capture.
+
+### 9.3 Start fields (delta from §1)
+
+| Field | Required | Notes |
+|-------|----------|--------|
+| Charter | yes | Unchanged. |
+| Jira story key | when ticket-bound | Required if tester chose “link to Jira”; optional for charter-only. |
+| Jira test key | optional | `issuetype=test` when known; read-only until confirm. |
+| Plan / case | optional | Deep-link from Plans pre-fills. |
+| **Agent assist** | toggle | **Recommended default: off** — pure record (notes + opt-in stills). On = local draft proposals only (still no live Jira). |
+| **Armed mist** | toggle | **Recommended default: off** — calm frame only. On = light mist inside frame. |
+
+### 9.4 Agent assist off vs on
+
+| Assist | During Record | On End → Review |
+|--------|---------------|-----------------|
+| **Off** | Notes + opt-in stills + annotate-still (human). No AI cues, no auto draft steps/bugs. | Human builds proposals from selected notes/stills (defect packet / comment / local note) as §3. |
+| **On** | Same capture; may maintain **local unpublished** proposed step drafts / possible-bug **hints** (never silent Jira). | Review shows AI drafts + human edits; Propose → confirm still required (§4). |
+
+Assist never enables continuous silent video, keylog, clipboard, mic, or live pixel OCR (those stay §2 never-list / FR-MAN-2).
+
+### 9.5 Evidence (MVP)
+
+Unchanged from §2: notes on; screenshots **opt-in** (snip inside frame); page URL/title only if lab already knows headed AUT; E3 redaction; level-scoped store.
+
+### 9.6 Propose (MVP delta)
+
+§3 plus optional: **test-step update preview** for linked case / test ticket (local `pending_review`; never auto-commit; never weaken assertions). Jira writes stay one **confirm batch** at End (§4).
+
+### 9.7 IA placement
+
+1. App menu **Primary → Manual** — session start, frame controls, review.
+2. Plans — **Start manual on this case** (pre-fill plan/case/story when known).
+3. Chat may clarify and start; Manual area owns overlay + review.
+
+### 9.8 Build sequence (Track 1)
+
+1. **Plans IA tidy** — Cases-first landing; six sections / tabs; sticky toolbar; one Add-case menu.
+2. **Stub honesty** — Playwright ready; Selenium/Cypress labelled not-implemented; disable Run; never default Selenium.
+3. **H1 implement** — session APIs + Manual area + Charter Frame + toggles + review/confirm.
+4. **FR-MAN-2** — parked until H1 ships + DPIA (see §10).
+
+### 9.9 Still out of MVP
+
+Silent video; keylogger; live OCR/vision circles; YOLO Jira; click-blocking glass; overlay as second home; cloud frames; real Selenium/Cypress runners.
+
+---
+
+## 10. Parked — live assist overlay (FR-MAN-2)
+
+Do **not** smuggle into H1 implement stories.
+
+| Later capability | Gate |
+|------------------|------|
+| Sparse event-driven region grab (≤1–2 fps or on pause) | New FR + **DPIA** + human sign-off |
+| Click-through draw layer for circles | Never hit-tests AUT; never snapshots passwords/OTP |
+| Missed-field circles | Annotate-mode; max ~3; each cites AC/spec/guide line; confirm to keep |
+| Full Cursor-style mist / Computer Use as product watcher | **Never** (IDE tooling ≠ product) |

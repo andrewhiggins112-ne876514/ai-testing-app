@@ -36,6 +36,13 @@ def test_design_outline_covers_catalogue_ac() -> None:
     isolation = outline["sections"]["official_secret_separation"]
     assert isolation["list_active_level_only"] is True
     assert isolation["no_credentials_in_session_file"] is True
+    cr = outline["sections"]["council_cr_charter_frame"]
+    assert cr["agent_assist_toggle"] is True
+    assert cr["mist_toggle"] is True
+    assert cr["agent_assist_default"] == "off"
+    assert cr["mist_default"] == "off"
+    assert cr["live_circles"] == "parked_fr_man_2"
+    assert outline["build_order"][0] == "plans_ia_tidy"
 
 
 def test_design_doc_exists_with_required_headings() -> None:
@@ -44,6 +51,8 @@ def test_design_doc_exists_with_required_headings() -> None:
     text = path.read_text(encoding="utf-8")
     assert "FR-MAN-1" in text
     assert "Does not ship a recorder" in text or "no recorder ships" in text.lower()
+    assert "Agent assist" in text
+    assert "FR-MAN-2" in text
     assert missing_doc_headings(text) == []
 
 

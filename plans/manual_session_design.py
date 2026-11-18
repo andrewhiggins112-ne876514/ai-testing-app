@@ -3,6 +3,9 @@
 Design-only: no session recorder is shipped. The outline mirrors
 ``docs/design/H1_MANUAL_SESSION_CAPTURE.md`` so tests can assert the
 contract without reading the whole markdown body.
+
+Council CR 2026-11-18 (Charter Frame / toggles) lives in §9 of the design
+doc and under ``sections["council_cr_charter_frame"]`` here.
 """
 from __future__ import annotations
 
@@ -18,6 +21,7 @@ REQUIRED_SECTIONS: tuple[str, ...] = (
     "how_bug_is_proposed",
     "confirm",
     "official_secret_separation",
+    "council_cr_charter_frame",
 )
 
 # Markdown headings that must appear in the design doc (substring match).
@@ -27,6 +31,8 @@ DOC_HEADING_MARKERS: tuple[str, ...] = (
     "How a bug",
     "Confirm",
     "OFFICIAL / SECRET",
+    "Council CR — Charter Frame",
+    "Parked — live assist",
 )
 
 
@@ -36,13 +42,16 @@ def design_outline() -> dict[str, Any]:
         "story": "KAN-241",
         "test": "KAN-242",
         "fr": "FR-MAN-1",
+        "fr_parked_live": "FR-MAN-2",
         "band": "FUTURE",
         "recorder_shipped": False,
         "design_doc": str(DESIGN_DOC.as_posix()),
+        "track": "1",
+        "build_order": ["plans_ia_tidy", "stub_honesty", "h1_charter_frame"],
         "sections": {
             "charter_start": {
                 "required_fields": ["charter", "security_level"],
-                "optional_fields": ["plan_id", "case_id", "jira_key"],
+                "optional_fields": ["plan_id", "case_id", "jira_key", "jira_test_key"],
                 "off_by_default": True,
                 "writes_jira_on_start": False,
             },
@@ -56,6 +65,7 @@ def design_outline() -> dict[str, Any]:
                     "silent_video",
                     "secrets",
                     "cross_level_merge",
+                    "live_pixel_ocr",
                 ],
                 "storage_sketch": "plans/{LEVEL}/sessions/{session_id}.json",
             },
@@ -65,6 +75,7 @@ def design_outline() -> dict[str, Any]:
                     "create_bug_via_defect_packet",
                     "comment_on_linked_story",
                     "attach_local_case_run_note",
+                    "test_step_update_preview",
                 ],
                 "reuse": ["plans/defect_packet.py", "FR-JIRA-4"],
                 "product_bug_only_for_create_bug": True,
@@ -81,6 +92,22 @@ def design_outline() -> dict[str, Any]:
                 "no_credentials_in_session_file": True,
                 "gdpr_wipe_includes_sessions": True,
             },
+            "council_cr_charter_frame": {
+                "choices": {
+                    "ia": "A3_manual_primary_and_plans_deeplink",
+                    "frame": "B1_free_region",
+                    "jira_keys": "C3_story_required_when_bound_test_optional",
+                    "build_order": "D1_plans_tidy_then_h1",
+                    "mist": "E2_optional_inner_mist_with_toggle",
+                },
+                "agent_assist_toggle": True,
+                "agent_assist_default": "off",
+                "mist_toggle": True,
+                "mist_default": "off",
+                "click_through_default": True,
+                "live_circles": "parked_fr_man_2",
+                "recorder_shipped": False,
+            },
         },
         "out_of_scope_this_story": [
             "shipping_recorder",
@@ -88,6 +115,7 @@ def design_outline() -> dict[str, Any]:
             "cloud_sync",
             "replacing_b7_notes",
             "ci_pipelines_h2",
+            "live_assist_fr_man_2",
         ],
     }
 
@@ -114,6 +142,11 @@ def assert_design_complete() -> dict[str, Any]:
     assert outline["recorder_shipped"] is False, "H1 must not ship a recorder"
     for key in REQUIRED_SECTIONS:
         assert key in outline["sections"], f"missing section {key}"
+    cr = outline["sections"]["council_cr_charter_frame"]
+    assert cr["agent_assist_toggle"] is True
+    assert cr["mist_toggle"] is True
+    assert cr["agent_assist_default"] == "off"
+    assert cr["mist_default"] == "off"
     path = design_doc_path()
     assert path.is_file(), f"design doc missing: {path}"
     missing = missing_doc_headings()
@@ -123,4 +156,5 @@ def assert_design_complete() -> dict[str, Any]:
         "recorder_shipped": False,
         "design_doc": str(path.as_posix()),
         "sections": list(REQUIRED_SECTIONS),
+        "track": outline["track"],
     }

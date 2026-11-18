@@ -13,7 +13,7 @@ A **downloadable, local-first “test all” application**. A tester installs it
 
 The **primary surface** is the desktop **orb + chat home** (one home for everyone). Role-specific needs (tester, manager, release, product owner) are **HUD widgets** on that home (Screen drawer), not separate homes. App areas (Plan/Suite, Settings, Heal, Reports, Security, Documents, Desktop, Suites, Sandboxes, …) are dedicated full-window surfaces opened from home.
 
-**Primary artifacts** are the **in-app test plan and suite** (viewed and run in the application). An existing Playwright git repo can be **imported** as an input; it is not the primary UX. Pipelines / CI are a **separate later section**. Manual session recording that updates tickets is **future** work (needs its own design pass).
+**Primary artifacts** are the **in-app test plan and suite** (viewed and run in the application). An existing Playwright git repo can be **imported** as an input; it is not the primary UX. Pipelines / CI are a **separate later section**. Manual session recording (**Charter Frame**) is specified under FR-MAN-1 / `docs/design/H1_MANUAL_SESSION_CAPTURE.md` §9 — implement via Build stories after Plans IA tidy; live on-screen AI circles are FR-MAN-2 (parked).
 
 The agent is the way in: clarify before acting; draft plans from **one Jira story or a whole Jira project** (epics, stories, tests, bugs) plus **uploaded documentation**; run a **single case** or a selected set; show failures, evidence, metrics; export management reports with chosen sections. Jira writes stay human-confirmed. Start with common practice (Playwright, Jira, browser apps), then widen via **plugins** (desktop AUT, other frameworks, sandboxes-as-env, voice, a11y, perf, …). **Cut nothing** already in the product — sequence and deepen; park means later phase/plugin.
 
@@ -77,7 +77,8 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - **FR-PLAN-3:** The agent may draft or update a plan from one Jira issue or, in the project-scale phase, from the connected Jira project (epics, stories, tests, bugs) plus uploaded documents. Drafts are batched with a visible cap. The person reviews the plan before execution. Jira writes stay on FR-JIRA-5.
 - **FR-PLAN-4:** A run stores result, evidence, duration, and failure class on the case. Heal proposals and report sections can attach to that run. Traceability links case ↔ Jira key ↔ bugs ↔ known issues.
 - **FR-CI-1 (later):** Pipelines and CI live in a **separate section** of the app. They do not replace the in-app suite as the place tests are authored and reviewed. **H2 design (KAN-243):** `docs/design/H2_PIPELINES_SECTION.md` — what a pipeline record shows, what it will not do, secrets stay local; **no CI integration ships until a later Build story**.
-- **FR-MAN-1 (future):** A manual / exploratory session may be recorded and proposed as ticket updates after confirm. **H1 design (KAN-241):** `docs/design/H1_MANUAL_SESSION_CAPTURE.md` — charter start, what is recorded, defect/comment propose via existing confirm path, OFFICIAL/SECRET isolation; **no recorder ships until a later Build story**. Not in alpha.
+- **FR-MAN-1:** A manual / exploratory session starts only on explicit Start (charter). Capture is a calm resizable **snip-style Charter Frame** over a free screen region (B1). Evidence: timestamped notes (default on) + **opt-in** stills inside the frame; no keylog, clipboard, mic, or silent video. **Agent assist** is a session toggle (recommended default **off**) so testers can record without AI; when on, AI may keep **local unpublished** step/bug drafts only. **Armed mist** (light mist inside the frame) is a separate toggle (recommended default **off**) so visuals never block testing. Jira: story key when ticket-bound; test ticket optional (C3). **Manual** is a Primary App area and Plans offers a deep-link (A3). End → review → propose bug/comment/step-update → **two-step confirm** (FR-JIRA-5). OFFICIAL/SECRET isolation as H1 §5. Design: `docs/design/H1_MANUAL_SESSION_CAPTURE.md` (KAN-241 design-Done; **implement = new Build stories**). *(Council CR 2026-11-18 Track 1.)*
+- **FR-MAN-2 (parked):** Live / sparse on-screen assist (click-through circles citing AC/spec, event-driven region analysis). Requires DPIA + separate stories after FR-MAN-1 ships. Not Cursor Computer Use mist as product chrome. See H1 §10.
 
 ### 3.4 Self-Healing (Critical Guardrails)
 - **FR-HEAL-1:** Self-healing may only change *how* an element is located (locator strategy, role-based selector, etc.). It must never change *what* is asserted or the expected values without explicit human approval.
@@ -117,13 +118,13 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - **FR-SEC-5:** Secrets never leave the local settings store or are written to client-side code / logs.
 
 ### 3.8 UI and Desktop Experience
-- **FR-UI-1:** Conversational interface is primary on the **agent home screen** (chat + central orb). **One home for everyone** — there is no separate Tester/Manager/PO landing. App menu and screen drawer are secondary shells for navigation and layout — not replacements for the home canvas. App areas open from a **compact App menu**: `▦` button toggles a small App panel (nav list only) with two groups — **Primary** (Chat, Settings, Plans, Reports, Documents) and **Lab tools** (Security, Heal review, Desktop, Suites, Sandboxes; FR-UI-8); choosing an item closes the panel and opens the dedicated area surface (FR-UI-7). A **tall persistent App side drawer** and a **persistent top tab bar** are not app navigation. *(CR 2026-11-17 menu button; CR 2026-11-17b — desktop matches Gradio compact menu; CR 2026-11-17c Lab tools.)*
+- **FR-UI-1:** Conversational interface is primary on the **agent home screen** (chat + central orb). **One home for everyone** — there is no separate Tester/Manager/PO landing. App menu and screen drawer are secondary shells for navigation and layout — not replacements for the home canvas. App areas open from a **compact App menu**: `▦` button toggles a small App panel (nav list only) with two groups — **Primary** (Chat, Settings, Plans, **Manual**, Reports, Documents) and **Lab tools** (Security, Heal review, Desktop, Suites, Sandboxes; FR-UI-8); choosing an item closes the panel and opens the dedicated area surface (FR-UI-7). **Manual** owns Charter Frame session UX (FR-MAN-1); Esc/Back returns to orb home — Manual is not a second landing. Plans keeps a **Start manual on this case** deep-link. A **tall persistent App side drawer** and a **persistent top tab bar** are not app navigation. *(CR 2026-11-17 menu button; CR 2026-11-17b — desktop matches Gradio compact menu; CR 2026-11-17c Lab tools; Council CR 2026-11-18 Manual Primary A3.)*
 - **FR-UI-2:** Native Windows desktop window (pywebview + Edge WebView2) is the **primary product UI**. The app is intended for desktop use, not as a browser product. Gradio (`run_ui.py`) remains a secondary lab/dev shell and must follow the same **compact menu-button navigation** and **content-vs-settings** split (FR-UI-7, FR-SET-4, FR-REP-4). Gradio does **not** have to implement desktop area layouts A–E. *(CR 2026-11-17b — desktop-first.)*
 - **FR-UI-3:** Visual orb styles (Mystic, Aether, Neural, Apex and classic canvas styles) with per-style settings, live controls, and theme accent that follows the active style. **Orb settings** (style, size, spin, glow, colours) live in the **Screen drawer** only — not under App → Settings. The active style accent (CSS variables such as `--cyan`, border, glow, and muted text) also paints App nav, area surfaces (overlay, stage, split, floating), HUD chips, hub spokes, and the App Settings layout picker — not only the orb canvas. *(CR 2026-11-16 — layout modes × style theme.)*
 - **FR-UI-4:** Movable / resizable panels and widgets (UI-6). Layout persists in localStorage.
 - **FR-UI-5:** Widget settings (transparency, border, background) apply live to shell surfaces.
 - **FR-UI-6:** **Agent-home HUD widgets** — optional toggleable widgets on the agent home screen (status chips, mini panels, role packs for tester / manager / release / coverage, checklist, etc.). Visibility and layout controls sit alongside existing Screen drawer toggles (chat output widget, orb visibility, widget chrome) — not as App → Settings list content. Widgets summarise and deep-link into App areas; they do not replace Plan/Suite, Reports, Heal, or Settings surfaces.
-- **FR-UI-7:** **Dedicated area screens** — each App-nav area (Settings, Security, Reports, Documents, Desktop, Suites, Sandboxes, Plans, Heal review, and future areas) opens its own **dedicated surface**. The App menu panel is a **compact navigation list only**; it must **not** expand inline `app-section-*` blocks and must **not** remain a full-height side rail while an area is open. **App area layout** (App Settings, not Orb settings) chooses how that surface appears, persisted in `localStorage` key `desktop-area-layout-v1`:
+- **FR-UI-7:** **Dedicated area screens** — each App-nav area (Settings, Security, Reports, Documents, Desktop, Suites, Sandboxes, Plans, Manual, Heal review, and future areas) opens its own **dedicated surface**. The App menu panel is a **compact navigation list only**; it must **not** expand inline `app-section-*` blocks and must **not** remain a full-height side rail while an area is open. **App area layout** (App Settings, not Orb settings) chooses how that surface appears, persisted in `localStorage` key `desktop-area-layout-v1`:
   - `overlay` — full-bleed glass over a dimmed home (mockup A)
   - `stage` — area stage with the orb scaled to a corner pip (mockup B)
   - `orb_hub` — orb click shows spokes, then the area opens as an overlay (mockup C)
@@ -131,11 +132,12 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
   - `floating` — one movable area window; the orb stays full size (mockup E)
   Esc or Back returns home. Accents follow the active orb style (FR-UI-3). *(Product decision 2026-11-16 — configurable A–E, not a single mockup pick.)* An area surface shows that area’s **content** (lists, viewers, run results, proposals). **Configuration** for the area lives under Settings categories (FR-SET-4), with a deep link from the area. *(CR 2026-11-17.)*
 - **FR-UI-8:** **Lab tools navigation** — Security, Heal review, Desktop, Suites, and Sandboxes remain dedicated area surfaces and must be reachable from home in **every** App area layout (not only when layout is `orb_hub`). Default placement: a **Lab tools** group inside the compact App menu under the Primary group (still a popover, not a tall rail). Orb-hub spokes may mirror these as accelerators when layout is `orb_hub`. Gradio need not expose every Lab tool. *(CR 2026-11-17c; KAN-260.)*
+- **FR-UI-9 (Plans IA):** Plans area uses progressive disclosure — default landing is **Cases** for the open plan (not Draft/Schedule). Sticky toolbar: plan picker, open/refresh/search, one-line status. Sections/tabs: Draft & import; Cases; Coverage & drift; Traceability; History; Run setup. One **Add case ▾** menu (not a button farm). Lab knobs (env manage, sandbox manage, schedule detail) live under Settings / Lab / collapsed Run setup — not the forever-scroll. *(Council CR 2026-11-18 Track 1 D1 — tidy before H1 implement.)*
 
 ### 3.9 Plugins and Extensibility
 - **FR-PLUG-1:** Modular plugin architecture. New capabilities (desktop testing, richer reporting, multi-sandbox, performance, security testing, etc.) are addable without rewriting the core.
 - **FR-PLUG-2:** Plugins can be toggled.
-- **FR-PLUG-3:** Dynamic framework switching via settings (Playwright default/ready; Selenium/Cypress selectable stubs return not-implemented on run — full runners later).
+- **FR-PLUG-3:** Dynamic framework switching via settings (Playwright default/ready; Selenium/Cypress selectable stubs return not-implemented on run — full runners later). UI must label stubs honestly (`not implemented` / never pass), **disable Run** for non-ready frameworks, and **never default** the Plans framework control to Selenium/Cypress. Cut nothing — deepen runners later. *(Council CR 2026-11-18 stub honesty.)*
 
 ### 3.10 Settings and Local Store
 - **FR-SET-1:** All user settings, credentials, orb presets, and layout live under the local app data directory (`%LOCALAPPDATA%\ai_testing_app\`). Never committed to git.
@@ -203,7 +205,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Catalogue **H** designs complete (**H3** **KAN-245** shared use without a cloud; **H2** **KAN-243**; **H1** **KAN-241**). A–D + E1–E5 + F1–F7 + **G1**–**G9** + **G11** + **G12** + **KAN-260** Lab tools App menu shipped. Voice **KAN-81** / G10 **KAN-235** deferred (mic). Cut nothing; next product track after H is council/human (do not implement deferred voice).
+**Still open / next:** Catalogue **H** designs complete (**H3** **KAN-245**; **H2** **KAN-243**; **H1** **KAN-241** design). **Council Track 1 (2026-11-18):** (1) Plans IA tidy + stub honesty (**FR-UI-9**, **FR-PLUG-3**), then (2) FR-MAN-1 Charter Frame implement (new stories; Manual Primary). FR-MAN-2 live circles parked. Voice **KAN-81** / G10 deferred (mic) — do not implement while deferred.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -225,7 +227,8 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-PLAN-1…2 | Partial (A1+A5+A6+C11+E5) | **KAN-125** store + **KAN-133** edit/disable/reorder + **KAN-135** starter/empty home + **KAN-177** archive; run UI A7; **KAN-201** offline search/matrix |
 | FR-PLAN-3…4 | Partial (A4+C3–C10) | **KAN-131** one story; **KAN-161** project-wide draft; **KAN-163** coverage gaps; **KAN-165** AC drift; **KAN-167** C6 matrix; **KAN-169** C7 tags; **KAN-171** C8 import; **KAN-173** C9 search; **KAN-175** C10 history; **KAN-177** C11 archive Done |
 | FR-CI-1 | Design done (KAN-243); CI not shipped | Test-all **H2** → `docs/design/H2_PIPELINES_SECTION.md` |
-| FR-MAN-1 | Design done (KAN-241); recorder not shipped | Test-all **H1** → `docs/design/H1_MANUAL_SESSION_CAPTURE.md` |
+| FR-MAN-1 | Design done (KAN-241) + Council CR §9; recorder not shipped | H1 design → new implement stories (Track 1 after Plans IA) |
+| FR-MAN-2 | Parked (live assist / circles; needs DPIA) | H1 §10 — after FR-MAN-1 ships |
 | FR-SEC-1 (H3 share) | Isolation shipped (KAN-15); multi-PC share **design** done | Test-all **H3** **KAN-245** → `docs/design/H3_SHARED_USE_WITHOUT_CLOUD.md` (no network service) |
 | FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |
 | FR-HEAL-2 | Shipped review UI (approve/reject; no auto-commit) | **Done** **KAN-75** |
@@ -246,6 +249,10 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-UI-6 | Baseline Security + Reports + Lab checklist; role packs later | **Done** **KAN-103** / **KAN-107** / **KAN-104** + **KAN-135** empty-lab checklist; Test-all **F1–F7** |
 | FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix; content vs config | **Done** shell **KAN-103** / **KAN-104**; content-vs-config **KAN-247…249** |
 | FR-UI-8 | Lab tools group on compact App menu (every layout) | **Done** **KAN-260** (desk64; test **KAN-262**) |
+| FR-UI-9 | Plans IA progressive disclosure | **Open** — **KAN-265** (test **KAN-266**); epic **KAN-264** |
+| FR-UI-1 Manual | Primary **Manual** area (A3) | **Open** — **KAN-275** (test **KAN-276**) |
+| FR-MAN-1 implement | Charter Frame MVP | **Open** — **KAN-277** (test **KAN-278**); design stays **KAN-241** |
+| FR-PLUG-3 honesty | Stub labels / disable Run / Playwright default | **Open** — **KAN-267** (test **KAN-268**) |
 | FR-SET-3 | Shipped — App Settings vs Orb settings; App category on Settings hub | **Done** Task **KAN-108**; hub **KAN-249** |
 | FR-SET-4 | Settings hub with category switch (App / Report / …) | **Done** — **KAN-249** (desk42) |
 | FR-PLUG-1 | Shipped registry + local multi-sandbox orchestration | **Done** KAN-55 stub + **KAN-95** (test **KAN-96**) |
@@ -265,7 +272,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 |------|--------|-------|
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN**. Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
-| Test-all in-app plan/suite | **Active CR** | Catalogue A–H designs complete (H3 **KAN-245**); H2 **KAN-243**; H1 **KAN-241**; G1–G9 + G11–G12 + E1–E5 + F1–F7 + KAN-260 Done; voice deferred |
+| Test-all in-app plan/suite | **Active CR** | Catalogue A–H designs complete; **Track 1** Plans IA + Charter Frame (Council 2026-11-18); voice deferred |
 | Nav IA — Reports data / menu / Settings hub | **Shipped** KAN-247…249 | Gradio + desktop compact menu |
 | Desktop compact App menu (match Gradio) | **Shipped** KAN-253 / **KAN-257** | Compact `▦`; Lab tools restored **KAN-260** |
 | Coverage gaps (C4) | **Shipped** KAN-163 (desk45) | No-case / all-disabled lists; filter; no auto-create |

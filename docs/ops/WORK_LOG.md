@@ -7,17 +7,17 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | deferred |
-| **Jira story** | **KAN-81** / G10 **KAN-235** — voice (deferred until mic) |
+| **Status** | open |
+| **Jira story** | **KAN-265** — Track1: Plans IA tidy (Cases-first + sticky toolbar) |
 | **Start task** | — |
-| **Epic** | Test-all G / voice |
-| **Roadmap ID** | G10 / KAN-81 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` |
+| **Epic** | **KAN-264** Council Track 1 — UX tidy + Manual Charter Frame |
+| **Roadmap ID** | TRACK1-IA → TRACK1-H1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-9, FR-PLUG-3, FR-MAN-1 §9; `docs/design/H1_MANUAL_SESSION_CAPTURE.md` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-82** (when voice un-deferred) |
-| **Shipped** | … **KAN-245** H3 shared-use design; **KAN-243** H2; **KAN-241** H1; **KAN-239** G12; **KAN-237** G11; **KAN-233** G9; … **KAN-260** Lab tools; **KAN-257** App menu — **catalogue H designs complete** |
-| **Deferred** | **KAN-81** / **KAN-82** voice — until mic; G10 (**KAN-235**) — **do not implement while deferred** |
-| **Next / Shipped** | Catalogue A–H (designs) complete. Do **not** start voice. Next product track: human/council pick (e.g. deepen H1/H2/H3 implement, or other CR). |
+| **Test ticket** | **KAN-266** |
+| **Shipped** | … Catalogue H designs; Council Slice-0 docs; Jira Track1 epic **KAN-264** + stories **KAN-265…277** |
+| **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles |
+| **Next / Shipped** | Build pick-up → **KAN-265**. Queue: **267** stub honesty → **269** Suites tidy → **271** Reports tidy → **273** Lab areas tidy → **275** Manual shell → **277** Charter Frame. Do **not** start voice. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — Council Track 1 Slice-0 — Charter Frame CR + Plans IA
+- **Agent/chat:** Cursor IDE `/council` → human picked Track **1**; choices A3/B1/C3/D1/E2 + agent-assist + mist toggles; G1 defaults off; H1 create Jira (full tidy set, not Manual-only)
+- **Done:** Slice-0 docs + Jira epic/stories/tests. Extended FR-MAN-1; FR-MAN-2 parked; FR-UI-9; Manual Primary; stub honesty; H1 §9–§10. Jira: epic **KAN-264**; **KAN-265/266** Plans IA; **267/268** stub honesty; **269/270** Suites tidy; **271/272** Reports tidy; **273/274** Lab areas tidy; **275/276** Manual shell; **277/278** Charter Frame MVP. Commented **KAN-241**.
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `docs/design/H1_MANUAL_SESSION_CAPTURE.md`, `plans/manual_session_design.py`, `tests/test_manual_session_design.py`, `docs/ops/ROADMAP.md`, `docs/ops/WORK_LOG.md`, `PROJECT_MEMORY.md`, `scripts/jira_kan_track1_slice0.py`
+- **Verify:** `pytest tests/test_manual_session_design.py` 4 passed; Jira create script exit 0
+- **Jira:** epic + 7 stories + 7 tests created (yes)
+- **Next:** Build chat “pick up where we left off” → **KAN-265**
 
 ### 2026-11-18 — KAN-245 — H3 Plan shared use without a cloud (design only)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-245
