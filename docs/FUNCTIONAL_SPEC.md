@@ -251,7 +251,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix; content vs config | **Done** shell **KAN-103** / **KAN-104**; content-vs-config **KAN-247…249** |
 | FR-UI-8 | Lab tools group on compact App menu (every layout) | **Done** **KAN-260** (desk64; test **KAN-262**) |
 | FR-UI-9 | Plans IA + non-overlapping area chrome | IA tidy **Done** **KAN-265**; chrome non-overlap **Done** **KAN-281** (desk92); layout tokens **Done** **KAN-297** (desk99) — tokens ≠ visual redesign |
-| FR-UI-10 | Enterprise area density (real geometry; Primary first; all A–E) | **Open** — Council Track 3; Slice-0 wires then geometry stories |
+| FR-UI-10 | Enterprise area density (real geometry; Primary first; all A–E) | **Open** — Track 3; **KAN-308** wires ready for Accept → geometry **KAN-310…320** |
 | FR-UI-1 Manual | Primary **Manual** area (A3) | **Done** — **KAN-275** (desk90; test **KAN-276**); Charter Frame still **KAN-277** |
 | FR-MAN-1 implement | Charter Frame MVP + Track 2 completion | MVP **Done** **KAN-277**; completion stories under Track 2 epic; design **KAN-241** |
 | FR-PLUG-3 honesty | Stub labels / disable Run / Playwright default | **Done** — **KAN-267** (test **KAN-268**) |

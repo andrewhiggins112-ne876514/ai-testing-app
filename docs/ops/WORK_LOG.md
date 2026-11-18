@@ -7,17 +7,17 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open |
-| **Jira story** | **KAN-308** — Track3: Slice-0 Primary wires pack (**accept gate** before geometry) |
+| **Status** | blocked |
+| **Jira story** | **KAN-310** — Track3: Shared chrome scaffold + retire sticky naming |
 | **Start task** | — |
 | **Epic** | **KAN-307** Council Track 3 — Enterprise area density (Primary) |
 | **Roadmap ID** | TRACK3-UX |
 | **Spec** | FR-UI-10 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-309** |
-| **Shipped** | Track 2 **KAN-279** Done (tokens **KAN-297** desk99). Track 3 epic seeded |
+| **Test ticket** | **KAN-311** |
+| **Shipped** | **KAN-308** Primary wires pack ready for Accept (test **KAN-309**) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Lab density (**TRACK3-LAB**) |
-| **Next / Shipped** | Build: fill `TRACK3_AREA_WIRES.md` → Designer **Accept Track 3 wires** → then **KAN-310**…. Do **not** HTML/CSS geometry until Accept. Do **not** voice / FR-MAN-2. |
+| **Next / Shipped** | Designer replies **`Accept Track 3 wires`** (or Amend). Until then **do not** start **KAN-310** HTML/CSS. Do **not** voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-308 — Track3 Slice-0 Primary wires pack
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-308
+- **Done:** Filled `docs/design/TRACK3_AREA_WIRES.md` with ASCII wires for Plans · Cases, Manual idle + review/Confirm dock, Reports, Documents, Settings hub, Security chrome; chrome ≤~120px; A–E verify contract; Lab outline-only follow-on; Accept checklist. Docs/tests only — **no** product HTML/CSS geometry. Stopped for Designer **Accept Track 3 wires** before **KAN-310**.
+- **Files:** `docs/design/TRACK3_AREA_WIRES.md`, `tests/test_track3_area_wires.py`, `docs/ops/WORK_LOG.md`, `PROJECT_MEMORY.md`, `docs/ops/ROADMAP.md`, `docs/ops/TRACK3_ACTIVE_POINTER.txt`
+- **Verify:** `pytest tests/test_track3_area_wires.py tests/test_enterprise_layout_note.py` — marker AC; CU not required (docs-only).
+- **Jira:** close-out **KAN-308** + **KAN-309**
+- **Next:** Active **blocked** — **KAN-310** until Designer Accept; then shared chrome scaffold
 
 ### 2026-11-18 — Council Track 3 Slice-0 — CR landed (docs + Jira)
 - **Agent/chat:** Council Room (`/council`) — Designer confirm Track 3
