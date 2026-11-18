@@ -19,8 +19,19 @@ OAuth via the Marketplace Atlassian plugin is flaky on this Windows box (browser
    powershell -ExecutionPolicy Bypass -File .\scripts\setup_atlassian_mcp_auth.ps1
    ```
    Success = `PROBE: mcp initialize POST -> HTTP 200`. A HEAD `400` alone is a false negative (script now uses initialize).
-4. Disable/ignore Marketplace Atlassian plugin OAuth so it does not fight the direct MCP entry.
-5. Fully quit and reopen Cursor. Confirm Tools & MCP shows `atlassian` connected without a browser prompt.
+4. **Disable or ignore** the Marketplace **Atlassian** plugin OAuth (“Needs login” / “failed to exchange tokens”). That plugin is a **different** server from your user `atlassian` entry. OAuth token exchange is known-broken on this machine (`401 after successful authentication` in MCP logs).
+5. Fully quit and reopen Cursor. In Tools & MCP, trust the entry named **`atlassian`** that came from `%USERPROFILE%\.cursor\mcp.json` (API token / Basic) — **not** the plugin that asks for browser login.
+
+### Which MCP status to trust (this PC)
+
+| What you see in Tools & MCP | Source | Trust? |
+|-----------------------------|--------|--------|
+| **`context7`** (stdio / no browser login) | User `mcp.json` | **Yes** — agents use `user-context7` |
+| **Context7** plugin “Local Error” / terminated / Needs auth | Marketplace OAuth | **Ignore** — turn off if it confuses you |
+| **`atlassian`** (no browser login) | User `mcp.json` API token | **Yes** — agents use `user-atlassian` |
+| **Atlassian** plugin Needs login / token exchange fail | Marketplace OAuth | **Ignore** — do not use for setup |
+
+Verified 2026-11-18 from Cursor MCP logs: `user-context7` connected via stdio; `user-atlassian` connected via HTTP API token; both plugin OAuth paths fail.
 
 Never commit tokens. Product Jira stays on local settings + `plugins/jira_plugin.py` (separate from IDE MCP).
 
