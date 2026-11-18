@@ -49,6 +49,14 @@ Always pass `workspaceRoot` = `D:\Projects\ai_testing_app` (or the active worksp
 - **Human-hands handoff:** if the human must confirm (CU cannot), the agent prepares everything first: app running (or one start command), seeded data / stubs / fixtures ready, and a numbered step list in chat + test ticket (clicks, inputs, expected pass). Human only follows and confirms — no setup hunting. Do not mark occlusion/visual AC Done until human confirm (or CU) lands.
 - Build-time agent GPU load ≠ product-runtime GPU budget — do not invent product FRs or in-app verify chrome to fix Cursor CU.
 
-## Context7
+## Context7 / library docs (stale-advice gate)
 
-- Use when unsure about a library API. Optional; ignore Local Error·terminated if Cloud works.
+This project rule **narrows** the plugin’s “when unsure” into a hard trigger. It does **not** weaken it into a skip. Token thrift does not override this gate.
+
+- **Source order:** (1) repo code / security rules, (2) installed `venv` package, (3) Context7 or official docs for that version, (4) training memory last (label unverified).
+- **Required before inventing/changing calls** to FastAPI, Pydantic, Playwright, Gradio, pywebview, Ollama HTTP API, or httpx (and auth/CORS/profile/credential surfaces). One resolve + one query per library per slice.
+- **Skip** builtins, in-repo APIs, and copy of an already-working same-surface call.
+- **Playwright:** match `async_api` in `plugins/playwright_runner.py`; do not add `sync_api` there.
+- **On MCP error:** `pip show` / read installed package / official docs — continue; do not invent “latest.” Ignore Local Error·terminated if Cloud works.
+- **Queries:** library + API only — no secrets, settings, tokens, or AUT data.
+- Skill pointer: `.cursor/skills/context7-use/SKILL.md`. Product runtime never calls Context7.

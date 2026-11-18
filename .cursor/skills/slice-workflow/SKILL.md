@@ -9,7 +9,7 @@ description: PM-owned development slice with zero human copy-paste between tools
 1. **Scope** — One roadmap ID / one KAN Story. List out-of-scope.  
 2. **Discover** — explorer-cheap or targeted reads (PM/agents — not the human).  
 3. **Plan** — architect if multi-file or security-sensitive.  
-4. **Implement** — PM edits directly, or delegates implementer / ui-orb (Grok 4.7).  
+4. **Implement** — PM edits directly, or delegates implementer / ui-orb (Grok 4.7). Before novel FastAPI / Pydantic / Playwright / Gradio / pywebview / Ollama / httpx usage: Context7 or installed-package docs (see `AGENTS.md` gate / `.cursor/skills/context7-use`); cite package+source once per library surface on the story/test if version-sensitive.  
 5. **Verify** — verifier. Run focused **pytest / API / HTML** first. Visible product UI: **`desktop_app.py`** (not browser). IronBee only for AUT/Gradio.  
    **Computer Use (tiered — Council 2026-11-18):** use for visual / occlusion / clickable chrome only. Pre-CU: pause Ollama, classic orb, one product overlay (see `run-local-stack`).  
    **Area-chrome / occlusion stories:** when a quiet desktop is achievable, CU must prove primary fields, tabs, and Confirm/Cancel are **clickable** — HTML/CSS markers alone are not enough (Council Track 2). If Cursor CU HUD vs Manual/Charter makes CU unsafe after one quiet retry → **CU skipped — unsafe** — **never** soft-pass “opened orb home.”  

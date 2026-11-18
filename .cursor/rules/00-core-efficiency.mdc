@@ -41,6 +41,10 @@ alwaysApply: true
 - Never ask the user to run git, stash, pull, push, or “should I commit?” — including never ending a reply with “please `git pull`”. Agents sync the tree; the human only runs the desktop app when they want to look at it.
 - If a pull would overwrite local work, stash first, pull, then decide whether to pop.
 
+# Library docs gate (does not lose to thrift)
+
+- When adding or changing calls to FastAPI, Pydantic, Playwright, Gradio, pywebview, Ollama HTTP API, or httpx: do **not** skip Context7 / installed-package docs to save tokens. One lookup per library per slice. See `AGENTS.md` and `.cursor/rules/tooling-use.mdc`.
+
 # Ops pointers (do not paste full docs)
 
 - Workflow: `docs/ops/HOW_WE_WORK.md`

@@ -46,6 +46,7 @@ Premium plan only. Do not assume more tokens can be bought. Token use in long ag
 - Keep tool outputs short. Prefer structured summaries over raw logs.
 - Prefer one small diff and a short reply.
 - Compact the session, or start a fresh one, after a logical chunk of work.
+- **Exception — library API gate:** token thrift does **not** skip a Context7 / installed-package docs check when the trigger list in Cursor tooling preferences fires (one resolve + one query per library per slice).
 
 ## Home PC limits
 This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 MHz, GTX 1080 Ti with 11 GB VRAM, 1.16 TB disk with about 900 GB free. It is a 2017 desktop, not a modern AI workstation.
@@ -95,7 +96,15 @@ This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 M
   5. Close-out must state what CU actually proved vs skipped/flaked vs **awaiting human confirm**. CU captures IDE+desktop — treat agent screenshots as sensitive; do not paste tokens.
 - **IronBee browser:** only for Playwright AUT pages or Gradio-only slices — not for verifying the desktop shell. Never use cursor-ide-browser. IronBee Node/Backend stay **off** unless the user asks.
 - **Supermemory:** **always try** search at pick-up and add after meaningful decisions/slices (`workspaceRoot` = repo root; `container` project for codebase facts). If MCP add/search fails, retry once then continue — do not block the slice.
-- **Context7:** optional; Cloud Connected is enough; ignore Local Error·terminated.
+- **Library docs (Context7) — stale-advice gate (Council 2026-11-18):** Coding agents default to training memory; do **not** invent third-party APIs from memory.
+  - **Source order:** (1) this repo’s code, helpers, and security rules; (2) package installed in `venv` (`pip show` / its source); (3) Context7 or official docs **for that installed version**; (4) training memory last — label unverified if 1–3 were unavailable.
+  - **Trigger (required):** before adding or changing a call to **FastAPI, Pydantic, Playwright, Gradio, pywebview, Ollama HTTP API, or httpx**; same gate for auth, CORS, browser profiles, and credential paths even if the model feels sure. Also when a compile/runtime/type error names a library symbol.
+  - **Skip:** Python builtins, in-repo modules, pure copy of an existing working call in the same file/surface, product-policy / WORK_LOG / Jira close-out.
+  - **Playwright:** `plugins/playwright_runner.py` uses `async_api` — match the file you edit; do not import `sync_api` into that runner (`scripts/render_kan103_mockup_png.py` may stay sync).
+  - **Python:** host may be 3.15; runtime is the **venv** (often 3.13). `requirements.txt` is unpinned — prefer venv truth over PyPI “latest.”
+  - **Budget:** one resolve + one query per library per slice; reuse that cite. Skill: `.cursor/skills/context7-use/SKILL.md` (pointer to plugin `context7-mcp`).
+  - **Queries:** library name + API question only — never secrets, `settings.json`, tokens, Jira payloads, AUT customer data, or credential paths.
+  - **If Context7 errors:** do not block the slice; use installed package / official docs; do not invent “latest.” Cloud Connected is enough; ignore Local Error·terminated. Product runtime never calls Context7.
 - **Skip unless asked:** plugin-atlassian (duplicate), cursor-origin (GitHub remotes only), enabling IronBee Node/Backend.
 - **Computer Use:** preferred for **visual** desktop + OS UI checks under the tiered policy above — not a mandate for every slice.
 

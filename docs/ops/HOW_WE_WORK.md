@@ -58,6 +58,8 @@ User pays **Grok Premium** only. Do **not** assume Composer/Claude/GPT/Copilot a
 
 See `docs/ops/CONNECTORS.md`. Customize/MCP is in the **Agents** window, not the IDE window.
 
+**Library docs:** before inventing third-party API calls, follow the Context7 / venv gate in `AGENTS.md` (Council 2026-11-18) — training memory is last resort.
+
 ## After each slice (PM checklist)
 
 - [ ] One logical change  

@@ -38,7 +38,7 @@ If Cursor Atlassian MCP errors with **permission / API token** (common on this s
 - Product UI: run **`desktop_app.py`** and verify with **Computer Use** (native window). Do not open the desktop shell in a browser.
 - IronBee browser: AUT pages or Gradio-only; Node/Backend off.
 - Supermemory: authenticated for this machine; use when available.
-- Context7: optional (Cloud Connected OK; Local error ignorable).
+- Context7: **build-time IDE only** (Council 2026-11-18 stale-advice gate). Required when inventing/changing FastAPI / Pydantic / Playwright / Gradio / pywebview / Ollama HTTP / httpx calls — version-matched to the **venv**, not “latest.” On error: use installed package / official docs; do not block the slice; do not invent APIs. Cloud Connected OK; Local error ignorable. **Product runtime never calls Context7.** See `AGENTS.md` and `.cursor/skills/context7-use/SKILL.md`.
 
 ## Add when ready (do not rush)
 

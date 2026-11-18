@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-18 — Council CR — Agent stale-advice / Context7 gate
+- **Agent/chat:** Council Room (`/council`) — agents using outdated coding advice
+- **Done:** Claim validated (default behaviour unless forced to look up). Ops-only CR: ranked source order (repo → venv → Context7/official for installed version → memory last); narrow trigger for FastAPI/Pydantic/Playwright/Gradio/pywebview/Ollama HTTP/httpx; thrift does not skip gate; thin `context7-use` pointer skill; no product code; requirements pin deferred.
+- **Files:** `AGENTS.md`, `.cursor/rules/tooling-use.mdc`, `.cursor/rules/00-core-efficiency.mdc`, `.cursor/skills/context7-use/SKILL.md`, `.cursor/skills/slice-workflow/SKILL.md`, `docs/ops/CONNECTORS.md`, `docs/ops/HOW_WE_WORK.md`, `PROJECT_MEMORY.md`
+- **Verify:** docs/rules only
+- **Jira:** none (optional ops Task later if human wants)
+- **Next:** Build chat remains **KAN-291** (inherits gate once on `main`)
+
 ### 2026-11-18 — KAN-289 — Page context from headed AUT + annotate still
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-289
 - **Done:** Known headed AUT URL/title via `plans/aut_page_context.py` (Playwright pause publishes; cleared when browser closes; no keylog). Manual Start/refresh attaches page context; dock Page + Annotate; stills store local annotation; Propose applies E3 redaction to notes/URL/title/annotations. Cache-bust **desk96**.
