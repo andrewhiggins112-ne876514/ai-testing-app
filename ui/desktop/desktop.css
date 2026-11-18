@@ -1876,7 +1876,7 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: var(--cyan, #50cdff);
 }
 
-/* KAN-275/277/281 Manual Primary + Charter Frame MVP — non-overlapping chrome */
+/* KAN-275/277/281/283 Manual Primary + trustworthy loop — non-overlapping chrome */
 .manual-sticky-toolbar {
   display: flex;
   flex-direction: column;
@@ -1892,9 +1892,15 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   gap: 8px;
 }
 
-.manual-sticky-toolbar .manual-toolbar-status {
+.manual-sticky-toolbar .manual-toolbar-status,
+.manual-loop-stage-label {
   margin: 0;
   color: var(--cyan, #50cdff);
+}
+
+.manual-loop-stage-label {
+  font-weight: 600;
+  font-size: 12px;
 }
 
 .manual-primary {
@@ -1902,6 +1908,16 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   flex-direction: column;
   gap: 8px;
   margin: 4px 0 10px;
+}
+
+/* Review stage: keep Start form out of the way so Propose/Confirm stay clickable */
+#app-section-manual[data-loop-stage="review"] .manual-primary {
+  display: none;
+}
+
+#app-section-manual[data-loop-stage="recording"] .manual-primary {
+  opacity: 0.72;
+  pointer-events: none;
 }
 
 .manual-primary textarea {
@@ -1918,6 +1934,13 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   padding: 10px;
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 30%, transparent);
+}
+
+/* Confirm stays in review flow (start form hidden at review stage) — not sticky inside scrollport */
+.manual-confirm-row {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
 }
 
 .manual-advanced {
@@ -2032,8 +2055,7 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   bottom: 18px;
   transform: translateX(-50%);
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
   max-width: min(920px, 94vw);
   padding: 8px 10px;
@@ -2042,6 +2064,27 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   background: color-mix(in srgb, var(--panel, #061018) 94%, transparent);
   pointer-events: auto;
   backdrop-filter: blur(8px);
+}
+
+.charter-dock-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.charter-cancel-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+}
+
+.charter-cancel-msg {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted, #9bb4c4);
 }
 
 .charter-frame-chip {

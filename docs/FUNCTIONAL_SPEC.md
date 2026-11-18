@@ -205,7 +205,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Catalogue **H** designs complete. **Council Track 1** Build Done (**KAN-265…277**). **Council Track 2:** chrome **KAN-281** Done (desk92; Bug **KAN-280** fixed); next FR-MAN-1 **completion** (**KAN-283…**) (trustworthy loop, real assist drafts, window/monitor snap, page context/annotate, session library/GDPR, propose/confirm harden) → enterprise layout research note → tokens after note accepted. FR-MAN-2 live circles parked (DPIA). Voice **KAN-81** / G10 deferred (mic) — do not implement while deferred.
+**Still open / next:** Catalogue **H** designs complete. **Council Track 1** Build Done (**KAN-265…277**). **Council Track 2:** chrome **KAN-281** Done (desk92; Bug **KAN-280** fixed); trustworthy loop **KAN-283** Done (desk93); next FR-MAN-1 **completion** (**KAN-285…**) (real assist drafts, window/monitor snap, page context/annotate, session library/GDPR, propose/confirm harden) → enterprise layout research note → tokens after note accepted. FR-MAN-2 live circles parked (DPIA). Voice **KAN-81** / G10 deferred (mic) — do not implement while deferred.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 

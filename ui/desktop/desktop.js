@@ -1367,6 +1367,7 @@
   const manualConfirmYes = document.getElementById("manual-confirm-yes");
   const manualConfirmNo = document.getElementById("manual-confirm-no");
   const manualSessionList = document.getElementById("manual-session-list");
+  const manualLoopStageLabel = document.getElementById("manual-loop-stage-label");
   const planStartManual = document.getElementById("plan-start-manual");
   const charterFrameRoot = document.getElementById("charter-frame-root");
   const charterFrameRect = document.getElementById("charter-frame-rect");
@@ -1382,6 +1383,10 @@
   const charterStillAdd = document.getElementById("charter-still-add");
   const charterEnd = document.getElementById("charter-end");
   const charterCancel = document.getElementById("charter-cancel");
+  const charterDockControls = document.getElementById("charter-dock-controls");
+  const charterCancelConfirm = document.getElementById("charter-cancel-confirm");
+  const charterCancelYes = document.getElementById("charter-cancel-yes");
+  const charterCancelNo = document.getElementById("charter-cancel-no");
   let manualOpenSessionId = "";
   let manualPendingProposalId = "";
   let charterFrameState = { x: 0.18, y: 0.16, w: 0.64, h: 0.58 };
@@ -4433,6 +4438,30 @@
     charterFrameMist.hidden = !on;
   }
 
+  function setManualLoopStage(stage) {
+    const section = manualSection;
+    const next = stage || "idle";
+    if (section) section.setAttribute("data-loop-stage", next);
+    if (manualLoopStageLabel) {
+      if (next === "recording") {
+        manualLoopStageLabel.textContent =
+          "Loop: recording — notes / stills / End / Cancel on Charter Frame dock";
+      } else if (next === "review") {
+        manualLoopStageLabel.textContent =
+          "Loop: review — Propose, then Confirm or Cancel proposal (no silent Jira)";
+      } else {
+        manualLoopStageLabel.textContent =
+          "Loop: idle — enter a charter to Start";
+      }
+    }
+  }
+
+  function showCharterCancelConfirm(show) {
+    const on = !!show;
+    if (charterCancelConfirm) charterCancelConfirm.hidden = !on;
+    if (charterDockControls) charterDockControls.hidden = on;
+  }
+
   function showCharterFrame(session) {
     if (!charterFrameRoot || !session) return;
     manualOpenSessionId = session.id || "";
@@ -4444,17 +4473,27 @@
     setCharterMistVisible(!!session.armed_mist);
     if (charterAssistLive) charterAssistLive.checked = !!session.agent_assist;
     if (charterMistLive) charterMistLive.checked = !!session.armed_mist;
+    showCharterCancelConfirm(false);
+    const noteCount = ((session.notes || [])).length;
+    const stillCount = ((session.stills || [])).length;
     if (charterFrameChip) {
       charterFrameChip.textContent =
         "Recording · " +
-        ((session.charter || "").slice(0, 48) || session.id || "session");
+        ((session.charter || "").slice(0, 40) || session.id || "session") +
+        " · " +
+        noteCount +
+        " notes · " +
+        stillCount +
+        " stills";
     }
     charterFrameRoot.hidden = false;
     charterFrameRoot.setAttribute("aria-hidden", "false");
+    setManualLoopStage("recording");
   }
 
   function hideCharterFrame() {
     if (!charterFrameRoot) return;
+    showCharterCancelConfirm(false);
     charterFrameRoot.hidden = true;
     charterFrameRoot.setAttribute("aria-hidden", "true");
     setCharterMistVisible(false);
@@ -4480,6 +4519,7 @@
   }
 
   function showManualReview(session, review) {
+    setManualLoopStage("review");
     if (manualReview) manualReview.hidden = false;
     if (manualReviewOut) {
       const notes = (session && session.notes) || (review && review.notes) || [];
@@ -4492,6 +4532,7 @@
         "Notes: " + notes.length,
         "Stills: " + stills.length,
         "Assist drafts: " + drafts.length + " (local only)",
+        "Jira writes: never silent — Propose then Confirm (FR-JIRA-5)",
         "",
         notes
           .map(function (n) {
@@ -4506,6 +4547,13 @@
     }
     if (manualConfirmRow) manualConfirmRow.hidden = true;
     manualPendingProposalId = "";
+    if (manualReview && typeof manualReview.scrollIntoView === "function") {
+      try {
+        manualReview.scrollIntoView({ block: "start", behavior: "smooth" });
+      } catch (_err) {
+        /* scroll optional */
+      }
+    }
   }
 
   async function refreshManualSessions() {
@@ -4595,7 +4643,7 @@
       closeArea();
       if (manualStatus) {
         manualStatus.textContent =
-          "Session started — frame click-through; no Jira write";
+          "Session started — Charter Frame dock: Note / Still / End / Cancel (no Jira write)";
       }
     } catch (err) {
       if (manualStatus) {
@@ -4606,6 +4654,7 @@
 
   async function endManualSessionFromFrame() {
     if (!manualOpenSessionId) return;
+    showCharterCancelConfirm(false);
     try {
       const res = await fetch(
         "/api/manual-sessions/" + encodeURIComponent(manualOpenSessionId) + "/end",
@@ -4621,10 +4670,11 @@
         showManualReview(data.session, data.review);
         if (manualStatus) {
           manualStatus.textContent =
-            "Session ended — review then Propose (confirm for Jira)";
+            "Session ended — review then Propose (Confirm uses FR-JIRA-5; Cancel writes nothing)";
         }
       } else if (manualStatus) {
         manualStatus.textContent = data.message || "End failed";
+        setManualLoopStage("idle");
       }
       await refreshManualSessions();
       return sid;
@@ -4635,11 +4685,13 @@
     }
   }
 
+  function requestCancelManualSession() {
+    if (!manualOpenSessionId) return;
+    showCharterCancelConfirm(true);
+  }
+
   async function cancelManualSessionFromFrame() {
     if (!manualOpenSessionId) return;
-    if (!window.confirm("Cancel this uncommitted session? Draft is kept as cancelled.")) {
-      return;
-    }
     try {
       const res = await fetch(
         "/api/manual-sessions/" +
@@ -4655,12 +4707,15 @@
       hideCharterFrame();
       manualOpenSessionId = "";
       openArea("manual");
+      setManualLoopStage("idle");
+      if (manualReview) manualReview.hidden = true;
       if (manualStatus) {
         manualStatus.textContent =
           data.message || "Session cancelled — no Jira write";
       }
       await refreshManualSessions();
     } catch (err) {
+      showCharterCancelConfirm(false);
       if (manualStatus) {
         manualStatus.textContent = "Cancel failed: " + (err.message || err);
       }
@@ -4712,11 +4767,20 @@
       if (data.status === "ok" && data.proposal) {
         manualPendingProposalId = data.proposal.id || "";
         window.__manualProposeSessionId = sessionId;
-        if (manualConfirmRow) manualConfirmRow.hidden = false;
+        if (manualConfirmRow) {
+          manualConfirmRow.hidden = false;
+          if (typeof manualConfirmRow.scrollIntoView === "function") {
+            try {
+              manualConfirmRow.scrollIntoView({ block: "nearest", behavior: "smooth" });
+            } catch (_err) {
+              /* scroll optional */
+            }
+          }
+        }
         if (manualStatus) {
           manualStatus.textContent =
             data.proposal.message ||
-            "Preview ready — Confirm for Jira path, or Cancel proposal";
+            "Preview ready — Confirm (FR-JIRA-5 path) or Cancel proposal (writes nothing)";
         }
       } else if (manualStatus) {
         manualStatus.textContent = data.message || data.error || "Propose failed";
@@ -4751,8 +4815,17 @@
         manualProposeOut.textContent = JSON.stringify(data, null, 2);
       }
       if (manualStatus) {
-        manualStatus.textContent =
-          data.message || (doConfirm ? "Confirmed locally" : "Proposal cancelled");
+        if (!doConfirm) {
+          manualStatus.textContent =
+            data.message || "Proposal cancelled — nothing written to Jira";
+        } else if (data.writes_jira) {
+          manualStatus.textContent =
+            data.message || "Confirmed — Jira write completed (audited)";
+        } else {
+          manualStatus.textContent =
+            data.message ||
+            "Confirmed on FR-JIRA-5 path — ready_for_jira locally; no silent write";
+        }
       }
       if (manualConfirmRow) manualConfirmRow.hidden = true;
       manualPendingProposalId = "";
@@ -4760,6 +4833,40 @@
       if (manualStatus) {
         manualStatus.textContent = "Confirm failed: " + (err.message || err);
       }
+    }
+  }
+
+  async function addCharterNoteFromDock() {
+    if (!manualOpenSessionId || !charterNoteInput) return;
+    const text = charterNoteInput.value.trim();
+    if (!text) return;
+    try {
+      const res = await fetch(
+        "/api/manual-sessions/" +
+          encodeURIComponent(manualOpenSessionId) +
+          "/notes",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: text }),
+        }
+      );
+      const data = await res.json();
+      if (data.status === "ok") {
+        charterNoteInput.value = "";
+        if (charterFrameChip) {
+          charterFrameChip.textContent =
+            "Note saved · " +
+            (data.session.notes || []).length +
+            " notes · " +
+            (data.session.stills || []).length +
+            " stills";
+        }
+      } else if (charterFrameChip) {
+        charterFrameChip.textContent = data.message || "Note failed";
+      }
+    } catch (_err) {
+      if (charterFrameChip) charterFrameChip.textContent = "Note failed";
     }
   }
 
@@ -8041,33 +8148,15 @@
     });
   }
   if (charterNoteAdd) {
-    charterNoteAdd.addEventListener("click", async function () {
-      if (!manualOpenSessionId || !charterNoteInput) return;
-      const text = charterNoteInput.value.trim();
-      if (!text) return;
-      try {
-        const res = await fetch(
-          "/api/manual-sessions/" +
-            encodeURIComponent(manualOpenSessionId) +
-            "/notes",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: text }),
-          }
-        );
-        const data = await res.json();
-        if (data.status === "ok") {
-          charterNoteInput.value = "";
-          if (charterFrameChip) {
-            charterFrameChip.textContent =
-              "Note saved · " + (data.session.notes || []).length + " notes";
-          }
-        } else if (charterFrameChip) {
-          charterFrameChip.textContent = data.message || "Note failed";
-        }
-      } catch (_err) {
-        if (charterFrameChip) charterFrameChip.textContent = "Note failed";
+    charterNoteAdd.addEventListener("click", function () {
+      addCharterNoteFromDock();
+    });
+  }
+  if (charterNoteInput) {
+    charterNoteInput.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        addCharterNoteFromDock();
       }
     });
   }
@@ -8086,7 +8175,10 @@
           charterFrameChip.textContent =
             data.status === "ok"
               ? "Still attached (opt-in) · " +
-                ((data.session && data.session.stills) || []).length
+                ((data.session && data.session.notes) || []).length +
+                " notes · " +
+                ((data.session && data.session.stills) || []).length +
+                " stills"
               : data.message || "Still failed";
         }
       } catch (_err) {
@@ -8101,7 +8193,17 @@
   }
   if (charterCancel) {
     charterCancel.addEventListener("click", function () {
+      requestCancelManualSession();
+    });
+  }
+  if (charterCancelYes) {
+    charterCancelYes.addEventListener("click", function () {
       cancelManualSessionFromFrame();
+    });
+  }
+  if (charterCancelNo) {
+    charterCancelNo.addEventListener("click", function () {
+      showCharterCancelConfirm(false);
     });
   }
   if (charterAssistLive) {

@@ -176,7 +176,7 @@ class PlanRunNotifyTests(unittest.TestCase):
         self.assertEqual(notice.get("pass"), 1)
         self.assertEqual(notice.get("fail"), 1)
 
-    def test_api_and_desktop_ui_desk92(self):
+    def test_api_and_desktop_ui_desk93(self):
         client = TestClient(main.app)
         get_res = client.get("/api/plans/run-notify")
         self.assertEqual(get_res.status_code, 200)
@@ -207,8 +207,8 @@ class PlanRunNotifyTests(unittest.TestCase):
         self.assertIn("set-run-finish-notify", html)
         self.assertIn("run-finish-toast", html)
         self.assertIn("showLocalRunNotice", js)
-        self.assertIn("desk92", html)
-        self.assertIn("desk92", desk)
+        self.assertIn("desk93", html)
+        self.assertIn("desk93", desk)
 
 
 if __name__ == "__main__":

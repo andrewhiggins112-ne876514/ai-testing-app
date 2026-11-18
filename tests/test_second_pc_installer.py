@@ -103,7 +103,7 @@ class SecondPcInstallerTests(unittest.TestCase):
         self.assertFalse(status["shared_cloud_account"])
         self.assertFalse(status["mandatory_telemetry"])
 
-    def test_api_and_desktop_ui_desk92(self):
+    def test_api_and_desktop_ui_desk93(self):
         client = TestClient(main.app)
         empty = client.get("/api/installer/second-pc")
         self.assertEqual(empty.status_code, 200)
@@ -128,18 +128,18 @@ class SecondPcInstallerTests(unittest.TestCase):
         self.assertEqual(last.status_code, 200)
         self.assertEqual(last.json().get("folder_name"), payload["folder_name"])
 
-        html = client.get("/ui/desktop/index.html?v=desk92").text
+        html = client.get("/ui/desktop/index.html?v=desk93").text
         self.assertIn('id="set-second-pc-pack"', html)
         self.assertIn('id="set-second-pc-status"', html)
         self.assertIn("set-second-pc-hint", html)
-        self.assertIn("desk92", html)
+        self.assertIn("desk93", html)
 
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         self.assertIn("/api/installer/second-pc-pack", js)
         self.assertIn("loadSecondPcStatus", js)
 
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk92", desk)
+        self.assertIn("desk93", desk)
 
 
 if __name__ == "__main__":

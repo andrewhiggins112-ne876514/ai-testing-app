@@ -574,9 +574,13 @@ def cancel_session(
         _OPEN_BY_LEVEL.pop(lvl, None)
     return {
         "status": "ok",
-        "message": "Session cancelled — local draft kept as cancelled; no Jira write.",
+        "message": (
+            "Session cancelled — local draft marked cancelled (product rules); "
+            "nothing written to Jira."
+        ),
         "session": _public(session),
         "writes_jira": False,
+        "discarded": True,
     }
 
 
@@ -925,4 +929,10 @@ def defaults_info() -> dict[str, Any]:
         "open_session_id": (open_session or {}).get("id"),
         "open_session": _public(open_session) if open_session else None,
         "fr_man_2": "parked",
+        # KAN-283 — trustworthy headed loop contract
+        "trustworthy_loop": True,
+        "loop_stages": ["idle", "recording", "review"],
+        "cancel_writes_jira": False,
+        "confirm_uses_fr_jira_5": True,
+        "in_app_cancel_confirm": True,
     }

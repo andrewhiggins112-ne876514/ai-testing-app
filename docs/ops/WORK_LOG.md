@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-283** — Track2: Trustworthy Manual session loop (headed) |
+| **Jira story** | **KAN-285** — Track2: Real agent-assist local drafts (honest assist) |
 | **Start task** | — |
 | **Epic** | **KAN-279** Council Track 2 — Area chrome + Manual completion |
 | **Roadmap ID** | TRACK2-MAN |
-| **Spec** | FR-MAN-1 completion (trustworthy Start→End→review→confirm) |
+| **Spec** | FR-MAN-1 completion (real Ollama assist drafts / honest unavailable) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-284** |
-| **Shipped** | Track 1 Done; Track 2 chrome **KAN-281** / Bug **KAN-280** (desk92) |
+| **Test ticket** | **KAN-286** |
+| **Shipped** | Track 1 Done; chrome **KAN-281**; trustworthy loop **KAN-283** (desk93) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
-| **Next / Shipped** | Pick up **KAN-283**. Then **KAN-285…297**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Pick up **KAN-285**. Then **KAN-287…297**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-283 — Trustworthy Manual session loop (headed)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-283
+- **Done:** Hardened calm Start→notes/stills→End→review→Propose→Confirm/Cancel loop on desktop. In-app Charter Frame Cancel confirm (no `window.confirm`); loop stages idle/recording/review (`data-manual-loop` / `data-loop-stage`); review hides Start form so Propose/Confirm stay reachable (no sticky-inside-scrollport); Enter-to-note on dock; defaults advertise trustworthy_loop + FR-JIRA-5; Cancel proposal / cancel session write nothing to Jira. Cache-bust **desk93**.
+- **Files:** `plans/manual_session.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_manual_trustworthy_loop.py` (+ desk93 across UI tests), docs
+- **Verify:** `pytest tests/test_manual_trustworthy_loop.py tests/test_manual_session.py tests/test_manual_ia.py tests/test_area_chrome_nonoverlap.py` 17 passed. Live API on desk93: Start→note→End→Propose bug→Cancel proposal (`writes_jira=False`); cancel session `discarded=True`. Live `desktop_app.py` desk93: Computer Use opened orb home (CALM + First-hour checklist); App-menu Manual clicks contested by HUD (same pattern as KAN-281); HTML markers `data-manual-loop` / `data-charter-cancel-confirm` / `data-manual-confirm` present.
+- **Jira:** close-out **KAN-283** + **KAN-284**
+- **Next:** **KAN-285** Real agent-assist local drafts (test **KAN-286**)
 
 ### 2026-11-18 — KAN-281 — Non-overlapping area chrome (FR-UI-9)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-281
