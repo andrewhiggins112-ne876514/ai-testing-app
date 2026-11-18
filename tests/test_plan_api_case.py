@@ -176,7 +176,7 @@ class PlanApiCaseTests(unittest.TestCase):
         self.assertIn("set-api-endpoint", html)
         self.assertIn("Messaging / API endpoint", html)
 
-    def test_api_add_and_ui_desk90(self):
+    def test_api_add_and_ui_desk91(self):
         client = TestClient(main.app)
         created = client.post("/api/plans", json={"name": "API Msg"})
         self.assertEqual(created.status_code, 200)
@@ -190,8 +190,8 @@ class PlanApiCaseTests(unittest.TestCase):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk90", html)
-        self.assertIn("desk90", desk)
+        self.assertIn("desk91", html)
+        self.assertIn("desk91", desk)
         self.assertIn("plan-add-api-btn", html)
         self.assertIn("addApiCaseToOpenPlan", js)
         self.assertIn("cases/api", js)

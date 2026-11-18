@@ -1838,7 +1838,7 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: var(--cyan, #50cdff);
 }
 
-/* KAN-275 Manual Primary shell — sticky + start form (Charter Frame next) */
+/* KAN-275/277 Manual Primary + Charter Frame MVP */
 .manual-sticky-toolbar {
   position: sticky;
   top: 0;
@@ -1876,6 +1876,16 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   resize: vertical;
 }
 
+.manual-review {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 30%, transparent);
+}
+
 .manual-advanced {
   margin: 8px 0 4px;
   padding: 8px 10px;
@@ -1888,6 +1898,134 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: var(--muted, #9bb4c4);
   font-size: 12px;
   font-weight: 600;
+}
+
+.charter-frame-root {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+}
+
+.charter-frame-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 8, 14, 0.42);
+  pointer-events: none;
+  /* Soft outer dim via hole punched by frame using box-shadow on rect */
+  opacity: 0;
+}
+
+.charter-frame-rect {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid var(--cyan, #50cdff);
+  border-radius: 6px;
+  box-shadow: 0 0 0 9999px rgba(0, 8, 14, 0.45);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.charter-frame-mist {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 40% 35%, color-mix(in srgb, var(--cyan, #50cdff) 18%, transparent), transparent 62%),
+    linear-gradient(160deg, rgba(80, 205, 255, 0.08), rgba(6, 16, 24, 0.12));
+  opacity: 0.85;
+}
+
+.charter-frame-edge {
+  position: absolute;
+  pointer-events: auto;
+  background: transparent;
+}
+
+.charter-frame-edge.edge-n,
+.charter-frame-edge.edge-s {
+  left: 10px;
+  right: 10px;
+  height: 10px;
+  cursor: ns-resize;
+}
+
+.charter-frame-edge.edge-n { top: -5px; }
+.charter-frame-edge.edge-s { bottom: -5px; }
+
+.charter-frame-edge.edge-e,
+.charter-frame-edge.edge-w {
+  top: 10px;
+  bottom: 10px;
+  width: 10px;
+  cursor: ew-resize;
+}
+
+.charter-frame-edge.edge-e { right: -5px; }
+.charter-frame-edge.edge-w { left: -5px; }
+
+.charter-frame-edge.edge-nw,
+.charter-frame-edge.edge-ne,
+.charter-frame-edge.edge-sw,
+.charter-frame-edge.edge-se {
+  width: 14px;
+  height: 14px;
+}
+
+.charter-frame-edge.edge-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+.charter-frame-edge.edge-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+.charter-frame-edge.edge-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.charter-frame-edge.edge-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+
+.charter-frame-drag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  pointer-events: auto;
+  cursor: move;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 55%, transparent);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cyan, #50cdff);
+  background: color-mix(in srgb, var(--panel, #061018) 88%, transparent);
+}
+
+.charter-frame-dock {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: min(920px, 94vw);
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 40%, transparent);
+  background: color-mix(in srgb, var(--panel, #061018) 94%, transparent);
+  pointer-events: auto;
+  backdrop-filter: blur(8px);
+}
+
+.charter-frame-chip {
+  margin: 0;
+  color: var(--cyan, #50cdff);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.charter-dock-toggle {
+  margin: 0;
+  font-size: 12px;
+}
+
+.charter-note-input {
+  min-width: 140px;
+  flex: 1 1 160px;
 }
 
 /* KAN-273 Lab areas IA — Documents / Heal / Desktop / Sandboxes */

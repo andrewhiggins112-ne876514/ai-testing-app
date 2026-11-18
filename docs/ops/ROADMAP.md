@@ -9,7 +9,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
 | TRACK1-IA | Plans IA + stub honesty + other area tidy | done | Epic **KAN-264**; **KAN-265/267/269/271/273** Done (desk89 Lab areas tidy) |
-| TRACK1-H1 | Manual shell + Charter Frame MVP | now | **KAN-275** Manual shell Done (desk90); Active **KAN-277** Charter Frame (test **278**); design KAN-241 §9 |
+| TRACK1-H1 | Manual shell + Charter Frame MVP | done | **KAN-275** Manual shell (desk90); **KAN-277** Charter Frame MVP (desk91; test **278**); design KAN-241 §9; FR-MAN-2 parked |
 | FR-MAN-2 | Live assist / circles | later | Parked until H1 + DPIA (H1 §10) |
 | TESTALL-E | Test-all E privacy / audit / recovery | done | E1–E5 Done (**KAN-201** desk66); UI-LAB-MENU Done |
 | TESTALL-F | Test-all F role HUD / UX — F1–F7 | done | F7 Done (**KAN-215** desk73); F6 Done (**KAN-213** desk72) |
@@ -91,7 +91,7 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 
 ## Next slice (PM-owned — human does not paste prompts)
 
-**Council Track 1 (2026-11-18):** Slice-0 + Jira epic **KAN-264**. TRACK1-IA Done (**KAN-265/267/269/271/273**, desk89 Lab areas). **KAN-275** Manual Primary shell Done (desk90). **Now / pick-up:** **KAN-277** Charter Frame MVP (test **KAN-278**). **Park** FR-MAN-2. Voice **KAN-81** deferred — do **not** implement.
+**Council Track 1 (2026-11-18):** Epic **KAN-264** Done for Track1 Build stories. TRACK1-IA Done; **KAN-275** Manual shell; **KAN-277** Charter Frame MVP (desk91). **Park** FR-MAN-2. Voice **KAN-81** deferred — do **not** implement. Next Active: deferred voice / human or council picks next track.
 **Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1…4** (**KAN-247…249**, **KAN-253**); **C3 KAN-161**; **C4 KAN-163** coverage gaps (desk45); **C5 KAN-165** acceptance drift (desk46); **C6 KAN-167** traceability matrix (desk48); **C7 KAN-169** tags/priority/smoke/regression (desk49); **C8 KAN-171** import Playwright into suite (desk50); **C9 KAN-173** search plans/cases/failures (desk51); **C10 KAN-175** suite history/compare (desk52); **C11 KAN-177** archive case (desk53); **D1 KAN-179** sequential default + parallel cap (desk54); **D2 KAN-181** flake/quarantine (desk55); **D3 KAN-183** named environments (desk56); **D4 KAN-185** credential status (desk57); **D5 KAN-187** case step timeouts (desk58); **D6 KAN-189** local run-finish notices (desk59); **D7 KAN-191** duration on run/case + compare (desk60); **E1 KAN-193** document privacy for uploads (desk61); **E2 KAN-195** local side-effects audit (desk62); **E3 KAN-197** redact secrets in evidence/exports (desk63); **E4 KAN-199** lab backup/restore (desk65); **E5 KAN-201** offline last plan (desk66).
 
 **Council CR (2026-11-16):** Test-all vision locked; catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.

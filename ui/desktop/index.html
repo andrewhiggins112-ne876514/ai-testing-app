@@ -4,10 +4,35 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk90" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk91" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
+  <div id="charter-frame-root" class="charter-frame-root" hidden data-charter-frame="1" aria-hidden="true">
+    <div class="charter-frame-dim" data-charter-dim="1" aria-hidden="true"></div>
+    <div id="charter-frame-rect" class="charter-frame-rect" data-charter-rect="1">
+      <div class="charter-frame-mist" data-charter-mist="1" hidden></div>
+      <div class="charter-frame-edge edge-n" data-resize="n"></div>
+      <div class="charter-frame-edge edge-s" data-resize="s"></div>
+      <div class="charter-frame-edge edge-e" data-resize="e"></div>
+      <div class="charter-frame-edge edge-w" data-resize="w"></div>
+      <div class="charter-frame-edge edge-nw" data-resize="nw"></div>
+      <div class="charter-frame-edge edge-ne" data-resize="ne"></div>
+      <div class="charter-frame-edge edge-sw" data-resize="sw"></div>
+      <div class="charter-frame-edge edge-se" data-resize="se"></div>
+      <button type="button" id="charter-frame-drag" class="charter-frame-drag" title="Drag region">Charter Frame</button>
+    </div>
+    <div id="charter-frame-dock" class="charter-frame-dock" data-charter-dock="1">
+      <p id="charter-frame-chip" class="charter-frame-chip" role="status">Session open</p>
+      <label class="check-row charter-dock-toggle"><input type="checkbox" id="charter-assist-live" /> Assist</label>
+      <label class="check-row charter-dock-toggle"><input type="checkbox" id="charter-mist-live" /> Mist</label>
+      <input type="text" id="charter-note-input" class="charter-note-input" placeholder="Add a note…" maxlength="2000" autocomplete="off" />
+      <button type="button" id="charter-note-add" class="save-btn secondary">Note</button>
+      <button type="button" id="charter-still-add" class="save-btn secondary">Still</button>
+      <button type="button" id="charter-end" class="save-btn">End</button>
+      <button type="button" id="charter-cancel" class="save-btn secondary">Cancel</button>
+    </div>
+  </div>
   <div id="app">
     <div id="orb-config" hidden
       data-style="mystic"
@@ -893,21 +918,23 @@
             <label class="stack-label"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail (headed browser stays open until Continue or Stop; off by default)</label>
           </div>
         </div>
-        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1">
+        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1">
           <h3 class="orb-section-label">Manual</h3>
-          <p class="drawer-hint">Charter Frame session shell (FR-MAN-1 / A3). Start a session from here or via Plans → Start manual on this case. Esc/Back returns to orb home — Manual is not a second landing. Recorder/frame controls ship in the next Charter Frame story; this screen is navigation + start form only.</p>
+          <p class="drawer-hint">Charter Frame (FR-MAN-1). Start from here or Plans → Start manual on this case. Esc/Back returns to orb home — Manual is not a second landing. No background capture until Start.</p>
           <div id="manual-sticky-toolbar" class="manual-sticky-toolbar" data-manual-sticky="1">
             <div class="btn-row manual-toolbar-actions">
               <button type="button" id="manual-clear-context" class="save-btn secondary">Clear linked context</button>
               <button type="button" id="manual-open-plans" class="save-btn secondary">Open Plans</button>
+              <button type="button" id="manual-refresh-sessions" class="save-btn secondary">Refresh</button>
             </div>
             <p id="manual-status" class="drawer-hint manual-toolbar-status" role="status">Ready — no session running</p>
           </div>
           <div id="manual-primary" class="manual-primary" data-manual-primary="1">
-            <h4 class="orb-section-label">Start session (shell)</h4>
-            <label class="stack-label" for="manual-charter">Charter (required when Start ships)
+            <h4 class="orb-section-label">Start session</h4>
+            <label class="stack-label" for="manual-charter">Charter (required)
               <textarea id="manual-charter" rows="3" placeholder="What will you explore?" maxlength="2000" autocomplete="off"></textarea>
             </label>
+            <label class="check-row"><input type="checkbox" id="manual-ticket-bound" /> Link to Jira (story key required when checked)</label>
             <label class="stack-label" for="manual-plan-id">Linked plan id
               <input type="text" id="manual-plan-id" placeholder="plan id (optional)" autocomplete="off" />
             </label>
@@ -923,13 +950,29 @@
             <label class="check-row"><input type="checkbox" id="manual-assist" /> Agent assist (recommended off — local drafts only when on)</label>
             <label class="check-row"><input type="checkbox" id="manual-mist" /> Armed mist inside frame (recommended off)</label>
             <div class="btn-row">
-              <button type="button" id="manual-start" class="save-btn" disabled title="Charter Frame Start lands in the next story">Start session</button>
+              <button type="button" id="manual-start" class="save-btn" data-manual-start="1">Start session</button>
             </div>
-            <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start is disabled until Charter Frame MVP (KAN-277). Form + deep-link pre-fill are live now — no background capture.</p>
+            <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start opens a free-region Charter Frame (click-through interior). Assist and mist default off. No silent video or keylog.</p>
+          </div>
+          <div id="manual-review" class="manual-review" data-manual-review="1" hidden>
+            <h4 class="orb-section-label">Review</h4>
+            <pre id="manual-review-out" class="drawer-hint" aria-live="polite"></pre>
+            <div class="btn-row">
+              <button type="button" id="manual-propose-bug" class="save-btn">Propose bug</button>
+              <button type="button" id="manual-propose-comment" class="save-btn secondary">Propose comment</button>
+              <button type="button" id="manual-propose-note" class="save-btn secondary">Local case note</button>
+              <button type="button" id="manual-propose-steps" class="save-btn secondary">Step preview</button>
+            </div>
+            <pre id="manual-propose-out" class="drawer-hint" aria-live="polite" hidden></pre>
+            <div class="btn-row" id="manual-confirm-row" hidden>
+              <button type="button" id="manual-confirm-yes" class="save-btn">Confirm</button>
+              <button type="button" id="manual-confirm-no" class="save-btn secondary">Cancel proposal</button>
+            </div>
           </div>
           <details id="manual-advanced" class="manual-advanced" data-manual-advanced="1">
             <summary>About Manual capture</summary>
             <p class="drawer-hint">Notes + opt-in stills only. No keylog, clipboard, mic, or silent video. Jira writes stay two-step confirm. Live on-screen circles are FR-MAN-2 (parked).</p>
+            <ul id="manual-session-list" class="drawer-hint" data-manual-session-list="1"></ul>
           </details>
         </div>
         <div id="app-section-suites" class="app-section" hidden data-suites-ia="1">
@@ -1113,6 +1156,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk90"></script>
+  <script src="/ui/desktop/desktop.js?v=desk91"></script>
 </body>
 </html>

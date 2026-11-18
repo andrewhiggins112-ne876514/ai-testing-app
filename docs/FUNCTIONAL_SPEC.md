@@ -205,7 +205,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Catalogue **H** designs complete (**H3** **KAN-245**; **H2** **KAN-243**; **H1** **KAN-241** design). **Council Track 1 (2026-11-18):** Plans IA + Manual shell Done (**KAN-265…275**); next FR-MAN-1 Charter Frame (**KAN-277**). FR-MAN-2 live circles parked. Voice **KAN-81** / G10 deferred (mic) — do not implement while deferred.
+**Still open / next:** Catalogue **H** designs complete. **Council Track 1** Build Done (**KAN-265…277** Charter Frame desk91). FR-MAN-2 live circles parked. Voice **KAN-81** / G10 deferred (mic) — do not implement while deferred; next track via human/council.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -227,7 +227,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-PLAN-1…2 | Partial (A1+A5+A6+C11+E5) | **KAN-125** store + **KAN-133** edit/disable/reorder + **KAN-135** starter/empty home + **KAN-177** archive; run UI A7; **KAN-201** offline search/matrix |
 | FR-PLAN-3…4 | Partial (A4+C3–C10) | **KAN-131** one story; **KAN-161** project-wide draft; **KAN-163** coverage gaps; **KAN-165** AC drift; **KAN-167** C6 matrix; **KAN-169** C7 tags; **KAN-171** C8 import; **KAN-173** C9 search; **KAN-175** C10 history; **KAN-177** C11 archive Done |
 | FR-CI-1 | Design done (KAN-243); CI not shipped | Test-all **H2** → `docs/design/H2_PIPELINES_SECTION.md` |
-| FR-MAN-1 | Design done (KAN-241) + Council CR §9; recorder not shipped | H1 design → new implement stories (Track 1 after Plans IA) |
+| FR-MAN-1 | Design Done (KAN-241) + MVP shipped **KAN-277** (desk91) | Charter Frame + sessions; test **KAN-278**; FR-MAN-2 still parked |
 | FR-MAN-2 | Parked (live assist / circles; needs DPIA) | H1 §10 — after FR-MAN-1 ships |
 | FR-SEC-1 (H3 share) | Isolation shipped (KAN-15); multi-PC share **design** done | Test-all **H3** **KAN-245** → `docs/design/H3_SHARED_USE_WITHOUT_CLOUD.md` (no network service) |
 | FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |
@@ -251,8 +251,8 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-UI-8 | Lab tools group on compact App menu (every layout) | **Done** **KAN-260** (desk64; test **KAN-262**) |
 | FR-UI-9 | Plans IA progressive disclosure | **Done** — **KAN-265** (test **KAN-266**); epic **KAN-264** |
 | FR-UI-1 Manual | Primary **Manual** area (A3) | **Done** — **KAN-275** (desk90; test **KAN-276**); Charter Frame still **KAN-277** |
-| FR-MAN-1 implement | Charter Frame MVP | **Open** — **KAN-277** (test **KAN-278**); design stays **KAN-241** |
-| FR-PLUG-3 honesty | Stub labels / disable Run / Playwright default | **Open** — **KAN-267** (test **KAN-268**) |
+| FR-MAN-1 implement | Charter Frame MVP | **Done** — **KAN-277** (desk91; test **KAN-278**); design stays **KAN-241** |
+| FR-PLUG-3 honesty | Stub labels / disable Run / Playwright default | **Done** — **KAN-267** (test **KAN-268**) |
 | FR-SET-3 | Shipped — App Settings vs Orb settings; App category on Settings hub | **Done** Task **KAN-108**; hub **KAN-249** |
 | FR-SET-4 | Settings hub with category switch (App / Report / …) | **Done** — **KAN-249** (desk42) |
 | FR-PLUG-1 | Shipped registry + local multi-sandbox orchestration | **Done** KAN-55 stub + **KAN-95** (test **KAN-96**) |

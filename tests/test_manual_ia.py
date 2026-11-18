@@ -10,14 +10,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ManualIaDesktopUiTests(unittest.TestCase):
-    def test_manual_primary_shell_markers_desk90(self):
+    def test_manual_primary_shell_markers_desk91(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk90", html)
-        self.assertIn("desk90", desk)
+        self.assertIn("desk91", html)
+        self.assertIn("desk91", desk)
         self.assertIn('data-manual-ia="1"', html)
         self.assertIn('id="app-section-manual"', html)
         self.assertIn('data-manual-sticky="1"', html)
@@ -31,7 +31,8 @@ class ManualIaDesktopUiTests(unittest.TestCase):
         self.assertIn('id="manual-case-id"', html)
         self.assertIn('id="manual-story-key"', html)
         self.assertIn('id="manual-start"', html)
-        self.assertIn("disabled", html.split('id="manual-start"', 1)[1].split(">", 1)[0])
+        self.assertIn('data-manual-start="1"', html)
+        # Charter Frame Start is enabled (KAN-277); shell markers from KAN-275 remain.
 
         nav = html.split('id="app-drawer"', 1)[1].split('id="screen-drawer"', 1)[0]
         primary = nav.split('data-nav-group="primary"', 1)[1].split(

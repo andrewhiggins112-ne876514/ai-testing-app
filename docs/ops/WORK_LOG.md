@@ -7,17 +7,17 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open |
-| **Jira story** | **KAN-277** — Track1: FR-MAN-1 Charter Frame MVP |
+| **Status** | deferred |
+| **Jira story** | **KAN-81** — G10 voice (deferred) |
 | **Start task** | — |
-| **Epic** | **KAN-264** Council Track 1 — UX tidy + Manual Charter Frame |
-| **Roadmap ID** | TRACK1-H1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-MAN-1; `docs/design/H1_MANUAL_SESSION_CAPTURE.md` §9; epic **KAN-264** |
+| **Epic** | — |
+| **Roadmap ID** | G10 / next track TBD |
+| **Spec** | Voice deferred; Track 1 Charter Frame shipped |
 | **Git** | `main` |
-| **Test ticket** | **KAN-278** |
-| **Shipped** | … **KAN-275** Manual Primary shell (desk90); **KAN-273** Lab areas tidy (desk89); **KAN-271** Reports tidy (desk88); **KAN-269** Suites tidy (desk87); **KAN-267** stub honesty (desk86); **KAN-265** Plans IA (desk85); Council Slice-0; epic **KAN-264** |
+| **Test ticket** | — |
+| **Shipped** | … **KAN-277** Charter Frame MVP (desk91); **KAN-275** Manual shell (desk90); Track1 IA tidy set; epic **KAN-264** |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles |
-| **Next / Shipped** | Build pick-up → **KAN-277** Charter Frame. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Track 1 Build Done. Do **not** start voice / FR-MAN-2. Human or `/council` picks next track. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-277 — FR-MAN-1 Charter Frame MVP
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-277
+- **Done:** Level-scoped manual sessions under `plans/{LEVEL}/sessions/`; Start/End/Cancel; notes + opt-in stills; assist/mist default OFF; free-region Charter Frame overlay (click-through interior, resize/drag chrome, optional inner mist); End → review → Propose bug/comment/local note/step preview → confirm (Cancel writes nothing to Jira); story required when ticket-bound. Cache-bust **desk91**. Gradio stub points at desktop.
+- **Files:** `plans/manual_session.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_manual_session.py`, `tests/test_manual_session_design.py`, `tests/test_manual_ia.py` (+ desk91 across UI tests), docs
+- **Verify:** `pytest tests/test_manual_session.py tests/test_manual_session_design.py tests/test_manual_ia.py tests/test_nav_overlap.py` 18 passed. Live `desktop_app.py` opened desk91 (orb home). HTML markers `data-charter-frame` / `data-charter-mvp` / `data-manual-start`.
+- **Jira:** close-out **KAN-277** + **KAN-278**
+- **Next:** Active **deferred** — **KAN-81** voice; do not implement. Human/council picks next track.
 
 ### 2026-11-18 — KAN-275 — Manual Primary App area + Plans deep-link shell
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-275

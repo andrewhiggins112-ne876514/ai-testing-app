@@ -2715,11 +2715,12 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
             with gr.Column(elem_id="manual-panel"):
                 gr.HTML('<div class="panel-title">Manual</div>')
                 gr.HTML(
-                    '<div class="panel-hint" data-manual-shell="1">Desktop owns Manual Primary + Plans '
-                    "deep-link (KAN-275). Gradio is a minimal stub — use the desktop app for Charter Frame.</div>"
+                    '<div class="panel-hint" data-manual-shell="1" data-charter-mvp="1">'
+                    "Desktop owns Charter Frame MVP (KAN-277). Gradio is a minimal stub — "
+                    "use desktop_app.py → App → Manual.</div>"
                 )
                 gr.Textbox(
-                    value="Open desktop_app.py → App → Manual (or Plans → Start manual on this case).",
+                    value="Open desktop_app.py → App → Manual to Start a Charter Frame session.",
                     label="Status",
                     interactive=False,
                     max_lines=3,

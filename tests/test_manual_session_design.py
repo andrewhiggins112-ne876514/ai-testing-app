@@ -62,34 +62,15 @@ def test_assert_design_complete_ok() -> None:
     assert result["recorder_shipped"] is False
 
 
-def test_no_session_recorder_shipped_in_product() -> None:
-    """H1 must not add a live recorder API or desktop start control."""
-    forbidden_snippets = (
-        "/api/plans/manual-session/start",
-        "/api/plans/sessions/start",
-        "manual-session-start",
-        "plan-session-start-btn",
-        "start_manual_session(",
-    )
-    scan_paths = [
-        ROOT / "main.py",
-        ROOT / "ui" / "desktop" / "desktop.js",
-        ROOT / "ui" / "desktop" / "index.html",
-        ROOT / "plans",
-    ]
-    hits: list[str] = []
-    for path in scan_paths:
-        if path.is_file():
-            body = path.read_text(encoding="utf-8")
-            for snip in forbidden_snippets:
-                if snip in body and "manual_session_design" not in path.name:
-                    hits.append(f"{path.name}:{snip}")
-        elif path.is_dir():
-            for py in path.glob("*.py"):
-                if py.name == "manual_session_design.py":
-                    continue
-                body = py.read_text(encoding="utf-8")
-                for snip in forbidden_snippets:
-                    if snip in body:
-                        hits.append(f"{py.name}:{snip}")
-    assert hits == [], f"recorder surface leaked into product: {hits}"
+def test_kan241_design_stays_design_only_while_kan277_implements() -> None:
+    """KAN-241 design outline stays recorder_shipped=False; implement is KAN-277."""
+    outline = design_outline()
+    assert outline["story"] == "KAN-241"
+    assert outline["recorder_shipped"] is False
+    assert outline["sections"]["council_cr_charter_frame"]["recorder_shipped"] is False
+    # Implement surface lives on KAN-277 module /api/manual-sessions (not KAN-241).
+    implement = ROOT / "plans" / "manual_session.py"
+    assert implement.is_file()
+    body = implement.read_text(encoding="utf-8")
+    assert "KAN-277" in body
+    assert "start_session" in body

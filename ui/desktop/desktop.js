@@ -1348,12 +1348,46 @@
   const manualCaseId = document.getElementById("manual-case-id");
   const manualStoryKey = document.getElementById("manual-story-key");
   const manualTestKey = document.getElementById("manual-test-key");
+  const manualTicketBound = document.getElementById("manual-ticket-bound");
   const manualAssist = document.getElementById("manual-assist");
   const manualMist = document.getElementById("manual-mist");
   const manualStatus = document.getElementById("manual-status");
   const manualClearContext = document.getElementById("manual-clear-context");
   const manualOpenPlans = document.getElementById("manual-open-plans");
+  const manualRefreshSessions = document.getElementById("manual-refresh-sessions");
+  const manualStart = document.getElementById("manual-start");
+  const manualReview = document.getElementById("manual-review");
+  const manualReviewOut = document.getElementById("manual-review-out");
+  const manualProposeOut = document.getElementById("manual-propose-out");
+  const manualConfirmRow = document.getElementById("manual-confirm-row");
+  const manualProposeBug = document.getElementById("manual-propose-bug");
+  const manualProposeComment = document.getElementById("manual-propose-comment");
+  const manualProposeNote = document.getElementById("manual-propose-note");
+  const manualProposeSteps = document.getElementById("manual-propose-steps");
+  const manualConfirmYes = document.getElementById("manual-confirm-yes");
+  const manualConfirmNo = document.getElementById("manual-confirm-no");
+  const manualSessionList = document.getElementById("manual-session-list");
   const planStartManual = document.getElementById("plan-start-manual");
+  const charterFrameRoot = document.getElementById("charter-frame-root");
+  const charterFrameRect = document.getElementById("charter-frame-rect");
+  const charterFrameMist = charterFrameRoot
+    ? charterFrameRoot.querySelector("[data-charter-mist]")
+    : null;
+  const charterFrameChip = document.getElementById("charter-frame-chip");
+  const charterFrameDrag = document.getElementById("charter-frame-drag");
+  const charterAssistLive = document.getElementById("charter-assist-live");
+  const charterMistLive = document.getElementById("charter-mist-live");
+  const charterNoteInput = document.getElementById("charter-note-input");
+  const charterNoteAdd = document.getElementById("charter-note-add");
+  const charterStillAdd = document.getElementById("charter-still-add");
+  const charterEnd = document.getElementById("charter-end");
+  const charterCancel = document.getElementById("charter-cancel");
+  let manualOpenSessionId = "";
+  let manualPendingProposalId = "";
+  let charterFrameState = { x: 0.18, y: 0.16, w: 0.64, h: 0.58 };
+  let charterDragMode = null;
+  let charterDragOrigin = null;
+  let charterFrameSaveTimer = null;
   const healList = document.getElementById("heal-list");
   const healStatus = document.getElementById("heal-status");
   const healRefresh = document.getElementById("heal-refresh");
@@ -4324,8 +4358,11 @@
       loadPlanRunSandboxes();
     }
     if (name === "manual") {
-      if (manualAssist) manualAssist.checked = false;
-      if (manualMist) manualMist.checked = false;
+      if (!manualOpenSessionId) {
+        if (manualAssist) manualAssist.checked = false;
+        if (manualMist) manualMist.checked = false;
+      }
+      refreshManualSessions();
       if (manualStatus && !(manualStatus.textContent || "").trim()) {
         manualStatus.textContent = "Ready — no session running";
       }
@@ -4338,6 +4375,7 @@
     if (manualCaseId) manualCaseId.value = "";
     if (manualStoryKey) manualStoryKey.value = "";
     if (manualTestKey) manualTestKey.value = "";
+    if (manualTicketBound) manualTicketBound.checked = false;
     if (manualStatus) {
       manualStatus.textContent = "Linked context cleared — charter-only explore ready";
     }
@@ -4349,13 +4387,14 @@
     if (manualStoryKey) manualStoryKey.value = storyKey || "";
     if (manualAssist) manualAssist.checked = false;
     if (manualMist) manualMist.checked = false;
+    if (manualTicketBound) manualTicketBound.checked = !!storyKey;
     const parts = [];
     if (planId) parts.push("plan " + planId);
     if (caseId) parts.push("case " + caseId);
     if (storyKey) parts.push("story " + storyKey);
     if (manualStatus) {
       manualStatus.textContent = parts.length
-        ? "Prefill from Plans — " + parts.join(" · ") + " (Start waits for Charter Frame)"
+        ? "Prefill from Plans — " + parts.join(" · ") + " — ready to Start"
         : "Opened Manual — pick a Plans case for prefill, or charter-only";
     }
   }
@@ -4378,6 +4417,404 @@
     }
     openArea("manual");
     fillManualFromPlanContext(planId, caseId, storyKey);
+  }
+
+  function applyCharterFrameRect() {
+    if (!charterFrameRect) return;
+    const f = charterFrameState;
+    charterFrameRect.style.left = f.x * 100 + "%";
+    charterFrameRect.style.top = f.y * 100 + "%";
+    charterFrameRect.style.width = f.w * 100 + "%";
+    charterFrameRect.style.height = f.h * 100 + "%";
+  }
+
+  function setCharterMistVisible(on) {
+    if (!charterFrameMist) return;
+    charterFrameMist.hidden = !on;
+  }
+
+  function showCharterFrame(session) {
+    if (!charterFrameRoot || !session) return;
+    manualOpenSessionId = session.id || "";
+    charterFrameState = Object.assign(
+      { x: 0.18, y: 0.16, w: 0.64, h: 0.58 },
+      session.frame || {}
+    );
+    applyCharterFrameRect();
+    setCharterMistVisible(!!session.armed_mist);
+    if (charterAssistLive) charterAssistLive.checked = !!session.agent_assist;
+    if (charterMistLive) charterMistLive.checked = !!session.armed_mist;
+    if (charterFrameChip) {
+      charterFrameChip.textContent =
+        "Recording · " +
+        ((session.charter || "").slice(0, 48) || session.id || "session");
+    }
+    charterFrameRoot.hidden = false;
+    charterFrameRoot.setAttribute("aria-hidden", "false");
+  }
+
+  function hideCharterFrame() {
+    if (!charterFrameRoot) return;
+    charterFrameRoot.hidden = true;
+    charterFrameRoot.setAttribute("aria-hidden", "true");
+    setCharterMistVisible(false);
+  }
+
+  function scheduleFrameSave() {
+    if (!manualOpenSessionId) return;
+    if (charterFrameSaveTimer) clearTimeout(charterFrameSaveTimer);
+    charterFrameSaveTimer = setTimeout(async function () {
+      try {
+        await fetch(
+          "/api/manual-sessions/" + encodeURIComponent(manualOpenSessionId) + "/frame",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(charterFrameState),
+          }
+        );
+      } catch (_err) {
+        /* ignore transient frame save errors */
+      }
+    }, 250);
+  }
+
+  function showManualReview(session, review) {
+    if (manualReview) manualReview.hidden = false;
+    if (manualReviewOut) {
+      const notes = (session && session.notes) || (review && review.notes) || [];
+      const stills = (session && session.stills) || (review && review.stills) || [];
+      const drafts =
+        (session && session.assist_drafts) || (review && review.assist_drafts) || [];
+      manualReviewOut.textContent = [
+        "Session: " + ((session && session.id) || ""),
+        "Charter: " + ((session && session.charter) || ""),
+        "Notes: " + notes.length,
+        "Stills: " + stills.length,
+        "Assist drafts: " + drafts.length + " (local only)",
+        "",
+        notes
+          .map(function (n) {
+            return "- " + (n.text || "");
+          })
+          .join("\n") || "(no notes)",
+      ].join("\n");
+    }
+    if (manualProposeOut) {
+      manualProposeOut.hidden = true;
+      manualProposeOut.textContent = "";
+    }
+    if (manualConfirmRow) manualConfirmRow.hidden = true;
+    manualPendingProposalId = "";
+  }
+
+  async function refreshManualSessions() {
+    try {
+      const res = await fetch("/api/manual-sessions");
+      const data = await res.json();
+      if (manualSessionList) {
+        const rows = data.sessions || [];
+        manualSessionList.innerHTML = rows.length
+          ? rows
+              .slice(0, 12)
+              .map(function (s) {
+                return (
+                  "<li>" +
+                  (s.id || "") +
+                  " · " +
+                  (s.status || "") +
+                  " · " +
+                  (s.charter || "") +
+                  "</li>"
+                );
+              })
+              .join("")
+          : "<li>No sessions on this security level.</li>";
+      }
+      if (data.open_session_id && !manualOpenSessionId) {
+        const openRes = await fetch("/api/manual-sessions/open");
+        const openData = await openRes.json();
+        if (openData.open && openData.session) {
+          showCharterFrame(openData.session);
+          if (manualStatus) {
+            manualStatus.textContent =
+              "Session open — Charter Frame armed (no background capture)";
+          }
+        }
+      }
+      if (!data.open_session_id && manualOpenSessionId) {
+        /* ended elsewhere */
+      }
+    } catch (_err) {
+      if (manualSessionList) {
+        manualSessionList.innerHTML = "<li>Could not load sessions.</li>";
+      }
+    }
+  }
+
+  async function startManualSession() {
+    const charter = manualCharter ? manualCharter.value.trim() : "";
+    if (!charter) {
+      if (manualStatus) manualStatus.textContent = "Charter is required to Start.";
+      return;
+    }
+    const ticketBound = !!(manualTicketBound && manualTicketBound.checked);
+    const story = manualStoryKey ? manualStoryKey.value.trim() : "";
+    if (ticketBound && !story) {
+      if (manualStatus) {
+        manualStatus.textContent =
+          "Story key is required when Link to Jira is checked.";
+      }
+      return;
+    }
+    if (manualStatus) manualStatus.textContent = "Starting Charter Frame…";
+    try {
+      const res = await fetch("/api/manual-sessions/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          charter: charter,
+          plan_id: manualPlanId ? manualPlanId.value.trim() : "",
+          case_id: manualCaseId ? manualCaseId.value.trim() : "",
+          jira_story_key: story,
+          jira_test_key: manualTestKey ? manualTestKey.value.trim() : "",
+          ticket_bound: ticketBound,
+          agent_assist: !!(manualAssist && manualAssist.checked),
+          armed_mist: !!(manualMist && manualMist.checked),
+        }),
+      });
+      const data = await res.json();
+      if (data.status !== "ok") {
+        if (manualStatus) {
+          manualStatus.textContent = data.message || data.error || "Start failed";
+        }
+        return;
+      }
+      if (manualReview) manualReview.hidden = true;
+      showCharterFrame(data.session);
+      closeArea();
+      if (manualStatus) {
+        manualStatus.textContent =
+          "Session started — frame click-through; no Jira write";
+      }
+    } catch (err) {
+      if (manualStatus) {
+        manualStatus.textContent = "Start failed: " + (err.message || err);
+      }
+    }
+  }
+
+  async function endManualSessionFromFrame() {
+    if (!manualOpenSessionId) return;
+    try {
+      const res = await fetch(
+        "/api/manual-sessions/" + encodeURIComponent(manualOpenSessionId) + "/end",
+        { method: "POST" }
+      );
+      const data = await res.json();
+      hideCharterFrame();
+      const sid = manualOpenSessionId;
+      manualOpenSessionId = "";
+      window.__manualLastEndedId = sid;
+      openArea("manual");
+      if (data.status === "ok") {
+        showManualReview(data.session, data.review);
+        if (manualStatus) {
+          manualStatus.textContent =
+            "Session ended — review then Propose (confirm for Jira)";
+        }
+      } else if (manualStatus) {
+        manualStatus.textContent = data.message || "End failed";
+      }
+      await refreshManualSessions();
+      return sid;
+    } catch (err) {
+      if (manualStatus) {
+        manualStatus.textContent = "End failed: " + (err.message || err);
+      }
+    }
+  }
+
+  async function cancelManualSessionFromFrame() {
+    if (!manualOpenSessionId) return;
+    if (!window.confirm("Cancel this uncommitted session? Draft is kept as cancelled.")) {
+      return;
+    }
+    try {
+      const res = await fetch(
+        "/api/manual-sessions/" +
+          encodeURIComponent(manualOpenSessionId) +
+          "/cancel",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ confirm: true }),
+        }
+      );
+      const data = await res.json();
+      hideCharterFrame();
+      manualOpenSessionId = "";
+      openArea("manual");
+      if (manualStatus) {
+        manualStatus.textContent =
+          data.message || "Session cancelled — no Jira write";
+      }
+      await refreshManualSessions();
+    } catch (err) {
+      if (manualStatus) {
+        manualStatus.textContent = "Cancel failed: " + (err.message || err);
+      }
+    }
+  }
+
+  async function proposeManual(kind) {
+    let sessionId =
+      window.__manualLastEndedId ||
+      manualOpenSessionId ||
+      "";
+    if (!sessionId) {
+      try {
+        const listRes = await fetch("/api/manual-sessions");
+        const listData = await listRes.json();
+        const ended = (listData.sessions || []).find(function (s) {
+          return s.status === "ended";
+        });
+        sessionId = ended ? ended.id : "";
+      } catch (_err) {
+        sessionId = "";
+      }
+    }
+    if (!sessionId) {
+      if (manualProposeOut) {
+        manualProposeOut.hidden = false;
+        manualProposeOut.textContent = "No ended session to propose from.";
+      }
+      return;
+    }
+    try {
+      const res = await fetch(
+        "/api/manual-sessions/" + encodeURIComponent(sessionId) + "/propose",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: kind, failure_class: "product_bug" }),
+        }
+      );
+      const data = await res.json();
+      if (manualProposeOut) {
+        manualProposeOut.hidden = false;
+        manualProposeOut.textContent = JSON.stringify(
+          data.proposal || data,
+          null,
+          2
+        );
+      }
+      if (data.status === "ok" && data.proposal) {
+        manualPendingProposalId = data.proposal.id || "";
+        window.__manualProposeSessionId = sessionId;
+        if (manualConfirmRow) manualConfirmRow.hidden = false;
+        if (manualStatus) {
+          manualStatus.textContent =
+            data.proposal.message ||
+            "Preview ready — Confirm for Jira path, or Cancel proposal";
+        }
+      } else if (manualStatus) {
+        manualStatus.textContent = data.message || data.error || "Propose failed";
+      }
+    } catch (err) {
+      if (manualProposeOut) {
+        manualProposeOut.hidden = false;
+        manualProposeOut.textContent = String(err.message || err);
+      }
+    }
+  }
+
+  async function confirmManualProposal(doConfirm) {
+    const sessionId = window.__manualProposeSessionId || "";
+    if (!sessionId || !manualPendingProposalId) return;
+    try {
+      const res = await fetch(
+        "/api/manual-sessions/" +
+          encodeURIComponent(sessionId) +
+          "/proposals/" +
+          encodeURIComponent(manualPendingProposalId) +
+          "/confirm",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ confirm: !!doConfirm }),
+        }
+      );
+      const data = await res.json();
+      if (manualProposeOut) {
+        manualProposeOut.hidden = false;
+        manualProposeOut.textContent = JSON.stringify(data, null, 2);
+      }
+      if (manualStatus) {
+        manualStatus.textContent =
+          data.message || (doConfirm ? "Confirmed locally" : "Proposal cancelled");
+      }
+      if (manualConfirmRow) manualConfirmRow.hidden = true;
+      manualPendingProposalId = "";
+    } catch (err) {
+      if (manualStatus) {
+        manualStatus.textContent = "Confirm failed: " + (err.message || err);
+      }
+    }
+  }
+
+  function onCharterPointerDown(ev) {
+    if (!charterFrameRoot || charterFrameRoot.hidden) return;
+    const handle = ev.target && ev.target.getAttribute
+      ? ev.target.getAttribute("data-resize")
+      : null;
+    const isDrag = ev.target === charterFrameDrag;
+    if (!handle && !isDrag) return;
+    charterDragMode = handle || "move";
+    charterDragOrigin = {
+      x: ev.clientX,
+      y: ev.clientY,
+      frame: Object.assign({}, charterFrameState),
+    };
+    ev.preventDefault();
+  }
+
+  function onCharterPointerMove(ev) {
+    if (!charterDragMode || !charterDragOrigin) return;
+    const dx = (ev.clientX - charterDragOrigin.x) / window.innerWidth;
+    const dy = (ev.clientY - charterDragOrigin.y) / window.innerHeight;
+    const o = charterDragOrigin.frame;
+    let next = Object.assign({}, o);
+    if (charterDragMode === "move") {
+      next.x = Math.min(1 - o.w, Math.max(0, o.x + dx));
+      next.y = Math.min(1 - o.h, Math.max(0, o.y + dy));
+    } else {
+      if (charterDragMode.indexOf("e") >= 0) {
+        next.w = Math.min(1 - o.x, Math.max(0.12, o.w + dx));
+      }
+      if (charterDragMode.indexOf("s") >= 0) {
+        next.h = Math.min(1 - o.y, Math.max(0.12, o.h + dy));
+      }
+      if (charterDragMode.indexOf("w") >= 0) {
+        const nx = Math.min(o.x + o.w - 0.12, Math.max(0, o.x + dx));
+        next.w = o.w + (o.x - nx);
+        next.x = nx;
+      }
+      if (charterDragMode.indexOf("n") >= 0) {
+        const ny = Math.min(o.y + o.h - 0.12, Math.max(0, o.y + dy));
+        next.h = o.h + (o.y - ny);
+        next.y = ny;
+      }
+    }
+    charterFrameState = next;
+    applyCharterFrameRect();
+  }
+
+  function onCharterPointerUp() {
+    if (!charterDragMode) return;
+    charterDragMode = null;
+    charterDragOrigin = null;
+    scheduleFrameSave();
   }
 
   function selectedHealRunId() {
@@ -7563,6 +8000,147 @@
       openArea("plans");
     });
   }
+  if (manualRefreshSessions) {
+    manualRefreshSessions.addEventListener("click", function () {
+      refreshManualSessions();
+    });
+  }
+  if (manualStart) {
+    manualStart.addEventListener("click", function () {
+      startManualSession();
+    });
+  }
+  if (manualProposeBug) {
+    manualProposeBug.addEventListener("click", function () {
+      proposeManual("create_bug");
+    });
+  }
+  if (manualProposeComment) {
+    manualProposeComment.addEventListener("click", function () {
+      proposeManual("comment_on_story");
+    });
+  }
+  if (manualProposeNote) {
+    manualProposeNote.addEventListener("click", function () {
+      proposeManual("attach_local_case_note");
+    });
+  }
+  if (manualProposeSteps) {
+    manualProposeSteps.addEventListener("click", function () {
+      proposeManual("test_step_update_preview");
+    });
+  }
+  if (manualConfirmYes) {
+    manualConfirmYes.addEventListener("click", function () {
+      confirmManualProposal(true);
+    });
+  }
+  if (manualConfirmNo) {
+    manualConfirmNo.addEventListener("click", function () {
+      confirmManualProposal(false);
+    });
+  }
+  if (charterNoteAdd) {
+    charterNoteAdd.addEventListener("click", async function () {
+      if (!manualOpenSessionId || !charterNoteInput) return;
+      const text = charterNoteInput.value.trim();
+      if (!text) return;
+      try {
+        const res = await fetch(
+          "/api/manual-sessions/" +
+            encodeURIComponent(manualOpenSessionId) +
+            "/notes",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text }),
+          }
+        );
+        const data = await res.json();
+        if (data.status === "ok") {
+          charterNoteInput.value = "";
+          if (charterFrameChip) {
+            charterFrameChip.textContent =
+              "Note saved · " + (data.session.notes || []).length + " notes";
+          }
+        } else if (charterFrameChip) {
+          charterFrameChip.textContent = data.message || "Note failed";
+        }
+      } catch (_err) {
+        if (charterFrameChip) charterFrameChip.textContent = "Note failed";
+      }
+    });
+  }
+  if (charterStillAdd) {
+    charterStillAdd.addEventListener("click", async function () {
+      if (!manualOpenSessionId) return;
+      try {
+        const res = await fetch(
+          "/api/manual-sessions/" +
+            encodeURIComponent(manualOpenSessionId) +
+            "/stills",
+          { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }
+        );
+        const data = await res.json();
+        if (charterFrameChip) {
+          charterFrameChip.textContent =
+            data.status === "ok"
+              ? "Still attached (opt-in) · " +
+                ((data.session && data.session.stills) || []).length
+              : data.message || "Still failed";
+        }
+      } catch (_err) {
+        if (charterFrameChip) charterFrameChip.textContent = "Still failed";
+      }
+    });
+  }
+  if (charterEnd) {
+    charterEnd.addEventListener("click", function () {
+      endManualSessionFromFrame();
+    });
+  }
+  if (charterCancel) {
+    charterCancel.addEventListener("click", function () {
+      cancelManualSessionFromFrame();
+    });
+  }
+  if (charterAssistLive) {
+    charterAssistLive.addEventListener("change", async function () {
+      if (!manualOpenSessionId) return;
+      await fetch(
+        "/api/manual-sessions/" +
+          encodeURIComponent(manualOpenSessionId) +
+          "/toggles",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ agent_assist: !!charterAssistLive.checked }),
+        }
+      );
+    });
+  }
+  if (charterMistLive) {
+    charterMistLive.addEventListener("change", async function () {
+      if (!manualOpenSessionId) return;
+      setCharterMistVisible(!!charterMistLive.checked);
+      await fetch(
+        "/api/manual-sessions/" +
+          encodeURIComponent(manualOpenSessionId) +
+          "/toggles",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ armed_mist: !!charterMistLive.checked }),
+        }
+      );
+    });
+  }
+  if (charterFrameRoot) {
+    charterFrameRoot.addEventListener("pointerdown", onCharterPointerDown);
+    window.addEventListener("pointermove", onCharterPointerMove);
+    window.addEventListener("pointerup", onCharterPointerUp);
+  }
+  refreshManualSessions();
 
   if (planRerunFailed) {
     planRerunFailed.addEventListener("click", async function () {

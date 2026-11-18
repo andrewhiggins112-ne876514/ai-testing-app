@@ -140,7 +140,7 @@ class ExportPackTests(unittest.TestCase):
         self.assertTrue(status["opens_without_app"])
         self.assertEqual(status["last"]["pack_id"], out["pack_id"])
 
-    def test_api_export_pack_and_desktop_ui_desk90(self):
+    def test_api_export_pack_and_desktop_ui_desk91(self):
         pid, cid, rid = self._seed_run()
         client = TestClient(main.app)
         empty = client.get("/api/export-pack")
@@ -187,8 +187,8 @@ class ExportPackTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk90", html)
-        self.assertIn("desk90", desk)
+        self.assertIn("desk91", html)
+        self.assertIn("desk91", desk)
         self.assertIn('id="rpt-export-pack"', html)
         self.assertIn('id="hud-export-last"', html)
         self.assertIn("hud-export-last-toggle", html)

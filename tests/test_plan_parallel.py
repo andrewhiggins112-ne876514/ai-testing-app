@@ -158,12 +158,12 @@ class PlanParallelTests(unittest.TestCase):
         )
         self.assertEqual(rerun.json().get("error"), "parallel_above_cap")
 
-    def test_desktop_ui_has_parallel_controls_desk90(self):
+    def test_desktop_ui_has_parallel_controls_desk91(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk90", html)
-        self.assertIn("desk90", app)
+        self.assertIn("desk91", html)
+        self.assertIn("desk91", app)
         self.assertIn("plan-parallel-count", html)
         self.assertIn("Suite parallel", html)
         self.assertIn("selectedParallelCount", js)

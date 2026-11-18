@@ -43,6 +43,22 @@ from plugins.playwright_suite import (
 )
 from plans.coverage import plan_coverage_gaps
 from plans.defect_packet import defect_packet_preview
+from plans.manual_session import (
+    add_note as manual_add_note,
+    attach_still as manual_attach_still,
+    cancel_session as manual_cancel_session,
+    confirm_proposal as manual_confirm_proposal,
+    defaults_info as manual_defaults_info,
+    end_session as manual_end_session,
+    get_open_session as manual_get_open_session,
+    get_session as manual_get_session,
+    list_sessions as manual_list_sessions,
+    propose as manual_propose,
+    review_session as manual_review_session,
+    start_session as manual_start_session,
+    update_session_frame as manual_update_frame,
+    update_session_toggles as manual_update_toggles,
+)
 from plans.draft import (
     add_document_draft_cases,
     draft_plan_from_issue,
@@ -248,6 +264,55 @@ class RunNotifyRequest(BaseModel):
     """Turn local run-finish notices on or off (KAN-189 / D6)."""
 
     enabled: bool = True
+
+
+class ManualSessionStartRequest(BaseModel):
+    """Charter Frame start (KAN-277 / FR-MAN-1). Assist/mist default off."""
+
+    charter: str = ""
+    plan_id: str = ""
+    case_id: str = ""
+    jira_story_key: str = ""
+    jira_test_key: str = ""
+    ticket_bound: bool = False
+    agent_assist: bool = False
+    armed_mist: bool = False
+    frame: dict | None = None
+
+
+class ManualSessionFrameRequest(BaseModel):
+    x: float = 0.18
+    y: float = 0.16
+    w: float = 0.64
+    h: float = 0.58
+
+
+class ManualSessionTogglesRequest(BaseModel):
+    agent_assist: bool | None = None
+    armed_mist: bool | None = None
+
+
+class ManualSessionNoteRequest(BaseModel):
+    text: str = ""
+
+
+class ManualSessionStillRequest(BaseModel):
+    screen_bbox: list[int] | None = None
+
+
+class ManualSessionCancelRequest(BaseModel):
+    confirm: bool = False
+
+
+class ManualSessionProposeRequest(BaseModel):
+    kind: str = "create_bug"
+    note_ids: list[str] | None = None
+    still_ids: list[str] | None = None
+    failure_class: str = "product_bug"
+
+
+class ManualSessionConfirmRequest(BaseModel):
+    confirm: bool = False
 
 
 class ClearSecretRequest(BaseModel):
@@ -1890,5 +1955,134 @@ async def post_plan_run_export_pack(
     )
 
 
+@app.get("/api/manual-sessions")
+async def get_manual_sessions():
+    """List manual sessions for the active security level (KAN-277)."""
+    return manual_list_sessions()
+
+
+@app.get("/api/manual-sessions/defaults")
+async def get_manual_session_defaults():
+    """Assist/mist defaults and open-session snapshot (KAN-277)."""
+    return manual_defaults_info()
+
+
+@app.get("/api/manual-sessions/open")
+async def get_manual_session_open():
+    """Current open Charter Frame session for the active level, if any."""
+    session = manual_get_open_session()
+    if session is None:
+        return {
+            "status": "ok",
+            "open": False,
+            "session": None,
+            "background_capture": False,
+        }
+    loaded = manual_get_session(str(session.get("id") or ""))
+    return {
+        "status": "ok",
+        "open": True,
+        "session": (loaded or {}).get("session"),
+        "background_capture": False,
+    }
+
+
+@app.post("/api/manual-sessions/start")
+async def post_manual_session_start(req: ManualSessionStartRequest):
+    """Explicit Start — no Jira write, no background capture (KAN-277)."""
+    return manual_start_session(
+        req.charter,
+        plan_id=req.plan_id,
+        case_id=req.case_id,
+        jira_story_key=req.jira_story_key,
+        jira_test_key=req.jira_test_key,
+        ticket_bound=bool(req.ticket_bound),
+        agent_assist=bool(req.agent_assist),
+        armed_mist=bool(req.armed_mist),
+        frame=req.frame,
+    )
+
+
+@app.get("/api/manual-sessions/{session_id}")
+async def get_manual_session(session_id: str):
+    return manual_get_session(session_id)
+
+
+@app.post("/api/manual-sessions/{session_id}/frame")
+async def post_manual_session_frame(session_id: str, req: ManualSessionFrameRequest):
+    return manual_update_frame(
+        session_id,
+        {"x": req.x, "y": req.y, "w": req.w, "h": req.h},
+    )
+
+
+@app.post("/api/manual-sessions/{session_id}/toggles")
+async def post_manual_session_toggles(
+    session_id: str, req: ManualSessionTogglesRequest
+):
+    return manual_update_toggles(
+        session_id,
+        agent_assist=req.agent_assist,
+        armed_mist=req.armed_mist,
+    )
+
+
+@app.post("/api/manual-sessions/{session_id}/notes")
+async def post_manual_session_note(session_id: str, req: ManualSessionNoteRequest):
+    return manual_add_note(session_id, req.text)
+
+
+@app.post("/api/manual-sessions/{session_id}/stills")
+async def post_manual_session_still(
+    session_id: str, req: ManualSessionStillRequest | None = None
+):
+    body = req or ManualSessionStillRequest()
+    return manual_attach_still(session_id, screen_bbox=body.screen_bbox)
+
+
+@app.post("/api/manual-sessions/{session_id}/end")
+async def post_manual_session_end(session_id: str):
+    return manual_end_session(session_id)
+
+
+@app.post("/api/manual-sessions/{session_id}/cancel")
+async def post_manual_session_cancel(
+    session_id: str, req: ManualSessionCancelRequest | None = None
+):
+    body = req or ManualSessionCancelRequest()
+    return manual_cancel_session(session_id, confirm=bool(body.confirm))
+
+
+@app.get("/api/manual-sessions/{session_id}/review")
+async def get_manual_session_review(session_id: str):
+    return manual_review_session(session_id)
+
+
+@app.post("/api/manual-sessions/{session_id}/propose")
+async def post_manual_session_propose(
+    session_id: str, req: ManualSessionProposeRequest
+):
+    return manual_propose(
+        session_id,
+        req.kind,
+        note_ids=req.note_ids,
+        still_ids=req.still_ids,
+        failure_class=req.failure_class,
+    )
+
+
+@app.post("/api/manual-sessions/{session_id}/proposals/{proposal_id}/confirm")
+async def post_manual_session_confirm(
+    session_id: str,
+    proposal_id: str,
+    req: ManualSessionConfirmRequest | None = None,
+):
+    body = req or ManualSessionConfirmRequest()
+    return manual_confirm_proposal(
+        session_id, proposal_id, confirm=bool(body.confirm)
+    )
+
+
 app.mount("/ui", StaticFiles(directory=str(_UI_DIR)), name="ui")
+
 
