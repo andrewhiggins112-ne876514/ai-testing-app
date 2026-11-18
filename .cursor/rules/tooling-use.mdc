@@ -45,7 +45,8 @@ Always pass `workspaceRoot` = `D:\Projects\ai_testing_app` (or the active worksp
 - **CU only** for visual / occlusion / clickable chrome (and OS UI). Throttle screenshots; short sessions.
 - **Pre-CU quiet window:** pause Ollama for agent CU verify; prefer classic orb (avoid mystic/aether/neural WebGL + CU + Ollama together on the 1080 Ti). Human demos that need chat+UI together are exempt.
 - **One overlay:** dismiss product Manual/Charter Frame before CU when the slice is not about that overlay. Cursor CU HUD vs product overlay → contested clicks / polluted shots (common in WORK_LOG).
-- **When CU is unsafe:** one quiet retry, then document **CU skipped — unsafe** or **CU flake** on the test ticket; use human checklist. Never soft-pass on “opened orb home.” Occlusion stories still need clickable proof when a quiet desktop is achievable.
+- **When CU is unsafe:** one quiet retry, then document **CU skipped — unsafe** or **CU flake** on the test ticket. Never soft-pass on “opened orb home.” Occlusion stories still need clickable proof when a quiet desktop is achievable.
+- **Human-hands handoff:** if the human must confirm (CU cannot), the agent prepares everything first: app running (or one start command), seeded data / stubs / fixtures ready, and a numbered step list in chat + test ticket (clicks, inputs, expected pass). Human only follows and confirms — no setup hunting. Do not mark occlusion/visual AC Done until human confirm (or CU) lands.
 - Build-time agent GPU load ≠ product-runtime GPU budget — do not invent product FRs or in-app verify chrome to fix Cursor CU.
 
 ## Context7

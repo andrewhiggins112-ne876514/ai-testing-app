@@ -30,4 +30,13 @@ Use CU only for visual / occlusion / clickable AC (pytest first otherwise). Befo
 3. Single desktop window focus; dismiss product Manual/Charter Frame unless the slice is about that overlay.
 4. Throttle screenshots; one quiet retry if Cursor CU HUD contests clicks; else note **CU skipped — unsafe** / **CU flake** on the test ticket — never soft-pass.
 
+### Human-hands handoff (CU cannot confirm)
+
+When the Designer (or other human) must verify visually:
+
+1. Leave **`desktop_app.py` running** (or give exactly one start command) so they are not bootstrapping the stack.
+2. Pre-seed plans/cases/sessions/stubs/fixtures needed for the check — no “create a plan first” unless that *is* the step under test.
+3. In chat **and** on the linked test ticket, post a short **numbered script**: open X → click Y → expect Z (pass/fail). Include desk cache version / URL if relevant.
+4. Do not ask them to invent steps or find seed data. Story visual/occlusion AC waits on their confirm (or a later successful CU).
+
 Never print or request raw API tokens. Settings live under `%LOCALAPPDATA%\ai_testing_app\settings.json`.

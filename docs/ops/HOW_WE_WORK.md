@@ -16,7 +16,7 @@ Full council guide: `docs/ops/ADVISORY_COUNCIL.md`. Roster: `docs/ops/TEAM.md`.
 1. **Build:** fresh Agent chat → **“pick up where we left off”** (or `python scripts/next_prompt.py`).  
 2. **Review / creative / path change:** fresh Agent chat → type **`/council`** then your ask.  
 3. Confirm when asked (credentials, Jira writes, deletes, security, browser logins).  
-4. You do **not** need to run git. Build chats **pull `main`** at pick-up and **commit + push** when a slice finishes. Optionally run **`desktop_app.py`** to look; agents verify that native window with **tiered** evidence (pytest/API first; Computer Use for visual/occlusion only — see `AGENTS.md` / tooling-use; pause Ollama during CU windows on the home PC).  
+4. You do **not** need to run git. Build chats **pull `main`** at pick-up and **commit + push** when a slice finishes. Optionally run **`desktop_app.py`** to look; agents verify that native window with **tiered** evidence (pytest/API first; Computer Use for visual/occlusion only — see `AGENTS.md` / tooling-use; pause Ollama during CU windows on the home PC). If Computer Use cannot confirm and you must check by hand, the agent should already have the app running, data/stubs seeded, and a short numbered step list for you — you only follow and confirm.  
 5. Do **not** paste coding prompts into browser Grok / AFK Pilot.  
 6. Workspace folder must be `D:\Projects\ai_testing_app`.
 

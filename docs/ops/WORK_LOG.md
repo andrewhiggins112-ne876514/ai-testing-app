@@ -47,6 +47,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 - **Jira:** close-out **KAN-285** + **KAN-286**
 - **Next:** **KAN-287** Charter Frame window/monitor snap (test **KAN-288**)
 
+### 2026-11-18 — Council CR addendum — Human-hands verify handoff
+- **Agent/chat:** Council Room — Designer addendum to GPU/CU policy
+- **Done:** When CU cannot confirm, agent must leave app ready (running / one start cmd), seed data/stubs, and provide numbered steps in chat + test ticket; human only follows and confirms. Visual/occlusion AC waits on that confirm. No product code.
+- **Files:** same ops set as KAN-299 (+ HOW_WE_WORK / PROJECT_MEMORY / WORK_LOG)
+- **Verify:** docs/rules only
+- **Jira:** comment on **KAN-299**
+- **Next:** Build chat **KAN-285** under updated handoff
+
 ### 2026-11-18 — Council CR — Build verify: GPU / Computer Use throttle
 - **Agent/chat:** Council Room (`/council`) — GPU burnout + CU overlay collision risk
 - **Done:** Process/rules CR applied (no product code). Tiered desktop verify: pytest/API first; CU for visual/occlusion only; pause Ollama + classic orb during CU; one overlay; CU skipped/flake honesty — never soft-pass. FR-MAN-2 stays parked. Active Build remains **KAN-285**.

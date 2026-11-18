@@ -14,7 +14,9 @@ browser tab. For product-shell changes:
 2. Verify that native window — **tiered**: pytest/API/HTML first; **Computer Use** for visual /
    occlusion / clickable chrome only (see `.cursor/rules/tooling-use.mdc` Tiered Computer Use).
    Pre-CU: pause Ollama, prefer classic orb, one product overlay. If Cursor CU HUD contests the
-   product Manual/Charter overlay, document CU skipped/flake — do not soft-pass.
+   product Manual/Charter overlay, document CU skipped/flake — do not soft-pass. If the human
+   must confirm, leave the app running with seed/stubs ready and a numbered step list (see
+   tooling-use / run-local-stack).
 3. Do **not** open `/ui/desktop/` (or any local shell URL) in IronBee/Chrome as “the app”
 
 Use **IronBee browser** only for: (a) the *application under test* in Playwright flows, or
