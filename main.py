@@ -43,9 +43,14 @@ from plugins.playwright_suite import (
 )
 from plans.coverage import plan_coverage_gaps
 from plans.defect_packet import defect_packet_preview
+from plans.aut_page_context import (
+    public_page_context as manual_public_page_context,
+    set_page_context as manual_set_page_context,
+)
 from plans.charter_snap import list_snap_targets as manual_list_snap_targets
 from plans.manual_session import (
     add_note as manual_add_note,
+    annotate_still as manual_annotate_still,
     attach_still as manual_attach_still,
     cancel_session as manual_cancel_session,
     confirm_proposal as manual_confirm_proposal,
@@ -55,6 +60,7 @@ from plans.manual_session import (
     get_session as manual_get_session,
     list_sessions as manual_list_sessions,
     propose as manual_propose,
+    refresh_page_context as manual_refresh_page_context,
     review_session as manual_review_session,
     snap_session_frame as manual_snap_frame,
     start_session as manual_start_session,
@@ -308,6 +314,21 @@ class ManualSessionNoteRequest(BaseModel):
 
 class ManualSessionStillRequest(BaseModel):
     screen_bbox: list[int] | None = None
+    annotation: str = ""
+
+
+class ManualSessionAnnotateStillRequest(BaseModel):
+    """KAN-289 — human annotate-still text stored with the opt-in still."""
+
+    annotation: str = ""
+
+
+class ManualSessionPageContextRequest(BaseModel):
+    """Optional explicit set of known AUT page context (tests / lab)."""
+
+    url: str = ""
+    title: str = ""
+    source: str = "manual"
 
 
 class ManualSessionCancelRequest(BaseModel):
@@ -1983,6 +2004,20 @@ async def get_manual_session_snap_targets():
     return manual_list_snap_targets()
 
 
+@app.get("/api/manual-sessions/page-context")
+async def get_manual_session_page_context():
+    """Known headed AUT page URL/title for the active level (KAN-289)."""
+    ctx = manual_public_page_context()
+    return {"status": "ok", "page_context": ctx, "keylog": False}
+
+
+@app.post("/api/manual-sessions/page-context")
+async def post_manual_session_page_context(req: ManualSessionPageContextRequest):
+    """Publish known AUT page context (no scraping / no keylog)."""
+    ctx = manual_set_page_context(req.url, req.title, source=req.source or "manual")
+    return {"status": "ok", "page_context": ctx, "keylog": False}
+
+
 @app.get("/api/manual-sessions/open")
 async def get_manual_session_open():
     """Current open Charter Frame session for the active level, if any."""
@@ -2060,7 +2095,25 @@ async def post_manual_session_still(
     session_id: str, req: ManualSessionStillRequest | None = None
 ):
     body = req or ManualSessionStillRequest()
-    return manual_attach_still(session_id, screen_bbox=body.screen_bbox)
+    return manual_attach_still(
+        session_id,
+        screen_bbox=body.screen_bbox,
+        annotation=body.annotation or "",
+    )
+
+
+@app.post("/api/manual-sessions/{session_id}/stills/{still_id}/annotate")
+async def post_manual_session_annotate_still(
+    session_id: str, still_id: str, req: ManualSessionAnnotateStillRequest
+):
+    """Human annotate-still — local text on an opt-in still (KAN-289)."""
+    return manual_annotate_still(session_id, still_id, req.annotation)
+
+
+@app.post("/api/manual-sessions/{session_id}/page-context/refresh")
+async def post_manual_session_refresh_page_context(session_id: str):
+    """Attach known headed AUT URL/title onto the open Manual session."""
+    return manual_refresh_page_context(session_id)
 
 
 @app.post("/api/manual-sessions/{session_id}/end")

@@ -112,10 +112,10 @@ class ManualAssistDraftsTests(unittest.TestCase):
         client = TestClient(app)
         defaults = client.get("/api/manual-sessions/defaults").json()
         self.assertTrue(defaults.get("honest_assist_drafts"))
-        html = client.get("/ui/desktop/index.html?v=desk95").text
+        html = client.get("/ui/desktop/index.html?v=desk96").text
         self.assertIn("data-manual-assist-honest", html)
         self.assertIn("data-manual-assist-status", html)
-        self.assertIn("desk95", open("desktop_app.py", encoding="utf-8").read())
+        self.assertIn("desk96", open("desktop_app.py", encoding="utf-8").read())
 
 
 if __name__ == "__main__":

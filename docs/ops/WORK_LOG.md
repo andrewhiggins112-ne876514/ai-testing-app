@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-289** — Track2: Page context from headed AUT + annotate still |
+| **Jira story** | **KAN-291** — Track2: Manual session library + GDPR session wipe |
 | **Start task** | — |
 | **Epic** | **KAN-279** Council Track 2 — Area chrome + Manual completion |
 | **Roadmap ID** | TRACK2-MAN |
-| **Spec** | FR-MAN-1 completion (page URL/title + annotate-still) |
+| **Spec** | FR-MAN-1 completion (session library + level GDPR wipe) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-290** |
-| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287** (desk95) |
+| **Test ticket** | **KAN-292** |
+| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287**; page/annotate **KAN-289** (desk96) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
-| **Next / Shipped** | Pick up **KAN-289**. Then **KAN-291…297**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Pick up **KAN-291**. Then **KAN-293…297**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-289 — Page context from headed AUT + annotate still
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-289
+- **Done:** Known headed AUT URL/title via `plans/aut_page_context.py` (Playwright pause publishes; cleared when browser closes; no keylog). Manual Start/refresh attaches page context; dock Page + Annotate; stills store local annotation; Propose applies E3 redaction to notes/URL/title/annotations. Cache-bust **desk96**.
+- **Files:** `plans/aut_page_context.py`, `plans/manual_session.py`, `plans/pause_session.py`, `plugins/playwright_runner.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_manual_page_context.py` (+ desk96 across UI tests), docs
+- **Verify:** `pytest tests/test_manual_page_context.py tests/test_manual_session.py tests/test_manual_trustworthy_loop.py tests/test_manual_assist_drafts.py tests/test_charter_snap.py tests/test_manual_ia.py` 35 passed. Non-visual AC — CU not required (tiered policy).
+- **Jira:** close-out **KAN-289** + **KAN-290**
+- **Next:** **KAN-291** Manual session library + GDPR session wipe (test **KAN-292**)
 
 ### 2026-11-18 — KAN-287 — Charter Frame window/monitor snap
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-287

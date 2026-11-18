@@ -1,10 +1,11 @@
-"""FR-MAN-1 Charter Frame (KAN-277 MVP + KAN-285 assist + KAN-287 snap).
+"""FR-MAN-1 Charter Frame (KAN-277 MVP + KAN-285 assist + KAN-287 snap + KAN-289).
 
 Level-scoped manual / exploratory sessions under
 ``%LOCALAPPDATA%/ai_testing_app/plans/{LEVEL}/sessions/``.
 No background capture until explicit Start. Jira writes stay preview + confirm.
 Agent assist (default off) produces real local Ollama drafts at End — never note-echo AI.
 Window/monitor snap (KAN-287) stores absolute screen_bbox for stills.
+Page URL/title from known headed AUT + annotate-still (KAN-289); E3 on propose.
 """
 from __future__ import annotations
 
@@ -24,6 +25,7 @@ _FAILURE_CLASSES = frozenset(
 )
 CHARTER_MAX = 2000
 NOTE_MAX = 2000
+ANNOTATION_MAX = 2000
 
 # In-memory open-session index (also persisted). Tests may clear via reset_open_cache.
 _OPEN_BY_LEVEL: dict[str, str] = {}
@@ -114,6 +116,40 @@ def _normalize_frame_mode(raw: Any) -> str:
     return "free"
 
 
+def _normalize_annotation(raw: Any) -> str:
+    return str(raw or "").strip()[:ANNOTATION_MAX]
+
+
+def _empty_page_context() -> dict[str, Any]:
+    return {
+        "known": False,
+        "url": "",
+        "title": "",
+        "source": "",
+        "updated_at": None,
+        "keylog": False,
+    }
+
+
+def _normalize_page_context(raw: Any) -> dict[str, Any]:
+    if not isinstance(raw, dict) or not raw.get("known"):
+        return _empty_page_context()
+    return {
+        "known": True,
+        "url": str(raw.get("url") or "")[:2000],
+        "title": str(raw.get("title") or "")[:500],
+        "source": str(raw.get("source") or "")[:64],
+        "updated_at": raw.get("updated_at"),
+        "keylog": False,
+    }
+
+
+def _redact_str(text: str) -> tuple[str, int]:
+    from reports.redact import redact_text
+
+    return redact_text(str(text or ""))
+
+
 def _public(session: dict[str, Any]) -> dict[str, Any]:
     """Strip nothing secret (sessions never store tokens); stable API shape."""
     bbox = _normalize_screen_bbox(session.get("screen_bbox"))
@@ -133,6 +169,7 @@ def _public(session: dict[str, Any]) -> dict[str, Any]:
         "frame_mode": _normalize_frame_mode(session.get("frame_mode")),
         "screen_bbox": bbox,
         "snap_label": str(session.get("snap_label") or ""),
+        "page_context": _normalize_page_context(session.get("page_context")),
         "notes": list(session.get("notes") or []),
         "stills": list(session.get("stills") or []),
         "assist_drafts": list(session.get("assist_drafts") or []),
@@ -316,6 +353,10 @@ def start_session(
 
     sid = _new_id("ms")
     now = _utcnow()
+    from plans.aut_page_context import public_page_context
+
+    # Attach known headed AUT page context at Start when the lab already has one.
+    page_ctx = public_page_context(level=lvl)
     session = {
         "id": sid,
         "level": lvl,
@@ -332,6 +373,7 @@ def start_session(
         "frame_mode": "free",
         "screen_bbox": None,
         "snap_label": "",
+        "page_context": page_ctx,
         "notes": [],
         "stills": [],
         "assist_drafts": [],
@@ -357,6 +399,7 @@ def start_session(
         "session": _public(session),
         "writes_jira": False,
         "background_capture": False,
+        "page_context": page_ctx,
     }
 
 
@@ -527,11 +570,49 @@ def add_note(
     return {"status": "ok", "note": note, "session": _public(session)}
 
 
+def refresh_page_context(
+    session_id: str,
+    *,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Pull known headed AUT URL/title onto the open session (no keylog)."""
+    session = _load(session_id, level)
+    if session is None:
+        return {
+            "status": "error",
+            "error": "session_not_found",
+            "message": f"No manual session {session_id!r}.",
+        }
+    if session.get("status") != "open":
+        return {
+            "status": "error",
+            "error": "session_not_open",
+            "message": "Page context can only be refreshed while the session is open.",
+        }
+    from plans.aut_page_context import public_page_context
+
+    page_ctx = public_page_context(level=str(session.get("level") or ""))
+    session["page_context"] = page_ctx
+    _save(session)
+    return {
+        "status": "ok",
+        "page_context": page_ctx,
+        "session": _public(session),
+        "message": (
+            "Page context attached from known headed AUT."
+            if page_ctx.get("known")
+            else "No headed AUT page context known — notes/stills still work."
+        ),
+        "keylog": False,
+    }
+
+
 def attach_still(
     session_id: str,
     *,
     level: str | None = None,
     screen_bbox: Any = None,
+    annotation: str = "",
 ) -> dict[str, Any]:
     """Opt-in still inside the Charter Frame region. Never continuous video."""
     session = _load(session_id, level)
@@ -603,6 +684,8 @@ def attach_still(
         "screen_bbox": bbox,
         "frame_mode": _normalize_frame_mode(session.get("frame_mode")),
         "opt_in": True,
+        "annotation": _normalize_annotation(annotation),
+        "annotated": bool(_normalize_annotation(annotation)),
     }
     session.setdefault("stills", []).append(still)
     _save(session)
@@ -615,6 +698,58 @@ def attach_still(
             if captured
             else "Still recorded with placeholder — capture failed."
         ),
+    }
+
+
+def annotate_still(
+    session_id: str,
+    still_id: str,
+    annotation: str,
+    *,
+    level: str | None = None,
+) -> dict[str, Any]:
+    """Human annotate-still — text stored locally with the opt-in still."""
+    session = _load(session_id, level)
+    if session is None:
+        return {
+            "status": "error",
+            "error": "session_not_found",
+            "message": f"No manual session {session_id!r}.",
+        }
+    if session.get("status") not in {"open", "ended"}:
+        return {
+            "status": "error",
+            "error": "not_annotatable",
+            "message": "Annotate is only available for open or ended sessions.",
+        }
+    text = _normalize_annotation(annotation)
+    if not text:
+        return {
+            "status": "error",
+            "error": "annotation_required",
+            "message": "Annotation text is required.",
+        }
+    wanted = str(still_id or "").strip()
+    found = None
+    for still in session.get("stills") or []:
+        if str(still.get("id")) == wanted:
+            still["annotation"] = text
+            still["annotated"] = True
+            still["annotated_at"] = _utcnow()
+            found = still
+            break
+    if found is None:
+        return {
+            "status": "error",
+            "error": "still_not_found",
+            "message": f"No still {still_id!r} on this session.",
+        }
+    _save(session)
+    return {
+        "status": "ok",
+        "still": found,
+        "session": _public(session),
+        "message": "Annotation stored with still (local only).",
     }
 
 
@@ -824,8 +959,39 @@ def propose(
         "issue_key": None,
     }
 
-    note_lines = [str(n.get("text") or "") for n in notes]
+    # E3 — redact secrets in notes / page context / still annotations before propose.
+    redaction_hits = 0
+    note_lines: list[str] = []
+    for n in notes:
+        cleaned, hits = _redact_str(str(n.get("text") or ""))
+        redaction_hits += hits
+        note_lines.append(cleaned)
+
+    page_ctx = _normalize_page_context(session.get("page_context"))
+    page_url, u_hits = _redact_str(page_ctx.get("url") or "")
+    page_title, t_hits = _redact_str(page_ctx.get("title") or "")
+    redaction_hits += u_hits + t_hits
+    page_ctx_public = {
+        "known": bool(page_ctx.get("known")),
+        "url": page_url,
+        "title": page_title,
+        "source": page_ctx.get("source") or "",
+        "keylog": False,
+    }
+    payload["page_context"] = page_ctx_public
+
+    annotation_lines: list[str] = []
+    for s in stills:
+        ann = str(s.get("annotation") or "").strip()
+        if not ann:
+            continue
+        cleaned, hits = _redact_str(ann)
+        redaction_hits += hits
+        annotation_lines.append(cleaned)
+
     evidence_paths = [str(s.get("path") or "") for s in stills if s.get("path")]
+    payload["redaction_hits"] = redaction_hits
+    payload["e3_redaction"] = True
 
     if kind_key == "create_bug":
         if fc != "product_bug":
@@ -834,19 +1000,31 @@ def propose(
                 "error": "product_bug_only",
                 "message": "Create Bug is only offered when failure class is product_bug.",
             }
+        env_bits = [f"Security level: {session.get('level')}"]
+        if page_ctx_public.get("known"):
+            env_bits.append(f"AUT URL: {page_url or '(none)'}")
+            env_bits.append(f"AUT title: {page_title or '(none)'}")
         packet = {
             "symptom": (session.get("charter") or "Manual session finding")[:200],
             "expected": "Behaviour matches charter / acceptance criteria.",
             "actual": "\n".join(note_lines)[:2000] or "(no notes selected)",
-            "environment": f"Security level: {session.get('level')}",
+            "environment": " | ".join(env_bits),
             "replication_steps": [
                 f"Start manual session with charter: {session.get('charter')}",
+                *(
+                    [f"AUT page: {page_title or page_url}"]
+                    if page_ctx_public.get("known")
+                    else []
+                ),
                 *([f"Note: {t}" for t in note_lines[:8]] or ["Reproduce from session notes."]),
+                *([f"Still annotation: {a}" for a in annotation_lines[:4]]),
             ],
             "evidence_paths": evidence_paths,
             "failure_class": fc,
             "jira_key": session.get("jira_story_key") or "",
             "confirm_required": True,
+            "page_context": page_ctx_public,
+            "redaction_hits": redaction_hits,
         }
         payload["packet"] = packet
         payload["message"] = "Preview only — confirm required to create a Jira Bug."
@@ -859,13 +1037,18 @@ def propose(
                 "error": "story_required",
                 "message": "Comment on story needs a linked Jira story key.",
             }
-        body = "\n".join(
-            [
-                f"Manual session {session.get('id')} — {session.get('charter')}",
-                "",
-                *note_lines,
-            ]
-        )[:4000]
+        body_parts = [
+            f"Manual session {session.get('id')} — {session.get('charter')}",
+            "",
+        ]
+        if page_ctx_public.get("known"):
+            body_parts.append(f"AUT: {page_title} — {page_url}".strip(" —"))
+            body_parts.append("")
+        body_parts.extend(note_lines)
+        if annotation_lines:
+            body_parts.append("")
+            body_parts.extend(f"Still annotation: {a}" for a in annotation_lines)
+        body = "\n".join(body_parts)[:4000]
         payload["comment"] = {"issue_key": story, "body": body}
         payload["message"] = "Preview only — confirm required to comment on Jira."
 
@@ -908,6 +1091,7 @@ def propose(
         "proposal": payload,
         "session": _public(session),
         "writes_jira": False,
+        "redaction_hits": redaction_hits,
     }
 
 

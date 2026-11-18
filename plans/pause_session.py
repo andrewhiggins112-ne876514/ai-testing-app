@@ -74,6 +74,16 @@ def public_session(session: PauseSession) -> dict[str, Any]:
             "status": pw.get("status"),
             "error": pw.get("error"),
             "screenshot": pw.get("screenshot"),
+            "url": pw.get("url"),
+            "title": pw.get("title"),
+        }
+        # Surface known headed AUT page context for Manual (KAN-289).
+        out["page_context"] = {
+            "known": bool(pw.get("url") or pw.get("title")),
+            "url": str(pw.get("url") or ""),
+            "title": str(pw.get("title") or ""),
+            "source": "playwright_pause",
+            "keylog": False,
         }
     if session.state == "done" and session.result_payload:
         merged = dict(session.result_payload)

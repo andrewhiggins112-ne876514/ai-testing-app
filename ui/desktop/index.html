@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk95" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk96" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -22,16 +22,19 @@
       <div class="charter-frame-edge edge-se" data-resize="se"></div>
       <button type="button" id="charter-frame-drag" class="charter-frame-drag" title="Drag region">Charter Frame</button>
     </div>
-    <div id="charter-frame-dock" class="charter-frame-dock" data-charter-dock="1" data-manual-loop-dock="1">
+    <div id="charter-frame-dock" class="charter-frame-dock" data-charter-dock="1" data-manual-loop-dock="1" data-manual-page-context="1" data-annotate-still="1">
       <div id="charter-dock-controls" class="charter-dock-controls" data-charter-dock-controls="1">
         <p id="charter-frame-chip" class="charter-frame-chip" role="status">Session open</p>
+        <p id="charter-page-context" class="charter-page-context" data-charter-page-context="1" hidden>No AUT page context</p>
         <label class="check-row charter-dock-toggle"><input type="checkbox" id="charter-assist-live" /> Assist</label>
         <label class="check-row charter-dock-toggle"><input type="checkbox" id="charter-mist-live" /> Mist</label>
         <button type="button" id="charter-snap-monitor" class="save-btn secondary" data-charter-snap-monitor="1" title="Snap to monitor">Monitor</button>
         <button type="button" id="charter-snap-window" class="save-btn secondary" data-charter-snap-window="1" title="Snap to window">Window</button>
+        <button type="button" id="charter-page-refresh" class="save-btn secondary" data-charter-page-refresh="1" title="Refresh known AUT page URL/title">Page</button>
         <input type="text" id="charter-note-input" class="charter-note-input" placeholder="Add a note…" maxlength="2000" autocomplete="off" />
         <button type="button" id="charter-note-add" class="save-btn secondary" data-charter-note="1">Note</button>
         <button type="button" id="charter-still-add" class="save-btn secondary" data-charter-still="1">Still</button>
+        <button type="button" id="charter-annotate-still" class="save-btn secondary" data-charter-annotate-still="1" title="Annotate last still with note text">Annotate</button>
         <button type="button" id="charter-end" class="save-btn" data-charter-end="1">End</button>
         <button type="button" id="charter-cancel" class="save-btn secondary" data-charter-cancel="1">Cancel</button>
       </div>
@@ -944,7 +947,7 @@
           </div>
           </div>
         </div>
-        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-loop-stage="idle">
+        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-loop-stage="idle">
           <h3 class="orb-section-label">Manual</h3>
           <p class="drawer-hint">Charter Frame (FR-MAN-1). Calm loop: Start → notes/stills → End → review → Propose → Confirm/Cancel. Esc/Back returns to orb home — Manual is not a second landing. No background capture until Start.</p>
           <div id="manual-sticky-toolbar" class="manual-sticky-toolbar" data-manual-sticky="1">
@@ -1191,6 +1194,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk95"></script>
+  <script src="/ui/desktop/desktop.js?v=desk96"></script>
 </body>
 </html>

@@ -1387,6 +1387,9 @@
   const charterNoteInput = document.getElementById("charter-note-input");
   const charterNoteAdd = document.getElementById("charter-note-add");
   const charterStillAdd = document.getElementById("charter-still-add");
+  const charterAnnotateStill = document.getElementById("charter-annotate-still");
+  const charterPageRefresh = document.getElementById("charter-page-refresh");
+  const charterPageContext = document.getElementById("charter-page-context");
   const charterEnd = document.getElementById("charter-end");
   const charterCancel = document.getElementById("charter-cancel");
   const charterDockControls = document.getElementById("charter-dock-controls");
@@ -1396,6 +1399,7 @@
   let charterSnapModePending = "";
   let charterSnapLabel = "";
   let manualOpenSessionId = "";
+  let manualLastStillId = "";
   let manualPendingProposalId = "";
   let charterFrameState = { x: 0.18, y: 0.16, w: 0.64, h: 0.58 };
   let charterDragMode = null;
@@ -4470,6 +4474,28 @@
     if (charterDockControls) charterDockControls.hidden = on;
   }
 
+  function updateCharterPageContext(sessionOrCtx) {
+    if (!charterPageContext) return;
+    const ctx =
+      (sessionOrCtx && sessionOrCtx.page_context) ||
+      sessionOrCtx ||
+      {};
+    const known = !!(ctx && ctx.known);
+    charterPageContext.hidden = false;
+    charterPageContext.setAttribute("data-known", known ? "1" : "0");
+    if (!known) {
+      charterPageContext.textContent = "AUT page: none known (notes/stills still work)";
+      return;
+    }
+    const title = (ctx.title || "").trim();
+    const url = (ctx.url || "").trim();
+    const label = title || url || "known";
+    charterPageContext.textContent =
+      "AUT: " +
+      label.slice(0, 72) +
+      (url && title ? " · " + url.slice(0, 48) : "");
+  }
+
   function updateCharterFrameChip(session) {
     if (!charterFrameChip) return;
     const noteCount = ((session && session.notes) || []).length;
@@ -4494,6 +4520,11 @@
       " notes · " +
       stillCount +
       " stills";
+    updateCharterPageContext(session);
+    const stills = (session && session.stills) || [];
+    if (stills.length) {
+      manualLastStillId = stills[stills.length - 1].id || manualLastStillId;
+    }
   }
 
   function hideCharterSnapPicker() {
@@ -4710,9 +4741,28 @@
             })
             .join("\n")
         : "(no assist drafts)";
+      const pageCtx = (session && session.page_context) || {};
+      const pageLine = pageCtx.known
+        ? "AUT page: " +
+          ((pageCtx.title || "").trim() || "(no title)") +
+          " · " +
+          ((pageCtx.url || "").trim() || "(no url)")
+        : "AUT page: none known";
+      const stillLines =
+        stills
+          .map(function (s) {
+            const ann = (s.annotation || "").trim();
+            return (
+              "- " +
+              (s.id || "still") +
+              (ann ? " · annotated: " + ann : "")
+            );
+          })
+          .join("\n") || "(no stills)";
       manualReviewOut.textContent = [
         "Session: " + ((session && session.id) || ""),
         "Charter: " + ((session && session.charter) || ""),
+        pageLine,
         "Notes: " + notes.length,
         "Stills: " + stills.length,
         "Assist: " + assistStatus + " · drafts " + drafts.length + " (local only, never silent Jira)",
@@ -4724,6 +4774,9 @@
             return "- " + (n.text || "");
           })
           .join("\n") || "(no notes)",
+        "",
+        "Stills:",
+        stillLines,
         "",
         "Assist drafts:",
         draftLines,
@@ -8360,12 +8413,80 @@
         );
         const data = await res.json();
         if (data.status === "ok" && data.session) {
+          if (data.still && data.still.id) manualLastStillId = data.still.id;
           updateCharterFrameChip(data.session);
         } else if (charterFrameChip) {
           charterFrameChip.textContent = data.message || "Still failed";
         }
       } catch (_err) {
         if (charterFrameChip) charterFrameChip.textContent = "Still failed";
+      }
+    });
+  }
+  if (charterAnnotateStill) {
+    charterAnnotateStill.addEventListener("click", async function () {
+      if (!manualOpenSessionId) return;
+      const text = charterNoteInput ? charterNoteInput.value.trim() : "";
+      if (!text) {
+        if (charterFrameChip) {
+          charterFrameChip.textContent = "Type annotation text, then Annotate";
+        }
+        return;
+      }
+      let stillId = manualLastStillId;
+      if (!stillId) {
+        if (charterFrameChip) {
+          charterFrameChip.textContent = "Capture a Still first, then Annotate";
+        }
+        return;
+      }
+      try {
+        const res = await fetch(
+          "/api/manual-sessions/" +
+            encodeURIComponent(manualOpenSessionId) +
+            "/stills/" +
+            encodeURIComponent(stillId) +
+            "/annotate",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ annotation: text }),
+          }
+        );
+        const data = await res.json();
+        if (data.status === "ok" && data.session) {
+          if (charterNoteInput) charterNoteInput.value = "";
+          updateCharterFrameChip(data.session);
+          if (charterFrameChip) {
+            charterFrameChip.textContent =
+              (charterFrameChip.textContent || "") + " · annotated";
+          }
+        } else if (charterFrameChip) {
+          charterFrameChip.textContent = data.message || "Annotate failed";
+        }
+      } catch (_err) {
+        if (charterFrameChip) charterFrameChip.textContent = "Annotate failed";
+      }
+    });
+  }
+  if (charterPageRefresh) {
+    charterPageRefresh.addEventListener("click", async function () {
+      if (!manualOpenSessionId) return;
+      try {
+        const res = await fetch(
+          "/api/manual-sessions/" +
+            encodeURIComponent(manualOpenSessionId) +
+            "/page-context/refresh",
+          { method: "POST" }
+        );
+        const data = await res.json();
+        if (data.status === "ok" && data.session) {
+          updateCharterFrameChip(data.session);
+        } else if (charterFrameChip) {
+          charterFrameChip.textContent = data.message || "Page refresh failed";
+        }
+      } catch (_err) {
+        if (charterFrameChip) charterFrameChip.textContent = "Page refresh failed";
       }
     });
   }

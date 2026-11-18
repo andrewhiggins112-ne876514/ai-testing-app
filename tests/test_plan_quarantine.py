@@ -169,7 +169,7 @@ class PlanQuarantineTests(unittest.TestCase):
         self.assertFalse(cleared["quarantine"]["quarantined"])
         self.assertIn(case["id"], [c["id"] for c in cases_for_run(pid)["cases"]])
 
-    def test_api_flake_and_desktop_ui_desk95(self):
+    def test_api_flake_and_desktop_ui_desk96(self):
         created = create_plan("API flake", intent="d2-api")
         pid = created["plan"]["id"]
         case = add_case(pid, "API flaky")["case"]
@@ -210,8 +210,8 @@ class PlanQuarantineTests(unittest.TestCase):
 
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk95", html)
-        self.assertIn("desk95", desk)
+        self.assertIn("desk96", html)
+        self.assertIn("desk96", desk)
         self.assertIn("plan-quarantine-reason", html)
         self.assertIn("plan-quarantine-set", html)
         self.assertIn("plan-flake-summary", html)

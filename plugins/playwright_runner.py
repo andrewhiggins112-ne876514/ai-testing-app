@@ -377,6 +377,7 @@ async def run_playwright(
 ) -> Dict[str, Any]:
     result: Dict[str, Any] = {
         "status": "fail",
+        "url": url or None,
         "title": None,
         "screenshot": None,
         "error": None,
@@ -483,6 +484,24 @@ async def run_playwright(
                             and not use_headless
                         )
                         if can_pause:
+                            # KAN-289 — publish known headed AUT page context while browser open.
+                            try:
+                                result["url"] = page.url
+                                result["title"] = await page.title()
+                            except Exception:
+                                pass
+                            try:
+                                from plans.aut_page_context import set_page_context
+                                from settings.store import get_security_level
+
+                                set_page_context(
+                                    str(result.get("url") or ""),
+                                    str(result.get("title") or ""),
+                                    source="playwright_pause",
+                                    level=get_security_level(),
+                                )
+                            except Exception:
+                                pass
                             result["paused"] = True
                             result["status"] = "paused"
                             decision = await pause_decision(result)
@@ -502,6 +521,7 @@ async def run_playwright(
                 else:
                     result["status"] = "pass" if not had_failure else "fail"
                 try:
+                    result["url"] = page.url
                     result["title"] = await page.title()
                 except Exception:
                     pass
@@ -518,6 +538,7 @@ async def run_playwright(
                     await _save_screenshot(page, result, kind="failure")
             else:
                 await page.goto(url)
+                result["url"] = page.url
                 result["title"] = await page.title()
                 take_success = (
                     _success_evidence_enabled()
@@ -530,6 +551,14 @@ async def run_playwright(
         finally:
             if context is not None:
                 await context.close()
+            # Headed AUT closed — page context is no longer known (KAN-289).
+            try:
+                from plans.aut_page_context import clear_page_context
+                from settings.store import get_security_level
+
+                clear_page_context(level=get_security_level())
+            except Exception:
+                pass
     except Exception as e:
         result["status"] = "fail"
         if not result.get("error"):

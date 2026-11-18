@@ -2103,6 +2103,21 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   white-space: nowrap;
 }
 
+.charter-page-context {
+  margin: 0;
+  flex: 1 1 100%;
+  color: var(--muted, #9bb4c4);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.charter-page-context[data-known="1"] {
+  color: var(--cyan, #50cdff);
+}
+
 .charter-dock-toggle {
   margin: 0;
   font-size: 12px;
