@@ -1,8 +1,8 @@
 # Enterprise layout research note (Track 2)
 
 **Story:** KAN-295 (test KAN-296) · **FR:** FR-UI-9, FR-UI-7 · **Roadmap:** TRACK2-UX  
-**Status:** Research note shipped — **awaiting human accept** before tokens (**KAN-297**).  
-**Scope:** Docs only. Not a component library. No CSS/token implement in this story.
+**Status:** **Accepted** by Designer (2026-11-18 Council) — tokens (**KAN-297**) may proceed.  
+**Scope:** Docs only for KAN-295. Not a component library. CSS/token implement is **KAN-297**.
 
 Calm Windows-enterprise density for the **existing** desktop shell (`desktop_app.py` / `ui/desktop`). Orb home stays primary (FR-UI-1). Accents continue to follow the active orb style (FR-UI-3). Layout modes A–E stay (FR-UI-7).
 
@@ -17,7 +17,7 @@ Calm Windows-enterprise density for the **existing** desktop shell (`desktop_app
 | Windows density | Compact toolbars like WinUI / Office ribbons lite — not Material sprawl, not Inter+purple |
 | Local-first | System fonts only; no CDN webfonts; no telemetry from layout |
 
-This note feeds **KAN-297** (small CSS variables in `ui/desktop/desktop.css`). Do not start tokens until a human marks this note accepted.
+This note feeds **KAN-297** (small CSS variables in `ui/desktop/desktop.css`). Human accept landed 2026-11-18 — Build may apply tokens.
 
 ---
 

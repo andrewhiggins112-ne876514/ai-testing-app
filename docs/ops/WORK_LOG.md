@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-297** — Track2: Apply enterprise layout tokens (**blocked** until human accepts **KAN-295** note) |
+| **Jira story** | **KAN-297** — Track2: Apply enterprise layout tokens (from accepted **KAN-295** note) |
 | **Start task** | — |
 | **Epic** | **KAN-279** Council Track 2 — Area chrome + Manual completion |
 | **Roadmap ID** | TRACK2-UX |
 | **Spec** | FR-UI-9 / FR-UI-3 tokens from accepted note |
 | **Git** | `main` |
 | **Test ticket** | **KAN-298** |
-| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287**; page/annotate **KAN-289**; library+GDPR **KAN-291**; propose/confirm harden **KAN-293** (desk98); layout note **KAN-295** (`docs/design/ENTERPRISE_LAYOUT_NOTE.md`) |
+| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287**; page/annotate **KAN-289**; library+GDPR **KAN-291**; propose/confirm harden **KAN-293** (desk98); layout note **KAN-295** accepted 2026-11-18 (`docs/design/ENTERPRISE_LAYOUT_NOTE.md`) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
-| **Next / Shipped** | **Do not start KAN-297** until human accepts the layout note. If note not yet accepted: stop / ask. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | **KAN-297** ready — human accepted layout note. Implement tokens from note. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — Council — Designer accepted KAN-295 layout note
+- **Agent/chat:** Council Room (`/council`) — Accept gate for Track2 UX
+- **Done:** Designer **Accept** of `docs/design/ENTERPRISE_LAYOUT_NOTE.md`. Unblocked **KAN-297** tokens. Clarified: this was a human-accept gate, not an unfinished review story (KAN-295/296 already Done).
+- **Files:** `docs/design/ENTERPRISE_LAYOUT_NOTE.md`, `docs/ops/WORK_LOG.md`, `docs/ops/ROADMAP.md`, `PROJECT_MEMORY.md`
+- **Verify:** docs/decision only
+- **Jira:** comments on **KAN-295** + **KAN-297**
+- **Next:** Build chat **“pick up where we left off”** → **KAN-297** (test **KAN-298**)
 
 ### 2026-11-18 — KAN-295 — Enterprise layout research note (docs)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-295
