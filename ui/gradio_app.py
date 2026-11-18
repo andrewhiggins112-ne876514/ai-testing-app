@@ -324,7 +324,7 @@ def toggle_orb_settings(is_open: bool):
 
 
 # Gradio app areas (KAN-248 / UI-NAV-IA-2) — menu button, not a top tab strip.
-GRADIO_APP_AREAS = ("Chat", "Settings", "Plans", "Reports", "Documents")
+GRADIO_APP_AREAS = ("Chat", "Settings", "Plans", "Manual", "Reports", "Documents")
 
 
 def toggle_app_menu(is_open: bool):
@@ -2217,6 +2217,7 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
         app_nav_chat = gr.Button("Chat", elem_id="app-menu-nav-chat", size="sm")
         app_nav_settings = gr.Button("Settings", elem_id="app-menu-nav-settings", size="sm")
         app_nav_plans = gr.Button("Plans", elem_id="app-menu-nav-plans", size="sm")
+        app_nav_manual = gr.Button("Manual", elem_id="app-menu-nav-manual", size="sm")
         app_nav_reports = gr.Button("Reports", elem_id="app-menu-nav-reports", size="sm")
         app_nav_documents = gr.Button("Documents", elem_id="app-menu-nav-documents", size="sm")
     app_menu_btn.click(
@@ -2710,6 +2711,20 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                     [plan_detail],
                 )
 
+    with gr.Column(visible=False, elem_id="gradio-area-manual", elem_classes=["gradio-area"]) as area_manual:
+            with gr.Column(elem_id="manual-panel"):
+                gr.HTML('<div class="panel-title">Manual</div>')
+                gr.HTML(
+                    '<div class="panel-hint" data-manual-shell="1">Desktop owns Manual Primary + Plans '
+                    "deep-link (KAN-275). Gradio is a minimal stub — use the desktop app for Charter Frame.</div>"
+                )
+                gr.Textbox(
+                    value="Open desktop_app.py → App → Manual (or Plans → Start manual on this case).",
+                    label="Status",
+                    interactive=False,
+                    max_lines=3,
+                )
+
     with gr.Column(visible=False, elem_id="gradio-area-reports", elem_classes=["gradio-area"]) as area_reports:
             _report_choices = list_report_choices()
             with gr.Column(elem_id="reports-panel"):
@@ -2789,12 +2804,14 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
         area_chat,
         area_settings,
         area_plans,
+        area_manual,
         area_reports,
         area_documents,
     ]
     app_nav_chat.click(lambda: select_app_area("Chat"), outputs=_app_area_outputs)
     app_nav_settings.click(lambda: select_app_area("Settings"), outputs=_app_area_outputs)
     app_nav_plans.click(lambda: select_app_area("Plans"), outputs=_app_area_outputs)
+    app_nav_manual.click(lambda: select_app_area("Manual"), outputs=_app_area_outputs)
     app_nav_reports.click(lambda: select_app_area("Reports"), outputs=_app_area_outputs)
     app_nav_documents.click(lambda: select_app_area("Documents"), outputs=_app_area_outputs)
 

@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-275** — Track1: Manual Primary App area + Plans deep-link shell |
+| **Jira story** | **KAN-277** — Track1: FR-MAN-1 Charter Frame MVP |
 | **Start task** | — |
 | **Epic** | **KAN-264** Council Track 1 — UX tidy + Manual Charter Frame |
 | **Roadmap ID** | TRACK1-H1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-1, FR-UI-7, FR-MAN-1; epic **KAN-264** |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-MAN-1; `docs/design/H1_MANUAL_SESSION_CAPTURE.md` §9; epic **KAN-264** |
 | **Git** | `main` |
-| **Test ticket** | **KAN-276** |
-| **Shipped** | … **KAN-273** Lab areas tidy (desk89); **KAN-271** Reports tidy (desk88); **KAN-269** Suites tidy (desk87); **KAN-267** stub honesty (desk86); **KAN-265** Plans IA (desk85); Council Slice-0; epic **KAN-264** |
+| **Test ticket** | **KAN-278** |
+| **Shipped** | … **KAN-275** Manual Primary shell (desk90); **KAN-273** Lab areas tidy (desk89); **KAN-271** Reports tidy (desk88); **KAN-269** Suites tidy (desk87); **KAN-267** stub honesty (desk86); **KAN-265** Plans IA (desk85); Council Slice-0; epic **KAN-264** |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles |
-| **Next / Shipped** | Build pick-up → **KAN-275**. Queue: **277** Charter Frame. Do **not** start voice. |
+| **Next / Shipped** | Build pick-up → **KAN-277** Charter Frame. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-275 — Manual Primary App area + Plans deep-link shell
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-275
+- **Done:** Primary App menu gains **Manual** (Chat / Settings / Plans / Manual / Reports / Documents). Dedicated Manual area shell with charter + plan/case/story/test fields, assist/mist toggles default off, Start disabled until Charter Frame. Plans **Start manual on this case** deep-link pre-fills Manual. Esc/Back → orb home. Gradio Manual stub/minimal. Cache-bust **desk90**. No recorder/frame (KAN-277).
+- **Files:** `ui/app_areas.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `ui/gradio_app.py`, `desktop_app.py`, `tests/test_manual_ia.py` (+ desk90 across UI tests), docs
+- **Verify:** `pytest tests/test_manual_ia.py tests/test_desktop_app_menu.py tests/test_gradio_menu_nav.py tests/test_plans_ia.py tests/test_nav_overlap.py tests/test_orb_hub.py tests/test_lab_areas_ia.py` 24 passed. Live `GET /ui/desktop/index.html?v=desk90` has Manual in Primary (not Lab), `data-manual-ia` / deeplink / start shell. `desktop_app.py` opened desk90 (orb home; App-menu Computer Use contested by HUD checklist; HTML + pytest evidence).
+- **Jira:** close-out **KAN-275** + **KAN-276**
+- **Next:** **KAN-277** Charter Frame MVP (test **KAN-278**)
 
 ### 2026-11-18 — KAN-273 — Lab areas UI tidy
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-273

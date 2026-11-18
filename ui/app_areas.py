@@ -7,6 +7,7 @@ PRIMARY_APP_MENU_AREAS: tuple[str, ...] = (
     "chat",
     "settings",
     "plans",
+    "manual",
     "reports",
     "documents",
 )

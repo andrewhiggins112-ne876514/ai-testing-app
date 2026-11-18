@@ -205,7 +205,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Catalogue **H** designs complete (**H3** **KAN-245**; **H2** **KAN-243**; **H1** **KAN-241** design). **Council Track 1 (2026-11-18):** (1) Plans IA tidy + stub honesty (**FR-UI-9**, **FR-PLUG-3**), then (2) FR-MAN-1 Charter Frame implement (new stories; Manual Primary). FR-MAN-2 live circles parked. Voice **KAN-81** / G10 deferred (mic) — do not implement while deferred.
+**Still open / next:** Catalogue **H** designs complete (**H3** **KAN-245**; **H2** **KAN-243**; **H1** **KAN-241** design). **Council Track 1 (2026-11-18):** Plans IA + Manual shell Done (**KAN-265…275**); next FR-MAN-1 Charter Frame (**KAN-277**). FR-MAN-2 live circles parked. Voice **KAN-81** / G10 deferred (mic) — do not implement while deferred.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -250,7 +250,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix; content vs config | **Done** shell **KAN-103** / **KAN-104**; content-vs-config **KAN-247…249** |
 | FR-UI-8 | Lab tools group on compact App menu (every layout) | **Done** **KAN-260** (desk64; test **KAN-262**) |
 | FR-UI-9 | Plans IA progressive disclosure | **Done** — **KAN-265** (test **KAN-266**); epic **KAN-264** |
-| FR-UI-1 Manual | Primary **Manual** area (A3) | **Open** — **KAN-275** (test **KAN-276**) |
+| FR-UI-1 Manual | Primary **Manual** area (A3) | **Done** — **KAN-275** (desk90; test **KAN-276**); Charter Frame still **KAN-277** |
 | FR-MAN-1 implement | Charter Frame MVP | **Open** — **KAN-277** (test **KAN-278**); design stays **KAN-241** |
 | FR-PLUG-3 honesty | Stub labels / disable Run / Playwright default | **Open** — **KAN-267** (test **KAN-268**) |
 | FR-SET-3 | Shipped — App Settings vs Orb settings; App category on Settings hub | **Done** Task **KAN-108**; hub **KAN-249** |

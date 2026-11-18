@@ -1312,6 +1312,7 @@
   const desktopSection = document.getElementById("app-section-desktop");
   const suitesSection = document.getElementById("app-section-suites");
   const plansSection = document.getElementById("app-section-plans");
+  const manualSection = document.getElementById("app-section-manual");
   const settingsNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="settings"]')
     : null;
@@ -1336,9 +1337,23 @@
   const plansNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="plans"]')
     : null;
+  const manualNav = appDrawer
+    ? appDrawer.querySelector('.app-nav-item[data-section="manual"]')
+    : null;
   const sandboxesNav = appDrawer
     ? appDrawer.querySelector('.app-nav-item[data-section="sandboxes"]')
     : null;
+  const manualCharter = document.getElementById("manual-charter");
+  const manualPlanId = document.getElementById("manual-plan-id");
+  const manualCaseId = document.getElementById("manual-case-id");
+  const manualStoryKey = document.getElementById("manual-story-key");
+  const manualTestKey = document.getElementById("manual-test-key");
+  const manualAssist = document.getElementById("manual-assist");
+  const manualMist = document.getElementById("manual-mist");
+  const manualStatus = document.getElementById("manual-status");
+  const manualClearContext = document.getElementById("manual-clear-context");
+  const manualOpenPlans = document.getElementById("manual-open-plans");
+  const planStartManual = document.getElementById("plan-start-manual");
   const healList = document.getElementById("heal-list");
   const healStatus = document.getElementById("heal-status");
   const healRefresh = document.getElementById("heal-refresh");
@@ -3992,6 +4007,7 @@
     desktop: "Desktop",
     suites: "Suites",
     plans: "Plans",
+    manual: "Manual",
     sandboxes: "Sandboxes",
   };
   const areaMap = {
@@ -4003,6 +4019,7 @@
     desktop: { section: desktopSection, nav: desktopNav },
     suites: { section: suitesSection, nav: suitesNav },
     plans: { section: plansSection, nav: plansNav },
+    manual: { section: manualSection, nav: manualNav },
     sandboxes: { section: sandboxesSection, nav: sandboxesNav },
   };
   const areaLayer = document.getElementById("area-layer");
@@ -4306,7 +4323,61 @@
       refreshOfflineReadBanner();
       loadPlanRunSandboxes();
     }
+    if (name === "manual") {
+      if (manualAssist) manualAssist.checked = false;
+      if (manualMist) manualMist.checked = false;
+      if (manualStatus && !(manualStatus.textContent || "").trim()) {
+        manualStatus.textContent = "Ready — no session running";
+      }
+    }
     if (name === "sandboxes") loadMultiSandboxPlugin();
+  }
+
+  function clearManualLinkedContext() {
+    if (manualPlanId) manualPlanId.value = "";
+    if (manualCaseId) manualCaseId.value = "";
+    if (manualStoryKey) manualStoryKey.value = "";
+    if (manualTestKey) manualTestKey.value = "";
+    if (manualStatus) {
+      manualStatus.textContent = "Linked context cleared — charter-only explore ready";
+    }
+  }
+
+  function fillManualFromPlanContext(planId, caseId, storyKey) {
+    if (manualPlanId) manualPlanId.value = planId || "";
+    if (manualCaseId) manualCaseId.value = caseId || "";
+    if (manualStoryKey) manualStoryKey.value = storyKey || "";
+    if (manualAssist) manualAssist.checked = false;
+    if (manualMist) manualMist.checked = false;
+    const parts = [];
+    if (planId) parts.push("plan " + planId);
+    if (caseId) parts.push("case " + caseId);
+    if (storyKey) parts.push("story " + storyKey);
+    if (manualStatus) {
+      manualStatus.textContent = parts.length
+        ? "Prefill from Plans — " + parts.join(" · ") + " (Start waits for Charter Frame)"
+        : "Opened Manual — pick a Plans case for prefill, or charter-only";
+    }
+  }
+
+  function openManualFromPlansDeepLink() {
+    const planId = openPlanId || "";
+    const caseId =
+      planCaseId && planCaseId.value ? planCaseId.value.trim() : "";
+    let storyKey = "";
+    const idx = selectedCaseIndex();
+    if (idx >= 0 && openPlanCases[idx]) {
+      storyKey = (openPlanCases[idx].jira_key || "").trim();
+    }
+    if (!planId && !caseId) {
+      if (planStatus) {
+        planStatus.textContent =
+          "Select a plan case first, then Start manual on this case.";
+      }
+      return;
+    }
+    openArea("manual");
+    fillManualFromPlanContext(planId, caseId, storyKey);
   }
 
   function selectedHealRunId() {
@@ -7474,6 +7545,22 @@
   if (planCaseRun) {
     planCaseRun.addEventListener("click", function () {
       runSelectedCaseFromKeyboard();
+    });
+  }
+
+  if (planStartManual) {
+    planStartManual.addEventListener("click", function () {
+      openManualFromPlansDeepLink();
+    });
+  }
+  if (manualClearContext) {
+    manualClearContext.addEventListener("click", function () {
+      clearManualLinkedContext();
+    });
+  }
+  if (manualOpenPlans) {
+    manualOpenPlans.addEventListener("click", function () {
+      openArea("plans");
     });
   }
 

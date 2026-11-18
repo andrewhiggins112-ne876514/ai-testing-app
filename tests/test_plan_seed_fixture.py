@@ -103,7 +103,7 @@ class PlanSeedFixtureTests(unittest.TestCase):
         self.assertEqual(seed2.get("status"), "fail")
         self.assertIn("silent", (seed2.get("error") or "").lower())
 
-    def test_api_seed_and_ui_desk89(self):
+    def test_api_seed_and_ui_desk90(self):
         client = TestClient(main.app)
         created = client.post("/api/plans", json={"name": "SeedApi"})
         self.assertEqual(created.status_code, 200)
@@ -119,9 +119,9 @@ class PlanSeedFixtureTests(unittest.TestCase):
 
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         self.assertIn("plan-add-seed-btn", html)
-        self.assertIn("desk89", html)
+        self.assertIn("desk90", html)
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk89", desk)
+        self.assertIn("desk90", desk)
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         self.assertIn("cases/seed", js)
         self.assertIn("plan-add-seed-btn", js)
