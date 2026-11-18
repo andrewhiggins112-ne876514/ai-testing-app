@@ -1589,6 +1589,7 @@
   };
   const rptSave = document.getElementById("rpt-save");
   const rptLibrarySelect = document.getElementById("rpt-library-select");
+  const rptLibraryList = document.getElementById("rpt-library-list");
   const rptLibraryRefresh = document.getElementById("rpt-library-refresh");
   const rptOpenSettings = document.getElementById("rpt-open-settings");
   const rptEmpty = document.getElementById("rpt-empty");
@@ -1600,6 +1601,7 @@
   const rptRunRefresh = document.getElementById("rpt-run-refresh");
   const rptExportRun = document.getElementById("rpt-export-run");
   const rptExportPack = document.getElementById("rpt-export-pack");
+  let rptSelectedId = "";
   const healRunFilter = document.getElementById("heal-run-filter");
   const appDrawerHint = document.getElementById("app-drawer-hint");
   const secLevel = document.getElementById("sec-level");
@@ -1756,7 +1758,49 @@
     }
   }
 
+  function syncReportListSelection(reportId) {
+    rptSelectedId = reportId || "";
+    if (rptLibraryList) {
+      rptLibraryList.querySelectorAll(".rpt-library-item").forEach(function (btn) {
+        btn.setAttribute(
+          "aria-selected",
+          btn.getAttribute("data-report-id") === rptSelectedId ? "true" : "false"
+        );
+      });
+    }
+    if (rptLibrarySelect && rptLibrarySelect.value !== rptSelectedId) {
+      const exists = Array.from(rptLibrarySelect.options).some(function (o) {
+        return o.value === rptSelectedId;
+      });
+      if (exists || !rptSelectedId) {
+        rptLibrarySelect.value = rptSelectedId;
+      }
+    }
+  }
+
+  function renderReportLibraryList(rows) {
+    if (!rptLibraryList) return;
+    rptLibraryList.innerHTML = "";
+    (rows || []).forEach(function (row) {
+      const id = row.id || "";
+      if (!id) return;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "rpt-library-item";
+      btn.setAttribute("role", "option");
+      btn.setAttribute("data-report-id", id);
+      btn.setAttribute("aria-selected", id === rptSelectedId ? "true" : "false");
+      btn.textContent = row.label || id;
+      btn.addEventListener("click", function () {
+        syncReportListSelection(id);
+        loadReportDetail(id);
+      });
+      rptLibraryList.appendChild(btn);
+    });
+  }
+
   async function loadReportDetail(reportId) {
+    syncReportListSelection(reportId || "");
     if (!reportId) {
       clearReportViewer("No reports yet. Export a run or wait for a plan case export.");
       return;
@@ -1786,6 +1830,7 @@
           rptScreenshot.removeAttribute("src");
         }
       }
+      if (rptStatus) rptStatus.textContent = "Opened " + (data.label || reportId);
     } catch (err) {
       clearReportViewer("Could not load that report.");
     }
@@ -1797,7 +1842,8 @@
       if (!res.ok) return;
       const data = await res.json();
       const rows = (data && data.reports) || [];
-      const previous = rptLibrarySelect ? rptLibrarySelect.value || "" : "";
+      const previous =
+        rptSelectedId || (rptLibrarySelect ? rptLibrarySelect.value || "" : "");
       if (rptLibrarySelect) {
         rptLibrarySelect.innerHTML = "";
         if (!rows.length) {
@@ -1812,26 +1858,30 @@
             opt.textContent = row.label || row.id || "report";
             rptLibrarySelect.appendChild(opt);
           });
-          if (previous && Array.from(rptLibrarySelect.options).some(function (o) {
-            return o.value === previous;
-          })) {
-            rptLibrarySelect.value = previous;
-          }
         }
       }
+      const stillThere =
+        previous &&
+        rows.some(function (row) {
+          return (row.id || "") === previous;
+        });
+      rptSelectedId = stillThere ? previous : rows.length ? rows[0].id || "" : "";
+      renderReportLibraryList(rows);
+      syncReportListSelection(rptSelectedId);
       if (rptEmpty) rptEmpty.hidden = rows.length > 0;
-      const chosen = rptLibrarySelect ? rptLibrarySelect.value : "";
-      if (chosen) {
-        await loadReportDetail(chosen);
+      if (rptSelectedId) {
+        await loadReportDetail(rptSelectedId);
       } else {
         clearReportViewer(
           (data && data.empty_hint) ||
             "No saved reports yet. Run a plan case or export a run."
         );
+        if (rptStatus) rptStatus.textContent = "No saved reports";
       }
     } catch (err) {
       if (rptEmpty) rptEmpty.hidden = false;
       clearReportViewer("Could not load the report library.");
+      if (rptStatus) rptStatus.textContent = "Could not load library";
     }
   }
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk87" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk88" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -474,48 +474,54 @@
           </div>
           <p id="backup-status" class="drawer-hint" role="status">Ready</p>
         </div>
-        <div id="app-section-reports" class="app-section" hidden>
+        <div id="app-section-reports" class="app-section" hidden data-reports-ia="1">
           <h3 class="orb-section-label">Report library</h3>
-          <p class="drawer-hint">
-            Saved Markdown/JSON reports for this machine. Section include/exclude lives under
-            Settings → Report.
-          </p>
-          <p id="rpt-empty" class="drawer-hint" hidden>
-            No saved reports yet. Run a plan case or export a run below — files land in the local
-            reports folder outside the repo.
-          </p>
-          <label class="stack-label">Saved report
-            <select id="rpt-library-select">
-              <option value="">— no reports yet —</option>
-            </select>
-          </label>
-          <div class="btn-row">
-            <button type="button" id="rpt-library-refresh" class="save-btn secondary">Refresh library</button>
-            <button type="button" id="rpt-open-settings" class="save-btn secondary">Report settings</button>
+          <div id="rpt-sticky-toolbar" class="rpt-sticky-toolbar" data-rpt-sticky="1">
+            <div class="btn-row rpt-toolbar-actions">
+              <button type="button" id="rpt-library-refresh" class="save-btn secondary">Refresh library</button>
+              <button type="button" id="rpt-open-settings" class="save-btn secondary">Report settings</button>
+            </div>
+            <p id="rpt-status" class="drawer-hint rpt-toolbar-status" role="status">Ready</p>
           </div>
-          <pre id="rpt-markdown" class="report-viewer" aria-live="polite">Select a report to read its markdown.</pre>
-          <img id="rpt-screenshot" class="report-shot" alt="Report screenshot" hidden />
-          <details class="report-json-wrap">
-            <summary>Raw JSON</summary>
-            <pre id="rpt-json" class="report-viewer">No JSON found</pre>
+          <div id="rpt-primary" class="rpt-primary" data-rpt-primary="1">
+            <h4 class="orb-section-label">Saved reports</h4>
+            <p id="rpt-empty" class="drawer-hint">
+              No saved reports yet. Run a plan case or export a run (Advanced) — files land in the local
+              reports folder outside the repo. Section include/exclude stays under Settings → Report.
+            </p>
+            <div id="rpt-library-list" class="rpt-library-list" role="listbox" aria-label="Saved reports" data-rpt-list="1"></div>
+            <label class="stack-label rpt-library-select-label" for="rpt-library-select">Open by id
+              <select id="rpt-library-select">
+                <option value="">— no reports yet —</option>
+              </select>
+            </label>
+            <div id="rpt-detail" class="rpt-detail" data-rpt-detail="1">
+              <pre id="rpt-markdown" class="report-viewer" aria-live="polite">Select a report to read its markdown.</pre>
+              <img id="rpt-screenshot" class="report-shot" alt="Report screenshot" hidden />
+              <details class="report-json-wrap">
+                <summary>Raw JSON</summary>
+                <pre id="rpt-json" class="report-viewer">No JSON found</pre>
+              </details>
+            </div>
+          </div>
+          <details id="rpt-advanced" class="rpt-advanced" data-rpt-advanced="1">
+            <summary>Export a run</summary>
+            <p class="drawer-hint">Pick a plan case run; export uses Settings → Report. Locator heals for that run stay in Heal review (approve/reject; no auto-commit).</p>
+            <label class="stack-label">Chosen run
+              <select id="rpt-run-select">
+                <option value="">— select a run —</option>
+              </select>
+            </label>
+            <div class="btn-row">
+              <button type="button" id="rpt-run-refresh" class="save-btn secondary">Refresh runs</button>
+              <button type="button" id="rpt-export-run" class="save-btn">Export chosen run</button>
+              <button type="button" id="rpt-export-pack" class="save-btn secondary">Export read-only pack</button>
+            </div>
+            <p class="drawer-hint" id="rpt-export-pack-hint">
+              Read-only pack writes a local folder (report, matrix, evidence) labelled with security level and time.
+              Open README.md without this app. Secrets redacted (E3). Not a cloud shared drive.
+            </p>
           </details>
-          <h3 class="orb-section-label">Export a run</h3>
-          <p class="drawer-hint">Pick a plan case run; export uses Settings → Report. Locator heals for that run stay in Heal review (approve/reject; no auto-commit).</p>
-          <label class="stack-label">Chosen run
-            <select id="rpt-run-select">
-              <option value="">— select a run —</option>
-            </select>
-          </label>
-          <div class="btn-row">
-            <button type="button" id="rpt-run-refresh" class="save-btn secondary">Refresh runs</button>
-            <button type="button" id="rpt-export-run" class="save-btn">Export chosen run</button>
-            <button type="button" id="rpt-export-pack" class="save-btn secondary">Export read-only pack</button>
-          </div>
-          <p class="drawer-hint" id="rpt-export-pack-hint">
-            Read-only pack writes a local folder (report, matrix, evidence) labelled with security level and time.
-            Open README.md without this app. Secrets redacted (E3). Not a cloud shared drive.
-          </p>
-          <p id="rpt-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-documents" class="app-section" hidden>
           <h3 class="orb-section-label">Document ingestion</h3>
@@ -1031,6 +1037,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk87"></script>
+  <script src="/ui/desktop/desktop.js?v=desk88"></script>
 </body>
 </html>
