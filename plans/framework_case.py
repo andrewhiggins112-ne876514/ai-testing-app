@@ -53,21 +53,22 @@ def add_framework_case(
     plan_id: str,
     name: str = "",
     *,
-    framework: str = "selenium",
+    framework: str = "",
     note: str = "",
     tags: list[str] | None = None,
     level: str | None = None,
 ) -> dict[str, Any]:
-    """Add a framework-selection case to an existing plan suite."""
+    """Add a framework-selection case to an existing plan suite.
+
+    Default framework is Playwright (KAN-267 stub honesty) — never Selenium/Cypress.
+    """
     loaded = get_plan(plan_id, level=level)
     if loaded.get("status") != "ok":
         return loaded
 
-    fw = normalize_framework(framework or "selenium")
-    # Prefer an explicit non-playwright pick for G9 “another” runner UX;
-    # unknown values still normalize to playwright via framework_switch.
+    fw = normalize_framework(framework or DEFAULT_FRAMEWORK)
     if not (framework or "").strip():
-        fw = "selenium"
+        fw = DEFAULT_FRAMEWORK
     elif (framework or "").strip().lower() not in {"playwright", "selenium", "cypress"}:
         return {
             "status": "error",

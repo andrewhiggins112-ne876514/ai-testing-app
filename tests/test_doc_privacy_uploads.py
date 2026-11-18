@@ -140,7 +140,7 @@ class DocPrivacyUploadsTests(unittest.TestCase):
 
     def test_desktop_shell_marks_upload_privacy_controls(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk85", html)
+        self.assertIn("desk86", html)
         self.assertIn('id="rpt-documents"', html)
         self.assertIn('id="priv-uploads"', html)
         self.assertIn('id="doc-uploads-list"', html)
@@ -148,7 +148,7 @@ class DocPrivacyUploadsTests(unittest.TestCase):
         self.assertIn("/api/doc-uploads", js)
         self.assertIn("documents:", js)
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk85", desk)
+        self.assertIn("desk86", desk)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-﻿# Work log — AI Testing Application
+# Work log — AI Testing Application
 
 **Path:** `D:\Projects\ai_testing_app\docs\ops\WORK_LOG.md`  
 **Rule:** Every coding/agent slice **must** append an entry here when the slice finishes (or is paused). Also add a **Jira comment** on the active story with the same summary.
@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-267** — Track1: Framework stub honesty |
+| **Jira story** | **KAN-269** — Track1: Suites area UI tidy |
 | **Start task** | — |
 | **Epic** | **KAN-264** Council Track 1 — UX tidy + Manual Charter Frame |
 | **Roadmap ID** | TRACK1-IA → TRACK1-H1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-PLUG-3, FR-UI-9; epic **KAN-264** |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-7, FR-TEST-5; epic **KAN-264** |
 | **Git** | `main` |
-| **Test ticket** | **KAN-268** |
-| **Shipped** | … **KAN-265** Plans IA (desk85); Council Slice-0; epic **KAN-264** + stories **KAN-265…277** |
+| **Test ticket** | **KAN-270** |
+| **Shipped** | … **KAN-267** stub honesty (desk86); **KAN-265** Plans IA (desk85); Council Slice-0; epic **KAN-264** |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles |
-| **Next / Shipped** | Build pick-up → **KAN-267**. Queue: **269** Suites tidy → **271** Reports tidy → **273** Lab areas tidy → **275** Manual shell → **277** Charter Frame. Do **not** start voice. |
+| **Next / Shipped** | Build pick-up → **KAN-269**. Queue: **271** Reports tidy → **273** Lab areas tidy → **275** Manual shell → **277** Charter Frame. Do **not** start voice. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-267 — Framework stub honesty
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-267
+- **Done:** FR-PLUG-3 honesty UX: Playwright labelled **ready**; Selenium/Cypress labelled **not implemented — never pass**; Plans framework select no longer defaults to Selenium; empty/API default is Playwright; desktop Run disabled for stub case or stub Settings framework with clear status hint; stubs remain selectable. Cache-bust **desk86**.
+- **Files:** `plugins/framework_switch.py`, `plans/framework_case.py`, `main.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `desktop_app.py`, `ui/gradio_app.py`, `tests/test_framework_stub_honesty.py` (+ desk86 across UI tests), docs
+- **Verify:** `pytest tests/test_framework_stub_honesty.py tests/test_framework_switch.py tests/test_plan_framework_case.py` 18 passed. Live `GET /ui/desktop/index.html?v=desk86` has `data-stub-honesty`, Playwright selected, no Selenium selected; `/api/test-framework` stub_honesty + ui_labels. `desktop_app.py` opened desk86 (orb home; Plans click contested by HUD drag; HTML + API + pytest evidence).
+- **Jira:** close-out **KAN-267** + **KAN-268**
+- **Next:** **KAN-269** Suites area UI tidy (test **KAN-270**)
 
 ### 2026-11-18 — KAN-265 — Plans IA tidy (Cases-first + sticky toolbar)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-265 after Slice-0 on main

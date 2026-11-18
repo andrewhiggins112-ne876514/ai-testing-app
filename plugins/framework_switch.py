@@ -1,8 +1,9 @@
 """
-Dynamic test-framework switching stub (KAN-79 / FR-PLUG-3).
+Dynamic test-framework switching stub (KAN-79 / FR-PLUG-3 / KAN-267).
 
-Playwright is the default and only ready runner. Selenium / Cypress can be
-selected in settings but runs return a clear not-implemented message — no crash.
+Playwright is the default and only ready runner. Selenium / Cypress stay
+selectable stubs: labelled not-implemented / never pass, Run blocked in UI,
+and run APIs return not_implemented (never pass).
 """
 from __future__ import annotations
 
@@ -16,19 +17,28 @@ _FRAMEWORKS: dict[str, dict[str, Any]] = {
         "id": "playwright",
         "name": "Playwright",
         "status": "ready",
+        "runnable": True,
+        "never_pass": False,
+        "ui_label": "Playwright (ready)",
         "description": "Default browser automation runner (headed Playwright).",
     },
     "selenium": {
         "id": "selenium",
         "name": "Selenium",
         "status": "not_implemented",
-        "description": "Stub only — coming later (FR-PLUG-3).",
+        "runnable": False,
+        "never_pass": True,
+        "ui_label": "Selenium (not implemented — never pass)",
+        "description": "Stub only — not implemented; runs never pass (FR-PLUG-3).",
     },
     "cypress": {
         "id": "cypress",
         "name": "Cypress",
         "status": "not_implemented",
-        "description": "Stub only — coming later (FR-PLUG-3).",
+        "runnable": False,
+        "never_pass": True,
+        "ui_label": "Cypress (not implemented — never pass)",
+        "description": "Stub only — not implemented; runs never pass (FR-PLUG-3).",
     },
 }
 
@@ -38,6 +48,17 @@ def normalize_framework(value: str | None) -> str:
     if key in _FRAMEWORKS:
         return key
     return DEFAULT_FRAMEWORK
+
+
+def is_runnable(framework: str | None = None) -> bool:
+    """True only for the ready Playwright runner."""
+    fw = normalize_framework(framework)
+    return bool(_FRAMEWORKS[fw].get("runnable"))
+
+
+def ui_label(framework: str | None = None) -> str:
+    fw = normalize_framework(framework)
+    return str(_FRAMEWORKS[fw].get("ui_label") or _FRAMEWORKS[fw]["name"])
 
 
 def get_framework() -> str:
@@ -50,11 +71,15 @@ def list_frameworks() -> dict[str, Any]:
     active = get_framework()
     items = []
     for fid, meta in _FRAMEWORKS.items():
+        ready = meta["status"] == "ready"
         items.append(
             {
                 **meta,
                 "active": fid == active,
-                "implemented": meta["status"] == "ready",
+                "implemented": ready,
+                "runnable": bool(meta.get("runnable", ready)),
+                "never_pass": bool(meta.get("never_pass", not ready)),
+                "ui_label": meta.get("ui_label") or meta["name"],
             }
         )
     return {
@@ -62,6 +87,7 @@ def list_frameworks() -> dict[str, Any]:
         "active": active,
         "default": DEFAULT_FRAMEWORK,
         "setting_key": SETTING_KEY,
+        "stub_honesty": True,
     }
 
 
@@ -69,21 +95,26 @@ def framework_status() -> dict[str, Any]:
     active = get_framework()
     meta = _FRAMEWORKS[active]
     payload = list_frameworks()
+    ready = meta["status"] == "ready"
     return {
         SETTING_KEY: active,
         "active": active,
         "name": meta["name"],
         "status": meta["status"],
-        "implemented": meta["status"] == "ready",
+        "implemented": ready,
+        "runnable": bool(meta.get("runnable", ready)),
+        "never_pass": bool(meta.get("never_pass", not ready)),
+        "ui_label": meta.get("ui_label") or meta["name"],
         "frameworks": payload["frameworks"],
         "default": DEFAULT_FRAMEWORK,
         "setting_key": SETTING_KEY,
+        "stub_honesty": True,
         "message": (
-            f"Active test framework: {meta['name']} ({meta['status']})."
-            if meta["status"] == "ready"
+            f"Active test framework: {meta['name']} (ready)."
+            if ready
             else (
-                f"Active test framework: {meta['name']} — not implemented yet. "
-                "Switch back to Playwright to run tests."
+                f"Active test framework: {meta['name']} — not implemented "
+                "(never pass). Run is blocked until you switch back to Playwright."
             )
         ),
     }
@@ -124,9 +155,13 @@ def not_implemented_result(framework: str | None = None, action: str = "run") ->
         "action": action_norm,
         "plugin": "framework_switch",
         "message": (
-            f"{meta['name']} is not implemented yet (FR-PLUG-3 stub). "
+            f"{meta['name']} is not implemented (FR-PLUG-3 stub) — never pass. "
             "Set test_framework to playwright to run browser tests."
         ),
+        "implemented": False,
+        "runnable": False,
+        "never_pass": True,
+        "ui_label": meta.get("ui_label") or meta["name"],
     }
 
 

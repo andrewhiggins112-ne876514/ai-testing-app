@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk85" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk86" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -324,13 +324,13 @@
             <pre id="jira-read-out" class="drawer-hint" aria-live="polite" hidden></pre>
             <p id="jira-read-status" class="drawer-hint" role="status">Ready</p>
             <label class="stack-label">Test framework
-              <select id="set-test-framework">
-                <option value="playwright">Playwright (default)</option>
-                <option value="selenium">Selenium (not implemented)</option>
-                <option value="cypress">Cypress (not implemented)</option>
+              <select id="set-test-framework" data-stub-honesty="1" aria-describedby="set-test-framework-hint">
+                <option value="playwright" selected>Playwright (ready)</option>
+                <option value="selenium">Selenium (not implemented — never pass)</option>
+                <option value="cypress">Cypress (not implemented — never pass)</option>
               </select>
             </label>
-            <p class="drawer-hint">FR-PLUG-3 stub: Playwright runs tests; other frameworks return a clear not-implemented message.</p>
+            <p class="drawer-hint" id="set-test-framework-hint">FR-PLUG-3 / KAN-267: Playwright is ready. Selenium/Cypress stay selectable stubs — Run is blocked and results never pass.</p>
             <label class="stack-label">Playwright browser mode
               <select id="set-playwright-mode">
                 <option value="headed">Headed (visible browser, default)</option>
@@ -619,13 +619,13 @@
                 <button type="button" id="plan-add-a11y-btn" class="save-btn secondary" role="menuitem">Accessibility check case</button>
                 <button type="button" id="plan-add-perf-btn" class="save-btn secondary" role="menuitem">Performance budget case</button>
                 <label class="stack-label" for="plan-framework-select">Framework for new case
-                  <select id="plan-framework-select" aria-describedby="plan-framework-hint">
-                    <option value="playwright">Playwright (default)</option>
-                    <option value="selenium" selected>Selenium (not implemented)</option>
-                    <option value="cypress">Cypress (not implemented)</option>
+                  <select id="plan-framework-select" data-stub-honesty="1" aria-describedby="plan-framework-hint">
+                    <option value="playwright" selected>Playwright (ready)</option>
+                    <option value="selenium">Selenium (not implemented — never pass)</option>
+                    <option value="cypress">Cypress (not implemented — never pass)</option>
                   </select>
                 </label>
-                <p class="drawer-hint" id="plan-framework-hint">G9: case can select a framework. Playwright stays the default ready runner. Selenium/Cypress return not-implemented and never mark passed until a real runner exists. Settings framework switch stub is kept.</p>
+                <p class="drawer-hint" id="plan-framework-hint">G9 + KAN-267: default is Playwright (ready). Selenium/Cypress remain available as stubs — not implemented, Run disabled, never pass. Settings stub stays in sync.</p>
                 <button type="button" id="plan-add-framework-btn" class="save-btn secondary" role="menuitem">Add framework case</button>
               </div>
             </div>
@@ -682,6 +682,7 @@
               <button type="button" id="plan-rerun-failed" class="save-btn secondary">Rerun failed only</button>
               <button type="button" id="plan-defect-preview" class="save-btn secondary">Preview defect packet</button>
             </div>
+            <p id="plan-framework-run-hint" class="drawer-hint" data-stub-honesty="1" role="status" hidden></p>
             <div class="btn-row" id="plan-pause-actions" hidden>
               <button type="button" id="plan-pause-continue" class="save-btn">Continue</button>
               <button type="button" id="plan-pause-stop" class="save-btn secondary">Stop (record fail)</button>
@@ -1016,6 +1017,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk85"></script>
+  <script src="/ui/desktop/desktop.js?v=desk86"></script>
 </body>
 </html>

@@ -2432,10 +2432,14 @@ with LocalApp(title="AI Testing Agent", analytics_enabled=False) as demo:
                         allow_custom_value=False,
                     )
                     test_framework_dd = gr.Dropdown(
-                        choices=["playwright", "selenium", "cypress"],
+                        choices=[
+                            "playwright",
+                            "selenium",
+                            "cypress",
+                        ],
                         value=loaded_fw or "playwright",
-                        label="Test framework (FR-PLUG-3)",
-                        info="Playwright is ready. Selenium/Cypress are stubs — run returns not implemented.",
+                        label="Test framework (FR-PLUG-3 / KAN-267)",
+                        info="Playwright (ready). Selenium/Cypress = not implemented — never pass.",
                     )
                     playwright_mode_dd = gr.Dropdown(
                         choices=["headed", "headless"],

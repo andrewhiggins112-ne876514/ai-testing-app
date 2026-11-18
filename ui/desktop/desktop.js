@@ -1365,6 +1365,8 @@
   const planAddPerfBtn = document.getElementById("plan-add-perf-btn");
   const planFrameworkSelect = document.getElementById("plan-framework-select");
   const planAddFrameworkBtn = document.getElementById("plan-add-framework-btn");
+  const planFrameworkRunHint = document.getElementById("plan-framework-run-hint");
+  let activeSettingsFramework = "playwright";
   const planPwPath = document.getElementById("plan-pw-path");
   const planRefreshBtn = document.getElementById("plan-refresh-btn");
   const planList = document.getElementById("plan-list");
@@ -2129,6 +2131,8 @@
       const fw = (payload.test_framework || "playwright").toLowerCase();
       setTestFramework.value =
         fw === "selenium" || fw === "cypress" ? fw : "playwright";
+      activeSettingsFramework = setTestFramework.value || "playwright";
+      syncFrameworkStubHonestyUi();
     }
     if (setPlaywrightMode) {
       const mode = (payload.playwright_mode || "").toLowerCase();
@@ -2478,9 +2482,13 @@
       planIntent.hidden = !intent;
       planIntent.textContent = intent || "";
     }
-    if (!planCases) return;
+    if (!planCases) {
+      syncFrameworkStubHonestyUi();
+      return;
+    }
     if (!openPlanCases.length) {
       planCases.textContent = "Cases: (none)";
+      syncFrameworkStubHonestyUi();
       return;
     }
     const showArchived = !!(planShowArchived && planShowArchived.checked);
@@ -2495,6 +2503,7 @@
         "Cases: (none visible — " +
         archivedCount +
         " archived; tick Show archived to list them)";
+      syncFrameworkStubHonestyUi();
       return;
     }
     const header =
@@ -2559,6 +2568,7 @@
           );
         })
         .join("\n");
+    syncFrameworkStubHonestyUi();
   }
 
   function renderCoverageGaps(payload) {
@@ -3309,6 +3319,7 @@
   async function refreshCaseDetail() {
     if (!openPlanId || !planCaseId || !planCaseId.value.trim()) {
       if (planCaseDetail) planCaseDetail.hidden = true;
+      syncFrameworkStubHonestyUi();
       return;
     }
     try {
@@ -3395,8 +3406,10 @@
           planRunFailureClass.value = payload.last_run.failure_class;
         }
       }
+      syncFrameworkStubHonestyUi();
     } catch (err) {
       if (planCaseDetail) planCaseDetail.hidden = true;
+      syncFrameworkStubHonestyUi();
     }
   }
 
@@ -6190,6 +6203,94 @@
     });
   }
 
+  function isStubFramework(fw) {
+    const key = String(fw || "")
+      .trim()
+      .toLowerCase();
+    return key === "selenium" || key === "cypress";
+  }
+
+  function selectedCaseFrameworkId() {
+    const cid =
+      planCaseId && planCaseId.value ? String(planCaseId.value).trim() : "";
+    if (!cid || !openPlanCases.length) return "";
+    for (let i = 0; i < openPlanCases.length; i++) {
+      const c = openPlanCases[i];
+      if (!c || c.id !== cid) continue;
+      const kind = (c.source && c.source.kind) || "";
+      if (kind !== "framework") return "";
+      const ref = String((c.source && c.source.ref) || "")
+        .trim()
+        .toLowerCase();
+      if (ref.indexOf("{") === 0) {
+        try {
+          const parsed = JSON.parse(ref);
+          return String(
+            (parsed && (parsed.framework || parsed.test_framework || parsed.id)) ||
+              ""
+          )
+            .trim()
+            .toLowerCase();
+        } catch (err) {
+          return ref.slice(0, 40);
+        }
+      }
+      return ref.slice(0, 40);
+    }
+    return "";
+  }
+
+  function syncFrameworkStubHonestyUi() {
+    if (planFrameworkSelect) {
+      const cur = String(planFrameworkSelect.value || "")
+        .trim()
+        .toLowerCase();
+      if (!cur || (cur !== "playwright" && cur !== "selenium" && cur !== "cypress")) {
+        planFrameworkSelect.value = "playwright";
+      }
+    }
+    if (setTestFramework) {
+      activeSettingsFramework = String(setTestFramework.value || "playwright")
+        .trim()
+        .toLowerCase();
+    }
+    const caseFw = selectedCaseFrameworkId();
+    const settingsStub = isStubFramework(activeSettingsFramework);
+    const caseStub = isStubFramework(caseFw);
+    const blockRun = caseStub || settingsStub;
+    if (planCaseRun) {
+      planCaseRun.disabled = !!blockRun;
+      planCaseRun.setAttribute(
+        "aria-disabled",
+        blockRun ? "true" : "false"
+      );
+      planCaseRun.title = blockRun
+        ? caseStub
+          ? "Run disabled — " +
+            caseFw +
+            " is not implemented (never pass). Switch case or use Playwright."
+          : "Run disabled — Settings test framework is " +
+            activeSettingsFramework +
+            " (not implemented — never pass). Switch back to Playwright."
+        : "Run selected case (headed)";
+    }
+    if (planFrameworkRunHint) {
+      if (blockRun) {
+        planFrameworkRunHint.hidden = false;
+        planFrameworkRunHint.textContent = caseStub
+          ? "Stub honesty: selected case uses " +
+            caseFw +
+            " — not implemented; Run disabled; never pass."
+          : "Stub honesty: Settings framework is " +
+            activeSettingsFramework +
+            " — not implemented; Run disabled; never pass. Switch to Playwright to run.";
+      } else {
+        planFrameworkRunHint.hidden = true;
+        planFrameworkRunHint.textContent = "";
+      }
+    }
+  }
+
   async function addFrameworkCaseToOpenPlan() {
     if (!openPlanId) {
       if (planStatus) planStatus.textContent = "Open a plan first.";
@@ -6198,7 +6299,7 @@
     const fw =
       planFrameworkSelect && planFrameworkSelect.value
         ? String(planFrameworkSelect.value).trim().toLowerCase()
-        : "selenium";
+        : "playwright";
     if (planStatus) planStatus.textContent = "Adding framework case…";
     try {
       const res = await fetch(
@@ -6206,7 +6307,7 @@
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ framework: fw || "selenium" }),
+          body: JSON.stringify({ framework: fw || "playwright" }),
         }
       );
       const payload = await res.json();
@@ -6221,10 +6322,14 @@
       if (payload.case && planCaseId) {
         planCaseId.value = payload.case.id || "";
       }
+      syncFrameworkStubHonestyUi();
       if (typeof refreshLabHome === "function") await refreshLabHome();
       if (planStatus) {
-        planStatus.textContent =
-          "Framework case added — Selenium/Cypress return not-implemented and do not mark passed; Playwright remains default.";
+        planStatus.textContent = isStubFramework(fw)
+          ? "Framework stub case added — " +
+            fw +
+            " is not implemented; Run stays disabled and never passes. Default remains Playwright."
+          : "Framework case added — Playwright (ready).";
       }
     } catch (err) {
       if (planStatus) {
@@ -6238,6 +6343,23 @@
       addFrameworkCaseToOpenPlan();
     });
   }
+
+  if (planFrameworkSelect) {
+    planFrameworkSelect.addEventListener("change", function () {
+      syncFrameworkStubHonestyUi();
+    });
+  }
+
+  if (setTestFramework) {
+    setTestFramework.addEventListener("change", function () {
+      activeSettingsFramework = String(setTestFramework.value || "playwright")
+        .trim()
+        .toLowerCase();
+      syncFrameworkStubHonestyUi();
+    });
+  }
+
+  syncFrameworkStubHonestyUi();
 
   async function updateVisualBaselineForSelectedCase() {
     if (!openPlanId) {
@@ -7089,6 +7211,20 @@
       if (planStatus) {
         planStatus.textContent =
           "Alt+R: open a plan and select a case id first.";
+      }
+      return;
+    }
+    syncFrameworkStubHonestyUi();
+    if (planCaseRun && planCaseRun.disabled) {
+      const caseFw = selectedCaseFrameworkId();
+      if (planStatus) {
+        planStatus.textContent = isStubFramework(caseFw)
+          ? "Run blocked — " +
+            caseFw +
+            " is not implemented (never pass). Choose Playwright or another ready case."
+          : "Run blocked — Settings framework " +
+            activeSettingsFramework +
+            " is not implemented (never pass). Switch to Playwright in Settings.";
       }
       return;
     }

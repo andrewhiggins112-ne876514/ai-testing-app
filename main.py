@@ -415,10 +415,10 @@ class PlanPerfBudgetRequest(BaseModel):
 
 
 class PlanFrameworkCaseRequest(BaseModel):
-    """Add a framework-selection case (KAN-233 / G9). Selenium/Cypress stub until runners exist."""
+    """Add a framework-selection case (KAN-233 / G9 / KAN-267). Default Playwright."""
 
     name: str = ""
-    framework: str = "selenium"
+    framework: str = "playwright"
     note: str = ""
     tags: list[str] | None = None
 
@@ -1556,11 +1556,11 @@ async def post_plan_perf_case(plan_id: str, req: PlanPerfCaseRequest):
 
 @app.post("/api/plans/{plan_id}/cases/framework")
 async def post_plan_framework_case(plan_id: str, req: PlanFrameworkCaseRequest):
-    """Add a framework-selection case; Selenium/Cypress → not-implemented (KAN-233 / G9)."""
+    """Add a framework-selection case; Selenium/Cypress → not-implemented (KAN-233 / KAN-267)."""
     return add_framework_case(
         plan_id,
         req.name or "",
-        framework=req.framework or "selenium",
+        framework=req.framework or "playwright",
         note=req.note or "",
         tags=list(req.tags or []),
     )
