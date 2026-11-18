@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-273** — Track1: Secondary App areas UI tidy |
+| **Jira story** | **KAN-275** — Track1: Manual Primary App area + Plans deep-link shell |
 | **Start task** | — |
 | **Epic** | **KAN-264** Council Track 1 — UX tidy + Manual Charter Frame |
-| **Roadmap ID** | TRACK1-IA → TRACK1-H1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-7, FR-UI-8; epic **KAN-264** |
+| **Roadmap ID** | TRACK1-H1 |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-1, FR-UI-7, FR-MAN-1; epic **KAN-264** |
 | **Git** | `main` |
-| **Test ticket** | **KAN-274** |
-| **Shipped** | … **KAN-271** Reports tidy (desk88); **KAN-269** Suites tidy (desk87); **KAN-267** stub honesty (desk86); **KAN-265** Plans IA (desk85); Council Slice-0; epic **KAN-264** |
+| **Test ticket** | **KAN-276** |
+| **Shipped** | … **KAN-273** Lab areas tidy (desk89); **KAN-271** Reports tidy (desk88); **KAN-269** Suites tidy (desk87); **KAN-267** stub honesty (desk86); **KAN-265** Plans IA (desk85); Council Slice-0; epic **KAN-264** |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles |
-| **Next / Shipped** | Build pick-up → **KAN-273**. Queue: **275** Manual shell → **277** Charter Frame. Do **not** start voice. |
+| **Next / Shipped** | Build pick-up → **KAN-275**. Queue: **277** Charter Frame. Do **not** start voice. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-273 — Lab areas UI tidy
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-273
+- **Done:** Documents / Heal / Desktop / Sandboxes progressive disclosure (FR-UI-7 / FR-UI-8): sticky primary actions + status; primary ingest/list / proposals / smoke status / sandbox list; help + configure under Advanced. Control IDs and APIs unchanged; Lab tools App menu group kept. Cache-bust **desk89**.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_lab_areas_ia.py` (+ desk89 across UI tests), docs
+- **Verify:** `pytest tests/test_lab_areas_ia.py tests/test_doc_privacy_uploads.py tests/test_doc_ingest.py tests/test_multi_sandbox.py tests/test_desktop_app_menu.py` 30 passed (+ IA suite 7). Live `GET /ui/desktop/index.html?v=desk89` has `data-lab-areas-ia` ×4 + sticky/advanced markers. `desktop_app.py` opened desk89 (orb home; App-menu Computer Use contested; HTML + pytest evidence).
+- **Jira:** close-out **KAN-273** + **KAN-274**
+- **Next:** **KAN-275** Manual Primary shell (test **KAN-276**)
 
 ### 2026-11-18 — KAN-271 — Reports area UI tidy
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-271

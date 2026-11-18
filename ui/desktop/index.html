@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk88" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk89" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -523,63 +523,88 @@
             </p>
           </details>
         </div>
-        <div id="app-section-documents" class="app-section" hidden>
-          <h3 class="orb-section-label">Document ingestion</h3>
-          <p class="drawer-hint">Paste a Markdown/text spec. Uploads record file name, time, security level, and consent locally (no cloud sync). Explicit consent is required before storing extracted settings (GDPR). Decline leaves the settings file unchanged. Exports omit document bodies unless the Documents report section is on.</p>
-          <label class="stack-label">Spec text
-            <textarea id="doc-text" rows="8" placeholder="# Spec&#10;Target: https://example.com&#10;Jira project: KAN"></textarea>
-          </label>
-          <button type="button" id="doc-parse" class="save-btn">Parse &amp; propose</button>
-          <div id="doc-proposal" class="doc-proposal" hidden>
-            <h3 class="orb-section-label">Proposed settings</h3>
-            <div id="doc-diff" class="doc-diff"></div>
-            <h3 class="orb-section-label">Test ideas</h3>
-            <ul id="doc-ideas" class="doc-ideas"></ul>
-            <div class="btn-row">
-              <button type="button" id="doc-confirm" class="save-btn">Confirm selected</button>
-              <button type="button" id="doc-decline" class="save-btn secondary">Decline</button>
+        <div id="app-section-documents" class="app-section" hidden data-lab-areas-ia="1" data-documents-ia="1">
+          <h3 class="orb-section-label">Documents</h3>
+          <div id="doc-sticky-toolbar" class="lab-sticky-toolbar" data-doc-sticky="1">
+            <div class="btn-row lab-toolbar-actions">
+              <button type="button" id="doc-parse" class="save-btn">Parse &amp; propose</button>
+              <button type="button" id="doc-uploads-refresh" class="save-btn secondary">Refresh uploads</button>
             </div>
+            <p id="doc-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
-          <h3 class="orb-section-label">Local uploads</h3>
-          <p class="drawer-hint">Privacy inventory includes these. Delete them from Security → Privacy with confirm.</p>
-          <div class="btn-row">
-            <button type="button" id="doc-uploads-refresh" class="save-btn secondary">Refresh uploads</button>
+          <div id="doc-primary" class="lab-primary" data-doc-primary="1">
+            <h4 class="orb-section-label">Ingest</h4>
+            <label class="stack-label">Spec text
+              <textarea id="doc-text" rows="8" placeholder="# Spec&#10;Target: https://example.com&#10;Jira project: KAN"></textarea>
+            </label>
+            <div id="doc-proposal" class="doc-proposal" hidden>
+              <h3 class="orb-section-label">Proposed settings</h3>
+              <div id="doc-diff" class="doc-diff"></div>
+              <h3 class="orb-section-label">Test ideas</h3>
+              <ul id="doc-ideas" class="doc-ideas"></ul>
+              <div class="btn-row">
+                <button type="button" id="doc-confirm" class="save-btn">Confirm selected</button>
+                <button type="button" id="doc-decline" class="save-btn secondary">Decline</button>
+              </div>
+            </div>
+            <h4 class="orb-section-label">Local uploads</h4>
+            <ul id="doc-uploads-list" class="doc-ideas" aria-live="polite" data-doc-list="1"></ul>
           </div>
-          <ul id="doc-uploads-list" class="doc-ideas" aria-live="polite"></ul>
-          <p id="doc-status" class="drawer-hint" role="status">Ready</p>
+          <details id="doc-advanced" class="lab-advanced" data-doc-advanced="1">
+            <summary>Privacy &amp; help</summary>
+            <p class="drawer-hint">Paste a Markdown/text spec. Uploads record file name, time, security level, and consent locally (no cloud sync). Explicit consent is required before storing extracted settings (GDPR). Decline leaves the settings file unchanged. Exports omit document bodies unless the Documents report section is on. Privacy inventory includes uploads — delete them from Security → Privacy with confirm.</p>
+          </details>
         </div>
-        <div id="app-section-heal" class="app-section" hidden>
+        <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1">
           <h3 class="orb-section-label">Heal proposal review</h3>
-          <p class="drawer-hint">
-            Locator-only heals wait here for approval (FR-HEAL-2). Approve records an approver in the audit log;
-            reject leaves the heal unaccepted. Assertions are never auto-healed. Suite files are never auto-committed.
-            Optional run filter shows only heals stamped for that plan run.
-          </p>
-          <label class="stack-label">Filter by run
-            <select id="heal-run-filter">
-              <option value="">All pending</option>
-            </select>
-          </label>
-          <div class="btn-row">
-            <button type="button" id="heal-refresh" class="save-btn secondary">Refresh</button>
+          <div id="heal-sticky-toolbar" class="lab-sticky-toolbar" data-heal-sticky="1">
+            <label class="stack-label heal-toolbar-filter" for="heal-run-filter">Filter by run
+              <select id="heal-run-filter">
+                <option value="">All pending</option>
+              </select>
+            </label>
+            <div class="btn-row lab-toolbar-actions">
+              <button type="button" id="heal-refresh" class="save-btn secondary">Refresh</button>
+            </div>
+            <p id="heal-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
-          <div id="heal-list" class="heal-list" aria-live="polite"></div>
-          <p id="heal-status" class="drawer-hint" role="status">Ready</p>
+          <div id="heal-primary" class="lab-primary" data-heal-primary="1">
+            <h4 class="orb-section-label">Pending proposals</h4>
+            <div id="heal-list" class="heal-list" aria-live="polite" data-heal-list="1"></div>
+          </div>
+          <details id="heal-advanced" class="lab-advanced" data-heal-advanced="1">
+            <summary>Policy &amp; help</summary>
+            <p class="drawer-hint">
+              Locator-only heals wait here for approval (FR-HEAL-2). Approve records an approver in the audit log;
+              reject leaves the heal unaccepted. Assertions are never auto-healed. Suite files are never auto-committed.
+              Optional run filter shows only heals stamped for that plan run.
+            </p>
+          </details>
         </div>
-        <div id="app-section-desktop" class="app-section" hidden>
+        <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1">
           <h3 class="orb-section-label">Desktop .exe plugin</h3>
-          <p class="drawer-hint">Separate from Playwright. Smoke launch, or structured steps (wait_window, type_text). Uses target_app_path from the active security level.</p>
-          <label class="check-row"><input type="checkbox" id="desk-enabled" checked /> Enable desktop plugin</label>
-          <p id="desk-path" class="drawer-hint">App path: —</p>
-          <label class="stack-label">Exe path override
-            <input type="text" id="desk-exe" placeholder="C:\Path\To\App.exe" />
-          </label>
-          <div class="btn-row">
-            <button type="button" id="desk-save" class="save-btn">Save plugin</button>
-            <button type="button" id="desk-smoke" class="save-btn secondary">Run smoke</button>
-            <button type="button" id="desk-steps" class="save-btn secondary">Run demo steps</button>
+          <div id="desk-sticky-toolbar" class="lab-sticky-toolbar" data-desk-sticky="1">
+            <div class="btn-row lab-toolbar-actions">
+              <button type="button" id="desk-smoke" class="save-btn">Run smoke</button>
+              <button type="button" id="desk-steps" class="save-btn secondary">Run demo steps</button>
+            </div>
+            <p id="desk-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
-          <p id="desk-status" class="drawer-hint" role="status">Ready</p>
+          <div id="desk-primary" class="lab-primary" data-desk-primary="1">
+            <h4 class="orb-section-label">Smoke status</h4>
+            <p id="desk-path" class="drawer-hint">App path: —</p>
+          </div>
+          <details id="desk-advanced" class="lab-advanced" data-desk-advanced="1">
+            <summary>Plugin settings &amp; help</summary>
+            <p class="drawer-hint">Separate from Playwright. Smoke launch, or structured steps (wait_window, type_text). Uses target_app_path from the active security level.</p>
+            <label class="check-row"><input type="checkbox" id="desk-enabled" checked /> Enable desktop plugin</label>
+            <label class="stack-label">Exe path override
+              <input type="text" id="desk-exe" placeholder="C:\Path\To\App.exe" />
+            </label>
+            <div class="btn-row">
+              <button type="button" id="desk-save" class="save-btn">Save plugin</button>
+            </div>
+          </details>
         </div>
         <div id="app-section-plans" class="app-section" hidden data-plans-ia="1">
           <h3 class="orb-section-label">Plans</h3>
@@ -895,36 +920,46 @@
             </div>
           </details>
         </div>
-        <div id="app-section-sandboxes" class="app-section" hidden>
-          <h3 class="orb-section-label">Multi-sandbox plugin</h3>
-          <p class="drawer-hint">Local configured environments (max 4). Prepare creates profile folders. No cloud farms.</p>
-          <label class="check-row"><input type="checkbox" id="ms-enabled" /> Enable multi-sandbox plugin</label>
-          <p id="ms-plugins" class="drawer-hint">Plugins: —</p>
-          <p id="ms-list" class="drawer-hint">Sandboxes: —</p>
-          <label class="stack-label">Action
-            <select id="ms-action">
-              <option value="list">list</option>
-              <option value="plan">plan</option>
-              <option value="prepare">prepare</option>
-              <option value="status">status</option>
-            </select>
-          </label>
-          <label class="stack-label">Sandbox id
-            <input type="text" id="ms-id" placeholder="primary" autocomplete="off" />
-          </label>
-          <label class="stack-label">Label
-            <input type="text" id="ms-label" placeholder="Primary AUT" autocomplete="off" />
-          </label>
-          <label class="stack-label">URL
-            <input type="url" id="ms-url" placeholder="https://…" autocomplete="off" />
-          </label>
-          <div class="btn-row">
-            <button type="button" id="ms-save" class="save-btn">Save plugin</button>
-            <button type="button" id="ms-run" class="save-btn secondary">Orchestrate</button>
-            <button type="button" id="ms-upsert" class="save-btn secondary">Save sandbox</button>
-            <button type="button" id="ms-remove" class="save-btn secondary">Remove</button>
+        <div id="app-section-sandboxes" class="app-section" hidden data-lab-areas-ia="1" data-sandboxes-ia="1">
+          <h3 class="orb-section-label">Sandboxes</h3>
+          <div id="ms-sticky-toolbar" class="lab-sticky-toolbar" data-ms-sticky="1">
+            <label class="stack-label ms-toolbar-action" for="ms-action">Action
+              <select id="ms-action">
+                <option value="list">list</option>
+                <option value="plan">plan</option>
+                <option value="prepare">prepare</option>
+                <option value="status">status</option>
+              </select>
+            </label>
+            <div class="btn-row lab-toolbar-actions">
+              <button type="button" id="ms-run" class="save-btn">Orchestrate</button>
+            </div>
+            <p id="ms-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
-          <p id="ms-status" class="drawer-hint" role="status">Ready</p>
+          <div id="ms-primary" class="lab-primary" data-ms-primary="1">
+            <h4 class="orb-section-label">Sandbox list &amp; status</h4>
+            <p id="ms-plugins" class="drawer-hint">Plugins: —</p>
+            <p id="ms-list" class="drawer-hint" data-ms-list="1">Sandboxes: —</p>
+          </div>
+          <details id="ms-advanced" class="lab-advanced" data-ms-advanced="1">
+            <summary>Configure &amp; help</summary>
+            <p class="drawer-hint">Local configured environments (max 4). Prepare creates profile folders. No cloud farms.</p>
+            <label class="check-row"><input type="checkbox" id="ms-enabled" /> Enable multi-sandbox plugin</label>
+            <label class="stack-label">Sandbox id
+              <input type="text" id="ms-id" placeholder="primary" autocomplete="off" />
+            </label>
+            <label class="stack-label">Label
+              <input type="text" id="ms-label" placeholder="Primary AUT" autocomplete="off" />
+            </label>
+            <label class="stack-label">URL
+              <input type="url" id="ms-url" placeholder="https://…" autocomplete="off" />
+            </label>
+            <div class="btn-row">
+              <button type="button" id="ms-save" class="save-btn">Save plugin</button>
+              <button type="button" id="ms-upsert" class="save-btn secondary">Save sandbox</button>
+              <button type="button" id="ms-remove" class="save-btn secondary">Remove</button>
+            </div>
+          </details>
         </div>
         </div>
         </div>
@@ -1037,6 +1072,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk88"></script>
+  <script src="/ui/desktop/desktop.js?v=desk89"></script>
 </body>
 </html>

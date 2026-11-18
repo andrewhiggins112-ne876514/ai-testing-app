@@ -1837,3 +1837,59 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin-bottom: 8px;
   color: var(--cyan, #50cdff);
 }
+
+/* KAN-273 Lab areas IA — Documents / Heal / Desktop / Sandboxes */
+.lab-sticky-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0 10px;
+  margin: 0 0 4px;
+  background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.lab-sticky-toolbar .lab-toolbar-actions {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lab-sticky-toolbar .lab-toolbar-status {
+  margin: 0;
+  color: var(--cyan, #50cdff);
+}
+
+.lab-sticky-toolbar .heal-toolbar-filter,
+.lab-sticky-toolbar .ms-toolbar-action {
+  margin: 0;
+}
+
+.lab-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+
+.lab-advanced {
+  margin: 8px 0 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
+}
+
+.lab-advanced > summary {
+  cursor: pointer;
+  color: var(--muted, #9bb4c4);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lab-advanced[open] > summary {
+  margin-bottom: 8px;
+  color: var(--cyan, #50cdff);
+}
