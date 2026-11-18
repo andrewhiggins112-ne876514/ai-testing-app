@@ -1525,17 +1525,42 @@ html[data-area-open="true"] .hud-widget {
   font: var(--type-body);
 }
 
-/* Shared non-overlapping area chrome (was sticky-inside-scrollport) */
-.plan-sticky-toolbar,
-.suite-sticky-toolbar,
-.rpt-sticky-toolbar,
-.manual-sticky-toolbar,
-.lab-sticky-toolbar {
+/* KAN-310 — shared area chrome scaffold (retire sticky naming; outside .area-work) */
+.area-chrome-toolbar,
+.plan-chrome-toolbar,
+.suite-chrome-toolbar,
+.rpt-chrome-toolbar,
+.manual-chrome-toolbar,
+.lab-chrome-toolbar {
   position: static;
   top: auto;
   z-index: auto;
   flex-shrink: 0;
-  /* Budget target: var(--chrome-toolbar); keep compact via space tokens below */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-1) 0;
+  margin: 0 0 var(--space-1);
+  background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+  /* Budget target: var(--chrome-toolbar); Primary keeps one band (Manual may wrap status) */
+  box-sizing: border-box;
+}
+
+.area-chrome-toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.area-chrome-toolbar-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
 }
 
 .plan-section-tabs {
@@ -1626,31 +1651,22 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   display: none !important;
 }
 
-/* KAN-265/KAN-281/KAN-297 Plans IA — non-overlapping chrome + layout tokens */
-.plan-sticky-toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-2) 0;
-  margin: 0 0 var(--space-1);
-  background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+/* KAN-265/KAN-281/KAN-297/KAN-310 Plans IA — shared chrome scaffold */
+.plan-chrome-toolbar .plan-toolbar-plan {
+  flex: 0 1 180px;
+  min-width: 120px;
+  margin: 0;
 }
 
-.plan-sticky-toolbar .plan-toolbar-actions {
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--space-2);
-}
-
-.plan-sticky-toolbar .plan-toolbar-search {
+.plan-chrome-toolbar .plan-toolbar-search {
   flex: 1 1 140px;
   min-width: 120px;
   margin: 0;
 }
 
-.plan-sticky-toolbar .plan-toolbar-status {
+.plan-chrome-toolbar .plan-toolbar-status {
   margin: 0;
+  flex: 1 1 120px;
   font: var(--type-ui);
   color: var(--cyan, #50cdff);
 }
@@ -1732,29 +1748,19 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin-bottom: var(--space-2);
 }
 
-/* KAN-269/KAN-281/KAN-297 Suites IA — layout tokens */
-.suite-sticky-toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-2) 0;
-  margin: 0 0 var(--space-1);
-  background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
-}
-
-.suite-sticky-toolbar .suite-toolbar-actions {
+/* KAN-269/KAN-281/KAN-297/KAN-310 Suites — shared chrome scaffold */
+.suite-chrome-toolbar .suite-toolbar-actions {
   flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.suite-sticky-toolbar .suite-toolbar-status {
+.suite-chrome-toolbar .suite-toolbar-status {
   margin: 0;
   font: var(--type-ui);
   color: var(--cyan, #50cdff);
 }
 
-.suite-sticky-toolbar .suite-toolbar-saved {
+.suite-chrome-toolbar .suite-toolbar-saved {
   margin: 0;
   font: var(--type-meta);
 }
@@ -1814,22 +1820,13 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: var(--cyan, #50cdff);
 }
 
-.rpt-sticky-toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-2) 0;
-  margin: 0 0 var(--space-1);
-  background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
-}
-
-.rpt-sticky-toolbar .rpt-toolbar-actions {
+/* KAN-271/KAN-281/KAN-297/KAN-310 Reports — shared chrome scaffold */
+.rpt-chrome-toolbar .rpt-toolbar-actions {
   flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.rpt-sticky-toolbar .rpt-toolbar-status {
+.rpt-chrome-toolbar .rpt-toolbar-status {
   margin: 0;
   font: var(--type-ui);
   color: var(--cyan, #50cdff);
@@ -1900,23 +1897,13 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: var(--cyan, #50cdff);
 }
 
-/* KAN-275/277/281/283/297 Manual Primary + trustworthy loop — layout tokens */
-.manual-sticky-toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-2) 0;
-  margin: 0 0 var(--space-1);
-  background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
-}
-
-.manual-sticky-toolbar .manual-toolbar-actions {
+/* KAN-275/277/281/283/297/KAN-310 Manual — shared chrome scaffold */
+.manual-chrome-toolbar .manual-toolbar-actions {
   flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.manual-sticky-toolbar .manual-toolbar-status,
+.manual-chrome-toolbar .manual-toolbar-status,
 .manual-loop-stage-label {
   margin: 0;
   font: var(--type-ui);
@@ -2265,31 +2252,20 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   outline: none;
 }
 
-/* KAN-273 Lab areas IA — Documents / Heal / Desktop / Sandboxes */
-/* KAN-273/KAN-281/KAN-297 Lab areas — layout tokens */
-.lab-sticky-toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-2) 0;
-  margin: 0 0 var(--space-1);
-  background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
-}
-
-.lab-sticky-toolbar .lab-toolbar-actions {
+/* KAN-273/KAN-281/KAN-297/KAN-310 Lab + Documents — shared chrome scaffold */
+.lab-chrome-toolbar .lab-toolbar-actions {
   flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.lab-sticky-toolbar .lab-toolbar-status {
+.lab-chrome-toolbar .lab-toolbar-status {
   margin: 0;
   font: var(--type-ui);
   color: var(--cyan, #50cdff);
 }
 
-.lab-sticky-toolbar .heal-toolbar-filter,
-.lab-sticky-toolbar .ms-toolbar-action {
+.lab-chrome-toolbar .heal-toolbar-filter,
+.lab-chrome-toolbar .ms-toolbar-action {
   margin: 0;
 }
 

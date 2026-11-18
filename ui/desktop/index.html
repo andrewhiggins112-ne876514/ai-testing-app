@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk99" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk100" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -277,7 +277,7 @@
 
     <div id="area-layer" class="area-layer" hidden>
       <div id="area-scrim" class="area-scrim"></div>
-      <section id="area-surface" class="shell-surface area-surface" role="region" aria-label="App area" data-area-chrome-nonoverlap="1" data-enterprise-layout-tokens="1">
+      <section id="area-surface" class="shell-surface area-surface" role="region" aria-label="App area" data-area-chrome-nonoverlap="1" data-enterprise-layout-tokens="1" data-area-chrome-scaffold="1">
         <header class="area-surface-bar">
           <button type="button" id="area-back" class="save-btn secondary">Back</button>
           <h2 id="area-title" class="area-title">Settings</h2>
@@ -520,7 +520,7 @@
         </div>
         <div id="app-section-reports" class="app-section" hidden data-reports-ia="1">
           <h3 class="orb-section-label">Report library</h3>
-          <div id="rpt-sticky-toolbar" class="rpt-sticky-toolbar" data-rpt-sticky="1">
+          <div id="rpt-chrome-toolbar" class="area-chrome-toolbar rpt-chrome-toolbar" data-rpt-chrome="1">
             <div class="btn-row rpt-toolbar-actions">
               <button type="button" id="rpt-library-refresh" class="save-btn secondary">Refresh library</button>
               <button type="button" id="rpt-open-settings" class="save-btn secondary">Report settings</button>
@@ -571,7 +571,7 @@
         </div>
         <div id="app-section-documents" class="app-section" hidden data-lab-areas-ia="1" data-documents-ia="1">
           <h3 class="orb-section-label">Documents</h3>
-          <div id="doc-sticky-toolbar" class="lab-sticky-toolbar" data-doc-sticky="1">
+          <div id="doc-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-doc-chrome="1">
             <div class="btn-row lab-toolbar-actions">
               <button type="button" id="doc-parse" class="save-btn">Parse &amp; propose</button>
               <button type="button" id="doc-uploads-refresh" class="save-btn secondary">Refresh uploads</button>
@@ -605,7 +605,7 @@
         </div>
         <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1">
           <h3 class="orb-section-label">Heal proposal review</h3>
-          <div id="heal-sticky-toolbar" class="lab-sticky-toolbar" data-heal-sticky="1">
+          <div id="heal-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-heal-chrome="1">
             <label class="stack-label heal-toolbar-filter" for="heal-run-filter">Filter by run
               <select id="heal-run-filter">
                 <option value="">All pending</option>
@@ -633,7 +633,7 @@
         </div>
         <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1">
           <h3 class="orb-section-label">Desktop .exe plugin</h3>
-          <div id="desk-sticky-toolbar" class="lab-sticky-toolbar" data-desk-sticky="1">
+          <div id="desk-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-desk-chrome="1">
             <div class="btn-row lab-toolbar-actions">
               <button type="button" id="desk-smoke" class="save-btn">Run smoke</button>
               <button type="button" id="desk-steps" class="save-btn secondary">Run demo steps</button>
@@ -661,24 +661,23 @@
         <div id="app-section-plans" class="app-section" hidden data-plans-ia="1">
           <h3 class="orb-section-label">Plans</h3>
           <p class="drawer-hint">Open a plan, work Cases first, then draft/import or run setup as needed. Nothing is written to Jira from this screen. Import never deletes external Playwright files; Suites still runs via npx.</p>
-          <div id="plan-sticky-toolbar" class="plan-sticky-toolbar" data-plan-sticky="1">
-            <label class="stack-label plan-toolbar-plan" for="plan-list">Saved plans
-              <select id="plan-list">
-                <option value="">(none yet)</option>
-              </select>
-            </label>
-            <div class="btn-row plan-toolbar-actions">
-              <button type="button" id="plan-load-btn" class="save-btn secondary">Open plan</button>
-              <button type="button" id="plan-refresh-btn" class="save-btn secondary">Refresh list</button>
+          <div id="plan-chrome-toolbar" class="area-chrome-toolbar plan-chrome-toolbar" data-plan-chrome="1">
+            <div class="btn-row plan-toolbar-actions area-chrome-toolbar-row">
+              <label class="stack-label plan-toolbar-plan" for="plan-list">Plan
+                <select id="plan-list">
+                  <option value="">(none yet)</option>
+                </select>
+              </label>
+              <button type="button" id="plan-load-btn" class="save-btn secondary">Open</button>
+              <button type="button" id="plan-refresh-btn" class="save-btn secondary">Refresh</button>
               <label class="stack-label plan-toolbar-search" for="plan-search-q">Search
                 <input type="text" id="plan-search-q" placeholder="name, KAN-, smoke…" autocomplete="off" />
               </label>
               <button type="button" id="plan-search-btn" class="save-btn secondary">Search</button>
+              <p id="plan-status" class="drawer-hint plan-toolbar-status" role="status">Ready</p>
             </div>
-            <p id="plan-status" class="drawer-hint plan-toolbar-status" role="status">Ready</p>
           </div>
           <p id="plan-offline-banner" class="drawer-hint" role="status" hidden data-offline="0"></p>
-          <div id="plan-search-results" class="drawer-hint" aria-live="polite" role="list" aria-label="Plan search results"></div>
           <div id="plan-section-tabs" class="plan-section-tabs" role="tablist" aria-label="Plans sections" data-plan-tabs="1">
             <button type="button" class="plan-tab" role="tab" id="plan-tab-cases" data-plan-panel="cases" aria-selected="true" aria-controls="plan-panel-cases">Cases</button>
             <button type="button" class="plan-tab" role="tab" id="plan-tab-draft" data-plan-panel="draft" aria-selected="false" aria-controls="plan-panel-draft">Draft &amp; import</button>
@@ -688,6 +687,7 @@
             <button type="button" class="plan-tab" role="tab" id="plan-tab-run" data-plan-panel="run" aria-selected="false" aria-controls="plan-panel-run">Run setup</button>
           </div>
           <div class="area-work" data-area-work="1">
+          <div id="plan-search-results" class="drawer-hint" aria-live="polite" role="list" aria-label="Plan search results"></div>
           <div id="plan-panel-cases" class="plan-panel" role="tabpanel" data-plan-panel="cases" aria-labelledby="plan-tab-cases">
             <pre id="plan-intent" class="drawer-hint" aria-live="polite" hidden></pre>
             <label class="stack-label"><input type="checkbox" id="plan-show-archived" /> Show archived cases (default list hides them; runs and evidence stay)</label>
@@ -950,14 +950,16 @@
         <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-loop-stage="idle">
           <h3 class="orb-section-label">Manual</h3>
           <p class="drawer-hint">Charter Frame (FR-MAN-1). Calm loop: Start → notes/stills → End → review → Propose → Confirm/Cancel. Session library is level-scoped; GDPR wipe under Security removes Manual sessions for this level. Esc/Back returns to orb home — Manual is not a second landing. No background capture until Start.</p>
-          <div id="manual-sticky-toolbar" class="manual-sticky-toolbar" data-manual-sticky="1">
-            <div class="btn-row manual-toolbar-actions">
+          <div id="manual-chrome-toolbar" class="area-chrome-toolbar manual-chrome-toolbar" data-manual-chrome="1">
+            <div class="btn-row manual-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="manual-clear-context" class="save-btn secondary">Clear linked context</button>
               <button type="button" id="manual-open-plans" class="save-btn secondary">Open Plans</button>
               <button type="button" id="manual-refresh-sessions" class="save-btn secondary" data-manual-library-refresh="1">Refresh library</button>
             </div>
-            <p id="manual-loop-stage-label" class="drawer-hint manual-loop-stage-label" data-manual-loop-stage="1" aria-live="polite">Loop: idle — enter a charter to Start</p>
-            <p id="manual-status" class="drawer-hint manual-toolbar-status" role="status">Ready — no session running</p>
+            <div class="area-chrome-toolbar-status-row">
+              <p id="manual-loop-stage-label" class="drawer-hint manual-loop-stage-label" data-manual-loop-stage="1" aria-live="polite">Loop: idle — enter a charter to Start</p>
+              <p id="manual-status" class="drawer-hint manual-toolbar-status" role="status">Ready — no session running</p>
+            </div>
           </div>
           <div class="area-work" data-area-work="1">
           <div id="manual-library" class="manual-library" data-manual-library-panel="1">
@@ -1028,7 +1030,7 @@
         </div>
         <div id="app-section-suites" class="app-section" hidden data-suites-ia="1">
           <h3 class="orb-section-label">Playwright suites</h3>
-          <div id="suite-sticky-toolbar" class="suite-sticky-toolbar" data-suite-sticky="1">
+          <div id="suite-chrome-toolbar" class="area-chrome-toolbar suite-chrome-toolbar" data-suite-chrome="1">
             <label class="stack-label suite-toolbar-path" for="suite-path">Project path
               <input type="text" id="suite-path" placeholder="D:\path\to\playwright-project" autocomplete="off" />
             </label>
@@ -1058,7 +1060,7 @@
         </div>
         <div id="app-section-sandboxes" class="app-section" hidden data-lab-areas-ia="1" data-sandboxes-ia="1">
           <h3 class="orb-section-label">Sandboxes</h3>
-          <div id="ms-sticky-toolbar" class="lab-sticky-toolbar" data-ms-sticky="1">
+          <div id="ms-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-ms-chrome="1">
             <label class="stack-label ms-toolbar-action" for="ms-action">Action
               <select id="ms-action">
                 <option value="list">list</option>
@@ -1211,6 +1213,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk99"></script>
+  <script src="/ui/desktop/desktop.js?v=desk100"></script>
 </body>
 </html>

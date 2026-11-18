@@ -6,23 +6,23 @@ from pathlib import Path
 
 
 class LabAreasIaDesktopUiTests(unittest.TestCase):
-    def test_lab_areas_ia_markers_desk99(self):
+    def test_lab_areas_ia_markers_desk100(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk99", html)
-        self.assertIn("desk99", desk)
+        self.assertIn("desk100", html)
+        self.assertIn("desk100", desk)
         self.assertEqual(html.count('data-lab-areas-ia="1"'), 4)
 
         # Documents: sticky + ingest/list primary + privacy advanced
         self.assertIn('data-documents-ia="1"', html)
-        self.assertIn('data-doc-sticky="1"', html)
-        self.assertIn('id="doc-sticky-toolbar"', html)
+        self.assertIn('data-doc-chrome="1"', html)
+        self.assertIn('id="doc-chrome-toolbar"', html)
         self.assertIn('data-doc-primary="1"', html)
         self.assertIn('data-doc-list="1"', html)
         self.assertIn('data-doc-advanced="1"', html)
-        doc_toolbar = html.split('id="doc-sticky-toolbar"', 1)[1].split(
+        doc_toolbar = html.split('id="doc-chrome-toolbar"', 1)[1].split(
             'id="doc-primary"', 1
         )[0]
         for marker in (
@@ -41,11 +41,11 @@ class LabAreasIaDesktopUiTests(unittest.TestCase):
 
         # Heal: sticky filter/refresh + proposals primary + policy advanced
         self.assertIn('data-heal-ia="1"', html)
-        self.assertIn('data-heal-sticky="1"', html)
+        self.assertIn('data-heal-chrome="1"', html)
         self.assertIn('data-heal-primary="1"', html)
         self.assertIn('data-heal-list="1"', html)
         self.assertIn('data-heal-advanced="1"', html)
-        heal_toolbar = html.split('id="heal-sticky-toolbar"', 1)[1].split(
+        heal_toolbar = html.split('id="heal-chrome-toolbar"', 1)[1].split(
             'id="heal-primary"', 1
         )[0]
         for marker in (
@@ -63,10 +63,10 @@ class LabAreasIaDesktopUiTests(unittest.TestCase):
 
         # Desktop: smoke sticky + status primary + plugin settings advanced
         self.assertIn('data-desktop-ia="1"', html)
-        self.assertIn('data-desk-sticky="1"', html)
+        self.assertIn('data-desk-chrome="1"', html)
         self.assertIn('data-desk-primary="1"', html)
         self.assertIn('data-desk-advanced="1"', html)
-        desk_toolbar = html.split('id="desk-sticky-toolbar"', 1)[1].split(
+        desk_toolbar = html.split('id="desk-chrome-toolbar"', 1)[1].split(
             'id="desk-primary"', 1
         )[0]
         for marker in (
@@ -86,11 +86,11 @@ class LabAreasIaDesktopUiTests(unittest.TestCase):
 
         # Sandboxes: action/orchestrate sticky + list primary + configure advanced
         self.assertIn('data-sandboxes-ia="1"', html)
-        self.assertIn('data-ms-sticky="1"', html)
+        self.assertIn('data-ms-chrome="1"', html)
         self.assertIn('data-ms-primary="1"', html)
         self.assertIn('data-ms-list="1"', html)
         self.assertIn('data-ms-advanced="1"', html)
-        ms_toolbar = html.split('id="ms-sticky-toolbar"', 1)[1].split(
+        ms_toolbar = html.split('id="ms-chrome-toolbar"', 1)[1].split(
             'id="ms-primary"', 1
         )[0]
         for marker in (
@@ -129,7 +129,7 @@ class LabAreasIaDesktopUiTests(unittest.TestCase):
         self.assertIn('data-section="security"', nav)
         self.assertIn('data-section="suites"', nav)
 
-        self.assertIn(".lab-sticky-toolbar", css)
+        self.assertIn(".lab-chrome-toolbar", css)
         self.assertIn(".lab-primary", css)
         self.assertIn(".lab-advanced", css)
 

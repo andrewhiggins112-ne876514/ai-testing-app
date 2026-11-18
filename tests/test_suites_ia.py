@@ -6,17 +6,17 @@ from pathlib import Path
 
 
 class SuitesIaDesktopUiTests(unittest.TestCase):
-    def test_suites_ia_markers_desk99(self):
+    def test_suites_ia_markers_desk100(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk99", html)
-        self.assertIn("desk99", desk)
+        self.assertIn("desk100", html)
+        self.assertIn("desk100", desk)
         self.assertIn('data-suites-ia="1"', html)
-        self.assertIn('data-suite-sticky="1"', html)
-        self.assertIn('id="suite-sticky-toolbar"', html)
+        self.assertIn('data-suite-chrome="1"', html)
+        self.assertIn('id="suite-chrome-toolbar"', html)
         self.assertIn('data-suite-primary="1"', html)
         self.assertIn('data-suite-list="1"', html)
         self.assertIn('id="suite-list"', html)
@@ -28,7 +28,7 @@ class SuitesIaDesktopUiTests(unittest.TestCase):
         self.assertIn('id="suite-advanced"', html)
         self.assertIn('id="suite-import"', html)
 
-        toolbar = html.split('id="suite-sticky-toolbar"', 1)[1].split(
+        toolbar = html.split('id="suite-chrome-toolbar"', 1)[1].split(
             'id="suite-primary"', 1
         )[0]
         for marker in (
@@ -60,7 +60,7 @@ class SuitesIaDesktopUiTests(unittest.TestCase):
         self.assertIn("/api/playwright-suite/list", js)
         self.assertIn("suiteSelected", js)
         self.assertIn("postSuiteRun", js)
-        self.assertIn(".suite-sticky-toolbar", css)
+        self.assertIn(".suite-chrome-toolbar", css)
         self.assertIn(".suite-list-item", css)
         self.assertIn(".suite-advanced", css)
 

@@ -6,17 +6,17 @@ from pathlib import Path
 
 
 class ReportsIaDesktopUiTests(unittest.TestCase):
-    def test_reports_ia_markers_desk99(self):
+    def test_reports_ia_markers_desk100(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk99", html)
-        self.assertIn("desk99", desk)
+        self.assertIn("desk100", html)
+        self.assertIn("desk100", desk)
         self.assertIn('data-reports-ia="1"', html)
-        self.assertIn('data-rpt-sticky="1"', html)
-        self.assertIn('id="rpt-sticky-toolbar"', html)
+        self.assertIn('data-rpt-chrome="1"', html)
+        self.assertIn('id="rpt-chrome-toolbar"', html)
         self.assertIn('data-rpt-primary="1"', html)
         self.assertIn('data-rpt-list="1"', html)
         self.assertIn('id="rpt-library-list"', html)
@@ -30,7 +30,7 @@ class ReportsIaDesktopUiTests(unittest.TestCase):
         self.assertIn('id="rpt-export-run"', html)
         self.assertIn('id="rpt-export-pack"', html)
 
-        toolbar = html.split('id="rpt-sticky-toolbar"', 1)[1].split(
+        toolbar = html.split('id="rpt-chrome-toolbar"', 1)[1].split(
             'id="rpt-primary"', 1
         )[0]
         for marker in (
@@ -65,7 +65,7 @@ class ReportsIaDesktopUiTests(unittest.TestCase):
         self.assertIn("rptSelectedId", js)
         self.assertIn("/api/reports", js)
         self.assertIn("openReportSettings", js)
-        self.assertIn(".rpt-sticky-toolbar", css)
+        self.assertIn(".rpt-chrome-toolbar", css)
         self.assertIn(".rpt-library-item", css)
         self.assertIn(".rpt-advanced", css)
 

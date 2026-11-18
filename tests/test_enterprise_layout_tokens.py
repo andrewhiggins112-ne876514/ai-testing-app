@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class EnterpriseLayoutTokensTests(unittest.TestCase):
-    def test_tokens_and_wiring_desk99(self) -> None:
+    def test_tokens_and_wiring_desk100(self) -> None:
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
@@ -17,8 +17,8 @@ class EnterpriseLayoutTokensTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk99", html)
-        self.assertIn("desk99", desk)
+        self.assertIn("desk100", html)
+        self.assertIn("desk100", desk)
         self.assertIn('data-enterprise-layout-tokens="1"', html)
         self.assertIn('data-area-chrome-nonoverlap="1"', html)
 
@@ -61,7 +61,8 @@ class EnterpriseLayoutTokensTests(unittest.TestCase):
         self.assertIn("font: var(--type-body)", css)
         self.assertIn("gap: var(--space-2)", css)
         self.assertIn("gap: var(--space-1)", css)
-        self.assertIn("padding: var(--space-2) 0", css)
+        self.assertIn("padding: var(--space-1) 0", css)
+        self.assertIn("padding: var(--space-2) 0 var(--space-1)", css)
         self.assertIn("max-height: var(--chrome-surface-bar)", css)
 
         # No sticky-inside-scrollport regression

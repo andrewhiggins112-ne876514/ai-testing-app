@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-310** — Track3: Shared chrome scaffold + retire sticky naming |
+| **Jira story** | **KAN-312** — Track3: Plans Cases geometry from accepted wire |
 | **Start task** | — |
 | **Epic** | **KAN-307** Council Track 3 — Enterprise area density (Primary) |
 | **Roadmap ID** | TRACK3-UX |
 | **Spec** | FR-UI-10 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-311** |
-| **Shipped** | **KAN-308** wires **Accepted** (test **KAN-309**) |
+| **Test ticket** | **KAN-313** |
+| **Shipped** | **KAN-310** shared chrome scaffold (test **KAN-311**); wires **KAN-308** Accepted |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Lab density (**TRACK3-LAB**) |
-| **Next / Shipped** | Build: **KAN-310** shared chrome scaffold (retire sticky names). Do **not** voice / FR-MAN-2. |
+| **Next / Shipped** | Build: **KAN-312** Plans · Cases geometry. Do **not** voice / FR-MAN-2 / Lab density. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-310 — Shared chrome scaffold + retire sticky naming
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-310
+- **Done:** Shared `.area-chrome-toolbar` scaffold on all eight area toolbars; retired `*-sticky-toolbar` / `data-*-sticky` names (→ `*-chrome-toolbar` / `data-*-chrome`); Plans single-row toolbar with search+status in-band; search results moved into `.area-work`; Manual status row compacted; marker `data-area-chrome-scaffold`; cache-bust **desk100**. No Plans Cases height pass (KAN-312); no Lab density; no voice / FR-MAN-2.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_track3_chrome_scaffold.py` (+ IA/nonoverlap/token desk100 updates), docs
+- **Verify:** `pytest tests/test_track3_chrome_scaffold.py tests/test_area_chrome_nonoverlap.py tests/test_enterprise_layout_tokens.py tests/test_plans_ia.py tests/test_manual_ia.py tests/test_reports_ia.py tests/test_lab_areas_ia.py tests/test_suites_ia.py tests/test_nav_overlap.py` 13 passed. Marker/AC primary — CU not required (scaffold rename; per-area geometry next).
+- **Jira:** close-out **KAN-310** + **KAN-311**
+- **Next:** Active **KAN-312** Plans · Cases geometry (test **KAN-313**)
 
 ### 2026-11-18 — Designer accepted Track 3 wires
 - **Agent/chat:** Build chat — Accept gate

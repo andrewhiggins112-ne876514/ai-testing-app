@@ -9,13 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AreaChromeNonoverlapTests(unittest.TestCase):
-    def test_markers_and_desk99(self):
+    def test_markers_and_desk100(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk99", html)
-        self.assertIn("desk99", desk)
+        self.assertIn("desk100", html)
+        self.assertIn("desk100", desk)
         self.assertIn('data-area-chrome-nonoverlap="1"', html)
         self.assertEqual(html.count('data-area-work="1"'), 8)
         for section in (
@@ -41,22 +41,24 @@ class AreaChromeNonoverlapTests(unittest.TestCase):
         self.assertIn("position: static", css)
         self.assertNotIn("position: sticky", css)
 
-        # Toolbar rules must not reintroduce sticky positioning.
+        # Shared scaffold + area modifiers must not reintroduce sticky positioning.
+        self.assertIn(".area-chrome-toolbar", css)
         for cls in (
-            "plan-sticky-toolbar",
-            "suite-sticky-toolbar",
-            "rpt-sticky-toolbar",
-            "manual-sticky-toolbar",
-            "lab-sticky-toolbar",
+            "area-chrome-toolbar",
+            "plan-chrome-toolbar",
+            "suite-chrome-toolbar",
+            "rpt-chrome-toolbar",
+            "manual-chrome-toolbar",
+            "lab-chrome-toolbar",
         ):
             self.assertIn(f".{cls}", css)
-            block = re.search(
-                rf"\.{re.escape(cls)}\s*\{{[^}}]*\}}",
-                css,
-                flags=re.DOTALL,
-            )
-            self.assertIsNotNone(block, msg=cls)
-            self.assertNotIn("position: sticky", block.group(0))
+        shared = re.search(
+            r"\.area-chrome-toolbar\s*,[\s\S]*?\{([^}]*)\}",
+            css,
+        )
+        self.assertIsNotNone(shared)
+        self.assertIn("position: static", shared.group(0))
+        self.assertNotIn("position: sticky", shared.group(0))
 
         # Plans tabs stay outside the work scrollport (before area-work).
         plans = html.split('id="app-section-plans"', 1)[1].split(

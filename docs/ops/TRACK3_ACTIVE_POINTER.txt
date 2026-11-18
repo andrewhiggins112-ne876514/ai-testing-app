@@ -1,4 +1,6 @@
 epic=KAN-307
-first_story=KAN-310
+first_story=KAN-312
 wires_accepted=2026-11-18
 wires_story=KAN-308
+scaffold_story=KAN-310
+scaffold_done=2026-11-18

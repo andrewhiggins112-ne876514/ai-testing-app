@@ -1,4 +1,4 @@
-"""KAN-265 / FR-UI-9 — Plans IA: Cases-first, sticky toolbar, Add case menu."""
+"""KAN-265 / FR-UI-9 — Plans IA: Cases-first, chrome toolbar, Add case menu."""
 from __future__ import annotations
 
 import unittest
@@ -6,17 +6,17 @@ from pathlib import Path
 
 
 class PlansIaDesktopUiTests(unittest.TestCase):
-    def test_plans_ia_markers_desk99(self):
+    def test_plans_ia_markers_desk100(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk99", html)
-        self.assertIn("desk99", desk)
+        self.assertIn("desk100", html)
+        self.assertIn("desk100", desk)
         self.assertIn('data-plans-ia="1"', html)
-        self.assertIn('data-plan-sticky="1"', html)
-        self.assertIn('id="plan-sticky-toolbar"', html)
+        self.assertIn('data-plan-chrome="1"', html)
+        self.assertIn('id="plan-chrome-toolbar"', html)
         self.assertIn('data-plan-tabs="1"', html)
         self.assertIn('id="plan-panel-cases"', html)
         self.assertIn('id="plan-panel-draft"', html)
@@ -36,8 +36,8 @@ class PlansIaDesktopUiTests(unittest.TestCase):
         run_tab = html.split('id="plan-tab-run"', 1)[1].split("</button>", 1)[0]
         self.assertIn('aria-selected="false"', run_tab)
 
-        # Sticky toolbar keeps picker / open / refresh / search / status.
-        toolbar = html.split('id="plan-sticky-toolbar"', 1)[1].split(
+        # Chrome toolbar keeps picker / open / refresh / search / status.
+        toolbar = html.split('id="plan-chrome-toolbar"', 1)[1].split(
             'id="plan-section-tabs"', 1
         )[0]
         for marker in (
@@ -77,7 +77,7 @@ class PlansIaDesktopUiTests(unittest.TestCase):
         self.assertIn("showPlanPanel", js)
         self.assertIn('showPlanPanel("cases")', js)
         self.assertIn("closePlanAddCaseMenu", js)
-        self.assertIn(".plan-sticky-toolbar", css)
+        self.assertIn(".plan-chrome-toolbar", css)
         self.assertIn(".plan-section-tabs", css)
         self.assertIn(".plan-add-case-menu", css)
 

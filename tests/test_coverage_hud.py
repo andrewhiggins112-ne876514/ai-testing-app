@@ -104,7 +104,7 @@ class CoverageHudTests(unittest.TestCase):
             self.assertFalse(row["jira_write"])
             self.assertTrue(row["opens_plans"])
 
-    def test_api_coverage_hud_and_desktop_ui_desk99(self):
+    def test_api_coverage_hud_and_desktop_ui_desk100(self):
         self._seed()
         client = TestClient(main.app)
         res = client.get("/api/plans/coverage-hud")
@@ -123,8 +123,8 @@ class CoverageHudTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk99", html)
-        self.assertIn("desk99", desk)
+        self.assertIn("desk100", html)
+        self.assertIn("desk100", desk)
         self.assertIn('id="hud-cov-story"', html)
         self.assertIn('id="hud-cov-covered"', html)
         self.assertIn('id="hud-cov-partial"', html)
