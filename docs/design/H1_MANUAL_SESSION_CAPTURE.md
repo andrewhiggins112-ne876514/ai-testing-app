@@ -138,7 +138,7 @@ Human track **1** (Plans IA tidy + stub honesty → thin H1). Extends §§1–5;
 | ID | Choice |
 |----|--------|
 | A3 | **Manual** is a **Primary** App menu area **and** Plans has **Start manual on this case** deep-link. Esc/Back from Manual → orb home (one home). |
-| B1 | Capture frame = free **region** (snipping-tool rectangle). Window/monitor snap later. |
+| B1 | Capture frame = free **region** (snipping-tool rectangle). Window/monitor snap = **Track 2** completion story (not MVP). |
 | C3 | **Story key** required when binding to Jira; **test ticket optional**. Charter-only explore still allowed when not ticket-bound. |
 | D1 | Build order: **Plans IA + stub honesty first**, then H1 Charter Frame. |
 | E2 | Optional light mist **inside the frame** when session is armed; **mist on/off** (must not block testing). |
@@ -198,9 +198,26 @@ Silent video; keylogger; live OCR/vision circles; YOLO Jira; click-blocking glas
 
 ---
 
+## 11. Council Track 2 — FR-MAN-1 completion (2026-11-18)
+
+MVP shipped **KAN-277** (desk91). Do **not** reopen KAN-277 as failed. Remaining Build stories (epic Council Track 2):
+
+1. Non-overlapping area chrome (FR-UI-9) — fixes sticky occlusion first.
+2. Trustworthy headed Manual loop (Computer Use proven).
+3. Real agent-assist local Ollama drafts (honest unavailable state).
+4. Window/monitor snap (B1).
+5. Page context from headed AUT + annotate still.
+6. Session library + GDPR session wipe.
+7. Propose/confirm harden (failure class + Confirm visibility).
+8. Enterprise layout research note (docs) → tokens only after human accepts.
+
+FR-MAN-2 and voice stay out.
+
+---
+
 ## 10. Parked — live assist overlay (FR-MAN-2)
 
-Do **not** smuggle into H1 implement stories.
+Do **not** smuggle into H1 implement or Track 2 completion stories.
 
 | Later capability | Gate |
 |------------------|------|

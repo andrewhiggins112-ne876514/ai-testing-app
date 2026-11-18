@@ -7,17 +7,17 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | deferred |
-| **Jira story** | **KAN-81** — G10 voice (deferred) |
+| **Status** | open |
+| **Jira story** | **KAN-281** — Track2: Non-overlapping area chrome (FR-UI-9) |
 | **Start task** | — |
-| **Epic** | — |
-| **Roadmap ID** | G10 / next track TBD |
-| **Spec** | Voice deferred; Track 1 Charter Frame shipped |
+| **Epic** | **KAN-279** Council Track 2 — Area chrome + Manual completion |
+| **Roadmap ID** | TRACK2-CHROME |
+| **Spec** | FR-UI-9 non-overlap CR; Bug **KAN-280** occlusion |
 | **Git** | `main` |
-| **Test ticket** | — |
-| **Shipped** | … **KAN-277** Charter Frame MVP (desk91); **KAN-275** Manual shell (desk90); Track1 IA tidy set; epic **KAN-264** |
-| **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles |
-| **Next / Shipped** | Track 1 Build Done. Do **not** start voice / FR-MAN-2. Human or `/council` picks next track. |
+| **Test ticket** | **KAN-282** |
+| **Shipped** | Track 1 Done (**KAN-265…277**); Track 2 Slice-0 seeded (**KAN-279…298**) |
+| **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
+| **Next / Shipped** | Pick up **KAN-281** first. Then **KAN-283…297** Manual completion + layout note/tokens. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — Council Track 2 Slice-0 — CR landed (docs + Jira)
+- **Agent/chat:** Cursor IDE Council Room → CR apply (Designer answers: non-overlap; fix-first; full Manual completion backlog; Build gate off KAN-81)
+- **Done:** Amended FR-UI-9 (non-overlapping area chrome) + FR-MAN-1 completion wording in `docs/FUNCTIONAL_SPEC.md`. Seeded epic **KAN-279**, Bug **KAN-280**, Stories **KAN-281…297** + tests **KAN-282…298**. Active → **KAN-281**. Voice / FR-MAN-2 stay parked. No product feature code in this chat.
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `docs/design/H1_MANUAL_SESSION_CAPTURE.md`, `docs/ops/ROADMAP.md`, `docs/ops/WORK_LOG.md`, `PROJECT_MEMORY.md`, `.cursor/skills/slice-workflow/SKILL.md`, `scripts/jira_kan_track2_slice0.py`, `docs/ops/TRACK2_ACTIVE_POINTER.txt`
+- **Verify:** `python scripts/jira_kan_track2_slice0.py` created keys; Active table points at KAN-281
+- **Jira:** CR comments on KAN-241/265/275/277; epic KAN-279
+- **Next:** Build chat — **pick up where we left off** → **KAN-281**
 
 ### 2026-11-18 — KAN-277 — FR-MAN-1 Charter Frame MVP
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-277
