@@ -48,7 +48,7 @@ If Cursor Atlassian MCP errors with **permission / API token** (common on this s
 - GitHub: **plugin-github-github** (workspace npx MCP disabled).
 - Product UI: run **`desktop_app.py`** and verify with **Computer Use** (native window). Do not open the desktop shell in a browser.
 - IronBee browser: AUT pages or Gradio-only; Node/Backend off.
-- Supermemory: authenticated for this machine; use when available.
+- Supermemory: **v5** (2026-11-18). Local plugin `~/.cursor/plugins/local/cursor-supermemory` **1.3.1+** + user `mcp.json` → `dist/cli.js mcp`. Tools: `search_memory` / `add_memory` (not `supermemory_*`). Project namespace: `repo_ai_testing_app__bbdc87968dd0838c`. Hosted API defaults to v5; legacy container-tag strings are namespaces.
 - Context7: **build-time IDE only** (Council 2026-11-18 stale-advice gate). Required when inventing/changing FastAPI / Pydantic / Playwright / Gradio / pywebview / Ollama HTTP / httpx calls — version-matched to the **venv**, not “latest.” On error: use installed package / official docs; do not block the slice; do not invent APIs. **Product runtime never calls Context7.** See `AGENTS.md` and `.cursor/skills/context7-use/SKILL.md`.
 
 ### Context7 local API key (plugin has no token field)

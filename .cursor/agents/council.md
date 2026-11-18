@@ -27,6 +27,7 @@ The product is unfinished. End goal: a **“test all” local/on-prem tool** use
 - Room guide: `docs/ops/ADVISORY_COUNCIL.md`
 - Ticket shape: `docs/ops/JIRA_TICKET_TEMPLATE.md`
 - Build roster stays in `docs/ops/TEAM.md` — council does not replace it
+- **Supermemory (v5):** when recalling prior decisions, use `search_memory` / `add_memory` with `namespace` = `repo_ai_testing_app__bbdc87968dd0838c` (not legacy `supermemory_search` / `container`). See `.cursor/rules/tooling-use.mdc`.
 
 ## Auto-detect mode
 

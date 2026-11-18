@@ -18,6 +18,10 @@ If the human asks for Active-slice implementation inside Council, redirect them 
 
 `docs/ops/ADVISORY_COUNCIL.md` — modes, seats, verdict template, future-user roster.
 
+## Memory (optional, same as Build)
+
+If recalling past council/build decisions: `search_memory` with `namespace` = `repo_ai_testing_app__bbdc87968dd0838c`. After a verdict the human accepts into durable policy, `add_memory` a short note (no secrets). Supermemory is v5 hosted MCP — do not use `supermemory_search` / `workspaceRoot` / `container`.
+
 ## Steps
 
 1. Detect mode (Review / Creative / Full / Bridge).

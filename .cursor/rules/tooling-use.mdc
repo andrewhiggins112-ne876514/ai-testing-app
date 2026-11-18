@@ -5,21 +5,23 @@ alwaysApply: true
 
 # Tooling use (verified for this machine)
 
-Always pass `workspaceRoot` = `D:\Projects\ai_testing_app` (or the active workspace root) to Supermemory tools.
-
 ## Git sync (agent, not human)
 
 - At **new Agent chat / pick-up**, before coding: `git pull origin main` (on `main`; stash if needed).
 - At **slice close-out**: commit + `git push origin main`.
 - Never ask the human to pull, commit, or push.
 
-## Supermemory — use by default
+## Supermemory — use by default (v5 hosted MCP, plugin 1.3.1+)
 
-- **Session start / pick-up:** `supermemory_search` with the user goal + “KAN Active slice” / architecture before long rediscovery. Prefer `container: "both"` or `"project"`.
-- **After decisions:** `supermemory_add` for CRs, path moves, tooling gotchas, and “what shipped” on a slice (`container: "project"`). Also `container: "user"` for durable personal prefs (token thrift, IDE Agent handoff).
-- **After hard bugs:** save root cause + fix in project memory.
-- Do **not** block the slice if a Supermemory MCP call fails (known flaky Node fetch); retry once, then continue with WORK_LOG / PROJECT_MEMORY.
+Install: local `~/.cursor/plugins/local/cursor-supermemory` (v5). Do **not** call legacy tool names `supermemory_search` / `supermemory_add` / `workspaceRoot` / `container`.
+
+- **Canonical project namespace:** `repo_ai_testing_app__bbdc87968dd0838c` (pass as `namespace` on every call; `containerTag` is a deprecated alias only).
+- **Session start / pick-up:** `search_memory` with the user goal + “KAN Active slice” / architecture. Pass `namespace` above. Reuse `conversation_id` from the first Supermemory response for later calls in the same chat.
+- **After decisions / slices:** `add_memory` with `content` + the same `namespace` (project facts). Prefer `list_spaces` if unsure which space key to use.
+- **After hard bugs:** `add_memory` with root cause + fix (no secrets).
+- Do **not** block the slice if a Supermemory MCP call fails; retry once, then continue with WORK_LOG / PROJECT_MEMORY.
 - Never store secrets, tokens, or full settings.json in Supermemory.
+- Never call `set-active-tag` / `select-space` to a different space unless the human asks — keep this repo on the canonical namespace.
 
 ## Jira
 

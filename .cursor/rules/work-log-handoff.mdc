@@ -12,7 +12,7 @@ When the user says **pick up where we left off**, **continue**, **next slice**, 
 1. **`git pull origin main`** first (on `main`; stash local WIP if needed). Do this at the opening of a new Agent chat / pick-up — before coding. Never ask the human to pull.
 2. Read `docs/ops/WORK_LOG.md` **Active slice** table (do not re-scan the whole repo first).
 3. If **Status** is **`deferred`**, do **not** implement that story. Stop and use the table’s **Next / Shipped** guidance (or the agreed Test-all Active story). Never start **KAN-81** voice while deferred.
-4. **`supermemory_search`** (`workspaceRoot` = repo root, container project/both) for the Active slice / related decisions — then proceed even if search errors.
+4. **`search_memory`** (`namespace` = `repo_ai_testing_app__bbdc87968dd0838c`) for the Active slice / related decisions — then proceed even if search errors. Reuse `conversation_id` from the first Supermemory reply.
 5. Read that Jira story’s description (**REST fallback** if Atlassian MCP fails) for Requirements + AC.
 6. Start implementing that story immediately. One slice only. While the Test-all track is active: add in-app plan/suite / widgets; **do not remove** Gradio, orb, layouts, voice, desktop plugin, sandboxes, or framework stubs.
 7. Prefer free/Auto/Composer unless the slice needs a stronger model.
@@ -30,7 +30,7 @@ When the user says **pick up where we left off**, **continue**, **next slice**, 
    - If no test ticket is linked, **create** one (`issuetype=test` + Relates to story), then comment + Done.
    - Transition the **story** to Done only after the story comment exists.
    - Helper: `python scripts/jira_kan_slice_closeout.py --story KAN-XX --done "…" --files "…" --verify "…" --pytest-cmd "…" --mark-done`
-6. **`supermemory_add`** (container project): one short note of what shipped, key files, and next Active slice — no secrets.
+6. **`add_memory`** (`namespace` = `repo_ai_testing_app__bbdc87968dd0838c`): one short note of what shipped, key files, and next Active slice — no secrets.
 7. Do not leave “see WORK_LOG” as the only record on the ticket — the Jira story comment must carry the substance.
 8. **Land on `main`:** `git status` / `git diff` → commit only intentional files (no secrets) with a clear message → **`git push origin main`**. Finished slice work must be pushed before the human opens a new chat to pick up. Never ask the human to commit or push.
 

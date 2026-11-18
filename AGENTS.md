@@ -34,7 +34,7 @@
 - Skills: `.cursor/skills/` (`jira-safe`, `slice-workflow`, `run-local-stack`, `orb-slice`, `update-memory`, `advisory-council`).
 - Local Ollama is for the *product* runtime (actually free). Cursor coding agents are not free.
 - Prefer short chats + WORK_LOG / Supermemory over re-explaining history in long threads.
-- **Proactive tools:** at pick-up / session start, `supermemory_search` (project+user) before broad repo scans; after slices and CRs, `supermemory_add` (project). See `.cursor/rules/tooling-use.mdc`.
+- **Proactive tools:** at pick-up / session start, `search_memory` before broad repo scans; after slices and CRs, `add_memory`. Always pass `namespace` = `repo_ai_testing_app__bbdc87968dd0838c` (Supermemory v5; not the old `supermemory_*` / `container` tools). See `.cursor/rules/tooling-use.mdc`.
 
 ## Token budget
 Premium plan only. Do not assume more tokens can be bought. Token use in long agent threads is much higher than short chats.
@@ -95,7 +95,7 @@ This development machine is DESKTOP-NAL5HLJ: Intel i7-8700K, 32 GB RAM at 2400 M
   4. **Human-hands handoff (when CU cannot confirm):** the agent must leave the product **ready to check** — `desktop_app.py` running (or one clear start command), seeded data / stubs / fixtures already in place, and a short **numbered step list** in chat + on the test ticket (where to click, what to type, what “pass” looks like). The human only follows directions and confirms; they must not hunt for setup. Story stays open / not Done until that human confirm (or CU) lands for occlusion/visual AC.
   5. Close-out must state what CU actually proved vs skipped/flaked vs **awaiting human confirm**. CU captures IDE+desktop — treat agent screenshots as sensitive; do not paste tokens.
 - **IronBee browser:** only for Playwright AUT pages or Gradio-only slices — not for verifying the desktop shell. Never use cursor-ide-browser. IronBee Node/Backend stay **off** unless the user asks.
-- **Supermemory:** **always try** search at pick-up and add after meaningful decisions/slices (`workspaceRoot` = repo root; `container` project for codebase facts). If MCP add/search fails, retry once then continue — do not block the slice.
+- **Supermemory (v5):** **always try** `search_memory` at pick-up and `add_memory` after meaningful decisions/slices. Pass `namespace` = `repo_ai_testing_app__bbdc87968dd0838c`; reuse `conversation_id`. Plugin is local 1.3.1+ (hosted MCP). If MCP fails, retry once then continue — do not block the slice.
 - **Library docs (Context7) — stale-advice gate (Council 2026-11-18):** Coding agents default to training memory; do **not** invent third-party APIs from memory.
   - **Source order:** (1) this repo’s code, helpers, and security rules; (2) package installed in `venv` (`pip show` / its source); (3) Context7 or official docs **for that installed version**; (4) training memory last — label unverified if 1–3 were unavailable.
   - **Trigger (required):** before adding or changing a call to **FastAPI, Pydantic, Playwright, Gradio, pywebview, Ollama HTTP API, or httpx**; same gate for auth, CORS, browser profiles, and credential paths even if the model feels sure. Also when a compile/runtime/type error names a library symbol.

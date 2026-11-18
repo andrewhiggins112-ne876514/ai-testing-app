@@ -76,6 +76,10 @@ Order: update `docs/FUNCTIONAL_SPEC.md` (if product intent changed) → KAN epic
 - Explicitly NOT coding product features in this chat
 ```
 
+## Supermemory (Build + Council tooling)
+
+v5 hosted MCP (plugin 1.3.1+). Use `search_memory` / `add_memory` with `namespace` = `repo_ai_testing_app__bbdc87968dd0838c`. Do not use legacy `supermemory_search` / `supermemory_add` / `container` / `workspaceRoot`. Details: `.cursor/rules/tooling-use.mdc`, `docs/ops/CONNECTORS.md`.
+
 ## Allowed writes in Council (with confirm gates)
 
 - Spec / ops docs: `docs/FUNCTIONAL_SPEC.md`, `PROJECT_MEMORY.md`, `docs/ops/*`, mockup notes
