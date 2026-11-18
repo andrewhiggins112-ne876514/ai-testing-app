@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk100" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk101" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -277,7 +277,7 @@
 
     <div id="area-layer" class="area-layer" hidden>
       <div id="area-scrim" class="area-scrim"></div>
-      <section id="area-surface" class="shell-surface area-surface" role="region" aria-label="App area" data-area-chrome-nonoverlap="1" data-enterprise-layout-tokens="1" data-area-chrome-scaffold="1">
+      <section id="area-surface" class="shell-surface area-surface" role="region" aria-label="App area" data-area-chrome-nonoverlap="1" data-enterprise-layout-tokens="1" data-area-chrome-scaffold="1" data-plans-cases-geometry="1">
         <header class="area-surface-bar">
           <button type="button" id="area-back" class="save-btn secondary">Back</button>
           <h2 id="area-title" class="area-title">Settings</h2>
@@ -658,9 +658,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1">
-          <h3 class="orb-section-label">Plans</h3>
-          <p class="drawer-hint">Open a plan, work Cases first, then draft/import or run setup as needed. Nothing is written to Jira from this screen. Import never deletes external Playwright files; Suites still runs via npx.</p>
+        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1">
           <div id="plan-chrome-toolbar" class="area-chrome-toolbar plan-chrome-toolbar" data-plan-chrome="1">
             <div class="btn-row plan-toolbar-actions area-chrome-toolbar-row">
               <label class="stack-label plan-toolbar-plan" for="plan-list">Plan
@@ -679,40 +677,46 @@
           </div>
           <p id="plan-offline-banner" class="drawer-hint" role="status" hidden data-offline="0"></p>
           <div id="plan-section-tabs" class="plan-section-tabs" role="tablist" aria-label="Plans sections" data-plan-tabs="1">
+            <button type="button" class="plan-tab" role="tab" id="plan-tab-draft" data-plan-panel="draft" aria-selected="false" aria-controls="plan-panel-draft" title="Draft &amp; import">Draft</button>
             <button type="button" class="plan-tab" role="tab" id="plan-tab-cases" data-plan-panel="cases" aria-selected="true" aria-controls="plan-panel-cases">Cases</button>
-            <button type="button" class="plan-tab" role="tab" id="plan-tab-draft" data-plan-panel="draft" aria-selected="false" aria-controls="plan-panel-draft">Draft &amp; import</button>
-            <button type="button" class="plan-tab" role="tab" id="plan-tab-coverage" data-plan-panel="coverage" aria-selected="false" aria-controls="plan-panel-coverage">Coverage &amp; drift</button>
-            <button type="button" class="plan-tab" role="tab" id="plan-tab-trace" data-plan-panel="trace" aria-selected="false" aria-controls="plan-panel-trace">Traceability</button>
+            <button type="button" class="plan-tab" role="tab" id="plan-tab-coverage" data-plan-panel="coverage" aria-selected="false" aria-controls="plan-panel-coverage" title="Coverage &amp; drift">Coverage</button>
+            <button type="button" class="plan-tab" role="tab" id="plan-tab-trace" data-plan-panel="trace" aria-selected="false" aria-controls="plan-panel-trace" title="Traceability">Trace</button>
             <button type="button" class="plan-tab" role="tab" id="plan-tab-history" data-plan-panel="history" aria-selected="false" aria-controls="plan-panel-history">History</button>
-            <button type="button" class="plan-tab" role="tab" id="plan-tab-run" data-plan-panel="run" aria-selected="false" aria-controls="plan-panel-run">Run setup</button>
+            <button type="button" class="plan-tab" role="tab" id="plan-tab-run" data-plan-panel="run" aria-selected="false" aria-controls="plan-panel-run" title="Run setup">Run</button>
           </div>
           <div class="area-work" data-area-work="1">
+          <details class="plan-about" data-plan-about="1">
+            <summary>About Plans</summary>
+            <p class="drawer-hint">Open a plan, work Cases first, then draft/import or run setup as needed. Nothing is written to Jira from this screen. Import never deletes external Playwright files; Suites still runs via npx.</p>
+          </details>
           <div id="plan-search-results" class="drawer-hint" aria-live="polite" role="list" aria-label="Plan search results"></div>
           <div id="plan-panel-cases" class="plan-panel" role="tabpanel" data-plan-panel="cases" aria-labelledby="plan-tab-cases">
             <pre id="plan-intent" class="drawer-hint" aria-live="polite" hidden></pre>
-            <label class="stack-label"><input type="checkbox" id="plan-show-archived" /> Show archived cases (default list hides them; runs and evidence stay)</label>
-            <div id="plan-cases" class="drawer-hint" aria-live="polite"></div>
-            <div class="plan-add-case" data-plan-add-menu="1">
-              <button type="button" id="plan-add-case-toggle" class="save-btn" aria-haspopup="true" aria-expanded="false" aria-controls="plan-add-case-menu">Add case ▾</button>
-              <div id="plan-add-case-menu" class="plan-add-case-menu" role="menu" hidden>
-                <button type="button" id="plan-add-desktop-btn" class="save-btn secondary" role="menuitem">Desktop case</button>
-                <button type="button" id="plan-add-api-btn" class="save-btn secondary" role="menuitem">API/messaging case</button>
-                <button type="button" id="plan-add-contract-btn" class="save-btn secondary" role="menuitem">Mock/contract case</button>
-                <button type="button" id="plan-add-seed-btn" class="save-btn secondary" role="menuitem">Seed/fixture case</button>
-                <button type="button" id="plan-add-visual-btn" class="save-btn secondary" role="menuitem">Visual baseline case</button>
-                <button type="button" id="plan-add-a11y-btn" class="save-btn secondary" role="menuitem">Accessibility check case</button>
-                <button type="button" id="plan-add-perf-btn" class="save-btn secondary" role="menuitem">Performance budget case</button>
-                <label class="stack-label" for="plan-framework-select">Framework for new case
-                  <select id="plan-framework-select" data-stub-honesty="1" aria-describedby="plan-framework-hint">
-                    <option value="playwright" selected>Playwright (ready)</option>
-                    <option value="selenium">Selenium (not implemented — never pass)</option>
-                    <option value="cypress">Cypress (not implemented — never pass)</option>
-                  </select>
-                </label>
-                <p class="drawer-hint" id="plan-framework-hint">G9 + KAN-267: default is Playwright (ready). Selenium/Cypress remain available as stubs — not implemented, Run disabled, never pass. Settings stub stays in sync.</p>
-                <button type="button" id="plan-add-framework-btn" class="save-btn secondary" role="menuitem">Add framework case</button>
+            <div class="plan-work-header" data-plan-work-header="1">
+              <div class="plan-add-case" data-plan-add-menu="1">
+                <button type="button" id="plan-add-case-toggle" class="save-btn" aria-haspopup="true" aria-expanded="false" aria-controls="plan-add-case-menu">Add case ▾</button>
+                <div id="plan-add-case-menu" class="plan-add-case-menu" role="menu" hidden>
+                  <button type="button" id="plan-add-desktop-btn" class="save-btn secondary" role="menuitem">Desktop case</button>
+                  <button type="button" id="plan-add-api-btn" class="save-btn secondary" role="menuitem">API/messaging case</button>
+                  <button type="button" id="plan-add-contract-btn" class="save-btn secondary" role="menuitem">Mock/contract case</button>
+                  <button type="button" id="plan-add-seed-btn" class="save-btn secondary" role="menuitem">Seed/fixture case</button>
+                  <button type="button" id="plan-add-visual-btn" class="save-btn secondary" role="menuitem">Visual baseline case</button>
+                  <button type="button" id="plan-add-a11y-btn" class="save-btn secondary" role="menuitem">Accessibility check case</button>
+                  <button type="button" id="plan-add-perf-btn" class="save-btn secondary" role="menuitem">Performance budget case</button>
+                  <label class="stack-label" for="plan-framework-select">Framework for new case
+                    <select id="plan-framework-select" data-stub-honesty="1" aria-describedby="plan-framework-hint">
+                      <option value="playwright" selected>Playwright (ready)</option>
+                      <option value="selenium">Selenium (not implemented — never pass)</option>
+                      <option value="cypress">Cypress (not implemented — never pass)</option>
+                    </select>
+                  </label>
+                  <p class="drawer-hint" id="plan-framework-hint">G9 + KAN-267: default is Playwright (ready). Selenium/Cypress remain available as stubs — not implemented, Run disabled, never pass. Settings stub stays in sync.</p>
+                  <button type="button" id="plan-add-framework-btn" class="save-btn secondary" role="menuitem">Add framework case</button>
+                </div>
               </div>
+              <label class="stack-label plan-archived-toggle"><input type="checkbox" id="plan-show-archived" /> Show archived cases</label>
             </div>
+            <div id="plan-cases" class="drawer-hint plan-cases-list" aria-live="polite" data-plan-cases-list="1"></div>
             <h4 class="orb-section-label">Edit selected case</h4>
             <label class="stack-label">Case id
               <input type="text" id="plan-case-id" placeholder="c…" autocomplete="off" />
@@ -1213,6 +1217,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk100"></script>
+  <script src="/ui/desktop/desktop.js?v=desk101"></script>
 </body>
 </html>

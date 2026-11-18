@@ -177,7 +177,7 @@ class PlanPerformanceBudgetTests(unittest.TestCase):
         self.assertEqual((result.get("run") or {}).get("result"), "pass")
         self.assertIsNone((result.get("run") or {}).get("performance"))
 
-    def test_api_perf_and_ui_desk100(self):
+    def test_api_perf_and_ui_desk101(self):
         client = TestClient(main.app)
         created = client.post("/api/plans", json={"name": "PerfAPI"})
         self.assertEqual(created.status_code, 200)
@@ -203,9 +203,9 @@ class PlanPerformanceBudgetTests(unittest.TestCase):
 
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         self.assertIn("plan-add-perf-btn", html)
-        self.assertIn("desk100", html)
+        self.assertIn("desk101", html)
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk100", desk)
+        self.assertIn("desk101", desk)
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         self.assertIn("cases/perf", js)
         self.assertIn("plan-add-perf-btn", js)

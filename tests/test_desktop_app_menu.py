@@ -22,7 +22,7 @@ class DesktopAppMenuTests(unittest.TestCase):
         self.assertNotIn('class="side-drawer app-drawer', html)
         self.assertNotIn('class="tab-nav"', html)
         self.assertNotIn('<nav class="top-tabs">', html)
-        self.assertIn("desk100", html)
+        self.assertIn("desk101", html)
         self.assertIn('data-default-along="16"', html)
 
     def test_app_nav_has_primary_and_lab_groups(self):
@@ -83,12 +83,12 @@ class DesktopAppMenuTests(unittest.TestCase):
         self.assertIn("isCompactAppMenu(drawer)", js)
         self.assertIn("postAcceptanceDrift", js)
 
-    def test_cache_bust_desk100(self):
+    def test_cache_bust_desk101(self):
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk100", app)
-        self.assertIn("desktop.css?v=desk100", html)
-        self.assertIn("desktop.js?v=desk100", html)
+        self.assertIn("desk101", app)
+        self.assertIn("desktop.css?v=desk101", html)
+        self.assertIn("desktop.js?v=desk101", html)
 
     def test_open_area_still_closes_menu(self):
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")

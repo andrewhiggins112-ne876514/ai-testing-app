@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-312** — Track3: Plans Cases geometry from accepted wire |
+| **Jira story** | **KAN-314** — Track3: Manual density + Confirm dock |
 | **Start task** | — |
 | **Epic** | **KAN-307** Council Track 3 — Enterprise area density (Primary) |
 | **Roadmap ID** | TRACK3-UX |
 | **Spec** | FR-UI-10 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-313** |
-| **Shipped** | **KAN-310** shared chrome scaffold (test **KAN-311**); wires **KAN-308** Accepted |
+| **Test ticket** | **KAN-315** |
+| **Shipped** | **KAN-312** Plans Cases geometry (test **KAN-313**); scaffold **KAN-310**; wires **KAN-308** Accepted |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Lab density (**TRACK3-LAB**) |
-| **Next / Shipped** | Build: **KAN-312** Plans · Cases geometry. Do **not** voice / FR-MAN-2 / Lab density. |
+| **Next / Shipped** | Build: **KAN-314** Manual density + Confirm dock. Do **not** voice / FR-MAN-2 / Lab density. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-312 — Plans Cases geometry from accepted wire
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-312
+- **Done:** Plans · Cases real geometry from accepted Track 3 wire: removed intro chrome above toolbar (About Plans collapsed in `.area-work`); short tab labels (Draft/Cases/Coverage/Trace/History/Run); toolbar+tabs max-heights from `--chrome-*`; Add case ▾ + archived toggle as work header **before** case list; marker `data-plans-cases-geometry`; cache-bust **desk101**. Cases remains default. No Manual Confirm pass; no Lab density; no voice / FR-MAN-2.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_plans_cases_geometry.py` (+ desk101 across UI tests), docs
+- **Verify:** `pytest tests/test_plans_cases_geometry.py tests/test_plans_ia.py tests/test_track3_chrome_scaffold.py tests/test_area_chrome_nonoverlap.py tests/test_enterprise_layout_tokens.py tests/test_nav_overlap.py tests/test_orb_hub.py tests/test_plan_search.py tests/test_plans_tab.py tests/test_keyboard_shortcuts.py tests/test_manual_ia.py tests/test_reports_ia.py tests/test_lab_areas_ia.py tests/test_suites_ia.py tests/test_track3_area_wires.py` 34 passed. CU: proved Plans overlay — surface bar, single toolbar, short tabs with Cases selected, About collapsed, Add case work header clickable; A–E via layout-picker markers (not each mode CU). CU flake after Open click returned home — not soft-passed as full A–E visual.
+- **Jira:** close-out **KAN-312** + **KAN-313**
+- **Next:** Active **KAN-314** Manual density + Confirm dock (test **KAN-315**)
 
 ### 2026-11-18 — KAN-310 — Shared chrome scaffold + retire sticky naming
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-310

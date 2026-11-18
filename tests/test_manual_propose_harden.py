@@ -210,14 +210,14 @@ class ProposeHardenUiAndApiTests(unittest.TestCase):
         self.assertEqual(ok["status"], "ok")
         self.assertTrue(ok["proposal"]["packet"]["explicit_bug_pick"])
 
-    def test_desktop_markers_desk100(self):
+    def test_desktop_markers_desk101(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk100", html)
-        self.assertIn("desk100", desk)
+        self.assertIn("desk101", html)
+        self.assertIn("desk101", desk)
         self.assertIn('data-manual-propose-harden="1"', html)
         self.assertIn('data-manual-failure-class="1"', html)
         self.assertIn('data-manual-explicit-bug="1"', html)

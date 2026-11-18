@@ -1651,7 +1651,74 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   display: none !important;
 }
 
-/* KAN-265/KAN-281/KAN-297/KAN-310 Plans IA — shared chrome scaffold */
+/* KAN-265/KAN-281/KAN-297/KAN-310/KAN-312 Plans IA — Cases geometry */
+#app-section-plans[data-plans-cases-geometry="1"] > .plan-chrome-toolbar {
+  max-height: var(--chrome-toolbar);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+}
+
+#app-section-plans[data-plans-cases-geometry="1"] > .plan-section-tabs {
+  max-height: var(--chrome-tabs);
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) 0;
+  box-sizing: border-box;
+}
+
+#app-section-plans[data-plans-cases-geometry="1"] .plan-toolbar-actions {
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  min-height: 0;
+}
+
+#app-section-plans[data-plans-cases-geometry="1"] .plan-work-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  flex-shrink: 0;
+  margin: 0 0 var(--space-1);
+}
+
+#app-section-plans[data-plans-cases-geometry="1"] .plan-archived-toggle {
+  margin: 0;
+  font: var(--type-ui);
+}
+
+#app-section-plans[data-plans-cases-geometry="1"] .plan-cases-list {
+  flex: 0 0 auto;
+  min-height: 2.5rem;
+}
+
+#app-section-plans[data-plans-cases-geometry="1"] .plan-about {
+  margin: 0 0 var(--space-2);
+  font: var(--type-ui);
+  color: var(--muted, #9bb4c4);
+}
+
+#app-section-plans[data-plans-cases-geometry="1"] .plan-about > summary {
+  cursor: pointer;
+  color: var(--cyan, #50cdff);
+}
+
+@media (max-width: 900px) {
+  #app-section-plans[data-plans-cases-geometry="1"] > .plan-chrome-toolbar {
+    max-height: none;
+    overflow: visible;
+  }
+
+  #app-section-plans[data-plans-cases-geometry="1"] .plan-toolbar-actions {
+    flex-wrap: wrap;
+  }
+}
+
 .plan-chrome-toolbar .plan-toolbar-plan {
   flex: 0 1 180px;
   min-width: 120px;
@@ -1689,6 +1756,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   padding: var(--space-1) 10px;
   border-radius: 8px;
   cursor: pointer;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .plan-tab[aria-selected="true"] {
