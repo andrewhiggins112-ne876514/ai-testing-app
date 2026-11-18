@@ -76,7 +76,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - **FR-PLAN-2:** The app holds a **suite** of cases and runs them **inside the app**. The person can run one case or a selected set (e.g. by tag). Cases can be reordered, disabled, archived, tagged, and prioritised without deleting history.
 - **FR-PLAN-3:** The agent may draft or update a plan from one Jira issue or, in the project-scale phase, from the connected Jira project (epics, stories, tests, bugs) plus uploaded documents. Drafts are batched with a visible cap. The person reviews the plan before execution. Jira writes stay on FR-JIRA-5.
 - **FR-PLAN-4:** A run stores result, evidence, duration, and failure class on the case. Heal proposals and report sections can attach to that run. Traceability links case ↔ Jira key ↔ bugs ↔ known issues.
-- **FR-CI-1 (later):** Pipelines and CI live in a **separate section** of the app. They do not replace the in-app suite as the place tests are authored and reviewed. Design before build (catalogue H2).
+- **FR-CI-1 (later):** Pipelines and CI live in a **separate section** of the app. They do not replace the in-app suite as the place tests are authored and reviewed. **H2 design (KAN-243):** `docs/design/H2_PIPELINES_SECTION.md` — what a pipeline record shows, what it will not do, secrets stay local; **no CI integration ships until a later Build story**.
 - **FR-MAN-1 (future):** A manual / exploratory session may be recorded and proposed as ticket updates after confirm. **H1 design (KAN-241):** `docs/design/H1_MANUAL_SESSION_CAPTURE.md` — charter start, what is recorded, defect/comment propose via existing confirm path, OFFICIAL/SECRET isolation; **no recorder ships until a later Build story**. Not in alpha.
 
 ### 3.4 Self-Healing (Critical Guardrails)
@@ -203,7 +203,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Test-all **H2** — **KAN-243** Plan the pipelines section — design only (test **KAN-244**). **H1** design Done (**KAN-241**). A–D + E1–E5 + F1–F7 + **G1**–**G9** + **G11** + **G12** + **KAN-260** Lab tools App menu shipped. Voice **KAN-81** deferred (mic; later plugin G10 **KAN-235**). Cut nothing; sequence plugins in epics G–H.
+**Still open / next:** Test-all **H3** — **KAN-245** Plan shared use without a cloud — design only (test **KAN-246**). **H2** design Done (**KAN-243**). **H1** design Done (**KAN-241**). A–D + E1–E5 + F1–F7 + **G1**–**G9** + **G11** + **G12** + **KAN-260** Lab tools App menu shipped. Voice **KAN-81** deferred (mic; later plugin G10 **KAN-235**). Cut nothing; sequence plugins in epics G–H.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -224,7 +224,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-CONN-1 | Partial (test-all) | **A2** health **KAN-127**; **A3** model **KAN-129**; **D3** named envs **KAN-183**; **D4** credential status **KAN-185**; **E5** offline last plan **KAN-201** Done |
 | FR-PLAN-1…2 | Partial (A1+A5+A6+C11+E5) | **KAN-125** store + **KAN-133** edit/disable/reorder + **KAN-135** starter/empty home + **KAN-177** archive; run UI A7; **KAN-201** offline search/matrix |
 | FR-PLAN-3…4 | Partial (A4+C3–C10) | **KAN-131** one story; **KAN-161** project-wide draft; **KAN-163** coverage gaps; **KAN-165** AC drift; **KAN-167** C6 matrix; **KAN-169** C7 tags; **KAN-171** C8 import; **KAN-173** C9 search; **KAN-175** C10 history; **KAN-177** C11 archive Done |
-| FR-CI-1 | Future (design) | Test-all **H2** |
+| FR-CI-1 | Design done (KAN-243); CI not shipped | Test-all **H2** → `docs/design/H2_PIPELINES_SECTION.md` |
 | FR-MAN-1 | Design done (KAN-241); recorder not shipped | Test-all **H1** → `docs/design/H1_MANUAL_SESSION_CAPTURE.md` |
 | FR-HEAL-1,3,4,5 (+ locator heal) | Shipped policy + click/fill | **Done** KAN-14, **KAN-49** |
 | FR-HEAL-2 | Shipped review UI (approve/reject; no auto-commit) | **Done** **KAN-75** |
@@ -264,7 +264,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 |------|--------|-------|
 | Jira account | **Live** | [ai-testing-lab.atlassian.net](https://ai-testing-lab.atlassian.net), project **KAN**. Credentials in local settings only; agent writes still two-step confirm. |
 | Real credentials | Local store only | Never in chat or repo |
-| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; Active Build **KAN-243** H2 design; H1 Done **KAN-241**; G1–G9 + G11–G12 + E1–E5 + F1–F7 + KAN-260 Done |
+| Test-all in-app plan/suite | **Active CR** | Catalogue A–H; Active Build **KAN-245** H3 design; H2 Done **KAN-243**; H1 Done **KAN-241**; G1–G9 + G11–G12 + E1–E5 + F1–F7 + KAN-260 Done |
 | Nav IA — Reports data / menu / Settings hub | **Shipped** KAN-247…249 | Gradio + desktop compact menu |
 | Desktop compact App menu (match Gradio) | **Shipped** KAN-253 / **KAN-257** | Compact `▦`; Lab tools restored **KAN-260** |
 | Coverage gaps (C4) | **Shipped** KAN-163 (desk45) | No-case / all-disabled lists; filter; no auto-create |

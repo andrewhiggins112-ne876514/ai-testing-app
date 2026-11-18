@@ -20,8 +20,9 @@ Downloadable local **test-all** app. Connect once. **One home** = orb + chat; ro
 | G Widen as plugins | **KAN-123** | later (G10=voice↔KAN-81) |
 | H Future workplace (design) | **KAN-124** | FUTURE |
 
-**Active Build story:** **KAN-243** (H2 Plan the pipelines section — design only; test **KAN-244**)
-**Next after KAN-243:** H3 (**KAN-245**); G10 voice deferred with KAN-81
+**Active Build story:** **KAN-245** (H3 Plan shared use without a cloud — design only; test **KAN-246**)
+**Next after KAN-245:** catalogue H complete (designs); G10 voice deferred with KAN-81
+**Shipped H2:** **KAN-243** Plan the pipelines section (design only; no CI)
 **Shipped H1:** **KAN-241** Plan manual session capture (design only; no recorder)
 **Shipped G12:** **KAN-239** Scheduled local run (desk84)
 **Deferred:** **KAN-81** / **KAN-82** voice until mic (G10 **KAN-235**)
