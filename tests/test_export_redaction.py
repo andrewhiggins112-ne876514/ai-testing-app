@@ -188,13 +188,13 @@ class ExportRedactionTests(unittest.TestCase):
             out["redaction"]["redaction_hits"],
         )
 
-    def test_desktop_security_redaction_ui_desk93(self):
+    def test_desktop_security_redaction_ui_desk94(self):
         root = Path(__file__).resolve().parents[1]
         html = (root / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (root / "desktop_app.py").read_text(encoding="utf-8")
         js = (root / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk93", html)
-        self.assertIn("desk93", desk)
+        self.assertIn("desk94", html)
+        self.assertIn("desk94", desk)
         self.assertIn("redaction-status", html)
         self.assertIn("redaction-screenshot-warn", html)
         self.assertIn("Export &amp; evidence redaction", html)

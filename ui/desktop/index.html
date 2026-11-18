@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk93" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk94" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -937,7 +937,7 @@
           </div>
           </div>
         </div>
-        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-loop-stage="idle">
+        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-loop-stage="idle">
           <h3 class="orb-section-label">Manual</h3>
           <p class="drawer-hint">Charter Frame (FR-MAN-1). Calm loop: Start → notes/stills → End → review → Propose → Confirm/Cancel. Esc/Back returns to orb home — Manual is not a second landing. No background capture until Start.</p>
           <div id="manual-sticky-toolbar" class="manual-sticky-toolbar" data-manual-sticky="1">
@@ -978,6 +978,7 @@
           <div id="manual-review" class="manual-review" data-manual-review="1" hidden>
             <h4 class="orb-section-label">Review</h4>
             <p class="drawer-hint" data-manual-review-hint="1">Propose builds a local preview only. Confirm uses the FR-JIRA-5 two-step path for ticket-bound writes; Cancel proposal writes nothing to Jira.</p>
+            <p id="manual-assist-status" class="drawer-hint manual-assist-status" data-manual-assist-status="1" hidden aria-live="polite"></p>
             <pre id="manual-review-out" class="drawer-hint" aria-live="polite"></pre>
             <div class="btn-row" data-manual-propose-row="1">
               <button type="button" id="manual-propose-bug" class="save-btn" data-manual-propose="bug">Propose bug</button>
@@ -1183,6 +1184,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk93"></script>
+  <script src="/ui/desktop/desktop.js?v=desk94"></script>
 </body>
 </html>

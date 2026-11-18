@@ -1936,6 +1936,14 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 30%, transparent);
 }
 
+.manual-assist-status[data-assist-state="unavailable"] {
+  color: color-mix(in srgb, #c45c26 85%, #fff);
+}
+
+.manual-assist-status[data-assist-state="ready"] {
+  color: color-mix(in srgb, var(--cyan, #50cdff) 70%, #fff);
+}
+
 /* Confirm stays in review flow (start form hidden at review stage) — not sticky inside scrollport */
 .manual-confirm-row {
   margin-top: 6px;

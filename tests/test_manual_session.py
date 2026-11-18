@@ -82,12 +82,14 @@ class ManualSessionStoreTests(unittest.TestCase):
         toggled = ms.update_session_toggles(sid, agent_assist=True, armed_mist=True)
         self.assertTrue(toggled["session"]["agent_assist"])
         self.assertTrue(toggled["session"]["armed_mist"])
+        # KAN-285: notes never echo as AI drafts mid-session
         note2 = ms.add_note(sid, "With assist")
-        self.assertEqual(len(note2["session"]["assist_drafts"]), 1)
-        self.assertFalse(note2["session"]["assist_drafts"][0]["published"])
+        self.assertEqual(note2["session"]["assist_drafts"], [])
+        self.assertEqual(note2["session"]["assist_status"], "pending")
 
         off = ms.update_session_toggles(sid, agent_assist=False)
         self.assertEqual(off["session"]["assist_drafts"], [])
+        self.assertEqual(off["session"]["assist_status"], "off")
 
     def test_end_propose_confirm_cancel_writes_nothing_to_jira(self):
         started = ms.start_session(
@@ -186,14 +188,14 @@ class ManualSessionApiAndUiTests(unittest.TestCase):
         ).json()
         self.assertFalse(cancel["writes_jira"])
 
-    def test_desktop_charter_frame_markers_desk93(self):
+    def test_desktop_charter_frame_markers_desk94(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk93", html)
-        self.assertIn("desk93", desk)
+        self.assertIn("desk94", html)
+        self.assertIn("desk94", desk)
         self.assertIn('data-charter-frame="1"', html)
         self.assertIn('data-charter-mvp="1"', html)
         self.assertIn('data-manual-start="1"', html)

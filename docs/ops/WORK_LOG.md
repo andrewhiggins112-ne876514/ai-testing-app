@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-285** — Track2: Real agent-assist local drafts (honest assist) |
+| **Jira story** | **KAN-287** — Track2: Charter Frame window/monitor snap |
 | **Start task** | — |
 | **Epic** | **KAN-279** Council Track 2 — Area chrome + Manual completion |
 | **Roadmap ID** | TRACK2-MAN |
-| **Spec** | FR-MAN-1 completion (real Ollama assist drafts / honest unavailable) |
+| **Spec** | FR-MAN-1 completion (window/monitor snap; free-region kept) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-286** |
-| **Shipped** | Track 1 Done; chrome **KAN-281**; trustworthy loop **KAN-283** (desk93) |
+| **Test ticket** | **KAN-288** |
+| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; honest assist **KAN-285** (desk94) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
-| **Next / Shipped** | Pick up **KAN-285**. Then **KAN-287…297**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Pick up **KAN-287**. Then **KAN-289…297**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-285 — Real agent-assist local drafts (honest assist)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-285
+- **Done:** Removed note-echo “AI” drafts. Assist ON builds real local unpublished step/bug drafts via Ollama at End → review (`plans/manual_assist.py`); Assist OFF produces none; Ollama down → `assist_status=unavailable` + clear message, empty drafts (no fakes). Review UI shows assist status + draft lines; Propose/Confirm still FR-JIRA-5 two-step. Cache-bust **desk94**.
+- **Files:** `plans/manual_assist.py`, `plans/manual_session.py`, `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_manual_assist_drafts.py` (+ desk94 / assist markers), docs
+- **Verify:** `pytest tests/test_manual_assist_drafts.py tests/test_manual_session.py tests/test_manual_trustworthy_loop.py tests/test_manual_ia.py` 22+ passed. Non-visual AC — CU not required (tiered policy).
+- **Jira:** close-out **KAN-285** + **KAN-286**
+- **Next:** **KAN-287** Charter Frame window/monitor snap (test **KAN-288**)
 
 ### 2026-11-18 — Council CR — Build verify: GPU / Computer Use throttle
 - **Agent/chat:** Council Room (`/council`) — GPU burnout + CU overlay collision risk

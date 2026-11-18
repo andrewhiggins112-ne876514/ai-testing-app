@@ -40,9 +40,9 @@ class OrbHubTests(unittest.TestCase):
     def test_cache_bust_current(self):
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk93", app)
-        self.assertIn("desktop.css?v=desk93", html)
-        self.assertIn("desktop.js?v=desk93", html)
+        self.assertIn("desk94", app)
+        self.assertIn("desktop.css?v=desk94", html)
+        self.assertIn("desktop.js?v=desk94", html)
 
 
 if __name__ == "__main__":

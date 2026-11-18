@@ -108,7 +108,7 @@ class PlanFrameworkCaseTests(unittest.TestCase):
         self.assertEqual(out.get("runner"), "framework_switch")
         set_framework("playwright")
 
-    def test_api_framework_and_ui_desk93(self):
+    def test_api_framework_and_ui_desk94(self):
         client = TestClient(main.app)
         created = client.post("/api/plans", json={"name": "FwApi"})
         self.assertEqual(created.status_code, 200)
@@ -130,9 +130,9 @@ class PlanFrameworkCaseTests(unittest.TestCase):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         self.assertIn("plan-add-framework-btn", html)
         self.assertIn("plan-framework-select", html)
-        self.assertIn("desk93", html)
+        self.assertIn("desk94", html)
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk93", desk)
+        self.assertIn("desk94", desk)
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         self.assertIn("cases/framework", js)
         self.assertIn("plan-add-framework-btn", js)

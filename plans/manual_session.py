@@ -1,8 +1,9 @@
-"""FR-MAN-1 Charter Frame MVP (KAN-277).
+"""FR-MAN-1 Charter Frame (KAN-277 MVP + KAN-285 honest assist drafts).
 
 Level-scoped manual / exploratory sessions under
 ``%LOCALAPPDATA%/ai_testing_app/plans/{LEVEL}/sessions/``.
 No background capture until explicit Start. Jira writes stay preview + confirm.
+Agent assist (default off) produces real local Ollama drafts at End — never note-echo AI.
 """
 from __future__ import annotations
 
@@ -111,6 +112,8 @@ def _public(session: dict[str, Any]) -> dict[str, Any]:
         "notes": list(session.get("notes") or []),
         "stills": list(session.get("stills") or []),
         "assist_drafts": list(session.get("assist_drafts") or []),
+        "assist_status": str(session.get("assist_status") or ("off" if not session.get("agent_assist") else "pending")),
+        "assist_message": str(session.get("assist_message") or ""),
         "proposals": list(session.get("proposals") or []),
         "created_at": session.get("created_at"),
         "updated_at": session.get("updated_at"),
@@ -305,6 +308,13 @@ def start_session(
         "notes": [],
         "stills": [],
         "assist_drafts": [],
+        # KAN-285 — drafts generated at End via Ollama (not note-echo).
+        "assist_status": "pending" if agent_assist else "off",
+        "assist_message": (
+            "Assist on — local Ollama drafts will be built at End → review."
+            if agent_assist
+            else ""
+        ),
         "proposals": [],
         "created_at": now,
         "updated_at": now,
@@ -372,6 +382,13 @@ def update_session_toggles(
         if not session["agent_assist"]:
             # Assist OFF — drop unpublished AI drafts (human notes/stills kept).
             session["assist_drafts"] = []
+            session["assist_status"] = "off"
+            session["assist_message"] = ""
+        else:
+            session["assist_status"] = "pending"
+            session["assist_message"] = (
+                "Assist on — local Ollama drafts will be built at End → review."
+            )
     if armed_mist is not None:
         session["armed_mist"] = bool(armed_mist)
     _save(session)
@@ -410,17 +427,14 @@ def add_note(
         "text": note_text,
     }
     session.setdefault("notes", []).append(note)
-    if session.get("agent_assist"):
-        # Local unpublished hint only — never Jira.
-        session.setdefault("assist_drafts", []).append(
-            {
-                "id": _new_id("ad"),
-                "at": _utcnow(),
-                "kind": "possible_bug_hint",
-                "from_note_id": note["id"],
-                "text": f"Local draft from note: {note_text[:240]}",
-                "published": False,
-            }
+    # KAN-285: do not echo notes as AI drafts. Real Ollama drafts run at End.
+    if session.get("agent_assist") and session.get("assist_status") not in {
+        "ready",
+        "unavailable",
+    }:
+        session["assist_status"] = "pending"
+        session["assist_message"] = (
+            "Assist on — drafts build at End → review (not note-echo)."
         )
     _save(session)
     return {"status": "ok", "note": note, "session": _public(session)}
@@ -528,15 +542,34 @@ def end_session(session_id: str, *, level: str | None = None) -> dict[str, Any]:
         }
     session["status"] = "ended"
     session["ended_at"] = _utcnow()
+    assist_result: dict[str, Any] = {"assist_status": "off"}
+    if session.get("agent_assist"):
+        from plans.manual_assist import generate_assist_drafts
+
+        assist_result = generate_assist_drafts(session)
+    else:
+        session["assist_drafts"] = []
+        session["assist_status"] = "off"
+        session["assist_message"] = ""
     _save(session)
     lvl = str(session["level"])
     if _OPEN_BY_LEVEL.get(lvl) == session_id:
         _OPEN_BY_LEVEL.pop(lvl, None)
+    msg = "Session ended — review the draft. Propose then confirm for Jira."
+    if session.get("agent_assist"):
+        extra = str(assist_result.get("message") or session.get("assist_message") or "")
+        if extra:
+            msg = f"{msg} {extra}"
     return {
         "status": "ok",
-        "message": "Session ended — review the draft. Propose then confirm for Jira.",
+        "message": msg,
         "session": _public(session),
         "review": _review_payload(session),
+        "assist": {
+            "status": session.get("assist_status"),
+            "message": session.get("assist_message") or "",
+            "draft_count": len(session.get("assist_drafts") or []),
+        },
     }
 
 
@@ -591,6 +624,12 @@ def _review_payload(session: dict[str, Any]) -> dict[str, Any]:
         "notes": list(session.get("notes") or []),
         "stills": list(session.get("stills") or []),
         "assist_drafts": list(session.get("assist_drafts") or []),
+        "assist_status": str(
+            session.get("assist_status")
+            or ("off" if not session.get("agent_assist") else "pending")
+        ),
+        "assist_message": str(session.get("assist_message") or ""),
+        "agent_assist": bool(session.get("agent_assist")),
         "propose_options": [
             "create_bug",
             "comment_on_story",
@@ -935,4 +974,8 @@ def defaults_info() -> dict[str, Any]:
         "cancel_writes_jira": False,
         "confirm_uses_fr_jira_5": True,
         "in_app_cancel_confirm": True,
+        # KAN-285 — honest local Ollama assist (no note-echo AI)
+        "honest_assist_drafts": True,
+        "assist_drafts_at_end": True,
+        "assist_never_silent_jira": True,
     }

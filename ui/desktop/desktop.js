@@ -4521,24 +4521,81 @@
   function showManualReview(session, review) {
     setManualLoopStage("review");
     if (manualReview) manualReview.hidden = false;
+    const notes = (session && session.notes) || (review && review.notes) || [];
+    const stills = (session && session.stills) || (review && review.stills) || [];
+    const drafts =
+      (session && session.assist_drafts) || (review && review.assist_drafts) || [];
+    const assistStatus =
+      (session && session.assist_status) ||
+      (review && review.assist_status) ||
+      "off";
+    const assistMessage =
+      (session && session.assist_message) ||
+      (review && review.assist_message) ||
+      "";
+    const assistEl = document.getElementById("manual-assist-status");
+    if (assistEl) {
+      if (assistStatus === "unavailable") {
+        assistEl.hidden = false;
+        assistEl.setAttribute("data-assist-state", "unavailable");
+        assistEl.textContent =
+          assistMessage ||
+          "Agent assist unavailable — Ollama is down. No fake AI drafts.";
+      } else if (assistStatus === "ready" && drafts.length) {
+        assistEl.hidden = false;
+        assistEl.setAttribute("data-assist-state", "ready");
+        assistEl.textContent =
+          assistMessage ||
+          drafts.length +
+            " local unpublished Ollama draft(s) — Propose then Confirm for Jira.";
+      } else if (assistStatus === "ready") {
+        assistEl.hidden = false;
+        assistEl.setAttribute("data-assist-state", "ready");
+        assistEl.textContent =
+          assistMessage || "Assist on — no drafts from this session yet.";
+      } else if (assistStatus === "pending") {
+        assistEl.hidden = false;
+        assistEl.setAttribute("data-assist-state", "pending");
+        assistEl.textContent =
+          assistMessage || "Assist pending — drafts build at End.";
+      } else {
+        assistEl.hidden = true;
+        assistEl.setAttribute("data-assist-state", "off");
+        assistEl.textContent = "";
+      }
+    }
     if (manualReviewOut) {
-      const notes = (session && session.notes) || (review && review.notes) || [];
-      const stills = (session && session.stills) || (review && review.stills) || [];
-      const drafts =
-        (session && session.assist_drafts) || (review && review.assist_drafts) || [];
+      const draftLines = drafts.length
+        ? drafts
+            .map(function (d) {
+              return (
+                "* [" +
+                (d.kind || "draft") +
+                "] " +
+                (d.title ? d.title + " — " : "") +
+                (d.text || "") +
+                (d.source === "ollama" ? " (ollama, unpublished)" : " (local, unpublished)")
+              );
+            })
+            .join("\n")
+        : "(no assist drafts)";
       manualReviewOut.textContent = [
         "Session: " + ((session && session.id) || ""),
         "Charter: " + ((session && session.charter) || ""),
         "Notes: " + notes.length,
         "Stills: " + stills.length,
-        "Assist drafts: " + drafts.length + " (local only)",
+        "Assist: " + assistStatus + " · drafts " + drafts.length + " (local only, never silent Jira)",
         "Jira writes: never silent — Propose then Confirm (FR-JIRA-5)",
         "",
+        "Notes:",
         notes
           .map(function (n) {
             return "- " + (n.text || "");
           })
           .join("\n") || "(no notes)",
+        "",
+        "Assist drafts:",
+        draftLines,
       ].join("\n");
     }
     if (manualProposeOut) {
