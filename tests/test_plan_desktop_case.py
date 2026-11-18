@@ -112,7 +112,7 @@ class PlanDesktopCaseTests(unittest.TestCase):
         mock_pw.assert_called_once()
         self.assertNotEqual(out.get("runner"), "desktop_runner")
 
-    def test_api_add_desktop_and_ui_desk84(self):
+    def test_api_add_desktop_and_ui_desk85(self):
         client = TestClient(main.app)
         created = client.post("/api/plans", json={"name": "API Desk"})
         self.assertEqual(created.status_code, 200)
@@ -126,8 +126,8 @@ class PlanDesktopCaseTests(unittest.TestCase):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk84", html)
-        self.assertIn("desk84", desk)
+        self.assertIn("desk85", html)
+        self.assertIn("desk85", desk)
         self.assertIn("plan-add-desktop-btn", html)
         self.assertIn("addDesktopCaseToOpenPlan", js)
         self.assertIn("cases/desktop", js)

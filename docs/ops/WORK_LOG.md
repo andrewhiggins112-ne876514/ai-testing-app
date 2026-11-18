@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-265** — Track1: Plans IA tidy (Cases-first + sticky toolbar) |
+| **Jira story** | **KAN-267** — Track1: Framework stub honesty |
 | **Start task** | — |
 | **Epic** | **KAN-264** Council Track 1 — UX tidy + Manual Charter Frame |
 | **Roadmap ID** | TRACK1-IA → TRACK1-H1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-9, FR-PLUG-3, FR-MAN-1 §9; `docs/design/H1_MANUAL_SESSION_CAPTURE.md` |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-PLUG-3, FR-UI-9; epic **KAN-264** |
 | **Git** | `main` |
-| **Test ticket** | **KAN-266** |
-| **Shipped** | … Catalogue H designs; Council Slice-0 docs; Jira Track1 epic **KAN-264** + stories **KAN-265…277** |
+| **Test ticket** | **KAN-268** |
+| **Shipped** | … **KAN-265** Plans IA (desk85); Council Slice-0; epic **KAN-264** + stories **KAN-265…277** |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles |
-| **Next / Shipped** | Build pick-up → **KAN-265**. Queue: **267** stub honesty → **269** Suites tidy → **271** Reports tidy → **273** Lab areas tidy → **275** Manual shell → **277** Charter Frame. Do **not** start voice. |
+| **Next / Shipped** | Build pick-up → **KAN-267**. Queue: **269** Suites tidy → **271** Reports tidy → **273** Lab areas tidy → **275** Manual shell → **277** Charter Frame. Do **not** start voice. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-265 — Plans IA tidy (Cases-first + sticky toolbar)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-265 after Slice-0 on main
+- **Done:** Desktop Plans reorganised for FR-UI-9: sticky toolbar (plan picker, Open/Refresh, search, status); section tabs with **Cases** default; Draft/Coverage/Trace/History/Run setup secondary; one **Add case ▾** menu (all prior add types kept); schedule detail collapsed under Run setup. Cache-bust **desk85**.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_plans_ia.py` (+ desk85 across UI tests), docs (WORK_LOG, ROADMAP, FUNCTIONAL_SPEC, PROJECT_MEMORY)
+- **Verify:** `pytest tests/test_plans_ia.py tests/test_plan_desktop_case.py tests/test_plan_framework_case.py tests/test_plan_schedule.py` 22 passed. Live `GET /ui/desktop/index.html?v=desk85` has `data-plans-ia` / sticky / tabs / Add case. `desktop_app.py` opened desk85 (Computer Use contested by other apps; HTML + pytest evidence).
+- **Jira:** close-out **KAN-265** + **KAN-266**
+- **Next:** **KAN-267** Framework stub honesty (test **KAN-268**)
 
 ### 2026-11-18 — Council Track 1 Slice-0 — Charter Frame CR + Plans IA
 - **Agent/chat:** Cursor IDE `/council` → human picked Track **1**; choices A3/B1/C3/D1/E2 + agent-assist + mist toggles; G1 defaults off; H1 create Jira (full tidy set, not Manual-only)

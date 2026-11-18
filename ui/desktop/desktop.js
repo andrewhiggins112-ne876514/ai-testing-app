@@ -1453,11 +1453,54 @@
   const planDegradedHint = document.getElementById("plan-degraded-hint");
   const planOfflineBanner = document.getElementById("plan-offline-banner");
   const planStatus = document.getElementById("plan-status");
+  const planAddCaseToggle = document.getElementById("plan-add-case-toggle");
+  const planAddCaseMenu = document.getElementById("plan-add-case-menu");
+  const planSectionTabs = document.getElementById("plan-section-tabs");
   let openPlanId = "";
   let openPlanCases = [];
   let lastCaseRunId = "";
   let lastSuiteRunId = "";
   let planOfflineState = null;
+  let activePlanPanel = "cases";
+
+  function closePlanAddCaseMenu() {
+    if (planAddCaseMenu) planAddCaseMenu.hidden = true;
+    if (planAddCaseToggle) planAddCaseToggle.setAttribute("aria-expanded", "false");
+  }
+
+  function showPlanPanel(name) {
+    const panelName = name || "cases";
+    activePlanPanel = panelName;
+    document.querySelectorAll(".plan-panel[data-plan-panel]").forEach(function (panel) {
+      const on = panel.getAttribute("data-plan-panel") === panelName;
+      panel.hidden = !on;
+    });
+    document.querySelectorAll(".plan-tab[data-plan-panel]").forEach(function (tab) {
+      const on = tab.getAttribute("data-plan-panel") === panelName;
+      tab.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    if (panelName !== "cases") closePlanAddCaseMenu();
+  }
+
+  if (planSectionTabs) {
+    planSectionTabs.addEventListener("click", function (ev) {
+      const tab = ev.target && ev.target.closest ? ev.target.closest(".plan-tab[data-plan-panel]") : null;
+      if (!tab || !planSectionTabs.contains(tab)) return;
+      showPlanPanel(tab.getAttribute("data-plan-panel") || "cases");
+    });
+  }
+  if (planAddCaseToggle && planAddCaseMenu) {
+    planAddCaseToggle.addEventListener("click", function () {
+      const open = planAddCaseMenu.hidden;
+      planAddCaseMenu.hidden = !open;
+      planAddCaseToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    planAddCaseMenu.addEventListener("click", function (ev) {
+      const item = ev.target && ev.target.closest ? ev.target.closest("[role='menuitem']") : null;
+      if (item) closePlanAddCaseMenu();
+    });
+  }
+  showPlanPanel("cases");
   const jiraReadKey = document.getElementById("jira-read-key");
   const jiraReadBtn = document.getElementById("jira-read-btn");
   const jiraReadOut = document.getElementById("jira-read-out");
@@ -4105,6 +4148,8 @@
     if (name === "desktop") loadDesktopPlugin();
     if (name === "suites") loadPlaywrightSuite();
     if (name === "plans") {
+      showPlanPanel("cases");
+      closePlanAddCaseMenu();
       loadPlanList(openPlanId);
       refreshOfflineReadBanner();
       loadPlanRunSandboxes();

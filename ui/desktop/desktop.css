@@ -1552,3 +1552,113 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .run-finish-toast[hidden] {
   display: none !important;
 }
+
+/* KAN-265 Plans IA — sticky toolbar + section tabs + Add case menu */
+.plan-sticky-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0 10px;
+  margin: 0 0 4px;
+  background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.plan-sticky-toolbar .plan-toolbar-actions {
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.plan-sticky-toolbar .plan-toolbar-search {
+  flex: 1 1 140px;
+  min-width: 120px;
+  margin: 0;
+}
+
+.plan-sticky-toolbar .plan-toolbar-status {
+  margin: 0;
+  color: var(--cyan, #50cdff);
+}
+
+.plan-section-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 4px 0 8px;
+}
+
+.plan-tab {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 35%, transparent);
+  background: transparent;
+  color: var(--muted, #9bb4c4);
+  font: 600 11px/1.2 inherit;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.plan-tab[aria-selected="true"] {
+  color: var(--text, #e8f4ff);
+  border-color: var(--cyan, #50cdff);
+  background: color-mix(in srgb, var(--cyan, #50cdff) 16%, transparent);
+}
+
+.plan-panel[hidden] {
+  display: none !important;
+}
+
+.plan-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.plan-add-case {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.plan-add-case-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: min(100%, 320px);
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 35%, transparent);
+  background: rgba(0, 12, 18, 0.96);
+  box-shadow: var(--glow, 0 0 18px rgba(80, 205, 255, 0.18));
+}
+
+.plan-add-case-menu[hidden] {
+  display: none !important;
+}
+
+.plan-run-details {
+  margin: 4px 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
+}
+
+.plan-run-details > summary {
+  cursor: pointer;
+  color: var(--cyan, #50cdff);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.plan-run-details[open] > summary {
+  margin-bottom: 8px;
+}

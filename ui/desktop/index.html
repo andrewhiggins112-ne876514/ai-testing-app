@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk84" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk85" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -575,264 +575,290 @@
           </div>
           <p id="desk-status" class="drawer-hint" role="status">Ready</p>
         </div>
-        <div id="app-section-plans" class="app-section" hidden>
+        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1">
           <h3 class="orb-section-label">Plans</h3>
-          <p class="drawer-hint">Draft a local plan from one Jira story, optional document text, a capped project batch, or an imported Playwright project. Add a desktop-typed case to run the connected .exe via the desktop plugin on the same suite (browser cases stay Playwright). Edit cases before any run. Nothing is written to Jira from this screen. Import never deletes external Playwright files; Suites still runs via npx.</p>
-          <label class="stack-label">Issue key
-            <input type="text" id="plan-issue-key" placeholder="KAN-131" autocomplete="off" />
-          </label>
-          <label class="stack-label">Optional document name
-            <input type="text" id="plan-doc-name" placeholder="spec.md" autocomplete="off" />
-          </label>
-          <label class="stack-label">Optional document text (adds draft cases only)
-            <textarea id="plan-doc-text" rows="4" placeholder="Paste requirements or Given/When/Then lines…"></textarea>
-          </label>
-          <label class="stack-label">Project batch size (cap 1–25)
-            <input type="number" id="plan-batch-size" min="1" max="25" value="5" step="1" />
-          </label>
-          <label class="stack-label">Playwright project path (import into suite)
-            <input type="text" id="plan-pw-path" placeholder="D:\path\to\playwright-project" autocomplete="off" />
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-draft-btn" class="save-btn">Draft from story</button>
-            <button type="button" id="plan-draft-project-btn" class="save-btn secondary">Draft from project</button>
-            <button type="button" id="plan-import-pw-btn" class="save-btn secondary">Import Playwright</button>
-            <button type="button" id="plan-refresh-btn" class="save-btn secondary">Refresh list</button>
-          </div>
-          <label class="stack-label">Saved plans
-            <select id="plan-list">
-              <option value="">(none yet)</option>
-            </select>
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-load-btn" class="save-btn secondary">Open plan</button>
-            <button type="button" id="plan-doc-add-btn" class="save-btn secondary">Add doc cases to open plan</button>
-            <button type="button" id="plan-import-pw-add-btn" class="save-btn secondary">Add Playwright to open plan</button>
-            <button type="button" id="plan-add-desktop-btn" class="save-btn secondary">Add desktop case</button>
-            <button type="button" id="plan-add-api-btn" class="save-btn secondary">Add API/messaging case</button>
-            <button type="button" id="plan-add-contract-btn" class="save-btn secondary">Add mock/contract case</button>
-            <button type="button" id="plan-add-seed-btn" class="save-btn secondary">Add seed/fixture case</button>
-            <button type="button" id="plan-add-visual-btn" class="save-btn secondary">Add visual baseline case</button>
-            <button type="button" id="plan-update-baseline-btn" class="save-btn secondary">Update visual baseline</button>
-            <button type="button" id="plan-add-a11y-btn" class="save-btn secondary">Add accessibility check case</button>
-            <button type="button" id="plan-add-perf-btn" class="save-btn secondary">Add performance budget case</button>
-            <label class="stack-label" for="plan-framework-select">Framework for new case
-              <select id="plan-framework-select" aria-describedby="plan-framework-hint">
-                <option value="playwright">Playwright (default)</option>
-                <option value="selenium" selected>Selenium (not implemented)</option>
-                <option value="cypress">Cypress (not implemented)</option>
+          <p class="drawer-hint">Open a plan, work Cases first, then draft/import or run setup as needed. Nothing is written to Jira from this screen. Import never deletes external Playwright files; Suites still runs via npx.</p>
+          <div id="plan-sticky-toolbar" class="plan-sticky-toolbar" data-plan-sticky="1">
+            <label class="stack-label plan-toolbar-plan" for="plan-list">Saved plans
+              <select id="plan-list">
+                <option value="">(none yet)</option>
               </select>
             </label>
-            <p class="drawer-hint" id="plan-framework-hint">G9: case can select a framework. Playwright stays the default ready runner. Selenium/Cypress return not-implemented and never mark passed until a real runner exists. Settings framework switch stub is kept.</p>
-            <button type="button" id="plan-add-framework-btn" class="save-btn secondary">Add framework case</button>
+            <div class="btn-row plan-toolbar-actions">
+              <button type="button" id="plan-load-btn" class="save-btn secondary">Open plan</button>
+              <button type="button" id="plan-refresh-btn" class="save-btn secondary">Refresh list</button>
+              <label class="stack-label plan-toolbar-search" for="plan-search-q">Search
+                <input type="text" id="plan-search-q" placeholder="name, KAN-, smoke…" autocomplete="off" />
+              </label>
+              <button type="button" id="plan-search-btn" class="save-btn secondary">Search</button>
+            </div>
+            <p id="plan-status" class="drawer-hint plan-toolbar-status" role="status">Ready</p>
           </div>
           <p id="plan-offline-banner" class="drawer-hint" role="status" hidden data-offline="0"></p>
-          <h4 class="orb-section-label">Search plans / cases / failures</h4>
-          <p class="drawer-hint">Matches plan name, case name, Jira key, tag, and failure class within the active security level only — works while Jira is down on last stored keys. Results show fetch time. Click a hit to open that case.</p>
-          <label class="stack-label">Search
-            <input type="text" id="plan-search-q" placeholder="name, KAN-, smoke, product_bug…" autocomplete="off" />
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-search-btn" class="save-btn secondary">Search</button>
-          </div>
           <div id="plan-search-results" class="drawer-hint" aria-live="polite" role="list" aria-label="Plan search results"></div>
-          <pre id="plan-intent" class="drawer-hint" aria-live="polite" hidden></pre>
-          <label class="stack-label"><input type="checkbox" id="plan-show-archived" /> Show archived cases (default list hides them; runs and evidence stay)</label>
-          <div id="plan-cases" class="drawer-hint" aria-live="polite"></div>
-          <h4 class="orb-section-label">Coverage gaps</h4>
-          <p class="drawer-hint">After a project draft, stories with no case and stories whose cases are all disabled are listed here. Filter by key or summary. Does not create cases.</p>
-          <label class="stack-label">Filter gaps
-            <input type="text" id="plan-coverage-filter" placeholder="KAN- or summary text" autocomplete="off" />
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-coverage-btn" class="save-btn secondary">Refresh coverage gaps</button>
+          <div id="plan-section-tabs" class="plan-section-tabs" role="tablist" aria-label="Plans sections" data-plan-tabs="1">
+            <button type="button" class="plan-tab" role="tab" id="plan-tab-cases" data-plan-panel="cases" aria-selected="true" aria-controls="plan-panel-cases">Cases</button>
+            <button type="button" class="plan-tab" role="tab" id="plan-tab-draft" data-plan-panel="draft" aria-selected="false" aria-controls="plan-panel-draft">Draft &amp; import</button>
+            <button type="button" class="plan-tab" role="tab" id="plan-tab-coverage" data-plan-panel="coverage" aria-selected="false" aria-controls="plan-panel-coverage">Coverage &amp; drift</button>
+            <button type="button" class="plan-tab" role="tab" id="plan-tab-trace" data-plan-panel="trace" aria-selected="false" aria-controls="plan-panel-trace">Traceability</button>
+            <button type="button" class="plan-tab" role="tab" id="plan-tab-history" data-plan-panel="history" aria-selected="false" aria-controls="plan-panel-history">History</button>
+            <button type="button" class="plan-tab" role="tab" id="plan-tab-run" data-plan-panel="run" aria-selected="false" aria-controls="plan-panel-run">Run setup</button>
           </div>
-          <div id="plan-coverage-no-case" class="drawer-hint" aria-live="polite"></div>
-          <div id="plan-coverage-disabled" class="drawer-hint" aria-live="polite"></div>
-          <h4 class="orb-section-label">Acceptance text drift</h4>
-          <p class="drawer-hint">On demand, re-read linked Jira issues. If summary or acceptance criteria differ from the draft snapshot, the plan is marked stale and old vs new text is shown. Choose Keep (leave drafts) or Refresh (add new cases; prior jira cases are disabled — runs are never deleted).</p>
-          <div class="btn-row">
-            <button type="button" id="plan-drift-check-btn" class="save-btn secondary">Check acceptance drift</button>
-            <button type="button" id="plan-drift-keep-btn" class="save-btn secondary">Keep drafts</button>
-            <button type="button" id="plan-drift-refresh-btn" class="save-btn">Refresh drafts</button>
+          <div id="plan-panel-cases" class="plan-panel" role="tabpanel" data-plan-panel="cases" aria-labelledby="plan-tab-cases">
+            <pre id="plan-intent" class="drawer-hint" aria-live="polite" hidden></pre>
+            <label class="stack-label"><input type="checkbox" id="plan-show-archived" /> Show archived cases (default list hides them; runs and evidence stay)</label>
+            <div id="plan-cases" class="drawer-hint" aria-live="polite"></div>
+            <div class="plan-add-case" data-plan-add-menu="1">
+              <button type="button" id="plan-add-case-toggle" class="save-btn" aria-haspopup="true" aria-expanded="false" aria-controls="plan-add-case-menu">Add case ▾</button>
+              <div id="plan-add-case-menu" class="plan-add-case-menu" role="menu" hidden>
+                <button type="button" id="plan-add-desktop-btn" class="save-btn secondary" role="menuitem">Desktop case</button>
+                <button type="button" id="plan-add-api-btn" class="save-btn secondary" role="menuitem">API/messaging case</button>
+                <button type="button" id="plan-add-contract-btn" class="save-btn secondary" role="menuitem">Mock/contract case</button>
+                <button type="button" id="plan-add-seed-btn" class="save-btn secondary" role="menuitem">Seed/fixture case</button>
+                <button type="button" id="plan-add-visual-btn" class="save-btn secondary" role="menuitem">Visual baseline case</button>
+                <button type="button" id="plan-add-a11y-btn" class="save-btn secondary" role="menuitem">Accessibility check case</button>
+                <button type="button" id="plan-add-perf-btn" class="save-btn secondary" role="menuitem">Performance budget case</button>
+                <label class="stack-label" for="plan-framework-select">Framework for new case
+                  <select id="plan-framework-select" aria-describedby="plan-framework-hint">
+                    <option value="playwright">Playwright (default)</option>
+                    <option value="selenium" selected>Selenium (not implemented)</option>
+                    <option value="cypress">Cypress (not implemented)</option>
+                  </select>
+                </label>
+                <p class="drawer-hint" id="plan-framework-hint">G9: case can select a framework. Playwright stays the default ready runner. Selenium/Cypress return not-implemented and never mark passed until a real runner exists. Settings framework switch stub is kept.</p>
+                <button type="button" id="plan-add-framework-btn" class="save-btn secondary" role="menuitem">Add framework case</button>
+              </div>
+            </div>
+            <h4 class="orb-section-label">Edit selected case</h4>
+            <label class="stack-label">Case id
+              <input type="text" id="plan-case-id" placeholder="c…" autocomplete="off" />
+            </label>
+            <label class="stack-label">Rename
+              <input type="text" id="plan-case-name" placeholder="Case name" autocomplete="off" />
+            </label>
+            <label class="stack-label">Case note
+              <input type="text" id="plan-case-note" placeholder="Exploratory note on this case" autocomplete="off" />
+            </label>
+            <label class="stack-label">Tags (comma-separated; include smoke / regression for daily slices)
+              <input type="text" id="plan-case-tags" placeholder="smoke, regression" autocomplete="off" />
+            </label>
+            <label class="stack-label">Priority (higher runs first in a tag run)
+              <input type="number" id="plan-case-priority" min="0" step="1" value="0" autocomplete="off" />
+            </label>
+            <label class="stack-label">Step timeout (ms; default 10000 matches the runner)
+              <input type="number" id="plan-case-step-timeout" min="500" max="300000" step="100" value="10000" autocomplete="off" />
+            </label>
+            <label class="stack-label">Run note (last / selected run)
+              <input type="text" id="plan-run-note" placeholder="Exploratory note on the run" autocomplete="off" />
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-notes-save" class="save-btn secondary">Save notes</button>
+            </div>
+            <label class="stack-label"><input type="checkbox" id="plan-case-enabled" checked /> Enabled (disabled cases are skipped by later runs)</label>
+            <label class="stack-label"><input type="checkbox" id="plan-case-archived" /> Archived (hidden from new runs and the default list; history kept)</label>
+            <div class="btn-row">
+              <button type="button" id="plan-case-save" class="save-btn">Save case edits</button>
+              <button type="button" id="plan-case-up" class="save-btn secondary">Move up</button>
+              <button type="button" id="plan-case-down" class="save-btn secondary">Move down</button>
+              <button type="button" id="plan-update-baseline-btn" class="save-btn secondary">Update visual baseline</button>
+            </div>
+            <h4 class="orb-section-label">Flake score and quarantine</h4>
+            <p class="drawer-hint" id="plan-flake-hint">Suite lists fail count in the last 10 runs (flake). Quarantine needs a reason and expiry; quarantined cases are skipped and listed on the run — never counted as pass. After expiry they return to the selectable set. Raw last failure stays visible.</p>
+            <p id="plan-flake-summary" class="drawer-hint" aria-live="polite">Flake: —</p>
+            <label class="stack-label">Quarantine reason
+              <input type="text" id="plan-quarantine-reason" placeholder="Flaky locator / intermittent timeout" autocomplete="off" />
+            </label>
+            <label class="stack-label">Quarantine expires (ISO datetime, UTC)
+              <input type="text" id="plan-quarantine-expires" placeholder="2026-12-01T00:00:00+00:00" autocomplete="off" />
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-quarantine-set" class="save-btn secondary">Quarantine case</button>
+              <button type="button" id="plan-quarantine-clear" class="save-btn secondary">Clear quarantine</button>
+              <button type="button" id="plan-flake-refresh" class="save-btn secondary">Refresh flake</button>
+            </div>
+            <p id="plan-keyboard-hint" class="drawer-hint" data-keyboard-shortcuts="1">Shortcuts: <kbd>Alt</kbd>+<kbd>R</kbd> run selected case · <kbd>Alt</kbd>+<kbd>N</kbd> next failure · <kbd>Esc</kbd> Back to orb. No shortcut confirms Jira write or approves heal.</p>
+            <div class="btn-row">
+              <button type="button" id="plan-case-run" class="save-btn">Run selected case (headed)</button>
+              <button type="button" id="plan-rerun-failed" class="save-btn secondary">Rerun failed only</button>
+              <button type="button" id="plan-defect-preview" class="save-btn secondary">Preview defect packet</button>
+            </div>
+            <div class="btn-row" id="plan-pause-actions" hidden>
+              <button type="button" id="plan-pause-continue" class="save-btn">Continue</button>
+              <button type="button" id="plan-pause-stop" class="save-btn secondary">Stop (record fail)</button>
+            </div>
+            <pre id="plan-rerun-out" class="drawer-hint" aria-live="polite" hidden></pre>
+            <label class="stack-label">Failure class (last run)
+              <select id="plan-run-failure-class">
+                <option value="">(unset)</option>
+                <option value="product_bug">Product bug</option>
+                <option value="test_defect">Test defect</option>
+                <option value="environment">Environment</option>
+                <option value="known_issue">Known issue</option>
+              </select>
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-run-failure-save" class="save-btn secondary">Save failure class</button>
+            </div>
+            <h4 class="orb-section-label">Known issue / exclusion</h4>
+            <p class="drawer-hint">Links a note and optional Jira key. Failed runs stay red and are labelled known. Nothing is transitioned in Jira.</p>
+            <label class="stack-label">Known-issue note
+              <input type="text" id="plan-known-note" placeholder="Known failure note" autocomplete="off" />
+            </label>
+            <label class="stack-label">Known-issue Jira key (optional)
+              <input type="text" id="plan-known-jira" placeholder="KAN-123" autocomplete="off" />
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-known-save" class="save-btn secondary">Link known issue</button>
+              <button type="button" id="plan-known-clear" class="save-btn secondary">Clear known link</button>
+            </div>
+            <pre id="plan-case-detail" class="drawer-hint" aria-live="polite" hidden></pre>
+            <pre id="plan-defect-out" class="drawer-hint" aria-live="polite" hidden></pre>
+            <p id="plan-degraded-hint" class="drawer-hint" role="status" hidden></p>
           </div>
-          <pre id="plan-drift-out" class="drawer-hint" aria-live="polite" hidden></pre>
-          <h4 class="orb-section-label">Traceability matrix</h4>
-          <p class="drawer-hint">Story key, case count, last result, linked bug keys, and known-issue flag in one grid. Opens on last stored keys while Jira is down; each row shows fetch time. Keys with no run show as not loaded (never as pass). Click a row to open that case.</p>
-          <label class="stack-label">Filter matrix
-            <input type="text" id="plan-trace-filter" placeholder="KAN- or summary / bug key" autocomplete="off" />
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-trace-btn" class="save-btn secondary">Refresh traceability</button>
+          <div id="plan-panel-draft" class="plan-panel" role="tabpanel" data-plan-panel="draft" aria-labelledby="plan-tab-draft" hidden>
+            <p class="drawer-hint">Draft a local plan from one Jira story, optional document text, a capped project batch, or an imported Playwright project. Add a desktop-typed case to run the connected .exe via the desktop plugin on the same suite (browser cases stay Playwright). Edit cases before any run.</p>
+            <label class="stack-label">Issue key
+              <input type="text" id="plan-issue-key" placeholder="KAN-131" autocomplete="off" />
+            </label>
+            <label class="stack-label">Optional document name
+              <input type="text" id="plan-doc-name" placeholder="spec.md" autocomplete="off" />
+            </label>
+            <label class="stack-label">Optional document text (adds draft cases only)
+              <textarea id="plan-doc-text" rows="4" placeholder="Paste requirements or Given/When/Then lines…"></textarea>
+            </label>
+            <label class="stack-label">Project batch size (cap 1–25)
+              <input type="number" id="plan-batch-size" min="1" max="25" value="5" step="1" />
+            </label>
+            <label class="stack-label">Playwright project path (import into suite)
+              <input type="text" id="plan-pw-path" placeholder="D:\path\to\playwright-project" autocomplete="off" />
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-draft-btn" class="save-btn">Draft from story</button>
+              <button type="button" id="plan-draft-project-btn" class="save-btn secondary">Draft from project</button>
+              <button type="button" id="plan-import-pw-btn" class="save-btn secondary">Import Playwright</button>
+              <button type="button" id="plan-doc-add-btn" class="save-btn secondary">Add doc cases to open plan</button>
+              <button type="button" id="plan-import-pw-add-btn" class="save-btn secondary">Add Playwright to open plan</button>
+            </div>
           </div>
-          <div id="plan-trace-matrix" class="drawer-hint" aria-live="polite" role="table" aria-label="Traceability matrix"></div>
-          <h4 class="orb-section-label">Suite history</h4>
-          <p class="drawer-hint">Past suite runs for this plan: time, duration, pass, fail, and tag. Local to the active security level — no upload. Pick two runs to compare cases that changed result or duration; known issues stay labelled.</p>
-          <div class="btn-row">
-            <button type="button" id="plan-history-btn" class="save-btn secondary">Refresh history</button>
+          <div id="plan-panel-coverage" class="plan-panel" role="tabpanel" data-plan-panel="coverage" aria-labelledby="plan-tab-coverage" hidden>
+            <h4 class="orb-section-label">Coverage gaps</h4>
+            <p class="drawer-hint">After a project draft, stories with no case and stories whose cases are all disabled are listed here. Filter by key or summary. Does not create cases.</p>
+            <label class="stack-label">Filter gaps
+              <input type="text" id="plan-coverage-filter" placeholder="KAN- or summary text" autocomplete="off" />
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-coverage-btn" class="save-btn secondary">Refresh coverage gaps</button>
+            </div>
+            <div id="plan-coverage-no-case" class="drawer-hint" aria-live="polite"></div>
+            <div id="plan-coverage-disabled" class="drawer-hint" aria-live="polite"></div>
+            <h4 class="orb-section-label">Acceptance text drift</h4>
+            <p class="drawer-hint">On demand, re-read linked Jira issues. If summary or acceptance criteria differ from the draft snapshot, the plan is marked stale and old vs new text is shown. Choose Keep (leave drafts) or Refresh (add new cases; prior jira cases are disabled — runs are never deleted).</p>
+            <div class="btn-row">
+              <button type="button" id="plan-drift-check-btn" class="save-btn secondary">Check acceptance drift</button>
+              <button type="button" id="plan-drift-keep-btn" class="save-btn secondary">Keep drafts</button>
+              <button type="button" id="plan-drift-refresh-btn" class="save-btn">Refresh drafts</button>
+            </div>
+            <pre id="plan-drift-out" class="drawer-hint" aria-live="polite" hidden></pre>
           </div>
-          <div id="plan-history-list" class="drawer-hint" aria-live="polite" role="list" aria-label="Suite run history"></div>
-          <label class="stack-label">Compare run A
-            <select id="plan-history-a">
-              <option value="">(select run)</option>
-            </select>
-          </label>
-          <label class="stack-label">Compare run B
-            <select id="plan-history-b">
-              <option value="">(select run)</option>
-            </select>
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-compare-btn" class="save-btn">Compare two runs</button>
+          <div id="plan-panel-trace" class="plan-panel" role="tabpanel" data-plan-panel="trace" aria-labelledby="plan-tab-trace" hidden>
+            <h4 class="orb-section-label">Traceability matrix</h4>
+            <p class="drawer-hint">Story key, case count, last result, linked bug keys, and known-issue flag in one grid. Opens on last stored keys while Jira is down; each row shows fetch time. Keys with no run show as not loaded (never as pass). Click a row to open that case.</p>
+            <label class="stack-label">Filter matrix
+              <input type="text" id="plan-trace-filter" placeholder="KAN- or summary / bug key" autocomplete="off" />
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-trace-btn" class="save-btn secondary">Refresh traceability</button>
+            </div>
+            <div id="plan-trace-matrix" class="drawer-hint" aria-live="polite" role="table" aria-label="Traceability matrix"></div>
           </div>
-          <div id="plan-compare-out" class="drawer-hint" aria-live="polite" role="list" aria-label="Suite run compare"></div>
-          <h4 class="orb-section-label">Edit selected case</h4>
-          <label class="stack-label">Case id
-            <input type="text" id="plan-case-id" placeholder="c…" autocomplete="off" />
-          </label>
-          <label class="stack-label">Rename
-            <input type="text" id="plan-case-name" placeholder="Case name" autocomplete="off" />
-          </label>
-          <label class="stack-label">Case note
-            <input type="text" id="plan-case-note" placeholder="Exploratory note on this case" autocomplete="off" />
-          </label>
-          <label class="stack-label">Tags (comma-separated; include smoke / regression for daily slices)
-            <input type="text" id="plan-case-tags" placeholder="smoke, regression" autocomplete="off" />
-          </label>
-          <label class="stack-label">Priority (higher runs first in a tag run)
-            <input type="number" id="plan-case-priority" min="0" step="1" value="0" autocomplete="off" />
-          </label>
-          <label class="stack-label">Step timeout (ms; default 10000 matches the runner)
-            <input type="number" id="plan-case-step-timeout" min="500" max="300000" step="100" value="10000" autocomplete="off" />
-          </label>
-          <label class="stack-label">Run note (last / selected run)
-            <input type="text" id="plan-run-note" placeholder="Exploratory note on the run" autocomplete="off" />
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-notes-save" class="save-btn secondary">Save notes</button>
+          <div id="plan-panel-history" class="plan-panel" role="tabpanel" data-plan-panel="history" aria-labelledby="plan-tab-history" hidden>
+            <h4 class="orb-section-label">Suite history</h4>
+            <p class="drawer-hint">Past suite runs for this plan: time, duration, pass, fail, and tag. Local to the active security level — no upload. Pick two runs to compare cases that changed result or duration; known issues stay labelled.</p>
+            <div class="btn-row">
+              <button type="button" id="plan-history-btn" class="save-btn secondary">Refresh history</button>
+            </div>
+            <div id="plan-history-list" class="drawer-hint" aria-live="polite" role="list" aria-label="Suite run history"></div>
+            <label class="stack-label">Compare run A
+              <select id="plan-history-a">
+                <option value="">(select run)</option>
+              </select>
+            </label>
+            <label class="stack-label">Compare run B
+              <select id="plan-history-b">
+                <option value="">(select run)</option>
+              </select>
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-compare-btn" class="save-btn">Compare two runs</button>
+            </div>
+            <div id="plan-compare-out" class="drawer-hint" aria-live="polite" role="list" aria-label="Suite run compare"></div>
           </div>
-          <label class="stack-label"><input type="checkbox" id="plan-case-enabled" checked /> Enabled (disabled cases are skipped by later runs)</label>
-          <label class="stack-label"><input type="checkbox" id="plan-case-archived" /> Archived (hidden from new runs and the default list; history kept)</label>
-          <div class="btn-row">
-            <button type="button" id="plan-case-save" class="save-btn">Save case edits</button>
-            <button type="button" id="plan-case-up" class="save-btn secondary">Move up</button>
-            <button type="button" id="plan-case-down" class="save-btn secondary">Move down</button>
+          <div id="plan-panel-run" class="plan-panel" role="tabpanel" data-plan-panel="run" aria-labelledby="plan-tab-run" hidden>
+            <h4 class="orb-section-label">Named environment</h4>
+            <p class="drawer-hint" id="plan-env-hint">Suite and case runs record the active environment name. Credentials stay in Settings (level store), not on the plan. Switching here does not change security level. Manage environments under Settings / Lab where available.</p>
+            <label class="stack-label">Active environment
+              <select id="plan-env-active" aria-describedby="plan-env-hint">
+                <option value="">(none yet)</option>
+              </select>
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-env-activate" class="save-btn secondary">Activate for runs</button>
+              <button type="button" id="plan-env-refresh" class="save-btn secondary">Refresh environments</button>
+            </div>
+            <p id="plan-env-status" class="drawer-hint" role="status">Environment: —</p>
+            <h4 class="orb-section-label">Run sandbox</h4>
+            <p class="drawer-hint" id="plan-sandbox-hint">When the multi-sandbox plugin is enabled, choose one existing sandbox as the run environment. Leave blank for the normal browser profile. Run records store the sandbox name. Manage records on the Sandboxes screen. Parallel stays capped by Suite parallel (D1).</p>
+            <label class="stack-label">Sandbox for this run
+              <select id="plan-sandbox-select" aria-describedby="plan-sandbox-hint">
+                <option value="">Normal browser profile (default)</option>
+              </select>
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-sandbox-refresh" class="save-btn secondary">Refresh sandboxes</button>
+            </div>
+            <p id="plan-sandbox-status" class="drawer-hint" role="status">Sandbox: default profile</p>
+            <h4 class="orb-section-label">Suite parallel</h4>
+            <p class="drawer-hint" id="plan-parallel-hint">Suite runs are sequential by default (1). Cap this stage: 2. The run record stores the count used; values above the cap are refused.</p>
+            <label class="stack-label">Parallel count
+              <select id="plan-parallel-count" aria-describedby="plan-parallel-hint">
+                <option value="1" selected>1 — sequential (default)</option>
+                <option value="2">2 — max this stage</option>
+              </select>
+            </label>
+            <h4 class="orb-section-label">Run by tag</h4>
+            <p class="drawer-hint">Runs all cases with the chosen tag. Default is sequential; use Suite parallel above for a capped parallel run. Untagged cases are omitted and listed as not selected. Suite run stores the run id, tag, and parallel count. Smoke and regression are first-class tags.</p>
+            <label class="stack-label">Tag
+              <input type="text" id="plan-run-tag" list="plan-run-tag-suggestions" placeholder="smoke" autocomplete="off" />
+              <datalist id="plan-run-tag-suggestions">
+                <option value="smoke"></option>
+                <option value="regression"></option>
+              </datalist>
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-run-by-tag" class="save-btn">Run by tag</button>
+              <button type="button" id="plan-run-tag-smoke" class="save-btn secondary">Run smoke</button>
+              <button type="button" id="plan-run-tag-regression" class="save-btn secondary">Run regression</button>
+            </div>
+            <pre id="plan-tag-run-out" class="drawer-hint" aria-live="polite" hidden></pre>
+            <details class="plan-run-details" id="plan-schedule-details">
+              <summary>Scheduled local run (detail)</summary>
+              <p class="drawer-hint" id="plan-schedule-hint">Schedule one tagged run on this PC. Uses sequential runs and your saved connection. Missed slots (PC off) are recorded as not run — never as pass. Off until you create one. Not cloud-hosted.</p>
+              <label class="stack-label">Schedule tag
+                <input type="text" id="plan-schedule-tag" list="plan-run-tag-suggestions" placeholder="smoke" autocomplete="off" aria-describedby="plan-schedule-hint" />
+              </label>
+              <label class="stack-label">Local time (HH:MM)
+                <input type="time" id="plan-schedule-time" value="08:00" />
+              </label>
+              <div class="btn-row">
+                <button type="button" id="plan-schedule-save" class="save-btn">Save schedule</button>
+                <button type="button" id="plan-schedule-clear" class="save-btn secondary">Clear schedule</button>
+                <button type="button" id="plan-schedule-tick" class="save-btn secondary">Check due now</button>
+              </div>
+              <p id="plan-schedule-status" class="drawer-hint" role="status">Schedule: off</p>
+              <pre id="plan-schedule-out" class="drawer-hint" aria-live="polite" hidden></pre>
+            </details>
+            <label class="stack-label"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail (headed browser stays open until Continue or Stop; off by default)</label>
           </div>
-          <h4 class="orb-section-label">Flake score and quarantine</h4>
-          <p class="drawer-hint" id="plan-flake-hint">Suite lists fail count in the last 10 runs (flake). Quarantine needs a reason and expiry; quarantined cases are skipped and listed on the run — never counted as pass. After expiry they return to the selectable set. Raw last failure stays visible.</p>
-          <p id="plan-flake-summary" class="drawer-hint" aria-live="polite">Flake: —</p>
-          <label class="stack-label">Quarantine reason
-            <input type="text" id="plan-quarantine-reason" placeholder="Flaky locator / intermittent timeout" autocomplete="off" />
-          </label>
-          <label class="stack-label">Quarantine expires (ISO datetime, UTC)
-            <input type="text" id="plan-quarantine-expires" placeholder="2026-12-01T00:00:00+00:00" autocomplete="off" />
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-quarantine-set" class="save-btn secondary">Quarantine case</button>
-            <button type="button" id="plan-quarantine-clear" class="save-btn secondary">Clear quarantine</button>
-            <button type="button" id="plan-flake-refresh" class="save-btn secondary">Refresh flake</button>
-          </div>
-          <h4 class="orb-section-label">Named environment</h4>
-          <p class="drawer-hint" id="plan-env-hint">Suite and case runs record the active environment name. Credentials stay in Settings (level store), not on the plan. Switching here does not change security level.</p>
-          <label class="stack-label">Active environment
-            <select id="plan-env-active" aria-describedby="plan-env-hint">
-              <option value="">(none yet)</option>
-            </select>
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-env-activate" class="save-btn secondary">Activate for runs</button>
-            <button type="button" id="plan-env-refresh" class="save-btn secondary">Refresh environments</button>
-          </div>
-          <p id="plan-env-status" class="drawer-hint" role="status">Environment: —</p>
-          <h4 class="orb-section-label">Run sandbox</h4>
-          <p class="drawer-hint" id="plan-sandbox-hint">When the multi-sandbox plugin is enabled, choose one existing sandbox as the run environment. Leave blank for the normal browser profile. Run records store the sandbox name. Manage records on the Sandboxes screen. Parallel stays capped by Suite parallel (D1).</p>
-          <label class="stack-label">Sandbox for this run
-            <select id="plan-sandbox-select" aria-describedby="plan-sandbox-hint">
-              <option value="">Normal browser profile (default)</option>
-            </select>
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-sandbox-refresh" class="save-btn secondary">Refresh sandboxes</button>
-          </div>
-          <p id="plan-sandbox-status" class="drawer-hint" role="status">Sandbox: default profile</p>
-          <h4 class="orb-section-label">Suite parallel</h4>
-          <p class="drawer-hint" id="plan-parallel-hint">Suite runs are sequential by default (1). Cap this stage: 2. The run record stores the count used; values above the cap are refused.</p>
-          <label class="stack-label">Parallel count
-            <select id="plan-parallel-count" aria-describedby="plan-parallel-hint">
-              <option value="1" selected>1 — sequential (default)</option>
-              <option value="2">2 — max this stage</option>
-            </select>
-          </label>
-          <h4 class="orb-section-label">Run by tag</h4>
-          <p class="drawer-hint">Runs all cases with the chosen tag. Default is sequential; use Suite parallel above for a capped parallel run. Untagged cases are omitted and listed as not selected. Suite run stores the run id, tag, and parallel count. Smoke and regression are first-class tags.</p>
-          <label class="stack-label">Tag
-            <input type="text" id="plan-run-tag" list="plan-run-tag-suggestions" placeholder="smoke" autocomplete="off" />
-            <datalist id="plan-run-tag-suggestions">
-              <option value="smoke"></option>
-              <option value="regression"></option>
-            </datalist>
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-run-by-tag" class="save-btn">Run by tag</button>
-            <button type="button" id="plan-run-tag-smoke" class="save-btn secondary">Run smoke</button>
-            <button type="button" id="plan-run-tag-regression" class="save-btn secondary">Run regression</button>
-          </div>
-          <pre id="plan-tag-run-out" class="drawer-hint" aria-live="polite" hidden></pre>
-          <h4 class="orb-section-label">Scheduled local run</h4>
-          <p class="drawer-hint" id="plan-schedule-hint">Schedule one tagged run on this PC. Uses sequential runs and your saved connection. Missed slots (PC off) are recorded as not run — never as pass. Off until you create one. Not cloud-hosted.</p>
-          <label class="stack-label">Schedule tag
-            <input type="text" id="plan-schedule-tag" list="plan-run-tag-suggestions" placeholder="smoke" autocomplete="off" aria-describedby="plan-schedule-hint" />
-          </label>
-          <label class="stack-label">Local time (HH:MM)
-            <input type="time" id="plan-schedule-time" value="08:00" />
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-schedule-save" class="save-btn">Save schedule</button>
-            <button type="button" id="plan-schedule-clear" class="save-btn secondary">Clear schedule</button>
-            <button type="button" id="plan-schedule-tick" class="save-btn secondary">Check due now</button>
-          </div>
-          <p id="plan-schedule-status" class="drawer-hint" role="status">Schedule: off</p>
-          <pre id="plan-schedule-out" class="drawer-hint" aria-live="polite" hidden></pre>
-          <label class="stack-label"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail (headed browser stays open until Continue or Stop; off by default)</label>
-          <p id="plan-keyboard-hint" class="drawer-hint" data-keyboard-shortcuts="1">Shortcuts: <kbd>Alt</kbd>+<kbd>R</kbd> run selected case · <kbd>Alt</kbd>+<kbd>N</kbd> next failure · <kbd>Esc</kbd> Back to orb. No shortcut confirms Jira write or approves heal.</p>
-          <div class="btn-row">
-            <button type="button" id="plan-case-run" class="save-btn">Run selected case (headed)</button>
-            <button type="button" id="plan-rerun-failed" class="save-btn secondary">Rerun failed only</button>
-            <button type="button" id="plan-defect-preview" class="save-btn secondary">Preview defect packet</button>
-          </div>
-          <div class="btn-row" id="plan-pause-actions" hidden>
-            <button type="button" id="plan-pause-continue" class="save-btn">Continue</button>
-            <button type="button" id="plan-pause-stop" class="save-btn secondary">Stop (record fail)</button>
-          </div>
-          <pre id="plan-rerun-out" class="drawer-hint" aria-live="polite" hidden></pre>
-          <label class="stack-label">Failure class (last run)
-            <select id="plan-run-failure-class">
-              <option value="">(unset)</option>
-              <option value="product_bug">Product bug</option>
-              <option value="test_defect">Test defect</option>
-              <option value="environment">Environment</option>
-              <option value="known_issue">Known issue</option>
-            </select>
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-run-failure-save" class="save-btn secondary">Save failure class</button>
-          </div>
-          <h4 class="orb-section-label">Known issue / exclusion</h4>
-          <p class="drawer-hint">Links a note and optional Jira key. Failed runs stay red and are labelled known. Nothing is transitioned in Jira.</p>
-          <label class="stack-label">Known-issue note
-            <input type="text" id="plan-known-note" placeholder="Known failure note" autocomplete="off" />
-          </label>
-          <label class="stack-label">Known-issue Jira key (optional)
-            <input type="text" id="plan-known-jira" placeholder="KAN-123" autocomplete="off" />
-          </label>
-          <div class="btn-row">
-            <button type="button" id="plan-known-save" class="save-btn secondary">Link known issue</button>
-            <button type="button" id="plan-known-clear" class="save-btn secondary">Clear known link</button>
-          </div>
-          <pre id="plan-case-detail" class="drawer-hint" aria-live="polite" hidden></pre>
-          <pre id="plan-defect-out" class="drawer-hint" aria-live="polite" hidden></pre>
-          <p id="plan-degraded-hint" class="drawer-hint" role="status" hidden></p>
-          <p id="plan-status" class="drawer-hint" role="status">Ready</p>
         </div>
         <div id="app-section-suites" class="app-section" hidden>
           <h3 class="orb-section-label">Playwright suites</h3>
@@ -990,6 +1016,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk84"></script>
+  <script src="/ui/desktop/desktop.js?v=desk85"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 ﻿# PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-18 (Council Track 1 Slice-0 — Plans IA + Charter Frame CR)
+Last updated: 2026-11-18 (KAN-265 Plans IA tidy desk85)
 
 ## Original Vision
 A downloadable local-first **“test all”** application. The tester connects once (Jira, targets, docs, security level) and does testing work **inside the app**. Conversation (text first; voice later as a plugin) is the way in; the **orb + chat home is one home for everyone**; role needs are **HUD widgets**; App areas are full-window work.
@@ -41,7 +41,7 @@ Long-term goal: the most-used local/on-prem testing hub for testers, developers,
 - **Council Track 1 (2026-11-18):** Plans IA tidy + stub honesty first (**FR-UI-9**), then FR-MAN-1 **Charter Frame** (Primary **Manual** + Plans deep-link; free-region snip; story required when Jira-bound / test optional; **agent assist** + **armed mist** toggles, recommended defaults **off**). Live circles = **FR-MAN-2** parked. Voice still deferred.
 
 ## Current State
-**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (~61 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1–D7 Done;** **E1–E5 Done;** **KAN-260** Lab tools on ▦ App menu (desk64 / FR-UI-8). **Catalogue H designs complete:** **H3 Done** (**KAN-245**); **H2 Done** (**KAN-243**); **H1 design Done** (**KAN-241** + Council §9). **Active Build track:** Council **Track 1** epic **KAN-264** — pick-up **KAN-265** Plans IA tidy (test **KAN-266**); then **267** stub honesty, **269** Suites, **271** Reports, **273** Lab areas, **275** Manual shell, **277** Charter Frame. Voice **KAN-81** / G10 deferred — do not implement. **FR-MAN-2** parked. Toggle defaults G1: agent assist + mist **off**. **G12…G1** + **F1–F7** Done as before.
+**Maturity: prototype** toward test-all (Council CR 2026-11-16). Catalogue: `docs/ops/test_all_catalogue.json` (~61 stories, epics A–H). Alpha stop line: A1–A9. **A1–A9 Done (KAN-125…KAN-141);** near growth **B1–B7 Done (KAN-143…KAN-155);** **C1–C11 Done;** **UI-NAV-IA + App menu popover on main (KAN-257 desk47);** **D1–D7 Done;** **E1–E5 Done;** **KAN-260** Lab tools on ▦ App menu (desk64 / FR-UI-8). **Catalogue H designs complete:** **H3 Done** (**KAN-245**); **H2 Done** (**KAN-243**); **H1 design Done** (**KAN-241** + Council §9). **Active Build track:** Council **Track 1** epic **KAN-264** — **KAN-265** Plans IA tidy Done (desk85; Cases-first + sticky toolbar + Add case menu; test **KAN-266**); next **KAN-267** stub honesty, then **269** Suites, **271** Reports, **273** Lab areas, **275** Manual shell, **277** Charter Frame. Voice **KAN-81** / G10 deferred — do not implement. **FR-MAN-2** parked. Toggle defaults G1: agent assist + mist **off**. **G12…G1** + **F1–F7** Done as before.
 
 Skeleton + substantial features exist:
 - `plans/store.py` — **FR-PLAN-1/2 (KAN-125 + KAN-133 + KAN-177):** level-scoped plan → suite → cases → runs under `plans/{OFFICIAL|SECRET}/`; list/get isolated by active security level; create does not rewrite settings/reports/Playwright files; **update_case / reorder_cases / cases_for_run** (disable/archive skip later runs; archive never deletes runs/evidence); API `GET/POST /api/plans*`, case update, reorder, runnable

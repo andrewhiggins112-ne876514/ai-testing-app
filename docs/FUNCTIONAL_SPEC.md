@@ -249,7 +249,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-UI-6 | Baseline Security + Reports + Lab checklist; role packs later | **Done** **KAN-103** / **KAN-107** / **KAN-104** + **KAN-135** empty-lab checklist; Test-all **F1–F7** |
 | FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix; content vs config | **Done** shell **KAN-103** / **KAN-104**; content-vs-config **KAN-247…249** |
 | FR-UI-8 | Lab tools group on compact App menu (every layout) | **Done** **KAN-260** (desk64; test **KAN-262**) |
-| FR-UI-9 | Plans IA progressive disclosure | **Open** — **KAN-265** (test **KAN-266**); epic **KAN-264** |
+| FR-UI-9 | Plans IA progressive disclosure | **Done** — **KAN-265** (test **KAN-266**); epic **KAN-264** |
 | FR-UI-1 Manual | Primary **Manual** area (A3) | **Open** — **KAN-275** (test **KAN-276**) |
 | FR-MAN-1 implement | Charter Frame MVP | **Open** — **KAN-277** (test **KAN-278**); design stays **KAN-241** |
 | FR-PLUG-3 honesty | Stub labels / disable Run / Playwright default | **Open** — **KAN-267** (test **KAN-268**) |

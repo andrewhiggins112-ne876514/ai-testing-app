@@ -167,7 +167,7 @@ class PlanScheduleTests(unittest.TestCase):
         hist = (result.get("history") or [])[-1]
         self.assertEqual(hist.get("outcome"), "ran")
 
-    def test_api_schedule_and_desktop_ui_desk84(self):
+    def test_api_schedule_and_desktop_ui_desk85(self):
         created = create_plan("ApiSched")
         pid = created["plan"]["id"]
         add_case(pid, "S", tags=["smoke"])
@@ -201,9 +201,9 @@ class PlanScheduleTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk84", html)
-        self.assertIn("desk84", app)
-        self.assertIn("desktop.js?v=desk84", html)
+        self.assertIn("desk85", html)
+        self.assertIn("desk85", app)
+        self.assertIn("desktop.js?v=desk85", html)
         self.assertIn("plan-schedule-save", html)
         self.assertIn("plan-schedule-clear", html)
         self.assertIn("plan-schedule-tick", html)

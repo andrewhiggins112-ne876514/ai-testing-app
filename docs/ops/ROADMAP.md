@@ -8,7 +8,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
-| TRACK1-IA | Plans IA + stub honesty + other area tidy | now | Epic **KAN-264**; Active **KAN-265** (test **266**); then **267**, **269**, **271**, **273** |
+| TRACK1-IA | Plans IA + stub honesty + other area tidy | now | Epic **KAN-264**; **KAN-265** Done; Active **KAN-267** stub honesty (test **268**); then **269**, **271**, **273** |
 | TRACK1-H1 | Manual shell + Charter Frame MVP | next | **KAN-275** (test **276**) then **KAN-277** (test **278**); design KAN-241 §9 |
 | FR-MAN-2 | Live assist / circles | later | Parked until H1 + DPIA (H1 §10) |
 | TESTALL-E | Test-all E privacy / audit / recovery | done | E1–E5 Done (**KAN-201** desk66); UI-LAB-MENU Done |
