@@ -1662,3 +1662,88 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .plan-run-details[open] > summary {
   margin-bottom: 8px;
 }
+
+/* KAN-269 Suites IA — sticky path/run + primary list + collapsed advanced */
+.suite-sticky-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0 10px;
+  margin: 0 0 4px;
+  background: color-mix(in srgb, var(--panel, #061018) 92%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.suite-sticky-toolbar .suite-toolbar-actions {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suite-sticky-toolbar .suite-toolbar-status {
+  margin: 0;
+  color: var(--cyan, #50cdff);
+}
+
+.suite-sticky-toolbar .suite-toolbar-saved {
+  margin: 0;
+}
+
+.suite-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+
+.suite-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: min(42vh, 360px);
+  overflow: auto;
+  padding: 4px 0;
+}
+
+.suite-list-item {
+  appearance: none;
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
+  background: transparent;
+  color: var(--text, #e8f4ff);
+  font: 500 12px/1.35 inherit;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.suite-list-item:hover {
+  border-color: color-mix(in srgb, var(--cyan, #50cdff) 45%, transparent);
+}
+
+.suite-list-item[aria-selected="true"] {
+  border-color: var(--cyan, #50cdff);
+  background: color-mix(in srgb, var(--cyan, #50cdff) 14%, transparent);
+}
+
+.suite-advanced {
+  margin: 8px 0 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
+}
+
+.suite-advanced > summary {
+  cursor: pointer;
+  color: var(--muted, #9bb4c4);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.suite-advanced[open] > summary {
+  margin-bottom: 8px;
+  color: var(--cyan, #50cdff);
+}

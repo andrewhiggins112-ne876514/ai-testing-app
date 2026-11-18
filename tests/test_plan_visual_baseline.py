@@ -194,7 +194,7 @@ class PlanVisualBaselineTests(unittest.TestCase):
         self.assertIn("update_baseline=explicit", run.get("note") or "")
         self.assertTrue((out.get("visual") or {}).get("updated"))
 
-    def test_api_visual_and_ui_desk86(self):
+    def test_api_visual_and_ui_desk87(self):
         client = TestClient(main.app)
         created = client.post("/api/plans", json={"name": "VisualApi"})
         self.assertEqual(created.status_code, 200)
@@ -211,9 +211,9 @@ class PlanVisualBaselineTests(unittest.TestCase):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         self.assertIn("plan-add-visual-btn", html)
         self.assertIn("plan-update-baseline-btn", html)
-        self.assertIn("desk86", html)
+        self.assertIn("desk87", html)
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk86", desk)
+        self.assertIn("desk87", desk)
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         self.assertIn("cases/visual", js)
         self.assertIn("visual-baseline", js)

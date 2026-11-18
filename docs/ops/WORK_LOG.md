@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-269** — Track1: Suites area UI tidy |
+| **Jira story** | **KAN-271** — Track1: Reports area UI tidy |
 | **Start task** | — |
 | **Epic** | **KAN-264** Council Track 1 — UX tidy + Manual Charter Frame |
 | **Roadmap ID** | TRACK1-IA → TRACK1-H1 |
-| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-7, FR-TEST-5; epic **KAN-264** |
+| **Spec** | `docs/FUNCTIONAL_SPEC.md` FR-UI-7, FR-REP-4; epic **KAN-264** |
 | **Git** | `main` |
-| **Test ticket** | **KAN-270** |
-| **Shipped** | … **KAN-267** stub honesty (desk86); **KAN-265** Plans IA (desk85); Council Slice-0; epic **KAN-264** |
+| **Test ticket** | **KAN-272** |
+| **Shipped** | … **KAN-269** Suites tidy (desk87); **KAN-267** stub honesty (desk86); **KAN-265** Plans IA (desk85); Council Slice-0; epic **KAN-264** |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles |
-| **Next / Shipped** | Build pick-up → **KAN-269**. Queue: **271** Reports tidy → **273** Lab areas tidy → **275** Manual shell → **277** Charter Frame. Do **not** start voice. |
+| **Next / Shipped** | Build pick-up → **KAN-271**. Queue: **273** Lab areas tidy → **275** Manual shell → **277** Charter Frame. Do **not** start voice. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-269 — Suites area UI tidy
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-269
+- **Done:** Suites progressive disclosure (FR-UI-7 / FR-TEST-5): sticky path toolbar (Discover / List / Run selected / Run all + status); primary suite list with selection; Import + help collapsed under Advanced. Existing playwright_suite APIs unchanged; external files never deleted. Cache-bust **desk87**.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.js`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_suites_ia.py` (+ desk87 across UI tests), docs
+- **Verify:** `pytest tests/test_suites_ia.py tests/test_playwright_suite.py tests/test_plans_ia.py tests/test_nav_overlap.py` 12 passed. Live `GET /ui/desktop/index.html?v=desk87` has `data-suites-ia` / sticky / list / advanced. `desktop_app.py` opened desk87 (orb home; Suites App-menu click contested by HUD; HTML + API + pytest evidence).
+- **Jira:** close-out **KAN-269** + **KAN-270**
+- **Next:** **KAN-271** Reports area UI tidy (test **KAN-272**)
 
 ### 2026-11-18 — KAN-267 — Framework stub honesty
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-267
