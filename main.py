@@ -341,6 +341,7 @@ class ManualSessionProposeRequest(BaseModel):
     note_ids: list[str] | None = None
     still_ids: list[str] | None = None
     failure_class: str = "product_bug"
+    explicit_bug: bool = False
 
 
 class ManualSessionConfirmRequest(BaseModel):
@@ -2151,6 +2152,7 @@ async def post_manual_session_propose(
         note_ids=req.note_ids,
         still_ids=req.still_ids,
         failure_class=req.failure_class,
+        explicit_bug=bool(req.explicit_bug),
     )
 
 
@@ -2161,7 +2163,7 @@ async def post_manual_session_confirm(
     req: ManualSessionConfirmRequest | None = None,
 ):
     body = req or ManualSessionConfirmRequest()
-    return manual_confirm_proposal(
+    return await manual_confirm_proposal(
         session_id, proposal_id, confirm=bool(body.confirm)
     )
 

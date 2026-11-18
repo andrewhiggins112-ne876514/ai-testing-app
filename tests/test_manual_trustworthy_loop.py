@@ -1,6 +1,7 @@
 """KAN-283 / KAN-284 — Trustworthy Manual session loop (headed)."""
 from __future__ import annotations
 
+import asyncio
 import tempfile
 import unittest
 from pathlib import Path
@@ -71,18 +72,35 @@ class TrustworthyLoopStoreTests(unittest.TestCase):
         self.assertTrue(preview["proposal"]["confirm_required"])
         pid = preview["proposal"]["id"]
 
-        cancelled = ms.confirm_proposal(sid, pid, confirm=False)
+        cancelled = asyncio.run(ms.confirm_proposal(sid, pid, confirm=False))
         self.assertEqual(cancelled["status"], "ok")
         self.assertFalse(cancelled["writes_jira"])
         self.assertEqual(cancelled["proposal"]["state"], "cancelled")
 
         preview2 = ms.propose(sid, "comment_on_story")
         pid2 = preview2["proposal"]["id"]
-        confirmed = ms.confirm_proposal(sid, pid2, confirm=True)
+
+        async def fake_add_comment(**_kwargs):
+            return {
+                "status": "confirmation_required",
+                "confirm_id": "c1",
+                "preview": {},
+            }
+
+        async def fake_resolve(_sid, word):
+            self.assertEqual(word, "confirm")
+            return {"status": "commented", "issue_key": "KAN-283"}
+
+        with mock.patch(
+            "plugins.jira_plugin.add_comment", side_effect=fake_add_comment
+        ), mock.patch(
+            "plugins.jira_plugin.resolve_create", side_effect=fake_resolve
+        ):
+            confirmed = asyncio.run(ms.confirm_proposal(sid, pid2, confirm=True))
         self.assertEqual(confirmed["status"], "ok")
-        self.assertFalse(confirmed["writes_jira"])
-        self.assertTrue(confirmed.get("confirm_required"))
-        self.assertTrue(confirmed["proposal"].get("ready_for_jira"))
+        self.assertTrue(confirmed["writes_jira"])
+        self.assertEqual(confirmed["proposal"]["state"], "submitted")
+        self.assertTrue(confirmed["proposal"].get("jira_written"))
 
 
 class TrustworthyLoopUiAndApiTests(unittest.TestCase):
@@ -138,14 +156,14 @@ class TrustworthyLoopUiAndApiTests(unittest.TestCase):
         self.assertFalse(cancel["writes_jira"])
         self.assertEqual(cancel["proposal"]["state"], "cancelled")
 
-    def test_desktop_trustworthy_loop_markers_desk97(self):
+    def test_desktop_trustworthy_loop_markers_desk98(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk97", html)
-        self.assertIn("desk97", desk)
+        self.assertIn("desk98", html)
+        self.assertIn("desk98", desk)
         self.assertIn('data-manual-loop="1"', html)
         self.assertIn('data-loop-stage="idle"', html)
         self.assertIn('data-manual-loop-stage="1"', html)

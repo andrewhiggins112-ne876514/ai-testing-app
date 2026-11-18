@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk97" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk98" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -947,7 +947,7 @@
           </div>
           </div>
         </div>
-        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-loop-stage="idle">
+        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-loop-stage="idle">
           <h3 class="orb-section-label">Manual</h3>
           <p class="drawer-hint">Charter Frame (FR-MAN-1). Calm loop: Start → notes/stills → End → review → Propose → Confirm/Cancel. Session library is level-scoped; GDPR wipe under Security removes Manual sessions for this level. Esc/Back returns to orb home — Manual is not a second landing. No background capture until Start.</p>
           <div id="manual-sticky-toolbar" class="manual-sticky-toolbar" data-manual-sticky="1">
@@ -993,9 +993,20 @@
           </div>
           <div id="manual-review" class="manual-review" data-manual-review="1" hidden>
             <h4 class="orb-section-label">Review</h4>
-            <p class="drawer-hint" data-manual-review-hint="1">Propose builds a local preview only. Confirm uses the FR-JIRA-5 two-step path for ticket-bound writes; Cancel proposal writes nothing to Jira.</p>
+            <p class="drawer-hint" data-manual-review-hint="1">Propose builds a local preview. Confirm (below, always visible) writes via FR-JIRA-5 and audits success; Cancel proposal writes nothing. Create Bug needs failure class product_bug or File as Bug.</p>
             <p id="manual-assist-status" class="drawer-hint manual-assist-status" data-manual-assist-status="1" hidden aria-live="polite"></p>
             <pre id="manual-review-out" class="drawer-hint" aria-live="polite"></pre>
+            <div class="manual-failure-class-row" data-manual-failure-class="1">
+              <label class="stack-label" for="manual-failure-class">Failure class
+                <select id="manual-failure-class" data-manual-failure-class-select="1">
+                  <option value="product_bug" selected>Product bug</option>
+                  <option value="test_defect">Test defect</option>
+                  <option value="environment">Environment</option>
+                  <option value="known_issue">Known issue</option>
+                </select>
+              </label>
+              <label class="check-row"><input type="checkbox" id="manual-explicit-bug" data-manual-explicit-bug="1" /> File as Bug (explicit) when class is not product_bug</label>
+            </div>
             <div class="btn-row" data-manual-propose-row="1">
               <button type="button" id="manual-propose-bug" class="save-btn" data-manual-propose="bug">Propose bug</button>
               <button type="button" id="manual-propose-comment" class="save-btn secondary" data-manual-propose="comment">Propose comment</button>
@@ -1003,15 +1014,16 @@
               <button type="button" id="manual-propose-steps" class="save-btn secondary" data-manual-propose="steps">Step preview</button>
             </div>
             <pre id="manual-propose-out" class="drawer-hint" aria-live="polite" hidden></pre>
-            <div class="btn-row manual-confirm-row" id="manual-confirm-row" hidden data-manual-confirm="1">
-              <button type="button" id="manual-confirm-yes" class="save-btn" data-manual-confirm-yes="1">Confirm</button>
-              <button type="button" id="manual-confirm-no" class="save-btn secondary" data-manual-confirm-no="1">Cancel proposal</button>
-            </div>
           </div>
           <details id="manual-advanced" class="manual-advanced" data-manual-advanced="1">
             <summary>About Manual capture</summary>
             <p class="drawer-hint">Notes + opt-in stills only. No keylog, clipboard, mic, or silent video. Jira writes stay two-step confirm. Live on-screen circles are FR-MAN-2 (parked). Session library above lists this level only; GDPR Sessions wipe removes Manual drafts + stills for the active level.</p>
           </details>
+          </div>
+          <div class="btn-row manual-confirm-row manual-confirm-dock" id="manual-confirm-row" hidden data-manual-confirm="1" data-manual-confirm-dock="1">
+            <p class="drawer-hint manual-confirm-dock-hint" data-manual-confirm-hint="1">Proposal ready — Confirm writes to Jira (audited); Cancel writes nothing.</p>
+            <button type="button" id="manual-confirm-yes" class="save-btn" data-manual-confirm-yes="1">Confirm</button>
+            <button type="button" id="manual-confirm-no" class="save-btn secondary" data-manual-confirm-no="1">Cancel proposal</button>
           </div>
         </div>
         <div id="app-section-suites" class="app-section" hidden data-suites-ia="1">
@@ -1199,6 +1211,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk97"></script>
+  <script src="/ui/desktop/desktop.js?v=desk98"></script>
 </body>
 </html>

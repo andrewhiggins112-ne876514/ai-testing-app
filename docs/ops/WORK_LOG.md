@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-293** — Track2: Manual propose/confirm harden (failure class + visibility) |
+| **Jira story** | **KAN-295** — Track2: Enterprise layout research note (docs) |
 | **Start task** | — |
 | **Epic** | **KAN-279** Council Track 2 — Area chrome + Manual completion |
-| **Roadmap ID** | TRACK2-MAN |
-| **Spec** | FR-MAN-1 completion (propose/confirm harden) |
+| **Roadmap ID** | TRACK2-UX |
+| **Spec** | FR-UI-9 / FR-UI-7 layout note (docs only) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-294** |
-| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287**; page/annotate **KAN-289**; library+GDPR **KAN-291** (desk97) |
+| **Test ticket** | **KAN-296** |
+| **Shipped** | Track 1 Done; chrome **KAN-281**; loop **KAN-283**; assist **KAN-285**; snap **KAN-287**; page/annotate **KAN-289**; library+GDPR **KAN-291**; propose/confirm harden **KAN-293** (desk98) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2** live circles (DPIA) |
-| **Next / Shipped** | Pick up **KAN-293**. Then **KAN-295…297**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Pick up **KAN-295** (docs note). Then **KAN-297** tokens only after human accepts note. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-18 — KAN-293 — Manual propose/confirm harden
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-293
+- **Done:** Failure-class select + explicit File-as-Bug; Create Bug blocked for non-`product_bug` unless explicit (FR-HEAL-4 redirect kinds); Propose Bug builds FR-JIRA-4 defect-packet shape; Confirm dock moved outside `.area-work` (`flex-shrink: 0`); Confirm on bug/comment runs `create_bug`/`add_comment` + `resolve_create` (Manual Confirm = human gate) and marks submitted + audited on success; Cancel writes nothing. Cache-bust **desk98**.
+- **Files:** `plans/manual_session.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_manual_propose_harden.py` (+ desk98 across UI tests), docs
+- **Verify:** `pytest tests/test_manual_propose_harden.py tests/test_manual_session.py tests/test_manual_trustworthy_loop.py tests/test_manual_assist_drafts.py tests/test_manual_page_context.py tests/test_charter_snap.py tests/test_manual_ia.py tests/test_manual_session_library.py tests/test_area_chrome_nonoverlap.py` 49 passed. Packet/failure-class/API primary; Confirm dock proven by HTML/CSS markers outside scrollport — CU not required (tiered policy).
+- **Jira:** close-out **KAN-293** + **KAN-294**
+- **Next:** **KAN-295** Enterprise layout research note (docs; test **KAN-296**)
 
 ### 2026-11-18 — KAN-291 — Manual session library + GDPR session wipe
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-291

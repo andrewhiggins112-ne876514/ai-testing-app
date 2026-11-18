@@ -1944,11 +1944,40 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: color-mix(in srgb, var(--cyan, #50cdff) 70%, #fff);
 }
 
-/* Confirm stays in review flow (start form hidden at review stage) — not sticky inside scrollport */
-.manual-confirm-row {
+/* KAN-293 — Confirm dock outside .area-work scrollport (always visible when shown) */
+.manual-confirm-row,
+.manual-confirm-dock {
   margin-top: 6px;
   padding-top: 8px;
   border-top: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+}
+
+.manual-confirm-dock {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 4px;
+  background: color-mix(in srgb, var(--panel, #061018) 94%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 34%, transparent);
+}
+
+.manual-confirm-dock[hidden] {
+  display: none !important;
+}
+
+.manual-confirm-dock-hint {
+  flex: 1 1 12rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.manual-failure-class-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 2px;
 }
 
 .manual-library {

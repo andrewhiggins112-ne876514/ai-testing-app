@@ -1,6 +1,7 @@
 """KAN-277 / KAN-278 — FR-MAN-1 Charter Frame MVP."""
 from __future__ import annotations
 
+import asyncio
 import tempfile
 import unittest
 from pathlib import Path
@@ -109,17 +110,34 @@ class ManualSessionStoreTests(unittest.TestCase):
         self.assertTrue(preview["proposal"]["confirm_required"])
         pid = preview["proposal"]["id"]
 
-        cancelled = ms.confirm_proposal(sid, pid, confirm=False)
+        cancelled = asyncio.run(ms.confirm_proposal(sid, pid, confirm=False))
         self.assertEqual(cancelled["status"], "ok")
         self.assertFalse(cancelled["writes_jira"])
         self.assertEqual(cancelled["proposal"]["state"], "cancelled")
 
         preview2 = ms.propose(sid, "comment_on_story")
         pid2 = preview2["proposal"]["id"]
-        confirmed = ms.confirm_proposal(sid, pid2, confirm=True)
+
+        async def fake_add_comment(**_kwargs):
+            return {
+                "status": "confirmation_required",
+                "confirm_id": "c1",
+                "preview": {},
+            }
+
+        async def fake_resolve(_sid, word):
+            self.assertEqual(word, "confirm")
+            return {"status": "commented", "issue_key": "KAN-100"}
+
+        with mock.patch(
+            "plugins.jira_plugin.add_comment", side_effect=fake_add_comment
+        ), mock.patch(
+            "plugins.jira_plugin.resolve_create", side_effect=fake_resolve
+        ):
+            confirmed = asyncio.run(ms.confirm_proposal(sid, pid2, confirm=True))
         self.assertEqual(confirmed["status"], "ok")
-        self.assertFalse(confirmed["writes_jira"])
-        self.assertTrue(confirmed.get("confirm_required"))
+        self.assertTrue(confirmed["writes_jira"])
+        self.assertEqual(confirmed["proposal"]["state"], "submitted")
 
     def test_cancel_open_requires_confirm(self):
         started = ms.start_session("Will cancel")
@@ -188,14 +206,14 @@ class ManualSessionApiAndUiTests(unittest.TestCase):
         ).json()
         self.assertFalse(cancel["writes_jira"])
 
-    def test_desktop_charter_frame_markers_desk97(self):
+    def test_desktop_charter_frame_markers_desk98(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk97", html)
-        self.assertIn("desk97", desk)
+        self.assertIn("desk98", html)
+        self.assertIn("desk98", desk)
         self.assertIn('data-charter-frame="1"', html)
         self.assertIn('data-charter-mvp="1"', html)
         self.assertIn('data-manual-start="1"', html)
@@ -223,8 +241,8 @@ class ManualSessionApiAndUiTests(unittest.TestCase):
         ms.end_session(sid)
         prop = ms.propose(sid, "attach_local_case_note")
         self.assertEqual(prop["status"], "ok")
-        confirmed = ms.confirm_proposal(
-            sid, prop["proposal"]["id"], confirm=True
+        confirmed = asyncio.run(
+            ms.confirm_proposal(sid, prop["proposal"]["id"], confirm=True)
         )
         self.assertEqual(confirmed["status"], "ok")
         self.assertFalse(confirmed["writes_jira"])

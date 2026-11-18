@@ -9,13 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AreaChromeNonoverlapTests(unittest.TestCase):
-    def test_markers_and_desk97(self):
+    def test_markers_and_desk98(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk97", html)
-        self.assertIn("desk97", desk)
+        self.assertIn("desk98", html)
+        self.assertIn("desk98", desk)
         self.assertIn('data-area-chrome-nonoverlap="1"', html)
         self.assertEqual(html.count('data-area-work="1"'), 8)
         for section in (
@@ -68,13 +68,15 @@ class AreaChromeNonoverlapTests(unittest.TestCase):
         self.assertGreater(work_at, tabs_at)
         self.assertGreater(cases_at, work_at)
 
-        # Manual confirm row lives in the work surface (not under sticky chrome).
+        # KAN-293 — Confirm dock is outside .area-work (footer, always visible).
         manual = html.split('id="app-section-manual"', 1)[1].split(
             'id="app-section-suites"', 1
         )[0]
         work_at = manual.find('data-area-work="1"')
         confirm_at = manual.find('id="manual-confirm-row"')
         self.assertGreater(confirm_at, work_at)
+        self.assertIn('data-manual-confirm-dock="1"', manual)
+        self.assertIn("manual-confirm-dock", css)
 
 
 if __name__ == "__main__":

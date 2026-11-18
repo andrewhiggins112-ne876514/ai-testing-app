@@ -134,7 +134,7 @@ class TesterHudTests(unittest.TestCase):
         self.assertEqual(payload["quarantined_count"], 1)
         self.assertEqual(payload["quarantined_cases"][0]["case_id"], cid_q)
 
-    def test_api_tester_hud_and_desktop_ui_desk97(self):
+    def test_api_tester_hud_and_desktop_ui_desk98(self):
         self._seed()
         with patch(
             "settings.connection_health.connection_health",
@@ -157,8 +157,8 @@ class TesterHudTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk97", html)
-        self.assertIn("desk97", desk)
+        self.assertIn("desk98", html)
+        self.assertIn("desk98", desk)
         self.assertIn('id="hud-tester-conn"', html)
         self.assertIn('id="hud-tester-last"', html)
         self.assertIn('id="hud-tester-fails"', html)

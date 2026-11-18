@@ -1360,6 +1360,8 @@
   const manualReviewOut = document.getElementById("manual-review-out");
   const manualProposeOut = document.getElementById("manual-propose-out");
   const manualConfirmRow = document.getElementById("manual-confirm-row");
+  const manualFailureClass = document.getElementById("manual-failure-class");
+  const manualExplicitBug = document.getElementById("manual-explicit-bug");
   const manualProposeBug = document.getElementById("manual-propose-bug");
   const manualProposeComment = document.getElementById("manual-propose-comment");
   const manualProposeNote = document.getElementById("manual-propose-note");
@@ -5044,6 +5046,44 @@
     }
   }
 
+  function manualFailureClassValue() {
+    return (manualFailureClass && manualFailureClass.value) || "product_bug";
+  }
+
+  function manualExplicitBugValue() {
+    return !!(manualExplicitBug && manualExplicitBug.checked);
+  }
+
+  function formatManualProposalPreview(data) {
+    const prop = (data && data.proposal) || data || {};
+    if (prop.packet) {
+      const p = prop.packet;
+      const steps = (p.replication_steps || [])
+        .map(function (s, i) {
+          return String(i + 1) + ". " + s;
+        })
+        .join("\n");
+      return [
+        "Kind: create_bug",
+        "Failure class: " + (p.selected_failure_class || p.failure_class || ""),
+        p.explicit_bug_pick ? "Explicit Bug pick: yes" : "",
+        "Symptom: " + (p.symptom || ""),
+        "Expected: " + (p.expected || ""),
+        "Actual: " + (p.actual || ""),
+        "Environment: " + (p.environment || ""),
+        "Replication:",
+        steps,
+        p.evidence_paths && p.evidence_paths.length
+          ? "Evidence: " + p.evidence_paths.join(", ")
+          : "",
+        prop.message || "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }
+    return JSON.stringify(prop, null, 2);
+  }
+
   async function proposeManual(kind) {
     let sessionId =
       window.__manualLastEndedId ||
@@ -5074,38 +5114,38 @@
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kind: kind, failure_class: "product_bug" }),
+          body: JSON.stringify({
+            kind: kind,
+            failure_class: manualFailureClassValue(),
+            explicit_bug: manualExplicitBugValue(),
+          }),
         }
       );
       const data = await res.json();
       if (manualProposeOut) {
         manualProposeOut.hidden = false;
-        manualProposeOut.textContent = JSON.stringify(
-          data.proposal || data,
-          null,
-          2
-        );
+        manualProposeOut.textContent =
+          data.status === "ok"
+            ? formatManualProposalPreview(data)
+            : JSON.stringify(data, null, 2);
       }
       if (data.status === "ok" && data.proposal) {
         manualPendingProposalId = data.proposal.id || "";
         window.__manualProposeSessionId = sessionId;
         if (manualConfirmRow) {
           manualConfirmRow.hidden = false;
-          if (typeof manualConfirmRow.scrollIntoView === "function") {
-            try {
-              manualConfirmRow.scrollIntoView({ block: "nearest", behavior: "smooth" });
-            } catch (_err) {
-              /* scroll optional */
-            }
-          }
         }
         if (manualStatus) {
           manualStatus.textContent =
             data.proposal.message ||
-            "Preview ready — Confirm (FR-JIRA-5 path) or Cancel proposal (writes nothing)";
+            "Preview ready — Confirm (audited write) or Cancel proposal (writes nothing)";
         }
-      } else if (manualStatus) {
-        manualStatus.textContent = data.message || data.error || "Propose failed";
+      } else {
+        if (manualConfirmRow) manualConfirmRow.hidden = true;
+        manualPendingProposalId = "";
+        if (manualStatus) {
+          manualStatus.textContent = data.message || data.error || "Propose failed";
+        }
       }
     } catch (err) {
       if (manualProposeOut) {
@@ -5140,17 +5180,21 @@
         if (!doConfirm) {
           manualStatus.textContent =
             data.message || "Proposal cancelled — nothing written to Jira";
-        } else if (data.writes_jira) {
+        } else if (data.status === "ok" && data.writes_jira) {
           manualStatus.textContent =
             data.message || "Confirmed — Jira write completed (audited)";
+        } else if (data.status === "ok") {
+          manualStatus.textContent =
+            data.message || "Confirmed — local only (no Jira write)";
         } else {
           manualStatus.textContent =
-            data.message ||
-            "Confirmed on FR-JIRA-5 path — ready_for_jira locally; no silent write";
+            data.message || data.error || "Confirm failed — nothing audited as success";
         }
       }
-      if (manualConfirmRow) manualConfirmRow.hidden = true;
-      manualPendingProposalId = "";
+      if (data.status === "ok" || !doConfirm) {
+        if (manualConfirmRow) manualConfirmRow.hidden = true;
+        manualPendingProposalId = "";
+      }
     } catch (err) {
       if (manualStatus) {
         manualStatus.textContent = "Confirm failed: " + (err.message || err);

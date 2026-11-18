@@ -1,4 +1,4 @@
-"""FR-MAN-1 Charter Frame (KAN-277 MVP + Track 2 through KAN-291).
+"""FR-MAN-1 Charter Frame (KAN-277 MVP + Track 2 through KAN-293).
 
 Level-scoped manual / exploratory sessions under
 ``%LOCALAPPDATA%/ai_testing_app/plans/{LEVEL}/sessions/``.
@@ -7,6 +7,7 @@ Agent assist (default off) produces real local Ollama drafts at End — never no
 Window/monitor snap (KAN-287) stores absolute screen_bbox for stills.
 Page URL/title from known headed AUT + annotate-still (KAN-289); E3 on propose.
 Session library + level-scoped GDPR wipe (KAN-291).
+Propose/confirm harden (KAN-293): failure class + Confirm dock visibility + audited writes.
 """
 from __future__ import annotations
 
@@ -23,6 +24,11 @@ _ID_SAFE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$")
 _JIRA_KEY = re.compile(r"^[A-Z][A-Z0-9]+-\d+$", re.I)
 _FAILURE_CLASSES = frozenset(
     {"product_bug", "test_defect", "environment", "known_issue", ""}
+)
+_REDIRECT_KINDS = (
+    "comment_on_story",
+    "attach_local_case_note",
+    "test_step_update_preview",
 )
 CHARTER_MAX = 2000
 NOTE_MAX = 2000
@@ -987,6 +993,52 @@ def _selected_stills(session: dict[str, Any], still_ids: list[str] | None) -> li
     return [s for s in stills if str(s.get("id")) in wanted]
 
 
+def _build_defect_packet(
+    session: dict[str, Any],
+    *,
+    note_lines: list[str],
+    annotation_lines: list[str],
+    evidence_paths: list[str],
+    page_ctx_public: dict[str, Any],
+    failure_class: str,
+    explicit_bug_pick: bool,
+    redaction_hits: int,
+) -> dict[str, Any]:
+    """FR-JIRA-4 defect packet shape for Manual Propose Bug (KAN-293)."""
+    page_url = str(page_ctx_public.get("url") or "")
+    page_title = str(page_ctx_public.get("title") or "")
+    env_bits = [f"Security level: {session.get('level')}"]
+    if page_ctx_public.get("known"):
+        env_bits.append(f"AUT URL: {page_url or '(none)'}")
+        env_bits.append(f"AUT title: {page_title or '(none)'}")
+    replication = [
+        f"Start manual session with charter: {session.get('charter')}",
+    ]
+    if page_ctx_public.get("known"):
+        replication.append(f"AUT page: {page_title or page_url}")
+    if note_lines:
+        replication.extend(f"Note: {t}" for t in note_lines[:8])
+    else:
+        replication.append("Reproduce from session notes.")
+    replication.extend(f"Still annotation: {a}" for a in annotation_lines[:4])
+    return {
+        "symptom": (session.get("charter") or "Manual session finding")[:200],
+        "expected": "Behaviour matches charter / acceptance criteria.",
+        "actual": "\n".join(note_lines)[:2000] or "(no notes selected)",
+        "environment": " | ".join(env_bits),
+        "replication_steps": replication,
+        "evidence_paths": evidence_paths,
+        "failure_class": "product_bug" if explicit_bug_pick else failure_class,
+        "selected_failure_class": failure_class,
+        "explicit_bug_pick": bool(explicit_bug_pick),
+        "classification": "product_bug",
+        "jira_key": session.get("jira_story_key") or "",
+        "confirm_required": True,
+        "page_context": page_ctx_public,
+        "redaction_hits": redaction_hits,
+    }
+
+
 def propose(
     session_id: str,
     kind: str,
@@ -994,6 +1046,7 @@ def propose(
     note_ids: list[str] | None = None,
     still_ids: list[str] | None = None,
     failure_class: str = "product_bug",
+    explicit_bug: bool = False,
     level: str | None = None,
 ) -> dict[str, Any]:
     """Build a local proposal preview. Does not write to Jira."""
@@ -1027,9 +1080,10 @@ def propose(
 
     notes = _selected_notes(session, note_ids)
     stills = _selected_stills(session, still_ids)
-    fc = (failure_class or "product_bug").strip().lower()
-    if fc not in _FAILURE_CLASSES:
+    fc = (failure_class or "product_bug").strip().lower().replace(" ", "_")
+    if fc not in _FAILURE_CLASSES or not fc:
         fc = "product_bug"
+    explicit = bool(explicit_bug)
 
     proposal_id = _new_id("pr")
     payload: dict[str, Any] = {
@@ -1040,6 +1094,8 @@ def propose(
         "confirm_required": kind_key in {"create_bug", "comment_on_story"},
         "jira_written": False,
         "issue_key": None,
+        "failure_class": fc,
+        "explicit_bug_pick": explicit,
     }
 
     # E3 — redact secrets in notes / page context / still annotations before propose.
@@ -1077,40 +1133,33 @@ def propose(
     payload["e3_redaction"] = True
 
     if kind_key == "create_bug":
-        if fc != "product_bug":
+        if fc != "product_bug" and not explicit:
             return {
                 "status": "error",
                 "error": "product_bug_only",
-                "message": "Create Bug is only offered when failure class is product_bug.",
-            }
-        env_bits = [f"Security level: {session.get('level')}"]
-        if page_ctx_public.get("known"):
-            env_bits.append(f"AUT URL: {page_url or '(none)'}")
-            env_bits.append(f"AUT title: {page_title or '(none)'}")
-        packet = {
-            "symptom": (session.get("charter") or "Manual session finding")[:200],
-            "expected": "Behaviour matches charter / acceptance criteria.",
-            "actual": "\n".join(note_lines)[:2000] or "(no notes selected)",
-            "environment": " | ".join(env_bits),
-            "replication_steps": [
-                f"Start manual session with charter: {session.get('charter')}",
-                *(
-                    [f"AUT page: {page_title or page_url}"]
-                    if page_ctx_public.get("known")
-                    else []
+                "failure_class": fc,
+                "redirect_kinds": list(_REDIRECT_KINDS),
+                "message": (
+                    f"Create Bug is blocked for failure class {fc!r} (FR-HEAL-4). "
+                    "Choose Comment, local case note, or step preview — "
+                    "or tick File as Bug to file explicitly."
                 ),
-                *([f"Note: {t}" for t in note_lines[:8]] or ["Reproduce from session notes."]),
-                *([f"Still annotation: {a}" for a in annotation_lines[:4]]),
-            ],
-            "evidence_paths": evidence_paths,
-            "failure_class": fc,
-            "jira_key": session.get("jira_story_key") or "",
-            "confirm_required": True,
-            "page_context": page_ctx_public,
-            "redaction_hits": redaction_hits,
-        }
+            }
+        packet = _build_defect_packet(
+            session,
+            note_lines=note_lines,
+            annotation_lines=annotation_lines,
+            evidence_paths=evidence_paths,
+            page_ctx_public=page_ctx_public,
+            failure_class=fc,
+            explicit_bug_pick=explicit and fc != "product_bug",
+            redaction_hits=redaction_hits,
+        )
         payload["packet"] = packet
-        payload["message"] = "Preview only — confirm required to create a Jira Bug."
+        payload["explicit_bug_pick"] = bool(packet.get("explicit_bug_pick"))
+        payload["message"] = (
+            "Preview only — Confirm writes a Jira Bug (FR-JIRA-5); Cancel writes nothing."
+        )
 
     elif kind_key == "comment_on_story":
         story = session.get("jira_story_key") or ""
@@ -1122,6 +1171,7 @@ def propose(
             }
         body_parts = [
             f"Manual session {session.get('id')} — {session.get('charter')}",
+            f"Failure class: {fc}",
             "",
         ]
         if page_ctx_public.get("known"):
@@ -1133,7 +1183,9 @@ def propose(
             body_parts.extend(f"Still annotation: {a}" for a in annotation_lines)
         body = "\n".join(body_parts)[:4000]
         payload["comment"] = {"issue_key": story, "body": body}
-        payload["message"] = "Preview only — confirm required to comment on Jira."
+        payload["message"] = (
+            "Preview only — Confirm posts the Jira comment (FR-JIRA-5); Cancel writes nothing."
+        )
 
     elif kind_key == "attach_local_case_note":
         plan_id = session.get("plan_id") or ""
@@ -1148,6 +1200,7 @@ def propose(
             "plan_id": plan_id,
             "case_id": case_id,
             "text": "\n".join(note_lines)[:NOTE_MAX],
+            "failure_class": fc,
         }
         payload["confirm_required"] = False
         payload["message"] = "Local case note ready — apply writes B7 note only (no Jira)."
@@ -1161,6 +1214,7 @@ def propose(
             "pending_review": True,
             "auto_commit": False,
             "weakens_assertions": False,
+            "failure_class": fc,
         }
         payload["confirm_required"] = False
         payload["message"] = (
@@ -1178,14 +1232,68 @@ def propose(
     }
 
 
-def confirm_proposal(
+def _jira_session_key(session_id: str) -> str:
+    return f"manual:{session_id}"
+
+
+async def _execute_jira_create_bug(
+    session_id: str, packet: dict[str, Any]
+) -> dict[str, Any]:
+    from plugins.jira_plugin import create_bug, resolve_create
+
+    jira_sid = _jira_session_key(session_id)
+    preview = await create_bug(
+        summary=str(packet.get("symptom") or "")[:255] or None,
+        symptom=str(packet.get("symptom") or "") or None,
+        expected=str(packet.get("expected") or "") or None,
+        actual=str(packet.get("actual") or "") or None,
+        environment=str(packet.get("environment") or "") or None,
+        replication_steps=list(packet.get("replication_steps") or []),
+        evidence_paths=list(packet.get("evidence_paths") or []),
+        classification="product_bug",
+        relates_to=str(packet.get("jira_key") or "") or None,
+        session_id=jira_sid,
+    )
+    if preview.get("status") != "confirmation_required":
+        return preview
+    return await resolve_create(jira_sid, "confirm") or {
+        "status": "error",
+        "message": "Confirm resolve returned nothing.",
+    }
+
+
+async def _execute_jira_comment(
+    session_id: str, comment: dict[str, Any]
+) -> dict[str, Any]:
+    from plugins.jira_plugin import add_comment, resolve_create
+
+    jira_sid = _jira_session_key(session_id)
+    preview = await add_comment(
+        issue_key=str(comment.get("issue_key") or ""),
+        body=str(comment.get("body") or ""),
+        session_id=jira_sid,
+    )
+    if preview.get("status") != "confirmation_required":
+        return preview
+    return await resolve_create(jira_sid, "confirm") or {
+        "status": "error",
+        "message": "Confirm resolve returned nothing.",
+    }
+
+
+async def confirm_proposal(
     session_id: str,
     proposal_id: str,
     *,
     confirm: bool = False,
     level: str | None = None,
 ) -> dict[str, Any]:
-    """Two-step confirm for Jira side effects; Cancel writes nothing."""
+    """Two-step confirm for Jira side effects; Cancel writes nothing.
+
+    Confirm on create_bug / comment_on_story performs the FR-JIRA-5 write via
+    create_bug/add_comment + resolve (Manual Confirm is the human gate) and
+    appends jira_write_audit on success (KAN-293).
+    """
     session = _load(session_id, level)
     if session is None:
         return {
@@ -1213,6 +1321,7 @@ def confirm_proposal(
             "message": "Proposal already submitted.",
             "proposal": target,
             "session": _public(session),
+            "writes_jira": bool(target.get("jira_written")),
         }
 
     if not confirm:
@@ -1262,46 +1371,76 @@ def confirm_proposal(
         }
 
     if kind == "create_bug":
-        # Preview confirm path: mark submitted only after plugin create_bug with confirm.
-        # Callers that pass confirm=true expect the gate; actual Jira create stays async
-        # via agent/plugin. Here we record intent + packet for the UI and require the
-        # existing create_bug tool with its own confirm for the live write.
         packet = target.get("packet") or {}
-        target["state"] = "confirmed_local"
-        target["confirm_required"] = True
-        target["jira_written"] = False
-        target["ready_for_jira"] = True
-        target["packet"] = packet
+        outcome = await _execute_jira_create_bug(session_id, packet)
+        if outcome.get("status") not in {"created", "ok"}:
+            target["state"] = "pending_review"
+            target["ready_for_jira"] = True
+            target["jira_written"] = False
+            target["last_write_error"] = outcome.get("message") or outcome.get("error")
+            _save(session)
+            return {
+                "status": "error",
+                "error": outcome.get("error") or "jira_write_failed",
+                "message": outcome.get("message")
+                or "Jira Bug write failed — proposal left pending; nothing audited as success.",
+                "proposal": target,
+                "writes_jira": False,
+                "jira_outcome": outcome,
+                "session": _public(session),
+            }
+        issue_key = str(outcome.get("key") or outcome.get("issue_key") or "")
+        target["state"] = "submitted"
+        target["jira_written"] = True
+        target["ready_for_jira"] = False
+        target["issue_key"] = issue_key
+        target["submitted_at"] = _utcnow()
         _save(session)
         return {
             "status": "ok",
-            "message": (
-                "Bug proposal confirmed locally. Use create_bug with confirm=true "
-                "and this packet to write to Jira (FR-JIRA-5). Nothing written yet."
-            ),
+            "message": f"Jira Bug created ({issue_key or 'key pending'}) — write audited.",
             "proposal": target,
-            "writes_jira": False,
-            "confirm_required": True,
-            "packet": packet,
+            "writes_jira": True,
+            "issue_key": issue_key,
+            "jira_outcome": outcome,
             "session": _public(session),
         }
 
     if kind == "comment_on_story":
         comment = target.get("comment") or {}
-        target["state"] = "confirmed_local"
-        target["ready_for_jira"] = True
-        target["jira_written"] = False
+        outcome = await _execute_jira_comment(session_id, comment)
+        if outcome.get("status") not in {"commented", "ok", "created"}:
+            target["state"] = "pending_review"
+            target["ready_for_jira"] = True
+            target["jira_written"] = False
+            target["last_write_error"] = outcome.get("message") or outcome.get("error")
+            _save(session)
+            return {
+                "status": "error",
+                "error": outcome.get("error") or "jira_write_failed",
+                "message": outcome.get("message")
+                or "Jira comment failed — proposal left pending; nothing audited as success.",
+                "proposal": target,
+                "writes_jira": False,
+                "jira_outcome": outcome,
+                "session": _public(session),
+            }
+        issue_key = str(
+            outcome.get("issue_key") or comment.get("issue_key") or ""
+        )
+        target["state"] = "submitted"
+        target["jira_written"] = True
+        target["ready_for_jira"] = False
+        target["issue_key"] = issue_key
+        target["submitted_at"] = _utcnow()
         _save(session)
         return {
             "status": "ok",
-            "message": (
-                "Comment proposal confirmed locally. Post via Jira comment with "
-                "confirm=true — nothing written yet."
-            ),
+            "message": f"Jira comment posted on {issue_key or 'issue'} — write audited.",
             "proposal": target,
-            "writes_jira": False,
-            "confirm_required": True,
-            "comment": comment,
+            "writes_jira": True,
+            "issue_key": issue_key,
+            "jira_outcome": outcome,
             "session": _public(session),
         }
 
@@ -1340,4 +1479,16 @@ def defaults_info() -> dict[str, Any]:
         # KAN-287 — window/monitor snap (free-region kept)
         "window_monitor_snap": True,
         "frame_snap_modes": ["free", "monitor", "window"],
+        # KAN-293 — propose/confirm harden
+        "propose_harden": True,
+        "failure_class_gates_create_bug": True,
+        "explicit_bug_pick": True,
+        "confirm_dock_outside_scroll": True,
+        "confirm_writes_jira_with_audit": True,
+        "failure_classes": [
+            "product_bug",
+            "test_defect",
+            "environment",
+            "known_issue",
+        ],
     }
