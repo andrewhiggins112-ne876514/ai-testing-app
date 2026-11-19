@@ -34,8 +34,8 @@ class SettingsHubTests(unittest.TestCase):
         self.assertIn('id="rpt-summary"', report_panel)
         self.assertIn("setSettingsCategory", js)
         self.assertIn("settingsCategoryPending", js)
-        self.assertIn("desk102", desk)
-        self.assertIn("desk102", html)
+        self.assertIn("desk103", desk)
+        self.assertIn("desk103", html)
 
     def test_desktop_security_stays_separate(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")

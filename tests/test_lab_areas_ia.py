@@ -6,13 +6,13 @@ from pathlib import Path
 
 
 class LabAreasIaDesktopUiTests(unittest.TestCase):
-    def test_lab_areas_ia_markers_desk102(self):
+    def test_lab_areas_ia_markers_desk103(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk102", html)
-        self.assertIn("desk102", desk)
+        self.assertIn("desk103", html)
+        self.assertIn("desk103", desk)
         self.assertEqual(html.count('data-lab-areas-ia="1"'), 4)
 
         # Documents: sticky + ingest/list primary + privacy advanced
@@ -35,6 +35,7 @@ class LabAreasIaDesktopUiTests(unittest.TestCase):
             'id="app-section-heal"', 1
         )[0]
         self.assertIn("<summary>", doc_advanced)
+        self.assertIn("Advanced &amp; help", doc_advanced)
         self.assertIn("Privacy", doc_advanced)
         self.assertNotIn('id="doc-text"', doc_toolbar)
         self.assertIn('id="doc-text"', html.split('id="doc-primary"', 1)[1])

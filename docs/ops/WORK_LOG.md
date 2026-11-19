@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-316** — Track3: Reports + Documents density |
+| **Jira story** | **KAN-318** — Track3: Settings + Security area-work alignment |
 | **Start task** | — |
 | **Epic** | **KAN-307** Council Track 3 — Enterprise area density (Primary) |
 | **Roadmap ID** | TRACK3-UX |
 | **Spec** | FR-UI-10 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-317** |
-| **Shipped** | **KAN-314** Manual density + Confirm dock (test **KAN-315**, desk102); Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** Accepted |
+| **Test ticket** | **KAN-319** |
+| **Shipped** | **KAN-316** Reports + Documents density (test **KAN-317**, desk103); Manual **KAN-314**; Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** Accepted |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Lab density (**TRACK3-LAB**) |
-| **Next / Shipped** | Build: **KAN-316** Reports + Documents density. Do **not** voice / FR-MAN-2 / Lab density. |
+| **Next / Shipped** | Build: **KAN-318** Settings + Security. Do **not** voice / FR-MAN-2 / Lab density. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-19 — KAN-316 — Reports + Documents density
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-316
+- **Done:** Reports + Documents Primary density from accepted Track 3 wire: removed intro labels above toolbars; single toolbar band (actions + status) with `--chrome-toolbar` max-height; About Reports collapsed in `.area-work`; Advanced (export / help) under work; Documents Spec/Proposal/Uploads primary without Ingest chrome; marker `data-reports-documents-density`; cache-bust **desk103**. No Lab density; no voice / FR-MAN-2; no Settings/Security pass.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_reports_documents_density.py` (+ desk103 across UI tests), docs
+- **Verify:** `pytest tests/test_reports_documents_density.py tests/test_reports_ia.py tests/test_reports_library.py tests/test_lab_areas_ia.py tests/test_track3_chrome_scaffold.py tests/test_area_chrome_nonoverlap.py tests/test_enterprise_layout_tokens.py tests/test_plans_cases_geometry.py tests/test_manual_density.py tests/test_track3_area_wires.py tests/test_nav_overlap.py tests/test_settings_hub.py` 29 passed. **CU skipped — unsafe** (busy desktop: browser + IDE + prior desk shell contested App-menu clicks). Marker/CSS chrome budget primary.
+- **Jira:** close-out **KAN-316** + **KAN-317**
+- **Next:** Active **KAN-318** Settings + Security area-work alignment (test **KAN-319**)
 
 ### 2026-11-19 — KAN-314 — Human Confirm-dock confirm → Done
 - **Agent/chat:** Cursor IDE Agent — human reply `confirm` after Manual Confirm-dock verify

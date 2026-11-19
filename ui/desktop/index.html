@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk102" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk103" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -277,7 +277,7 @@
 
     <div id="area-layer" class="area-layer" hidden>
       <div id="area-scrim" class="area-scrim"></div>
-      <section id="area-surface" class="shell-surface area-surface" role="region" aria-label="App area" data-area-chrome-nonoverlap="1" data-enterprise-layout-tokens="1" data-area-chrome-scaffold="1" data-plans-cases-geometry="1">
+      <section id="area-surface" class="shell-surface area-surface" role="region" aria-label="App area" data-area-chrome-nonoverlap="1" data-enterprise-layout-tokens="1" data-area-chrome-scaffold="1" data-plans-cases-geometry="1" data-reports-documents-density="1">
         <header class="area-surface-bar">
           <button type="button" id="area-back" class="save-btn secondary">Back</button>
           <h2 id="area-title" class="area-title">Settings</h2>
@@ -518,16 +518,19 @@
           </div>
           <p id="backup-status" class="drawer-hint" role="status">Ready</p>
         </div>
-        <div id="app-section-reports" class="app-section" hidden data-reports-ia="1">
-          <h3 class="orb-section-label">Report library</h3>
+        <div id="app-section-reports" class="app-section" hidden data-reports-ia="1" data-reports-documents-density="1">
           <div id="rpt-chrome-toolbar" class="area-chrome-toolbar rpt-chrome-toolbar" data-rpt-chrome="1">
-            <div class="btn-row rpt-toolbar-actions">
+            <div class="btn-row rpt-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="rpt-library-refresh" class="save-btn secondary">Refresh library</button>
               <button type="button" id="rpt-open-settings" class="save-btn secondary">Report settings</button>
+              <p id="rpt-status" class="drawer-hint rpt-toolbar-status" role="status">Ready</p>
             </div>
-            <p id="rpt-status" class="drawer-hint rpt-toolbar-status" role="status">Ready</p>
           </div>
           <div class="area-work" data-area-work="1">
+          <details class="rpt-about" data-rpt-about="1">
+            <summary>About Reports</summary>
+            <p class="drawer-hint">Saved-report library first. Section include/exclude stays under Settings → Report. Export a run or read-only pack lives under Advanced.</p>
+          </details>
           <div id="rpt-primary" class="rpt-primary" data-rpt-primary="1">
             <h4 class="orb-section-label">Saved reports</h4>
             <p id="rpt-empty" class="drawer-hint">
@@ -550,7 +553,7 @@
             </div>
           </div>
           <details id="rpt-advanced" class="rpt-advanced" data-rpt-advanced="1">
-            <summary>Export a run</summary>
+            <summary>Advanced (export run / pack)</summary>
             <p class="drawer-hint">Pick a plan case run; export uses Settings → Report. Locator heals for that run stay in Heal review (approve/reject; no auto-commit).</p>
             <label class="stack-label">Chosen run
               <select id="rpt-run-select">
@@ -569,36 +572,34 @@
           </details>
           </div>
         </div>
-        <div id="app-section-documents" class="app-section" hidden data-lab-areas-ia="1" data-documents-ia="1">
-          <h3 class="orb-section-label">Documents</h3>
-          <div id="doc-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-doc-chrome="1">
-            <div class="btn-row lab-toolbar-actions">
+        <div id="app-section-documents" class="app-section" hidden data-lab-areas-ia="1" data-documents-ia="1" data-reports-documents-density="1">
+          <div id="doc-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar doc-chrome-toolbar" data-doc-chrome="1">
+            <div class="btn-row lab-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="doc-parse" class="save-btn">Parse &amp; propose</button>
               <button type="button" id="doc-uploads-refresh" class="save-btn secondary">Refresh uploads</button>
+              <p id="doc-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
             </div>
-            <p id="doc-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
           <div class="area-work" data-area-work="1">
           <div id="doc-primary" class="lab-primary" data-doc-primary="1">
-            <h4 class="orb-section-label">Ingest</h4>
             <label class="stack-label">Spec text
               <textarea id="doc-text" rows="8" placeholder="# Spec&#10;Target: https://example.com&#10;Jira project: KAN"></textarea>
             </label>
             <div id="doc-proposal" class="doc-proposal" hidden>
-              <h3 class="orb-section-label">Proposed settings</h3>
+              <h4 class="orb-section-label">Proposal / diff</h4>
               <div id="doc-diff" class="doc-diff"></div>
-              <h3 class="orb-section-label">Test ideas</h3>
+              <h4 class="orb-section-label">Test ideas</h4>
               <ul id="doc-ideas" class="doc-ideas"></ul>
               <div class="btn-row">
                 <button type="button" id="doc-confirm" class="save-btn">Confirm selected</button>
                 <button type="button" id="doc-decline" class="save-btn secondary">Decline</button>
               </div>
             </div>
-            <h4 class="orb-section-label">Local uploads</h4>
+            <h4 class="orb-section-label">Uploads</h4>
             <ul id="doc-uploads-list" class="doc-ideas" aria-live="polite" data-doc-list="1"></ul>
           </div>
           <details id="doc-advanced" class="lab-advanced" data-doc-advanced="1">
-            <summary>Privacy &amp; help</summary>
+            <summary>Advanced &amp; help</summary>
             <p class="drawer-hint">Paste a Markdown/text spec. Uploads record file name, time, security level, and consent locally (no cloud sync). Explicit consent is required before storing extracted settings (GDPR). Decline leaves the settings file unchanged. Exports omit document bodies unless the Documents report section is on. Privacy inventory includes uploads — delete them from Security → Privacy with confirm.</p>
           </details>
           </div>
@@ -1210,6 +1211,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk102"></script>
+  <script src="/ui/desktop/desktop.js?v=desk103"></script>
 </body>
 </html>

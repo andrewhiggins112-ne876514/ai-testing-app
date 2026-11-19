@@ -1889,16 +1889,63 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: var(--cyan, #50cdff);
 }
 
-/* KAN-271/KAN-281/KAN-297/KAN-310 Reports — shared chrome scaffold */
+/* KAN-271/KAN-281/KAN-297/KAN-310/KAN-316 Reports — density + shared chrome */
 .rpt-chrome-toolbar .rpt-toolbar-actions {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: var(--space-2);
+  min-height: 0;
 }
 
 .rpt-chrome-toolbar .rpt-toolbar-status {
   margin: 0;
   font: var(--type-ui);
   color: var(--cyan, #50cdff);
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+#app-section-reports[data-reports-documents-density="1"] > .rpt-chrome-toolbar {
+  max-height: var(--chrome-toolbar);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+}
+
+#app-section-reports[data-reports-documents-density="1"] .rpt-about {
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font: var(--type-ui);
+  color: var(--muted, #9bb4c4);
+}
+
+#app-section-reports[data-reports-documents-density="1"] .rpt-about > summary {
+  cursor: pointer;
+  color: var(--cyan, #50cdff);
+  font: var(--type-ui);
+}
+
+#app-section-reports[data-reports-documents-density="1"] .rpt-primary {
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2);
+}
+
+#app-section-reports[data-reports-documents-density="1"] .rpt-advanced {
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-2);
+}
+
+@media (max-width: 900px) {
+  #app-section-reports[data-reports-documents-density="1"] > .rpt-chrome-toolbar {
+    max-height: none;
+    overflow: visible;
+  }
+
+  #app-section-reports[data-reports-documents-density="1"] .rpt-toolbar-actions {
+    flex-wrap: wrap;
+  }
 }
 
 .rpt-primary {
@@ -2398,6 +2445,52 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 }
 
 /* KAN-273/KAN-281/KAN-297/KAN-310 Lab + Documents — shared chrome scaffold */
+/* KAN-316 Documents — Primary density (Track 3 wire) */
+#app-section-documents[data-reports-documents-density="1"] > .doc-chrome-toolbar {
+  max-height: var(--chrome-toolbar);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+}
+
+#app-section-documents[data-reports-documents-density="1"] .lab-toolbar-actions {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+#app-section-documents[data-reports-documents-density="1"] .lab-toolbar-status {
+  margin: 0;
+  font: var(--type-ui);
+  color: var(--cyan, #50cdff);
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+#app-section-documents[data-reports-documents-density="1"] .lab-primary {
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2);
+}
+
+#app-section-documents[data-reports-documents-density="1"] .lab-advanced {
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-2);
+}
+
+@media (max-width: 900px) {
+  #app-section-documents[data-reports-documents-density="1"] > .doc-chrome-toolbar {
+    max-height: none;
+    overflow: visible;
+  }
+
+  #app-section-documents[data-reports-documents-density="1"] .lab-toolbar-actions {
+    flex-wrap: wrap;
+  }
+}
+
 .lab-chrome-toolbar .lab-toolbar-actions {
   flex-wrap: wrap;
   gap: var(--space-2);

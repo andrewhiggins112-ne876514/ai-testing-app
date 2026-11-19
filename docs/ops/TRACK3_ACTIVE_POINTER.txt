@@ -1,5 +1,5 @@
 epic=KAN-307
-first_story=KAN-316
+first_story=KAN-318
 wires_accepted=2026-11-18
 wires_story=KAN-308
 scaffold_story=KAN-310
@@ -9,3 +9,6 @@ plans_cases_done=2026-11-18
 manual_density_story=KAN-314
 manual_density_done=2026-11-19
 manual_density_desk=desk102
+reports_documents_story=KAN-316
+reports_documents_done=2026-11-19
+reports_documents_desk=desk103
