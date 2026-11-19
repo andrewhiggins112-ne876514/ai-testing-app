@@ -7,17 +7,17 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — code landed; **awaiting human Confirm-dock clickability** (CU skipped — unsafe) |
-| **Jira story** | **KAN-314** — Track3: Manual density + Confirm dock |
+| **Status** | open |
+| **Jira story** | **KAN-316** — Track3: Reports + Documents density |
 | **Start task** | — |
 | **Epic** | **KAN-307** Council Track 3 — Enterprise area density (Primary) |
 | **Roadmap ID** | TRACK3-UX |
 | **Spec** | FR-UI-10 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-315** |
-| **Shipped** | Manual density HTML/CSS/markers **desk102** (pytest green); Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** Accepted |
+| **Test ticket** | **KAN-317** |
+| **Shipped** | **KAN-314** Manual density + Confirm dock (test **KAN-315**, desk102); Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** Accepted |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Lab density (**TRACK3-LAB**) |
-| **Next / Shipped** | Human confirm Confirm/Cancel clickable A–E → then Done **KAN-314**/315 → **KAN-316**. Do **not** voice / FR-MAN-2 / Lab density. |
+| **Next / Shipped** | Build: **KAN-316** Reports + Documents density. Do **not** voice / FR-MAN-2 / Lab density. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-19 — KAN-314 — Human Confirm-dock confirm → Done
+- **Agent/chat:** Cursor IDE Agent — human reply `confirm` after Manual Confirm-dock verify
+- **Done:** Designer confirmed Confirm + Cancel proposal clickable (occlusion AC). Closed **KAN-314** + **KAN-315**. No further product code in this entry.
+- **Files:** docs/ops handoff only (code already on `main` desk102)
+- **Verify:** Human confirm 2026-11-19; prior pytest 48 passed; CU skipped — unsafe (honest)
+- **Jira:** **KAN-314**/315 → Done
+- **Next:** Active **KAN-316** Reports + Documents density (test **KAN-317**)
 
 ### 2026-11-19 — KAN-314 — Manual density + Confirm dock (paused for human CU)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-314
