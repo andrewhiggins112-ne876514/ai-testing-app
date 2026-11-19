@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open |
+| **Status** | open — code landed; **awaiting human Confirm-dock clickability** (CU skipped — unsafe) |
 | **Jira story** | **KAN-314** — Track3: Manual density + Confirm dock |
 | **Start task** | — |
 | **Epic** | **KAN-307** Council Track 3 — Enterprise area density (Primary) |
@@ -15,9 +15,9 @@
 | **Spec** | FR-UI-10 |
 | **Git** | `main` |
 | **Test ticket** | **KAN-315** |
-| **Shipped** | **KAN-312** Plans Cases geometry (test **KAN-313**); scaffold **KAN-310**; wires **KAN-308** Accepted |
+| **Shipped** | Manual density HTML/CSS/markers **desk102** (pytest green); Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** Accepted |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Lab density (**TRACK3-LAB**) |
-| **Next / Shipped** | Build: **KAN-314** Manual density + Confirm dock. Do **not** voice / FR-MAN-2 / Lab density. |
+| **Next / Shipped** | Human confirm Confirm/Cancel clickable A–E → then Done **KAN-314**/315 → **KAN-316**. Do **not** voice / FR-MAN-2 / Lab density. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,15 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-19 — KAN-314 — Manual density + Confirm dock (paused for human CU)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-314
+- **Done:** Manual Primary density from accepted Track 3 wire: removed intro chrome above toolbar (About Manual collapsed in `.area-work`); single toolbar band with Clear/Open Plans/Refresh + loop + status; library/start/review scroll in `.area-work`; proposal surface without second Review header; Confirm dock sibling below work with `--chrome-confirm` max-height; marker `data-manual-density`; cache-bust **desk102**. No Lab density; no voice / FR-MAN-2.
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_manual_density.py` (+ desk102 across UI tests), docs
+- **Verify:** `pytest tests/test_manual_density.py tests/test_manual_propose_harden.py tests/test_manual_ia.py tests/test_manual_trustworthy_loop.py tests/test_manual_session_library.py tests/test_area_chrome_nonoverlap.py tests/test_track3_chrome_scaffold.py tests/test_plans_cases_geometry.py tests/test_enterprise_layout_tokens.py tests/test_track3_area_wires.py tests/test_manual_session.py tests/test_charter_snap.py` 48 passed. **CU skipped — unsafe** (WebGL purple orb + Cursor CU HUD + busy desktop contested App-menu clicks). Seeded session `ms4592cff074a7` (charter KAN-314 density verify) on OFFICIAL; app left on `desk102`.
+- **Human confirm (occlusion AC):** 1) Focus **AI Testing Agent**. 2) ▦ App → Manual. 3) Session library → Open review on KAN-314 density verify. 4) Propose bug. 5) Confirm dock at bottom: Confirm + Cancel proposal fully visible/clickable without scrolling dock away. 6) Scroll `.area-work` — dock stays. 7) Layout picker A–E — dock still visible/clickable each mode. Reply confirm → agent marks **KAN-314**/315 Done → Active **KAN-316**.
+- **Jira:** agent progress comment on **KAN-314** + evidence on **KAN-315** (not Done until human confirm)
+- **Next:** Human Confirm-dock verify → then **KAN-316** Reports + Documents density
 
 ### 2026-11-18 — KAN-312 — Plans Cases geometry from accepted wire
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-312

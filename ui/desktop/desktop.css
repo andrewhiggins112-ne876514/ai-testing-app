@@ -1966,10 +1966,12 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: var(--cyan, #50cdff);
 }
 
-/* KAN-275/277/281/283/297/KAN-310 Manual — shared chrome scaffold */
+/* KAN-275/277/281/283/297/KAN-310/KAN-314 Manual — density + Confirm dock */
 .manual-chrome-toolbar .manual-toolbar-actions {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: var(--space-2);
+  min-height: 0;
 }
 
 .manual-chrome-toolbar .manual-toolbar-status,
@@ -1977,10 +1979,83 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin: 0;
   font: var(--type-ui);
   color: var(--cyan, #50cdff);
+  flex: 1 1 8rem;
+  min-width: 0;
 }
 
 .manual-loop-stage-label {
   font: var(--type-ui);
+  flex: 1 1 12rem;
+}
+
+.manual-chrome-toolbar .manual-toolbar-status {
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+#app-section-manual[data-manual-density="1"] > .manual-chrome-toolbar {
+  max-height: var(--chrome-toolbar);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+}
+
+#app-section-manual[data-manual-density="1"] > .manual-confirm-dock {
+  max-height: var(--chrome-confirm);
+  min-height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: var(--space-1) 0;
+  gap: var(--space-2);
+  box-sizing: border-box;
+}
+
+#app-section-manual[data-manual-density="1"] .manual-library {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-1) var(--space-2);
+}
+
+#app-section-manual[data-manual-density="1"] .manual-primary {
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2);
+}
+
+#app-section-manual[data-manual-density="1"] .manual-review {
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2);
+  padding: var(--space-2);
+  border-radius: 6px;
+}
+
+#app-section-manual[data-manual-density="1"] .manual-advanced {
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font: var(--type-ui);
+  color: var(--muted, #9bb4c4);
+}
+
+#app-section-manual[data-manual-density="1"] .manual-advanced > summary {
+  cursor: pointer;
+  color: var(--cyan, #50cdff);
+  font: var(--type-ui);
+}
+
+@media (max-width: 900px) {
+  #app-section-manual[data-manual-density="1"] > .manual-chrome-toolbar {
+    max-height: none;
+    overflow: visible;
+  }
+
+  #app-section-manual[data-manual-density="1"] .manual-toolbar-actions {
+    flex-wrap: wrap;
+  }
+
+  #app-section-manual[data-manual-density="1"] > .manual-confirm-dock {
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 .manual-primary {
@@ -2024,7 +2099,7 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: color-mix(in srgb, var(--cyan, #50cdff) 70%, #fff);
 }
 
-/* KAN-293/KAN-297 — Confirm dock outside .area-work (token padding; budget --chrome-confirm) */
+/* KAN-293/KAN-297/KAN-314 — Confirm dock outside .area-work (token padding; budget --chrome-confirm) */
 .manual-confirm-row,
 .manual-confirm-dock {
   margin-top: var(--space-1);
@@ -2052,6 +2127,7 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   flex: 1 1 12rem;
   margin: 0;
   min-width: 0;
+  font: var(--type-help);
 }
 
 .manual-failure-class-row {

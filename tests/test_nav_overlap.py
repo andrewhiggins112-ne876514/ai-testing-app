@@ -32,9 +32,9 @@ class NavOverlapTests(unittest.TestCase):
     def test_cache_bust_current(self):
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk101", app)
-        self.assertIn("desktop.css?v=desk101", html)
-        self.assertIn("desktop.js?v=desk101", html)
+        self.assertIn("desk102", app)
+        self.assertIn("desktop.css?v=desk102", html)
+        self.assertIn("desktop.js?v=desk102", html)
 
     def test_area_chrome_not_sticky_in_scrollport(self):
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")

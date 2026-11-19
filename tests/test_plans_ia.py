@@ -6,14 +6,14 @@ from pathlib import Path
 
 
 class PlansIaDesktopUiTests(unittest.TestCase):
-    def test_plans_ia_markers_desk101(self):
+    def test_plans_ia_markers_desk102(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk101", html)
-        self.assertIn("desk101", desk)
+        self.assertIn("desk102", html)
+        self.assertIn("desk102", desk)
         self.assertIn('data-plans-ia="1"', html)
         self.assertIn('data-plan-chrome="1"', html)
         self.assertIn('id="plan-chrome-toolbar"', html)

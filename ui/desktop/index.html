@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk101" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk102" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -951,25 +951,20 @@
           </div>
           </div>
         </div>
-        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-loop-stage="idle">
-          <h3 class="orb-section-label">Manual</h3>
-          <p class="drawer-hint">Charter Frame (FR-MAN-1). Calm loop: Start → notes/stills → End → review → Propose → Confirm/Cancel. Session library is level-scoped; GDPR wipe under Security removes Manual sessions for this level. Esc/Back returns to orb home — Manual is not a second landing. No background capture until Start.</p>
+        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-manual-density="1" data-loop-stage="idle">
           <div id="manual-chrome-toolbar" class="area-chrome-toolbar manual-chrome-toolbar" data-manual-chrome="1">
             <div class="btn-row manual-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="manual-clear-context" class="save-btn secondary">Clear linked context</button>
               <button type="button" id="manual-open-plans" class="save-btn secondary">Open Plans</button>
               <button type="button" id="manual-refresh-sessions" class="save-btn secondary" data-manual-library-refresh="1">Refresh library</button>
-            </div>
-            <div class="area-chrome-toolbar-status-row">
               <p id="manual-loop-stage-label" class="drawer-hint manual-loop-stage-label" data-manual-loop-stage="1" aria-live="polite">Loop: idle — enter a charter to Start</p>
-              <p id="manual-status" class="drawer-hint manual-toolbar-status" role="status">Ready — no session running</p>
+              <p id="manual-status" class="drawer-hint manual-toolbar-status" role="status">Ready</p>
             </div>
           </div>
           <div class="area-work" data-area-work="1">
           <div id="manual-library" class="manual-library" data-manual-library-panel="1">
             <h4 class="orb-section-label">Session library</h4>
             <p id="manual-library-level" class="drawer-hint" data-manual-library-level="1">Active level: —</p>
-            <p class="drawer-hint">Ended drafts can be reopened for review/propose. OFFICIAL and SECRET lists never merge. Wipe Manual sessions via Security → Privacy (Sessions).</p>
             <ul id="manual-session-list" class="manual-session-list" data-manual-session-list="1" role="list"></ul>
           </div>
           <div id="manual-primary" class="manual-primary" data-manual-primary="1">
@@ -995,13 +990,11 @@
             <div class="btn-row">
               <button type="button" id="manual-start" class="save-btn" data-manual-start="1">Start session</button>
             </div>
-            <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start opens a free-region Charter Frame (click-through interior). Assist and mist default off. No silent video or keylog.</p>
+            <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start opens Charter Frame. Assist and mist default off.</p>
           </div>
           <div id="manual-review" class="manual-review" data-manual-review="1" hidden>
-            <h4 class="orb-section-label">Review</h4>
-            <p class="drawer-hint" data-manual-review-hint="1">Propose builds a local preview. Confirm (below, always visible) writes via FR-JIRA-5 and audits success; Cancel proposal writes nothing. Create Bug needs failure class product_bug or File as Bug.</p>
             <p id="manual-assist-status" class="drawer-hint manual-assist-status" data-manual-assist-status="1" hidden aria-live="polite"></p>
-            <pre id="manual-review-out" class="drawer-hint" aria-live="polite"></pre>
+            <pre id="manual-review-out" class="drawer-hint" aria-live="polite" data-manual-review-hint="1"></pre>
             <div class="manual-failure-class-row" data-manual-failure-class="1">
               <label class="stack-label" for="manual-failure-class">Failure class
                 <select id="manual-failure-class" data-manual-failure-class-select="1">
@@ -1023,11 +1016,11 @@
           </div>
           <details id="manual-advanced" class="manual-advanced" data-manual-advanced="1">
             <summary>About Manual capture</summary>
-            <p class="drawer-hint">Notes + opt-in stills only. No keylog, clipboard, mic, or silent video. Jira writes stay two-step confirm. Live on-screen circles are FR-MAN-2 (parked). Session library above lists this level only; GDPR Sessions wipe removes Manual drafts + stills for the active level.</p>
+            <p class="drawer-hint">Charter Frame (FR-MAN-1). Calm loop: Start → notes/stills → End → review → Propose → Confirm/Cancel. Esc/Back returns to orb home. Notes + opt-in stills only — no keylog, clipboard, mic, or silent video. Propose builds a local preview; Confirm (dock below) writes via FR-JIRA-5 and audits success; Cancel writes nothing. Create Bug needs failure class product_bug or File as Bug. Session library is level-scoped; GDPR Sessions wipe removes Manual drafts + stills for the active level. Live on-screen circles are FR-MAN-2 (parked).</p>
           </details>
           </div>
           <div class="btn-row manual-confirm-row manual-confirm-dock" id="manual-confirm-row" hidden data-manual-confirm="1" data-manual-confirm-dock="1">
-            <p class="drawer-hint manual-confirm-dock-hint" data-manual-confirm-hint="1">Proposal ready — Confirm writes to Jira (audited); Cancel writes nothing.</p>
+            <p class="drawer-hint manual-confirm-dock-hint" data-manual-confirm-hint="1">Proposal ready — Confirm writes; Cancel writes nothing</p>
             <button type="button" id="manual-confirm-yes" class="save-btn" data-manual-confirm-yes="1">Confirm</button>
             <button type="button" id="manual-confirm-no" class="save-btn secondary" data-manual-confirm-no="1">Cancel proposal</button>
           </div>
@@ -1217,6 +1210,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk101"></script>
+  <script src="/ui/desktop/desktop.js?v=desk102"></script>
 </body>
 </html>
