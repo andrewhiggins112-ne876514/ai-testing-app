@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Settings layout grammar — preferred (themed)</title>
+  <link rel="stylesheet" href="grammar.css" />
+</head>
+<body>
+  <p class="page-note"><strong>2 · Themed static — preferred.</strong> Tokens from <span class="mono">ui/desktop/desktop.css</span> :root (KAN-297). Synthetic OFFICIAL placeholders. Orb, home/chat, and App nav are outside this frame.</p>
+  <div class="stage">
+    <header class="frozen-bar">
+      <span class="btn ghost">Back</span>
+      <h1 class="area-title">Settings</h1>
+      <span class="frozen-tag">Area bar unchanged</span>
+    </header>
+    <div class="toolbar">
+      <span>Level OFFICIAL · one category at a time</span>
+      <span class="status">Environments: 3 · active local</span>
+    </div>
+    <div class="split">
+      <nav class="rail" aria-label="Settings sections">
+        <p class="rail-label">Sections</p>
+        <button type="button">Layout</button>
+        <button type="button">Connections</button>
+        <button type="button" aria-current="true">Environments</button>
+        <button type="button">Model &amp; runner</button>
+        <button type="button">Report blocks</button>
+        <button type="button">Credentials</button>
+      </nav>
+      <div class="work">
+        <h3>Named environments</h3>
+        <p class="hint">Switching environment stays inside this level. Credentials stay in the level store. Row opens the editor.</p>
+        <table class="scan">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Name</th>
+              <th>Target</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-hit is-focus">
+              <td><span class="pill ok">Active</span></td>
+              <td>local</td>
+              <td class="mono">https://app.example.test</td>
+            </tr>
+            <tr class="row-hit">
+              <td><span class="pill idle">Idle</span></td>
+              <td>test</td>
+              <td class="mono">https://test.example.test</td>
+            </tr>
+            <tr class="row-hit">
+              <td><span class="pill idle">Idle</span></td>
+              <td>staging</td>
+              <td class="mono">https://staging.example.test</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="hint">Report blocks use the same table with a 28px checkbox column. The name cell focuses the block note. The checkbox is the only include toggle.</p>
+        <table class="scan" aria-label="Report blocks specimen">
+          <thead>
+            <tr>
+              <th class="hit">In</th>
+              <th>Block</th>
+              <th>Export</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-hit">
+              <td class="hit"><input type="checkbox" checked aria-label="Include Summary" /></td>
+              <td>Summary</td>
+              <td><span class="pill ok">On</span></td>
+            </tr>
+            <tr class="row-hit is-focus">
+              <td class="hit"><input type="checkbox" aria-label="Include Documents" /></td>
+              <td>Documents</td>
+              <td><span class="pill warn">Bodies off</span></td>
+            </tr>
+            <tr class="row-hit">
+              <td class="hit"><input type="checkbox" checked aria-label="Include Evidence" /></td>
+              <td>Evidence</td>
+              <td><span class="pill ok">On</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="detail" aria-label="Environment detail">
+        <h3>local</h3>
+        <p class="hint">Focused row. Save writes this named environment only.</p>
+        <div class="field">Name<div class="fake">local</div></div>
+        <div class="field">Target URL<div class="fake mono">https://app.example.test</div></div>
+        <div class="field">Target .exe<div class="fake mono">C:\Apps\Example.exe</div></div>
+        <div class="field">Messaging<div class="fake mono">amqps://broker.example.test/vhost</div></div>
+        <div class="btn-row">
+          <span class="btn primary">Save environment</span>
+          <span class="btn">Activate</span>
+        </div>
+        <div class="danger-zone">
+          <p class="hint">Delete asks for confirm in this pane. It is not a list-row control.</p>
+          <span class="btn danger">Delete environment…</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

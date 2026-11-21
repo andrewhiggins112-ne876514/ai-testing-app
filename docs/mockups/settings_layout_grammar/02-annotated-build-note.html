@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Settings layout grammar — annotated build note</title>
+  <link rel="stylesheet" href="grammar.css" />
+</head>
+<body>
+  <p class="page-note"><strong>3 · Annotated build note.</strong> Click targets for a future Build slice. Product files stay untouched in this Studio session. Synthetic data only.</p>
+  <div class="stage anno">
+    <header class="frozen-bar">
+      <span class="btn ghost"><span class="mark">1</span>Back</span>
+      <h1 class="area-title">Settings</h1>
+      <span class="frozen-tag">Frozen: area bar, App nav, orb, tokens</span>
+    </header>
+    <div class="toolbar">
+      <span><span class="mark">2</span>Status band — keep <span class="mono">.area-chrome-toolbar</span> height</span>
+      <span class="status">Ready</span>
+    </div>
+    <div class="split">
+      <nav class="rail" aria-label="Settings sections">
+        <p class="rail-label">Sections</p>
+        <button type="button"><span class="mark">3</span>Layout</button>
+        <button type="button">Connections</button>
+        <button type="button" aria-current="true">Environments</button>
+        <button type="button">Model &amp; runner</button>
+        <button type="button">Report blocks</button>
+        <button type="button">Credentials</button>
+      </nav>
+      <div class="work">
+        <h3>Named environments</h3>
+        <table class="scan">
+          <thead>
+            <tr><th>Status</th><th>Name</th><th>Target</th></tr>
+          </thead>
+          <tbody>
+            <tr class="row-hit is-focus">
+              <td><span class="pill ok">Active</span></td>
+              <td><span class="mark">4</span>local</td>
+              <td class="mono">https://app.example.test</td>
+            </tr>
+            <tr class="row-hit">
+              <td><span class="pill idle">Idle</span></td>
+              <td>test</td>
+              <td class="mono">https://test.example.test</td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="scan">
+          <thead>
+            <tr><th class="hit">In</th><th>Block</th><th>Export</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="hit"><span class="mark">5</span><input type="checkbox" checked aria-label="Include Summary" /></td>
+              <td>Summary</td>
+              <td><span class="pill ok">On</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="detail">
+        <h3>Detail</h3>
+        <div class="field">Target URL<div class="fake mono">https://app.example.test</div></div>
+        <div class="btn-row"><span class="btn primary"><span class="mark">6</span>Save</span></div>
+        <div class="danger-zone">
+          <span class="btn danger"><span class="mark">7</span>Delete…</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <div class="legend">
+    <p><span class="mark">1</span>Back stays the existing <span class="mono">#area-back</span>. Do not add a second close control.</p>
+    <p><span class="mark">2</span>Reuse <span class="mono">.settings-chrome-toolbar</span> / <span class="mono">--chrome-toolbar</span>. Status only — no new App-nav items.</p>
+    <p><span class="mark">3</span>In-area section rail replaces the App/Report tab pair plus the long <span class="mono">h4</span> stack. Rail click changes the panel. It is not the App drawer.</p>
+    <p><span class="mark">4</span>Row click focuses the detail and moves keyboard focus there. It does not activate, delete, or toggle.</p>
+    <p><span class="mark">5</span>Checkbox is a 28px cell. <span class="mono">click</span> stops on the input. Label is <span class="mono">aria-label</span> / <span class="mono">for</span>, not the whole row.</p>
+    <p><span class="mark">6</span>Primary action stays the existing save id for that section (<span class="mono">#set-env-save</span>, <span class="mono">#rpt-save</span>, <span class="mono">#set-save</span>).</p>
+    <p><span class="mark">7</span>Delete / Clear credential stay confirm-gated in the detail. Remove <span class="mono">#set-env-delete</span> from the list chrome.</p>
+    <p><span class="mark">·</span>Code later: <span class="mono">ui/desktop/index.html</span> <span class="mono">#app-section-settings</span>, <span class="mono">desktop.css</span> grammar classes, <span class="mono">desktop.js</span> rehouse only. Orb, chat, <span class="mono">#app-drawer</span> untouched. Security remains its own App area.</p>
+  </div>
+</body>
+</html>

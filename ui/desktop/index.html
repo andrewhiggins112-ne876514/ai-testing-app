@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk106" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk107" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -284,167 +284,253 @@
         </header>
         <div id="area-body" class="area-body">
           <div id="area-section-host">
-        <div id="app-section-settings" class="app-section" hidden data-settings-security-density="1">
+        <div id="app-section-settings" class="app-section" hidden data-settings-security-density="1" data-settings-layout-grammar="1">
           <div id="set-chrome-toolbar" class="area-chrome-toolbar settings-chrome-toolbar" data-settings-chrome="1">
-            <div class="btn-row settings-toolbar-actions area-chrome-toolbar-row settings-cat-switch" role="tablist" aria-label="Settings category">
-              <button type="button" class="settings-cat-btn" id="settings-cat-btn-app" data-settings-cat="app" role="tab" aria-selected="true" aria-controls="settings-cat-app">App</button>
-              <button type="button" class="settings-cat-btn" id="settings-cat-btn-report" data-settings-cat="report" role="tab" aria-selected="false" aria-controls="settings-cat-report">Report</button>
+            <div class="btn-row settings-toolbar-actions area-chrome-toolbar-row">
               <p id="set-status" class="drawer-hint settings-toolbar-status" role="status">Ready</p>
             </div>
           </div>
-          <div class="area-work" data-area-work="1">
+          <div class="area-work settings-grammar-work" data-area-work="1">
           <details class="settings-about" data-settings-about="1">
             <summary>About Settings</summary>
-            <p class="drawer-hint">One Settings hub (FR-SET-4). Switch category without leaving Settings. Orb colours stay in the Screen drawer; security level and local-data wipe stay under Security.</p>
+            <p class="drawer-hint">One Settings hub (FR-SET-4 / FR-UI-11). Section rail stays inside Settings. Orb colours stay in the Screen drawer; security level and local-data wipe stay under Security.</p>
           </details>
-          <div id="settings-cat-app" class="settings-cat-panel" role="tabpanel" data-settings-cat-panel="app" aria-labelledby="settings-cat-btn-app">
-            <h4 class="orb-section-label">App settings</h4>
-            <p class="drawer-hint">Connect-once checklist uses the same level-scoped keys (Jira, target, exe, messaging). Credentials stay in the local store and are never shown.</p>
-            <fieldset class="layout-picker" id="area-layout-picker">
-              <legend class="orb-section-label">App area layout</legend>
-              <p class="drawer-hint">How App areas open. Borders, labels, and glow use the active orb style accent.</p>
-              <label class="layout-choice"><input type="radio" name="area-layout" value="overlay" /> <span><strong>Overlay</strong> — full-bleed glass over a dimmed home</span></label>
-              <label class="layout-choice"><input type="radio" name="area-layout" value="stage" /> <span><strong>Stage</strong> — area stage, orb shrinks to a pip</span></label>
-              <label class="layout-choice"><input type="radio" name="area-layout" value="orb_hub" /> <span><strong>Orb hub</strong> — click the orb for particle spokes, then open the area</span></label>
-              <label class="layout-choice"><input type="radio" name="area-layout" value="split" /> <span><strong>Split</strong> — docked panel beside the orb; Esc closes it</span></label>
-              <label class="layout-choice"><input type="radio" name="area-layout" value="floating" /> <span><strong>Floating</strong> — movable area window; orb stays full size</span></label>
-            </fieldset>
-            <h4 class="orb-section-label">Connect-once checklist</h4>
-            <p class="drawer-hint">Save connection keys, then check whether Jira, Ollama, and the target URL are reachable. Security level switches still require confirm in Security.</p>
-            <p id="conn-level" class="drawer-hint">Security level: —</p>
-            <h4 class="orb-section-label">Named environments</h4>
-            <p class="drawer-hint" id="env-hint">Store more than one named target (local / test / staging) under the active security level. Switching environment does not change security level. Credentials stay in the level store — never copied into a plan. Runs record the environment name used.</p>
-            <label class="stack-label">Active environment
-              <select id="set-env-active" aria-describedby="env-hint">
-                <option value="">(none yet)</option>
-              </select>
-            </label>
-            <div class="btn-row">
-              <button type="button" id="set-env-activate" class="save-btn secondary">Activate selected</button>
-              <button type="button" id="set-env-delete" class="save-btn secondary">Delete selected</button>
+          <div class="settings-grammar-split" data-settings-grammar-split="1">
+            <nav id="settings-section-rail" class="settings-section-rail" aria-label="Settings sections" data-settings-section-rail="1">
+              <p class="settings-rail-label">Sections</p>
+              <button type="button" class="settings-section-btn" id="settings-section-btn-layout" data-settings-section="layout" aria-current="true">Layout</button>
+              <button type="button" class="settings-section-btn" id="settings-section-btn-connections" data-settings-section="connections">Connections</button>
+              <button type="button" class="settings-section-btn" id="settings-section-btn-environments" data-settings-section="environments">Environments</button>
+              <button type="button" class="settings-section-btn" id="settings-section-btn-model" data-settings-section="model">Model &amp; runner</button>
+              <button type="button" class="settings-section-btn" id="settings-section-btn-report" data-settings-section="report">Report blocks</button>
+              <button type="button" class="settings-section-btn" id="settings-section-btn-credentials" data-settings-section="credentials">Credentials</button>
+            </nav>
+            <div class="settings-grammar-main">
+              <div id="settings-section-layout" class="settings-section-panel" data-settings-section-panel="layout" role="tabpanel">
+                <h4 class="orb-section-label">App area layout</h4>
+                <fieldset class="layout-picker" id="area-layout-picker">
+                  <legend class="orb-section-label">How App areas open</legend>
+                  <p class="drawer-hint">Borders, labels, and glow use the active orb style accent.</p>
+                  <label class="layout-choice"><input type="radio" name="area-layout" value="overlay" /> <span><strong>Overlay</strong> — full-bleed glass over a dimmed home</span></label>
+                  <label class="layout-choice"><input type="radio" name="area-layout" value="stage" /> <span><strong>Stage</strong> — area stage, orb shrinks to a pip</span></label>
+                  <label class="layout-choice"><input type="radio" name="area-layout" value="orb_hub" /> <span><strong>Orb hub</strong> — click the orb for particle spokes, then open the area</span></label>
+                  <label class="layout-choice"><input type="radio" name="area-layout" value="split" /> <span><strong>Split</strong> — docked panel beside the orb; Esc closes it</span></label>
+                  <label class="layout-choice"><input type="radio" name="area-layout" value="floating" /> <span><strong>Floating</strong> — movable area window; orb stays full size</span></label>
+                </fieldset>
+                <h4 class="orb-section-label">Second Windows PC</h4>
+                <p class="drawer-hint" id="set-second-pc-hint">
+                  Build a clean install folder for another Windows PC (G11 / SALES-1).
+                  No secrets and no shared cloud account are included. Telemetry stays off by default.
+                  On the second PC: run Setup, open the desktop app, enter local connections, draft a plan.
+                  This is not a company-rollout claim by itself.
+                </p>
+                <div class="btn-row">
+                  <button type="button" id="set-second-pc-pack" class="save-btn secondary">Build install pack</button>
+                </div>
+                <p id="set-second-pc-status" class="drawer-hint" role="status">Install pack: not built yet</p>
+                <p id="set-store-path" class="drawer-hint">Local store: —</p>
+                <p id="set-summary" class="drawer-hint">Summary: —</p>
+              </div>
+              <div id="settings-section-connections" class="settings-section-panel" data-settings-section-panel="connections" role="tabpanel" hidden>
+                <h4 class="orb-section-label">Connect-once checklist</h4>
+                <p class="drawer-hint">Save connection keys, then check whether Jira, Ollama, and the target URL are reachable. Security level switches still require confirm in Security.</p>
+                <p id="conn-level" class="drawer-hint">Security level: —</p>
+                <label class="stack-label">Jira base URL
+                  <input type="url" id="set-jira-url" placeholder="https://your-site.atlassian.net" autocomplete="off" />
+                </label>
+                <label class="stack-label">Jira project key
+                  <input type="text" id="set-jira-project" placeholder="KAN" autocomplete="off" maxlength="10" />
+                </label>
+                <p class="drawer-hint">FR-LEARN-4: default project for list/read when the agent or tools omit a key.</p>
+                <div class="btn-row">
+                  <button type="button" id="set-save" class="save-btn">Save connection</button>
+                  <button type="button" id="conn-health-btn" class="save-btn secondary">Check health</button>
+                </div>
+                <pre id="conn-health-out" class="drawer-hint" aria-live="polite" hidden></pre>
+                <p id="conn-health-status" class="drawer-hint" role="status">Health: not checked yet</p>
+                <h4 class="orb-section-label">Read Jira story</h4>
+                <p class="drawer-hint">Fetch description and acceptance criteria by issue key (FR-JIRA-1). Credentials stay in the local store.</p>
+                <label class="stack-label">Issue key
+                  <input type="text" id="jira-read-key" placeholder="KAN-89" autocomplete="off" />
+                </label>
+                <div class="btn-row">
+                  <button type="button" id="jira-read-btn" class="save-btn secondary">Read story</button>
+                </div>
+                <pre id="jira-read-out" class="drawer-hint" aria-live="polite" hidden></pre>
+                <p id="jira-read-status" class="drawer-hint" role="status">Ready</p>
+              </div>
+              <div id="settings-section-environments" class="settings-section-panel settings-section-with-detail" data-settings-section-panel="environments" role="tabpanel" hidden>
+                <div class="settings-scan-pane">
+                  <h4 class="orb-section-label">Named environments</h4>
+                  <p class="drawer-hint" id="env-hint">Store more than one named target under the active security level. Row opens the editor. Switching environment does not change security level.</p>
+                  <table class="settings-scan-table" id="set-env-scan" data-settings-scan-table="environments" aria-label="Named environments">
+                    <thead>
+                      <tr><th>Status</th><th>Name</th><th>Target</th></tr>
+                    </thead>
+                    <tbody id="set-env-scan-body">
+                      <tr class="settings-scan-empty"><td colspan="3">No named environments yet</td></tr>
+                    </tbody>
+                  </table>
+                  <select id="set-env-active" class="settings-env-select-mirror" aria-hidden="true" tabindex="-1" aria-describedby="env-hint">
+                    <option value="">(none yet)</option>
+                  </select>
+                  <div class="btn-row">
+                    <button type="button" id="set-env-new" class="save-btn secondary">New environment</button>
+                  </div>
+                  <p id="env-status" class="drawer-hint" role="status">Environments: —</p>
+                </div>
+                <aside class="settings-detail-pane" id="set-env-detail" data-settings-detail="environments" aria-label="Environment detail">
+                  <h4 class="orb-section-label" id="set-env-detail-title">Environment</h4>
+                  <p class="drawer-hint">Focused row. Save writes this named environment only.</p>
+                  <label class="stack-label">Environment name
+                    <input type="text" id="set-env-name" placeholder="local" maxlength="40" autocomplete="off" />
+                  </label>
+                  <label class="stack-label">Target application URL
+                    <input type="url" id="set-target-url" placeholder="https://app.example.com" autocomplete="off" />
+                  </label>
+                  <label class="stack-label">Target .exe path
+                    <input type="text" id="set-target-exe" placeholder="C:\Path\To\App.exe" autocomplete="off" />
+                  </label>
+                  <label class="stack-label">Messaging / API endpoint
+                    <input type="text" id="set-api-endpoint" placeholder="amqps://broker.example.com/vhost or https://…" autocomplete="off" />
+                  </label>
+                  <div class="btn-row">
+                    <button type="button" id="set-env-save" class="save-btn">Save as named environment</button>
+                    <button type="button" id="set-env-activate" class="save-btn secondary">Activate</button>
+                  </div>
+                  <div class="settings-danger-zone" data-settings-danger="environments">
+                    <p class="drawer-hint">Delete asks for confirm here — not on the list row.</p>
+                    <div class="btn-row">
+                      <button type="button" id="set-env-delete" class="save-btn secondary">Delete environment…</button>
+                      <button type="button" id="set-env-delete-confirm" class="save-btn secondary" disabled>Confirm delete</button>
+                    </div>
+                  </div>
+                </aside>
+              </div>
+              <div id="settings-section-model" class="settings-section-panel" data-settings-section-panel="model" role="tabpanel" hidden>
+                <h4 class="orb-section-label">Ollama model</h4>
+                <p class="drawer-hint">Lists models local Ollama reports. Chat uses the saved model only — switching does not start a second model beside it. Missing models are refused on save.</p>
+                <label class="stack-label">Agent model
+                  <select id="set-ollama-model">
+                    <option value="">(loading…)</option>
+                  </select>
+                </label>
+                <div class="btn-row">
+                  <button type="button" id="ollama-refresh-btn" class="save-btn secondary">Refresh models</button>
+                </div>
+                <p id="ollama-model-status" class="drawer-hint" role="status">Model: not loaded</p>
+                <label class="stack-label">Test framework
+                  <select id="set-test-framework" data-stub-honesty="1" aria-describedby="set-test-framework-hint">
+                    <option value="playwright" selected>Playwright (ready)</option>
+                    <option value="selenium">Selenium (not implemented — never pass)</option>
+                    <option value="cypress">Cypress (not implemented — never pass)</option>
+                  </select>
+                </label>
+                <p class="drawer-hint" id="set-test-framework-hint">FR-PLUG-3 / KAN-267: Playwright is ready. Selenium/Cypress stay selectable stubs — Run is blocked and results never pass.</p>
+                <label class="stack-label">Playwright browser mode
+                  <select id="set-playwright-mode">
+                    <option value="headed">Headed (visible browser, default)</option>
+                    <option value="headless">Headless</option>
+                  </select>
+                </label>
+                <p class="drawer-hint">FR-TEST-2: headed shows Chromium; headless runs quieter without a window.</p>
+                <h4 class="orb-section-label">Run-finish notices</h4>
+                <p class="drawer-hint">Local notice when a run finishes with pass and fail counts (D6). No email or cloud push. Notices never include secrets or page text.</p>
+                <label class="settings-compact-check"><input type="checkbox" id="set-run-finish-notify" checked /> Local notice when a run finishes</label>
+                <p id="set-run-notify-status" class="drawer-hint" role="status">Notices: on (default)</p>
+              </div>
+              <div id="settings-section-report" class="settings-section-panel settings-section-with-detail" data-settings-section-panel="report" role="tabpanel" hidden>
+                <div class="settings-scan-pane">
+                  <h3 class="orb-section-label" id="report-settings-heading">Report blocks</h3>
+                  <p class="drawer-hint">Choose which blocks appear in the next JSON/Markdown export (FR-REP-2). Checkbox cell toggles include; row focuses the note.</p>
+                  <table class="settings-scan-table" id="set-rpt-scan" data-settings-scan-table="report-blocks" data-settings-checkbox-cell="1" aria-label="Report blocks">
+                    <thead>
+                      <tr><th class="settings-hit">In</th><th>Block</th><th>Export</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr class="settings-scan-row" data-report-block="summary" tabindex="0">
+                        <td class="settings-hit"><input type="checkbox" id="rpt-summary" checked aria-label="Include Summary" data-settings-checkbox-stop="1" /></td>
+                        <td>Summary</td>
+                        <td><span class="settings-pill ok">On</span></td>
+                      </tr>
+                      <tr class="settings-scan-row" data-report-block="stories" tabindex="0">
+                        <td class="settings-hit"><input type="checkbox" id="rpt-stories" checked aria-label="Include Stories" data-settings-checkbox-stop="1" /></td>
+                        <td>Stories</td>
+                        <td><span class="settings-pill ok">On</span></td>
+                      </tr>
+                      <tr class="settings-scan-row" data-report-block="bugs" tabindex="0">
+                        <td class="settings-hit"><input type="checkbox" id="rpt-bugs" checked aria-label="Include Bugs" data-settings-checkbox-stop="1" /></td>
+                        <td>Bugs</td>
+                        <td><span class="settings-pill ok">On</span></td>
+                      </tr>
+                      <tr class="settings-scan-row" data-report-block="evidence" tabindex="0">
+                        <td class="settings-hit"><input type="checkbox" id="rpt-evidence" checked aria-label="Include Evidence" data-settings-checkbox-stop="1" /></td>
+                        <td>Evidence</td>
+                        <td><span class="settings-pill ok">On</span></td>
+                      </tr>
+                      <tr class="settings-scan-row" data-report-block="known_issues" tabindex="0">
+                        <td class="settings-hit"><input type="checkbox" id="rpt-known-issues" checked aria-label="Include Known issues" data-settings-checkbox-stop="1" /></td>
+                        <td>Known issues</td>
+                        <td><span class="settings-pill ok">On</span></td>
+                      </tr>
+                      <tr class="settings-scan-row" data-report-block="traceability" tabindex="0">
+                        <td class="settings-hit"><input type="checkbox" id="rpt-traceability" checked aria-label="Include Traceability matrix" data-settings-checkbox-stop="1" /></td>
+                        <td>Traceability matrix</td>
+                        <td><span class="settings-pill ok">On</span></td>
+                      </tr>
+                      <tr class="settings-scan-row" data-report-block="documents" tabindex="0">
+                        <td class="settings-hit"><input type="checkbox" id="rpt-documents" aria-label="Include Documents" data-settings-checkbox-stop="1" /></td>
+                        <td>Documents</td>
+                        <td><span class="settings-pill warn">Bodies off</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <aside class="settings-detail-pane" id="set-rpt-detail" data-settings-detail="report-blocks" aria-label="Report block detail">
+                  <h4 class="orb-section-label" id="rpt-detail-title">Summary</h4>
+                  <p class="drawer-hint" id="rpt-detail-hint">Include this block in the next export. The checkbox cell is the only include toggle.</p>
+                  <button type="button" id="rpt-save" class="save-btn">Save sections</button>
+                  <p id="rpt-sections-status" class="drawer-hint" role="status">Ready</p>
+                </aside>
+              </div>
+              <div id="settings-section-credentials" class="settings-section-panel settings-section-with-detail" data-settings-section-panel="credentials" role="tabpanel" hidden>
+                <div class="settings-scan-pane">
+                  <h4 class="orb-section-label">Credential status</h4>
+                  <p class="drawer-hint">Shows set or missing only — never the value (FR-SEC-5 / FR-JIRA-7). Clear stays in the detail behind confirm.</p>
+                  <ul id="cred-status-list" class="drawer-hint" aria-live="polite">
+                    <li>Jira email: —</li>
+                    <li>Jira API token: —</li>
+                    <li>Target secret: —</li>
+                  </ul>
+                  <p id="cred-status-summary" class="drawer-hint">Credential status: —</p>
+                  <p id="set-creds" class="drawer-hint">Jira credentials: —</p>
+                </div>
+                <aside class="settings-detail-pane" data-settings-detail="credentials" aria-label="Credential detail">
+                  <h4 class="orb-section-label">Credential actions</h4>
+                  <label class="stack-label">Target secret (write-only)
+                    <input type="password" id="set-target-secret" placeholder="Leave blank to keep" autocomplete="new-password" />
+                  </label>
+                  <div class="btn-row">
+                    <button type="button" id="cred-save-target-btn" class="save-btn secondary">Save target secret</button>
+                    <button type="button" id="cred-test-btn" class="save-btn secondary">Test connection</button>
+                  </div>
+                  <pre id="cred-test-out" class="drawer-hint" aria-live="polite" hidden></pre>
+                  <div class="settings-danger-zone" data-settings-danger="credentials">
+                    <p class="drawer-hint">Clear requires confirm; the audit line has no old value.</p>
+                    <div class="btn-row">
+                      <button type="button" id="cred-clear-email-btn" class="save-btn secondary" data-clear-key="jira_email">Clear Jira email…</button>
+                      <button type="button" id="cred-clear-token-btn" class="save-btn secondary" data-clear-key="jira_api_token">Clear Jira token…</button>
+                      <button type="button" id="cred-clear-target-btn" class="save-btn secondary" data-clear-key="target_secret">Clear target secret…</button>
+                    </div>
+                    <div class="btn-row">
+                      <button type="button" id="cred-clear-confirm-btn" class="save-btn secondary" disabled>Confirm clear</button>
+                    </div>
+                  </div>
+                  <p id="cred-status" class="drawer-hint" role="status">Credentials: Ready</p>
+                  <p class="drawer-hint">Level switch and local-data delete live under <strong>Security</strong>.</p>
+                </aside>
+              </div>
             </div>
-            <label class="stack-label">Environment name
-              <input type="text" id="set-env-name" placeholder="local" maxlength="40" autocomplete="off" />
-            </label>
-            <label class="stack-label">Target application URL
-              <input type="url" id="set-target-url" placeholder="https://app.example.com" autocomplete="off" />
-            </label>
-            <label class="stack-label">Target .exe path
-              <input type="text" id="set-target-exe" placeholder="C:\Path\To\App.exe" autocomplete="off" />
-            </label>
-            <label class="stack-label">Messaging / API endpoint
-              <input type="text" id="set-api-endpoint" placeholder="amqps://broker.example.com/vhost or https://…" autocomplete="off" />
-            </label>
-            <div class="btn-row">
-              <button type="button" id="set-env-save" class="save-btn">Save as named environment</button>
-            </div>
-            <p id="env-status" class="drawer-hint" role="status">Environments: —</p>
-            <label class="stack-label">Jira base URL
-              <input type="url" id="set-jira-url" placeholder="https://your-site.atlassian.net" autocomplete="off" />
-            </label>
-            <label class="stack-label">Jira project key
-              <input type="text" id="set-jira-project" placeholder="KAN" autocomplete="off" maxlength="10" />
-            </label>
-            <p class="drawer-hint">FR-LEARN-4: default project for list/read when the agent or tools omit a key.</p>
-            <h4 class="orb-section-label">Ollama model</h4>
-            <p class="drawer-hint">Lists models local Ollama reports. Chat uses the saved model only — switching does not start a second model beside it. Missing models are refused on save.</p>
-            <label class="stack-label">Agent model
-              <select id="set-ollama-model">
-                <option value="">(loading…)</option>
-              </select>
-            </label>
-            <div class="btn-row">
-              <button type="button" id="ollama-refresh-btn" class="save-btn secondary">Refresh models</button>
-            </div>
-            <p id="ollama-model-status" class="drawer-hint" role="status">Model: not loaded</p>
-            <div class="btn-row">
-              <button type="button" id="set-save" class="save-btn">Save connection</button>
-              <button type="button" id="conn-health-btn" class="save-btn secondary">Check health</button>
-            </div>
-            <pre id="conn-health-out" class="drawer-hint" aria-live="polite" hidden></pre>
-            <p id="conn-health-status" class="drawer-hint" role="status">Health: not checked yet</p>
-            <h4 class="orb-section-label">Read Jira story</h4>
-            <p class="drawer-hint">Fetch description and acceptance criteria by issue key (FR-JIRA-1). Credentials stay in the local store.</p>
-            <label class="stack-label">Issue key
-              <input type="text" id="jira-read-key" placeholder="KAN-89" autocomplete="off" />
-            </label>
-            <div class="btn-row">
-              <button type="button" id="jira-read-btn" class="save-btn secondary">Read story</button>
-            </div>
-            <pre id="jira-read-out" class="drawer-hint" aria-live="polite" hidden></pre>
-            <p id="jira-read-status" class="drawer-hint" role="status">Ready</p>
-            <label class="stack-label">Test framework
-              <select id="set-test-framework" data-stub-honesty="1" aria-describedby="set-test-framework-hint">
-                <option value="playwright" selected>Playwright (ready)</option>
-                <option value="selenium">Selenium (not implemented — never pass)</option>
-                <option value="cypress">Cypress (not implemented — never pass)</option>
-              </select>
-            </label>
-            <p class="drawer-hint" id="set-test-framework-hint">FR-PLUG-3 / KAN-267: Playwright is ready. Selenium/Cypress stay selectable stubs — Run is blocked and results never pass.</p>
-            <label class="stack-label">Playwright browser mode
-              <select id="set-playwright-mode">
-                <option value="headed">Headed (visible browser, default)</option>
-                <option value="headless">Headless</option>
-              </select>
-            </label>
-            <p class="drawer-hint">FR-TEST-2: headed shows Chromium; headless runs quieter without a window.</p>
-            <h4 class="orb-section-label">Run-finish notices</h4>
-            <p class="drawer-hint">Local notice when a run finishes with pass and fail counts (D6). No email or cloud push. Notices never include secrets or page text.</p>
-            <label class="check-row"><input type="checkbox" id="set-run-finish-notify" checked /> Local notice when a run finishes</label>
-            <p id="set-run-notify-status" class="drawer-hint" role="status">Notices: on (default)</p>
-            <h4 class="orb-section-label">Second Windows PC</h4>
-            <p class="drawer-hint" id="set-second-pc-hint">
-              Build a clean install folder for another Windows PC (G11 / SALES-1).
-              No secrets and no shared cloud account are included. Telemetry stays off by default.
-              On the second PC: run Setup, open the desktop app, enter local connections, draft a plan.
-              This is not a company-rollout claim by itself.
-            </p>
-            <div class="btn-row">
-              <button type="button" id="set-second-pc-pack" class="save-btn secondary">Build install pack</button>
-            </div>
-            <p id="set-second-pc-status" class="drawer-hint" role="status">Install pack: not built yet</p>
-            <p id="set-store-path" class="drawer-hint">Local store: —</p>
-            <p id="set-creds" class="drawer-hint">Jira credentials: —</p>
-            <h4 class="orb-section-label">Credential status</h4>
-            <p class="drawer-hint">Shows set or missing only — never the value (FR-SEC-5 / FR-JIRA-7). Test connection uses the stored Jira token. Clear requires confirm; the audit line has no old value.</p>
-            <ul id="cred-status-list" class="drawer-hint" aria-live="polite">
-              <li>Jira email: —</li>
-              <li>Jira API token: —</li>
-              <li>Target secret: —</li>
-            </ul>
-            <p id="cred-status-summary" class="drawer-hint">Credential status: —</p>
-            <label class="stack-label">Target secret (write-only)
-              <input type="password" id="set-target-secret" placeholder="Leave blank to keep" autocomplete="new-password" />
-            </label>
-            <div class="btn-row">
-              <button type="button" id="cred-save-target-btn" class="save-btn secondary">Save target secret</button>
-              <button type="button" id="cred-test-btn" class="save-btn secondary">Test connection</button>
-            </div>
-            <pre id="cred-test-out" class="drawer-hint" aria-live="polite" hidden></pre>
-            <div class="btn-row">
-              <button type="button" id="cred-clear-email-btn" class="save-btn secondary" data-clear-key="jira_email">Clear Jira email…</button>
-              <button type="button" id="cred-clear-token-btn" class="save-btn secondary" data-clear-key="jira_api_token">Clear Jira token…</button>
-              <button type="button" id="cred-clear-target-btn" class="save-btn secondary" data-clear-key="target_secret">Clear target secret…</button>
-            </div>
-            <div class="btn-row">
-              <button type="button" id="cred-clear-confirm-btn" class="save-btn secondary" disabled>Confirm clear</button>
-            </div>
-            <p id="cred-status" class="drawer-hint" role="status">Credentials: Ready</p>
-            <p id="set-summary" class="drawer-hint">Summary: —</p>
-            <p class="drawer-hint">Level switch and local-data delete live under <strong>Security</strong>.</p>
-          </div>
-          <div id="settings-cat-report" class="settings-cat-panel" role="tabpanel" data-settings-cat-panel="report" aria-labelledby="settings-cat-btn-report" hidden>
-            <h3 class="orb-section-label" id="report-settings-heading">Report Settings</h3>
-            <p class="drawer-hint">Choose which blocks appear in the next JSON/Markdown export (FR-REP-2). The Reports area is the library of saved reports.</p>
-            <label class="check-row"><input type="checkbox" id="rpt-summary" checked /> Summary</label>
-            <label class="check-row"><input type="checkbox" id="rpt-stories" checked /> Stories</label>
-            <label class="check-row"><input type="checkbox" id="rpt-bugs" checked /> Bugs</label>
-            <label class="check-row"><input type="checkbox" id="rpt-evidence" checked /> Evidence</label>
-            <label class="check-row"><input type="checkbox" id="rpt-known-issues" checked /> Known issues</label>
-            <label class="check-row"><input type="checkbox" id="rpt-traceability" checked /> Traceability matrix</label>
-            <label class="check-row"><input type="checkbox" id="rpt-documents" /> Documents (bodies — off by default)</label>
-            <button type="button" id="rpt-save" class="save-btn">Save sections</button>
-            <p id="rpt-sections-status" class="drawer-hint" role="status">Ready</p>
           </div>
           </div>
         </div>
@@ -1223,6 +1309,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk106"></script>
+  <script src="/ui/desktop/desktop.js?v=desk107"></script>
 </body>
 </html>

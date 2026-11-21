@@ -1,4 +1,4 @@
-"""KAN-249 / FR-SET-4 — Settings hub App / Report category switch."""
+"""KAN-249 / FR-SET-4 — Settings hub; desktop uses FR-UI-11 section rail (KAN-324)."""
 from __future__ import annotations
 
 import unittest
@@ -8,36 +8,35 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SettingsHubTests(unittest.TestCase):
-    def test_desktop_settings_has_app_report_categories(self):
+    def test_desktop_settings_has_section_rail(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         settings_block = html.split('id="app-section-settings"', 1)[1].split(
             'id="app-section-security"', 1
         )[0]
-        self.assertIn("settings-cat-switch", settings_block)
         self.assertIn('id="set-chrome-toolbar"', settings_block)
         self.assertIn('data-area-work="1"', settings_block)
-        self.assertIn('data-settings-cat="app"', settings_block)
-        self.assertIn('data-settings-cat="report"', settings_block)
-        self.assertIn('id="settings-cat-app"', settings_block)
-        self.assertIn('id="settings-cat-report"', settings_block)
+        self.assertIn('data-settings-section-rail="1"', settings_block)
+        self.assertIn('data-settings-section="layout"', settings_block)
+        self.assertIn('data-settings-section="report"', settings_block)
+        self.assertIn('id="settings-section-layout"', settings_block)
+        self.assertIn('id="settings-section-report"', settings_block)
         self.assertIn('id="rpt-summary"', settings_block)
         self.assertIn('id="rpt-save"', settings_block)
-        # Report toggles live in Report panel, not mixed as a trailing scroll after App only.
-        app_panel = settings_block.split('id="settings-cat-app"', 1)[1].split(
-            'id="settings-cat-report"', 1
-        )[0]
-        report_panel = settings_block.split('id="settings-cat-report"', 1)[1]
-        self.assertIn("App settings", app_panel)
-        self.assertIn('id="set-jira-url"', app_panel)
-        self.assertNotIn('id="rpt-summary"', app_panel)
+        layout_panel = settings_block.split(
+            'id="settings-section-layout"', 1
+        )[1].split('id="settings-section-connections"', 1)[0]
+        report_panel = settings_block.split('id="settings-section-report"', 1)[1]
+        self.assertIn('id="area-layout-picker"', layout_panel)
+        self.assertNotIn('id="rpt-summary"', layout_panel)
         self.assertIn('id="report-settings-heading"', report_panel)
         self.assertIn('id="rpt-summary"', report_panel)
         self.assertIn("setSettingsCategory", js)
+        self.assertIn("setSettingsSection", js)
         self.assertIn("settingsCategoryPending", js)
-        self.assertIn("desk106", desk)
-        self.assertIn("desk106", html)
+        self.assertIn("desk107", desk)
+        self.assertIn("desk107", html)
 
     def test_desktop_security_stays_separate(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
@@ -54,7 +53,7 @@ class SettingsHubTests(unittest.TestCase):
         self.assertNotIn('id="sec-propose"', settings)
         self.assertNotIn('id="priv-propose"', settings)
 
-    def test_desktop_report_deeplink_selects_report_category(self):
+    def test_desktop_report_deeplink_selects_report_section(self):
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         self.assertIn("function openReportSettings", js)
         self.assertIn('settingsCategoryPending = "report"', js)

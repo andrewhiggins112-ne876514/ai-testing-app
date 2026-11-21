@@ -79,13 +79,13 @@ class FrameworkStubHonestyTests(unittest.TestCase):
         ids = {f["id"] for f in status["frameworks"]}
         self.assertEqual(ids, {"playwright", "selenium", "cypress"})
 
-    def test_desktop_ui_stub_honesty_desk106(self):
+    def test_desktop_ui_stub_honesty_desk107(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk106", html)
-        self.assertIn("desk106", desk)
+        self.assertIn("desk107", html)
+        self.assertIn("desk107", desk)
         self.assertIn('data-stub-honesty="1"', html)
         self.assertIn("plan-framework-run-hint", html)
 

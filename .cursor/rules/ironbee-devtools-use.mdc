@@ -5,24 +5,6 @@ alwaysApply: true
 
 # Use IronBee DevTools to drive and verify the running application
 
-## Project override — desktop app is the product UI
-
-This repo’s **primary UI is the native desktop window** (`desktop_app.py` / pywebview), **not** a
-browser tab. For product-shell changes:
-
-1. Run `.\venv\Scripts\python.exe desktop_app.py`
-2. Verify that native window — **tiered**: pytest/API/HTML first; **Computer Use** for visual /
-   occlusion / clickable chrome only (see `.cursor/rules/tooling-use.mdc` Tiered Computer Use).
-   Pre-CU: pause Ollama, prefer classic orb, one product overlay. If Cursor CU HUD contests the
-   product Manual/Charter overlay, document CU skipped/flake — do not soft-pass. If the human
-   must confirm, leave the app running with seed/stubs ready and a numbered step list (see
-   tooling-use / run-local-stack).
-3. Do **not** open `/ui/desktop/` (or any local shell URL) in IronBee/Chrome as “the app”
-
-Use **IronBee browser** only for: (a) the *application under test* in Playwright flows, or
-(b) Gradio-only slices (`run_ui.py`). Cursor IDE browser remains forbidden for all web work.
-IronBee is **not** a substitute for desktop CU when the story needs native-window occlusion proof.
-
 **IronBee DevTools** is the verification and intelligence layer for this workspace. It is exposed as up
 to three MCP servers — one per platform enabled in the extension settings
 (`ironbeeDevTools.platform.<browser|node|backend>.enable`):
@@ -78,13 +60,12 @@ IronBee DevTools browser tools only.
 - **Sync** – wait for network idle (`sync_*`)
 - **React** – component / element inspection (`react_*`); **Figma** – compare page to design (`figma_*`); **Debug** – tracepoints, logpoints, exceptionpoints, probe snapshots (`debug_*`)
 
-### Verify a UI change (browser / Gradio / AUT only)
+### Verify a UI change
 
-If the slice is Gradio or an AUT page: open the affected page (`navigation_go-to`) → exercise the
-change → screenshot and/or ARIA snapshot → check console errors. Prefer one `execute` script when
-the flow is more than 2–3 calls.
-
-If the slice is the **desktop shell**, skip this section — use `desktop_app.py` + Computer Use instead.
+Open the affected page (`navigation_go-to`) → functionally exercise the change (click / fill / submit —
+not just look at it) → confirm with a screenshot (`content_take-screenshot`) and/or an ARIA snapshot
+(`a11y_take-aria-snapshot`) → check `o11y_get-console-messages` for errors. Prefer one `execute` script
+when the flow is more than 2–3 calls.
 <!--/IRONBEE:PLATFORM:browser-->
 
 <!--IRONBEE:PLATFORM:node-->

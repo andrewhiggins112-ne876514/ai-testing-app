@@ -15,6 +15,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | TRACK2-UX | Enterprise layout note → tokens | done | **KAN-295** note accepted; **KAN-297**/**KAN-298** tokens desk99; Track 2 complete |
 | TRACK3-UX | Enterprise area density (FR-UI-10) — Primary geometry | done | Epic **KAN-307** Primary Done (**KAN-320**/321 + **KAN-323** desk106); Lab follow-on |
 | TRACK3-LAB | Lab area density (Heal/Desktop/Suites/Sandboxes) | later | After TRACK3-UX Primary |
+| TRACK4-LAYOUT | Secondary area layout grammar (FR-UI-11) — Settings template first | next | Settings template **Done** (**KAN-324** desk107 / test **KAN-325**); Suites/Plans inherit stories next; mockups `docs/mockups/settings_layout_grammar/` |
 | FR-MAN-2 | Live assist / circles | later | Parked until FR-MAN-1 **completion** + DPIA (H1 §10) |
 | TESTALL-E | Test-all E privacy / audit / recovery | done | E1–E5 Done (**KAN-201** desk66); UI-LAB-MENU Done |
 | TESTALL-F | Test-all F role HUD / UX — F1–F7 | done | F7 Done (**KAN-215** desk73); F6 Done (**KAN-213** desk72) |

@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | deferred |
-| **Jira story** | Lab density follow-on (**TRACK3-LAB**) — not started |
+| **Jira story** | — (Settings FR-UI-11 **KAN-324** Done) |
 | **Start task** | — |
-| **Epic** | **KAN-307** Track 3 Primary Done; Lab = later epic |
-| **Roadmap ID** | TRACK3-LAB |
-| **Spec** | FR-UI-10 (Lab) |
+| **Epic** | — (TRACK4-LAYOUT inherit) |
+| **Roadmap ID** | TRACK4-LAYOUT |
+| **Spec** | FR-UI-11 Suites/Plans inherit |
 | **Git** | `main` |
 | **Test ticket** | — |
-| **Shipped** | Track 3 Primary Done: **KAN-320**/321 occlusion (**desk105** + human confirm); Bug **KAN-323** checklist dismiss (**desk106**); Settings **KAN-318**; Reports+Docs **KAN-316**; Manual **KAN-314**; Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** |
-| **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2** |
-| **Next / Shipped** | Do **not** start Lab density / voice / FR-MAN-2 while deferred. Await Designer unblock or next agreed Build story. |
+| **Shipped** | Track 3 Primary Done; Settings layout grammar **KAN-324** desk107 |
+| **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Suites/Plans FR-UI-11 inheritance (stories not yet Active) |
+| **Next / Shipped** | Do **not** implement Lab / voice / FR-MAN-2. Next: Designer/Studio or seed Suites→Plans FR-UI-11 inherit Stories, then set Active. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,38 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-21 — KAN-324 — Settings FR-UI-11 layout grammar (desk107)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-324
+- **Done:** Rehoused desktop Settings to in-area section rail (Layout, Connections, Environments, Model & runner, Report blocks, Credentials) + compact scan tables + detail panes. Env delete / credential clear in detail behind confirm. Report blocks use dedicated 28px checkbox cells with click stopPropagation; row focuses detail. Markers `data-settings-layout-grammar` / rail / scan / checkbox-cell / detail. Cache-bust **desk107**. Gradio App/Report left as-is (out of scope). Theme/orb/home/App nav untouched. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_settings_layout_grammar.py`, hub/density/reports/occlusion tests, Studio mockups + Spec/ROADMAP/WORK_LOG
+- **Verify:** `pytest tests/test_settings_layout_grammar.py tests/test_settings_hub.py tests/test_settings_security_density.py tests/test_occlusion_verify_ae.py tests/test_app_settings.py tests/test_reports_library.py tests/test_desktop_app_menu.py tests/test_nav_overlap.py` — 30 passed. Spot-check: `desktop_app.py` → App → Settings → rail + Environments/Report blocks.
+- **Jira:** close-out **KAN-324** + **KAN-325**
+- **Next:** Active **deferred** — Suites/Plans FR-UI-11 inherit (create/set Active); not Lab/voice/FR-MAN-2
+
+### 2026-11-21 — Designer unblock — Active → KAN-324 Settings grammar
+- **Agent/chat:** Design Studio (handoff to Build)
+- **Done:** Set Active slice to **KAN-324** / test **KAN-325** (FR-UI-11 Settings template). TRACK3-LAB / voice / FR-MAN-2 remain deferred. No product code in Studio chat.
+- **Files:** `docs/ops/WORK_LOG.md` Active table; `docs/ops/ROADMAP.md` TRACK4-LAYOUT → now
+- **Verify:** Fresh Build Agent → “pick up where we left off”
+- **Jira:** comment on KAN-324 that Active is open
+- **Next:** Build implements KAN-324
+
+### 2026-11-21 — Studio — Settings layout grammar accepted (FR-UI-11 Bridge)
+- **Agent/chat:** Design Studio Audit → Redesign (locked chrome)
+- **Done:** Audited Settings + Suites + Plans (file evidence; CU skipped — unsafe). Accepted Settings as system template: section rail + compact scan table + detail pane; selection grammar. Spec **FR-UI-11** + FR-SET-4 CR; Design Intent + ROADMAP **TRACK4-LAYOUT**; mockups under `docs/mockups/settings_layout_grammar/`. Jira Story + linked test created for Settings Build. No product UI code. Active Build still **deferred**.
+- **Files:** `docs/mockups/DESIGN_INTENT.md`, `docs/mockups/settings_layout_grammar/**`, `docs/FUNCTIONAL_SPEC.md`, `docs/ops/ROADMAP.md`, `PROJECT_MEMORY.md`
+- **Verify:** Open `01-themed-preferred.html` / `02-annotated-build-note.html`; read FR-UI-11
+- **Jira:** Story **KAN-324** + test **KAN-325** Relates (REST bridge script `scripts/jira_kan_fr_ui11_bridge.py`)
+- **Next:** Build pick-up implements **KAN-324** when Designer unblocks Active; Suites/Plans inheritance stories after Settings
+
+### 2026-11-21 — Council — Lane C Design Studio ratified
+- **Agent/chat:** Council Creative (+ Bridge readiness) → docs/agents draft
+- **Done:** Ratified **Lane C Design Studio** (`/studio`) with binding gates (advisory-only; Spec→Jira→Build bridge; theme/orb/home/nav locked; selection grammar; density; tiered CU; synthetic secrets; hard pause if Active-slice slips). Drafted ops guide, Design Intent log, `studio*` agents, `design-studio` skill; updated TEAM / ADVISORY_COUNCIL / AGENTS. No product code. Active Build slice unchanged (**deferred**).
+- **Files:** `docs/ops/DESIGN_STUDIO.md`, `docs/mockups/DESIGN_INTENT.md`, `.cursor/agents/studio*.md`, `.cursor/skills/design-studio/SKILL.md`, `docs/ops/TEAM.md`, `docs/ops/ADVISORY_COUNCIL.md`, `AGENTS.md`
+- **Verify:** Slash `/studio` after reload if needed; open `docs/ops/DESIGN_STUDIO.md`
+- **Jira:** none (tooling lane; no story yet — first Studio Audit can Bridge later)
+- **Next:** Designer opens `/studio` Audit on secondary areas (row-soup); Build stays deferred until unblock
 
 ### 2026-11-21 — KAN-320 human confirm + Bug KAN-323 checklist dismiss
 - **Agent/chat:** Cursor IDE Agent — Designer `confirmed` A–E + reported checklist toggle bug

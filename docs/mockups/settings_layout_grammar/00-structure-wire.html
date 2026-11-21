@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Settings layout grammar — structure wire</title>
+  <link rel="stylesheet" href="grammar.css" />
+</head>
+<body class="wire">
+  <p class="page-note"><strong>1 · Structure wire.</strong> Secondary area inside the existing surface. Frozen chrome is the top bar only. Boxes name roles, not skin.</p>
+  <div class="stage" aria-label="Structure wire">
+    <header class="frozen-bar">
+      <span class="btn ghost">Back</span>
+      <h1 class="area-title">Settings</h1>
+      <span class="frozen-tag">Frozen chrome — do not restyle</span>
+    </header>
+    <div class="toolbar">
+      <span>In-area status (existing toolbar band)</span>
+      <span class="status">Ready</span>
+    </div>
+    <div class="split">
+      <nav class="rail" aria-label="Settings sections">
+        <p class="rail-label">Sections</p>
+        <button type="button">Layout</button>
+        <button type="button">Connections</button>
+        <button type="button" aria-current="true">Environments</button>
+        <button type="button">Model &amp; runner</button>
+        <button type="button">Report blocks</button>
+        <button type="button">Credentials</button>
+      </nav>
+      <div class="work">
+        <h3>Collection — compact table</h3>
+        <p class="hint">Columns: hit · status · name · meta. Row click focuses. Checkbox column only when a real toggle exists.</p>
+        <table class="scan">
+          <thead>
+            <tr><th class="hit">Hit</th><th>Status</th><th>Name</th><th>Meta</th></tr>
+          </thead>
+          <tbody>
+            <tr class="is-focus"><td class="hit">·</td><td>STATUS</td><td>name</td><td>meta</td></tr>
+            <tr><td class="hit">·</td><td>STATUS</td><td>name</td><td>meta</td></tr>
+            <tr><td class="hit">☐</td><td>STATUS</td><td>name</td><td>include?</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="detail">
+        <h3>Detail</h3>
+        <div class="field">Field<label class="fake">value</label></div>
+        <div class="field">Field<label class="fake">value</label></div>
+        <div class="btn-row"><span class="btn primary">Primary save</span><span class="btn">Secondary</span></div>
+        <div class="danger-zone">
+          <p class="hint">Destructive lives here, behind confirm. Never on the row.</p>
+          <span class="btn danger">Destructive…</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

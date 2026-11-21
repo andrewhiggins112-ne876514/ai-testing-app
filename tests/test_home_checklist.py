@@ -95,7 +95,7 @@ class HomeChecklistTests(unittest.TestCase):
         self.assertTrue(done["steps"][2]["done"])
         self.assertEqual(done["done_count"], 3)
 
-    def test_api_and_desktop_ui_desk106(self):
+    def test_api_and_desktop_ui_desk107(self):
         client = TestClient(main.app)
         res = client.get("/api/plans/home-checklist")
         self.assertEqual(res.status_code, 200)
@@ -109,8 +109,8 @@ class HomeChecklistTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk106", html)
-        self.assertIn("desk106", desk)
+        self.assertIn("desk107", html)
+        self.assertIn("desk107", desk)
         self.assertIn('id="hud-checklist"', html)
         self.assertIn('data-checklist-toggle-dismiss="1"', html)
         self.assertIn("hud-checklist-toggle", html)

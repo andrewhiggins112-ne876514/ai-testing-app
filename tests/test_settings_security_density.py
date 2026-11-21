@@ -11,7 +11,7 @@ LAYOUT_MODES = ("overlay", "stage", "orb_hub", "split", "floating")
 
 
 class SettingsSecurityDensityTests(unittest.TestCase):
-    def test_settings_security_density_desk106(self) -> None:
+    def test_settings_security_density_desk107(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
@@ -19,8 +19,8 @@ class SettingsSecurityDensityTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk106", html)
-        self.assertIn("desk106", desk)
+        self.assertIn("desk107", html)
+        self.assertIn("desk107", desk)
         self.assertIn('data-settings-security-density="1"', html)
         self.assertIn("Accepted", wires)
         self.assertIn("KAN-318", wires)
@@ -45,19 +45,17 @@ class SettingsSecurityDensityTests(unittest.TestCase):
         set_actions = settings.split('id="set-chrome-toolbar"', 1)[1].split(
             'data-area-work="1"', 1
         )[0]
-        for marker in (
-            'id="settings-cat-btn-app"',
-            'id="settings-cat-btn-report"',
-            'id="set-status"',
-        ):
+        for marker in ('id="set-status"',):
             self.assertIn(marker, set_actions)
+        self.assertNotIn("settings-cat-btn", set_actions)
         self.assertNotIn('id="set-jira-url"', set_actions)
         self.assertNotIn('id="rpt-summary"', set_actions)
         self.assertNotIn('id="sec-level"', set_actions)
 
         self.assertGreater(settings.find('data-settings-about="1"'), set_work)
-        self.assertGreater(settings.find('id="settings-cat-app"'), set_work)
-        self.assertGreater(settings.find('id="settings-cat-report"'), set_work)
+        self.assertGreater(settings.find('data-settings-section-rail="1"'), set_work)
+        self.assertGreater(settings.find('id="settings-section-layout"'), set_work)
+        self.assertGreater(settings.find('id="settings-section-report"'), set_work)
         self.assertIn("Credential status", settings.split('data-area-work="1"', 1)[1])
         self.assertIn('id="cred-status-list"', settings.split('data-area-work="1"', 1)[1])
 

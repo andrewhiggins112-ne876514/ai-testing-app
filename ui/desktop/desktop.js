@@ -1584,6 +1584,13 @@
   const setEnvSave = document.getElementById("set-env-save");
   const setEnvActivate = document.getElementById("set-env-activate");
   const setEnvDelete = document.getElementById("set-env-delete");
+  const setEnvDeleteConfirm = document.getElementById("set-env-delete-confirm");
+  const setEnvNew = document.getElementById("set-env-new");
+  const setEnvScanBody = document.getElementById("set-env-scan-body");
+  const setEnvDetailTitle = document.getElementById("set-env-detail-title");
+  const setEnvDetail = document.getElementById("set-env-detail");
+  const rptDetailTitle = document.getElementById("rpt-detail-title");
+  const rptDetailHint = document.getElementById("rpt-detail-hint");
   const envStatus = document.getElementById("env-status");
   const setTestFramework = document.getElementById("set-test-framework");
   const setPlaywrightMode = document.getElementById("set-playwright-mode");
@@ -1758,6 +1765,7 @@
     Object.keys(rptChecks).forEach(function (key) {
       if (rptChecks[key]) rptChecks[key].checked = !!flags[key];
     });
+    syncReportBlockPills();
   }
 
   async function loadReportSections() {
@@ -1955,24 +1963,50 @@
   }
 
   let settingsCategoryPending = null;
+  const SETTINGS_SECTIONS = [
+    "layout",
+    "connections",
+    "environments",
+    "model",
+    "report",
+    "credentials",
+  ];
+  const REPORT_BLOCK_LABELS = {
+    summary: "Summary",
+    stories: "Stories",
+    bugs: "Bugs",
+    evidence: "Evidence",
+    known_issues: "Known issues",
+    traceability: "Traceability matrix",
+    documents: "Documents",
+  };
 
-  function setSettingsCategory(cat) {
-    const chosen = cat === "report" ? "report" : "app";
-    const buttons = document.querySelectorAll(".settings-cat-btn[data-settings-cat]");
-    const panels = document.querySelectorAll(".settings-cat-panel[data-settings-cat-panel]");
-    buttons.forEach(function (btn) {
-      const on = btn.getAttribute("data-settings-cat") === chosen;
-      btn.setAttribute("aria-selected", on ? "true" : "false");
+  function normalizeSettingsSection(cat) {
+    if (SETTINGS_SECTIONS.indexOf(cat) >= 0) return cat;
+    if (cat === "app") return "layout";
+    if (cat === "report") return "report";
+    return "layout";
+  }
+
+  function setSettingsSection(section) {
+    const chosen = normalizeSettingsSection(section);
+    document.querySelectorAll(".settings-section-btn[data-settings-section]").forEach(function (btn) {
+      const on = btn.getAttribute("data-settings-section") === chosen;
+      btn.setAttribute("aria-current", on ? "true" : "false");
     });
-    panels.forEach(function (panel) {
-      const on = panel.getAttribute("data-settings-cat-panel") === chosen;
-      panel.hidden = !on;
+    document.querySelectorAll(".settings-section-panel[data-settings-section-panel]").forEach(function (panel) {
+      panel.hidden = panel.getAttribute("data-settings-section-panel") !== chosen;
     });
     if (chosen === "report" && reportSettingsHeading && typeof reportSettingsHeading.scrollIntoView === "function") {
       window.setTimeout(function () {
         reportSettingsHeading.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 40);
     }
+  }
+
+  function setSettingsCategory(cat) {
+    // Back-compat alias: App/Report deep-links → FR-UI-11 section rail.
+    setSettingsSection(cat === "report" ? "report" : cat === "app" ? "layout" : cat);
   }
 
   function openReportSettings() {
@@ -1983,6 +2017,122 @@
       return;
     }
     openArea("settings");
+  }
+
+  function resetEnvDeleteConfirm() {
+    if (setEnvDeleteConfirm) setEnvDeleteConfirm.disabled = true;
+  }
+
+  function focusEnvironmentDetail(env, opts) {
+    const options = opts || {};
+    const id = env && env.id ? env.id : "";
+    if (setEnvActive) setEnvActive.value = id;
+    if (setEnvName) setEnvName.value = (env && env.name) || "";
+    if (setTargetUrl) setTargetUrl.value = (env && env.target_url) || "";
+    if (setTargetExe) setTargetExe.value = (env && env.target_app_path) || "";
+    if (setApiEndpoint) setApiEndpoint.value = (env && env.api_endpoint) || "";
+    if (setEnvDetailTitle) {
+      setEnvDetailTitle.textContent = (env && env.name) || (options.isNew ? "New environment" : "Environment");
+    }
+    if (setEnvScanBody) {
+      setEnvScanBody.querySelectorAll(".settings-scan-row").forEach(function (row) {
+        row.classList.toggle("is-focus", row.getAttribute("data-env-id") === id && !!id);
+      });
+    }
+    resetEnvDeleteConfirm();
+    if (options.focusField && setEnvName && typeof setEnvName.focus === "function") {
+      window.setTimeout(function () {
+        setEnvName.focus();
+      }, 20);
+    } else if (setEnvDetail && typeof setEnvDetail.focus === "function") {
+      setEnvDetail.setAttribute("tabindex", "-1");
+      window.setTimeout(function () {
+        setEnvDetail.focus();
+      }, 20);
+    }
+  }
+
+  function renderEnvironmentScan(payload) {
+    if (!setEnvScanBody) return;
+    const envs = payload.environments || payload.named_environments || [];
+    const activeId = payload.active_environment_id || "";
+    const selectedId = (setEnvActive && setEnvActive.value) || activeId || "";
+    setEnvScanBody.innerHTML = "";
+    if (!envs.length) {
+      const empty = document.createElement("tr");
+      empty.className = "settings-scan-empty";
+      empty.innerHTML = '<td colspan="3">No named environments yet</td>';
+      setEnvScanBody.appendChild(empty);
+      return;
+    }
+    envs.forEach(function (env) {
+      const tr = document.createElement("tr");
+      tr.className = "settings-scan-row";
+      tr.setAttribute("data-env-id", env.id || "");
+      tr.tabIndex = 0;
+      if ((env.id || "") === selectedId) tr.classList.add("is-focus");
+      const status = document.createElement("td");
+      const pill = document.createElement("span");
+      const isActive = (env.id || "") === activeId;
+      pill.className = "settings-pill " + (isActive ? "ok" : "idle");
+      pill.textContent = isActive ? "Active" : "Idle";
+      status.appendChild(pill);
+      const name = document.createElement("td");
+      name.textContent = env.name || env.id || "env";
+      const target = document.createElement("td");
+      target.className = "mono";
+      target.textContent = env.target_url || "—";
+      tr.appendChild(status);
+      tr.appendChild(name);
+      tr.appendChild(target);
+      tr.addEventListener("click", function () {
+        focusEnvironmentDetail(env, { focusField: true });
+      });
+      tr.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          focusEnvironmentDetail(env, { focusField: true });
+        }
+      });
+      setEnvScanBody.appendChild(tr);
+    });
+  }
+
+  function focusReportBlock(key) {
+    const label = REPORT_BLOCK_LABELS[key] || key;
+    document.querySelectorAll("#set-rpt-scan .settings-scan-row").forEach(function (row) {
+      row.classList.toggle("is-focus", row.getAttribute("data-report-block") === key);
+    });
+    if (rptDetailTitle) rptDetailTitle.textContent = label;
+    if (rptDetailHint) {
+      rptDetailHint.textContent =
+        key === "documents"
+          ? "Documents bodies are off by default. The checkbox cell is the only include toggle."
+          : "Include " + label + " in the next export. The checkbox cell is the only include toggle.";
+    }
+    const pane = document.getElementById("set-rpt-detail");
+    if (pane) {
+      pane.setAttribute("tabindex", "-1");
+      window.setTimeout(function () {
+        pane.focus();
+      }, 20);
+    }
+  }
+
+  function syncReportBlockPills() {
+    document.querySelectorAll("#set-rpt-scan .settings-scan-row").forEach(function (row) {
+      const key = row.getAttribute("data-report-block");
+      const input = row.querySelector('input[type="checkbox"]');
+      const pill = row.querySelector(".settings-pill");
+      if (!input || !pill) return;
+      if (key === "documents") {
+        pill.className = "settings-pill " + (input.checked ? "ok" : "warn");
+        pill.textContent = input.checked ? "On" : "Bodies off";
+      } else {
+        pill.className = "settings-pill " + (input.checked ? "ok" : "idle");
+        pill.textContent = input.checked ? "On" : "Off";
+      }
+    });
   }
 
   async function exportChosenRun() {
@@ -2133,6 +2283,7 @@
     if (!payload) return;
     fillEnvironmentSelect(setEnvActive, payload);
     fillEnvironmentSelect(planEnvActive, payload);
+    renderEnvironmentScan(payload);
     const activeName =
       payload.active_environment_name ||
       (payload.environment && payload.environment.name) ||
@@ -2149,16 +2300,19 @@
       " (unchanged on switch)";
     if (envStatus) envStatus.textContent = line;
     if (planEnvStatus) planEnvStatus.textContent = "Environment: " + activeName;
-    const active = (payload.environments || payload.named_environments || []).find(
-      function (e) {
+    const envs = payload.environments || payload.named_environments || [];
+    const selectedId = (setEnvActive && setEnvActive.value) || "";
+    const focused =
+      envs.find(function (e) {
+        return e.id === selectedId;
+      }) ||
+      envs.find(function (e) {
         return e.id === payload.active_environment_id;
-      }
-    );
-    if (active) {
-      if (setEnvName) setEnvName.value = active.name || "";
-      if (setTargetUrl) setTargetUrl.value = active.target_url || "";
-      if (setTargetExe) setTargetExe.value = active.target_app_path || "";
-      if (setApiEndpoint) setApiEndpoint.value = active.api_endpoint || "";
+      });
+    if (focused) {
+      focusEnvironmentDetail(focused);
+    } else {
+      resetEnvDeleteConfirm();
     }
   }
 
@@ -6858,11 +7012,41 @@
     planSandboxSelect.addEventListener("change", updatePlanSandboxStatus);
   }
 
+  if (setEnvNew) {
+    setEnvNew.addEventListener("click", function () {
+      if (setEnvActive) setEnvActive.value = "";
+      focusEnvironmentDetail(
+        { id: "", name: "", target_url: "", target_app_path: "", api_endpoint: "" },
+        { isNew: true, focusField: true }
+      );
+      if (setEnvScanBody) {
+        setEnvScanBody.querySelectorAll(".settings-scan-row").forEach(function (row) {
+          row.classList.remove("is-focus");
+        });
+      }
+      if (envStatus) envStatus.textContent = "Drafting a new named environment.";
+    });
+  }
+
   if (setEnvDelete) {
-    setEnvDelete.addEventListener("click", async function () {
+    setEnvDelete.addEventListener("click", function () {
       const envId = setEnvActive && setEnvActive.value ? setEnvActive.value : "";
       if (!envId) {
         if (envStatus) envStatus.textContent = "Pick an environment to delete.";
+        resetEnvDeleteConfirm();
+        return;
+      }
+      if (setEnvDeleteConfirm) setEnvDeleteConfirm.disabled = false;
+      if (envStatus) envStatus.textContent = "Confirm delete in the detail pane.";
+    });
+  }
+
+  if (setEnvDeleteConfirm) {
+    setEnvDeleteConfirm.addEventListener("click", async function () {
+      const envId = setEnvActive && setEnvActive.value ? setEnvActive.value : "";
+      if (!envId) {
+        if (envStatus) envStatus.textContent = "Pick an environment to delete.";
+        resetEnvDeleteConfirm();
         return;
       }
       if (envStatus) envStatus.textContent = "Deleting…";
@@ -6881,6 +7065,8 @@
         }
       } catch (err) {
         if (envStatus) envStatus.textContent = "Could not delete environment.";
+      } finally {
+        resetEnvDeleteConfirm();
       }
     });
   }
@@ -6888,21 +7074,14 @@
   if (setEnvActive) {
     setEnvActive.addEventListener("change", function () {
       const id = setEnvActive.value;
-      const opts = setEnvActive.options || [];
-      // Prefill name/url fields from the selected option's sibling data via reload.
       loadEnvironments().then(function (payload) {
         if (!payload) return;
-        const envs = payload.environments || [];
+        const envs = payload.environments || payload.named_environments || [];
         const match = envs.find(function (e) {
           return e.id === id;
         });
         if (!match) return;
-        if (setEnvName) setEnvName.value = match.name || "";
-        if (setTargetUrl) setTargetUrl.value = match.target_url || "";
-        if (setTargetExe) setTargetExe.value = match.target_app_path || "";
-        if (setApiEndpoint) setApiEndpoint.value = match.api_endpoint || "";
-        if (setEnvActive) setEnvActive.value = id;
-        void opts;
+        focusEnvironmentDetail(match, { focusField: true });
       });
     });
   }
@@ -10029,11 +10208,35 @@
       openReportSettings();
     });
   }
-  document.querySelectorAll(".settings-cat-btn[data-settings-cat]").forEach(function (btn) {
+  document.querySelectorAll(".settings-section-btn[data-settings-section]").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      setSettingsCategory(btn.getAttribute("data-settings-cat"));
+      setSettingsSection(btn.getAttribute("data-settings-section"));
     });
   });
+  document.querySelectorAll("#set-rpt-scan .settings-scan-row").forEach(function (row) {
+    row.addEventListener("click", function (ev) {
+      if (ev.target && ev.target.closest && ev.target.closest('[data-settings-checkbox-stop="1"]')) {
+        return;
+      }
+      focusReportBlock(row.getAttribute("data-report-block") || "summary");
+    });
+    row.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") {
+        ev.preventDefault();
+        focusReportBlock(row.getAttribute("data-report-block") || "summary");
+      }
+    });
+  });
+  document.querySelectorAll('[data-settings-checkbox-stop="1"]').forEach(function (input) {
+    input.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+    });
+    input.addEventListener("change", function () {
+      syncReportBlockPills();
+    });
+  });
+  syncReportBlockPills();
+  focusReportBlock("summary");
 
   window.addEventListener("resize", function () {
     restoreLayout();
