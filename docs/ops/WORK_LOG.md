@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-21 — Council — Lane C Design Studio ratified
+- **Agent/chat:** Council Creative (+ Bridge readiness) → docs/agents draft
+- **Done:** Ratified **Lane C Design Studio** (`/studio`) with binding gates (advisory-only; Spec→Jira→Build bridge; theme/orb/home/nav locked; selection grammar; density; tiered CU; synthetic secrets; hard pause if Active-slice slips). Drafted ops guide, Design Intent log, `studio*` agents, `design-studio` skill; updated TEAM / ADVISORY_COUNCIL / AGENTS. No product code. Active Build slice unchanged (**deferred**).
+- **Files:** `docs/ops/DESIGN_STUDIO.md`, `docs/mockups/DESIGN_INTENT.md`, `.cursor/agents/studio*.md`, `.cursor/skills/design-studio/SKILL.md`, `docs/ops/TEAM.md`, `docs/ops/ADVISORY_COUNCIL.md`, `AGENTS.md`
+- **Verify:** Slash `/studio` after reload if needed; open `docs/ops/DESIGN_STUDIO.md`
+- **Jira:** none (tooling lane; no story yet — first Studio Audit can Bridge later)
+- **Next:** Designer opens `/studio` Audit on secondary areas (row-soup); Build stays deferred until unblock
+
 ### 2026-11-21 — KAN-320 human confirm + Bug KAN-323 checklist dismiss
 - **Agent/chat:** Cursor IDE Agent — Designer `confirmed` A–E + reported checklist toggle bug
 - **Done:** Closed **KAN-320**/321 on human A–E occlusion confirm. Raised Bug **KAN-323** (First-hour checklist ignored Screen toggle while incomplete); fixed desk106 — toggle authoritative + dismiss localStorage + auto-show only when not dismissed; marker `data-checklist-toggle-dismiss`. Track 3 Primary complete; Active → **TRACK3-LAB deferred**.

@@ -5,14 +5,17 @@
 A **separate Cursor Agent chat** for project review, creative pivots, and multi-persona debate while *we* build the project.
 It does **not** replace the normal build workflow.
 
-## Two chats (do not mix jobs)
+## Three chats (do not mix jobs)
 
 | Chat | How you open it | What you say | What it does |
 |------|-----------------|--------------|--------------|
-| **Build (normal)** | Fresh IDE Agent chat (default / PM) | **“pick up where we left off”** | Unchanged: pull `main`, read WORK_LOG Active slice, implement that KAN story, verify, Jira close-out, commit/push |
-| **Council Room** | Fresh IDE Agent chat → type **`/council`** (slash menu) then your ask | “review the project”, “I have a creative idea…”, “open the room on …” | Debate, gap analysis, CR shaping, docs/Jira/rules proposals — **no product feature coding** |
+| **Build (Lane A)** | Fresh IDE Agent chat (default / PM) | **“pick up where we left off”** | Unchanged: pull `main`, read WORK_LOG Active slice, implement that KAN story, verify, Jira close-out, commit/push |
+| **Council Room (Lane B)** | Fresh IDE Agent chat → type **`/council`** (slash menu) then your ask | “review the project”, “I have a creative idea…”, “open the room on …” | Debate, gap analysis, CR shaping, docs/Jira/rules proposals — **no product feature coding** |
+| **Design Studio (Lane C)** | Fresh IDE Agent chat → type **`/studio`** | “audit secondary layouts”, “mockup Settings…”, “research selection patterns” | Visual audit, mockups, UX research, Design Intent — **no product feature coding** |
 
-You can keep both chats. Build chat ignores council drama unless you (or council, after you agree) land decisions into docs/rules/Jira that the next pick-up will read.
+Guide for Lane C: `docs/ops/DESIGN_STUDIO.md`.
+
+You can keep these chats separate. Build ignores council/studio drama unless decisions land in docs/rules/Jira that the next pick-up will read. Pixel/layout work belongs in **Studio**; vision/FR policy fights stay in **Council**.
 
 ## Product horizon (why the room is wide)
 
@@ -27,7 +30,8 @@ Council seats therefore include **future users and buyers**, not only people who
 | Next feature slice / bugfix / continue Active story | **Build** — “pick up where we left off” |
 | Audit Jira ↔ repo, find gaps, backlog health | **Council** — Review mode |
 | Rough vibe / creative idea / “what if we change direction” | **Council** — Creative mode |
-| Decide to change AGENTS.md, `.cursor/rules`, skills, TEAM | **Council** (propose → you confirm → council or Build applies) |
+| Visual UI audit, layout mockups, secondary-area rework | **Studio** — /studio (see docs/ops/DESIGN_STUDIO.md) |
+| Decide to change AGENTS.md, `.cursor/rules`, skills, TEAM | **Council** (propose → you confirm → council or Build applies); Studio may patch its own agents/skill |
 | Implement the decided CR in code | **Build** after Slice-0 docs/Jira exist |
 
 ## Modes (auto-detect)
