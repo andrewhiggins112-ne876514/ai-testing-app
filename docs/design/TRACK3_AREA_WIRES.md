@@ -263,6 +263,8 @@ Density and occlusion must hold in **every** App area layout mode:
 
 **Occlusion story:** KAN-320.
 
+**KAN-320 status (desk105):** pytest encodes this contract (`tests/test_occlusion_verify_ae.py`, marker `data-occlusion-verify-ae`). Clickability across A–E still requires CU or numbered human confirm — never soft-pass “opened orb home.”
+
 ---
 
 ## 10. Geometry story map (blocked until Accept)

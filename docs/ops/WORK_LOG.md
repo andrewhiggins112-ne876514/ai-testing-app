@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open |
+| **Status** | open — paused for human A–E confirm |
 | **Jira story** | **KAN-320** — Track3: Occlusion verify Primary across A–E |
 | **Start task** | — |
 | **Epic** | **KAN-307** Council Track 3 — Enterprise area density (Primary) |
@@ -15,9 +15,9 @@
 | **Spec** | FR-UI-10 |
 | **Git** | `main` |
 | **Test ticket** | **KAN-321** |
-| **Shipped** | **KAN-318** Settings + Security density (test **KAN-319**, desk104); Reports+Docs **KAN-316**; Manual **KAN-314**; Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** Accepted |
+| **Shipped** | **KAN-318** Settings + Security density (test **KAN-319**, desk104); Reports+Docs **KAN-316**; Manual **KAN-314**; Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** Accepted; KAN-320 pytest/marker **desk105** (not Done) |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Lab density (**TRACK3-LAB**) |
-| **Next / Shipped** | Build: **KAN-320** occlusion verify Primary A–E. Do **not** voice / FR-MAN-2 / Lab density. |
+| **Next / Shipped** | Human A–E occlusion confirm → close **KAN-320**/321. Do **not** voice / FR-MAN-2 / Lab density. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,15 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-21 — KAN-320 — Occlusion verify Primary A–E (paused for human)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-320
+- **Done:** Encoded TRACK3 A–E occlusion contract as pytest + marker `data-occlusion-verify-ae`; cache-bust **desk105**. Structural Primary×A–E chrome/Confirm/Esc/Back/compact-menu checks green. **CU skipped — unsafe** (WebGL purple orb + First-hour checklist + Cursor CU HUD; Open Plans clicks missed — not soft-passed). Seeded Manual `ms4592cff074a7` (charter KAN-314 density verify) with pending create_bug proposal; `desktop_app.py` left on desk105.
+- **Files:** `ui/desktop/index.html`, `desktop_app.py`, `tests/test_occlusion_verify_ae.py` (+ desk105 across UI tests), `docs/design/TRACK3_AREA_WIRES.md`, docs/ops
+- **Verify:** `pytest tests/test_occlusion_verify_ae.py` + density/scaffold/nonoverlap suite — 37 passed. Occlusion clickability **awaiting human confirm** (A–E script in chat + KAN-321).
+- **Human confirm (occlusion AC):** 1) Focus **AI Testing Agent** (desk105). Prefer classic canvas orb (Screen → orb style) + dismiss First-hour checklist if open. 2) Settings → App area layout = **Overlay**. 3) For each Primary area (Plans, Manual, Reports, Documents, Settings, Security): ▦ App → area; surface title+Back visible; one toolbar clickable; first work row visible; scroll `.area-work` without chrome sliding over inputs; Esc/Back → home. 4) Manual: Session library → Open review on KAN-314 density verify → Confirm dock shows Confirm + Cancel proposal clickable. 5) Repeat steps 3–4 for layout modes **Stage, Orb hub, Split, Floating** (change layout in Settings; hub → spoke → area for Orb hub). 6) Compact ▦ only — no tall rail. Reply **confirm** → agent marks **KAN-320**/321 Done.
+- **Jira:** progress comments on **KAN-320** + **KAN-321** (not Done until human confirm)
+- **Next:** Human A–E confirm → then Track3 Primary close-out / Lab follow-on
 
 ### 2026-11-21 — KAN-318 — Settings + Security density
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-318

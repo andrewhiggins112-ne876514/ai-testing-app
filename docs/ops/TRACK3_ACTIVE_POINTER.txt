@@ -1,5 +1,5 @@
 epic=KAN-307
-first_story=KAN-318
+first_story=KAN-320
 wires_accepted=2026-11-18
 wires_story=KAN-308
 scaffold_story=KAN-310
@@ -13,4 +13,7 @@ reports_documents_story=KAN-316
 reports_documents_done=2026-11-19
 reports_documents_desk=desk103
 settings_security_story=KAN-318
+settings_security_done=2026-11-21
 settings_security_desk=desk104
+occlusion_verify_story=KAN-320
+occlusion_verify_desk=desk105

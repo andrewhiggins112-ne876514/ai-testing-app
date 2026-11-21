@@ -101,8 +101,8 @@ class ReportsLibraryTests(unittest.TestCase):
         self.assertIn("Saved reports", reports_block)
         self.assertIn("openReportSettings", js)
         self.assertIn("/api/reports", js)
-        self.assertIn("desk104", desk)
-        self.assertIn("desk104", html)
+        self.assertIn("desk105", desk)
+        self.assertIn("desk105", html)
         self.assertIn('id="settings-cat-report"', settings_block)
         self.assertIn("setSettingsCategory", js)
 
