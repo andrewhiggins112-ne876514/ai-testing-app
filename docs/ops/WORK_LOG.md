@@ -7,17 +7,17 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — paused for human A–E confirm |
-| **Jira story** | **KAN-320** — Track3: Occlusion verify Primary across A–E |
+| **Status** | deferred |
+| **Jira story** | Lab density follow-on (**TRACK3-LAB**) — not started |
 | **Start task** | — |
-| **Epic** | **KAN-307** Council Track 3 — Enterprise area density (Primary) |
-| **Roadmap ID** | TRACK3-UX |
-| **Spec** | FR-UI-10 |
+| **Epic** | **KAN-307** Track 3 Primary Done; Lab = later epic |
+| **Roadmap ID** | TRACK3-LAB |
+| **Spec** | FR-UI-10 (Lab) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-321** |
-| **Shipped** | **KAN-318** Settings + Security density (test **KAN-319**, desk104); Reports+Docs **KAN-316**; Manual **KAN-314**; Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** Accepted; KAN-320 pytest/marker **desk105** (not Done) |
-| **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Lab density (**TRACK3-LAB**) |
-| **Next / Shipped** | Human A–E occlusion confirm → close **KAN-320**/321. Do **not** voice / FR-MAN-2 / Lab density. |
+| **Test ticket** | — |
+| **Shipped** | Track 3 Primary Done: **KAN-320**/321 occlusion (**desk105** + human confirm); Bug **KAN-323** checklist dismiss (**desk106**); Settings **KAN-318**; Reports+Docs **KAN-316**; Manual **KAN-314**; Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** |
+| **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2** |
+| **Next / Shipped** | Do **not** start Lab density / voice / FR-MAN-2 while deferred. Await Designer unblock or next agreed Build story. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-21 — KAN-320 human confirm + Bug KAN-323 checklist dismiss
+- **Agent/chat:** Cursor IDE Agent — Designer `confirmed` A–E + reported checklist toggle bug
+- **Done:** Closed **KAN-320**/321 on human A–E occlusion confirm. Raised Bug **KAN-323** (First-hour checklist ignored Screen toggle while incomplete); fixed desk106 — toggle authoritative + dismiss localStorage + auto-show only when not dismissed; marker `data-checklist-toggle-dismiss`. Track 3 Primary complete; Active → **TRACK3-LAB deferred**.
+- **Files:** `ui/desktop/desktop.js`, `ui/desktop/index.html`, `desktop_app.py`, `tests/test_home_checklist.py` (+ desk106), docs
+- **Verify:** Human A–E confirm; `pytest tests/test_home_checklist.py tests/test_occlusion_verify_ae.py tests/test_desktop_app_menu.py tests/test_nav_overlap.py` 16 passed. CU not required for dismiss fix (marker/JS).
+- **Jira:** **KAN-320**/321 Done; **KAN-323** Fix comment + Done
+- **Next:** Active **deferred** — Lab density / voice / FR-MAN-2. Do not implement until unblocked.
 
 ### 2026-11-21 — KAN-320 — Occlusion verify Primary A–E (paused for human)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-320

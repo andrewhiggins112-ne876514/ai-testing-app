@@ -4051,6 +4051,7 @@
 
   const AREA_LAYOUT_KEY = "desktop-area-layout-v1";
   const HUD_KEY = "desktop-hud-widgets-v1";
+  const CHECKLIST_DISMISS_KEY = "desktop-home-checklist-dismissed-v1";
   const AREA_LAYOUTS = ["overlay", "stage", "orb_hub", "split", "floating"];
   const AREA_LABELS = {
     settings: "Settings",
@@ -5652,12 +5653,11 @@
     if (hudLabPanel) {
       hudLabPanel.hidden = !(home && (labHomeEmpty || hudFlags.lab));
     }
-    // First-hour checklist auto-shows until done; hide when done; reopen from drawer.
+    // First-hour checklist: Screen toggle is authoritative (KAN-323).
+    // Auto-show seeds the toggle while incomplete unless the user dismissed it;
+    // all-done auto-hides; reopen from Screen drawer.
     if (hudChecklistPanel) {
-      hudChecklistPanel.hidden = !(
-        home &&
-        (!checklistAllDone || hudFlags.checklist)
-      );
+      hudChecklistPanel.hidden = !(home && hudFlags.checklist);
     }
     // Tester pack is home-only (hidden while any App area is open).
     if (hudTesterConnPanel) {
@@ -5751,6 +5751,31 @@
     }
   }
 
+  function isHomeChecklistDismissed() {
+    try {
+      return localStorage.getItem(CHECKLIST_DISMISS_KEY) === "1";
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function setHomeChecklistDismissed(dismissed) {
+    try {
+      if (dismissed) localStorage.setItem(CHECKLIST_DISMISS_KEY, "1");
+      else localStorage.removeItem(CHECKLIST_DISMISS_KEY);
+    } catch (err) {
+      console.warn("checklist dismiss save failed", err);
+    }
+  }
+
+  function persistHudFlags(flags) {
+    try {
+      localStorage.setItem(HUD_KEY, JSON.stringify(flags));
+    } catch (err) {
+      console.warn("hud save failed", err);
+    }
+  }
+
   function saveHud() {
     const flags = {
       security: !!(hudSecurityToggle && hudSecurityToggle.checked),
@@ -5779,12 +5804,10 @@
       exportLast: !!(hudExportLastToggle && hudExportLastToggle.checked),
       checklist: !!(hudChecklistToggle && hudChecklistToggle.checked),
     };
+    // Uncheck = dismiss (survives reload while incomplete); check = reopen.
+    setHomeChecklistDismissed(!flags.checklist);
     applyHud(flags);
-    try {
-      localStorage.setItem(HUD_KEY, JSON.stringify(flags));
-    } catch (err) {
-      console.warn("hud save failed", err);
-    }
+    persistHudFlags(flags);
     if (
       flags.testerConn ||
       flags.testerLast ||
@@ -6281,6 +6304,7 @@
   }
 
   function renderHomeChecklistHud(payload) {
+    const wasAllDone = checklistAllDone;
     checklistAllDone = !!(payload && payload.all_done);
     if (hudChecklistMessage) {
       hudChecklistMessage.textContent =
@@ -6306,6 +6330,17 @@
         li.appendChild(body);
         hudChecklistSteps.appendChild(li);
       });
+    }
+    if (checklistAllDone) {
+      // Auto-hide on transition to done; user may reopen via Screen toggle.
+      if (!wasAllDone && hudFlags.checklist) {
+        hudFlags.checklist = false;
+        persistHudFlags(hudFlags);
+      }
+    } else if (!isHomeChecklistDismissed() && !hudFlags.checklist) {
+      // Auto-show while incomplete unless the user dismissed it (KAN-323).
+      hudFlags.checklist = true;
+      persistHudFlags(hudFlags);
     }
     applyHud(hudFlags);
   }

@@ -206,7 +206,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Catalogue **H** designs complete. **Council Track 1** Build Done (**KAN-265…277**). **Council Track 2** Done (**KAN-279**): chrome **KAN-281**; Manual completion **KAN-283…293**; layout note **KAN-295** + tokens **KAN-297** (desk99). **Council Track 3** (**FR-UI-10**) Active — **KAN-318** Settings + Security density Done (**desk104**); **KAN-320** occlusion verify Primary A–E (**desk105** pytest/marker; awaiting human A–E confirm). Lab density follow-on. FR-MAN-2 live circles parked (DPIA). Voice **KAN-81** / G10 deferred (mic) — do not implement while deferred.
+**Still open / next:** Catalogue **H** designs complete. **Council Track 1** Build Done (**KAN-265…277**). **Council Track 2** Done (**KAN-279**): chrome **KAN-281**; Manual completion **KAN-283…293**; layout note **KAN-295** + tokens **KAN-297** (desk99). **Council Track 3** (**FR-UI-10**) Primary Done — **KAN-318**…**KAN-320** (human A–E confirm) + Bug **KAN-323** checklist dismiss (**desk106**). Lab density follow-on deferred. FR-MAN-2 live circles parked (DPIA). Voice **KAN-81** / G10 deferred (mic) — do not implement while deferred.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -251,7 +251,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-UI-7 | Dedicated surfaces + layout A–E + hub + overlap fix; content vs config | **Done** shell **KAN-103** / **KAN-104**; content-vs-config **KAN-247…249** |
 | FR-UI-8 | Lab tools group on compact App menu (every layout) | **Done** **KAN-260** (desk64; test **KAN-262**) |
 | FR-UI-9 | Plans IA + non-overlapping area chrome | IA tidy **Done** **KAN-265**; chrome non-overlap **Done** **KAN-281** (desk92); layout tokens **Done** **KAN-297** (desk99) — tokens ≠ visual redesign |
-| FR-UI-10 | Enterprise area density (real geometry; Primary first; all A–E) | **Open** — scaffold **KAN-310** + Plans Cases **KAN-312** Done; geometry **KAN-314…320** |
+| FR-UI-10 | Enterprise area density (real geometry; Primary first; all A–E) | **Primary Done** — **KAN-308…320** + Bug **KAN-323** desk106; Lab density follow-on deferred |
 | FR-UI-1 Manual | Primary **Manual** area (A3) | **Done** — **KAN-275** (desk90; test **KAN-276**); Charter Frame still **KAN-277** |
 | FR-MAN-1 implement | Charter Frame MVP + Track 2 completion | MVP **Done** **KAN-277**; completion stories under Track 2 epic; design **KAN-241** |
 | FR-PLUG-3 honesty | Stub labels / disable Run / Playwright default | **Done** — **KAN-267** (test **KAN-268**) |
