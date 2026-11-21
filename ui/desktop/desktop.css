@@ -681,8 +681,9 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
 .settings-cat-switch {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 2px 0 6px;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
 }
 
 .settings-cat-btn {
@@ -1531,7 +1532,9 @@ html[data-area-open="true"] .hud-widget {
 .suite-chrome-toolbar,
 .rpt-chrome-toolbar,
 .manual-chrome-toolbar,
-.lab-chrome-toolbar {
+.lab-chrome-toolbar,
+.settings-chrome-toolbar,
+.sec-chrome-toolbar {
   position: static;
   top: auto;
   z-index: auto;
@@ -2487,6 +2490,102 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   }
 
   #app-section-documents[data-reports-documents-density="1"] .lab-toolbar-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* KAN-318 — Settings + Security density (category / level chrome outside .area-work) */
+.settings-chrome-toolbar .settings-toolbar-actions {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+.settings-chrome-toolbar .settings-toolbar-status {
+  margin: 0;
+  margin-left: auto;
+  font: var(--type-ui);
+  color: var(--cyan, #50cdff);
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+.sec-chrome-toolbar .sec-toolbar-actions {
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+.sec-chrome-toolbar .sec-toolbar-level {
+  flex: 0 1 140px;
+  min-width: 110px;
+  margin: 0;
+}
+
+.sec-chrome-toolbar .sec-toolbar-profile,
+.sec-chrome-toolbar .sec-toolbar-status {
+  margin: 0;
+  font: var(--type-ui);
+  color: var(--cyan, #50cdff);
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+#app-section-settings[data-settings-security-density="1"] > .settings-chrome-toolbar {
+  max-height: var(--chrome-toolbar);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+}
+
+#app-section-settings[data-settings-security-density="1"] .settings-about {
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font: var(--type-ui);
+  color: var(--muted, #9bb4c4);
+}
+
+#app-section-settings[data-settings-security-density="1"] .settings-about > summary {
+  cursor: pointer;
+  color: var(--cyan, #50cdff);
+  font: var(--type-ui);
+}
+
+#app-section-security[data-settings-security-density="1"] > .sec-chrome-toolbar {
+  max-height: var(--chrome-toolbar);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+}
+
+#app-section-security[data-settings-security-density="1"] .sec-about {
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font: var(--type-ui);
+  color: var(--muted, #9bb4c4);
+}
+
+#app-section-security[data-settings-security-density="1"] .sec-about > summary {
+  cursor: pointer;
+  color: var(--cyan, #50cdff);
+  font: var(--type-ui);
+}
+
+@media (max-width: 900px) {
+  #app-section-settings[data-settings-security-density="1"] > .settings-chrome-toolbar,
+  #app-section-security[data-settings-security-density="1"] > .sec-chrome-toolbar {
+    max-height: none;
+    overflow: visible;
+  }
+
+  #app-section-settings[data-settings-security-density="1"] .settings-toolbar-actions,
+  #app-section-security[data-settings-security-density="1"] .sec-toolbar-actions {
     flex-wrap: wrap;
   }
 }

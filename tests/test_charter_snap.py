@@ -188,13 +188,13 @@ class CharterSnapApiAndUiTests(unittest.TestCase):
         defaults = self.client.get("/api/manual-sessions/defaults").json()
         self.assertTrue(defaults["window_monitor_snap"])
 
-    def test_desktop_snap_markers_desk103(self):
-        html = self.client.get("/ui/desktop/index.html?v=desk103").text
+    def test_desktop_snap_markers_desk104(self):
+        html = self.client.get("/ui/desktop/index.html?v=desk104").text
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk103", html)
-        self.assertIn("desk103", desk)
+        self.assertIn("desk104", html)
+        self.assertIn("desk104", desk)
         self.assertIn('data-charter-snap="1"', html)
         self.assertIn('data-charter-snap-monitor="1"', html)
         self.assertIn('data-charter-snap-window="1"', html)

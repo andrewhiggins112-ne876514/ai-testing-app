@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-318** — Track3: Settings + Security area-work alignment |
+| **Jira story** | **KAN-320** — Track3: Occlusion verify Primary across A–E |
 | **Start task** | — |
 | **Epic** | **KAN-307** Council Track 3 — Enterprise area density (Primary) |
 | **Roadmap ID** | TRACK3-UX |
 | **Spec** | FR-UI-10 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-319** |
-| **Shipped** | **KAN-316** Reports + Documents density (test **KAN-317**, desk103); Manual **KAN-314**; Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** Accepted |
+| **Test ticket** | **KAN-321** |
+| **Shipped** | **KAN-318** Settings + Security density (test **KAN-319**, desk104); Reports+Docs **KAN-316**; Manual **KAN-314**; Plans Cases **KAN-312**; scaffold **KAN-310**; wires **KAN-308** Accepted |
 | **Deferred** | **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Lab density (**TRACK3-LAB**) |
-| **Next / Shipped** | Build: **KAN-318** Settings + Security. Do **not** voice / FR-MAN-2 / Lab density. |
+| **Next / Shipped** | Build: **KAN-320** occlusion verify Primary A–E. Do **not** voice / FR-MAN-2 / Lab density. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-21 — KAN-318 — Settings + Security density
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-318
+- **Done:** Settings + Security Primary density from accepted Track 3 wire: removed intro labels above chrome; Settings category switch (App|Report) + status as single toolbar; Security Level/Switch/Confirm/profile/status always-visible chrome; form bodies (credential status, privacy, audit, backup) scroll in `.area-work`; About collapsed under work; marker `data-settings-security-density`; cache-bust **desk104**. No Lab density; no voice / FR-MAN-2; no occlusion A–E pass (KAN-320).
+- **Files:** `ui/desktop/index.html`, `ui/desktop/desktop.css`, `desktop_app.py`, `tests/test_settings_security_density.py` (+ desk104 across UI tests), docs
+- **Verify:** `pytest tests/test_settings_security_density.py tests/test_settings_hub.py tests/test_track3_chrome_scaffold.py tests/test_reports_documents_density.py tests/test_manual_density.py tests/test_plans_cases_geometry.py tests/test_area_chrome_nonoverlap.py tests/test_enterprise_layout_tokens.py tests/test_track3_area_wires.py tests/test_security_isolation.py tests/test_export_redaction.py tests/test_credential_status.py tests/test_lab_backup.py tests/test_local_side_effects_audit.py tests/test_nav_overlap.py tests/test_plans_ia.py tests/test_reports_ia.py tests/test_lab_areas_ia.py` 56 passed. Marker/CSS chrome budget primary — CU not required (density structure; occlusion gate is **KAN-320**).
+- **Jira:** close-out **KAN-318** + **KAN-319**
+- **Next:** Active **KAN-320** Occlusion verify Primary across A–E (test **KAN-321**)
 
 ### 2026-11-19 — KAN-316 — Reports + Documents density
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-316

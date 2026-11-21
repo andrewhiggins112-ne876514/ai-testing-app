@@ -12,3 +12,5 @@ manual_density_desk=desk102
 reports_documents_story=KAN-316
 reports_documents_done=2026-11-19
 reports_documents_desk=desk103
+settings_security_story=KAN-318
+settings_security_desk=desk104

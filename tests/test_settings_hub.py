@@ -15,7 +15,9 @@ class SettingsHubTests(unittest.TestCase):
         settings_block = html.split('id="app-section-settings"', 1)[1].split(
             'id="app-section-security"', 1
         )[0]
-        self.assertIn('class="settings-cat-switch"', settings_block)
+        self.assertIn("settings-cat-switch", settings_block)
+        self.assertIn('id="set-chrome-toolbar"', settings_block)
+        self.assertIn('data-area-work="1"', settings_block)
         self.assertIn('data-settings-cat="app"', settings_block)
         self.assertIn('data-settings-cat="report"', settings_block)
         self.assertIn('id="settings-cat-app"', settings_block)
@@ -34,8 +36,8 @@ class SettingsHubTests(unittest.TestCase):
         self.assertIn('id="rpt-summary"', report_panel)
         self.assertIn("setSettingsCategory", js)
         self.assertIn("settingsCategoryPending", js)
-        self.assertIn("desk103", desk)
-        self.assertIn("desk103", html)
+        self.assertIn("desk104", desk)
+        self.assertIn("desk104", html)
 
     def test_desktop_security_stays_separate(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")

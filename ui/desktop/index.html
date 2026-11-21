@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk103" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk104" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -277,20 +277,26 @@
 
     <div id="area-layer" class="area-layer" hidden>
       <div id="area-scrim" class="area-scrim"></div>
-      <section id="area-surface" class="shell-surface area-surface" role="region" aria-label="App area" data-area-chrome-nonoverlap="1" data-enterprise-layout-tokens="1" data-area-chrome-scaffold="1" data-plans-cases-geometry="1" data-reports-documents-density="1">
+      <section id="area-surface" class="shell-surface area-surface" role="region" aria-label="App area" data-area-chrome-nonoverlap="1" data-enterprise-layout-tokens="1" data-area-chrome-scaffold="1" data-plans-cases-geometry="1" data-reports-documents-density="1" data-settings-security-density="1">
         <header class="area-surface-bar">
           <button type="button" id="area-back" class="save-btn secondary">Back</button>
           <h2 id="area-title" class="area-title">Settings</h2>
         </header>
         <div id="area-body" class="area-body">
           <div id="area-section-host">
-        <div id="app-section-settings" class="app-section" hidden>
-          <h3 class="orb-section-label">Settings</h3>
-          <p class="drawer-hint">One Settings hub (FR-SET-4). Switch category without leaving Settings. Orb colours stay in the Screen drawer; security level and local-data wipe stay under Security.</p>
-          <div class="settings-cat-switch" role="tablist" aria-label="Settings category">
-            <button type="button" class="settings-cat-btn" id="settings-cat-btn-app" data-settings-cat="app" role="tab" aria-selected="true" aria-controls="settings-cat-app">App</button>
-            <button type="button" class="settings-cat-btn" id="settings-cat-btn-report" data-settings-cat="report" role="tab" aria-selected="false" aria-controls="settings-cat-report">Report</button>
+        <div id="app-section-settings" class="app-section" hidden data-settings-security-density="1">
+          <div id="set-chrome-toolbar" class="area-chrome-toolbar settings-chrome-toolbar" data-settings-chrome="1">
+            <div class="btn-row settings-toolbar-actions area-chrome-toolbar-row settings-cat-switch" role="tablist" aria-label="Settings category">
+              <button type="button" class="settings-cat-btn" id="settings-cat-btn-app" data-settings-cat="app" role="tab" aria-selected="true" aria-controls="settings-cat-app">App</button>
+              <button type="button" class="settings-cat-btn" id="settings-cat-btn-report" data-settings-cat="report" role="tab" aria-selected="false" aria-controls="settings-cat-report">Report</button>
+              <p id="set-status" class="drawer-hint settings-toolbar-status" role="status">Ready</p>
+            </div>
           </div>
+          <div class="area-work" data-area-work="1">
+          <details class="settings-about" data-settings-about="1">
+            <summary>About Settings</summary>
+            <p class="drawer-hint">One Settings hub (FR-SET-4). Switch category without leaving Settings. Orb colours stay in the Screen drawer; security level and local-data wipe stay under Security.</p>
+          </details>
           <div id="settings-cat-app" class="settings-cat-panel" role="tabpanel" data-settings-cat-panel="app" aria-labelledby="settings-cat-btn-app">
             <h4 class="orb-section-label">App settings</h4>
             <p class="drawer-hint">Connect-once checklist uses the same level-scoped keys (Jira, target, exe, messaging). Credentials stay in the local store and are never shown.</p>
@@ -425,7 +431,6 @@
             </div>
             <p id="cred-status" class="drawer-hint" role="status">Credentials: Ready</p>
             <p id="set-summary" class="drawer-hint">Summary: —</p>
-            <p id="set-status" class="drawer-hint" role="status">Ready</p>
             <p class="drawer-hint">Level switch and local-data delete live under <strong>Security</strong>.</p>
           </div>
           <div id="settings-cat-report" class="settings-cat-panel" role="tabpanel" data-settings-cat-panel="report" aria-labelledby="settings-cat-btn-report" hidden>
@@ -441,22 +446,28 @@
             <button type="button" id="rpt-save" class="save-btn">Save sections</button>
             <p id="rpt-sections-status" class="drawer-hint" role="status">Ready</p>
           </div>
-        </div>
-        <div id="app-section-security" class="app-section" hidden>
-          <h3 class="orb-section-label">Security level</h3>
-          <p class="drawer-hint">OFFICIAL and SECRET isolate credentials and browser profiles. Switching requires confirmation.</p>
-          <label class="stack-label">Level
-            <select id="sec-level">
-              <option value="OFFICIAL">OFFICIAL</option>
-              <option value="SECRET">SECRET</option>
-            </select>
-          </label>
-          <p id="sec-profile" class="drawer-hint">Browser profile: —</p>
-          <div class="btn-row">
-            <button type="button" id="sec-propose" class="save-btn">Switch level</button>
-            <button type="button" id="sec-confirm" class="save-btn secondary" disabled>Confirm switch</button>
           </div>
-          <p id="sec-status" class="drawer-hint" role="status">Ready</p>
+        </div>
+        <div id="app-section-security" class="app-section" hidden data-settings-security-density="1">
+          <div id="sec-chrome-toolbar" class="area-chrome-toolbar sec-chrome-toolbar" data-sec-chrome="1">
+            <div class="btn-row sec-toolbar-actions area-chrome-toolbar-row">
+              <label class="stack-label sec-toolbar-level" for="sec-level">Level
+                <select id="sec-level">
+                  <option value="OFFICIAL">OFFICIAL</option>
+                  <option value="SECRET">SECRET</option>
+                </select>
+              </label>
+              <button type="button" id="sec-propose" class="save-btn">Switch level</button>
+              <button type="button" id="sec-confirm" class="save-btn secondary" disabled>Confirm switch</button>
+              <p id="sec-profile" class="drawer-hint sec-toolbar-profile">Browser profile: —</p>
+              <p id="sec-status" class="drawer-hint sec-toolbar-status" role="status">Ready</p>
+            </div>
+          </div>
+          <div class="area-work" data-area-work="1">
+          <details class="sec-about" data-sec-about="1">
+            <summary>About Security</summary>
+            <p class="drawer-hint">OFFICIAL and SECRET isolate credentials and browser profiles. Switching requires confirmation. Level controls stay in the toolbar above — never under Advanced.</p>
+          </details>
           <h3 class="orb-section-label">Privacy &amp; local data</h3>
           <p class="drawer-hint">
             No telemetry by default. Extracted document data needs explicit consent before storage.
@@ -517,6 +528,7 @@
             <button type="button" id="backup-restore-confirm" class="save-btn secondary" disabled>Confirm restore</button>
           </div>
           <p id="backup-status" class="drawer-hint" role="status">Ready</p>
+          </div>
         </div>
         <div id="app-section-reports" class="app-section" hidden data-reports-ia="1" data-reports-documents-density="1">
           <div id="rpt-chrome-toolbar" class="area-chrome-toolbar rpt-chrome-toolbar" data-rpt-chrome="1">
@@ -1211,6 +1223,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk103"></script>
+  <script src="/ui/desktop/desktop.js?v=desk104"></script>
 </body>
 </html>

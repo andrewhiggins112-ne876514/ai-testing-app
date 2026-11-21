@@ -9,16 +9,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AreaChromeNonoverlapTests(unittest.TestCase):
-    def test_markers_and_desk103(self):
+    def test_markers_and_desk104(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk103", html)
-        self.assertIn("desk103", desk)
+        self.assertIn("desk104", html)
+        self.assertIn("desk104", desk)
         self.assertIn('data-area-chrome-nonoverlap="1"', html)
-        self.assertEqual(html.count('data-area-work="1"'), 8)
+        self.assertEqual(html.count('data-area-work="1"'), 10)
         for section in (
+            "app-section-settings",
+            "app-section-security",
             "app-section-plans",
             "app-section-suites",
             "app-section-reports",
@@ -50,6 +52,8 @@ class AreaChromeNonoverlapTests(unittest.TestCase):
             "rpt-chrome-toolbar",
             "manual-chrome-toolbar",
             "lab-chrome-toolbar",
+            "settings-chrome-toolbar",
+            "sec-chrome-toolbar",
         ):
             self.assertIn(f".{cls}", css)
         shared = re.search(
