@@ -1995,13 +1995,15 @@
       btn.setAttribute("aria-current", on ? "true" : "false");
     });
     document.querySelectorAll(".settings-section-panel[data-settings-section-panel]").forEach(function (panel) {
+      // Only the selected section is visible — others stay hidden.
       panel.hidden = panel.getAttribute("data-settings-section-panel") !== chosen;
     });
-    if (chosen === "report" && reportSettingsHeading && typeof reportSettingsHeading.scrollIntoView === "function") {
-      window.setTimeout(function () {
-        reportSettingsHeading.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 40);
-    }
+    // Do not scrollIntoView report heading — that scrolled .area-work and moved the
+    // section rail out from under clicks (KAN-324 rail intermittency).
+    const main = document.querySelector(
+      "#app-section-settings .settings-grammar-main"
+    );
+    if (main) main.scrollTop = 0;
   }
 
   function setSettingsCategory(cat) {
@@ -10208,11 +10210,18 @@
       openReportSettings();
     });
   }
-  document.querySelectorAll(".settings-section-btn[data-settings-section]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
+  const settingsSectionRail = document.getElementById("settings-section-rail");
+  if (settingsSectionRail) {
+    settingsSectionRail.addEventListener("click", function (ev) {
+      const btn =
+        ev.target && ev.target.closest
+          ? ev.target.closest(".settings-section-btn[data-settings-section]")
+          : null;
+      if (!btn || !settingsSectionRail.contains(btn)) return;
+      ev.preventDefault();
       setSettingsSection(btn.getAttribute("data-settings-section"));
     });
-  });
+  }
   document.querySelectorAll("#set-rpt-scan .settings-scan-row").forEach(function (row) {
     row.addEventListener("click", function (ev) {
       if (ev.target && ev.target.closest && ev.target.closest('[data-settings-checkbox-stop="1"]')) {

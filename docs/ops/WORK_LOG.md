@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-21 — Bug KAN-326 — Settings rail intermittent (desk108)
+- **Agent/chat:** Cursor IDE Agent — Designer reported rail buttons intermittent
+- **Done:** Sections only show when selected. Root cause: CSS `display` overrode `[hidden]` on panels + rail lived in scrolling `.area-work` / report `scrollIntoView` moved hit targets. Fix: `[hidden]{display:none!important}`, grammar work `overflow:hidden` (only main scrolls), rail click delegation, no report scrollIntoView. Bug **KAN-326** Relates **KAN-324**/325 → Done.
+- **Files:** `ui/desktop/desktop.css`, `desktop.js`, `index.html`, `desktop_app.py`, `tests/test_settings_layout_grammar.py` (+ hub/density)
+- **Verify:** pytest Settings grammar/hub/density/occlusion; click each rail button — only that section appears
+- **Jira:** **KAN-326** Fix comment + Done
+- **Next:** Active still **deferred** (Suites/Plans inherit)
+
 ### 2026-11-21 — KAN-324 — Settings FR-UI-11 layout grammar (desk107)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-324
 - **Done:** Rehoused desktop Settings to in-area section rail (Layout, Connections, Environments, Model & runner, Report blocks, Credentials) + compact scan tables + detail panes. Env delete / credential clear in detail behind confirm. Report blocks use dedicated 28px checkbox cells with click stopPropagation; row focuses detail. Markers `data-settings-layout-grammar` / rail / scan / checkbox-cell / detail. Cache-bust **desk107**. Gradio App/Report left as-is (out of scope). Theme/orb/home/App nav untouched. CU not required (marker/pytest AC).
