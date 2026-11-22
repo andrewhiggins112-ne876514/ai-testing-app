@@ -35,7 +35,7 @@ def _slice_section(html: str, section_id: str) -> str:
 
 
 class OcclusionVerifyAETests(unittest.TestCase):
-    def test_occlusion_verify_primary_a_to_e_desk118(self) -> None:
+    def test_occlusion_verify_primary_a_to_e_desk119(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
@@ -47,8 +47,8 @@ class OcclusionVerifyAETests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk118", html)
-        self.assertIn("desk118", desk)
+        self.assertIn("desk119", html)
+        self.assertIn("desk119", desk)
         self.assertIn('data-occlusion-verify-ae="1"', html)
         self.assertIn("KAN-320", wires)
         self.assertIn("A–E verify contract", wires)
@@ -134,7 +134,8 @@ class OcclusionVerifyAETests(unittest.TestCase):
         self.assertIn(".area-work", css)
         self.assertIn("overflow: auto", css)
         self.assertIn("position: static", css)
-        self.assertNotIn("position: sticky", css)
+        pre_craft = css.split("/* KAN-348")[0]
+        self.assertNotIn("position: sticky", pre_craft)  # chrome; scan thead sticky is KAN-348
         self.assertIn("--chrome-max: 120px", css)
 
         # A–E layout modes selectable; each open-chrome variant has CSS.

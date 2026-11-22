@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk118" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk119" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -284,7 +284,7 @@
         </header>
         <div id="area-body" class="area-body">
           <div id="area-section-host">
-        <div id="app-section-settings" class="app-section" hidden data-settings-security-density="1" data-settings-layout-grammar="1">
+        <div id="app-section-settings" class="app-section" hidden data-settings-security-density="1" data-settings-layout-grammar="1" data-scan-craft="1">
           <div id="set-chrome-toolbar" class="area-chrome-toolbar settings-chrome-toolbar" data-settings-chrome="1">
             <div class="btn-row settings-toolbar-actions area-chrome-toolbar-row">
               <p id="set-status" class="drawer-hint settings-toolbar-status" role="status">Ready</p>
@@ -295,7 +295,7 @@
             <summary>About Settings</summary>
             <p class="drawer-hint">One Settings hub (FR-SET-4 / FR-UI-11). Section rail stays inside Settings. Orb colours stay in the Screen drawer; security level and local-data wipe stay under Security.</p>
           </details>
-          <div class="settings-grammar-split" data-settings-grammar-split="1">
+          <div class="settings-grammar-split" data-scan-no-outer-scroll="1" data-settings-grammar-split="1">
             <nav id="settings-section-rail" class="settings-section-rail" aria-label="Settings sections" data-settings-section-rail="1" data-settings-rail-stable="1">
               <p class="settings-rail-label">Sections</p>
               <button type="button" class="settings-section-btn" id="settings-section-btn-layout" data-settings-section="layout" aria-current="true">Layout</button>
@@ -360,15 +360,15 @@
                 <p id="jira-read-status" class="drawer-hint" role="status">Ready</p>
               </div>
               <div id="settings-section-environments" class="settings-section-panel settings-section-with-detail" data-settings-section-panel="environments" role="tabpanel" hidden>
-                <div class="settings-scan-pane">
+                <div class="settings-scan-pane" data-scan-scroll="scan">
                   <h4 class="orb-section-label">Named environments</h4>
                   <p class="drawer-hint" id="env-hint">Store more than one named target under the active security level. Row opens the editor. Switching environment does not change security level.</p>
-                  <table class="settings-scan-table" id="set-env-scan" data-settings-scan-table="environments" aria-label="Named environments">
+                  <table class="settings-scan-table" id="set-env-scan" data-settings-scan-table="environments" aria-label="Named environments" data-scan-kbd="1">
                     <thead>
                       <tr><th>Status</th><th>Name</th><th>Target</th></tr>
                     </thead>
                     <tbody id="set-env-scan-body">
-                      <tr class="settings-scan-empty"><td colspan="3">No named environments yet</td></tr>
+                      <tr class="settings-scan-empty" data-scan-quiet-empty="1"><td colspan="3">No named environments yet</td></tr>
                     </tbody>
                   </table>
                   <select id="set-env-active" class="settings-env-select-mirror" aria-hidden="true" tabindex="-1" aria-describedby="env-hint">
@@ -379,8 +379,9 @@
                   </div>
                   <p id="env-status" class="drawer-hint" role="status">Environments: —</p>
                 </div>
-                <aside class="settings-detail-pane" id="set-env-detail" data-settings-detail="environments" aria-label="Environment detail">
+                <aside class="settings-detail-pane" id="set-env-detail" data-settings-detail="environments" data-scan-scroll="detail" aria-label="Environment detail">
                   <h4 class="orb-section-label" id="set-env-detail-title">Environment</h4>
+                  <p class="scan-quiet-empty" data-scan-unfocused="1" id="set-env-unfocused">Select a row</p>
                   <p class="drawer-hint">Focused row. Save writes this named environment only.</p>
                   <label class="stack-label">Environment name
                     <input type="text" id="set-env-name" placeholder="local" maxlength="40" autocomplete="off" />
@@ -440,10 +441,10 @@
                 <p id="set-run-notify-status" class="drawer-hint" role="status">Notices: on (default)</p>
               </div>
               <div id="settings-section-report" class="settings-section-panel settings-section-with-detail" data-settings-section-panel="report" role="tabpanel" hidden>
-                <div class="settings-scan-pane">
+                <div class="settings-scan-pane" data-scan-scroll="scan">
                   <h3 class="orb-section-label" id="report-settings-heading">Report blocks</h3>
                   <p class="drawer-hint">Choose which blocks appear in the next JSON/Markdown export (FR-REP-2). Checkbox cell toggles include; row focuses the note.</p>
-                  <table class="settings-scan-table" id="set-rpt-scan" data-settings-scan-table="report-blocks" data-settings-checkbox-cell="1" aria-label="Report blocks">
+                  <table class="settings-scan-table" id="set-rpt-scan" data-settings-scan-table="report-blocks" data-settings-checkbox-cell="1" aria-label="Report blocks" data-scan-kbd="1">
                     <thead>
                       <tr><th class="settings-hit">In</th><th>Block</th><th>Export</th></tr>
                     </thead>
@@ -486,7 +487,7 @@
                     </tbody>
                   </table>
                 </div>
-                <aside class="settings-detail-pane" id="set-rpt-detail" data-settings-detail="report-blocks" aria-label="Report block detail">
+                <aside class="settings-detail-pane" id="set-rpt-detail" data-settings-detail="report-blocks" aria-label="Report block detail" data-scan-scroll="detail">
                   <h4 class="orb-section-label" id="rpt-detail-title">Summary</h4>
                   <p class="drawer-hint" id="rpt-detail-hint">Include this block in the next export. The checkbox cell is the only include toggle.</p>
                   <button type="button" id="rpt-save" class="save-btn">Save sections</button>
@@ -494,7 +495,7 @@
                 </aside>
               </div>
               <div id="settings-section-credentials" class="settings-section-panel settings-section-with-detail" data-settings-section-panel="credentials" role="tabpanel" hidden>
-                <div class="settings-scan-pane">
+                <div class="settings-scan-pane" data-scan-scroll="scan">
                   <h4 class="orb-section-label">Credential status</h4>
                   <p class="drawer-hint">Shows set or missing only — never the value (FR-SEC-5 / FR-JIRA-7). Clear stays in the detail behind confirm.</p>
                   <ul id="cred-status-list" class="drawer-hint" aria-live="polite">
@@ -505,7 +506,7 @@
                   <p id="cred-status-summary" class="drawer-hint">Credential status: —</p>
                   <p id="set-creds" class="drawer-hint">Jira credentials: —</p>
                 </div>
-                <aside class="settings-detail-pane" data-settings-detail="credentials" aria-label="Credential detail">
+                <aside class="settings-detail-pane" data-settings-detail="credentials" aria-label="Credential detail" data-scan-scroll="detail">
                   <h4 class="orb-section-label">Credential actions</h4>
                   <label class="stack-label">Target secret (write-only)
                     <input type="password" id="set-target-secret" placeholder="Leave blank to keep" autocomplete="new-password" />
@@ -534,7 +535,7 @@
           </div>
           </div>
         </div>
-        <div id="app-section-security" class="app-section" hidden data-settings-security-density="1" data-security-layout-grammar="1">
+        <div id="app-section-security" class="app-section" hidden data-settings-security-density="1" data-security-layout-grammar="1" data-scan-craft="1">
           <div id="sec-chrome-toolbar" class="area-chrome-toolbar sec-chrome-toolbar" data-sec-chrome="1">
             <div class="btn-row sec-toolbar-actions area-chrome-toolbar-row">
               <label class="stack-label sec-toolbar-level" for="sec-level">Level
@@ -554,7 +555,7 @@
             <summary>About Security</summary>
             <p class="drawer-hint">OFFICIAL and SECRET isolate credentials and browser profiles. Switching requires confirmation. Level controls stay in the toolbar above — never under Advanced. Privacy wipe uses Include cells; row click focuses the artifact only.</p>
           </details>
-          <div class="sec-grammar-split" data-sec-grammar-split="1">
+          <div class="sec-grammar-split" data-scan-no-outer-scroll="1" data-sec-grammar-split="1">
             <nav id="sec-section-rail" class="sec-section-rail" aria-label="Security sections" data-sec-rail="1">
               <p class="sec-rail-label">Sections</p>
               <button type="button" class="sec-section-btn" id="sec-section-btn-level" data-sec-section="level">Level</button>
@@ -565,23 +566,23 @@
             </nav>
             <div class="sec-grammar-main">
               <div id="sec-section-level" class="sec-section-panel sec-section-with-detail" data-sec-section-panel="level" role="tabpanel" hidden>
-                <div class="sec-scan-pane">
+                <div class="sec-scan-pane" data-scan-scroll="scan">
                   <h3 class="orb-section-label">Classification</h3>
                   <p class="drawer-hint">One level at a time. Switch takes effect only after Confirm in the toolbar. Stores stay unmixed.</p>
                   <p id="sec-level-detail-hint" class="drawer-hint">Use the Level control above. Browser profile name only — no secrets.</p>
                 </div>
-                <aside class="sec-detail-pane" id="sec-level-detail" data-sec-detail="level" aria-label="Level detail">
+                <aside class="sec-detail-pane" id="sec-level-detail" data-sec-detail="level" aria-label="Level detail" data-scan-scroll="detail">
                   <h4 class="orb-section-label">Switch</h4>
                   <p class="drawer-hint">Propose then Confirm in the chrome toolbar. Credentials and settings.json are never shown here.</p>
                 </aside>
               </div>
               <div id="sec-section-privacy" class="sec-section-panel sec-section-with-detail" data-sec-section-panel="privacy" role="tabpanel">
-                <div class="sec-scan-pane">
+                <div class="sec-scan-pane" data-scan-scroll="scan">
                   <h3 class="orb-section-label">Privacy &amp; local data</h3>
                   <p class="drawer-hint">No telemetry by default. Include is a 28px checkbox cell — the row does not toggle it. Credentials and settings.json are not deleted here.</p>
                   <p id="priv-telemetry" class="drawer-hint">Telemetry: —</p>
                   <p id="priv-inventory" class="drawer-hint">Local artifacts: —</p>
-                  <table id="sec-privacy-scan" class="sec-scan-table" role="grid" aria-label="Local data to wipe" data-sec-privacy-scan="1">
+                  <table id="sec-privacy-scan" class="sec-scan-table" role="grid" aria-label="Local data to wipe" data-sec-privacy-scan="1" data-scan-kbd="1">
                     <thead>
                       <tr>
                         <th scope="col" class="sec-hit-th">Include</th>
@@ -620,7 +621,7 @@
                     </tbody>
                   </table>
                 </div>
-                <aside class="sec-detail-pane" id="sec-privacy-detail" data-sec-detail="privacy" aria-label="Privacy detail">
+                <aside class="sec-detail-pane" id="sec-privacy-detail" data-sec-detail="privacy" aria-label="Privacy detail" data-scan-scroll="detail">
                   <h4 class="orb-section-label" id="priv-detail-title">Reports</h4>
                   <p class="drawer-hint" id="priv-detail-hint">Focused artifact. Delete asks for confirm here — not on the list row.</p>
                   <div class="sec-danger-zone" data-sec-danger="privacy">
@@ -633,13 +634,13 @@
                 </aside>
               </div>
               <div id="sec-section-audit" class="sec-section-panel sec-section-with-detail" data-sec-section-panel="audit" role="tabpanel" hidden>
-                <div class="sec-scan-pane">
+                <div class="sec-scan-pane" data-scan-scroll="scan">
                   <h3 class="orb-section-label">Local side-effects audit</h3>
                   <p class="drawer-hint">Plan edits, quarantines, and privacy wipes are logged locally (time, action, plan/case id, level, session). No tokens or document bodies.</p>
                   <div class="btn-row">
                     <button type="button" id="local-audit-refresh" class="save-btn secondary">Refresh audit</button>
                   </div>
-                  <table id="sec-audit-scan" class="sec-scan-table" role="grid" aria-label="Local side-effects" data-sec-audit-scan="1">
+                  <table id="sec-audit-scan" class="sec-scan-table" role="grid" aria-label="Local side-effects" data-sec-audit-scan="1" data-scan-kbd="1">
                     <thead>
                       <tr>
                         <th scope="col">Time</th>
@@ -651,32 +652,33 @@
                   </table>
                   <p id="local-audit-status" class="drawer-hint" role="status">Ready</p>
                 </div>
-                <aside class="sec-detail-pane" id="sec-audit-detail" data-sec-detail="audit" aria-label="Audit entry">
+                <aside class="sec-detail-pane" id="sec-audit-detail" data-sec-detail="audit" aria-label="Audit entry" data-scan-scroll="detail">
                   <h4 class="orb-section-label" id="sec-audit-detail-title">Entry</h4>
+                  <p class="scan-quiet-empty" data-scan-unfocused="1" id="sec-audit-unfocused">Select a row</p>
                   <p class="drawer-hint" id="sec-audit-detail-hint">Select a row. Time, action, id, level only — no document bodies.</p>
                 </aside>
               </div>
               <div id="sec-section-redact" class="sec-section-panel sec-section-with-detail" data-sec-section-panel="redact" role="tabpanel" hidden>
-                <div class="sec-scan-pane">
+                <div class="sec-scan-pane" data-scan-scroll="scan">
                   <h3 class="orb-section-label">Export &amp; evidence redaction</h3>
                   <p class="drawer-hint">Exports and evidence index redact known secret patterns and stored token values. Hit counts only — never echo a matched secret.</p>
                   <p id="redaction-status" class="drawer-hint" role="status">Redaction: —</p>
                   <p id="redaction-screenshot-warn" class="drawer-hint" hidden></p>
                 </div>
-                <aside class="sec-detail-pane" id="sec-redact-detail" data-sec-detail="redact" aria-label="Redaction detail">
+                <aside class="sec-detail-pane" id="sec-redact-detail" data-sec-detail="redact" aria-label="Redaction detail" data-scan-scroll="detail">
                   <h4 class="orb-section-label">Evidence</h4>
                   <p class="drawer-hint">Screenshots are not OCR-redacted automatically. No secret values, tokens, or settings.json contents on this surface.</p>
                 </aside>
               </div>
               <div id="sec-section-backup" class="sec-section-panel sec-section-with-detail" data-sec-section-panel="backup" role="tabpanel" hidden>
-                <div class="sec-scan-pane">
+                <div class="sec-scan-pane" data-scan-scroll="scan">
                   <h3 class="orb-section-label">Backup &amp; restore</h3>
                   <p class="drawer-hint">Local zip of plans, runs, and evidence index for the active security level. Restore needs confirm and refuses mixing OFFICIAL with SECRET. No cloud backup.</p>
                   <p id="backup-summary" class="drawer-hint">Backup: —</p>
                   <div class="btn-row">
                     <button type="button" id="backup-refresh" class="save-btn secondary">Refresh list</button>
                   </div>
-                  <table id="sec-backup-scan" class="sec-scan-table" role="grid" aria-label="Recent backups" data-sec-backup-scan="1">
+                  <table id="sec-backup-scan" class="sec-scan-table" role="grid" aria-label="Recent backups" data-sec-backup-scan="1" data-scan-kbd="1">
                     <thead>
                       <tr>
                         <th scope="col">When</th>
@@ -685,14 +687,14 @@
                       </tr>
                     </thead>
                     <tbody id="sec-backup-scan-body">
-                      <tr class="sec-scan-empty"><td colspan="3">No backups yet</td></tr>
+                      <tr class="sec-scan-empty" data-scan-quiet-empty="1"><td colspan="3">No backups yet</td></tr>
                     </tbody>
                   </table>
                   <select id="backup-select" class="sec-backup-select-mirror" aria-hidden="true" tabindex="-1">
                     <option value="">— no backups yet —</option>
                   </select>
                 </div>
-                <aside class="sec-detail-pane" id="sec-backup-detail" data-sec-detail="backup" aria-label="Backup detail">
+                <aside class="sec-detail-pane" id="sec-backup-detail" data-sec-detail="backup" aria-label="Backup detail" data-scan-scroll="detail">
                   <h4 class="orb-section-label" id="sec-backup-detail-title">Restore</h4>
                   <p class="drawer-hint" id="sec-backup-detail-hint">Focused backup. Secrets option stays off by default.</p>
                   <label class="sec-compact-check"><input type="checkbox" id="backup-include-settings" /> Include settings (no secrets)</label>
@@ -711,7 +713,7 @@
           </div>
           </div>
         </div>
-        <div id="app-section-reports" class="app-section" hidden data-reports-ia="1" data-reports-documents-density="1" data-reports-layout-grammar="1">
+        <div id="app-section-reports" class="app-section" hidden data-reports-ia="1" data-reports-documents-density="1" data-reports-layout-grammar="1" data-scan-craft="1">
           <div id="rpt-chrome-toolbar" class="area-chrome-toolbar rpt-chrome-toolbar" data-rpt-chrome="1">
             <div class="btn-row rpt-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="rpt-library-refresh" class="save-btn secondary">Refresh library</button>
@@ -724,11 +726,11 @@
             <summary>About Reports</summary>
             <p class="drawer-hint">Saved-report library first. Section include/exclude stays under Settings → Report. Export a run or read-only pack lives under Advanced.</p>
           </details>
-          <div id="rpt-primary" class="rpt-primary rpt-grammar-split" data-rpt-primary="1">
-            <div class="rpt-scan-pane">
+          <div id="rpt-primary" class="rpt-primary rpt-grammar-split" data-scan-no-outer-scroll="1" data-rpt-primary="1">
+            <div class="rpt-scan-pane" data-scan-scroll="scan">
               <h4 class="orb-section-label">Saved reports</h4>
-              <p id="rpt-empty" class="drawer-hint">No saved reports yet. Run a plan case or export a run (Advanced).</p>
-              <table id="rpt-scan" class="rpt-scan-table" role="grid" aria-label="Saved reports" data-rpt-scan="1">
+              <p id="rpt-empty" class="scan-quiet-empty" data-scan-quiet-empty="1">No saved reports yet.</p>
+              <table id="rpt-scan" class="rpt-scan-table" role="grid" aria-label="Saved reports" data-rpt-scan="1" data-scan-kbd="1">
                 <thead>
                   <tr>
                     <th scope="col">When</th>
@@ -740,8 +742,9 @@
                 <tbody id="rpt-scan-body"></tbody>
               </table>
             </div>
-            <aside class="rpt-detail-pane" id="rpt-detail" data-rpt-detail="1" aria-label="Report detail">
+            <aside class="rpt-detail-pane" id="rpt-detail" data-rpt-detail="1" aria-label="Report detail" data-scan-scroll="detail">
               <h4 class="orb-section-label" id="rpt-viewer-title">Report</h4>
+              <p class="scan-quiet-empty" data-scan-unfocused="1" id="rpt-unfocused">Select a row</p>
               <p class="drawer-hint" id="rpt-viewer-hint">Row opens markdown. Screenshot and raw JSON stay here. Section include/exclude is under Settings.</p>
               <pre id="rpt-markdown" class="report-viewer" aria-live="polite">Select a report to read its markdown.</pre>
               <img id="rpt-screenshot" class="report-shot" alt="Report screenshot" hidden />
@@ -771,7 +774,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-documents" class="app-section" hidden data-lab-areas-ia="1" data-documents-ia="1" data-reports-documents-density="1" data-documents-layout-grammar="1">
+        <div id="app-section-documents" class="app-section" hidden data-lab-areas-ia="1" data-documents-ia="1" data-reports-documents-density="1" data-documents-layout-grammar="1" data-scan-craft="1">
           <div id="doc-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar doc-chrome-toolbar" data-doc-chrome="1">
             <div class="btn-row lab-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="doc-parse" class="save-btn">Parse &amp; propose</button>
@@ -786,14 +789,15 @@
               <button type="button" class="doc-tab" role="tab" id="doc-tab-uploads" data-doc-panel="uploads" aria-selected="false" aria-controls="doc-panel-uploads">Uploads</button>
             </div>
             <div id="doc-panel-propose" class="doc-panel" role="tabpanel" data-doc-panel="propose" aria-labelledby="doc-tab-propose">
-              <div class="doc-grammar-split">
-                <div class="doc-scan-pane">
+              <div class="doc-grammar-split" data-scan-no-outer-scroll="1">
+                <div class="doc-scan-pane" data-scan-scroll="scan">
                   <label class="stack-label">Spec text
                     <textarea id="doc-text" rows="8" placeholder="# Spec&#10;Target: https://example.com&#10;Jira project: KAN"></textarea>
                   </label>
                   <div id="doc-proposal" class="doc-proposal" hidden>
                     <h4 class="orb-section-label">Proposal</h4>
-                    <table id="doc-diff-scan" class="doc-scan-table" role="grid" aria-label="Proposed settings changes" data-doc-diff-scan="1">
+                    <p id="doc-diff-empty" class="scan-quiet-empty" data-scan-quiet-empty="1" hidden>No proposed changes.</p>
+                    <table id="doc-diff-scan" class="doc-scan-table" role="grid" aria-label="Proposed settings changes" data-doc-diff-scan="1" data-scan-kbd="1">
                       <thead>
                         <tr>
                           <th scope="col" class="doc-hit-th">Keep</th>
@@ -808,9 +812,10 @@
                     <ul id="doc-ideas" class="doc-ideas"></ul>
                   </div>
                 </div>
-                <aside class="doc-detail-pane" id="doc-diff-detail" data-doc-diff-detail="1" aria-label="Change detail">
+                <aside class="doc-detail-pane" id="doc-diff-detail" data-doc-diff-detail="1" aria-label="Change detail" data-scan-scroll="detail">
                   <h4 class="orb-section-label">Change</h4>
                   <label class="stack-label">Key
+                    <p class="scan-quiet-empty" data-scan-unfocused="1" id="doc-diff-unfocused">Select a row</p>
                     <input type="text" id="doc-detail-key" class="mono" readonly value="" placeholder="Select a row" autocomplete="off" />
                   </label>
                   <p class="drawer-hint" id="doc-detail-hint">Keep is a dedicated checkbox cell. Row click focuses the change. Confirm writes only checked keys after the existing confirm step. Decline writes nothing.</p>
@@ -822,10 +827,11 @@
               </div>
             </div>
             <div id="doc-panel-uploads" class="doc-panel" role="tabpanel" data-doc-panel="uploads" aria-labelledby="doc-tab-uploads" hidden>
-              <div class="doc-grammar-split">
-                <div class="doc-scan-pane">
+              <div class="doc-grammar-split" data-scan-no-outer-scroll="1">
+                <div class="doc-scan-pane" data-scan-scroll="scan">
                   <h4 class="orb-section-label">Uploads</h4>
-                  <table id="doc-uploads-scan" class="doc-scan-table" role="grid" aria-label="Local uploads" data-doc-uploads-scan="1" data-doc-list="1" aria-live="polite">
+                  <p id="doc-uploads-empty" class="scan-quiet-empty" data-scan-quiet-empty="1">No uploads in this level.</p>
+                  <table id="doc-uploads-scan" class="doc-scan-table" role="grid" aria-label="Local uploads" data-doc-uploads-scan="1" data-doc-list="1" aria-live="polite" data-scan-kbd="1">
                     <thead>
                       <tr>
                         <th scope="col">Name</th>
@@ -837,9 +843,10 @@
                     <tbody id="doc-uploads-body"></tbody>
                   </table>
                 </div>
-                <aside class="doc-detail-pane" id="doc-upload-detail" data-doc-upload-detail="1" aria-label="Upload detail">
+                <aside class="doc-detail-pane" id="doc-upload-detail" data-doc-upload-detail="1" aria-label="Upload detail" data-scan-scroll="detail">
                   <h4 class="orb-section-label">Upload</h4>
                   <label class="stack-label">File
+                    <p class="scan-quiet-empty" data-scan-unfocused="1" id="doc-upload-unfocused">Select a row</p>
                     <input type="text" id="doc-upload-detail-name" readonly value="" placeholder="Select a row" autocomplete="off" />
                   </label>
                   <p class="drawer-hint" id="doc-upload-detail-hint">Name, time, level, consent only. No document body in the list. Delete stays on Security → Privacy.</p>
@@ -853,7 +860,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1" data-heal-layout-grammar="1">
+        <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1" data-heal-layout-grammar="1" data-scan-craft="1">
           <h3 class="orb-section-label">Heal proposal review</h3>
           <div id="heal-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-heal-chrome="1">
             <label class="stack-label heal-toolbar-filter" for="heal-run-filter">Filter by run
@@ -870,12 +877,12 @@
             <p id="heal-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
           <div class="area-work" data-area-work="1">
-          <div id="heal-primary" class="lab-primary heal-grammar-split" data-heal-primary="1">
-            <div class="heal-scan-pane">
+          <div id="heal-primary" class="lab-primary heal-grammar-split" data-scan-no-outer-scroll="1" data-heal-primary="1">
+            <div class="heal-scan-pane" data-scan-scroll="scan">
               <h4 class="orb-section-label">Pending proposals</h4>
-              <p id="heal-list-empty" class="drawer-hint heal-empty">No pending heal proposals.</p>
+              <p id="heal-list-empty" class="scan-quiet-empty heal-empty" data-scan-quiet-empty="1">No pending heal proposals.</p>
               <div id="heal-list" class="heal-list" aria-live="polite" data-heal-list="1">
-                <table id="heal-scan" class="heal-scan-table" role="grid" aria-label="Pending heal proposals" data-heal-scan="1" data-heal-checkbox-cell="1">
+                <table id="heal-scan" class="heal-scan-table" role="grid" aria-label="Pending heal proposals" data-heal-scan="1" data-heal-checkbox-cell="1" data-scan-kbd="1">
                   <thead>
                     <tr>
                       <th class="heal-hit" scope="col">Sel</th>
@@ -889,9 +896,10 @@
                 </table>
               </div>
             </div>
-            <aside class="heal-detail-pane" id="heal-detail" data-heal-detail="1" aria-label="Heal proposal detail">
+            <aside class="heal-detail-pane" id="heal-detail" data-heal-detail="1" aria-label="Heal proposal detail" data-scan-scroll="detail">
               <h4 class="orb-section-label" id="heal-detail-title">No proposal focused</h4>
-              <p class="drawer-hint" id="heal-detail-hint">Sel is multi-select only. Row click focuses. Approve and Reject act on the focused id only.</p>
+              <p class="scan-quiet-empty" data-scan-unfocused="1" id="heal-unfocused">Select a row</p>
+              <p class="drawer-hint" id="heal-detail-hint">Select a row. Sel is multi-select only. Approve and Reject act on the focused id only.</p>
               <label class="stack-label">Id
                 <input type="text" id="heal-detail-id" class="mono" readonly autocomplete="off" />
               </label>
@@ -912,7 +920,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1" data-desktop-layout-grammar="1">
+        <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1" data-desktop-layout-grammar="1" data-scan-craft="1">
           <h3 class="orb-section-label">Desktop .exe plugin</h3>
           <div id="desk-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-desk-chrome="1">
             <div class="btn-row lab-toolbar-actions">
@@ -923,11 +931,12 @@
           </div>
           <div class="area-work" data-area-work="1">
           <div id="desk-primary" class="lab-primary" data-desk-primary="1">
-            <div class="desk-grammar-split" data-desk-grammar-split="1">
-              <div class="desk-scan-pane">
+            <div class="desk-grammar-split" data-scan-no-outer-scroll="1" data-desk-grammar-split="1">
+              <div class="desk-scan-pane" data-scan-scroll="scan">
                 <h4 class="orb-section-label">Desktop target</h4>
                 <p class="drawer-hint">One target — Enabled is the checkbox cell only. Row click focuses Plugin detail (does not toggle Enable).</p>
-                <table id="desk-scan" class="desk-scan-table" data-desk-scan="1" role="grid" aria-label="Desktop target">
+                <p id="desk-scan-empty" class="scan-quiet-empty" data-scan-quiet-empty="1" hidden>No desktop path configured.</p>
+                <table id="desk-scan" class="desk-scan-table" data-desk-scan="1" role="grid" aria-label="Desktop target" data-scan-kbd="1">
                   <thead>
                     <tr>
                       <th scope="col" class="desk-hit">Enabled</th>
@@ -948,8 +957,9 @@
                   </tbody>
                 </table>
               </div>
-              <aside id="desk-detail" class="desk-detail-pane" data-desk-detail="1" aria-label="Plugin detail">
+              <aside id="desk-detail" class="desk-detail-pane" data-desk-detail="1" aria-label="Plugin detail" data-scan-scroll="detail">
                 <h4 class="orb-section-label" id="desk-detail-title">Plugin</h4>
+                <p class="scan-quiet-empty" data-scan-unfocused="1" id="desk-unfocused">Select a row</p>
                 <p class="drawer-hint" id="desk-detail-hint">Separate from Playwright. Save and path override live here.</p>
                 <label class="stack-label">Exe path override
                   <input type="text" id="desk-exe" placeholder="C:\Path\To\App.exe" autocomplete="off" />
@@ -966,7 +976,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1" data-plan-cases-layout-grammar="1" data-plans-tabs-layout-grammar="1">
+        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1" data-plan-cases-layout-grammar="1" data-plans-tabs-layout-grammar="1" data-scan-craft="1">
           <div id="plan-chrome-toolbar" class="area-chrome-toolbar plan-chrome-toolbar" data-plan-chrome="1">
             <div class="btn-row plan-toolbar-actions area-chrome-toolbar-row">
               <label class="stack-label plan-toolbar-plan" for="plan-list">Plan
@@ -1024,10 +1034,10 @@
               </div>
               <label class="stack-label plan-archived-toggle"><input type="checkbox" id="plan-show-archived" /> Show archived cases</label>
             </div>
-            <div class="plan-cases-grammar-split" data-plan-cases-grammar-split="1">
-            <div class="plan-cases-scan-pane">
-              <p id="plan-cases-empty" class="drawer-hint">Open a plan to list cases. Row click loads detail — Enabled / Archived / Quarantine stay in the detail pane.</p>
-              <table id="plan-cases" class="plan-cases-scan-table" role="grid" aria-label="Plan cases" aria-live="polite" data-plan-cases-list="1" data-plan-cases-scan="1">
+            <div class="plan-cases-grammar-split" data-scan-no-outer-scroll="1" data-plan-cases-grammar-split="1">
+            <div class="plan-cases-scan-pane" data-scan-scroll="scan">
+              <p id="plan-cases-empty" class="scan-quiet-empty" data-scan-quiet-empty="1">No cases in this plan.</p>
+              <table id="plan-cases" class="plan-cases-scan-table" role="grid" aria-label="Plan cases" aria-live="polite" data-plan-cases-list="1" data-plan-cases-scan="1" data-scan-kbd="1">
                 <thead>
                   <tr>
                     <th scope="col">Status</th>
@@ -1040,9 +1050,10 @@
                 <tbody id="plan-cases-scan-body"></tbody>
               </table>
             </div>
-            <aside id="plan-case-detail-pane" class="plan-case-detail-pane" data-plan-case-detail="1" aria-label="Case detail">
+            <aside id="plan-case-detail-pane" class="plan-case-detail-pane" data-plan-case-detail="1" aria-label="Case detail" data-scan-scroll="detail">
             <h4 class="orb-section-label" id="plan-case-detail-title">Edit selected case</h4>
-            <p class="drawer-hint" id="plan-case-detail-hint">Click a case row to load it here. Row click does not toggle Enabled or Archived.</p>
+            <p class="scan-quiet-empty" data-scan-unfocused="1" id="plan-case-unfocused">Select a row</p>
+            <p class="drawer-hint" id="plan-case-detail-hint">Select a row. Row click does not toggle Enabled or Archived.</p>
             <label class="stack-label">Case id
               <input type="text" id="plan-case-id" placeholder="c…" autocomplete="off" />
             </label>
@@ -1133,8 +1144,8 @@
             </div>
           </div>
           <div id="plan-panel-draft" class="plan-panel" role="tabpanel" data-plan-panel="draft" aria-labelledby="plan-tab-draft" hidden data-plan-draft-form="1">
-            <div class="plan-tabs-grammar-split" data-plan-draft-split="1">
-              <div class="plan-tabs-scan-pane">
+            <div class="plan-tabs-grammar-split" data-scan-no-outer-scroll="1" data-plan-draft-split="1">
+              <div class="plan-tabs-scan-pane" data-scan-scroll="scan">
                 <h4 class="orb-section-label">Draft &amp; import</h4>
                 <p class="drawer-hint">Draft a local plan from one Jira story, optional document text, a capped project batch, or an imported Playwright project. Actions stay on this form — not on list rows. Edit cases before any run.</p>
                 <label class="stack-label">Issue key
@@ -1160,7 +1171,7 @@
                   <button type="button" id="plan-import-pw-add-btn" class="save-btn secondary">Add Playwright to open plan</button>
                 </div>
               </div>
-              <aside class="plan-tabs-detail-pane" data-plan-draft-detail="1" aria-label="Draft result">
+              <aside class="plan-tabs-detail-pane" data-plan-draft-detail="1" aria-label="Draft result" data-scan-scroll="detail">
                 <h4 class="orb-section-label">Draft result</h4>
                 <p class="drawer-hint" id="plan-draft-result-hint">New cases land on Cases. This pane shows the last draft summary only.</p>
                 <p id="plan-draft-result" class="drawer-hint" aria-live="polite">No draft yet.</p>
@@ -1176,8 +1187,8 @@
             <div class="btn-row">
               <button type="button" id="plan-coverage-btn" class="save-btn secondary">Refresh coverage gaps</button>
             </div>
-            <div class="plan-tabs-grammar-split" data-plan-coverage-split="1">
-              <div class="plan-tabs-scan-pane">
+            <div class="plan-tabs-grammar-split" data-scan-no-outer-scroll="1" data-plan-coverage-split="1">
+              <div class="plan-tabs-scan-pane" data-scan-scroll="scan">
                 <p id="plan-coverage-empty" class="drawer-hint">Open a plan and refresh to list gaps.</p>
                 <table id="plan-coverage-scan" class="plan-tabs-scan-table" role="grid" aria-label="Coverage gaps" aria-live="polite" data-plan-coverage-scan="1">
                   <thead>
@@ -1192,7 +1203,7 @@
                 <div id="plan-coverage-no-case" hidden aria-hidden="true"></div>
                 <div id="plan-coverage-disabled" hidden aria-hidden="true"></div>
               </div>
-              <aside id="plan-coverage-detail" class="plan-tabs-detail-pane" data-plan-coverage-detail="1" aria-label="Gap detail">
+              <aside id="plan-coverage-detail" class="plan-tabs-detail-pane" data-plan-coverage-detail="1" aria-label="Gap detail" data-scan-scroll="detail">
                 <h4 class="orb-section-label">Gap detail</h4>
                 <p class="drawer-hint">Row click focuses this pane. Creating a case stays on Cases.</p>
                 <label class="stack-label">Story
@@ -1224,8 +1235,8 @@
             <div class="btn-row">
               <button type="button" id="plan-trace-btn" class="save-btn secondary">Refresh traceability</button>
             </div>
-            <div class="plan-tabs-grammar-split" data-plan-trace-split="1">
-              <div class="plan-tabs-scan-pane">
+            <div class="plan-tabs-grammar-split" data-scan-no-outer-scroll="1" data-plan-trace-split="1">
+              <div class="plan-tabs-scan-pane" data-scan-scroll="scan">
                 <p id="plan-trace-empty" class="drawer-hint">Open a plan and refresh to list trace rows.</p>
                 <table id="plan-trace-matrix" class="plan-tabs-scan-table" role="grid" aria-label="Traceability matrix" aria-live="polite" data-plan-trace-scan="1">
                   <thead>
@@ -1240,7 +1251,7 @@
                   <tbody id="plan-trace-scan-body"></tbody>
                 </table>
               </div>
-              <aside id="plan-trace-detail" class="plan-tabs-detail-pane" data-plan-trace-detail="1" aria-label="Trace row">
+              <aside id="plan-trace-detail" class="plan-tabs-detail-pane" data-plan-trace-detail="1" aria-label="Trace row" data-scan-scroll="detail">
                 <h4 class="orb-section-label">Trace row</h4>
                 <p class="drawer-hint" id="plan-trace-detail-hint">Row click opens that case in Cases. Fetch time is shown here.</p>
                 <label class="stack-label">Story
@@ -1264,8 +1275,8 @@
             <div class="btn-row">
               <button type="button" id="plan-history-btn" class="save-btn secondary">Refresh history</button>
             </div>
-            <div class="plan-tabs-grammar-split" data-plan-history-split="1">
-              <div class="plan-tabs-scan-pane" id="plan-history-list" aria-live="polite" aria-label="Suite run history">
+            <div class="plan-tabs-grammar-split" data-scan-no-outer-scroll="1" data-plan-history-split="1">
+              <div class="plan-tabs-scan-pane" id="plan-history-list" aria-live="polite" aria-label="Suite run history" data-scan-scroll="scan">
                 <p id="plan-history-empty" class="drawer-hint">Open a plan and refresh to list suite runs.</p>
                 <table id="plan-history-scan" class="plan-tabs-scan-table" role="grid" aria-label="Suite run history scan" data-plan-history-scan="1">
                   <thead>
@@ -1288,7 +1299,7 @@
                   <option value="">(select run)</option>
                 </select>
               </div>
-              <aside id="plan-history-detail" class="plan-tabs-detail-pane" data-plan-history-detail="1" aria-label="Run focus">
+              <aside id="plan-history-detail" class="plan-tabs-detail-pane" data-plan-history-detail="1" aria-label="Run focus" data-scan-scroll="detail">
                 <h4 class="orb-section-label">Run focus</h4>
                 <p class="drawer-hint">Known issues stay labelled. Nothing uploads.</p>
                 <label class="stack-label">Run id
@@ -1373,7 +1384,7 @@
           </div>
           </div>
         </div>
-        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-manual-density="1" data-manual-layout-grammar="1" data-loop-stage="idle">
+        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-manual-density="1" data-manual-layout-grammar="1" data-loop-stage="idle" data-scan-craft="1">
           <div id="manual-chrome-toolbar" class="area-chrome-toolbar manual-chrome-toolbar" data-manual-chrome="1">
             <div class="btn-row manual-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="manual-clear-context" class="save-btn secondary">Clear linked context</button>
@@ -1384,13 +1395,13 @@
             </div>
           </div>
           <div class="area-work" data-area-work="1">
-          <div class="manual-grammar-split" data-manual-grammar-split="1">
-            <div class="manual-scan-pane">
+          <div class="manual-grammar-split" data-scan-no-outer-scroll="1" data-manual-grammar-split="1">
+            <div class="manual-scan-pane" data-scan-scroll="scan">
               <div id="manual-library" class="manual-library" data-manual-library-panel="1">
                 <h4 class="orb-section-label">Session library</h4>
                 <p id="manual-library-level" class="drawer-hint" data-manual-library-level="1">Active level: —</p>
-                <p id="manual-session-empty" class="drawer-hint" hidden>No sessions on this security level.</p>
-                <table id="manual-session-scan" class="manual-scan-table" role="grid" aria-label="Manual session library" data-manual-session-scan="1">
+                <p id="manual-session-empty" class="scan-quiet-empty" data-scan-quiet-empty="1" hidden>No sessions on this security level.</p>
+                <table id="manual-session-scan" class="manual-scan-table" role="grid" aria-label="Manual session library" data-manual-session-scan="1" data-scan-kbd="1">
                   <thead>
                     <tr>
                       <th scope="col">When</th>
@@ -1428,9 +1439,10 @@
                 <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start opens Charter Frame. Assist and mist default off.</p>
               </div>
             </div>
-            <aside class="manual-detail-pane" id="manual-detail" data-manual-detail="1" aria-label="Focused session">
+            <aside class="manual-detail-pane" id="manual-detail" data-manual-detail="1" aria-label="Focused session" data-scan-scroll="detail">
               <h4 class="orb-section-label" id="manual-detail-title">Focused session</h4>
-              <p class="drawer-hint" id="manual-detail-hint">Row click opens review for that session. Propose stays deliberate. Confirm dock is below the work.</p>
+              <p class="scan-quiet-empty" data-scan-unfocused="1" id="manual-unfocused">Select a row</p>
+              <p class="drawer-hint" id="manual-detail-hint">Select a row. Propose stays deliberate. Confirm dock is below the work.</p>
               <label class="stack-label" for="manual-detail-charter">Charter
                 <input type="text" id="manual-detail-charter" readonly autocomplete="off" />
               </label>
@@ -1469,7 +1481,7 @@
             <button type="button" id="manual-confirm-no" class="save-btn secondary" data-manual-confirm-no="1">Cancel proposal</button>
           </div>
         </div>
-        <div id="app-section-suites" class="app-section" hidden data-suites-ia="1" data-suite-layout-grammar="1">
+        <div id="app-section-suites" class="app-section" hidden data-suites-ia="1" data-suite-layout-grammar="1" data-scan-craft="1">
           <h3 class="orb-section-label">Playwright suites</h3>
           <div id="suite-chrome-toolbar" class="area-chrome-toolbar suite-chrome-toolbar" data-suite-chrome="1">
             <label class="stack-label suite-toolbar-path" for="suite-path">Project path
@@ -1485,11 +1497,11 @@
             <p id="suite-status" class="drawer-hint suite-toolbar-status" role="status">Ready</p>
           </div>
           <div class="area-work" data-area-work="1">
-          <div id="suite-primary" class="suite-primary suite-grammar-split" data-suite-primary="1">
-            <div class="suite-scan-pane">
+          <div id="suite-primary" class="suite-primary suite-grammar-split" data-scan-no-outer-scroll="1" data-suite-primary="1">
+            <div class="suite-scan-pane" data-scan-scroll="scan">
               <h4 class="orb-section-label">Suite list</h4>
-              <p id="suite-list-empty" class="drawer-hint">Enter a path and Discover or List tests. Checkbox selects for Run selected; row opens detail. External project files are never deleted.</p>
-              <table id="suite-list" class="suite-scan-table" role="grid" aria-label="Playwright suite tests" data-suite-list="1" data-suite-scan="1" data-suite-checkbox-cell="1">
+              <p id="suite-list-empty" class="scan-quiet-empty" data-scan-quiet-empty="1">No suite tests in this list.</p>
+              <table id="suite-list" class="suite-scan-table" role="grid" aria-label="Playwright suite tests" data-suite-list="1" data-suite-scan="1" data-suite-checkbox-cell="1" data-scan-kbd="1">
                 <thead>
                   <tr>
                     <th class="suite-hit" scope="col">Sel</th>
@@ -1502,9 +1514,10 @@
                 <tbody id="suite-scan-body"></tbody>
               </table>
             </div>
-            <aside class="suite-detail-pane" id="suite-detail" data-suite-detail="1" aria-label="Suite test detail">
+            <aside class="suite-detail-pane" id="suite-detail" data-suite-detail="1" aria-label="Suite test detail" data-scan-scroll="detail">
               <h4 class="orb-section-label" id="suite-detail-title">No test focused</h4>
-              <p class="drawer-hint" id="suite-detail-hint">Click a row to inspect. Checkbox state is independent of focus.</p>
+              <p class="scan-quiet-empty" data-scan-unfocused="1" id="suite-unfocused">Select a row</p>
+              <p class="drawer-hint" id="suite-detail-hint">Select a row. Checkbox state is independent of focus.</p>
               <label class="stack-label">Title
                 <input type="text" id="suite-detail-name" readonly autocomplete="off" />
               </label>
@@ -1530,7 +1543,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-sandboxes" class="app-section" hidden data-lab-areas-ia="1" data-sandboxes-ia="1" data-sandboxes-layout-grammar="1">
+        <div id="app-section-sandboxes" class="app-section" hidden data-lab-areas-ia="1" data-sandboxes-ia="1" data-sandboxes-layout-grammar="1" data-scan-craft="1">
           <h3 class="orb-section-label">Sandboxes</h3>
           <div id="ms-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-ms-chrome="1">
             <label class="ms-compact-check" data-ms-compact-check="1"><input type="checkbox" id="ms-enabled" /> Enable multi-sandbox</label>
@@ -1551,11 +1564,11 @@
           <div class="area-work" data-area-work="1">
           <div id="ms-primary" class="lab-primary" data-ms-primary="1">
             <p id="ms-plugins" class="drawer-hint">Plugins: —</p>
-            <div class="ms-grammar-split" data-ms-grammar-split="1">
-              <div class="ms-scan-pane" data-ms-list="1">
+            <div class="ms-grammar-split" data-scan-no-outer-scroll="1" data-ms-grammar-split="1">
+              <div class="ms-scan-pane" data-ms-list="1" data-scan-scroll="scan">
                 <h4 class="orb-section-label">Sandbox list</h4>
                 <p class="drawer-hint">No checkbox column. Row click focuses detail (does not Remove). Local only — max 4. No cloud farms.</p>
-                <table id="ms-scan" class="ms-scan-table" data-ms-scan="1" role="grid" aria-label="Sandboxes">
+                <table id="ms-scan" class="ms-scan-table" data-ms-scan="1" role="grid" aria-label="Sandboxes" data-scan-kbd="1">
                   <thead>
                     <tr>
                       <th scope="col">Id</th>
@@ -1565,12 +1578,13 @@
                     </tr>
                   </thead>
                   <tbody id="ms-scan-body">
-                    <tr class="ms-scan-empty"><td colspan="4">Sandboxes: (none configured)</td></tr>
+                    <tr class="ms-scan-empty" data-scan-quiet-empty="1"><td colspan="4">Sandboxes: (none configured)</td></tr>
                   </tbody>
                 </table>
               </div>
-              <aside id="ms-detail" class="ms-detail-pane" data-ms-detail="1" aria-label="Sandbox detail">
+              <aside id="ms-detail" class="ms-detail-pane" data-ms-detail="1" aria-label="Sandbox detail" data-scan-scroll="detail">
                 <h4 class="orb-section-label" id="ms-detail-title">Sandbox</h4>
+                <p class="scan-quiet-empty" data-scan-unfocused="1" id="ms-unfocused">Select a row</p>
                 <p class="drawer-hint" id="ms-detail-hint">Select a row, or enter a new id to add (max 4).</p>
                 <label class="stack-label">Sandbox id
                   <input type="text" id="ms-id" placeholder="primary" autocomplete="off" />
@@ -1709,6 +1723,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk118"></script>
+  <script src="/ui/desktop/desktop.js?v=desk119"></script>
 </body>
 </html>

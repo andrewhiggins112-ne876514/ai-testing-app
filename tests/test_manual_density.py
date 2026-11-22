@@ -11,7 +11,7 @@ LAYOUT_MODES = ("overlay", "stage", "orb_hub", "split", "floating")
 
 
 class ManualDensityGeometryTests(unittest.TestCase):
-    def test_manual_density_confirm_dock_desk118(self) -> None:
+    def test_manual_density_confirm_dock_desk119(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
@@ -19,8 +19,8 @@ class ManualDensityGeometryTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk118", html)
-        self.assertIn("desk118", desk)
+        self.assertIn("desk119", html)
+        self.assertIn("desk119", desk)
         self.assertIn('data-manual-density="1"', html)
         self.assertIn("Accepted", wires)
         self.assertIn("KAN-314", wires)
@@ -97,7 +97,8 @@ class ManualDensityGeometryTests(unittest.TestCase):
 
         # No sticky chrome regression.
         self.assertNotIn("sticky", manual.lower())
-        self.assertNotIn("position: sticky", css)
+        pre_craft = css.split("/* KAN-348")[0]
+        self.assertNotIn("position: sticky", pre_craft)  # chrome; scan thead sticky is KAN-348
 
 
 if __name__ == "__main__":

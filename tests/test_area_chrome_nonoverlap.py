@@ -9,13 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AreaChromeNonoverlapTests(unittest.TestCase):
-    def test_markers_and_desk107(self):
+    def test_markers_and_desk119(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk107", html)
-        self.assertIn("desk107", desk)
+        self.assertIn("desk119", html)
+        self.assertIn("desk119", desk)
         self.assertIn('data-area-chrome-nonoverlap="1"', html)
         self.assertEqual(html.count('data-area-work="1"'), 10)
         for section in (
@@ -41,7 +41,8 @@ class AreaChromeNonoverlapTests(unittest.TestCase):
         self.assertIn(".area-work", css)
         self.assertIn("data-area-chrome-nonoverlap", html)
         self.assertIn("position: static", css)
-        self.assertNotIn("position: sticky", css)
+        pre_craft = css.split("/* KAN-348")[0]
+        self.assertNotIn("position: sticky", pre_craft)  # chrome; scan thead sticky is KAN-348
 
         # Shared scaffold + area modifiers must not reintroduce sticky positioning.
         self.assertIn(".area-chrome-toolbar", css)

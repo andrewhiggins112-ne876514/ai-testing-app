@@ -8,17 +8,17 @@
 | Field | Value |
 |-------|--------|
 | **Status** | now |
-| **Jira story** | **KAN-348** — All areas: quiet empty, keyboard scan, and one scroll per pane |
-| **Start task** | Shared scan craft (empty / Select a row / keyboard / dual-pane scroll) on every secondary App area |
+| **Jira story** | **KAN-350** — Plans compact booleans and case detail sections |
+| **Start task** | Plans Show archived / Enabled / Archived / Pause on fail compact; case Edit/Run/Quarantine/Known issue + pinned Save/Run |
 | **Epic** | **KAN-347** TRACK5-LAYOUT |
-| **Roadmap ID** | TRACK5-LAYOUT-1 |
+| **Roadmap ID** | TRACK5-LAYOUT-2 |
 | **Spec** | FR-UI-11 enhancement (TRACK5) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-349** |
-| **Shipped** | TRACK4 grammar Settings…Sandboxes **KAN-324…345** desk118 |
-| **Queued (same epic)** | **KAN-350**/351 Plans compact+sections; **KAN-352**/353 Docs/Heal/Lab disclosure; **KAN-354**/355 Phase 2 evidence-first (after Phase 1) |
+| **Test ticket** | **KAN-351** |
+| **Shipped** | **KAN-348** all-areas scan craft **desk119**; TRACK4 grammar through **KAN-345** |
+| **Queued (same epic)** | **KAN-352**/353 Docs/Heal/Lab disclosure; **KAN-354**/355 Phase 2 evidence-first (after Phase 1) |
 | **Deferred** | **TRACK3-LAB** Lab density (after TRACK5); **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | Pick up **KAN-348**. Do **not** start TRACK3-LAB / voice / FR-MAN-2 / Phase 2 (**KAN-354**) until Phase 1 stories Done. |
+| **Next / Shipped** | Pick up **KAN-350**. Do **not** start TRACK3-LAB / voice / FR-MAN-2 / Phase 2 (**KAN-354**) until Phase 1 stories Done. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — KAN-348 — All-areas quiet empty / keyboard / one scroll (desk119)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-348
+- **Done:** Shared TRACK5 scan craft on every secondary App area: `data-scan-craft` + quiet empty one-liners, unfocused “Select a row”, `onScanRowKeydown` (↑↓/Enter; Space only on checkbox/radio cell; Esc returns to scan before Back to orb), dual-pane scroll (`data-scan-no-outer-scroll` / pane scroll) with sticky scan thead. Structure-token guard unchanged (no new rails). Theme/orb/home/App nav / Charter Frame untouched. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_scan_craft_layout.py`, desk119 + chrome sticky-regression carve-out for KAN-348 thead
+- **Verify:** `pytest tests/test_scan_craft_layout.py` + related layout/density suite — 60 passed. Spot-check: `desktop_app.py` → App → Suites → empty line / Select a row; arrow keys move focus without approving.
+- **Jira:** close-out **KAN-348** + **KAN-349**
+- **Next:** **KAN-350** Plans compact booleans + case sections (test **KAN-351**)
 
 ### 2026-11-22 — Bridge — TRACK5-LAYOUT epic + Active KAN-348
 - **Agent/chat:** Studio (all-area mockups) + Council (vision gap) + Designer Apply Bridge

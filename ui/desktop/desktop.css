@@ -3921,3 +3921,54 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
     padding-top: var(--space-3);
   }
 }
+
+/* KAN-348 / TRACK5-LAYOUT-1 — shared scan craft (quiet empty, Select a row, keyboard, one scroll) */
+.app-section[data-scan-craft="1"] .area-work[data-area-work="1"]:has([data-scan-no-outer-scroll="1"]) {
+  overflow: hidden;
+}
+
+.app-section[data-scan-craft="1"] [data-scan-no-outer-scroll="1"] {
+  align-items: stretch;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.app-section[data-scan-craft="1"] [data-scan-scroll="scan"],
+.app-section[data-scan-craft="1"] [data-scan-scroll="detail"] {
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+}
+
+.app-section[data-scan-craft="1"] table[data-scan-kbd="1"] thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.app-section[data-scan-craft="1"] .scan-quiet-empty,
+.app-section[data-scan-craft="1"] [data-scan-quiet-empty="1"],
+.app-section[data-scan-craft="1"] tr.settings-scan-empty td,
+.app-section[data-scan-craft="1"] tr.sec-scan-empty td,
+.app-section[data-scan-craft="1"] tr.ms-scan-empty td {
+  margin: 0;
+  padding: 6px 8px;
+  font: var(--type-ui);
+  color: var(--muted, #9bb4c4);
+  border: 1px dashed color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+  border-radius: 6px;
+}
+
+.app-section[data-scan-craft="1"] [data-scan-unfocused="1"] {
+  margin: 0;
+  padding: 6px 8px;
+  font: var(--type-ui);
+  color: var(--muted, #9bb4c4);
+  border: 1px dashed color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+  border-radius: 6px;
+}
+
+.app-section[data-scan-craft="1"] [data-scan-unfocused="1"][hidden] {
+  display: none !important;
+}

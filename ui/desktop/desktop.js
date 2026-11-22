@@ -66,6 +66,70 @@
   const styleConfigs = {};
   let suppressControlLive = false;
 
+  /* KAN-348 — shared scan keyboard: ↑↓ move focus, Enter detail, Space only on checkbox/radio cell.
+     Never confirm Jira / heal / delete / restore / remove from these keys. */
+  function onScanRowKeydown(ev, ctx) {
+    const key = ev.key;
+    const target = ev.target;
+    const stopSel = (ctx && ctx.checkboxStop) || "";
+    const inCheckbox =
+      !!target &&
+      ((target.matches &&
+        target.matches('input[type="checkbox"], input[type="radio"]')) ||
+        (stopSel && target.closest && target.closest(stopSel)));
+
+    if (key === " ") {
+      if (inCheckbox) return;
+      ev.preventDefault();
+      return;
+    }
+    if (key === "Enter") {
+      if (inCheckbox) return;
+      ev.preventDefault();
+      if (ctx && typeof ctx.activate === "function") ctx.activate(ctx.row);
+      return;
+    }
+    if (key === "ArrowDown" || key === "ArrowUp") {
+      ev.preventDefault();
+      const rows =
+        typeof (ctx && ctx.rows) === "function"
+          ? ctx.rows()
+          : Array.prototype.slice.call((ctx && ctx.rows) || []);
+      if (!rows.length || !ctx.row) return;
+      const idx = rows.indexOf(ctx.row);
+      if (idx < 0) return;
+      const nextIdx =
+        key === "ArrowDown"
+          ? Math.min(rows.length - 1, idx + 1)
+          : Math.max(0, idx - 1);
+      const next = rows[nextIdx];
+      if (!next || next === ctx.row) return;
+      if (typeof ctx.activate === "function") ctx.activate(next);
+      if (typeof next.focus === "function") next.focus();
+      if (typeof next.scrollIntoView === "function") {
+        next.scrollIntoView({ block: "nearest" });
+      }
+    }
+  }
+
+  function focusScanFromDetail(evTarget) {
+    if (!evTarget || !evTarget.closest) return false;
+    const detail = evTarget.closest('[data-scan-scroll="detail"]');
+    if (!detail) return false;
+    const host =
+      detail.closest('[data-scan-no-outer-scroll="1"]') || detail.parentElement;
+    if (!host) return false;
+    const scanTable = host.querySelector('table[data-scan-kbd="1"]');
+    if (!scanTable) return false;
+    const focused = host.querySelector(".is-focus");
+    if (focused && typeof focused.focus === "function") {
+      focused.focus();
+    } else if (typeof scanTable.focus === "function") {
+      scanTable.focus();
+    }
+    return true;
+  }
+
   const node = document.getElementById("orb-config");
   const host = document.getElementById("energy-orb-host");
   const chatPanel = document.getElementById("chat-panel");
@@ -1973,6 +2037,23 @@
         tr.addEventListener("click", function () {
           focusDocUpload(row);
         });
+        tr.addEventListener("keydown", function (ev) {
+          onScanRowKeydown(ev, {
+            row: tr,
+            rows: function () {
+              return Array.prototype.slice.call(
+                docUploadsBody.querySelectorAll(".doc-scan-row")
+              );
+            },
+            activate: function (rowEl) {
+              const name = rowEl.getAttribute("data-filename") || "";
+              const match = rows.find(function (x) {
+                return (x.filename || "") === name;
+              });
+              focusDocUpload(match || null);
+            },
+          });
+        });
         docUploadsBody.appendChild(tr);
         if (!first) first = row;
       });
@@ -2114,9 +2195,25 @@
       tr.appendChild(titleTd);
       tr.appendChild(levelTd);
       tr.appendChild(kindTd);
+      tr.tabIndex = 0;
       tr.addEventListener("click", function () {
         syncReportListSelection(id);
         loadReportDetail(id);
+      });
+      tr.addEventListener("keydown", function (ev) {
+        onScanRowKeydown(ev, {
+          row: tr,
+          rows: function () {
+            return Array.prototype.slice.call(
+              rptScanBody.querySelectorAll(".rpt-scan-row")
+            );
+          },
+          activate: function (row) {
+            const rid = row.getAttribute("data-report-id") || "";
+            syncReportListSelection(rid);
+            loadReportDetail(rid);
+          },
+        });
       });
       rptScanBody.appendChild(tr);
     });
@@ -2298,6 +2395,7 @@
     if (!envs.length) {
       const empty = document.createElement("tr");
       empty.className = "settings-scan-empty";
+      empty.setAttribute("data-scan-quiet-empty", "1");
       empty.innerHTML = '<td colspan="3">No named environments yet</td>';
       setEnvScanBody.appendChild(empty);
       return;
@@ -2326,10 +2424,21 @@
         focusEnvironmentDetail(env, { focusField: true });
       });
       tr.addEventListener("keydown", function (ev) {
-        if (ev.key === "Enter" || ev.key === " ") {
-          ev.preventDefault();
-          focusEnvironmentDetail(env, { focusField: true });
-        }
+        onScanRowKeydown(ev, {
+          row: tr,
+          rows: function () {
+            return Array.prototype.slice.call(
+              setEnvScanBody.querySelectorAll(".settings-scan-row")
+            );
+          },
+          activate: function (row) {
+            const eid = row.getAttribute("data-env-id") || "";
+            const match = envs.find(function (e) {
+              return (e.id || "") === eid;
+            });
+            if (match) focusEnvironmentDetail(match, { focusField: false });
+          },
+        });
       });
       setEnvScanBody.appendChild(tr);
     });
@@ -3179,10 +3288,22 @@
         focusPlanCaseDetail(c, { focusField: false });
       });
       tr.addEventListener("keydown", function (ev) {
-        if (ev.key === "Enter" || ev.key === " ") {
-          ev.preventDefault();
-          focusPlanCaseDetail(c, { focusField: false });
-        }
+        onScanRowKeydown(ev, {
+          row: tr,
+          rows: function () {
+            return Array.prototype.slice.call(
+              planCasesScanBody.querySelectorAll(".plan-cases-scan-row")
+            );
+          },
+          activate: function (row) {
+            const cid = row.getAttribute("data-case-id") || "";
+            const match = openPlanCases.find(function (x) {
+              return String(x.id || "") === cid;
+            });
+            if (match) focusPlanCaseDetail(match, { focusField: false });
+            else focusPlanCaseDetail(c, { focusField: false });
+          },
+        });
       });
 
       planCasesScanBody.appendChild(tr);
@@ -3263,8 +3384,26 @@
       tr.appendChild(tdStory);
       tr.appendChild(tdGap);
       tr.appendChild(tdSummary);
+      tr.tabIndex = 0;
       tr.addEventListener("click", function () {
         focusCoverageGapDetail(r);
+      });
+      tr.addEventListener("keydown", function (ev) {
+        onScanRowKeydown(ev, {
+          row: tr,
+          rows: function () {
+            return Array.prototype.slice.call(
+              planCoverageScanBody.querySelectorAll(".plan-coverage-scan-row")
+            );
+          },
+          activate: function (row) {
+            const key = row.dataset.storyKey || "";
+            const match = rows.find(function (x) {
+              return (x.key || "") === key;
+            });
+            if (match) focusCoverageGapDetail(match);
+          },
+        });
       });
       planCoverageScanBody.appendChild(tr);
     });
@@ -3390,9 +3529,34 @@
         td.textContent = text;
         tr.appendChild(td);
       });
+      tr.tabIndex = 0;
       tr.addEventListener("click", function () {
         syncTraceDetail(r);
         openTraceabilityRow(r);
+      });
+      tr.addEventListener("keydown", function (ev) {
+        onScanRowKeydown(ev, {
+          row: tr,
+          rows: function () {
+            return Array.prototype.slice.call(
+              planTraceScanBody.querySelectorAll(".plan-trace-scan-row")
+            );
+          },
+          activate: function (row) {
+            const sk = row.dataset.storyKey || "";
+            const cid = row.dataset.caseId || "";
+            const match = rows.find(function (x) {
+              return (
+                (x.story_key || "") === sk &&
+                (x.primary_case_id || "") === cid
+              );
+            });
+            if (match) {
+              syncTraceDetail(match);
+              openTraceabilityRow(match);
+            }
+          },
+        });
       });
       planTraceScanBody.appendChild(tr);
     });
@@ -3765,8 +3929,27 @@
       tr.appendChild(tdPass);
       tr.appendChild(tdFail);
       tr.appendChild(tdTag);
+      tr.tabIndex = 0;
       tr.addEventListener("click", function () {
         focusHistoryRunDetail(r);
+      });
+      tr.addEventListener("keydown", function (ev) {
+        onScanRowKeydown(ev, {
+          row: tr,
+          checkboxStop: ".plan-tabs-hit-cell",
+          rows: function () {
+            return Array.prototype.slice.call(
+              planHistoryScanBody.querySelectorAll(".plan-history-scan-row")
+            );
+          },
+          activate: function (row) {
+            const rid = row.dataset.suiteRunId || "";
+            const match = runs.find(function (x) {
+              return (x.id || "") === rid;
+            });
+            if (match) focusHistoryRunDetail(match);
+          },
+        });
       });
       planHistoryScanBody.appendChild(tr);
     });
@@ -4437,6 +4620,7 @@
       if (!rows || !rows.length) {
         const empty = document.createElement("tr");
         empty.className = "sec-scan-empty";
+        empty.setAttribute("data-scan-quiet-empty", "1");
         const td = document.createElement("td");
         td.colSpan = 3;
         td.textContent = "No backups yet";
@@ -4464,10 +4648,22 @@
           focusBackupRow(row.path || "", when);
         });
         tr.addEventListener("keydown", function (ev) {
-          if (ev.key === "Enter" || ev.key === " ") {
-            ev.preventDefault();
-            focusBackupRow(row.path || "", when);
-          }
+          onScanRowKeydown(ev, {
+            row: tr,
+            rows: function () {
+              return Array.prototype.slice.call(
+                secBackupScanBody.querySelectorAll(".sec-scan-row")
+              );
+            },
+            activate: function (rowEl) {
+              const p = rowEl.getAttribute("data-backup-path") || "";
+              const label =
+                (rowEl.querySelector("td") &&
+                  rowEl.querySelector("td").textContent) ||
+                "Restore";
+              focusBackupRow(p, label);
+            },
+          });
         });
         secBackupScanBody.appendChild(tr);
         if ((previous && previous === (row.path || "")) || (!previous && idx === 0)) {
@@ -4518,6 +4714,7 @@
       if (!rows.length) {
         const empty = document.createElement("tr");
         empty.className = "sec-scan-empty";
+        empty.setAttribute("data-scan-quiet-empty", "1");
         const td = document.createElement("td");
         td.colSpan = 3;
         td.textContent = "No local side-effect events yet.";
@@ -4556,10 +4753,17 @@
             focusAuditEntry(summary);
           });
           tr.addEventListener("keydown", function (ev) {
-            if (ev.key === "Enter" || ev.key === " ") {
-              ev.preventDefault();
-              tr.click();
-            }
+            onScanRowKeydown(ev, {
+              row: tr,
+              rows: function () {
+                return Array.prototype.slice.call(
+                  localAuditList.querySelectorAll(".sec-scan-row")
+                );
+              },
+              activate: function (rowEl) {
+                rowEl.click();
+              },
+            });
           });
           localAuditList.appendChild(tr);
           if (idx === 0) {
@@ -4703,7 +4907,7 @@
     if (suiteDetailTitle) suiteDetailTitle.textContent = "No test focused";
     if (suiteDetailHint) {
       suiteDetailHint.textContent =
-        "Click a row to inspect. Checkbox state is independent of focus.";
+        "Select a row. Checkbox state is independent of focus.";
     }
     if (suiteDetailName) suiteDetailName.value = "";
     if (suiteDetailFile) suiteDetailFile.value = "";
@@ -4876,17 +5080,18 @@
         focusSuiteDetail(tr, { focusField: false });
       });
       tr.addEventListener("keydown", function (ev) {
-        if (ev.key === "Enter" || ev.key === " ") {
-          if (
-            ev.target &&
-            ev.target.closest &&
-            ev.target.closest('[data-suite-checkbox-stop="1"]')
-          ) {
-            return;
-          }
-          ev.preventDefault();
-          focusSuiteDetail(tr, { focusField: false });
-        }
+        onScanRowKeydown(ev, {
+          row: tr,
+          checkboxStop: '[data-suite-checkbox-stop="1"]',
+          rows: function () {
+            return Array.prototype.slice.call(
+              suiteScanBody.querySelectorAll(".suite-scan-row")
+            );
+          },
+          activate: function (row) {
+            focusSuiteDetail(row, { focusField: false });
+          },
+        });
       });
 
       suiteScanBody.appendChild(tr);
@@ -4974,6 +5179,7 @@
     if (!rows.length) {
       const empty = document.createElement("tr");
       empty.className = "ms-scan-empty";
+      empty.setAttribute("data-scan-quiet-empty", "1");
       const td = document.createElement("td");
       td.colSpan = 4;
       td.textContent = "Sandboxes: (none configured)";
@@ -5012,10 +5218,22 @@
         focusSandboxDetail(s);
       });
       tr.addEventListener("keydown", function (ev) {
-        if (ev.key === "Enter" || ev.key === " ") {
-          ev.preventDefault();
-          focusSandboxDetail(s);
-        }
+        onScanRowKeydown(ev, {
+          row: tr,
+          rows: function () {
+            return Array.prototype.slice.call(
+              msScanBody.querySelectorAll(".ms-scan-row")
+            );
+          },
+          activate: function (row) {
+            const sid = row.getAttribute("data-ms-id") || "";
+            const match = msSandboxCache.find(function (x) {
+              return String(x.id || "") === sid;
+            });
+            if (match) focusSandboxDetail(match);
+            else focusSandboxDetail(s);
+          },
+        });
       });
       msScanBody.appendChild(tr);
     });
@@ -6026,7 +6244,7 @@
               return (
                 '<tr class="manual-scan-row' +
                 focusClass +
-                '" data-session-id="' +
+                '" tabindex="0" data-session-id="' +
                 sid +
                 '" data-session-status="' +
                 String(s.status || "").replace(/"/g, "") +
@@ -6531,7 +6749,7 @@
     if (healDetailTitle) healDetailTitle.textContent = "No proposal focused";
     if (healDetailHint) {
       healDetailHint.textContent =
-        "Sel is multi-select only. Row click focuses. Approve and Reject act on the focused id only.";
+        "Select a row. Sel is multi-select only. Approve and Reject act on the focused id only.";
     }
     if (healDetailId) healDetailId.value = "";
     if (healDetailDiff) healDetailDiff.textContent = "";
@@ -6656,17 +6874,18 @@
         focusHealDetail(tr, { focusField: false });
       });
       tr.addEventListener("keydown", function (ev) {
-        if (ev.key === "Enter" || ev.key === " ") {
-          if (
-            ev.target &&
-            ev.target.closest &&
-            ev.target.closest('[data-heal-checkbox-stop="1"]')
-          ) {
-            return;
-          }
-          ev.preventDefault();
-          focusHealDetail(tr, { focusField: false });
-        }
+        onScanRowKeydown(ev, {
+          row: tr,
+          checkboxStop: '[data-heal-checkbox-stop="1"]',
+          rows: function () {
+            return Array.prototype.slice.call(
+              healScanBody.querySelectorAll(".heal-scan-row")
+            );
+          },
+          activate: function (row) {
+            focusHealDetail(row, { focusField: false });
+          },
+        });
       });
 
       healScanBody.appendChild(tr);
@@ -6913,8 +7132,17 @@
       const appOpen = !!(appDrawer && appDrawer.classList.contains("open"));
       const screenOpen = !!(screenDrawer && screenDrawer.classList.contains("open"));
       if (!hubOpen && !openAreaName && !appOpen && !screenOpen) return;
-      if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA")) {
+      if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA" || ev.target.tagName === "SELECT")) {
+        /* KAN-348: Esc from detail fields returns to scan first (never side-effect confirms). */
+        if (focusScanFromDetail(ev.target)) {
+          ev.preventDefault();
+          ev.target.blur();
+          return;
+        }
         ev.target.blur();
+      } else if (focusScanFromDetail(ev.target)) {
+        ev.preventDefault();
+        return;
       }
       if (backToOrbFromKeyboard()) {
         ev.preventDefault();
@@ -9924,15 +10152,13 @@
     });
   }
   if (manualSessionList) {
-    manualSessionList.addEventListener("click", function (ev) {
-      const t = ev.target;
-      if (!t || !t.closest) return;
-      const row = t.closest("tr.manual-scan-row");
+    function activateManualScanRow(row) {
       if (!row) return;
       const sid = row.getAttribute("data-session-id") || "";
       if (!sid) return;
       const reviewable = row.getAttribute("data-reviewable") === "1";
-      const charterCell = row.cells && row.cells[1] ? row.cells[1].textContent : "";
+      const charterCell =
+        row.cells && row.cells[1] ? row.cells[1].textContent : "";
       focusManualSessionRow({
         id: sid,
         charter: charterCell,
@@ -9947,6 +10173,28 @@
         return;
       }
       reopenManualFromLibrary(sid);
+    }
+    manualSessionList.addEventListener("click", function (ev) {
+      const t = ev.target;
+      if (!t || !t.closest) return;
+      const row = t.closest("tr.manual-scan-row");
+      if (!row) return;
+      activateManualScanRow(row);
+    });
+    manualSessionList.addEventListener("keydown", function (ev) {
+      const t = ev.target;
+      if (!t || !t.closest) return;
+      const row = t.closest("tr.manual-scan-row");
+      if (!row) return;
+      onScanRowKeydown(ev, {
+        row: row,
+        rows: function () {
+          return Array.prototype.slice.call(
+            manualSessionList.querySelectorAll(".manual-scan-row")
+          );
+        },
+        activate: activateManualScanRow,
+      });
     });
   }
   if (manualStart) {
@@ -10993,17 +11241,16 @@
       focusDesktopDetail();
     });
     deskScanRow.addEventListener("keydown", function (ev) {
-      if (ev.key === "Enter" || ev.key === " ") {
-        if (
-          ev.target &&
-          ev.target.closest &&
-          ev.target.closest('[data-desk-checkbox-stop="1"]')
-        ) {
-          return;
-        }
-        ev.preventDefault();
-        focusDesktopDetail();
-      }
+      onScanRowKeydown(ev, {
+        row: deskScanRow,
+        checkboxStop: '[data-desk-checkbox-stop="1"]',
+        rows: function () {
+          return [deskScanRow];
+        },
+        activate: function () {
+          focusDesktopDetail();
+        },
+      });
     });
   }
 
@@ -11444,6 +11691,21 @@
           }
           focusDocDiffKey(key, entry);
         });
+        tr.addEventListener("keydown", function (ev) {
+          onScanRowKeydown(ev, {
+            row: tr,
+            checkboxStop: '[data-doc-keep-stop="1"]',
+            rows: function () {
+              return Array.prototype.slice.call(
+                docDiff.querySelectorAll(".doc-scan-row")
+              );
+            },
+            activate: function (rowEl) {
+              const k = rowEl.getAttribute("data-key") || "";
+              focusDocDiffKey(k, diff[k] || {});
+            },
+          });
+        });
         docDiff.appendChild(tr);
       });
       if (keys.length) {
@@ -11715,10 +11977,18 @@
       focusPrivArtifact(row.getAttribute("data-priv-artifact") || "reports");
     });
     row.addEventListener("keydown", function (ev) {
-      if (ev.key === "Enter" || ev.key === " ") {
-        ev.preventDefault();
-        focusPrivArtifact(row.getAttribute("data-priv-artifact") || "reports");
-      }
+      onScanRowKeydown(ev, {
+        row: row,
+        checkboxStop: '[data-sec-checkbox-stop="1"]',
+        rows: function () {
+          return Array.prototype.slice.call(
+            document.querySelectorAll("#sec-privacy-scan .sec-scan-row")
+          );
+        },
+        activate: function (rowEl) {
+          focusPrivArtifact(rowEl.getAttribute("data-priv-artifact") || "reports");
+        },
+      });
     });
   });
   document.querySelectorAll('[data-sec-checkbox-stop="1"]').forEach(function (input) {
@@ -11739,10 +12009,18 @@
       focusReportBlock(row.getAttribute("data-report-block") || "summary");
     });
     row.addEventListener("keydown", function (ev) {
-      if (ev.key === "Enter" || ev.key === " ") {
-        ev.preventDefault();
-        focusReportBlock(row.getAttribute("data-report-block") || "summary");
-      }
+      onScanRowKeydown(ev, {
+        row: row,
+        checkboxStop: '[data-settings-checkbox-stop="1"]',
+        rows: function () {
+          return Array.prototype.slice.call(
+            document.querySelectorAll("#set-rpt-scan .settings-scan-row")
+          );
+        },
+        activate: function (rowEl) {
+          focusReportBlock(rowEl.getAttribute("data-report-block") || "summary");
+        },
+      });
     });
   });
   document.querySelectorAll('[data-settings-checkbox-stop="1"]').forEach(function (input) {

@@ -16,7 +16,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | TRACK3-UX | Enterprise area density (FR-UI-10) — Primary geometry | done | Epic **KAN-307** Primary Done (**KAN-320**/321 + **KAN-323** desk106); Lab follow-on |
 | TRACK3-LAB | Lab area density (Heal/Desktop/Suites/Sandboxes) | later | After TRACK3-UX Primary |
 | TRACK4-LAYOUT | Secondary area layout grammar (FR-UI-11) — Settings template first | done | Settings **KAN-324** … Sandboxes Lab **KAN-345** (**desk118** / test **KAN-346**) — rest-of-App inherit complete |
-| TRACK5-LAYOUT | FR-UI-11 structure pack — all secondary areas (empty / keyboard / scroll + Plans/Docs/Heal/Lab craft) | now | Epic + stories from Bridge 2026-11-22; mockups `docs/mockups/layout_enhancement_pack/`; Phase 2 evidence-first later in same epic |
+| TRACK5-LAYOUT | FR-UI-11 structure pack — all secondary areas (empty / keyboard / scroll + Plans/Docs/Heal/Lab craft) | now | **KAN-348** Done (**desk119** / test **KAN-349**). Active **KAN-350** Plans compact+sections. Then **KAN-352**; Phase 2 **KAN-354** after Phase 1 |
 | FR-MAN-2 | Live assist / circles | later | Parked until FR-MAN-1 **completion** + DPIA (H1 §10) |
 | TESTALL-E | Test-all E privacy / audit / recovery | done | E1–E5 Done (**KAN-201** desk66); UI-LAB-MENU Done |
 | TESTALL-F | Test-all F role HUD / UX — F1–F7 | done | F7 Done (**KAN-215** desk73); F6 Done (**KAN-213** desk72) |

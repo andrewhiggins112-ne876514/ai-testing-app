@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-22 (TRACK5-LAYOUT Bridge — Active KAN-348)
+Last updated: 2026-11-22 (KAN-348 desk119 — Active KAN-350)
 
 ## Original Vision
 A downloadable local-first **“test all”** application. The tester connects once (Jira, targets, docs, security level) and does testing work **inside the app**. Conversation (text first; voice later as a plugin) is the way in; the **orb + chat home is one home for everyone**; role needs are **HUD widgets**; App areas are full-window work.
@@ -152,7 +152,7 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-221** G3 Contract/mock — **Done** (KAN-222; `plugins/contract_mock.py`; desk76)
 - **KAN-223** G4 Seed data and fixtures — **Done** (KAN-224; `plugins/seed_fixture.py` + `plans/seed_case.py`; `source.kind=seed`; run stores name; missing → environment; desk77)
 - **KAN-225** G5 Visual baseline screenshots — **Done** (KAN-226; `plugins/visual_baseline.py` + `plans/visual_case.py`; `source.kind=visual`; mismatch links both images; explicit update-baseline; desk78)
-- Next Active: **KAN-348** TRACK5-LAYOUT-1 — all-areas quiet empty / keyboard / scroll (test **KAN-349**; epic **KAN-347**). Queued **KAN-350**, **KAN-352**; Phase 2 **KAN-354**. After TRACK5 → TRACK3-LAB → real Playwright trace deepen. **KAN-81** Voice — **parked** (mic). **FR-MAN-2** parked (DPIA).
+- Next Active: **KAN-350** TRACK5-LAYOUT-2 — Plans compact booleans + case sections (test **KAN-351**; epic **KAN-347**). **KAN-348** Done (**desk119** / **KAN-349**). Queued **KAN-352**; Phase 2 **KAN-354**. After TRACK5 → TRACK3-LAB → real Playwright trace deepen. **KAN-81** Voice — **parked** (mic). **FR-MAN-2** parked (DPIA).
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -175,6 +175,6 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-348** — All areas: quiet empty, keyboard scan, one scroll per pane (test **KAN-349**). Then **KAN-350**, **KAN-352**. Phase 2 **KAN-354** after Phase 1.
+1. **KAN-350** — Plans compact booleans and case detail sections (test **KAN-351**). Then **KAN-352**. Phase 2 **KAN-354** after Phase 1.
 2. After TRACK5: **TRACK3-LAB** Lab density (FR-UI-10), then deepen Playwright **trace** (replace `trace.notice.txt`).
 3. **Parked:** **KAN-81** voice, **FR-MAN-2**, CI build, H3 network share, Xray, Selenium/Cypress real runners.
