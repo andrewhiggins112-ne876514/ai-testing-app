@@ -1812,17 +1812,29 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 }
 
 /* KAN-329 / FR-UI-11 — Plans Cases inherit scan table + detail */
+#app-section-plans[data-plan-cases-layout-grammar="1"] #plan-panel-cases,
+#plan-panel-cases[data-plan-cases-layout-grammar="1"] {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
 #app-section-plans[data-plan-cases-layout-grammar="1"] .plan-cases-grammar-split,
 #plan-panel-cases[data-plan-cases-layout-grammar="1"] .plan-cases-grammar-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
+  flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
 }
 
 #plan-panel-cases[data-plan-cases-layout-grammar="1"] .plan-cases-scan-pane {
   min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -1899,7 +1911,9 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
-  max-height: min(70vh, 640px);
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
   overflow: hidden;
 }
 
@@ -1934,19 +1948,22 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 #plan-panel-cases[data-plan-case-sections="1"] .plan-case-detail-live {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
   gap: 0;
 }
 
 #plan-panel-cases[data-plan-case-sections="1"] .plan-case-detail-scroll {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   padding-bottom: var(--space-2);
+  -webkit-overflow-scrolling: touch;
 }
 
 #plan-panel-cases[data-plan-case-sections="1"] .plan-case-sec {
@@ -1956,6 +1973,7 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 #plan-panel-cases[data-plan-case-sections="1"] .plan-case-sec > .orb-section-label {
@@ -1965,12 +1983,14 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 }
 
 #plan-panel-cases[data-plan-case-sections="1"] .plan-case-detail-pin {
-  flex-shrink: 0;
+  flex: 0 0 auto;
   display: flex;
   gap: 8px;
   padding: var(--space-2) 0 0;
   border-top: 1px solid var(--cyan-border, rgba(80, 205, 255, 0.28));
   background: rgba(0, 0, 0, 0.55);
+  position: relative;
+  z-index: 1;
 }
 
 #plan-panel-cases[data-plan-case-focused="0"] #plan-case-detail-live {
@@ -1979,6 +1999,11 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 
 #plan-panel-cases[data-plan-case-focused="1"] #plan-case-unfocused {
   display: none;
+}
+
+#plan-panel-cases[data-plan-case-focused="1"] #plan-case-detail-title,
+#plan-panel-cases[data-plan-case-focused="1"] #plan-case-detail-hint {
+  flex: 0 0 auto;
 }
 
 @media (max-width: 900px) {
@@ -1991,7 +2016,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
     border-top: 1px solid var(--cyan-border, rgba(80, 205, 255, 0.28));
     padding-left: 0;
     padding-top: var(--space-3);
-    max-height: none;
+    height: auto;
+    max-height: min(70vh, 640px);
   }
 }
 

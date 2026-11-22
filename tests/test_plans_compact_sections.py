@@ -8,16 +8,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class PlansCompactSectionsTests(unittest.TestCase):
-    def test_plans_compact_booleans_and_case_sections_desk120(self) -> None:
+    def test_plans_compact_booleans_and_case_sections_desk121(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk120", html)
-        self.assertIn("desk120", desk)
-        self.assertIn("desktop.css?v=desk120", html)
-        self.assertIn("desktop.js?v=desk120", html)
+        self.assertIn("desk121", html)
+        self.assertIn("desk121", desk)
+        self.assertIn("desktop.css?v=desk121", html)
+        self.assertIn("desktop.js?v=desk121", html)
 
         plans = html.split('id="app-section-plans"', 1)[1].split(
             'id="app-section-manual"', 1
@@ -108,6 +108,27 @@ class PlansCompactSectionsTests(unittest.TestCase):
         self.assertIn(".plan-case-detail-pin", css)
         self.assertIn(".plan-case-detail-scroll", css)
         self.assertIn("data-plan-case-focused", css)
+
+        # KAN-356 — detail scroll chain: pane clips, body scrolls (not outer clip only).
+        self.assertIn('data-scan-scroll="detail"', detail)
+        aside_open = cases.split('id="plan-case-detail-pane"', 1)[1].split(">", 1)[0]
+        self.assertNotIn("data-scan-scroll", aside_open)
+        scroll_rule = css.split(
+            "#plan-panel-cases[data-plan-case-sections=\"1\"] .plan-case-detail-scroll",
+            1,
+        )[1].split("}", 1)[0]
+        self.assertIn("overflow: auto", scroll_rule)
+        pane_rule = css.split(
+            "#plan-panel-cases[data-plan-cases-layout-grammar=\"1\"] .plan-case-detail-pane",
+            1,
+        )[1].split("}", 1)[0]
+        self.assertIn("overflow: hidden", pane_rule)
+        self.assertIn("height: 100%", pane_rule)
+        split_rule = css.split(
+            "#plan-panel-cases[data-plan-cases-layout-grammar=\"1\"] .plan-cases-grammar-split",
+            1,
+        )[1].split("}", 1)[0]
+        self.assertIn("align-items: stretch", split_rule)
 
         # JS focus chrome shows pin only when a case is focused.
         self.assertIn("function syncPlanCaseDetailFocusChrome", js)

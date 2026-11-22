@@ -15,7 +15,7 @@
 | **Spec** | FR-UI-11 enhancement (TRACK5) |
 | **Git** | `main` |
 | **Test ticket** | **KAN-353** |
-| **Shipped** | **KAN-350** Plans compact+sections **desk120**; **KAN-348** scan craft **desk119**; TRACK4 through **KAN-345** |
+| **Shipped** | **KAN-350** Plans compact+sections + **KAN-356** detail scroll fix **desk121**; **KAN-348** **desk119**; TRACK4 through **KAN-345** |
 | **Queued (same epic)** | **KAN-354**/355 Phase 2 evidence-first (after Phase 1) |
 | **Deferred** | **TRACK3-LAB** Lab density (after TRACK5); **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
 | **Next / Shipped** | Pick up **KAN-352**. Do **not** start TRACK3-LAB / voice / FR-MAN-2 / Phase 2 (**KAN-354**) until Phase 1 stories Done. |
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — KAN-356 — Plans Cases detail scroll clip (desk121)
+- **Agent/chat:** Cursor IDE Agent (Composer) — human report after KAN-350
+- **Done:** Bug **KAN-356** (Relates **KAN-350**/351). Root cause: detail pane overflow:hidden without height constrained to area-work, so inner scroll never activated and outer clipped. Fix: stretch fill height on panel/split; scroll on `.plan-case-detail-scroll` (`data-scan-scroll=detail`); pin stays fixed. Cache-bust **desk121**.
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop_app.py`, `tests/test_plans_compact_sections.py`
+- **Verify:** focused plans compact/layout suite — 10 passed. Spot-check: Plans → Cases → focus row → scroll Quarantine/Known issue; Save/Run visible.
+- **Jira:** Bug **KAN-356** Fix comment + Done
+- **Next:** Active remains **KAN-352**
 
 ### 2026-11-22 — KAN-350 — Plans compact booleans and case sections (desk120)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-350

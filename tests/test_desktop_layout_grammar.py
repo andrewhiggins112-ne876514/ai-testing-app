@@ -8,16 +8,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class DesktopLayoutGrammarTests(unittest.TestCase):
-    def test_desktop_fr_ui11_grammar_markers_desk120(self) -> None:
+    def test_desktop_fr_ui11_grammar_markers_desk121(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk120", html)
-        self.assertIn("desk120", desk)
-        self.assertIn("desktop.css?v=desk120", html)
-        self.assertIn("desktop.js?v=desk120", html)
+        self.assertIn("desk121", html)
+        self.assertIn("desk121", desk)
+        self.assertIn("desktop.css?v=desk121", html)
+        self.assertIn("desktop.js?v=desk121", html)
 
         desktop = html.split('id="app-section-desktop"', 1)[1].split(
             'id="app-section-plans"', 1

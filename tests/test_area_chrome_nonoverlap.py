@@ -9,13 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AreaChromeNonoverlapTests(unittest.TestCase):
-    def test_markers_and_desk120(self):
+    def test_markers_and_desk121(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk120", html)
-        self.assertIn("desk120", desk)
+        self.assertIn("desk121", html)
+        self.assertIn("desk121", desk)
         self.assertIn('data-area-chrome-nonoverlap="1"', html)
         self.assertEqual(html.count('data-area-work="1"'), 10)
         for section in (
