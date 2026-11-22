@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Plans remaining tabs — themed</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="rest.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Preferred.</strong> Plans tabs other than Cases. Cases stays KAN-329. Synthetic keys only. Click a tab.</p>
+<div class="stage" data-plans-tabs-layout-grammar="1">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Plans</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+
+<div class="toolbar"><span>Plan</span><span class="fake">Checkout smoke</span><button class="btn" type="button">Open</button><button class="btn" type="button">Refresh</button><span class="status">Ready</span></div>
+
+<div class="area-tabs" role="tablist" data-plans-tabs-layout-grammar="1">
+  <button type="button" role="tab" data-panel="draft">Draft</button>
+  <button type="button" role="tab" class="owned" data-panel="cases" title="KAN-329 owns Cases">Cases · KAN-329</button>
+  <button type="button" role="tab" data-panel="coverage" aria-selected="true">Coverage</button>
+  <button type="button" role="tab" data-panel="trace">Trace</button>
+  <button type="button" role="tab" data-panel="history">History</button>
+  <button type="button" role="tab" data-panel="run">Run</button>
+</div>
+
+<div class="split two panel" data-panel="coverage">
+  <div class="work">
+    <h3>Coverage gaps</h3>
+    <p class="hint">Stories with no case, or all cases disabled. Refresh does not create cases.</p>
+    <table class="scan" data-plan-coverage-scan="1">
+<thead><tr><th>Story</th><th>Gap</th><th>Summary</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus"><td>KAN-410</td><td><span class="pill warn">No case</span></td><td>Checkout totals</td></tr>
+<tr class="row-hit "><td>KAN-411</td><td><span class="pill idle">All disabled</span></td><td>Guest search</td></tr>
+</tbody>
+</table>
+  </div>
+  <aside class="detail">
+  <h3>Gap detail</h3>
+  
+    <label class="field">Story<input class="fake" value="KAN-410" readonly /></label>
+    <label class="field">Summary<input class="fake" value="Checkout totals" readonly /></label>
+    <p class="hint">Row click focuses this pane. No checkbox. Creating a case stays on Cases (KAN-329).</p>
+  
+</aside>
+</div><div class="split two panel" data-panel="trace" hidden>
+  <div class="work">
+    <h3>Traceability</h3>
+    <table class="scan" data-plan-trace-scan="1">
+<thead><tr><th>Story</th><th>Cases</th><th>Last</th><th>Bugs</th><th>Known</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus"><td>KAN-410</td><td>2</td><td><span class="pill warn">Fail</span></td><td>KAN-88</td><td>No</td></tr>
+<tr class="row-hit "><td>KAN-412</td><td>1</td><td><span class="pill ok">Pass</span></td><td>—</td><td>No</td></tr>
+</tbody>
+</table>
+  </div>
+  <aside class="detail">
+  <h3>Trace row</h3>
+  
+    <p class="hint">Row click opens that case in Cases. This story does not redraw the Cases editor (KAN-329).</p>
+    <button class="btn" type="button">Open case</button>
+  
+</aside>
+</div><div class="split two panel" data-panel="history" hidden>
+  <div class="work">
+    <h3>Suite history</h3>
+    <p class="hint">A and B are dedicated radio cells. Row click focuses the run. Compare uses the radios.</p>
+    <table class="scan" data-plan-history-scan="1">
+<thead><tr><th class="hit">A</th><th class="hit">B</th><th>Time</th><th>Dur</th><th>Pass</th><th>Fail</th><th>Tag</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus"><td class="hit"><input type="radio" name="hist-a" checked aria-label="Compare A" /></td><td class="hit"><input type="radio" name="hist-b" aria-label="Compare B" /></td><td>22 Nov 09:10</td><td>42s</td><td>8</td><td>1</td><td>smoke</td></tr>
+<tr class="row-hit "><td class="hit"><input type="radio" name="hist-a" aria-label="Compare A" /></td><td class="hit"><input type="radio" name="hist-b" checked aria-label="Compare B" /></td><td>21 Nov 18:02</td><td>40s</td><td>9</td><td>0</td><td>smoke</td></tr>
+</tbody>
+</table>
+  </div>
+  <aside class="detail">
+  <h3>Run focus</h3>
+  
+    <label class="field">Run id<input class="fake mono" value="run-synth-14" readonly /></label>
+    <p class="hint">Known issues stay labelled. Nothing uploads.</p>
+    <button class="btn primary" type="button">Compare A and B</button>
+  
+</aside>
+</div><div class="split two panel" data-panel="draft" hidden data-plan-draft-form="1">
+  <div class="work">
+    <h3>Draft &amp; import</h3>
+    <p class="hint">Compact form. Actions sit here, not on list rows. Import never deletes external Playwright files.</p>
+    <div class="stack">
+      <label class="field">Issue key<input class="fake" value="KAN-410" readonly /></label>
+      <label class="field">Document name<input class="fake" value="checkout-spec.md" readonly /></label>
+      <label class="field">Playwright path<input class="fake mono" value="D:\samples\shop-pw" readonly /></label>
+      <div class="btn-row">
+        <button class="btn primary" type="button">Draft from story</button>
+        <button class="btn" type="button">Import Playwright</button>
+      </div>
+    </div>
+  </div>
+  <aside class="detail">
+  <h3>Draft result</h3>
+  
+    <p class="hint">New cases land on Cases. This pane shows the last draft summary only.</p>
+    <p class="fake">3 draft cases · 0 written to Jira</p>
+  
+</aside></div><div class="split two panel" data-panel="run" hidden data-plan-run-sections="1">
+  <div class="work">
+    <h3>Run setup</h3>
+    <p class="hint">Stacked sections. Pause-on-fail is a compact checkbox, not a page-width row.</p>
+    <div class="stack">
+      <label class="field">Active environment<select class="fake"><option>lab-local</option></select></label>
+      <label class="field">Sandbox<select class="fake"><option>Normal browser profile</option></select></label>
+      <label class="field">Parallel<select class="fake"><option>1 — sequential</option></select></label>
+      <label class="field">Tag<input class="fake" value="smoke" readonly /></label>
+      <label class="compact-check"><input type="checkbox" /> Pause on fail</label>
+      <details><summary class="hint">Scheduled local run (collapsed)</summary><p class="hint">Off until saved. Missed slots are not a pass.</p></details>
+      <button class="btn primary" type="button">Run by tag</button>
+    </div>
+  </div>
+  <aside class="detail">
+  <h3>Run record</h3>
+  
+    <p class="hint">Credentials stay in Settings. Switching environment does not switch security level.</p>
+    <p class="fake">Environment: lab-local · Sandbox: default</p>
+  
+</aside></div><div class="panel" data-panel="cases" hidden>
+  <div class="work"><p class="owned-note">Cases scan + detail is Active Build KAN-329 / test KAN-330. This mock does not redraw it.</p></div>
+</div>
+</div>
+
+<script>
+document.querySelectorAll('.area-tabs button').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var id = btn.getAttribute('data-panel');
+    document.querySelectorAll('.area-tabs button').forEach(function (b) {
+      b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+    });
+    document.querySelectorAll('.panel').forEach(function (p) {
+      p.hidden = p.getAttribute('data-panel') !== id;
+    });
+  });
+});
+</script>
+</body>
+</html>

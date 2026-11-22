@@ -1,0 +1,77 @@
+/* Shared extras for secondary-area rest mockups.
+   Tokens live in ../settings_layout_grammar/grammar.css. Not product UI. */
+
+.split.two { grid-template-columns: 1fr 320px; }
+
+.area-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--cyan-border);
+  flex-shrink: 0;
+}
+
+.area-tabs button {
+  appearance: none;
+  font: var(--type-ui);
+  color: var(--text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.area-tabs button[aria-selected="true"] {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: var(--accent-soft);
+}
+
+.area-tabs button.owned { color: var(--muted); }
+
+.stage.auto { height: auto; min-height: 480px; }
+.stage + .stage { margin-top: 28px; }
+
+.compact-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: var(--type-ui);
+  color: var(--text);
+}
+
+.compact-check input { width: 14px; height: 14px; accent-color: var(--cyan); }
+
+.stack { display: flex; flex-direction: column; gap: 8px; }
+
+.owned-note {
+  margin: 0;
+  font: var(--type-help);
+  color: var(--warn);
+}
+
+.dock {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--cyan-border);
+  background: rgba(0, 0, 0, 0.45);
+}
+
+pre.diff {
+  margin: 0;
+  max-height: 160px;
+  overflow: auto;
+  font: 11px/1.4 ui-monospace, Consolas, monospace;
+  color: var(--text);
+  border: 1px solid var(--cyan-dim);
+  border-radius: 6px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.panel[hidden] { display: none !important; }

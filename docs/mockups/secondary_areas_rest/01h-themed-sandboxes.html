@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Sandboxes — themed</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="rest.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Preferred.</strong> Scan + detail. Synthetic hosts only. Enable is a compact toolbar checkbox.</p>
+<div class="stage" data-sandboxes-layout-grammar="1">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Sandboxes</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+
+<div class="toolbar">
+  <label class="compact-check"><input type="checkbox" checked /> Enable multi-sandbox</label>
+  <span>Action</span><span class="fake">list</span>
+  <button class="btn primary" type="button">Orchestrate</button>
+  <span class="status">2 / 4</span>
+</div>
+<div class="split two">
+  <div class="work">
+    <h3>Sandbox list</h3>
+    <p class="hint">No checkbox column. Row click focuses. Remove sits in the detail behind confirm.</p>
+    <table class="scan" data-ms-scan="1">
+<thead><tr><th>Id</th><th>Label</th><th>URL</th><th>Ready</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus"><td>primary</td><td>Sample shop</td><td>https://shop.example.test</td><td><span class="pill ok">Prepared</span></td></tr>
+<tr class="row-hit "><td>guest</td><td>Guest mirror</td><td>https://guest.example.test</td><td><span class="pill idle">Planned</span></td></tr>
+</tbody>
+</table>
+    <p class="owned-note">TRACK3-LAB density stays deferred. Local only. No cloud farms.</p>
+  </div>
+  <aside class="detail">
+  <h3>primary</h3>
+  
+    <label class="field">Label<input class="fake" value="Sample shop" readonly /></label>
+    <label class="field">URL<input class="fake mono" value="https://shop.example.test" readonly /></label>
+    <div class="btn-row"><button class="btn" type="button">Save sandbox</button></div>
+    <div class="danger-zone">
+      <button class="btn danger" type="button">Remove…</button>
+      <button class="btn" type="button" disabled>Confirm remove</button>
+    </div>
+  
+</aside>
+</div>
+</div></body>
+</html>

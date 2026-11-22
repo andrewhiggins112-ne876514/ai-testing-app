@@ -39,6 +39,22 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-22 — Studio CR — History A/B radios + Heal bulk approve
+- **Agent/chat:** Design Studio (Lane C) — Designer answered open questions
+- **Done:** (1) History compare locked as dedicated A/B radio cells. (2) Heal gains toolbar **Approve selected** on Sel cells + confirm; detail Approve/Reject remain; checkbox never means approve; no bulk reject. Updated mockups, Intent, Spec FR-UI-11, bridge script, Jira **KAN-331** comment + **KAN-339/340** rewrite.
+- **Files:** `docs/mockups/secondary_areas_rest/` (01e, wire, README, annotated, rejected, `_gen_mockups.py`), `DESIGN_INTENT.md`, `FUNCTIONAL_SPEC.md`, `scripts/jira_kan_fr_ui11_rest_bridge.py`, `scripts/jira_kan_studio_heal_bulk_cr.py`
+- **Verify:** Open `01e-themed-heal.html` + History panel in `01-themed-plans-tabs.html`. No product UI.
+- **Jira:** comments/rewrites on **KAN-331**, **KAN-339**, **KAN-340**
+- **Next:** Active stays **KAN-329**. Heal Build uses revised **KAN-339** when its turn comes.
+
+### 2026-11-22 — Studio — rest of App areas FR-UI-11 (design + Bridge)
+- **Agent/chat:** Design Studio (Lane C). Redesign + Bridge. Seats: Lead, Visual Critic, Layout, Code Mapper, Jira Shaper, Test Engineer.
+- **Done:** Mocked Plans tabs other than Cases, Reports, Documents, Security, Heal, Manual, Desktop, Sandboxes. Settings and Suites looks kept as the baseline. Plans Cases left to Active **KAN-329** / **KAN-330**. Spec FR-UI-11 extended (structure inherit only). Stories + strict tests created. Active slice **not** moved.
+- **Files:** `docs/mockups/secondary_areas_rest/`, `docs/mockups/DESIGN_INTENT.md`, `docs/FUNCTIONAL_SPEC.md`, `docs/ops/ROADMAP.md`, `scripts/jira_kan_fr_ui11_rest_bridge.py`. No product UI.
+- **Verify:** Static inventory of `ui/desktop/index.html` + `desktop.js` (dumps, `.check-row`, per-card Heal buttons). CU not run (mockups + markers; no product change).
+- **Jira:** **KAN-331/332** Plans tabs, **KAN-333/334** Reports, **KAN-335/336** Documents, **KAN-337/338** Security, **KAN-339/340** Heal, **KAN-341/342** Manual, **KAN-343/344** Desktop, **KAN-345/346** Sandboxes. Proposed addendum comment on **KAN-330** (description not rewritten).
+- **Next:** Active stays **KAN-329**. After that story is Done, Build order is KAN-331 → 333 → 335 → 337 → 339 → 341 → 343 → 345.
+
 ### 2026-11-22 — KAN-327 — Suites FR-UI-11 inherit (desk109)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-327
 - **Done:** Suites Lab area inherits FR-UI-11 grammar: compact scan table (Sel · Status · Title · File · Last) + detail pane; dedicated 28px checkbox cell with stopPropagation for multi-select Run selected; row click focuses detail (independent of checkbox); Run this test / Copy path in detail; Import stays under Advanced. Markers `data-suite-layout-grammar` / `data-suite-scan` / `data-suite-detail`. No section rail. Theme/orb/home/App nav untouched. Cache-bust **desk109**. CU not required (marker/pytest AC).

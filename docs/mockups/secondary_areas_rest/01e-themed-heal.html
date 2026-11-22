@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Heal review — themed</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="rest.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Preferred (Designer CR 2026-11-22).</strong> Scan + detail. Detail has Approve and Reject. Bulk approve uses dedicated Sel cells + toolbar (checkbox never means approve). Synthetic locator.</p>
+<div class="stage" data-heal-layout-grammar="1">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Heal review</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+
+<div class="toolbar">
+  <span>Run</span><span class="fake">All pending</span>
+  <button class="btn" type="button">Refresh</button>
+  <span class="status">2 pending</span>
+  <span class="toolbar-bulk" data-heal-bulk="1" hidden>
+    <button class="btn primary" type="button" id="heal-bulk-approve">Approve selected (2)</button>
+  </span>
+</div>
+<div class="split two">
+  <div class="work">
+    <h3>Pending proposals</h3>
+    <p class="hint">Sel = multi-select only (stopPropagation). Row click focuses. Approve is never the checkbox and never the row.</p>
+    <table class="scan" data-heal-scan="1">
+<thead><tr><th class="hit">Sel</th><th>Class</th><th>Locator</th><th>Run</th><th>When</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus"><td class="hit"><input type="checkbox" checked aria-label="Select heal-synth-3" /></td><td><span class="pill warn">Test defect</span></td><td>getByRole button Checkout</td><td>run-synth-14</td><td>22 Nov 09:14</td></tr>
+<tr class="row-hit "><td class="hit"><input type="checkbox" checked aria-label="Select heal-synth-2" /></td><td><span class="pill idle">Unclassified</span></td><td>css .pay</td><td>run-synth-11</td><td>21 Nov 16:02</td></tr>
+</tbody>
+</table>
+  </div>
+  <aside class="detail" data-heal-detail="1">
+  <h3>Proposal</h3>
+  
+    <label class="field">Id<input class="fake mono" value="heal-synth-3" readonly /></label>
+    <pre class="diff">locator: css .pay
+proposed: getByRole('button', { name: 'Pay' })
+assertion: unchanged</pre>
+    <p class="hint">Approve / Reject act on the focused proposal only. Bulk Approve selected lives in the toolbar and requires confirm. Suite files are not auto-committed.</p>
+    <div class="btn-row" data-heal-actions="1">
+      <button class="btn primary" type="button" id="heal-approve">Approve</button>
+      <button class="btn" type="button" id="heal-reject">Reject</button>
+    </div>
+  
+</aside>
+</div>
+</div>
+<script>
+(function () {
+  var bulk = document.querySelector('[data-heal-bulk]');
+  var btn = document.getElementById('heal-bulk-approve');
+  function sync() {
+    var n = document.querySelectorAll('[data-heal-scan] tbody input[type=checkbox]:checked').length;
+    if (!bulk || !btn) return;
+    bulk.hidden = n < 1;
+    btn.textContent = 'Approve selected (' + n + ')';
+  }
+  document.querySelectorAll('[data-heal-scan] tbody input[type=checkbox]').forEach(function (cb) {
+    cb.addEventListener('click', function (e) { e.stopPropagation(); sync(); });
+  });
+  sync();
+})();
+</script>
+</body>
+</html>
