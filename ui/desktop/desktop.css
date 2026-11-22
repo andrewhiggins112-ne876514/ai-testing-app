@@ -2853,6 +2853,130 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   }
 }
 
+/* KAN-335 — Documents FR-UI-11 (Propose/Uploads scan + Keep cell) */
+#app-section-documents[data-documents-layout-grammar="1"] .doc-section-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2);
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-tab {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 35%, transparent);
+  background: transparent;
+  color: var(--muted, #9bb4c4);
+  font: var(--type-meta);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: var(--space-1) 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-tab[aria-selected="true"] {
+  color: var(--text, #e8f4ff);
+  border-color: var(--cyan, #50cdff);
+  background: color-mix(in srgb, var(--cyan, #50cdff) 16%, transparent);
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-panel[hidden] {
+  display: none !important;
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-grammar-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  gap: var(--space-3);
+  align-items: start;
+  min-height: 0;
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-scan-pane {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-scan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--type-ui);
+  max-height: min(48vh, 420px);
+  display: block;
+  overflow: auto;
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-scan-table thead,
+#app-section-documents[data-documents-layout-grammar="1"] .doc-scan-table tbody {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-scan-table th {
+  text-align: left;
+  font: var(--type-meta);
+  color: var(--muted, #9bb4c4);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--cyan-border, rgba(80, 205, 255, 0.28));
+  background: rgba(0, 0, 0, 0.35);
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-scan-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 12%, transparent);
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-scan-row {
+  cursor: pointer;
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-scan-row.is-focus td {
+  background: color-mix(in srgb, var(--cyan, #50cdff) 14%, transparent);
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-hit-th,
+#app-section-documents[data-documents-layout-grammar="1"] .doc-hit {
+  width: 28px;
+  text-align: center;
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-hit input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-detail-pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-2);
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
+  background: color-mix(in srgb, var(--panel, #0b1520) 88%, transparent);
+}
+
+#app-section-documents[data-documents-layout-grammar="1"] .doc-detail-pane .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@media (max-width: 900px) {
+  #app-section-documents[data-documents-layout-grammar="1"] .doc-grammar-split {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* KAN-318 — Settings + Security density (category / level chrome outside .area-work) */
 .settings-chrome-toolbar .settings-toolbar-actions {
   flex-wrap: nowrap;

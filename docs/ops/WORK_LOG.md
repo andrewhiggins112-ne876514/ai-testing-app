@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-335** Documents FR-UI-11 |
+| **Jira story** | **KAN-337** Security FR-UI-11 |
 | **Start task** | — |
 | **Epic** | — (TRACK4-LAYOUT rest) |
 | **Roadmap ID** | TRACK4-LAYOUT |
-| **Spec** | FR-UI-11 rest-of-App (Documents) |
+| **Spec** | FR-UI-11 rest-of-App (Security) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-336** |
-| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331**; Reports **KAN-333** desk112 |
+| **Test ticket** | **KAN-338** |
+| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331**; Reports **KAN-333**; Documents **KAN-335** desk113 |
 | **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2** |
-| **Next / Shipped** | Build pick-up implements **KAN-335**. Order after: 337 → 339 → 341 → 343 → 345. Do **not** implement Lab / voice / FR-MAN-2. |
+| **Next / Shipped** | Build pick-up implements **KAN-337**. Order after: 339 → 341 → 343 → 345. Do **not** implement Lab / voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — KAN-335 — Documents FR-UI-11 (desk113)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-335
+- **Done:** Documents inherits FR-UI-11: in-area Propose | Uploads tabs; proposal scan table (Keep · Key · From · To) with dedicated 28px Keep cell (stopPropagation); row click focuses Change detail; Confirm/Decline outside the scan table; uploads scan (Name · Time · Level · Consent) + detail (no body). Removed `check-row` / `doc-diff-row` / `#doc-uploads-list`. Marker `data-documents-layout-grammar`. Cache-bust **desk113**. Theme/orb/home/App nav untouched. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_documents_layout_grammar.py`, desk113 bump on related UI tests
+- **Verify:** `pytest tests/test_documents_layout_grammar.py tests/test_reports_documents_density.py tests/test_lab_areas_ia.py tests/test_reports_layout_grammar.py tests/test_reports_ia.py tests/test_reports_library.py tests/test_nav_overlap.py tests/test_plans_tabs_layout_grammar.py tests/test_plan_cases_layout_grammar.py tests/test_suite_layout_grammar.py tests/test_settings_layout_grammar.py tests/test_settings_hub.py tests/test_settings_security_density.py tests/test_occlusion_verify_ae.py tests/test_suites_ia.py tests/test_plans_ia.py` — 27 passed. Spot-check: `desktop_app.py` → App → Documents → Parse → Keep cell vs row → Uploads tab.
+- **Jira:** close-out **KAN-335** + **KAN-336**
+- **Next:** Active **KAN-337** Security FR-UI-11 (test **KAN-338**)
 
 ### 2026-11-22 — KAN-333 — Reports library FR-UI-11 (desk112)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-333

@@ -1760,39 +1760,124 @@
   const docDecline = document.getElementById("doc-decline");
   const docStatus = document.getElementById("doc-status");
   const docUploadsRefresh = document.getElementById("doc-uploads-refresh");
-  const docUploadsList = document.getElementById("doc-uploads-list");
+  const docUploadsBody = document.getElementById("doc-uploads-body");
+  const docDetailKey = document.getElementById("doc-detail-key");
+  const docDetailHint = document.getElementById("doc-detail-hint");
+  const docUploadDetailName = document.getElementById("doc-upload-detail-name");
+  const docUploadDetailHint = document.getElementById("doc-upload-detail-hint");
   let docProposalId = "";
+  let docFocusedKey = "";
+  let docFocusedUpload = "";
+
+  function showDocPanel(name) {
+    document.querySelectorAll(".doc-tab").forEach(function (btn) {
+      const on = btn.getAttribute("data-doc-panel") === name;
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    document.querySelectorAll(".doc-panel").forEach(function (panel) {
+      panel.hidden = panel.getAttribute("data-doc-panel") !== name;
+    });
+  }
+
+  document.querySelectorAll(".doc-tab").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      showDocPanel(btn.getAttribute("data-doc-panel") || "propose");
+    });
+  });
+
+  function focusDocDiffKey(key, entry) {
+    docFocusedKey = key || "";
+    if (docDetailKey) docDetailKey.value = key || "";
+    if (docDetailHint) {
+      if (!key) {
+        docDetailHint.textContent =
+          "Keep is a dedicated checkbox cell. Row click focuses the change. Confirm writes only checked keys after the existing confirm step. Decline writes nothing.";
+      } else {
+        const from = (entry && entry.from) || "(empty)";
+        const to = (entry && entry.to) || "";
+        docDetailHint.textContent = from + " → " + to;
+      }
+    }
+    if (docDiff) {
+      docDiff.querySelectorAll(".doc-scan-row").forEach(function (tr) {
+        tr.classList.toggle("is-focus", tr.getAttribute("data-key") === key);
+      });
+    }
+  }
+
+  function focusDocUpload(row) {
+    const name = (row && row.filename) || "";
+    docFocusedUpload = name;
+    if (docUploadDetailName) docUploadDetailName.value = name || "";
+    if (docUploadDetailHint) {
+      if (!row) {
+        docUploadDetailHint.textContent =
+          "Name, time, level, consent only. No document body in the list. Delete stays on Security → Privacy.";
+      } else {
+        docUploadDetailHint.textContent =
+          (row.uploaded_at || "") +
+          " · " +
+          (row.security_level || "?") +
+          " · consent " +
+          (row.consent ? "yes" : "no");
+      }
+    }
+    if (docUploadsBody) {
+      docUploadsBody.querySelectorAll(".doc-scan-row").forEach(function (tr) {
+        tr.classList.toggle(
+          "is-focus",
+          tr.getAttribute("data-filename") === name
+        );
+      });
+    }
+  }
 
   async function loadDocUploads() {
-    if (!docUploadsList) return;
+    if (!docUploadsBody) return;
     try {
       const res = await fetch("/api/doc-uploads");
       const data = await res.json();
-      docUploadsList.innerHTML = "";
+      docUploadsBody.innerHTML = "";
       const rows = (data && data.uploads) || [];
       if (!rows.length) {
-        const li = document.createElement("li");
-        li.textContent = "No local uploads yet.";
-        docUploadsList.appendChild(li);
+        focusDocUpload(null);
         return;
       }
+      let first = null;
       rows.forEach(function (row) {
-        const li = document.createElement("li");
-        li.textContent =
-          (row.filename || "upload") +
-          " · " +
-          (row.security_level || "?") +
-          " · " +
-          (row.uploaded_at || "") +
-          " · consent " +
-          (row.consent ? "yes" : "no");
-        docUploadsList.appendChild(li);
+        const tr = document.createElement("tr");
+        tr.className = "doc-scan-row";
+        tr.setAttribute("data-filename", row.filename || "");
+        tr.tabIndex = 0;
+        const tdName = document.createElement("td");
+        tdName.textContent = row.filename || "upload";
+        const tdTime = document.createElement("td");
+        tdTime.textContent = row.uploaded_at || "";
+        const tdLevel = document.createElement("td");
+        tdLevel.textContent = row.security_level || "?";
+        const tdConsent = document.createElement("td");
+        tdConsent.textContent = row.consent ? "Yes" : "No";
+        tr.appendChild(tdName);
+        tr.appendChild(tdTime);
+        tr.appendChild(tdLevel);
+        tr.appendChild(tdConsent);
+        tr.addEventListener("click", function () {
+          focusDocUpload(row);
+        });
+        docUploadsBody.appendChild(tr);
+        if (!first) first = row;
       });
+      const keep =
+        rows.find(function (r) {
+          return (r.filename || "") === docFocusedUpload;
+        }) || first;
+      focusDocUpload(keep);
     } catch (err) {
-      docUploadsList.innerHTML = "";
-      const li = document.createElement("li");
-      li.textContent = "Could not load uploads.";
-      docUploadsList.appendChild(li);
+      docUploadsBody.innerHTML = "";
+      focusDocUpload(null);
+      if (docUploadDetailHint) {
+        docUploadDetailHint.textContent = "Could not load uploads.";
+      }
     }
   }
 
@@ -10569,28 +10654,63 @@
 
   function renderDocProposal(payload) {
     docProposalId = payload.proposal_id || "";
+    showDocPanel("propose");
+    const diff = payload.settings_diff || {};
+    const keys = Object.keys(diff);
     if (docDiff) {
       docDiff.innerHTML = "";
-      const diff = payload.settings_diff || {};
-      const keys = Object.keys(diff);
-      if (!keys.length) {
-        docDiff.textContent = "No settings changes proposed.";
-      } else {
-        keys.forEach(function (key) {
-          const row = document.createElement("label");
-          row.className = "check-row doc-diff-row";
-          const box = document.createElement("input");
-          box.type = "checkbox";
-          box.checked = true;
-          box.dataset.key = key;
-          const span = document.createElement("span");
-          const entry = diff[key] || {};
-          span.textContent =
-            key + ": " + (entry.from || "(empty)") + " → " + (entry.to || "");
-          row.appendChild(box);
-          row.appendChild(span);
-          docDiff.appendChild(row);
+      keys.forEach(function (key) {
+        const entry = diff[key] || {};
+        const tr = document.createElement("tr");
+        tr.className = "doc-scan-row";
+        tr.setAttribute("data-key", key);
+        tr.tabIndex = 0;
+
+        const tdKeep = document.createElement("td");
+        tdKeep.className = "doc-hit";
+        tdKeep.setAttribute("data-doc-keep-cell", "1");
+        const box = document.createElement("input");
+        box.type = "checkbox";
+        box.checked = true;
+        box.dataset.key = key;
+        box.setAttribute("aria-label", "Keep " + key);
+        box.setAttribute("data-doc-keep-stop", "1");
+        box.addEventListener("click", function (ev) {
+          ev.stopPropagation();
         });
+        box.addEventListener("mousedown", function (ev) {
+          ev.stopPropagation();
+        });
+        tdKeep.appendChild(box);
+
+        const tdKey = document.createElement("td");
+        tdKey.textContent = key;
+        const tdFrom = document.createElement("td");
+        tdFrom.textContent = entry.from || "(empty)";
+        const tdTo = document.createElement("td");
+        tdTo.textContent = entry.to || "";
+
+        tr.appendChild(tdKeep);
+        tr.appendChild(tdKey);
+        tr.appendChild(tdFrom);
+        tr.appendChild(tdTo);
+        tr.addEventListener("click", function (ev) {
+          if (
+            ev.target &&
+            ev.target.closest &&
+            ev.target.closest('[data-doc-keep-stop="1"]')
+          ) {
+            return;
+          }
+          focusDocDiffKey(key, entry);
+        });
+        docDiff.appendChild(tr);
+      });
+      if (keys.length) {
+        const firstKey = keys[0];
+        focusDocDiffKey(firstKey, diff[firstKey] || {});
+      } else {
+        focusDocDiffKey("", null);
       }
     }
     if (docIdeas) {
@@ -10609,10 +10729,7 @@
       }
     }
     if (docProposal) {
-      docProposal.hidden = !(payload.settings_diff && Object.keys(payload.settings_diff).length);
-      if (payload.test_ideas && payload.test_ideas.length && docProposal.hidden) {
-        docProposal.hidden = false;
-      }
+      docProposal.hidden = !(keys.length || (payload.test_ideas && payload.test_ideas.length));
     }
   }
 
@@ -10703,6 +10820,8 @@
         }
         docProposalId = "";
         if (docProposal) docProposal.hidden = true;
+        if (docDiff) docDiff.innerHTML = "";
+        focusDocDiffKey("", null);
         if (docStatus) {
           const updated = Object.keys(data.updated || {});
           docStatus.textContent =
@@ -10734,6 +10853,8 @@
         });
         docProposalId = "";
         if (docProposal) docProposal.hidden = true;
+        if (docDiff) docDiff.innerHTML = "";
+        focusDocDiffKey("", null);
         if (docStatus) docStatus.textContent = "Declined. Settings file unchanged.";
       } catch (err) {
         if (docStatus) docStatus.textContent = "Could not decline proposal.";

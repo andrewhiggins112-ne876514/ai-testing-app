@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk112" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk113" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -676,7 +676,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-documents" class="app-section" hidden data-lab-areas-ia="1" data-documents-ia="1" data-reports-documents-density="1">
+        <div id="app-section-documents" class="app-section" hidden data-lab-areas-ia="1" data-documents-ia="1" data-reports-documents-density="1" data-documents-layout-grammar="1">
           <div id="doc-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar doc-chrome-toolbar" data-doc-chrome="1">
             <div class="btn-row lab-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="doc-parse" class="save-btn">Parse &amp; propose</button>
@@ -686,21 +686,71 @@
           </div>
           <div class="area-work" data-area-work="1">
           <div id="doc-primary" class="lab-primary" data-doc-primary="1">
-            <label class="stack-label">Spec text
-              <textarea id="doc-text" rows="8" placeholder="# Spec&#10;Target: https://example.com&#10;Jira project: KAN"></textarea>
-            </label>
-            <div id="doc-proposal" class="doc-proposal" hidden>
-              <h4 class="orb-section-label">Proposal / diff</h4>
-              <div id="doc-diff" class="doc-diff"></div>
-              <h4 class="orb-section-label">Test ideas</h4>
-              <ul id="doc-ideas" class="doc-ideas"></ul>
-              <div class="btn-row">
-                <button type="button" id="doc-confirm" class="save-btn">Confirm selected</button>
-                <button type="button" id="doc-decline" class="save-btn secondary">Decline</button>
+            <div class="doc-section-tabs" role="tablist" aria-label="Documents sections" data-doc-section-tabs="1">
+              <button type="button" class="doc-tab" role="tab" id="doc-tab-propose" data-doc-panel="propose" aria-selected="true" aria-controls="doc-panel-propose">Propose</button>
+              <button type="button" class="doc-tab" role="tab" id="doc-tab-uploads" data-doc-panel="uploads" aria-selected="false" aria-controls="doc-panel-uploads">Uploads</button>
+            </div>
+            <div id="doc-panel-propose" class="doc-panel" role="tabpanel" data-doc-panel="propose" aria-labelledby="doc-tab-propose">
+              <div class="doc-grammar-split">
+                <div class="doc-scan-pane">
+                  <label class="stack-label">Spec text
+                    <textarea id="doc-text" rows="8" placeholder="# Spec&#10;Target: https://example.com&#10;Jira project: KAN"></textarea>
+                  </label>
+                  <div id="doc-proposal" class="doc-proposal" hidden>
+                    <h4 class="orb-section-label">Proposal</h4>
+                    <table id="doc-diff-scan" class="doc-scan-table" role="grid" aria-label="Proposed settings changes" data-doc-diff-scan="1">
+                      <thead>
+                        <tr>
+                          <th scope="col" class="doc-hit-th">Keep</th>
+                          <th scope="col">Key</th>
+                          <th scope="col">From</th>
+                          <th scope="col">To</th>
+                        </tr>
+                      </thead>
+                      <tbody id="doc-diff"></tbody>
+                    </table>
+                    <h4 class="orb-section-label">Test ideas</h4>
+                    <ul id="doc-ideas" class="doc-ideas"></ul>
+                  </div>
+                </div>
+                <aside class="doc-detail-pane" id="doc-diff-detail" data-doc-diff-detail="1" aria-label="Change detail">
+                  <h4 class="orb-section-label">Change</h4>
+                  <label class="stack-label">Key
+                    <input type="text" id="doc-detail-key" class="mono" readonly value="" placeholder="Select a row" autocomplete="off" />
+                  </label>
+                  <p class="drawer-hint" id="doc-detail-hint">Keep is a dedicated checkbox cell. Row click focuses the change. Confirm writes only checked keys after the existing confirm step. Decline writes nothing.</p>
+                  <div class="btn-row">
+                    <button type="button" id="doc-confirm" class="save-btn">Confirm selected</button>
+                    <button type="button" id="doc-decline" class="save-btn secondary">Decline</button>
+                  </div>
+                </aside>
               </div>
             </div>
-            <h4 class="orb-section-label">Uploads</h4>
-            <ul id="doc-uploads-list" class="doc-ideas" aria-live="polite" data-doc-list="1"></ul>
+            <div id="doc-panel-uploads" class="doc-panel" role="tabpanel" data-doc-panel="uploads" aria-labelledby="doc-tab-uploads" hidden>
+              <div class="doc-grammar-split">
+                <div class="doc-scan-pane">
+                  <h4 class="orb-section-label">Uploads</h4>
+                  <table id="doc-uploads-scan" class="doc-scan-table" role="grid" aria-label="Local uploads" data-doc-uploads-scan="1" data-doc-list="1" aria-live="polite">
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Level</th>
+                        <th scope="col">Consent</th>
+                      </tr>
+                    </thead>
+                    <tbody id="doc-uploads-body"></tbody>
+                  </table>
+                </div>
+                <aside class="doc-detail-pane" id="doc-upload-detail" data-doc-upload-detail="1" aria-label="Upload detail">
+                  <h4 class="orb-section-label">Upload</h4>
+                  <label class="stack-label">File
+                    <input type="text" id="doc-upload-detail-name" readonly value="" placeholder="Select a row" autocomplete="off" />
+                  </label>
+                  <p class="drawer-hint" id="doc-upload-detail-hint">Name, time, level, consent only. No document body in the list. Delete stays on Security → Privacy.</p>
+                </aside>
+              </div>
+            </div>
           </div>
           <details id="doc-advanced" class="lab-advanced" data-doc-advanced="1">
             <summary>Advanced &amp; help</summary>
@@ -1460,6 +1510,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk112"></script>
+  <script src="/ui/desktop/desktop.js?v=desk113"></script>
 </body>
 </html>
