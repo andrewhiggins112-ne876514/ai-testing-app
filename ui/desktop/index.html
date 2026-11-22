@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk119" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk120" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -976,7 +976,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1" data-plan-cases-layout-grammar="1" data-plans-tabs-layout-grammar="1" data-scan-craft="1">
+        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1" data-plan-cases-layout-grammar="1" data-plans-tabs-layout-grammar="1" data-plans-compact-booleans="1" data-scan-craft="1">
           <div id="plan-chrome-toolbar" class="area-chrome-toolbar plan-chrome-toolbar" data-plan-chrome="1">
             <div class="btn-row plan-toolbar-actions area-chrome-toolbar-row">
               <label class="stack-label plan-toolbar-plan" for="plan-list">Plan
@@ -1032,7 +1032,7 @@
                   <button type="button" id="plan-add-framework-btn" class="save-btn secondary" role="menuitem">Add framework case</button>
                 </div>
               </div>
-              <label class="stack-label plan-archived-toggle"><input type="checkbox" id="plan-show-archived" /> Show archived cases</label>
+              <label class="plan-compact-check plan-archived-toggle" data-plan-compact-check="1"><input type="checkbox" id="plan-show-archived" /> Show archived</label>
             </div>
             <div class="plan-cases-grammar-split" data-scan-no-outer-scroll="1" data-plan-cases-grammar-split="1">
             <div class="plan-cases-scan-pane" data-scan-scroll="scan">
@@ -1050,10 +1050,14 @@
                 <tbody id="plan-cases-scan-body"></tbody>
               </table>
             </div>
-            <aside id="plan-case-detail-pane" class="plan-case-detail-pane" data-plan-case-detail="1" aria-label="Case detail" data-scan-scroll="detail">
-            <h4 class="orb-section-label" id="plan-case-detail-title">Edit selected case</h4>
+            <aside id="plan-case-detail-pane" class="plan-case-detail-pane" data-plan-case-detail="1" data-plan-case-sections="1" data-plan-case-focused="0" aria-label="Case detail" data-scan-scroll="detail">
+            <h4 class="orb-section-label" id="plan-case-detail-title">Case detail</h4>
             <p class="scan-quiet-empty" data-scan-unfocused="1" id="plan-case-unfocused">Select a row</p>
             <p class="drawer-hint" id="plan-case-detail-hint">Select a row. Row click does not toggle Enabled or Archived.</p>
+            <div id="plan-case-detail-live" class="plan-case-detail-live" data-plan-case-detail-live="1" hidden>
+            <div class="plan-case-detail-scroll" data-plan-case-sections-scroll="1">
+            <section class="plan-case-sec" data-plan-case-section="edit" aria-labelledby="plan-case-sec-edit">
+            <h4 class="orb-section-label" id="plan-case-sec-edit">Edit</h4>
             <label class="stack-label">Case id
               <input type="text" id="plan-case-id" placeholder="c…" autocomplete="off" />
             </label>
@@ -1072,37 +1076,27 @@
             <label class="stack-label">Step timeout (ms; default 10000 matches the runner)
               <input type="number" id="plan-case-step-timeout" min="500" max="300000" step="100" value="10000" autocomplete="off" />
             </label>
+            <div class="plan-bool-row" data-plan-bool-row="1">
+              <label class="plan-compact-check" data-plan-compact-check="1"><input type="checkbox" id="plan-case-enabled" checked /> Enabled</label>
+              <label class="plan-compact-check" data-plan-compact-check="1"><input type="checkbox" id="plan-case-archived" /> Archived</label>
+            </div>
+            <div class="btn-row">
+              <button type="button" id="plan-case-up" class="save-btn secondary">Move up</button>
+              <button type="button" id="plan-case-down" class="save-btn secondary">Move down</button>
+              <button type="button" id="plan-update-baseline-btn" class="save-btn secondary">Update visual baseline</button>
+            </div>
+            </section>
+            <section class="plan-case-sec" data-plan-case-section="run" aria-labelledby="plan-case-sec-run">
+            <h4 class="orb-section-label" id="plan-case-sec-run">Run</h4>
+            <p class="drawer-hint">Run itself is pinned below. This section holds the run record and related actions.</p>
             <label class="stack-label">Run note (last / selected run)
               <input type="text" id="plan-run-note" placeholder="Exploratory note on the run" autocomplete="off" />
             </label>
             <div class="btn-row">
               <button type="button" id="plan-notes-save" class="save-btn secondary">Save notes</button>
             </div>
-            <label class="stack-label"><input type="checkbox" id="plan-case-enabled" checked /> Enabled (disabled cases are skipped by later runs)</label>
-            <label class="stack-label"><input type="checkbox" id="plan-case-archived" /> Archived (hidden from new runs and the default list; history kept)</label>
-            <div class="btn-row">
-              <button type="button" id="plan-case-save" class="save-btn">Save case edits</button>
-              <button type="button" id="plan-case-up" class="save-btn secondary">Move up</button>
-              <button type="button" id="plan-case-down" class="save-btn secondary">Move down</button>
-              <button type="button" id="plan-update-baseline-btn" class="save-btn secondary">Update visual baseline</button>
-            </div>
-            <h4 class="orb-section-label">Flake score and quarantine</h4>
-            <p class="drawer-hint" id="plan-flake-hint">Suite lists fail count in the last 10 runs (flake). Quarantine needs a reason and expiry; quarantined cases are skipped and listed on the run — never counted as pass. After expiry they return to the selectable set. Raw last failure stays visible.</p>
-            <p id="plan-flake-summary" class="drawer-hint" aria-live="polite">Flake: —</p>
-            <label class="stack-label">Quarantine reason
-              <input type="text" id="plan-quarantine-reason" placeholder="Flaky locator / intermittent timeout" autocomplete="off" />
-            </label>
-            <label class="stack-label">Quarantine expires (ISO datetime, UTC)
-              <input type="text" id="plan-quarantine-expires" placeholder="2026-12-01T00:00:00+00:00" autocomplete="off" />
-            </label>
-            <div class="btn-row">
-              <button type="button" id="plan-quarantine-set" class="save-btn secondary">Quarantine case</button>
-              <button type="button" id="plan-quarantine-clear" class="save-btn secondary">Clear quarantine</button>
-              <button type="button" id="plan-flake-refresh" class="save-btn secondary">Refresh flake</button>
-            </div>
             <p id="plan-keyboard-hint" class="drawer-hint" data-keyboard-shortcuts="1">Shortcuts: <kbd>Alt</kbd>+<kbd>R</kbd> run selected case · <kbd>Alt</kbd>+<kbd>N</kbd> next failure · <kbd>Esc</kbd> Back to orb. No shortcut confirms Jira write or approves heal.</p>
             <div class="btn-row">
-              <button type="button" id="plan-case-run" class="save-btn">Run selected case (headed)</button>
               <button type="button" id="plan-start-manual" class="save-btn secondary" data-manual-deeplink="1">Start manual on this case</button>
               <button type="button" id="plan-rerun-failed" class="save-btn secondary">Rerun failed only</button>
               <button type="button" id="plan-defect-preview" class="save-btn secondary">Preview defect packet</button>
@@ -1125,7 +1119,25 @@
             <div class="btn-row">
               <button type="button" id="plan-run-failure-save" class="save-btn secondary">Save failure class</button>
             </div>
-            <h4 class="orb-section-label">Known issue / exclusion</h4>
+            </section>
+            <section class="plan-case-sec" data-plan-case-section="quarantine" aria-labelledby="plan-case-sec-quarantine">
+            <h4 class="orb-section-label" id="plan-case-sec-quarantine">Quarantine</h4>
+            <p class="drawer-hint" id="plan-flake-hint">Suite lists fail count in the last 10 runs (flake). Quarantine needs a reason and expiry; quarantined cases are skipped and listed on the run — never counted as pass. After expiry they return to the selectable set. Raw last failure stays visible.</p>
+            <p id="plan-flake-summary" class="drawer-hint" aria-live="polite">Flake: —</p>
+            <label class="stack-label">Quarantine reason
+              <input type="text" id="plan-quarantine-reason" placeholder="Flaky locator / intermittent timeout" autocomplete="off" />
+            </label>
+            <label class="stack-label">Quarantine expires (ISO datetime, UTC)
+              <input type="text" id="plan-quarantine-expires" placeholder="2026-12-01T00:00:00+00:00" autocomplete="off" />
+            </label>
+            <div class="btn-row">
+              <button type="button" id="plan-quarantine-set" class="save-btn secondary">Quarantine case</button>
+              <button type="button" id="plan-quarantine-clear" class="save-btn secondary">Clear quarantine</button>
+              <button type="button" id="plan-flake-refresh" class="save-btn secondary">Refresh flake</button>
+            </div>
+            </section>
+            <section class="plan-case-sec" data-plan-case-section="known" aria-labelledby="plan-case-sec-known">
+            <h4 class="orb-section-label" id="plan-case-sec-known">Known issue</h4>
             <p class="drawer-hint">Links a note and optional Jira key. Failed runs stay red and are labelled known. Nothing is transitioned in Jira.</p>
             <label class="stack-label">Known-issue note
               <input type="text" id="plan-known-note" placeholder="Known failure note" autocomplete="off" />
@@ -1137,9 +1149,16 @@
               <button type="button" id="plan-known-save" class="save-btn secondary">Link known issue</button>
               <button type="button" id="plan-known-clear" class="save-btn secondary">Clear known link</button>
             </div>
+            </section>
             <pre id="plan-case-detail" class="drawer-hint" aria-live="polite" hidden></pre>
             <pre id="plan-defect-out" class="drawer-hint" aria-live="polite" hidden></pre>
             <p id="plan-degraded-hint" class="drawer-hint" role="status" hidden></p>
+            </div>
+            <div id="plan-case-detail-pin" class="plan-case-detail-pin" data-plan-case-pin="1">
+              <button type="button" id="plan-case-save" class="save-btn">Save</button>
+              <button type="button" id="plan-case-run" class="save-btn">Run</button>
+            </div>
+            </div>
             </aside>
             </div>
           </div>
@@ -1380,7 +1399,9 @@
               <p id="plan-schedule-status" class="drawer-hint" role="status">Schedule: off</p>
               <pre id="plan-schedule-out" class="drawer-hint" aria-live="polite" hidden></pre>
             </details>
-            <label class="stack-label"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail (headed browser stays open until Continue or Stop; off by default)</label>
+            <div class="plan-bool-row" data-plan-bool-row="1">
+              <label class="plan-compact-check" data-plan-compact-check="1" title="Headed browser stays open until Continue or Stop; off by default"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail</label>
+            </div>
           </div>
           </div>
         </div>
@@ -1723,6 +1744,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk119"></script>
+  <script src="/ui/desktop/desktop.js?v=desk120"></script>
 </body>
 </html>

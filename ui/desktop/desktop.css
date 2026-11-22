@@ -1900,12 +1900,85 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   gap: var(--space-2);
   min-width: 0;
   max-height: min(70vh, 640px);
-  overflow: auto;
+  overflow: hidden;
 }
 
 #plan-panel-cases[data-plan-cases-layout-grammar="1"] .plan-case-detail-pane .mono {
   font-family: ui-monospace, Consolas, monospace;
   font-size: 12px;
+}
+
+/* KAN-350 — Plans compact booleans + sectioned case detail with pinned Save/Run */
+#app-section-plans[data-plans-compact-booleans="1"] .plan-compact-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  max-width: max-content;
+  font: var(--type-ui);
+  color: var(--text, #e8f7ff);
+  cursor: pointer;
+}
+
+#app-section-plans[data-plans-compact-booleans="1"] .plan-bool-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+}
+
+#app-section-plans[data-plans-compact-booleans="1"] .plan-archived-toggle {
+  margin: 0;
+}
+
+#plan-panel-cases[data-plan-case-sections="1"] .plan-case-detail-live {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+}
+
+#plan-panel-cases[data-plan-case-sections="1"] .plan-case-detail-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+}
+
+#plan-panel-cases[data-plan-case-sections="1"] .plan-case-sec {
+  border: 1px solid var(--cyan-dim, rgba(80, 205, 255, 0.18));
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#plan-panel-cases[data-plan-case-sections="1"] .plan-case-sec > .orb-section-label {
+  margin: 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#plan-panel-cases[data-plan-case-sections="1"] .plan-case-detail-pin {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  padding: var(--space-2) 0 0;
+  border-top: 1px solid var(--cyan-border, rgba(80, 205, 255, 0.28));
+  background: rgba(0, 0, 0, 0.55);
+}
+
+#plan-panel-cases[data-plan-case-focused="0"] #plan-case-detail-live {
+  display: none;
+}
+
+#plan-panel-cases[data-plan-case-focused="1"] #plan-case-unfocused {
+  display: none;
 }
 
 @media (max-width: 900px) {

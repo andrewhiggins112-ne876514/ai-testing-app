@@ -1532,6 +1532,10 @@
   const planCasesEmpty = document.getElementById("plan-cases-empty");
   const planCaseDetailTitle = document.getElementById("plan-case-detail-title");
   const planCaseDetailHint = document.getElementById("plan-case-detail-hint");
+  const planCaseDetailPane = document.getElementById("plan-case-detail-pane");
+  const planCaseDetailLive = document.getElementById("plan-case-detail-live");
+  const planCaseUnfocused = document.getElementById("plan-case-unfocused");
+  const planCaseDetailPin = document.getElementById("plan-case-detail-pin");
   const planCoverageFilter = document.getElementById("plan-coverage-filter");
   const planCoverageBtn = document.getElementById("plan-coverage-btn");
   const planCoverageNoCase = document.getElementById("plan-coverage-no-case");
@@ -3062,6 +3066,34 @@
     return { text: "—", kind: "idle" };
   }
 
+  function syncPlanCaseDetailFocusChrome() {
+    const cid =
+      planCaseId && planCaseId.value ? String(planCaseId.value).trim() : "";
+    const focused = !!cid;
+    if (planCaseDetailPane) {
+      planCaseDetailPane.setAttribute(
+        "data-plan-case-focused",
+        focused ? "1" : "0"
+      );
+    }
+    if (planCaseUnfocused) {
+      planCaseUnfocused.hidden = focused;
+    }
+    if (planCaseDetailLive) {
+      planCaseDetailLive.hidden = !focused;
+    }
+    if (planCaseDetailPin) {
+      planCaseDetailPin.hidden = !focused;
+    }
+    if (planCaseDetailHint) {
+      planCaseDetailHint.hidden = focused;
+      if (!focused) {
+        planCaseDetailHint.textContent =
+          "Select a row. Row click does not toggle Enabled or Archived.";
+      }
+    }
+  }
+
   function syncPlanCaseRowFocus() {
     if (!planCasesScanBody) return;
     const cid =
@@ -3075,16 +3107,17 @@
     });
     if (planCaseDetailTitle) {
       if (!cid) {
-        planCaseDetailTitle.textContent = "Edit selected case";
+        planCaseDetailTitle.textContent = "Case detail";
       } else {
         const hit = openPlanCases.find(function (c) {
           return c && c.id === cid;
         });
         planCaseDetailTitle.textContent = hit
           ? (hit.id || cid) + " · " + (hit.name || "Case")
-          : "Edit selected case";
+          : "Case detail";
       }
     }
+    syncPlanCaseDetailFocusChrome();
   }
 
   function focusPlanCaseDetail(caseObj, opts) {
@@ -3095,6 +3128,7 @@
     if (planCaseDetailHint) {
       planCaseDetailHint.textContent =
         "Focused case. Enabled / Archived / Quarantine stay in this pane — row click does not toggle them.";
+      planCaseDetailHint.hidden = true;
     }
     refreshCaseDetail();
     if (opts && opts.focusField && planCaseName) {

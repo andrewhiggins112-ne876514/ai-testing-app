@@ -11,7 +11,7 @@ LAYOUT_MODES = ("overlay", "stage", "orb_hub", "split", "floating")
 
 
 class PlansCasesGeometryTests(unittest.TestCase):
-    def test_plans_cases_geometry_desk119(self) -> None:
+    def test_plans_cases_geometry_desk120(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
@@ -19,8 +19,8 @@ class PlansCasesGeometryTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk119", html)
-        self.assertIn("desk119", desk)
+        self.assertIn("desk120", html)
+        self.assertIn("desk120", desk)
         self.assertIn('data-plans-cases-geometry="1"', html)
         self.assertIn("Accepted", wires)
         self.assertIn("KAN-312", wires)
@@ -60,7 +60,7 @@ class PlansCasesGeometryTests(unittest.TestCase):
         header_at = cases.find('data-plan-work-header="1"')
         add_at = cases.find('data-plan-add-menu="1"')
         list_at = cases.find('data-plan-cases-list="1"')
-        edit_at = cases.find("Edit selected case")
+        edit_at = cases.find('data-plan-case-section="edit"')
         self.assertGreater(add_at, header_at)
         self.assertGreater(list_at, add_at)
         self.assertGreater(edit_at, list_at)

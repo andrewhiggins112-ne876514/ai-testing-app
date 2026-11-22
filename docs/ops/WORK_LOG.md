@@ -8,17 +8,17 @@
 | Field | Value |
 |-------|--------|
 | **Status** | now |
-| **Jira story** | **KAN-350** — Plans compact booleans and case detail sections |
-| **Start task** | Plans Show archived / Enabled / Archived / Pause on fail compact; case Edit/Run/Quarantine/Known issue + pinned Save/Run |
+| **Jira story** | **KAN-352** — Documents toolbar, Heal confirm copy, Lab Advanced disclosure |
+| **Start task** | Docs tab-scoped Parse/Refresh; Heal bulk confirm count + files not written; Desktop/Sandboxes Advanced closed |
 | **Epic** | **KAN-347** TRACK5-LAYOUT |
-| **Roadmap ID** | TRACK5-LAYOUT-2 |
+| **Roadmap ID** | TRACK5-LAYOUT-3 |
 | **Spec** | FR-UI-11 enhancement (TRACK5) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-351** |
-| **Shipped** | **KAN-348** all-areas scan craft **desk119**; TRACK4 grammar through **KAN-345** |
-| **Queued (same epic)** | **KAN-352**/353 Docs/Heal/Lab disclosure; **KAN-354**/355 Phase 2 evidence-first (after Phase 1) |
+| **Test ticket** | **KAN-353** |
+| **Shipped** | **KAN-350** Plans compact+sections **desk120**; **KAN-348** scan craft **desk119**; TRACK4 through **KAN-345** |
+| **Queued (same epic)** | **KAN-354**/355 Phase 2 evidence-first (after Phase 1) |
 | **Deferred** | **TRACK3-LAB** Lab density (after TRACK5); **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | Pick up **KAN-350**. Do **not** start TRACK3-LAB / voice / FR-MAN-2 / Phase 2 (**KAN-354**) until Phase 1 stories Done. |
+| **Next / Shipped** | Pick up **KAN-352**. Do **not** start TRACK3-LAB / voice / FR-MAN-2 / Phase 2 (**KAN-354**) until Phase 1 stories Done. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — KAN-350 — Plans compact booleans and case sections (desk120)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-350
+- **Done:** Plans residual TRACK5 craft: `#plan-show-archived` / `#plan-case-enabled` / `#plan-case-archived` / `#plan-pause-on-fail` use `plan-compact-check` (not page-width `stack-label` / `check-row`). Case detail grouped Edit / Run / Quarantine / Known issue; all prior field ids kept; Save + Run pinned while section body scrolls; unfocused shows Select a row and hides pin. Marker `data-plans-compact-booleans` / `data-plan-case-sections`. Cache-bust **desk120**. Theme/orb/home/App nav untouched. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_plans_compact_sections.py`, desk120 bump on related UI tests
+- **Verify:** `pytest tests/test_plans_compact_sections.py` + related layout suite — 46 passed. Spot-check: `desktop_app.py` → App → Plans → Cases → compact Show archived / Enabled / Archived; sections + pinned Save/Run; Run tab Pause on fail compact.
+- **Jira:** close-out **KAN-350** + **KAN-351**
+- **Next:** **KAN-352** Documents toolbar / Heal confirm / Lab Advanced (test **KAN-353**)
 
 ### 2026-11-22 — KAN-348 — All-areas quiet empty / keyboard / one scroll (desk119)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-348
