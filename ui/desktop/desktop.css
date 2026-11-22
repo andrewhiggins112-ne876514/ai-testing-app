@@ -3288,6 +3288,115 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: var(--cyan, #50cdff);
 }
 
+/* KAN-343 / FR-UI-11 — Desktop Lab single-target scan + detail */
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-grammar-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  gap: var(--space-3);
+  align-items: start;
+  min-height: 0;
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-scan-pane {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-scan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--type-ui);
+  margin-top: 6px;
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-scan-table th {
+  text-align: left;
+  font: var(--type-meta);
+  color: var(--muted, #9bb4c4);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--cyan-border, rgba(80, 205, 255, 0.28));
+  background: rgba(0, 0, 0, 0.35);
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-scan-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 12%, transparent);
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-scan-row {
+  cursor: pointer;
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-scan-row.is-focus td {
+  background: color-mix(in srgb, var(--cyan, #50cdff) 12%, transparent);
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-hit {
+  width: 28px;
+  min-width: 28px;
+  max-width: 36px;
+  text-align: center;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-hit input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-pill {
+  display: inline-block;
+  font: var(--type-meta);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-pill-ok {
+  color: var(--ok, #7dffb3);
+  border-color: color-mix(in srgb, var(--ok, #7dffb3) 40%, transparent);
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-pill-idle {
+  color: var(--muted, #9bb4c4);
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-pill-warn {
+  color: var(--warn, #ffd37d);
+  border-color: color-mix(in srgb, var(--warn, #ffd37d) 40%, transparent);
+}
+
+#app-section-desktop[data-desktop-layout-grammar="1"] .desk-detail-pane {
+  border-left: 1px solid var(--cyan-border, rgba(80, 205, 255, 0.28));
+  padding-left: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  #app-section-desktop[data-desktop-layout-grammar="1"] .desk-grammar-split {
+    grid-template-columns: 1fr;
+  }
+
+  #app-section-desktop[data-desktop-layout-grammar="1"] .desk-detail-pane {
+    border-left: none;
+    border-top: 1px solid var(--cyan-border, rgba(80, 205, 255, 0.28));
+    padding-left: 0;
+    padding-top: var(--space-3);
+  }
+}
+
 /* KAN-324 / FR-UI-11 — Settings layout grammar (structure, not skin) */
 /* Rail must not live in a scrolling .area-work — otherwise scrollIntoView / tall
    panels move nav out from under clicks (intermittent rail). Only .settings-grammar-main scrolls. */

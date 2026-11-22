@@ -1671,6 +1671,11 @@
   const deskSmoke = document.getElementById("desk-smoke");
   const deskSteps = document.getElementById("desk-steps");
   const deskStatus = document.getElementById("desk-status");
+  const deskScanRow = document.querySelector("#app-section-desktop .desk-scan-row");
+  const deskScanStatus = document.getElementById("desk-scan-status");
+  const deskLastSmoke = document.getElementById("desk-last-smoke");
+  const deskDetail = document.getElementById("desk-detail");
+  let deskLastSmokeText = "—";
   const suiteSaved = document.getElementById("suite-saved");
   const suitePath = document.getElementById("suite-path");
   const suiteDiscover = document.getElementById("suite-discover");
@@ -4597,15 +4602,54 @@
     return { ok: res.ok, payload: await res.json() };
   }
 
+  function setDeskScanStatus(label, kind) {
+    if (!deskScanStatus) return;
+    const pill = document.createElement("span");
+    pill.className =
+      "desk-pill" +
+      (kind === "ok"
+        ? " desk-pill-ok"
+        : kind === "warn"
+          ? " desk-pill-warn"
+          : " desk-pill-idle");
+    pill.textContent = label || "—";
+    deskScanStatus.replaceChildren(pill);
+  }
+
+  function focusDesktopDetail() {
+    if (deskScanRow) deskScanRow.classList.add("is-focus");
+    if (deskDetail && typeof deskDetail.scrollIntoView === "function") {
+      try {
+        deskDetail.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      } catch (err) {
+        /* ignore */
+      }
+    }
+    if (deskExe) {
+      try {
+        deskExe.focus({ preventScroll: true });
+      } catch (err) {
+        deskExe.focus();
+      }
+    }
+  }
+
   function applyDesktopPlugin(payload) {
     if (!payload) return;
     if (deskEnabled) {
       deskEnabled.checked = !!payload.plugin_desktop_enabled;
     }
+    const path = (payload.target_app_path || "").trim();
     if (deskPath) {
-      deskPath.textContent =
-        "App path: " + (payload.target_app_path || "(not set — pass a path on Run smoke)");
+      deskPath.textContent = path || "—";
+      deskPath.title = path || "No path set — pass a path on Run smoke or override in detail";
     }
+    if (payload.plugin_desktop_enabled) {
+      setDeskScanStatus(path ? "Ready" : "No path", path ? "ok" : "idle");
+    } else {
+      setDeskScanStatus("Disabled", "warn");
+    }
+    if (deskLastSmoke) deskLastSmoke.textContent = deskLastSmokeText;
   }
 
   async function loadDesktopPlugin() {
@@ -10805,6 +10849,41 @@
     });
   }
 
+  if (deskEnabled) {
+    deskEnabled.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+    });
+    deskEnabled.addEventListener("mousedown", function (ev) {
+      ev.stopPropagation();
+    });
+  }
+
+  if (deskScanRow) {
+    deskScanRow.addEventListener("click", function (ev) {
+      if (
+        ev.target &&
+        ev.target.closest &&
+        ev.target.closest('[data-desk-checkbox-stop="1"]')
+      ) {
+        return;
+      }
+      focusDesktopDetail();
+    });
+    deskScanRow.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") {
+        if (
+          ev.target &&
+          ev.target.closest &&
+          ev.target.closest('[data-desk-checkbox-stop="1"]')
+        ) {
+          return;
+        }
+        ev.preventDefault();
+        focusDesktopDetail();
+      }
+    });
+  }
+
   if (deskSave) {
     deskSave.addEventListener("click", async function () {
       if (deskStatus) deskStatus.textContent = "Saving…";
@@ -10854,6 +10933,22 @@
     return payload.error || payload.message || label + " failed.";
   }
 
+  function recordDeskLastSmoke(payload, label) {
+    const summary = summarizeDesktopRun(payload, label);
+    if (payload.status === "pass") {
+      deskLastSmokeText = "Pass · " + label;
+      setDeskScanStatus("Ready", "ok");
+    } else if (payload.status === "disabled") {
+      deskLastSmokeText = "Disabled";
+      setDeskScanStatus("Disabled", "warn");
+    } else {
+      deskLastSmokeText = "Fail · " + label;
+      setDeskScanStatus("Fail", "warn");
+    }
+    if (deskLastSmoke) deskLastSmoke.textContent = deskLastSmokeText;
+    return summary;
+  }
+
   if (deskSmoke) {
     deskSmoke.addEventListener("click", async function () {
       if (deskStatus) deskStatus.textContent = "Running smoke…";
@@ -10869,7 +10964,7 @@
           if (deskStatus) deskStatus.textContent = "Smoke request failed.";
           return;
         }
-        if (deskStatus) deskStatus.textContent = summarizeDesktopRun(payload, "smoke");
+        if (deskStatus) deskStatus.textContent = recordDeskLastSmoke(payload, "smoke");
       } catch (err) {
         if (deskStatus) deskStatus.textContent = "Could not reach desktop smoke API.";
       }
@@ -10895,7 +10990,7 @@
           if (deskStatus) deskStatus.textContent = "Steps request failed.";
           return;
         }
-        if (deskStatus) deskStatus.textContent = summarizeDesktopRun(payload, "steps");
+        if (deskStatus) deskStatus.textContent = recordDeskLastSmoke(payload, "steps");
       } catch (err) {
         if (deskStatus) deskStatus.textContent = "Could not reach desktop steps API.";
       }

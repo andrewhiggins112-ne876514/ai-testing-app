@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk116" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk117" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -912,7 +912,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1">
+        <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1" data-desktop-layout-grammar="1">
           <h3 class="orb-section-label">Desktop .exe plugin</h3>
           <div id="desk-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-desk-chrome="1">
             <div class="btn-row lab-toolbar-actions">
@@ -923,19 +923,46 @@
           </div>
           <div class="area-work" data-area-work="1">
           <div id="desk-primary" class="lab-primary" data-desk-primary="1">
-            <h4 class="orb-section-label">Smoke status</h4>
-            <p id="desk-path" class="drawer-hint">App path: —</p>
+            <div class="desk-grammar-split" data-desk-grammar-split="1">
+              <div class="desk-scan-pane">
+                <h4 class="orb-section-label">Desktop target</h4>
+                <p class="drawer-hint">One target — Enabled is the checkbox cell only. Row click focuses Plugin detail (does not toggle Enable).</p>
+                <table id="desk-scan" class="desk-scan-table" data-desk-scan="1" role="grid" aria-label="Desktop target">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="desk-hit">Enabled</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Path</th>
+                      <th scope="col">Last smoke</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="desk-scan-row is-focus" data-desk-scan-row="1" tabindex="0">
+                      <td class="desk-hit" data-desk-checkbox-cell="1">
+                        <input type="checkbox" id="desk-enabled" checked aria-label="Enable desktop plugin" data-desk-checkbox-stop="1" />
+                      </td>
+                      <td id="desk-scan-status"><span class="desk-pill desk-pill-idle">—</span></td>
+                      <td id="desk-path" class="desk-path-cell">—</td>
+                      <td id="desk-last-smoke">—</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <aside id="desk-detail" class="desk-detail-pane" data-desk-detail="1" aria-label="Plugin detail">
+                <h4 class="orb-section-label" id="desk-detail-title">Plugin</h4>
+                <p class="drawer-hint" id="desk-detail-hint">Separate from Playwright. Save and path override live here.</p>
+                <label class="stack-label">Exe path override
+                  <input type="text" id="desk-exe" placeholder="C:\Path\To\App.exe" autocomplete="off" />
+                </label>
+                <div class="btn-row">
+                  <button type="button" id="desk-save" class="save-btn">Save plugin</button>
+                </div>
+              </aside>
+            </div>
           </div>
           <details id="desk-advanced" class="lab-advanced" data-desk-advanced="1">
-            <summary>Plugin settings &amp; help</summary>
-            <p class="drawer-hint">Separate from Playwright. Smoke launch, or structured steps (wait_window, type_text). Uses target_app_path from the active security level.</p>
-            <label class="check-row"><input type="checkbox" id="desk-enabled" checked /> Enable desktop plugin</label>
-            <label class="stack-label">Exe path override
-              <input type="text" id="desk-exe" placeholder="C:\Path\To\App.exe" />
-            </label>
-            <div class="btn-row">
-              <button type="button" id="desk-save" class="save-btn">Save plugin</button>
-            </div>
+            <summary>Help</summary>
+            <p class="drawer-hint">Smoke launch, or structured steps (wait_window, type_text). Uses target_app_path from the active security level when no override is set. TRACK3-LAB density stays deferred.</p>
           </details>
           </div>
         </div>
@@ -1658,6 +1685,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk116"></script>
+  <script src="/ui/desktop/desktop.js?v=desk117"></script>
 </body>
 </html>

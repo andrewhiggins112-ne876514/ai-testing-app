@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-343** Desktop Lab FR-UI-11 |
+| **Jira story** | **KAN-345** Sandboxes Lab FR-UI-11 |
 | **Start task** | — |
 | **Epic** | — (TRACK4-LAYOUT rest) |
 | **Roadmap ID** | TRACK4-LAYOUT |
-| **Spec** | FR-UI-11 rest-of-App (Desktop Lab) |
+| **Spec** | FR-UI-11 rest-of-App (Sandboxes Lab) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-344** |
-| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331**; Reports **KAN-333**; Documents **KAN-335**; Security **KAN-337**; Heal **KAN-339**; Manual **KAN-341** desk116 |
+| **Test ticket** | **KAN-346** |
+| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331**; Reports **KAN-333**; Documents **KAN-335**; Security **KAN-337**; Heal **KAN-339**; Manual **KAN-341**; Desktop Lab **KAN-343** desk117 |
 | **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2** |
-| **Next / Shipped** | Build pick-up implements **KAN-343**. Order after: 345. Do **not** implement Lab density / voice / FR-MAN-2. |
+| **Next / Shipped** | Build pick-up implements **KAN-345**. Do **not** implement Lab density / voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — KAN-343 — Desktop Lab FR-UI-11 (desk117)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-343
+- **Done:** Desktop Lab inherits FR-UI-11: single-target scan (Enabled · Status · Path · Last smoke); Enabled is dedicated 28px hit cell with stopPropagation; row click focuses Plugin detail (`#desk-exe` + `#desk-save`) without toggling Enable; no `check-row` in `#app-section-desktop`; toolbar keeps `#desk-smoke` / `#desk-steps`; empty path renders em dash (not a hero card). Marker `data-desktop-layout-grammar`. Cache-bust **desk117**. Theme/orb/home/App nav untouched. TRACK3-LAB density deferred. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_desktop_layout_grammar.py`, `tests/test_lab_areas_ia.py`, desk117 bump on related UI tests
+- **Verify:** `pytest tests/test_desktop_layout_grammar.py tests/test_lab_areas_ia.py tests/test_manual_layout_grammar.py tests/test_manual_density.py tests/test_manual_ia.py tests/test_manual_session_library.py tests/test_heal_layout_grammar.py tests/test_heal_review.py tests/test_security_layout_grammar.py tests/test_settings_layout_grammar.py tests/test_settings_hub.py tests/test_settings_security_density.py tests/test_documents_layout_grammar.py tests/test_reports_layout_grammar.py tests/test_reports_ia.py tests/test_reports_library.py tests/test_reports_documents_density.py tests/test_plans_tabs_layout_grammar.py tests/test_plan_cases_layout_grammar.py tests/test_suite_layout_grammar.py tests/test_suites_ia.py tests/test_plans_ia.py tests/test_nav_overlap.py tests/test_occlusion_verify_ae.py tests/test_local_side_effects_audit.py tests/test_lab_backup.py` — 54 passed. Spot-check: `desktop_app.py` → App → Desktop → path cell focuses detail; Enabled cell only toggles checkbox.
+- **Jira:** close-out **KAN-343** + **KAN-344**
+- **Next:** Active **KAN-345** Sandboxes Lab FR-UI-11 (test **KAN-346**)
 
 ### 2026-11-22 — KAN-341 — Manual FR-UI-11 (desk116)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-341

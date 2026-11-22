@@ -8,14 +8,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SuiteLayoutGrammarTests(unittest.TestCase):
-    def test_suites_fr_ui11_grammar_markers_desk116(self) -> None:
+    def test_suites_fr_ui11_grammar_markers_desk117(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk116", html)
-        self.assertIn("desk116", desk)
+        self.assertIn("desk117", html)
+        self.assertIn("desk117", desk)
 
         suites = html.split('id="app-section-suites"', 1)[1].split(
             'id="app-section-sandboxes"', 1

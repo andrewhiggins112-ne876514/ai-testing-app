@@ -6,13 +6,13 @@ from pathlib import Path
 
 
 class LabAreasIaDesktopUiTests(unittest.TestCase):
-    def test_lab_areas_ia_markers_desk116(self):
+    def test_lab_areas_ia_markers_desk117(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk116", html)
-        self.assertIn("desk116", desk)
+        self.assertIn("desk117", html)
+        self.assertIn("desk117", desk)
         self.assertEqual(html.count('data-lab-areas-ia="1"'), 4)
 
         # Documents: sticky + ingest/list primary + privacy advanced
@@ -62,8 +62,9 @@ class LabAreasIaDesktopUiTests(unittest.TestCase):
         self.assertNotIn('id="heal-list"', heal_toolbar)
         self.assertIn('id="heal-list"', html.split('id="heal-primary"', 1)[1])
 
-        # Desktop: smoke sticky + status primary + plugin settings advanced
+        # Desktop: smoke sticky + FR-UI-11 scan/detail primary + help advanced
         self.assertIn('data-desktop-ia="1"', html)
+        self.assertIn('data-desktop-layout-grammar="1"', html)
         self.assertIn('data-desk-chrome="1"', html)
         self.assertIn('data-desk-primary="1"', html)
         self.assertIn('data-desk-advanced="1"', html)
@@ -78,12 +79,20 @@ class LabAreasIaDesktopUiTests(unittest.TestCase):
             self.assertIn(marker, desk_toolbar)
         self.assertNotIn('id="desk-save"', desk_toolbar)
         self.assertNotIn('id="desk-enabled"', desk_toolbar)
+        desk_primary = html.split('id="desk-primary"', 1)[1].split(
+            'id="desk-advanced"', 1
+        )[0]
+        self.assertIn('data-desk-scan="1"', desk_primary)
+        self.assertIn('id="desk-enabled"', desk_primary)
+        self.assertIn('id="desk-exe"', desk_primary)
+        self.assertIn('id="desk-save"', desk_primary)
         desk_advanced = html.split('id="desk-advanced"', 1)[1].split(
             'id="app-section-plans"', 1
         )[0]
-        self.assertIn('id="desk-enabled"', desk_advanced)
-        self.assertIn('id="desk-exe"', desk_advanced)
-        self.assertIn('id="desk-save"', desk_advanced)
+        self.assertNotIn('id="desk-enabled"', desk_advanced)
+        self.assertNotIn('id="desk-exe"', desk_advanced)
+        self.assertNotIn('id="desk-save"', desk_advanced)
+        self.assertNotIn("check-row", desk_advanced)
 
         # Sandboxes: action/orchestrate sticky + list primary + configure advanced
         self.assertIn('data-sandboxes-ia="1"', html)
