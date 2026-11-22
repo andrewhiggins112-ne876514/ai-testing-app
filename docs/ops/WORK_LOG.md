@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-22 — docs — TRACK4 layout review catch-up (Studio + Council)
+- **Agent/chat:** Design Studio + Advisory Council + Creative Architect — Designer **Apply**
+- **Done:** Docs-only. Updated FR-UI-11 Inheritance prose to list shipped areas through Sandboxes Lab (KAN-345); refreshed `docs/mockups/DESIGN_INTENT.md` (TRACK4 Done, rest-pack index, chrome rule, checkbox lexicon, enhancement backlog). No product UI. Active stays **deferred**. Jira not written.
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `docs/mockups/DESIGN_INTENT.md`, `docs/ops/WORK_LOG.md`
+- **Verify:** Read FR-UI-11 Inheritance sentence + Design Intent Accepted / Mockup index — TRACK4 Done; Suites no longer “Bridge Active”
+- **Jira:** none (Designer confirmed docs only)
+- **Next:** Active remains deferred — do not start TRACK3-LAB / voice / FR-MAN-2
+
 ### 2026-11-22 — KAN-345 — Sandboxes Lab FR-UI-11 (desk118)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-345
 - **Done:** Sandboxes inherits FR-UI-11: scan table (Id · Label · URL · Ready); no checkbox column; row click focuses detail (id/label/URL + Save sandbox) without Remove; `#ms-remove` + `#ms-remove-confirm` propose-then-confirm in detail (confirm disabled on paint); `#ms-enabled` compact toolbar check (not `check-row`); toolbar keeps Action + `#ms-run` + Save plugin; Advanced is Help only. Marker `data-sandboxes-layout-grammar`. Cache-bust **desk118**. Theme/orb/home/App nav untouched. TRACK3-LAB density deferred. CU not required (marker/pytest AC). TRACK4-LAYOUT complete.
