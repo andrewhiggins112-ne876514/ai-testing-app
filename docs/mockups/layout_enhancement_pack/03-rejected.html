@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Layout enhancement pack — rejected</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="enhance.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Out of this pack.</strong> KPI dashboards, whole-row toggles, bulk Heal Reject, TRACK3-LAB / voice / FR-MAN-2, a second filter bar, page-width booleans, an evidence gallery, a new App nav item.</p>
+
+<div class="reject-grid">
+  <article class="reject-card">
+    <h2>KPI / hero dashboard</h2>
+    <div class="kpi-row"><div class="kpi"><b>12</b><span>Passed</span></div><div class="kpi"><b>3</b><span>Open</span></div><div class="kpi"><b>99%</b><span>Health</span></div></div>
+    <p class="why">Pretty-empty. Hides the scan a tester came to read. Rejected again for every secondary area.</p>
+  </article>
+  <article class="reject-card">
+    <h2>Whole-row toggle</h2>
+    <div class="soup">
+      <label><input type="checkbox" checked /> Checkout totals — the label is the hit</label>
+      <label><input type="checkbox" /> Guest search — row and check are the same control</label>
+    </div>
+    <p class="why">Checkbox and row stay different hits. Space does not toggle from the row.</p>
+  </article>
+  <article class="reject-card">
+    <h2>Bulk Heal Reject</h2>
+    <p><span class="btn danger">Reject selected (2)</span></p>
+    <p class="why">Reject stays on the focused proposal. Bulk approve may confirm. Bulk reject does not ship in this pack.</p>
+  </article>
+  <article class="reject-card">
+    <h2>TRACK3-LAB, voice, FR-MAN-2</h2>
+    <div class="kpi-row"><div class="kpi"><b>Lab</b><span>Density board</span></div><div class="kpi"><b>Voice</b><span>KAN-81</span></div><div class="kpi"><b>Circles</b><span>FR-MAN-2</span></div></div>
+    <p class="why">Deferred until Active Build is set. Desktop and Sandboxes only close an Advanced disclosure. Charter Frame is untouched.</p>
+  </article>
+  <article class="reject-card">
+    <h2>Second filter bar</h2>
+    <div class="toolbar"><span>Refresh</span></div>
+    <div class="toolbar"><input class="filter" placeholder="A bar under the toolbar" /></div>
+    <p class="why">Suites and Reports put the optional filter in the toolbar that already exists.</p>
+  </article>
+  <article class="reject-card">
+    <h2>Page-width stack label</h2>
+    <div class="soup">
+      <label><input type="checkbox" /> Show archived — full width of the page</label>
+      <label><input type="checkbox" /> Pause on fail — same pattern</label>
+    </div>
+    <p class="why">Those booleans are compact checks: toolbar or a horizontal row inside Edit / Run.</p>
+  </article>
+  <article class="reject-card">
+    <h2>Evidence gallery</h2>
+    <div class="kpi-row"><div class="kpi"><b>Shot</b><span>Hero</span></div><div class="kpi"><b>Shot</b><span>Hero</span></div><div class="kpi"><b>JSON</b><span>Hero</span></div></div>
+    <p class="why">Phase 2 is a single dashed hint in the detail, not a new evidence area or App nav item. It does not block Phase 1.</p>
+  </article>
+  <article class="reject-card">
+    <h2>New App nav item</h2>
+    <p class="fake">Home · Suites · Plans · Reports · Evidence · Heal</p>
+    <p class="why">App nav is locked. Evidence, if it ever lands, stays inside the detail of Reports, Heal, or Manual.</p>
+  </article>
+</div></body>
+</html>

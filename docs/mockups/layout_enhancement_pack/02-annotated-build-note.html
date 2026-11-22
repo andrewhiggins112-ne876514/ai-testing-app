@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Layout enhancement pack — build note</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="enhance.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Build notes.</strong> Markers and acceptance bullets per area. Product UI is not part of this Studio pass.</p>
+
+<div class="notes">
+  <h2>How to read the markers</h2>
+  <p>These attributes live on the mock HTML so a later Build slice can map acceptance checks. They are not a new product API.</p>
+  <ul>
+    <li><code>data-layout-enhancement-pack</code> stage root</li>
+    <li><code>data-lep-area</code> settings, suites, plans-cases, plans-tabs, reports, documents, security, heal, manual, desktop, sandboxes</li>
+    <li><code>data-lep-empty</code> one-line empty scan · <code>data-lep-unfocused</code> Select a row</li>
+    <li><code>data-lep-kbd</code> keyboard note (Studio bar, do not ship the bar)</li>
+    <li><code>data-lep-scroll</code> pane scroller · <code>data-lep-sticky</code> on the wire’s scan · <code>data-lep-no-outer-scroll</code></li>
+    <li><code>data-lep-structure</code> rail / tabs / no rail · <code>data-lep-lexicon</code></li>
+    <li><code>data-lep-bool</code> Show archived, case Enabled/Archived, Pause on fail</li>
+    <li><code>data-lep-sections</code> Edit / Run / Quarantine / Known issue · <code>data-lep-pin</code> Save + Run</li>
+    <li><code>data-show</code> Documents toolbar scope · <code>data-lep-heal-confirm</code></li>
+    <li><code>data-lep-advanced</code> Desktop and Sandboxes · <code>data-lep-start-collapse</code> · <code>data-lep-dock</code></li>
+    <li><code>data-lep-filter</code> Suites and Reports · <code>data-lep-evidence="phase2"</code></li>
+  </ul>
+  <h2>Phase split</h2>
+  <p><strong>Phase 1</strong> is structure craft on the shipped FR-UI-11 grammar: empty, keyboard, one scroll, sticky header, lexicon labels, Plans booleans and sections, Documents toolbar scope, Heal confirm copy, Manual focus chrome, toolbar filters, closed Advanced. <strong>Phase 2</strong> is the evidence hint on Reports, Heal, and Manual only. Do not block Phase 1 on it.</p>
+  <p>Suggested epic (draft, not created): Layout enhancement pack — FR-UI-11 craft. One story per cluster below, each with a linked test ticket, after Designer accept and a Council pass on whether the keyboard line and the Phase 2 slot need spec text.</p>
+  <h2>Do not edit in Design Studio</h2>
+  <p><code>ui/desktop/index.html</code>, <code>ui/desktop/desktop.js</code>, <code>ui/desktop/desktop.css</code>, <code>desktop_app.py</code>. Charter frame nodes stay out of this pack. Orb, home/chat, and App nav stay locked.</p>
+<h2>Settings</h2>
+  <p><code>01a-themed-settings.html</code> · Phase 1 · Rail · ≥3</p>
+  <ul><li>Section rail remains the only in-area chrome. No second rail and no new App nav item.</li><li>Work pane scrolls on its own; detail pane scrolls on its own; the stage does not scroll.</li><li>Scan header sticks inside the scan scroller only.</li><li>Empty scan is one line (No report blocks / No environments). Unfocused detail reads Select a row.</li><li>Up/Down move row focus. Enter shows detail. Space toggles only the Include cell.</li><li>Include does not cover the row hit.</li></ul>
+  <p>Later files: Settings section markup and environment / report-block render in ui/desktop/index.html, desktop.js, desktop.css.</p><h2>Suites</h2>
+  <p><code>01b-themed-suites.html</code> · Phase 1 · No rail</p>
+  <ul><li>No section rail.</li><li>Filter is one search input in the existing toolbar, not a bar under it.</li><li>Sel cell is the only multi-select hit. Row focus is separate.</li><li>Same empty, scroll, sticky header, and keyboard contract as the wire.</li></ul>
+  <p>Later files: renderSuiteList and the suites toolbar in ui/desktop/index.html, desktop.js, desktop.css.</p><h2>Plans · Cases</h2>
+  <p><code>01c-themed-plans-cases.html</code> · Phase 1 · In-area tabs</p>
+  <ul><li>FR-UI-9 tabs stay. No rail beside them.</li><li>Show archived is a compact check in the toolbar.</li><li>Enabled and Archived are compact checks inside the Edit section, not page-width labels.</li><li>Detail groups Edit, Run, Quarantine, and Known issue.</li><li>Save and Run stay pinned while the detail body scrolls.</li><li>Empty detail reads Select a row and hides the pin.</li></ul>
+  <p>Later files: renderPlanCases and #plan-cases editor in ui/desktop/index.html, desktop.js, desktop.css.</p><h2>Plans · other tabs</h2>
+  <p><code>01d-themed-plans-tabs.html</code> · Phase 1 · In-area tabs</p>
+  <ul><li>Coverage and Trace have no checkbox column. Trace row still opens the case.</li><li>History A and B are dedicated radio cells.</li><li>Pause on fail is a compact check on Run.</li><li>Draft stays a compact form.</li><li>Scheduled run stays inside a closed details block.</li></ul>
+  <p>Later files: Plan Draft, Coverage, Trace, History, and Run panels; #plan-pause-on-fail.</p><h2>Reports</h2>
+  <p><code>01e-themed-reports.html</code> · Phase 1 + hint · No rail</p>
+  <ul><li>No rail. Filter sits in the existing toolbar beside Refresh, Report settings, and Export.</li><li>Row opens the saved markdown in the detail.</li><li>Dashed evidence region is marked Phase 2 and is not a Phase 1 acceptance target.</li></ul>
+  <p>Later files: renderReportLibraryList and #rpt-detail. Evidence slot waits for Phase 2.</p><h2>Documents</h2>
+  <p><code>01f-themed-documents.html</code> · Phase 1 · In-area tabs · 2 jobs</p>
+  <ul><li>Propose shows Parse & propose and hides Refresh.</li><li>Uploads shows Refresh and hides Parse.</li><li>Keep remains a dedicated cell on the diff.</li><li>Confirm / Decline stay in the detail.</li></ul>
+  <p>Later files: Documents toolbar and renderDocProposal; uploads list.</p><h2>Security</h2>
+  <p><code>01g-themed-security.html</code> · Phase 1 · Rail · ≥3</p>
+  <ul><li>Five-section rail stays: Level, Privacy, Audit, Redaction, Backup.</li><li>Include is the wipe checkbox cell.</li><li>One level (OFFICIAL) and masked status. No secret values.</li><li>Delete and Restore stay propose-then-confirm in the detail.</li><li>Empty state is one line, not a dashboard.</li></ul>
+  <p>Later files: Security rail panels in ui/desktop/index.html, desktop.js, desktop.css.</p><h2>Heal</h2>
+  <p><code>01h-themed-heal.html</code> · Phase 1 + hint · No rail</p>
+  <ul><li>Sel does not approve. The row does not approve.</li><li>Approve selected (N) states the count.</li><li>Confirm copy includes that files are not written.</li><li>Reject exists only on the focused detail. No Reject selected control.</li><li>Evidence hint is Phase 2.</li></ul>
+  <p>Later files: renderHealProposals, data-heal-bulk, heal confirm copy. Do not add bulk Reject.</p><h2>Manual</h2>
+  <p><code>01i-themed-manual.html</code> · Phase 1 + hint · No rail</p>
+  <ul><li>When a session row is focused, Start session is collapsed.</li><li>Confirm dock is one line: kind, link, charter summary, Confirm, Cancel.</li><li>Charter Frame (#charter-frame-root and related nodes) is not restyled and is not in the mock.</li><li>Evidence hint is Phase 2. FR-MAN-2 circles are out.</li></ul>
+  <p>Later files: Manual session list, start block, confirm dock. Do not edit charter frame markup for this pack.</p><h2>Desktop</h2>
+  <p><code>01j-themed-desktop.html</code> · Phase 1 · No rail</p>
+  <ul><li>Single target remains a scan row. Enabled is the cell.</li><li>Advanced is a closed details element (launch args, window title).</li><li>No extra lab panels, no voice chrome.</li></ul>
+  <p>Later files: Desktop target row and Advanced disclosure.</p><h2>Sandboxes</h2>
+  <p><code>01k-themed-sandboxes.html</code> · Phase 1 · No rail</p>
+  <ul><li>No select column. Enable multi-sandbox stays a compact toolbar check.</li><li>Advanced is closed (profile folder, headed).</li><li>Remove stays in the detail behind confirm.</li><li>No cloud-farm or TRACK3-LAB boards.</li></ul>
+  <p>Later files: renderSandboxList and the sandbox detail form.</p><h2>Shared keyboard and empty acceptance</h2>
+  <ul>
+    <li>With focus in the scan, Up and Down move <code>is-focus</code> and do not toggle a checkbox.</li>
+    <li>Enter leaves the quiet-empty state and shows the focused detail.</li>
+    <li>Space on a row does nothing. Space on a checkbox or radio cell toggles that control only.</li>
+    <li>Empty preview: scan body hidden, one dashed line, detail reads Select a row, Plans pin hidden.</li>
+  </ul>
+</div></body>
+</html>

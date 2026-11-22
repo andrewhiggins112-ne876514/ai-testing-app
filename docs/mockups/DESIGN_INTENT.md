@@ -15,7 +15,9 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 
 ## Open mandate
 
-**Secondary App areas layout rework** — **TRACK4-LAYOUT Done** (Settings → Sandboxes). Remaining work is **enhancement polish inside the grammar** (compact residual booleans, scroll ownership, quiet empty/keyboard craft) — not a new skin, and **not** Lab density / voice / FR-MAN-2 (those stay deferred until Active Build is set).
+**TRACK5-LAYOUT — FR-UI-11 structure pack** — polish craft inside the shipped grammar across **every** secondary App area. Theme/orb/home/App nav stay locked. **Not** Lab density / voice / FR-MAN-2.
+
+Active Build: **KAN-348** (all-areas empty / keyboard / scroll). Then **KAN-350**, **KAN-352**. Phase 2 evidence **KAN-354** after Phase 1 Done.
 
 ### Selection grammar (standing)
 
@@ -44,10 +46,11 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 | Date | Decision | Mockups / refs |
 |------|----------|----------------|
 | 2026-11-21 | Council ratifies Lane C Design Studio with binding gates | `docs/ops/DESIGN_STUDIO.md` |
-| 2026-11-21 | **Settings layout grammar** is the system template for secondary App areas: in-area **section rail** + **compact scan table** + **detail pane**. Checkbox = dedicated ~28px cell (stopPropagation); row click = focus/open; destructive controls live in the detail behind confirm — never on list-row chrome. Theme/orb/home/App nav stay locked. Audit: Settings + Suites + Plans (P0 Plans text-dump; P1 Suites whole-row select + Settings `.check-row`). CU skipped — unsafe for live Settings. Spec: **FR-UI-11**; Build Story **KAN-324** / test **KAN-325** (Settings only). | `docs/mockups/settings_layout_grammar/` |
-| 2026-11-22 | **Suites + Plans inherit** FR-UI-11 grammar **accepted**. Suites: Sel·Status·Title·File·Last + detail (no section rail). Plans · Cases: replace `#plan-cases` dump with scan table; row fills detail; plan tabs stay FR-UI-9. Theme/orb/home/App nav locked. Lab density / voice / FR-MAN-2 still deferred. | `docs/mockups/suites_plans_layout_inherit/` |
-| 2026-11-22 | **TRACK4-LAYOUT complete** — Reports, Documents, Security, Heal, Manual, Desktop Lab, Sandboxes Lab inherited FR-UI-11 (Stories **KAN-333…KAN-345**, desk112–desk118). History A/B radio cells accepted. Heal: no bulk Reject (detail-only). Theme/orb/home/App nav untouched. | `docs/mockups/secondary_areas_rest/` |
-| 2026-11-22 | **Studio + Council + Creative Architect review** — nothing valuable removed; capabilities moved into scan+detail. Docs catch-up applied (this log + FR-UI-11 Inheritance prose). Active Build stays deferred. Enhancement backlog parked (Plans compact booleans, detail sections, one-scroll-per-pane, keyboard scan, quiet empty states, evidence-first detail later). Rejected again: KPI/card dashboards, bulk Heal Reject unless Designer overrides. | Review chat 2026-11-22 |
+| 2026-11-21 | **Settings layout grammar** is the system template for secondary App areas | `docs/mockups/settings_layout_grammar/` |
+| 2026-11-22 | **Suites + Plans inherit** FR-UI-11 grammar **accepted** | `docs/mockups/suites_plans_layout_inherit/` |
+| 2026-11-22 | **TRACK4-LAYOUT complete** through Sandboxes Lab **KAN-345** | `docs/mockups/secondary_areas_rest/` |
+| 2026-11-22 | **Studio + Council + Creative Architect review** — nothing valuable removed; docs catch-up applied | Review chat 2026-11-22 |
+| 2026-11-22 | **Layout enhancement pack Accepted** (Designer). All secondary areas. Phase 1 = empty/keyboard/scroll + Plans/Docs/Heal/Lab craft. Phase 2 = evidence-first detail (KAN-354). Epic **KAN-347**. Stories **KAN-348/350/352/354** + tests **349/351/353/355**. Spec FR-UI-11 enhancement clause landed. After TRACK5 → TRACK3-LAB → real Playwright trace deepen. Park: voice, FR-MAN-2, CI, H3 share, bulk Heal Reject, KPI heroes. | `docs/mockups/layout_enhancement_pack/` |
 
 ## Rejected / park
 
@@ -56,21 +59,23 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 | 2026-11-21 | Name lane “Layout Lab” | Collides with product FR-UI-8 / TRACK3-LAB |
 | — | Pretty KPI / empty hero dashboards for Suites/Plans/Reports | Fails daily Test Engineer density |
 | 2026-11-21 | KPI / card dashboard for Settings (and inherit) | Hides editable fields; fails density |
-| 2026-11-21 | Tighter single-scroll Settings column | Still flat hierarchy; label remains whole-row hit; Suites/Plans inherit nothing |
-| 2026-11-22 | Heal bulk Reject | Accepted rest mockup + Security: Reject stays focused-detail only |
-| 2026-11-22 | Start TRACK3-LAB / voice / FR-MAN-2 from layout review | Explicitly deferred; not Active |
+| 2026-11-21 | Tighter single-scroll Settings column | Still flat hierarchy; label remains whole-row hit |
+| 2026-11-22 | Heal bulk Reject | Reject stays focused-detail only |
+| 2026-11-22 | Start TRACK3-LAB / voice / FR-MAN-2 from layout review | Explicitly deferred until after TRACK5 (Lab) or parked (voice / FR-MAN-2) |
+| 2026-11-22 | Second filter bar, evidence gallery, new App nav item, fake Trace control | `layout_enhancement_pack/03-rejected.html` + Council |
 
 ## Creative backlog (not Active Build)
 
 | Idea | Status | Notes |
 |------|--------|-------|
-| Secondary-area layout system (Settings → Sandboxes) | **TRACK4 Done** (KAN-324…KAN-345 / desk118) | Grammar shipped. Do not treat Suites/Plans as “still bridging.” |
-| Plans residual compact booleans | Proposed | Show archived / Enabled / Archived / Pause on fail → same compact pattern as Manual/Security |
-| Plans case detail sections | Proposed | Keep all fields; group Edit / Run / Quarantine / Known issue; pin Save + Run |
-| One scroll per pane + sticky thead in scan | Proposed | Scan and detail scroll separately; no third `.area-work` scroll on the split |
-| Quiet empty + “Select a row” + keyboard scan | Proposed | Structure pack; Spec clause when Designer accepts Bridge |
-| Evidence-first detail slot | Parked (later CR) | After structure pack |
-| TRACK3-LAB Lab density; KAN-81/82 voice; FR-MAN-2 | **Deferred** | Not Active until human sets Active slice |
+| TRACK4 grammar (Settings → Sandboxes) | **Done** | KAN-324…KAN-345 |
+| TRACK5 Phase 1 shared craft | **Active KAN-348** | Quiet empty, keyboard, one scroll — all areas |
+| TRACK5 Plans compact + sections | Queued **KAN-350** | After KAN-348 |
+| TRACK5 Docs / Heal / Lab disclosure | Queued **KAN-352** | After KAN-348 |
+| TRACK5 Phase 2 evidence-first | Queued **KAN-354** | After Phase 1 Done |
+| TRACK3-LAB Lab density | **Later** (after TRACK5) | FR-UI-10 Lab follow-on |
+| Real Playwright trace deepen | **Later** (after TRACK3-LAB) | Replace `trace.notice.txt` |
+| KAN-81/82 voice; FR-MAN-2 | **Parked** | Mic / DPIA |
 
 ## Mockup index
 
@@ -78,6 +83,7 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 |-------|------|--------|
 | Nav / areas options (historical) | `docs/mockups/kan103_nav/` | Reference — nav locked; study density only |
 | Orb styles | `docs/mockups/orb_styles.md` | Locked reference |
-| Settings layout grammar (system template) | `docs/mockups/settings_layout_grammar/` | **Accepted 2026-11-21** — wire / themed / annotated / rejected |
-| Suites + Plans FR-UI-11 inherit | `docs/mockups/suites_plans_layout_inherit/` | **Accepted 2026-11-22** — shipped KAN-327…KAN-331 |
-| Rest secondary areas (Plans tabs → Sandboxes) | `docs/mockups/secondary_areas_rest/` | **Accepted / shipped** — TRACK4 Done through KAN-345 |
+| Settings layout grammar (system template) | `docs/mockups/settings_layout_grammar/` | **Accepted 2026-11-21** |
+| Suites + Plans FR-UI-11 inherit | `docs/mockups/suites_plans_layout_inherit/` | **Accepted / shipped** |
+| Rest secondary areas (Plans tabs → Sandboxes) | `docs/mockups/secondary_areas_rest/` | **Accepted / shipped** |
+| Layout enhancement pack (all secondary areas) | `docs/mockups/layout_enhancement_pack/` | **Accepted 2026-11-22** — Build via KAN-348…354 |

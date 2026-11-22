@@ -7,17 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | deferred |
-| **Jira story** | — (TRACK4-LAYOUT complete) |
-| **Start task** | — |
-| **Epic** | — |
-| **Roadmap ID** | — |
-| **Spec** | — |
+| **Status** | now |
+| **Jira story** | **KAN-348** — All areas: quiet empty, keyboard scan, and one scroll per pane |
+| **Start task** | Shared scan craft (empty / Select a row / keyboard / dual-pane scroll) on every secondary App area |
+| **Epic** | **KAN-347** TRACK5-LAYOUT |
+| **Roadmap ID** | TRACK5-LAYOUT-1 |
+| **Spec** | FR-UI-11 enhancement (TRACK5) |
 | **Git** | `main` |
-| **Test ticket** | — |
-| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331**; Reports **KAN-333**; Documents **KAN-335**; Security **KAN-337**; Heal **KAN-339**; Manual **KAN-341**; Desktop Lab **KAN-343**; Sandboxes Lab **KAN-345** desk118 |
-| **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2** |
-| **Next / Shipped** | TRACK4-LAYOUT **Done**. Do **not** implement Lab density / voice / FR-MAN-2 until Active is set. |
+| **Test ticket** | **KAN-349** |
+| **Shipped** | TRACK4 grammar Settings…Sandboxes **KAN-324…345** desk118 |
+| **Queued (same epic)** | **KAN-350**/351 Plans compact+sections; **KAN-352**/353 Docs/Heal/Lab disclosure; **KAN-354**/355 Phase 2 evidence-first (after Phase 1) |
+| **Deferred** | **TRACK3-LAB** Lab density (after TRACK5); **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
+| **Next / Shipped** | Pick up **KAN-348**. Do **not** start TRACK3-LAB / voice / FR-MAN-2 / Phase 2 (**KAN-354**) until Phase 1 stories Done. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — Bridge — TRACK5-LAYOUT epic + Active KAN-348
+- **Agent/chat:** Studio (all-area mockups) + Council (vision gap) + Designer Apply Bridge
+- **Done:** Mock pack `docs/mockups/layout_enhancement_pack/` Accepted. Spec FR-UI-11 enhancement clause. Epic **KAN-347**; stories **KAN-348/350/352/354** + tests **349/351/353/355**. Active set to **KAN-348**. ROADMAP TRACK5 now; DESIGN_INTENT / PROJECT_MEMORY updated. Vision gap: after TRACK5 → TRACK3-LAB → real trace; park voice/FR-MAN-2/CI.
+- **Files:** mock pack; `docs/FUNCTIONAL_SPEC.md`; `docs/mockups/DESIGN_INTENT.md`; `docs/ops/ROADMAP.md`; `docs/ops/WORK_LOG.md`; `PROJECT_MEMORY.md`; `scripts/jira_kan_track5_layout_bridge.py`; `docs/ops/TRACK5_LAYOUT_KEYS.json`
+- **Verify:** Open mock HTML; Jira keys in TRACK5_LAYOUT_KEYS.json; Active table = KAN-348
+- **Jira:** epic + 4 stories + 4 tests created (Bridge)
+- **Next:** Build chat — pick up **KAN-348**
 
 ### 2026-11-22 — docs — TRACK4 layout review catch-up (Studio + Council)
 - **Agent/chat:** Design Studio + Advisory Council + Creative Architect — Designer **Apply**

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Desktop Lab — enhancement pack</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="enhance.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Phase 1.</strong> Progressive disclosure: Advanced is a closed details element. Not a lab dashboard. Synthetic exe path.</p>
+<div class="anno-bar" data-lep-structure="No rail · one collection" data-lep-lexicon="1">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip">No rail · one collection</span>
+  <span class="chip">Enabled</span>
+  <span class="kbd" data-lep-kbd="1">↑</span><span class="kbd">↓</span> focus
+  <span class="kbd">Enter</span> detail
+  <span class="kbd">Space</span> checkbox cell only
+</div>
+<div class="stage" data-layout-enhancement-pack="1" data-lep-area="desktop" data-lep-no-outer-scroll="1">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Desktop</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+
+
+<div class="toolbar"><button class="btn primary" type="button">Run smoke</button><button class="btn" type="button">Run demo steps</button><button class="btn ghost" type="button" data-lep-empty-toggle>Empty preview</button><span class="status">OFFICIAL</span></div>
+<div class="split two">
+  <div class="work scroll-host">
+  <div class="work-head">
+    <h3>Desktop target</h3>
+    <p class="hint">One target, still a scan row. Enabled is the cell. Advanced stays closed.</p>
+  </div>
+  <div class="pane-scroll" data-lep-scroll="scan">
+    <p class="empty-line" data-lep-empty>No desktop target.</p>
+    <table class="scan" data-lep-scan tabindex="0" data-desk-scan="1">
+<thead><tr><th class="hit">Enabled</th><th>Status</th><th>Path</th><th>Last smoke</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus" data-name="Shop.exe"><td class="hit"><input type="checkbox" checked aria-label="Enabled" /></td><td><span class="pill ok">Ready</span></td><td><span class="mono">D:\samples\Shop.exe</span></td><td>Pass · 22 Nov 09:20</td></tr>
+</tbody>
+</table>
+    <details class="advanced" data-lep-advanced>
+      <summary>Advanced</summary>
+      <label class="field">Launch args<input class="fake mono" value="--sample" readonly /></label>
+      <label class="field">Window title<input class="fake" value="Shop sample" readonly /></label>
+      <p class="hint">Closed by default. This is not TRACK3-LAB density.</p>
+    </details>
+  </div>
+</div>
+  <aside class="detail scroll-host">
+  <div class="detail-live pane-scroll">
+    <h3 data-lep-focus-name>Shop.exe</h3>
+    
+    <label class="field">Exe path<input class="fake mono" value="D:\samples\Shop.exe" readonly /></label>
+    <p class="hint">Separate from Playwright. Save lives here.</p>
+    <button class="btn" type="button">Save plugin</button>
+  
+    
+  </div>
+  <div class="detail-empty" data-lep-unfocused>
+    <h3>Detail</h3>
+    <p class="empty-line">Select a row</p>
+  </div>
+  
+</aside>
+</div>
+
+</div>
+<script>
+(function () {
+  var toggle = document.querySelector("[data-lep-empty-toggle]");
+  if (toggle) {
+    toggle.addEventListener("click", function () {
+      var on = document.body.classList.toggle("show-empty");
+      toggle.textContent = on ? "Show rows" : "Empty preview";
+    });
+  }
+  document.querySelectorAll("[data-lep-tabset]").forEach(function (scope) {
+    var buttons = scope.querySelectorAll("[data-lep-rail] button, [data-lep-tabs] button");
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-tab");
+        buttons.forEach(function (b) {
+          var on = b.getAttribute("data-tab") === id;
+          if (b.closest("[data-lep-rail]")) {
+            if (on) b.setAttribute("aria-current", "true");
+            else b.removeAttribute("aria-current");
+          }
+          if (b.closest("[data-lep-tabs]")) {
+            b.setAttribute("aria-selected", on ? "true" : "false");
+          }
+        });
+        scope.querySelectorAll("[data-panel]").forEach(function (panel) {
+          panel.hidden = panel.getAttribute("data-panel") !== id;
+        });
+        scope.querySelectorAll("[data-show]").forEach(function (el) {
+          el.hidden = el.getAttribute("data-show") !== id;
+        });
+      });
+    });
+  });
+  document.querySelectorAll("[data-lep-scan]").forEach(function (table) {
+    table.addEventListener("keydown", function (e) {
+      var rows = Array.prototype.slice.call(table.querySelectorAll("tbody tr"));
+      if (!rows.length || document.body.classList.contains("show-empty")) return;
+      var i = rows.findIndex(function (r) { return r.classList.contains("is-focus"); });
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (i < 0) i = 0;
+        else if (e.key === "ArrowDown") i = Math.min(rows.length - 1, i + 1);
+        else i = Math.max(0, i - 1);
+        rows.forEach(function (r, n) { r.classList.toggle("is-focus", n === i); });
+        var live = document.querySelector("[data-lep-focus-name]");
+        var name = rows[i].getAttribute("data-name");
+        if (live && name) live.textContent = name;
+        rows[i].scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        document.body.classList.remove("show-empty");
+        if (toggle) toggle.textContent = "Empty preview";
+      } else if (e.key === " " || e.key === "Spacebar") {
+        var t = e.target;
+        if (t && t.matches && t.matches("input[type=checkbox], input[type=radio]")) return;
+        e.preventDefault();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

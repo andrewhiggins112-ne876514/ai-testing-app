@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Manual — enhancement pack</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="enhance.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Phase 1.</strong> Focused session: Start is collapsed. Confirm dock is one line. Charter Frame is untouched and not drawn. <strong>Phase 2</strong> evidence hint only. FR-MAN-2 is out.</p>
+<div class="anno-bar" data-lep-structure="No rail · one collection" data-lep-lexicon="1">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip">No rail · one collection</span>
+  <span class="chip muted">No row checkbox</span>
+  <span class="chip phase2">Evidence · Phase 2</span> <span class="kbd" data-lep-kbd="1">↑</span><span class="kbd">↓</span> focus
+  <span class="kbd">Enter</span> detail
+  <span class="kbd">Space</span> checkbox cell only
+</div>
+<div class="stage" data-layout-enhancement-pack="1" data-lep-area="manual" data-lep-no-outer-scroll="1">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Manual</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+
+
+<div class="toolbar"><button class="btn" type="button">Clear linked context</button>
+        <button class="btn" type="button">Open Plans</button>
+        <button class="btn" type="button">Refresh library</button><button class="btn ghost" type="button" data-lep-empty-toggle>Empty preview</button><span class="status">OFFICIAL</span></div>
+<div class="split two">
+  <div class="work scroll-host">
+  <div class="work-head">
+    <h3>Session library</h3>
+    <p class="hint">A focused session collapses Start. Charter Frame is not in this frame.</p>
+  </div>
+  <div class="pane-scroll" data-lep-scroll="scan">
+    <p class="empty-line" data-lep-empty>No sessions.</p>
+    <table class="scan" data-lep-scan tabindex="0" data-manual-session-scan="1">
+<thead><tr><th>When</th><th>Charter</th><th>Link</th><th>Stage</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus" data-name="Explore checkout errors"><td>22 Nov 10:02</td><td>Explore checkout errors</td><td>KAN-410</td><td>Review</td></tr>
+<tr class="row-hit" data-name="Guest search empty"><td>21 Nov 15:18</td><td>Guest search empty</td><td>—</td><td>Ended</td></tr>
+<tr class="row-hit" data-name="Cart badge drift"><td>20 Nov 11:02</td><td>Cart badge drift</td><td>KAN-411</td><td>Ended</td></tr>
+<tr class="row-hit" data-name="Promo copy"><td>19 Nov 09:40</td><td>Promo copy</td><td>—</td><td>Ended</td></tr>
+</tbody>
+</table>
+    <details class="start-fold" data-lep-start-collapse>
+      <summary>Start session</summary>
+      <div class="stack">
+        <label class="field">Charter<textarea class="fake" rows="3">Explore checkout errors on the sample shop.</textarea></label>
+        <label class="compact-check"><input type="checkbox" /> Link to Jira</label>
+        <label class="compact-check"><input type="checkbox" /> Agent assist (recommended off)</label>
+        <label class="compact-check"><input type="checkbox" /> Armed mist (recommended off)</label>
+        <button class="btn primary" type="button">Start session</button>
+      </div>
+    </details>
+  </div>
+</div>
+  <aside class="detail scroll-host">
+  <div class="detail-live pane-scroll">
+    <h3 data-lep-focus-name>Explore checkout errors</h3>
+    
+    <label class="field">Link<input class="fake" value="KAN-410" readonly /></label>
+    <p class="hint">Propose stays a deliberate button. The dock below is one line.</p>
+    <div class="btn-row">
+      <button class="btn" type="button">Propose bug</button>
+      <button class="btn" type="button">Propose comment</button>
+    </div>
+  
+    <div class="evidence" data-lep-evidence="phase2">
+  <span class="tag">Phase 2</span>
+  Hint slot for one screenshot or trace name. Not a gallery. Out of the Phase 1 build.
+</div>
+  </div>
+  <div class="detail-empty" data-lep-unfocused>
+    <h3>Detail</h3>
+    <p class="empty-line">Select a row</p>
+  </div>
+  
+</aside>
+</div>
+<div class="dock" data-lep-dock="1" data-manual-confirm-dock="1">
+  <span class="summary">Bug · KAN-410 · Explore checkout errors — writes on Confirm</span>
+  <button class="btn primary" type="button">Confirm</button>
+  <button class="btn" type="button">Cancel</button>
+</div>
+
+</div>
+<script>
+(function () {
+  var toggle = document.querySelector("[data-lep-empty-toggle]");
+  if (toggle) {
+    toggle.addEventListener("click", function () {
+      var on = document.body.classList.toggle("show-empty");
+      toggle.textContent = on ? "Show rows" : "Empty preview";
+    });
+  }
+  document.querySelectorAll("[data-lep-tabset]").forEach(function (scope) {
+    var buttons = scope.querySelectorAll("[data-lep-rail] button, [data-lep-tabs] button");
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-tab");
+        buttons.forEach(function (b) {
+          var on = b.getAttribute("data-tab") === id;
+          if (b.closest("[data-lep-rail]")) {
+            if (on) b.setAttribute("aria-current", "true");
+            else b.removeAttribute("aria-current");
+          }
+          if (b.closest("[data-lep-tabs]")) {
+            b.setAttribute("aria-selected", on ? "true" : "false");
+          }
+        });
+        scope.querySelectorAll("[data-panel]").forEach(function (panel) {
+          panel.hidden = panel.getAttribute("data-panel") !== id;
+        });
+        scope.querySelectorAll("[data-show]").forEach(function (el) {
+          el.hidden = el.getAttribute("data-show") !== id;
+        });
+      });
+    });
+  });
+  document.querySelectorAll("[data-lep-scan]").forEach(function (table) {
+    table.addEventListener("keydown", function (e) {
+      var rows = Array.prototype.slice.call(table.querySelectorAll("tbody tr"));
+      if (!rows.length || document.body.classList.contains("show-empty")) return;
+      var i = rows.findIndex(function (r) { return r.classList.contains("is-focus"); });
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (i < 0) i = 0;
+        else if (e.key === "ArrowDown") i = Math.min(rows.length - 1, i + 1);
+        else i = Math.max(0, i - 1);
+        rows.forEach(function (r, n) { r.classList.toggle("is-focus", n === i); });
+        var live = document.querySelector("[data-lep-focus-name]");
+        var name = rows[i].getAttribute("data-name");
+        if (live && name) live.textContent = name;
+        rows[i].scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        document.body.classList.remove("show-empty");
+        if (toggle) toggle.textContent = "Empty preview";
+      } else if (e.key === " " || e.key === "Spacebar") {
+        var t = e.target;
+        if (t && t.matches && t.matches("input[type=checkbox], input[type=radio]")) return;
+        e.preventDefault();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

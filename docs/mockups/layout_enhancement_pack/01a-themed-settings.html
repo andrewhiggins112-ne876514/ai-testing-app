@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Settings — enhancement pack</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="enhance.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Phase 1.</strong> Rail stays (≥3 sections). Include cell, one scroll per pane, sticky header, quiet empty. Click Empty preview. Arrow keys move focus when the table has focus. Synthetic OFFICIAL only.</p>
+<div class="anno-bar" data-lep-structure="Rail · ≥3 sections" data-lep-lexicon="1">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip">Rail · ≥3 sections</span>
+  <span class="chip">Include</span>
+  <span class="kbd" data-lep-kbd="1">↑</span><span class="kbd">↓</span> focus
+  <span class="kbd">Enter</span> detail
+  <span class="kbd">Space</span> checkbox cell only
+</div>
+<div class="stage" data-layout-enhancement-pack="1" data-lep-area="settings" data-lep-no-outer-scroll="1">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Settings</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+
+<div data-lep-tabset>
+<div class="toolbar"><span>Level one at a time</span><button class="btn ghost" type="button" data-lep-empty-toggle>Empty preview</button><span class="status">OFFICIAL</span></div>
+<div class="split">
+  <nav class="rail" aria-label="Settings sections" data-lep-rail="1">
+    <p class="rail-label">Sections</p>
+    <button type="button" data-tab="layout">Layout</button><button type="button" data-tab="connections">Connections</button><button type="button" data-tab="env">Environments</button><button type="button" data-tab="model">Model &amp; runner</button><button type="button" data-tab="blocks" aria-current="true">Report blocks</button><button type="button" data-tab="credentials">Credentials</button>
+  </nav>
+  <div class="work scroll-host">
+    <div class="panel pane-fill" data-panel="blocks">
+      <div class="work-head">
+        <h3>Report blocks</h3>
+        <p class="hint">Include is the only checkbox hit. Arrow keys move the row. Space toggles Include only when that cell is focused.</p>
+      </div>
+      <div class="pane-scroll" data-lep-scroll="scan">
+        <p class="empty-line" data-lep-empty>No report blocks.</p>
+        <table class="scan" data-lep-scan tabindex="0" data-settings-blocks-scan="1">
+<thead><tr><th class="hit">Include</th><th>Block</th><th>Export</th></tr></thead>
+<tbody>
+<tr class="row-hit" data-name="Summary"><td class="hit"><input type="checkbox" checked aria-label="Include" /></td><td>Summary</td><td><span class="pill ok">On</span></td></tr>
+<tr class="row-hit is-focus" data-name="Documents"><td class="hit"><input type="checkbox" aria-label="Include" /></td><td>Documents</td><td><span class="pill warn">Bodies off</span></td></tr>
+<tr class="row-hit" data-name="Evidence"><td class="hit"><input type="checkbox" checked aria-label="Include" /></td><td>Evidence</td><td><span class="pill ok">On</span></td></tr>
+<tr class="row-hit" data-name="Heal"><td class="hit"><input type="checkbox" aria-label="Include" /></td><td>Heal</td><td><span class="pill idle">Off</span></td></tr>
+<tr class="row-hit" data-name="Trace"><td class="hit"><input type="checkbox" checked aria-label="Include" /></td><td>Trace</td><td><span class="pill ok">On</span></td></tr>
+<tr class="row-hit" data-name="Environments"><td class="hit"><input type="checkbox" aria-label="Include" /></td><td>Environments</td><td><span class="pill ok">On</span></td></tr>
+<tr class="row-hit" data-name="Steps"><td class="hit"><input type="checkbox" checked aria-label="Include" /></td><td>Steps</td><td><span class="pill ok">On</span></td></tr>
+<tr class="row-hit" data-name="Known issues"><td class="hit"><input type="checkbox" aria-label="Include" /></td><td>Known issues</td><td><span class="pill idle">Off</span></td></tr>
+</tbody>
+</table>
+      </div>
+    </div>
+    <div class="panel pane-fill" data-panel="env" hidden>
+      <div class="work-head">
+        <h3>Named environments</h3>
+        <p class="hint">No checkbox on this collection. Row focuses the environment. Delete stays in the detail.</p>
+      </div>
+      <div class="pane-scroll" data-lep-scroll="scan">
+        <p class="empty-line" data-lep-empty>No environments in this level.</p>
+        <table class="scan" data-lep-scan tabindex="0" data-settings-env-scan="1">
+<thead><tr><th>Status</th><th>Name</th><th>Target</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus" data-name="local"><td><span class="pill ok">Active</span></td><td>local</td><td><span class="mono">https://app.example.test</span></td></tr>
+<tr class="row-hit" data-name="test"><td><span class="pill idle">Idle</span></td><td>test</td><td><span class="mono">https://test.example.test</span></td></tr>
+<tr class="row-hit" data-name="staging"><td><span class="pill idle">Idle</span></td><td>staging</td><td><span class="mono">https://staging.example.test</span></td></tr>
+</tbody>
+</table>
+      </div>
+    </div>
+    <div class="panel pane-fill" data-panel="layout" hidden>
+  <div class="work-head"><h3>Layout</h3>
+  <p class="hint">Same one-scroll rule. This pack does not redraw the form. Masked status only.</p></div>
+  <div class="pane-scroll"><p class="fake">Layout · stored locally · values not shown</p></div>
+</div><div class="panel pane-fill" data-panel="connections" hidden>
+  <div class="work-head"><h3>Connections</h3>
+  <p class="hint">Same one-scroll rule. This pack does not redraw the form. Masked status only.</p></div>
+  <div class="pane-scroll"><p class="fake">Connections · stored locally · values not shown</p></div>
+</div><div class="panel pane-fill" data-panel="model" hidden>
+  <div class="work-head"><h3>Model &amp; runner</h3>
+  <p class="hint">Same one-scroll rule. This pack does not redraw the form. Masked status only.</p></div>
+  <div class="pane-scroll"><p class="fake">Model &amp; runner · stored locally · values not shown</p></div>
+</div><div class="panel pane-fill" data-panel="credentials" hidden>
+  <div class="work-head"><h3>Credentials</h3>
+  <p class="hint">Same one-scroll rule. This pack does not redraw the form. Masked status only.</p></div>
+  <div class="pane-scroll"><p class="fake">Credentials · stored locally · values not shown</p></div>
+</div>
+  </div>
+  <aside class="detail scroll-host">
+    <div class="panel pane-fill" data-panel="blocks">
+      <div class="detail-live pane-scroll">
+        <h3 data-lep-focus-name>Documents</h3>
+        <p class="hint">Focused block. Include stays in the scan cell, not this pane.</p>
+        <label class="field">Export<input class="fake" value="Bodies off" readonly /></label>
+        <p class="hint">One level. No secret values on this surface.</p>
+      </div>
+      <div class="detail-empty" data-lep-unfocused><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+    </div>
+    <div class="panel pane-fill" data-panel="env" hidden>
+      <div class="detail-live pane-scroll">
+        <h3>local</h3>
+        <label class="field">Target<input class="fake mono" value="https://app.example.test" readonly /></label>
+        <div class="danger-zone"><button class="btn danger" type="button">Delete environment…</button></div>
+      </div>
+      <div class="detail-empty"><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+    </div>
+    <div class="panel pane-fill" data-panel="layout" hidden>
+      <div class="detail-live pane-scroll"><h3>Layout</h3><p class="hint">Masked. Nothing to reveal in this mock.</p></div>
+      <div class="detail-empty"><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+    </div><div class="panel pane-fill" data-panel="connections" hidden>
+      <div class="detail-live pane-scroll"><h3>Connections</h3><p class="hint">Masked. Nothing to reveal in this mock.</p></div>
+      <div class="detail-empty"><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+    </div><div class="panel pane-fill" data-panel="model" hidden>
+      <div class="detail-live pane-scroll"><h3>Model &amp; runner</h3><p class="hint">Masked. Nothing to reveal in this mock.</p></div>
+      <div class="detail-empty"><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+    </div><div class="panel pane-fill" data-panel="credentials" hidden>
+      <div class="detail-live pane-scroll"><h3>Credentials</h3><p class="hint">Masked. Nothing to reveal in this mock.</p></div>
+      <div class="detail-empty"><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+    </div>
+  </aside>
+</div>
+</div>
+</div>
+<script>
+(function () {
+  var toggle = document.querySelector("[data-lep-empty-toggle]");
+  if (toggle) {
+    toggle.addEventListener("click", function () {
+      var on = document.body.classList.toggle("show-empty");
+      toggle.textContent = on ? "Show rows" : "Empty preview";
+    });
+  }
+  document.querySelectorAll("[data-lep-tabset]").forEach(function (scope) {
+    var buttons = scope.querySelectorAll("[data-lep-rail] button, [data-lep-tabs] button");
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-tab");
+        buttons.forEach(function (b) {
+          var on = b.getAttribute("data-tab") === id;
+          if (b.closest("[data-lep-rail]")) {
+            if (on) b.setAttribute("aria-current", "true");
+            else b.removeAttribute("aria-current");
+          }
+          if (b.closest("[data-lep-tabs]")) {
+            b.setAttribute("aria-selected", on ? "true" : "false");
+          }
+        });
+        scope.querySelectorAll("[data-panel]").forEach(function (panel) {
+          panel.hidden = panel.getAttribute("data-panel") !== id;
+        });
+        scope.querySelectorAll("[data-show]").forEach(function (el) {
+          el.hidden = el.getAttribute("data-show") !== id;
+        });
+      });
+    });
+  });
+  document.querySelectorAll("[data-lep-scan]").forEach(function (table) {
+    table.addEventListener("keydown", function (e) {
+      var rows = Array.prototype.slice.call(table.querySelectorAll("tbody tr"));
+      if (!rows.length || document.body.classList.contains("show-empty")) return;
+      var i = rows.findIndex(function (r) { return r.classList.contains("is-focus"); });
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (i < 0) i = 0;
+        else if (e.key === "ArrowDown") i = Math.min(rows.length - 1, i + 1);
+        else i = Math.max(0, i - 1);
+        rows.forEach(function (r, n) { r.classList.toggle("is-focus", n === i); });
+        var live = document.querySelector("[data-lep-focus-name]");
+        var name = rows[i].getAttribute("data-name");
+        if (live && name) live.textContent = name;
+        rows[i].scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        document.body.classList.remove("show-empty");
+        if (toggle) toggle.textContent = "Empty preview";
+      } else if (e.key === " " || e.key === "Spacebar") {
+        var t = e.target;
+        if (t && t.matches && t.matches("input[type=checkbox], input[type=radio]")) return;
+        e.preventDefault();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Layout enhancement pack — structure wire</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="enhance.css" />
+</head>
+<body class="wire">
+<p class="page-note"><strong>System rules</strong> for every secondary area. Structure, lexicon, empty, scroll, keyboard. Not a new skin.</p>
+
+<div class="rule-card">
+  <h2>Chrome rule</h2>
+  <p>Vertical rail at three or more sections. In-area tabs for two jobs. No rail for one collection. Theme, orb, home/chat, and App nav stay locked.</p>
+</div>
+<div class="trio"><div class="stage mini">
+      <header class="frozen-bar"><h1 class="area-title">Rail</h1><span class="frozen-tag">≥3</span></header>
+      <div class="split"><nav class="rail"><p class="rail-label">Sections</p><button type="button" aria-current="true">Privacy</button><button type="button">Audit</button><button type="button">Backup</button></nav>
+      <div class="work"><p class="hint">Settings and Security. Do not add a second rail beside tabs.</p></div>
+      <aside class="detail"><h3>Detail</h3><p class="empty-line" style="display:block">Select a row</p></aside></div>
+    </div><div class="stage mini">
+      <header class="frozen-bar"><h1 class="area-title">Tabs</h1><span class="frozen-tag">2 jobs</span></header>
+      <div class="area-tabs"><button type="button" aria-selected="true">Propose</button><button type="button">Uploads</button></div>
+      <div class="work" style="padding:12px"><p class="hint">Plans tabs (FR-UI-9) and Documents Propose | Uploads. Not a new App nav item.</p></div>
+    </div><div class="stage mini">
+      <header class="frozen-bar"><h1 class="area-title">No rail</h1><span class="frozen-tag">1 collection</span></header>
+      <div class="work" style="padding:12px"><p class="hint">Suites, Reports, Heal, Manual, Desktop, Sandboxes. Scan plus detail only.</p></div>
+    </div></div>
+<div class="rule-card">
+  <h2>Checkbox verb lexicon</h2>
+  <table class="lex-table" data-lep-lexicon="1">
+    <thead><tr><th>Verb</th><th>Means</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td>Sel</td><td>Multi-select for a toolbar action. Never Approve or Reject by itself.</td><td>Suites, Heal</td></tr>
+      <tr><td>Keep</td><td>Include this key in a confirm write.</td><td>Documents propose</td></tr>
+      <tr><td>Include</td><td>This artifact or block is in the action.</td><td>Settings report blocks, Security wipe</td></tr>
+      <tr><td>Enabled</td><td>Plugin or target on.</td><td>Desktop cell; Plans case compact check</td></tr>
+      <tr><td>A · B</td><td>Compare slot. Radio, not a toggle of the row.</td><td>Plans History</td></tr>
+    </tbody>
+  </table>
+  <p class="callout">Show archived, Archived, and Pause on fail are compact booleans, not scan-column verbs.</p>
+</div>
+<div class="pair"><div class="stage mini force-empty">
+      <header class="frozen-bar"><h1 class="area-title">Empty contract</h1><span class="frozen-tag">Static</span></header>
+      <div class="split two">
+        <div class="work scroll-host">
+          <div class="work-head"><h3>Scan</h3></div>
+          <div class="pane-scroll" data-lep-scroll="scan">
+            <p class="empty-line" data-lep-empty>No rows in this level.</p>
+            <table class="scan"><thead><tr><th>Name</th></tr></thead><tbody><tr><td>hidden</td></tr></tbody></table>
+          </div>
+        </div>
+        <aside class="detail scroll-host">
+          <div class="detail-live pane-scroll"><h3>Hidden while empty</h3></div>
+          <div class="detail-empty" data-lep-unfocused><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+        </aside>
+      </div>
+    </div><div class="stage mini">
+      <header class="frozen-bar"><h1 class="area-title">One scroll each</h1><span class="frozen-tag">Static</span></header>
+      <div class="split two" data-lep-no-outer-scroll="1">
+        <div class="work scroll-host">
+          <div class="work-head"><h3>Scan scroller</h3><p class="hint">Thead sticks here only. The stage does not scroll.</p></div>
+          <div class="pane-scroll" data-lep-scroll="scan">
+            <table class="scan" data-lep-sticky="1"><thead><tr><th>Row</th><th>Level</th></tr></thead><tbody><tr class='row-hit'><td>row 1</td><td>OFFICIAL</td></tr><tr class='row-hit is-focus'><td>row 2</td><td>OFFICIAL</td></tr><tr class='row-hit'><td>row 3</td><td>OFFICIAL</td></tr><tr class='row-hit'><td>row 4</td><td>OFFICIAL</td></tr><tr class='row-hit'><td>row 5</td><td>OFFICIAL</td></tr><tr class='row-hit'><td>row 6</td><td>OFFICIAL</td></tr><tr class='row-hit'><td>row 7</td><td>OFFICIAL</td></tr><tr class='row-hit'><td>row 8</td><td>OFFICIAL</td></tr><tr class='row-hit'><td>row 9</td><td>OFFICIAL</td></tr><tr class='row-hit'><td>row 10</td><td>OFFICIAL</td></tr><tr class='row-hit'><td>row 11</td><td>OFFICIAL</td></tr><tr class='row-hit'><td>row 12</td><td>OFFICIAL</td></tr><tr class='row-hit'><td>row 13</td><td>OFFICIAL</td></tr></tbody></table>
+          </div>
+        </div>
+        <aside class="detail scroll-host">
+          <div class="detail-live pane-scroll"><h3>Detail scroller</h3>
+            <p class="hint">This pane scrolls on its own. No third scroll on the split.</p>
+            <p class="fake">Field</p><p class="fake">Field</p><p class="fake">Field</p><p class="fake">Field</p><p class="fake">Field</p><p class="fake">Field</p>
+          </div>
+        </aside>
+      </div>
+    </div></div>
+<div class="rule-card">
+  <h2>Keyboard</h2>
+  <p><span class="kbd">↑</span> <span class="kbd">↓</span> move the focused row inside the scan. <span class="kbd">Enter</span> keeps that row’s detail open. <span class="kbd">Space</span> activates only a focused checkbox or radio cell. Space on the row does nothing.</p>
+  <p class="callout">Click Empty preview on any themed file to see the one-line empty scan. The dashed chip row above each themed stage is a Studio note and does not ship.</p>
+</div>
+</body>
+</html>

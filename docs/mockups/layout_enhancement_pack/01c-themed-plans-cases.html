@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Plans · Cases — enhancement pack</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="enhance.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Phase 1.</strong> In-area tabs stay (two-plus jobs, no second rail). Case detail is four sections. Save and Run stay pinned while the detail body scrolls. Booleans are compact.</p>
+<div class="anno-bar" data-lep-structure="In-area tabs · plan jobs" data-lep-lexicon="1">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip">In-area tabs · plan jobs</span>
+  <span class="chip">Enabled</span>
+  <span class="chip">Archived</span> <span class="kbd" data-lep-kbd="1">↑</span><span class="kbd">↓</span> focus
+  <span class="kbd">Enter</span> detail
+  <span class="kbd">Space</span> checkbox cell only
+</div>
+<div class="stage" data-layout-enhancement-pack="1" data-lep-area="plans-cases" data-lep-no-outer-scroll="1">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Plans</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+
+<div data-lep-tabset>
+<div class="toolbar"><span class="fake">Checkout smoke</span>
+        <button class="btn" type="button">Open</button>
+        <button class="btn" type="button">Refresh</button>
+        <label class="compact-check" data-lep-bool="show-archived"><input type="checkbox" /> Show archived</label><button class="btn ghost" type="button" data-lep-empty-toggle>Empty preview</button><span class="status">OFFICIAL</span></div>
+<div class="area-tabs" role="tablist" data-lep-tabs="1">
+      <button type="button" data-tab="draft">Draft</button>
+      <button type="button" data-tab="cases" aria-selected="true">Cases</button>
+      <button type="button" data-tab="coverage">Coverage</button>
+      <button type="button" data-tab="trace">Trace</button>
+      <button type="button" data-tab="history">History</button>
+      <button type="button" data-tab="run">Run</button>
+    </div>
+<div class="split two panel" data-panel="cases">
+  <div class="work scroll-host">
+  <div class="work-head">
+    <h3>Cases</h3>
+    <p class="hint">Show archived is a compact check in the toolbar. Enabled and Archived sit in Edit, not a page-width stack.</p>
+  </div>
+  <div class="pane-scroll" data-lep-scroll="scan">
+    <p class="empty-line" data-lep-empty>No cases.</p>
+    <table class="scan" data-lep-scan tabindex="0" data-plan-cases-scan="1">
+<thead><tr><th>Status</th><th>Id</th><th>Name</th><th>Tags</th><th>Last</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus" data-name="Happy path login"><td><span class="pill ok">On</span></td><td><span class="mono">c1</span></td><td>Happy path login</td><td>smoke</td><td><span class="pill ok">Pass</span></td></tr>
+<tr class="row-hit" data-name="Flaky locator"><td><span class="pill warn">Quar</span></td><td><span class="mono">c2</span></td><td>Flaky locator</td><td>regression</td><td><span class="pill warn">Fail</span></td></tr>
+<tr class="row-hit" data-name="Guest search"><td><span class="pill ok">On</span></td><td><span class="mono">c3</span></td><td>Guest search</td><td>smoke</td><td><span class="pill ok">Pass</span></td></tr>
+<tr class="row-hit" data-name="Archived tax"><td><span class="pill idle">Off</span></td><td><span class="mono">c4</span></td><td>Archived tax</td><td>nightly</td><td><span class="pill idle">—</span></td></tr>
+<tr class="row-hit" data-name="Cart badge"><td><span class="pill ok">On</span></td><td><span class="mono">c5</span></td><td>Cart badge</td><td>smoke</td><td><span class="pill ok">Pass</span></td></tr>
+<tr class="row-hit" data-name="Promo code"><td><span class="pill ok">On</span></td><td><span class="mono">c6</span></td><td>Promo code</td><td>regression</td><td><span class="pill ok">Pass</span></td></tr>
+<tr class="row-hit" data-name="Pay button"><td><span class="pill warn">Fail</span></td><td><span class="mono">c7</span></td><td>Pay button</td><td>smoke</td><td><span class="pill warn">Fail</span></td></tr>
+<tr class="row-hit" data-name="Address book"><td><span class="pill ok">On</span></td><td><span class="mono">c8</span></td><td>Address book</td><td>regression</td><td><span class="pill ok">Pass</span></td></tr>
+</tbody>
+</table>
+    
+  </div>
+</div>
+  <aside class="detail scroll-host">
+  <div class="detail-live pane-scroll">
+    <h3 data-lep-focus-name>Happy path login</h3>
+    
+    <section class="sec" data-lep-sections="edit"><h4>Edit</h4>
+      <label class="field">Name<input class="fake" value="Happy path login" readonly /></label>
+      <label class="field">Tags<input class="fake" value="smoke" readonly /></label>
+      <div class="bool-row" data-lep-bool="case">
+        <label class="compact-check"><input type="checkbox" checked /> Enabled</label>
+        <label class="compact-check"><input type="checkbox" /> Archived</label>
+      </div>
+    </section>
+    <section class="sec" data-lep-sections="run"><h4>Run</h4>
+      <p class="fake">Last pass · 22 Nov 09:12 · lab-local</p>
+      <p class="hint">Run itself is pinned below. This section is the record.</p>
+    </section>
+    <section class="sec" data-lep-sections="quarantine"><h4>Quarantine</h4>
+      <label class="compact-check"><input type="checkbox" /> Quarantined</label>
+      <label class="field">Reason<input class="fake" value="" placeholder="Why this case is held" readonly /></label>
+    </section>
+    <section class="sec" data-lep-sections="known"><h4>Known issue</h4>
+      <label class="field">Issue<input class="fake" value="KAN-410" readonly /></label>
+      <p class="hint">Label only. Nothing is filed from this mock.</p>
+    </section>
+    
+    
+  </div>
+  <div class="detail-empty" data-lep-unfocused>
+    <h3>Detail</h3>
+    <p class="empty-line">Select a row</p>
+  </div>
+  <div class="pin" data-lep-pin><button class="btn primary" type="button">Save</button><button class="btn" type="button">Run</button></div>
+</aside>
+</div>
+<div class="panel" data-panel="draft" hidden><div class="work"><p class="hint">See 01d-themed-plans-tabs.html for Draft.</p></div></div><div class="panel" data-panel="coverage" hidden><div class="work"><p class="hint">See 01d-themed-plans-tabs.html for Coverage.</p></div></div><div class="panel" data-panel="trace" hidden><div class="work"><p class="hint">See 01d-themed-plans-tabs.html for Trace.</p></div></div><div class="panel" data-panel="history" hidden><div class="work"><p class="hint">See 01d-themed-plans-tabs.html for History.</p></div></div><div class="panel" data-panel="run" hidden><div class="work"><p class="hint">See 01d-themed-plans-tabs.html for Run.</p></div></div>
+</div>
+</div>
+<script>
+(function () {
+  var toggle = document.querySelector("[data-lep-empty-toggle]");
+  if (toggle) {
+    toggle.addEventListener("click", function () {
+      var on = document.body.classList.toggle("show-empty");
+      toggle.textContent = on ? "Show rows" : "Empty preview";
+    });
+  }
+  document.querySelectorAll("[data-lep-tabset]").forEach(function (scope) {
+    var buttons = scope.querySelectorAll("[data-lep-rail] button, [data-lep-tabs] button");
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-tab");
+        buttons.forEach(function (b) {
+          var on = b.getAttribute("data-tab") === id;
+          if (b.closest("[data-lep-rail]")) {
+            if (on) b.setAttribute("aria-current", "true");
+            else b.removeAttribute("aria-current");
+          }
+          if (b.closest("[data-lep-tabs]")) {
+            b.setAttribute("aria-selected", on ? "true" : "false");
+          }
+        });
+        scope.querySelectorAll("[data-panel]").forEach(function (panel) {
+          panel.hidden = panel.getAttribute("data-panel") !== id;
+        });
+        scope.querySelectorAll("[data-show]").forEach(function (el) {
+          el.hidden = el.getAttribute("data-show") !== id;
+        });
+      });
+    });
+  });
+  document.querySelectorAll("[data-lep-scan]").forEach(function (table) {
+    table.addEventListener("keydown", function (e) {
+      var rows = Array.prototype.slice.call(table.querySelectorAll("tbody tr"));
+      if (!rows.length || document.body.classList.contains("show-empty")) return;
+      var i = rows.findIndex(function (r) { return r.classList.contains("is-focus"); });
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (i < 0) i = 0;
+        else if (e.key === "ArrowDown") i = Math.min(rows.length - 1, i + 1);
+        else i = Math.max(0, i - 1);
+        rows.forEach(function (r, n) { r.classList.toggle("is-focus", n === i); });
+        var live = document.querySelector("[data-lep-focus-name]");
+        var name = rows[i].getAttribute("data-name");
+        if (live && name) live.textContent = name;
+        rows[i].scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        document.body.classList.remove("show-empty");
+        if (toggle) toggle.textContent = "Empty preview";
+      } else if (e.key === " " || e.key === "Spacebar") {
+        var t = e.target;
+        if (t && t.matches && t.matches("input[type=checkbox], input[type=radio]")) return;
+        e.preventDefault();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Security — enhancement pack</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="enhance.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Phase 1.</strong> Rail of five sections. Include cell. Masked status. One level. Empty preview is one line, not a privacy dashboard.</p>
+<div class="anno-bar" data-lep-structure="Rail · ≥3 sections" data-lep-lexicon="1">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip">Rail · ≥3 sections</span>
+  <span class="chip">Include</span>
+  <span class="kbd" data-lep-kbd="1">↑</span><span class="kbd">↓</span> focus
+  <span class="kbd">Enter</span> detail
+  <span class="kbd">Space</span> checkbox cell only
+</div>
+<div class="stage" data-layout-enhancement-pack="1" data-lep-area="security" data-lep-no-outer-scroll="1">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Security</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+
+<div data-lep-tabset>
+<div class="toolbar"><span>Active level OFFICIAL · profile-official-local</span><button class="btn ghost" type="button" data-lep-empty-toggle>Empty preview</button><span class="status">OFFICIAL</span></div>
+<div class="split">
+  <nav class="rail" data-lep-rail="1" aria-label="Security sections">
+    <p class="rail-label">Sections</p>
+    <button type="button" data-tab="level">Level</button><button type="button" data-tab="privacy" aria-current="true">Privacy</button><button type="button" data-tab="audit">Audit</button><button type="button" data-tab="redact">Redaction</button><button type="button" data-tab="backup">Backup</button>
+  </nav>
+  <div class="work scroll-host">
+    <div class="panel pane-fill" data-panel="privacy">
+      <div class="work-head"><h3>Local data to wipe</h3>
+        <p class="hint">Include is a dedicated cell. The row does not toggle it. One level is shown.</p></div>
+      <div class="pane-scroll" data-lep-scroll="scan">
+        <p class="empty-line" data-lep-empty>No local artifacts.</p>
+        <table class="scan" data-lep-scan tabindex="0" data-sec-privacy-scan="1">
+<thead><tr><th class="hit">Include</th><th>Artifact</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus" data-name="Reports"><td class="hit"><input type="checkbox" checked aria-label="Include" /></td><td>Reports</td></tr>
+<tr class="row-hit" data-name="Screenshots"><td class="hit"><input type="checkbox" checked aria-label="Include" /></td><td>Screenshots</td></tr>
+<tr class="row-hit" data-name="Heal audit"><td class="hit"><input type="checkbox" aria-label="Include" /></td><td>Heal audit</td></tr>
+<tr class="row-hit" data-name="Sessions (this level)"><td class="hit"><input type="checkbox" aria-label="Include" /></td><td>Sessions (this level)</td></tr>
+<tr class="row-hit" data-name="Uploaded documents"><td class="hit"><input type="checkbox" aria-label="Include" /></td><td>Uploaded documents</td></tr>
+</tbody>
+</table>
+      </div>
+    </div>
+    <div class="panel pane-fill" data-panel="audit" hidden>
+      <div class="work-head"><h3>Local side-effects</h3><p class="hint">Time, action, id. No document bodies.</p></div>
+      <div class="pane-scroll" data-lep-scroll="scan">
+        <p class="empty-line" data-lep-empty>No audit rows.</p>
+        <table class="scan" data-lep-scan tabindex="0" data-sec-audit-scan="1">
+<thead><tr><th>Time</th><th>Action</th><th>Ref</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus" data-name="plan_edit"><td>22 Nov 09:02</td><td>plan_edit</td><td>plan-synth</td></tr>
+<tr class="row-hit" data-name="privacy_wipe"><td>21 Nov 18:11</td><td>privacy_wipe</td><td>OFFICIAL</td></tr>
+<tr class="row-hit" data-name="backup_create"><td>21 Nov 12:00</td><td>backup_create</td><td>OFFICIAL</td></tr>
+<tr class="row-hit" data-name="level_switch"><td>20 Nov 09:40</td><td>level_switch</td><td>propose</td></tr>
+</tbody>
+</table>
+      </div>
+    </div>
+    <div class="panel pane-fill" data-panel="level" hidden>
+      <div class="work-head"><h3>Classification</h3><p class="hint">Switch takes effect only after Confirm.</p></div>
+      <div class="pane-scroll"><label class="field">Proposed level<select class="fake"><option>SECRET</option></select></label></div>
+    </div>
+    <div class="panel pane-fill" data-panel="redact" hidden>
+      <div class="work-head"><h3>Redaction status</h3></div>
+      <div class="pane-scroll">
+        <p class="empty-line" data-lep-empty>No redaction runs.</p>
+        <p class="fake">Export redaction on · 3 pattern hits · screenshots not OCR-redacted</p>
+      </div>
+    </div>
+    <div class="panel pane-fill" data-panel="backup" hidden>
+      <div class="work-head"><h3>Backups for this level</h3></div>
+      <div class="pane-scroll">
+        <p class="empty-line" data-lep-empty>No backups.</p>
+        <p class="fake">22 Nov 07:00 · OFFICIAL · secrets no</p>
+      </div>
+    </div>
+  </div>
+  <aside class="detail scroll-host">
+    <div class="panel pane-fill" data-panel="privacy">
+      <div class="detail-live pane-scroll">
+        <h3 data-lep-focus-name>Reports</h3>
+        <p class="hint">Credentials and settings are not deleted here.</p>
+        <div class="danger-zone">
+          <button class="btn danger" type="button">Delete local data…</button>
+          <button class="btn" type="button" disabled>Confirm delete</button>
+        </div>
+      </div>
+      <div class="detail-empty" data-lep-unfocused><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+    </div>
+    <div class="panel pane-fill" data-panel="audit" hidden>
+      <div class="detail-live pane-scroll"><h3>plan_edit</h3><p class="fake">plan-synth · OFFICIAL</p></div>
+      <div class="detail-empty"><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+    </div>
+    <div class="panel pane-fill" data-panel="level" hidden>
+      <div class="detail-live pane-scroll"><h3>Switch</h3>
+        <p class="hint">Profile name only. Stores stay unmixed.</p>
+        <button class="btn" type="button">Switch level</button></div>
+      <div class="detail-empty"><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+    </div>
+    <div class="panel pane-fill" data-panel="redact" hidden>
+      <div class="detail-live pane-scroll"><h3>Evidence</h3><p class="hint">Hit counts only. Never echo a matched secret.</p></div>
+      <div class="detail-empty"><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+    </div>
+    <div class="panel pane-fill" data-panel="backup" hidden>
+      <div class="detail-live pane-scroll"><h3>Restore</h3>
+        <label class="compact-check"><input type="checkbox" /> Include settings (no secrets)</label>
+        <label class="compact-check"><input type="checkbox" /> Include secrets — off by default</label>
+        <div class="danger-zone"><button class="btn danger" type="button">Restore…</button></div>
+      </div>
+      <div class="detail-empty"><h3>Detail</h3><p class="empty-line">Select a row</p></div>
+    </div>
+  </aside>
+</div>
+</div>
+</div>
+<script>
+(function () {
+  var toggle = document.querySelector("[data-lep-empty-toggle]");
+  if (toggle) {
+    toggle.addEventListener("click", function () {
+      var on = document.body.classList.toggle("show-empty");
+      toggle.textContent = on ? "Show rows" : "Empty preview";
+    });
+  }
+  document.querySelectorAll("[data-lep-tabset]").forEach(function (scope) {
+    var buttons = scope.querySelectorAll("[data-lep-rail] button, [data-lep-tabs] button");
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-tab");
+        buttons.forEach(function (b) {
+          var on = b.getAttribute("data-tab") === id;
+          if (b.closest("[data-lep-rail]")) {
+            if (on) b.setAttribute("aria-current", "true");
+            else b.removeAttribute("aria-current");
+          }
+          if (b.closest("[data-lep-tabs]")) {
+            b.setAttribute("aria-selected", on ? "true" : "false");
+          }
+        });
+        scope.querySelectorAll("[data-panel]").forEach(function (panel) {
+          panel.hidden = panel.getAttribute("data-panel") !== id;
+        });
+        scope.querySelectorAll("[data-show]").forEach(function (el) {
+          el.hidden = el.getAttribute("data-show") !== id;
+        });
+      });
+    });
+  });
+  document.querySelectorAll("[data-lep-scan]").forEach(function (table) {
+    table.addEventListener("keydown", function (e) {
+      var rows = Array.prototype.slice.call(table.querySelectorAll("tbody tr"));
+      if (!rows.length || document.body.classList.contains("show-empty")) return;
+      var i = rows.findIndex(function (r) { return r.classList.contains("is-focus"); });
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (i < 0) i = 0;
+        else if (e.key === "ArrowDown") i = Math.min(rows.length - 1, i + 1);
+        else i = Math.max(0, i - 1);
+        rows.forEach(function (r, n) { r.classList.toggle("is-focus", n === i); });
+        var live = document.querySelector("[data-lep-focus-name]");
+        var name = rows[i].getAttribute("data-name");
+        if (live && name) live.textContent = name;
+        rows[i].scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        document.body.classList.remove("show-empty");
+        if (toggle) toggle.textContent = "Empty preview";
+      } else if (e.key === " " || e.key === "Spacebar") {
+        var t = e.target;
+        if (t && t.matches && t.matches("input[type=checkbox], input[type=radio]")) return;
+        e.preventDefault();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
