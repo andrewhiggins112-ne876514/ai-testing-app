@@ -1751,6 +1751,86 @@
   const backupStatus = document.getElementById("backup-status");
   let pendingBackupPath = "";
   let pendingPrivacyCategories = null;
+  const secPrivacyScanBody = document.getElementById("sec-privacy-scan-body");
+  const secBackupScanBody = document.getElementById("sec-backup-scan-body");
+  const privDetailTitle = document.getElementById("priv-detail-title");
+  const privDetailHint = document.getElementById("priv-detail-hint");
+  const secAuditDetailTitle = document.getElementById("sec-audit-detail-title");
+  const secAuditDetailHint = document.getElementById("sec-audit-detail-hint");
+  const secBackupDetailTitle = document.getElementById("sec-backup-detail-title");
+  const secBackupDetailHint = document.getElementById("sec-backup-detail-hint");
+  const PRIV_ARTIFACT_LABELS = {
+    reports: "Reports",
+    screenshots: "Screenshots",
+    heal: "Heal audit",
+    sessions: "Sessions (chat + Manual this level)",
+    uploads: "Uploaded documents",
+    "local-audit": "Local side-effects audit",
+    profiles: "Browser profiles",
+  };
+
+  function setSecuritySection(sectionId) {
+    const chosen = sectionId || "privacy";
+    document.querySelectorAll(".sec-section-btn[data-sec-section]").forEach(function (btn) {
+      if (btn.getAttribute("data-sec-section") === chosen) {
+        btn.setAttribute("aria-current", "true");
+      } else {
+        btn.removeAttribute("aria-current");
+      }
+    });
+    document.querySelectorAll(".sec-section-panel[data-sec-section-panel]").forEach(function (panel) {
+      panel.hidden = panel.getAttribute("data-sec-section-panel") !== chosen;
+    });
+  }
+
+  function focusPrivArtifact(artifactId) {
+    const id = artifactId || "reports";
+    document.querySelectorAll("#sec-privacy-scan .sec-scan-row").forEach(function (row) {
+      if (row.getAttribute("data-priv-artifact") === id) {
+        row.classList.add("is-focus");
+      } else {
+        row.classList.remove("is-focus");
+      }
+    });
+    if (privDetailTitle) {
+      privDetailTitle.textContent = PRIV_ARTIFACT_LABELS[id] || id;
+    }
+    if (privDetailHint) {
+      privDetailHint.textContent =
+        "Focused artifact. Include cell toggles wipe membership; row click only focuses. Credentials and settings are not deleted here.";
+    }
+  }
+
+  function focusAuditEntry(summary) {
+    if (secAuditDetailTitle) {
+      secAuditDetailTitle.textContent = "Entry";
+    }
+    if (secAuditDetailHint) {
+      secAuditDetailHint.textContent =
+        summary || "Select a row. Time, action, id, level only — no document bodies.";
+    }
+  }
+
+  function focusBackupRow(path, label) {
+    document.querySelectorAll("#sec-backup-scan .sec-scan-row").forEach(function (row) {
+      if (row.getAttribute("data-backup-path") === path) {
+        row.classList.add("is-focus");
+      } else {
+        row.classList.remove("is-focus");
+      }
+    });
+    if (backupSelect && path !== undefined) {
+      backupSelect.value = path || "";
+    }
+    if (secBackupDetailTitle) {
+      secBackupDetailTitle.textContent = label || "Restore";
+    }
+    if (secBackupDetailHint) {
+      secBackupDetailHint.textContent = path
+        ? "Focused backup. Secrets option stays off by default."
+        : "Select a backup row, then Restore… Confirm stays disabled until propose.";
+    }
+  }
   const docText = document.getElementById("doc-text");
   const docParse = document.getElementById("doc-parse");
   const docProposal = document.getElementById("doc-proposal");
@@ -4323,6 +4403,52 @@
       backupSelect.value = previous;
       if (backupSelect.value !== previous) backupSelect.value = "";
     }
+    if (secBackupScanBody) {
+      secBackupScanBody.innerHTML = "";
+      if (!rows || !rows.length) {
+        const empty = document.createElement("tr");
+        empty.className = "sec-scan-empty";
+        const td = document.createElement("td");
+        td.colSpan = 3;
+        td.textContent = "No backups yet";
+        empty.appendChild(td);
+        secBackupScanBody.appendChild(empty);
+        focusBackupRow("", "Restore");
+        return;
+      }
+      rows.forEach(function (row, idx) {
+        const tr = document.createElement("tr");
+        tr.className = "sec-scan-row";
+        tr.setAttribute("data-backup-path", row.path || "");
+        tr.tabIndex = 0;
+        const when = row.filename || row.created_at || row.path || "backup";
+        const tdWhen = document.createElement("td");
+        tdWhen.textContent = when;
+        const tdLevel = document.createElement("td");
+        tdLevel.textContent = row.security_level || "?";
+        const tdSecrets = document.createElement("td");
+        tdSecrets.textContent = row.include_secrets ? "Yes" : "No";
+        tr.appendChild(tdWhen);
+        tr.appendChild(tdLevel);
+        tr.appendChild(tdSecrets);
+        tr.addEventListener("click", function () {
+          focusBackupRow(row.path || "", when);
+        });
+        tr.addEventListener("keydown", function (ev) {
+          if (ev.key === "Enter" || ev.key === " ") {
+            ev.preventDefault();
+            focusBackupRow(row.path || "", when);
+          }
+        });
+        secBackupScanBody.appendChild(tr);
+        if ((previous && previous === (row.path || "")) || (!previous && idx === 0)) {
+          focusBackupRow(row.path || "", when);
+        }
+      });
+      if (previous && backupSelect && backupSelect.value !== previous) {
+        focusBackupRow("", "Restore");
+      }
+    }
   }
 
   async function loadBackupStatus() {
@@ -4361,22 +4487,56 @@
       localAuditList.innerHTML = "";
       const rows = (data && data.entries) || [];
       if (!rows.length) {
-        const li = document.createElement("li");
-        li.textContent = "No local side-effect events yet.";
-        localAuditList.appendChild(li);
+        const empty = document.createElement("tr");
+        empty.className = "sec-scan-empty";
+        const td = document.createElement("td");
+        td.colSpan = 3;
+        td.textContent = "No local side-effect events yet.";
+        empty.appendChild(td);
+        localAuditList.appendChild(empty);
+        focusAuditEntry("No local side-effect events yet.");
       } else {
-        rows.forEach(function (row) {
-          const li = document.createElement("li");
-          const bits = [
-            row.timestamp || "",
-            row.action || "",
+        rows.forEach(function (row, idx) {
+          const tr = document.createElement("tr");
+          tr.className = "sec-scan-row";
+          tr.tabIndex = 0;
+          const refBits = [
             row.plan_id ? "plan " + row.plan_id : "",
             row.case_id ? "case " + row.case_id : "",
             row.security_level || "",
             row.session_id ? "session " + row.session_id : "",
           ].filter(Boolean);
-          li.textContent = bits.join(" · ");
-          localAuditList.appendChild(li);
+          const tdTime = document.createElement("td");
+          tdTime.textContent = row.timestamp || "";
+          const tdAction = document.createElement("td");
+          tdAction.textContent = row.action || "";
+          const tdRef = document.createElement("td");
+          tdRef.textContent = refBits.join(" · ") || "—";
+          tr.appendChild(tdTime);
+          tr.appendChild(tdAction);
+          tr.appendChild(tdRef);
+          const summary =
+            [row.action || "", refBits.join(" · "), row.security_level || ""]
+              .filter(Boolean)
+              .join(" · ") || "Entry";
+          tr.addEventListener("click", function () {
+            document.querySelectorAll("#sec-audit-scan .sec-scan-row").forEach(function (r) {
+              r.classList.remove("is-focus");
+            });
+            tr.classList.add("is-focus");
+            focusAuditEntry(summary);
+          });
+          tr.addEventListener("keydown", function (ev) {
+            if (ev.key === "Enter" || ev.key === " ") {
+              ev.preventDefault();
+              tr.click();
+            }
+          });
+          localAuditList.appendChild(tr);
+          if (idx === 0) {
+            tr.classList.add("is-focus");
+            focusAuditEntry(summary);
+          }
         });
       }
       if (localAuditStatus) {
@@ -4388,11 +4548,16 @@
     } catch (err) {
       if (localAuditList) {
         localAuditList.innerHTML = "";
-        const li = document.createElement("li");
-        li.textContent = "Could not load local audit.";
-        localAuditList.appendChild(li);
+        const empty = document.createElement("tr");
+        empty.className = "sec-scan-empty";
+        const td = document.createElement("td");
+        td.colSpan = 3;
+        td.textContent = "Could not load local audit.";
+        empty.appendChild(td);
+        localAuditList.appendChild(empty);
       }
       if (localAuditStatus) localAuditStatus.textContent = "Could not load local audit.";
+      focusAuditEntry("Could not load local audit.");
     }
   }
 
@@ -10948,6 +11113,46 @@
       setSettingsSection(btn.getAttribute("data-settings-section"));
     });
   }
+  const secSectionRail = document.getElementById("sec-section-rail");
+  if (secSectionRail) {
+    secSectionRail.addEventListener("click", function (ev) {
+      const btn =
+        ev.target && ev.target.closest
+          ? ev.target.closest(".sec-section-btn[data-sec-section]")
+          : null;
+      if (!btn || !secSectionRail.contains(btn)) return;
+      ev.preventDefault();
+      setSecuritySection(btn.getAttribute("data-sec-section"));
+    });
+  }
+  document.querySelectorAll("#sec-privacy-scan .sec-scan-row").forEach(function (row) {
+    row.addEventListener("click", function (ev) {
+      if (
+        ev.target &&
+        ev.target.closest &&
+        ev.target.closest('[data-sec-checkbox-stop="1"]')
+      ) {
+        return;
+      }
+      focusPrivArtifact(row.getAttribute("data-priv-artifact") || "reports");
+    });
+    row.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") {
+        ev.preventDefault();
+        focusPrivArtifact(row.getAttribute("data-priv-artifact") || "reports");
+      }
+    });
+  });
+  document.querySelectorAll('[data-sec-checkbox-stop="1"]').forEach(function (input) {
+    input.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+    });
+    input.addEventListener("mousedown", function (ev) {
+      ev.stopPropagation();
+    });
+  });
+  setSecuritySection("privacy");
+  focusPrivArtifact("reports");
   document.querySelectorAll("#set-rpt-scan .settings-scan-row").forEach(function (row) {
     row.addEventListener("click", function (ev) {
       if (ev.target && ev.target.closest && ev.target.closest('[data-settings-checkbox-stop="1"]')) {

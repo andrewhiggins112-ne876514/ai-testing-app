@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk113" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk114" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -534,7 +534,7 @@
           </div>
           </div>
         </div>
-        <div id="app-section-security" class="app-section" hidden data-settings-security-density="1">
+        <div id="app-section-security" class="app-section" hidden data-settings-security-density="1" data-security-layout-grammar="1">
           <div id="sec-chrome-toolbar" class="area-chrome-toolbar sec-chrome-toolbar" data-sec-chrome="1">
             <div class="btn-row sec-toolbar-actions area-chrome-toolbar-row">
               <label class="stack-label sec-toolbar-level" for="sec-level">Level
@@ -552,68 +552,163 @@
           <div class="area-work" data-area-work="1">
           <details class="sec-about" data-sec-about="1">
             <summary>About Security</summary>
-            <p class="drawer-hint">OFFICIAL and SECRET isolate credentials and browser profiles. Switching requires confirmation. Level controls stay in the toolbar above — never under Advanced.</p>
+            <p class="drawer-hint">OFFICIAL and SECRET isolate credentials and browser profiles. Switching requires confirmation. Level controls stay in the toolbar above — never under Advanced. Privacy wipe uses Include cells; row click focuses the artifact only.</p>
           </details>
-          <h3 class="orb-section-label">Privacy &amp; local data</h3>
-          <p class="drawer-hint">
-            No telemetry by default. Extracted document data needs explicit consent before storage.
-            Wipe local artifacts (reports, screenshots, heal audit, sessions including Manual for this level, uploads, browser profiles) with confirmation.
-            Credentials and settings.json are not deleted here.
-          </p>
-          <p id="priv-telemetry" class="drawer-hint">Telemetry: —</p>
-          <p id="priv-inventory" class="drawer-hint">Local artifacts: —</p>
-          <label class="check-row"><input type="checkbox" id="priv-reports" checked /> Reports</label>
-          <label class="check-row"><input type="checkbox" id="priv-screenshots" checked /> Screenshots</label>
-          <label class="check-row"><input type="checkbox" id="priv-heal" checked /> Heal audit</label>
-          <label class="check-row"><input type="checkbox" id="priv-sessions" checked data-priv-sessions="1" /> Sessions (chat + Manual this level)</label>
-          <label class="check-row"><input type="checkbox" id="priv-uploads" checked /> Uploaded documents</label>
-          <label class="check-row"><input type="checkbox" id="priv-local-audit" /> Local side-effects audit</label>
-          <label class="check-row"><input type="checkbox" id="priv-profiles" /> Browser profiles</label>
-          <div class="btn-row">
-            <button type="button" id="priv-propose" class="save-btn">Delete local data…</button>
-            <button type="button" id="priv-confirm" class="save-btn secondary" disabled>Confirm delete</button>
+          <div class="sec-grammar-split" data-sec-grammar-split="1">
+            <nav id="sec-section-rail" class="sec-section-rail" aria-label="Security sections" data-sec-rail="1">
+              <p class="sec-rail-label">Sections</p>
+              <button type="button" class="sec-section-btn" id="sec-section-btn-level" data-sec-section="level">Level</button>
+              <button type="button" class="sec-section-btn" id="sec-section-btn-privacy" data-sec-section="privacy" aria-current="true">Privacy</button>
+              <button type="button" class="sec-section-btn" id="sec-section-btn-audit" data-sec-section="audit">Audit</button>
+              <button type="button" class="sec-section-btn" id="sec-section-btn-redact" data-sec-section="redact">Redaction</button>
+              <button type="button" class="sec-section-btn" id="sec-section-btn-backup" data-sec-section="backup">Backup</button>
+            </nav>
+            <div class="sec-grammar-main">
+              <div id="sec-section-level" class="sec-section-panel sec-section-with-detail" data-sec-section-panel="level" role="tabpanel" hidden>
+                <div class="sec-scan-pane">
+                  <h3 class="orb-section-label">Classification</h3>
+                  <p class="drawer-hint">One level at a time. Switch takes effect only after Confirm in the toolbar. Stores stay unmixed.</p>
+                  <p id="sec-level-detail-hint" class="drawer-hint">Use the Level control above. Browser profile name only — no secrets.</p>
+                </div>
+                <aside class="sec-detail-pane" id="sec-level-detail" data-sec-detail="level" aria-label="Level detail">
+                  <h4 class="orb-section-label">Switch</h4>
+                  <p class="drawer-hint">Propose then Confirm in the chrome toolbar. Credentials and settings.json are never shown here.</p>
+                </aside>
+              </div>
+              <div id="sec-section-privacy" class="sec-section-panel sec-section-with-detail" data-sec-section-panel="privacy" role="tabpanel">
+                <div class="sec-scan-pane">
+                  <h3 class="orb-section-label">Privacy &amp; local data</h3>
+                  <p class="drawer-hint">No telemetry by default. Include is a 28px checkbox cell — the row does not toggle it. Credentials and settings.json are not deleted here.</p>
+                  <p id="priv-telemetry" class="drawer-hint">Telemetry: —</p>
+                  <p id="priv-inventory" class="drawer-hint">Local artifacts: —</p>
+                  <table id="sec-privacy-scan" class="sec-scan-table" role="grid" aria-label="Local data to wipe" data-sec-privacy-scan="1">
+                    <thead>
+                      <tr>
+                        <th scope="col" class="sec-hit-th">Include</th>
+                        <th scope="col">Artifact</th>
+                      </tr>
+                    </thead>
+                    <tbody id="sec-privacy-scan-body">
+                      <tr class="sec-scan-row is-focus" data-priv-artifact="reports" tabindex="0">
+                        <td class="sec-hit"><input type="checkbox" id="priv-reports" checked aria-label="Include Reports" data-sec-checkbox-stop="1" /></td>
+                        <td>Reports</td>
+                      </tr>
+                      <tr class="sec-scan-row" data-priv-artifact="screenshots" tabindex="0">
+                        <td class="sec-hit"><input type="checkbox" id="priv-screenshots" checked aria-label="Include Screenshots" data-sec-checkbox-stop="1" /></td>
+                        <td>Screenshots</td>
+                      </tr>
+                      <tr class="sec-scan-row" data-priv-artifact="heal" tabindex="0">
+                        <td class="sec-hit"><input type="checkbox" id="priv-heal" checked aria-label="Include Heal audit" data-sec-checkbox-stop="1" /></td>
+                        <td>Heal audit</td>
+                      </tr>
+                      <tr class="sec-scan-row" data-priv-artifact="sessions" tabindex="0">
+                        <td class="sec-hit"><input type="checkbox" id="priv-sessions" checked data-priv-sessions="1" aria-label="Include Sessions" data-sec-checkbox-stop="1" /></td>
+                        <td>Sessions (chat + Manual this level)</td>
+                      </tr>
+                      <tr class="sec-scan-row" data-priv-artifact="uploads" tabindex="0">
+                        <td class="sec-hit"><input type="checkbox" id="priv-uploads" checked aria-label="Include Uploaded documents" data-sec-checkbox-stop="1" /></td>
+                        <td>Uploaded documents</td>
+                      </tr>
+                      <tr class="sec-scan-row" data-priv-artifact="local-audit" tabindex="0">
+                        <td class="sec-hit"><input type="checkbox" id="priv-local-audit" aria-label="Include Local side-effects audit" data-sec-checkbox-stop="1" /></td>
+                        <td>Local side-effects audit</td>
+                      </tr>
+                      <tr class="sec-scan-row" data-priv-artifact="profiles" tabindex="0">
+                        <td class="sec-hit"><input type="checkbox" id="priv-profiles" aria-label="Include Browser profiles" data-sec-checkbox-stop="1" /></td>
+                        <td>Browser profiles</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <aside class="sec-detail-pane" id="sec-privacy-detail" data-sec-detail="privacy" aria-label="Privacy detail">
+                  <h4 class="orb-section-label" id="priv-detail-title">Reports</h4>
+                  <p class="drawer-hint" id="priv-detail-hint">Focused artifact. Delete asks for confirm here — not on the list row.</p>
+                  <div class="sec-danger-zone" data-sec-danger="privacy">
+                    <div class="btn-row">
+                      <button type="button" id="priv-propose" class="save-btn">Delete local data…</button>
+                      <button type="button" id="priv-confirm" class="save-btn secondary" disabled>Confirm delete</button>
+                    </div>
+                  </div>
+                  <p id="priv-status" class="drawer-hint" role="status">Ready</p>
+                </aside>
+              </div>
+              <div id="sec-section-audit" class="sec-section-panel sec-section-with-detail" data-sec-section-panel="audit" role="tabpanel" hidden>
+                <div class="sec-scan-pane">
+                  <h3 class="orb-section-label">Local side-effects audit</h3>
+                  <p class="drawer-hint">Plan edits, quarantines, and privacy wipes are logged locally (time, action, plan/case id, level, session). No tokens or document bodies.</p>
+                  <div class="btn-row">
+                    <button type="button" id="local-audit-refresh" class="save-btn secondary">Refresh audit</button>
+                  </div>
+                  <table id="sec-audit-scan" class="sec-scan-table" role="grid" aria-label="Local side-effects" data-sec-audit-scan="1">
+                    <thead>
+                      <tr>
+                        <th scope="col">Time</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">Ref</th>
+                      </tr>
+                    </thead>
+                    <tbody id="local-audit-list" aria-live="polite"></tbody>
+                  </table>
+                  <p id="local-audit-status" class="drawer-hint" role="status">Ready</p>
+                </div>
+                <aside class="sec-detail-pane" id="sec-audit-detail" data-sec-detail="audit" aria-label="Audit entry">
+                  <h4 class="orb-section-label" id="sec-audit-detail-title">Entry</h4>
+                  <p class="drawer-hint" id="sec-audit-detail-hint">Select a row. Time, action, id, level only — no document bodies.</p>
+                </aside>
+              </div>
+              <div id="sec-section-redact" class="sec-section-panel sec-section-with-detail" data-sec-section-panel="redact" role="tabpanel" hidden>
+                <div class="sec-scan-pane">
+                  <h3 class="orb-section-label">Export &amp; evidence redaction</h3>
+                  <p class="drawer-hint">Exports and evidence index redact known secret patterns and stored token values. Hit counts only — never echo a matched secret.</p>
+                  <p id="redaction-status" class="drawer-hint" role="status">Redaction: —</p>
+                  <p id="redaction-screenshot-warn" class="drawer-hint" hidden></p>
+                </div>
+                <aside class="sec-detail-pane" id="sec-redact-detail" data-sec-detail="redact" aria-label="Redaction detail">
+                  <h4 class="orb-section-label">Evidence</h4>
+                  <p class="drawer-hint">Screenshots are not OCR-redacted automatically. No secret values, tokens, or settings.json contents on this surface.</p>
+                </aside>
+              </div>
+              <div id="sec-section-backup" class="sec-section-panel sec-section-with-detail" data-sec-section-panel="backup" role="tabpanel" hidden>
+                <div class="sec-scan-pane">
+                  <h3 class="orb-section-label">Backup &amp; restore</h3>
+                  <p class="drawer-hint">Local zip of plans, runs, and evidence index for the active security level. Restore needs confirm and refuses mixing OFFICIAL with SECRET. No cloud backup.</p>
+                  <p id="backup-summary" class="drawer-hint">Backup: —</p>
+                  <div class="btn-row">
+                    <button type="button" id="backup-refresh" class="save-btn secondary">Refresh list</button>
+                  </div>
+                  <table id="sec-backup-scan" class="sec-scan-table" role="grid" aria-label="Recent backups" data-sec-backup-scan="1">
+                    <thead>
+                      <tr>
+                        <th scope="col">When</th>
+                        <th scope="col">Level</th>
+                        <th scope="col">Secrets</th>
+                      </tr>
+                    </thead>
+                    <tbody id="sec-backup-scan-body">
+                      <tr class="sec-scan-empty"><td colspan="3">No backups yet</td></tr>
+                    </tbody>
+                  </table>
+                  <select id="backup-select" class="sec-backup-select-mirror" aria-hidden="true" tabindex="-1">
+                    <option value="">— no backups yet —</option>
+                  </select>
+                </div>
+                <aside class="sec-detail-pane" id="sec-backup-detail" data-sec-detail="backup" aria-label="Backup detail">
+                  <h4 class="orb-section-label" id="sec-backup-detail-title">Restore</h4>
+                  <p class="drawer-hint" id="sec-backup-detail-hint">Focused backup. Secrets option stays off by default.</p>
+                  <label class="sec-compact-check"><input type="checkbox" id="backup-include-settings" /> Include settings (no secrets)</label>
+                  <label class="sec-compact-check"><input type="checkbox" id="backup-include-secrets" /> Include secrets (credentials) — off by default</label>
+                  <div class="sec-danger-zone" data-sec-danger="backup">
+                    <div class="btn-row">
+                      <button type="button" id="backup-create" class="save-btn">Create backup</button>
+                      <button type="button" id="backup-restore-propose" class="save-btn">Restore…</button>
+                      <button type="button" id="backup-restore-confirm" class="save-btn secondary" disabled>Confirm restore</button>
+                    </div>
+                  </div>
+                  <p id="backup-status" class="drawer-hint" role="status">Ready</p>
+                </aside>
+              </div>
+            </div>
           </div>
-          <p id="priv-status" class="drawer-hint" role="status">Ready</p>
-          <h3 class="orb-section-label">Local side-effects audit</h3>
-          <p class="drawer-hint">
-            Plan edits, quarantines, and privacy wipes are logged locally (time, action, plan/case id, level, session).
-            No tokens or document bodies. Jira write audit remains a separate file.
-          </p>
-          <div class="btn-row">
-            <button type="button" id="local-audit-refresh" class="save-btn">Refresh audit</button>
-          </div>
-          <ul id="local-audit-list" class="drawer-hint" aria-live="polite"></ul>
-          <p id="local-audit-status" class="drawer-hint" role="status">Ready</p>
-          <h3 class="orb-section-label">Export &amp; evidence redaction</h3>
-          <p class="drawer-hint">
-            Exports and evidence index redact known secret patterns and stored token values.
-            Hit counts appear on the export summary. Screenshots are not OCR-redacted automatically.
-          </p>
-          <p id="redaction-status" class="drawer-hint" role="status">Redaction: —</p>
-          <p id="redaction-screenshot-warn" class="drawer-hint" hidden></p>
-          <h3 class="orb-section-label">Backup &amp; restore</h3>
-          <p class="drawer-hint">
-            Local zip of plans, runs, and evidence index for the active security level.
-            Settings optional; secrets (credentials) off by default. Restore needs confirm and
-            refuses mixing OFFICIAL with SECRET. No cloud backup.
-          </p>
-          <p id="backup-summary" class="drawer-hint">Backup: —</p>
-          <label class="check-row"><input type="checkbox" id="backup-include-settings" /> Include settings (no secrets)</label>
-          <label class="check-row"><input type="checkbox" id="backup-include-secrets" /> Include secrets (credentials) — off by default</label>
-          <div class="btn-row">
-            <button type="button" id="backup-create" class="save-btn">Create backup</button>
-            <button type="button" id="backup-refresh" class="save-btn secondary">Refresh list</button>
-          </div>
-          <label class="stack-label">Recent backups
-            <select id="backup-select">
-              <option value="">— no backups yet —</option>
-            </select>
-          </label>
-          <div class="btn-row">
-            <button type="button" id="backup-restore-propose" class="save-btn">Restore…</button>
-            <button type="button" id="backup-restore-confirm" class="save-btn secondary" disabled>Confirm restore</button>
-          </div>
-          <p id="backup-status" class="drawer-hint" role="status">Ready</p>
           </div>
         </div>
         <div id="app-section-reports" class="app-section" hidden data-reports-ia="1" data-reports-documents-density="1" data-reports-layout-grammar="1">
@@ -1510,6 +1605,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk113"></script>
+  <script src="/ui/desktop/desktop.js?v=desk114"></script>
 </body>
 </html>
