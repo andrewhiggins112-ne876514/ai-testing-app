@@ -15,7 +15,7 @@
 | **Spec** | FR-UI-11 enhancement (TRACK5) |
 | **Git** | `main` |
 | **Test ticket** | **KAN-353** |
-| **Shipped** | **KAN-350** Plans compact+sections + **KAN-356** detail scroll fix **desk121**; **KAN-348** **desk119**; TRACK4 through **KAN-345** |
+| **Shipped** | **KAN-350** + **KAN-356** detail scroll (**desk122** selector fix); **KAN-348** **desk119**; TRACK4 through **KAN-345** |
 | **Queued (same epic)** | **KAN-354**/355 Phase 2 evidence-first (after Phase 1) |
 | **Deferred** | **TRACK3-LAB** Lab density (after TRACK5); **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
 | **Next / Shipped** | Pick up **KAN-352**. Do **not** start TRACK3-LAB / voice / FR-MAN-2 / Phase 2 (**KAN-354**) until Phase 1 stories Done. |
@@ -40,13 +40,19 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
-### 2026-11-22 — KAN-356 — Plans Cases detail scroll clip (desk121)
-- **Agent/chat:** Cursor IDE Agent (Composer) — human report after KAN-350
-- **Done:** Bug **KAN-356** (Relates **KAN-350**/351). Root cause: detail pane overflow:hidden without height constrained to area-work, so inner scroll never activated and outer clipped. Fix: stretch fill height on panel/split; scroll on `.plan-case-detail-scroll` (`data-scan-scroll=detail`); pin stays fixed. Cache-bust **desk121**.
-- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop_app.py`, `tests/test_plans_compact_sections.py`
-- **Verify:** focused plans compact/layout suite — 10 passed. Spot-check: Plans → Cases → focus row → scroll Quarantine/Known issue; Save/Run visible.
-- **Jira:** Bug **KAN-356** Fix comment + Done
+### 2026-11-22 — KAN-356 — Plans Cases detail scroll clip (desk122)
+- **Agent/chat:** Cursor IDE Agent (Composer) — human confirmed desk121 still clipped
+- **Done:** Bug **KAN-356** follow-up. Real root cause: CSS targeted `#plan-panel-cases[data-plan-case-sections]` but the attribute lives on `#plan-case-detail-pane`, so flex/min-height scroll rules never applied. Retargeted selectors; `flex: 1 1 0` + `grid-template-rows: minmax(0,1fr)`. Cache-bust **desk122**.
+- **Files:** `ui/desktop/desktop.css`, `index.html`, `desktop_app.py`, `tests/test_plans_compact_sections.py`
+- **Verify:** pytest focused plans compact/layout — 8 passed. **Must fully quit/relaunch** `desktop_app.py` for desk122. Plans → Cases → focus row → scroll Quarantine/Known issue; Save/Run pinned.
+- **Jira:** **KAN-356** follow-up Fix comment
 - **Next:** Active remains **KAN-352**
+
+### 2026-11-22 — KAN-356 — Plans Cases detail scroll clip (desk121 first pass)
+- **Agent/chat:** Cursor IDE Agent (Composer) — human report after KAN-350
+- **Done:** First pass incomplete (selectors mismatched). Superseded by desk122.
+- **Jira:** Bug **KAN-356** created Relates **KAN-350**/351
+- **Next:** desk122 follow-up
 
 ### 2026-11-22 — KAN-350 — Plans compact booleans and case sections (desk120)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-350
