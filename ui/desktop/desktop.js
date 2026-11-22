@@ -1637,8 +1637,18 @@
   const suiteRunAll = document.getElementById("suite-run-all");
   const suiteStatus = document.getElementById("suite-status");
   const suiteList = document.getElementById("suite-list");
+  const suiteScanBody = document.getElementById("suite-scan-body");
   const suiteListEmpty = document.getElementById("suite-list-empty");
+  const suiteDetailTitle = document.getElementById("suite-detail-title");
+  const suiteDetailHint = document.getElementById("suite-detail-hint");
+  const suiteDetailName = document.getElementById("suite-detail-name");
+  const suiteDetailFile = document.getElementById("suite-detail-file");
+  const suiteDetailGrep = document.getElementById("suite-detail-grep");
+  const suiteDetailLast = document.getElementById("suite-detail-last");
+  const suiteRunFocused = document.getElementById("suite-run-focused");
+  const suiteCopyPath = document.getElementById("suite-copy-path");
   let suiteSelected = { test_file: "", grep: "", title: "" };
+  const suiteLastByKey = Object.create(null);
   const msEnabled = document.getElementById("ms-enabled");
   const msPlugins = document.getElementById("ms-plugins");
   const msList = document.getElementById("ms-list");
@@ -4020,20 +4030,110 @@
     }
   }
 
-  function clearSuiteSelection() {
+  function suiteRowKey(file, grep) {
+    return String(file || "") + "\0" + String(grep || "");
+  }
+
+  function clearSuiteFocus() {
     suiteSelected = { test_file: "", grep: "", title: "" };
-    if (!suiteList) return;
-    suiteList.querySelectorAll(".suite-list-item[aria-selected='true']").forEach(
-      function (el) {
-        el.setAttribute("aria-selected", "false");
+    if (suiteScanBody) {
+      suiteScanBody.querySelectorAll(".suite-scan-row.is-focus").forEach(function (el) {
+        el.classList.remove("is-focus");
+      });
+    }
+    if (suiteDetailTitle) suiteDetailTitle.textContent = "No test focused";
+    if (suiteDetailHint) {
+      suiteDetailHint.textContent =
+        "Click a row to inspect. Checkbox state is independent of focus.";
+    }
+    if (suiteDetailName) suiteDetailName.value = "";
+    if (suiteDetailFile) suiteDetailFile.value = "";
+    if (suiteDetailGrep) suiteDetailGrep.value = "";
+    if (suiteDetailLast) suiteDetailLast.textContent = "Last result: —";
+    if (suiteRunFocused) suiteRunFocused.disabled = true;
+    if (suiteCopyPath) suiteCopyPath.disabled = true;
+  }
+
+  function clearSuiteSelection() {
+    clearSuiteFocus();
+    if (suiteScanBody) {
+      suiteScanBody.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+        cb.checked = false;
+      });
+    }
+  }
+
+  function countSuiteChecked() {
+    if (!suiteScanBody) return 0;
+    return suiteScanBody.querySelectorAll('input[type="checkbox"]:checked').length;
+  }
+
+  function getSuiteCheckedRows() {
+    if (!suiteScanBody) return [];
+    const out = [];
+    suiteScanBody.querySelectorAll(".suite-scan-row").forEach(function (tr) {
+      const cb = tr.querySelector('input[type="checkbox"]');
+      if (!cb || !cb.checked) return;
+      out.push({
+        test_file: tr.dataset.testFile || "",
+        grep: tr.dataset.grep || "",
+        title: tr.dataset.title || "",
+      });
+    });
+    return out;
+  }
+
+  function updateSuiteListStatus(source) {
+    if (!suiteStatus || !suiteScanBody) return;
+    const n = suiteScanBody.querySelectorAll(".suite-scan-row").length;
+    const checked = countSuiteChecked();
+    const base =
+      "Listed " + n + " item(s)" + (source ? " (" + source + ")" : "");
+    suiteStatus.textContent =
+      checked > 0 ? base + " · " + checked + " selected" : base + ".";
+  }
+
+  function focusSuiteDetail(tr, opts) {
+    if (!tr) return;
+    if (suiteScanBody) {
+      suiteScanBody.querySelectorAll(".suite-scan-row.is-focus").forEach(function (el) {
+        el.classList.remove("is-focus");
+      });
+    }
+    tr.classList.add("is-focus");
+    const file = tr.dataset.testFile || "";
+    const grep = tr.dataset.grep || "";
+    const title = tr.dataset.title || file || "test";
+    suiteSelected = { test_file: file, grep: grep, title: title };
+    if (suiteDetailTitle) suiteDetailTitle.textContent = title;
+    if (suiteDetailHint) {
+      suiteDetailHint.textContent =
+        "Focused row. Checkbox state is independent of focus.";
+    }
+    if (suiteDetailName) suiteDetailName.value = title;
+    if (suiteDetailFile) suiteDetailFile.value = file;
+    if (suiteDetailGrep) suiteDetailGrep.value = grep || title;
+    const last = suiteLastByKey[suiteRowKey(file, grep)];
+    if (suiteDetailLast) {
+      suiteDetailLast.textContent = last
+        ? "Last result: " + last
+        : "Last result: —";
+    }
+    if (suiteRunFocused) suiteRunFocused.disabled = !(file || grep);
+    if (suiteCopyPath) suiteCopyPath.disabled = !file;
+    if (opts && opts.focusField && suiteDetailName) {
+      try {
+        suiteDetailName.focus();
+      } catch (err) {
+        /* ignore */
       }
-    );
+    }
   }
 
   function renderSuiteList(items, source) {
-    if (!suiteList) return;
-    suiteList.innerHTML = "";
-    clearSuiteSelection();
+    if (!suiteScanBody) return;
+    suiteScanBody.innerHTML = "";
+    clearSuiteFocus();
     const rows = Array.isArray(items) ? items : [];
     if (suiteListEmpty) {
       suiteListEmpty.hidden = rows.length > 0;
@@ -4042,39 +4142,98 @@
           "No tests listed yet. Discover or List tests for the project path.";
       }
     }
+    const statusLabel = source === "filesystem" ? "Listed" : "Ready";
     rows.forEach(function (row, idx) {
       const file = (row && (row.file || row.title)) || "";
       const title = (row && (row.title || row.file)) || "test " + (idx + 1);
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "suite-list-item";
-      btn.setAttribute("role", "option");
-      btn.setAttribute("aria-selected", "false");
-      btn.dataset.testFile = file;
-      btn.dataset.grep = title !== file ? title : "";
-      btn.title = file;
-      btn.textContent = title + (file && title !== file ? " — " + file : "");
-      btn.addEventListener("click", function () {
-        suiteList
-          .querySelectorAll(".suite-list-item[aria-selected='true']")
-          .forEach(function (el) {
-            el.setAttribute("aria-selected", "false");
-          });
-        btn.setAttribute("aria-selected", "true");
-        suiteSelected = {
-          test_file: file,
-          grep: btn.dataset.grep || "",
-          title: title,
-        };
-        if (suiteStatus) {
-          suiteStatus.textContent = "Selected: " + title;
+      const grep = title !== file ? title : "";
+      const key = suiteRowKey(file, grep);
+      const last = suiteLastByKey[key];
+      const tr = document.createElement("tr");
+      tr.className = "suite-scan-row";
+      tr.tabIndex = 0;
+      tr.dataset.testFile = file;
+      tr.dataset.grep = grep;
+      tr.dataset.title = title;
+      tr.setAttribute("role", "row");
+
+      const tdHit = document.createElement("td");
+      tdHit.className = "suite-hit";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.setAttribute("aria-label", "Select " + title);
+      cb.setAttribute("data-suite-checkbox-stop", "1");
+      cb.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+      });
+      cb.addEventListener("change", function (ev) {
+        ev.stopPropagation();
+        updateSuiteListStatus(source);
+      });
+      tdHit.appendChild(cb);
+
+      const tdStatus = document.createElement("td");
+      const statusPill = document.createElement("span");
+      statusPill.className =
+        "suite-pill " + (statusLabel === "Ready" ? "ok" : "idle");
+      statusPill.textContent = statusLabel;
+      tdStatus.appendChild(statusPill);
+
+      const tdTitle = document.createElement("td");
+      tdTitle.textContent = title;
+
+      const tdFile = document.createElement("td");
+      tdFile.className = "mono";
+      tdFile.textContent = file || "—";
+
+      const tdLast = document.createElement("td");
+      const lastPill = document.createElement("span");
+      if (last && /^Pass/i.test(last)) {
+        lastPill.className = "suite-pill ok";
+        lastPill.textContent = "Pass";
+      } else if (last && /^Fail/i.test(last)) {
+        lastPill.className = "suite-pill warn";
+        lastPill.textContent = "Fail";
+      } else {
+        lastPill.className = "suite-pill idle";
+        lastPill.textContent = "—";
+      }
+      tdLast.appendChild(lastPill);
+
+      tr.appendChild(tdHit);
+      tr.appendChild(tdStatus);
+      tr.appendChild(tdTitle);
+      tr.appendChild(tdFile);
+      tr.appendChild(tdLast);
+
+      tr.addEventListener("click", function (ev) {
+        if (
+          ev.target &&
+          ev.target.closest &&
+          ev.target.closest('[data-suite-checkbox-stop="1"]')
+        ) {
+          return;
+        }
+        focusSuiteDetail(tr, { focusField: false });
+      });
+      tr.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+          if (
+            ev.target &&
+            ev.target.closest &&
+            ev.target.closest('[data-suite-checkbox-stop="1"]')
+          ) {
+            return;
+          }
+          ev.preventDefault();
+          focusSuiteDetail(tr, { focusField: false });
         }
       });
-      suiteList.appendChild(btn);
+
+      suiteScanBody.appendChild(tr);
     });
-    if (rows.length && suiteStatus && source) {
-      suiteStatus.textContent =
-        "Listed " + rows.length + " item(s)" + (source ? " (" + source + ")" : "") + ".";
+    if (rows.length && suiteStatus) {
+      updateSuiteListStatus(source);
     }
   }
 
@@ -9315,6 +9474,55 @@
     return suitePath && suitePath.value ? suitePath.value.trim() : "";
   }
 
+  function recordSuiteLast(opts, payload, ok) {
+    const file = (opts && opts.test_file) || "";
+    const grep = (opts && opts.grep) || "";
+    if (!file && !grep) return;
+    const key = suiteRowKey(file, grep);
+    if (!ok) {
+      suiteLastByKey[key] =
+        "Fail · " + (payload && (payload.error || payload.message)
+          ? String(payload.error || payload.message).slice(0, 80)
+          : "request failed");
+      return;
+    }
+    const failed = Number((payload && payload.failed) || 0);
+    const passed = Number((payload && payload.passed) || 0);
+    if (payload && payload.status === "pass" && failed === 0) {
+      suiteLastByKey[key] = "Pass · " + passed + " passed";
+    } else {
+      suiteLastByKey[key] =
+        "Fail · " +
+        failed +
+        " failed, " +
+        passed +
+        " passed";
+    }
+    if (suiteScanBody) {
+      suiteScanBody.querySelectorAll(".suite-scan-row").forEach(function (tr) {
+        if (
+          (tr.dataset.testFile || "") === file &&
+          (tr.dataset.grep || "") === grep
+        ) {
+          const lastCell = tr.querySelector("td:last-child .suite-pill");
+          if (lastCell) {
+            const last = suiteLastByKey[key];
+            if (/^Pass/i.test(last)) {
+              lastCell.className = "suite-pill ok";
+              lastCell.textContent = "Pass";
+            } else {
+              lastCell.className = "suite-pill warn";
+              lastCell.textContent = "Fail";
+            }
+          }
+          if (tr.classList.contains("is-focus") && suiteDetailLast) {
+            suiteDetailLast.textContent = "Last result: " + suiteLastByKey[key];
+          }
+        }
+      });
+    }
+  }
+
   async function postSuiteRun(opts) {
     const body = {
       suite_path: suitePathValue(),
@@ -9327,12 +9535,19 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    const payload = await res.json();
+    let payload = {};
+    try {
+      payload = await res.json();
+    } catch (err) {
+      payload = {};
+    }
     if (!res.ok) {
+      recordSuiteLast(opts, payload, false);
       if (suiteStatus) suiteStatus.textContent = "Suite run request failed.";
-      return;
+      return payload;
     }
     if (payload.status === "pass") {
+      recordSuiteLast(opts, payload, true);
       if (suiteStatus) {
         suiteStatus.textContent =
           payload.message ||
@@ -9342,12 +9557,14 @@
             (payload.failed || 0) +
             " failed.";
       }
-      return;
+      return payload;
     }
+    recordSuiteLast(opts, payload, true);
     if (suiteStatus) {
       suiteStatus.textContent =
         payload.error || payload.message || "Suite run failed.";
     }
+    return payload;
   }
 
   if (suiteDiscover) {
@@ -9443,14 +9660,45 @@
 
   if (suiteRun) {
     suiteRun.addEventListener("click", async function () {
-      if (!suiteSelected.test_file && !suiteSelected.grep) {
+      const checked = getSuiteCheckedRows();
+      if (!checked.length) {
         if (suiteStatus) {
           suiteStatus.textContent =
-            "Select a test in the list, or use Run all for the whole suite.";
+            "Check one or more tests in the Sel column, or use Run all.";
         }
         return;
       }
-      if (suiteStatus) suiteStatus.textContent = "Running selected…";
+      if (suiteStatus) {
+        suiteStatus.textContent =
+          "Running selected (" + checked.length + ")…";
+      }
+      try {
+        for (let i = 0; i < checked.length; i += 1) {
+          const row = checked[i];
+          if (suiteStatus && checked.length > 1) {
+            suiteStatus.textContent =
+              "Running selected " + (i + 1) + "/" + checked.length + "…";
+          }
+          await postSuiteRun({
+            test_file: row.test_file,
+            grep: row.grep,
+          });
+        }
+      } catch (err) {
+        if (suiteStatus) suiteStatus.textContent = "Could not reach suite run API.";
+      }
+    });
+  }
+
+  if (suiteRunFocused) {
+    suiteRunFocused.addEventListener("click", async function () {
+      if (!suiteSelected.test_file && !suiteSelected.grep) {
+        if (suiteStatus) {
+          suiteStatus.textContent = "Focus a row first, then Run this test.";
+        }
+        return;
+      }
+      if (suiteStatus) suiteStatus.textContent = "Running focused test…";
       try {
         await postSuiteRun({
           test_file: suiteSelected.test_file,
@@ -9458,6 +9706,25 @@
         });
       } catch (err) {
         if (suiteStatus) suiteStatus.textContent = "Could not reach suite run API.";
+      }
+    });
+  }
+
+  if (suiteCopyPath) {
+    suiteCopyPath.addEventListener("click", async function () {
+      const path = suiteSelected.test_file || "";
+      if (!path) return;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(path);
+          if (suiteStatus) suiteStatus.textContent = "Copied path.";
+        } else if (suiteDetailFile) {
+          suiteDetailFile.select();
+          document.execCommand("copy");
+          if (suiteStatus) suiteStatus.textContent = "Copied path.";
+        }
+      } catch (err) {
+        if (suiteStatus) suiteStatus.textContent = "Could not copy path.";
       }
     });
   }

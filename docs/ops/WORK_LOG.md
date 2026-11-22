@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-327** Suites FR-UI-11 inherit |
+| **Jira story** | **KAN-329** Plans Cases FR-UI-11 inherit |
 | **Start task** | — |
 | **Epic** | — (TRACK4-LAYOUT inherit) |
 | **Roadmap ID** | TRACK4-LAYOUT |
-| **Spec** | FR-UI-11 Suites inherit (Plans Cases **KAN-329** next) |
+| **Spec** | FR-UI-11 Plans Cases inherit (Suites **KAN-327** Done) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-328** |
-| **Shipped** | Settings **KAN-324**; inherit mockups accepted; Lane C tooling restored |
+| **Test ticket** | **KAN-330** |
+| **Shipped** | Settings **KAN-324**; Suites inherit **KAN-327** desk109 |
 | **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2** |
-| **Next / Shipped** | Build pick-up implements **KAN-327**. Then **KAN-329** Plans Cases. Do **not** implement Lab / voice / FR-MAN-2. |
+| **Next / Shipped** | Build pick-up implements **KAN-329**. Do **not** implement Lab / voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — KAN-327 — Suites FR-UI-11 inherit (desk109)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-327
+- **Done:** Suites Lab area inherits FR-UI-11 grammar: compact scan table (Sel · Status · Title · File · Last) + detail pane; dedicated 28px checkbox cell with stopPropagation for multi-select Run selected; row click focuses detail (independent of checkbox); Run this test / Copy path in detail; Import stays under Advanced. Markers `data-suite-layout-grammar` / `data-suite-scan` / `data-suite-detail`. No section rail. Theme/orb/home/App nav untouched. Cache-bust **desk109**. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_suite_layout_grammar.py`, `tests/test_suites_ia.py` (+ desk109 on settings/occlusion/lab/nav tests)
+- **Verify:** `pytest tests/test_suite_layout_grammar.py tests/test_suites_ia.py tests/test_settings_layout_grammar.py tests/test_settings_hub.py tests/test_settings_security_density.py tests/test_occlusion_verify_ae.py tests/test_lab_areas_ia.py tests/test_nav_overlap.py` — 15 passed. Spot-check: `desktop_app.py` → Lab → Suites → List → checkbox vs row → detail.
+- **Jira:** close-out **KAN-327** + **KAN-328**
+- **Next:** Active **KAN-329** Plans Cases FR-UI-11 inherit (test **KAN-330**)
 
 ### 2026-11-22 — Studio — Suites/Plans inherit accepted + Lane C restore
 - **Agent/chat:** Cursor IDE Agent (Studio path after deferred pick-up)
