@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Suites + Plans inherit — annotated build note</title>
+  <link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+  <style>
+    .note-list { max-width: 900px; margin: 0 auto; font: var(--type-body); color: var(--text); }
+    .note-list h2 { font: var(--type-area-title); color: var(--cyan); margin: 24px 0 8px; }
+    .note-list ol { margin: 0; padding-left: 1.25rem; color: var(--muted); }
+    .note-list li { margin: 6px 0; }
+    .note-list code { color: var(--cyan); font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+    .do { color: var(--ok); }
+    .dont { color: var(--danger); }
+  </style>
+</head>
+<body>
+  <p class="page-note"><strong>2 · Annotated build note.</strong> For Bridge Stories after Designer accept. No product code in Studio.</p>
+  <div class="note-list">
+    <h2>Locked (do not touch)</h2>
+    <ol>
+      <li>Theme tokens, orb styles, home/chat, App nav model.</li>
+      <li>Plans section tabs IA (Draft / Cases / Coverage / Trace / History / Run) — FR-UI-9.</li>
+      <li>Suites stays Lab tool; npx run; never delete external project files.</li>
+      <li>TRACK3-LAB density, voice, FR-MAN-2 — still deferred.</li>
+    </ol>
+
+    <h2>Suites Build (Story A)</h2>
+    <ol>
+      <li class="do">Replace <code>.suite-list-item</code> button stack with scan table: Sel · Status · Title · File · Last.</li>
+      <li class="do">Checkbox cell ~28px; <code>stopPropagation</code>; drives multi-select for Run selected.</li>
+      <li class="do">Row click focuses detail pane (title, file, grep, last result, Run this test).</li>
+      <li class="dont">Do not treat whole-row click as the only select path for multi-run.</li>
+      <li class="dont">Do not add a Settings-style section rail — one collection.</li>
+      <li>Markers: <code>data-suite-layout-grammar</code>, <code>data-suite-scan</code>, <code>data-suite-detail</code>.</li>
+      <li>Files likely: <code>ui/desktop/index.html</code>, <code>desktop.css</code>, <code>desktop.js</code> (<code>renderSuiteList</code>), tests.</li>
+    </ol>
+
+    <h2>Plans · Cases Build (Story B)</h2>
+    <ol>
+      <li class="do">Replace <code>#plan-cases</code> text dump (<code>renderPlanCases</code> string map) with scan table: Status · Id · Name · Tags · Last.</li>
+      <li class="do">Rehome existing edit / quarantine / run controls into a detail pane beside the table (same fields — geometry change).</li>
+      <li class="do">Row click loads case into detail; does not toggle Enabled/Archived.</li>
+      <li class="dont">Do not invent KPI cards or a second Cases nav item.</li>
+      <li class="dont">Do not redesign Trace / Coverage / History panels in this story — Trace keeps row-opens-case.</li>
+      <li>Markers: <code>data-plan-cases-layout-grammar</code>, <code>data-plan-cases-scan</code>, <code>data-plan-case-detail</code>.</li>
+      <li>Files likely: Plans Cases panel in <code>index.html</code>, <code>desktop.css</code>, <code>renderPlanCases</code> in <code>desktop.js</code>, tests.</li>
+    </ol>
+
+    <h2>Verify</h2>
+    <ol>
+      <li>pytest / HTML markers first (non-visual AC).</li>
+      <li>CU only if occlusion/clickability claimed; quiet desktop; classic orb.</li>
+      <li>Product check: <code>desktop_app.py</code> — not browser shell URL.</li>
+    </ol>
+
+    <h2>Bridge order</h2>
+    <ol>
+      <li>Suites inherit Story + linked <code>test</code> → set Active first (Lab, smaller surface).</li>
+      <li>Plans Cases inherit Story + linked <code>test</code> → Active after Suites Done.</li>
+    </ol>
+  </div>
+</body>
+</html>

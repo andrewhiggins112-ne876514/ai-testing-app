@@ -2,7 +2,7 @@
 
 Cursor **build** agents only — nothing here ships in the product app.
 
-Two chat lanes. Do not mix their jobs.
+Three chat lanes. Do not mix their jobs.
 
 ## Lane A — Build (normal IDE work)
 
@@ -50,9 +50,32 @@ Guide: `docs/ops/ADVISORY_COUNCIL.md` · Skill: `advisory-council`
 
 ★ = likely real users/buyers when the unfinished **“test all”** product ships to software companies.
 
+## Lane C — Design Studio (visual & mockups)
+
+Open a **fresh Agent chat**, type **`/studio`**, then your audit / redesign / research ask.
+
+Visual UI critique, layout mockups, UX research, creative continuity, and design→Jira bridge.
+**Does not** implement product features. **Does not** replace Build or Council.
+Theme / orb / home locked by default — secondary App areas are the layout mandate.
+
+Guide: `docs/ops/DESIGN_STUDIO.md` · Intent: `docs/mockups/DESIGN_INTENT.md` · Skill: `design-studio`
+
+| Agent | File | Model | When |
+|-------|------|--------|------|
+| studio (Lead) | `studio.md` | Grok 4.7 | **`/studio` to open the room** |
+| studio-visual-critic | `studio-visual-critic.md` | Grok 4.5 | Pattern inventory / hit targets |
+| studio-layout-designer | `studio-layout-designer.md` | Grok 4.5 | Mockups under `docs/mockups/` |
+| studio-research-analyst | `studio-research-analyst.md` | Grok 4.5 | Best-practices briefs |
+| studio-continuity-keeper | `studio-continuity-keeper.md` | Grok 4.5 | Design Intent / past creative |
+| studio-code-mapper | `studio-code-mapper.md` | Grok 4.5 | Area → files; frozen surfaces |
+| studio-jira-shaper | `studio-jira-shaper.md` | Grok 4.5 | Spec/Jira Bridge drafts |
+
+Default lean seat: Lead + Critic + Layout + Mapper. Others on-demand. On vision/FR conflict, escalate to Council.
+
 ## Billing reality
 
 All Cursor agents stay on the **Grok** family (4.5 light / 4.7 heavy). Ollama is free only for the **product** runtime.
+Prefer lighter models for Studio specialists; avoid stacking Council + Studio + Build Premium unless the Designer asks.
 
 ## Build skills
 
@@ -64,7 +87,8 @@ All Cursor agents stay on the **Grok** family (4.5 light / 4.7 heavy). Ollama is
 | `orb-slice` | Orb UI conventions |
 | `update-memory` | After-slice PROJECT_MEMORY / ROADMAP |
 | `advisory-council` | Council Room protocol |
+| `design-studio` | Design Studio protocol |
 
 ## Constraint
 
-Council and Build are **separate chats** you open. Within a chat, the lead may spawn subagents. Do not ask the human to paste prompts between browser Grok / AFK Pilot and Cursor.
+Build, Council, and Design Studio are **separate chats** you open. Within a chat, the lead may spawn subagents. Do not ask the human to paste prompts between browser Grok / AFK Pilot and Cursor.

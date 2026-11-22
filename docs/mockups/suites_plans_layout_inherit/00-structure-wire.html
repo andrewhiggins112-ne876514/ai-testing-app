@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Suites + Plans inherit — structure wire</title>
+  <link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+</head>
+<body class="wire">
+  <p class="page-note"><strong>0 · Structure wire.</strong> Inherit FR-UI-11 scan + detail. Suites = table + detail (no rail). Plans Cases = tabs chrome + table + detail. Synthetic labels only.</p>
+
+  <div class="stage" style="margin-bottom:24px;height:auto;min-height:360px">
+    <header class="frozen-bar">
+      <span class="btn ghost">Back</span>
+      <h1 class="area-title">Suites</h1>
+      <span class="frozen-tag">Lab tool · area bar locked</span>
+    </header>
+    <div class="toolbar">
+      <span>path · Discover · List · Run selected · Run all</span>
+      <span class="status">status line</span>
+    </div>
+    <div class="split" style="grid-template-columns:1fr 280px">
+      <div class="work">
+        <h3>Suite list</h3>
+        <p class="hint">[Select] [Status] [Title] [File] [Last] — checkbox ≠ row</p>
+        <table class="scan">
+          <thead><tr><th class="hit">Sel</th><th>Status</th><th>Title</th><th>File</th><th>Last</th></tr></thead>
+          <tbody>
+            <tr class="row-hit is-focus"><td class="hit">☐</td><td>Ready</td><td>login ok</td><td>auth.spec.ts</td><td>—</td></tr>
+            <tr class="row-hit"><td class="hit">☑</td><td>Ready</td><td>logout</td><td>auth.spec.ts</td><td>fail</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="detail">
+        <h3>Detail</h3>
+        <p class="hint">Focused row · Run this one · no destructive on list</p>
+      </aside>
+    </div>
+  </div>
+
+  <div class="stage" style="height:auto;min-height:400px">
+    <header class="frozen-bar">
+      <span class="btn ghost">Back</span>
+      <h1 class="area-title">Plans</h1>
+      <span class="frozen-tag">Primary · tabs = section chrome</span>
+    </header>
+    <div class="toolbar">
+      <span>plan picker · open · refresh · search · Add case ▾</span>
+      <span class="status">Cases default</span>
+    </div>
+    <div class="toolbar" style="min-height:40px">
+      <span>Draft | Cases | Coverage | Trace | History | Run</span>
+    </div>
+    <div class="split" style="grid-template-columns:1fr 320px">
+      <div class="work">
+        <h3>Cases scan</h3>
+        <p class="hint">Replace #plan-cases text dump. Enable/archive live in detail.</p>
+        <table class="scan">
+          <thead><tr><th>Status</th><th>Id</th><th>Name</th><th>Tags</th><th>Last</th></tr></thead>
+          <tbody>
+            <tr class="row-hit is-focus"><td>ON</td><td>c1</td><td>Happy path</td><td>smoke</td><td>pass</td></tr>
+            <tr class="row-hit"><td>QUAR</td><td>c2</td><td>Flaky loc</td><td>regression</td><td>fail</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="detail">
+        <h3>Edit case</h3>
+        <p class="hint">Existing fields · Save · Quarantine · Run selected</p>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

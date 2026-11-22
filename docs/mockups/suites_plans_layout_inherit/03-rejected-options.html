@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Suites + Plans inherit — rejected</title>
+  <link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+  <style>
+    .rej { max-width: 900px; margin: 0 auto; }
+    .rej article {
+      border: 1px solid rgba(255, 139, 122, 0.35);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      background: rgba(255, 139, 122, 0.05);
+    }
+    .rej h2 { margin: 0 0 6px; font: var(--type-area-title); color: var(--danger); }
+    .rej p { margin: 0; font: var(--type-help); color: var(--muted); }
+  </style>
+</head>
+<body>
+  <p class="page-note"><strong>3 · Rejected.</strong> Do not Bridge these. Same rejects as Settings grammar, plus area-specific traps.</p>
+  <div class="rej">
+    <article>
+      <h2>KPI / card dashboard for Suites or Plans</h2>
+      <p>Pretty empty heroes hide the case/test list. Fails Test Engineer density. Already rejected for Settings inherit.</p>
+    </article>
+    <article>
+      <h2>Prettier text dump for #plan-cases</h2>
+      <p>Font polish without columns still fails scan + selection grammar. Must become a real scan table.</p>
+    </article>
+    <article>
+      <h2>Whole-row click = multi-select / Enabled toggle</h2>
+      <p>Violates standing selection grammar. Suites: checkbox selects for Run; row focuses detail. Plans: Enabled/Archived only in detail.</p>
+    </article>
+    <article>
+      <h2>New App nav items or Settings-style rail inside Suites</h2>
+      <p>Suites is one Lab collection. Rail is for multi-section areas (Settings). Plans already has section tabs — do not duplicate as App nav.</p>
+    </article>
+    <article>
+      <h2>Redesign Trace / Coverage / History in the same slice</h2>
+      <p>Scope creep. Cases scan + detail only; Trace keeps current row-opens-case behaviour.</p>
+    </article>
+    <article>
+      <h2>Ship Lab density / voice / FR-MAN-2 under this inherit</h2>
+      <p>Active Build stays deferred for those tracks. Layout grammar inherit only.</p>
+    </article>
+  </div>
+</body>
+</html>

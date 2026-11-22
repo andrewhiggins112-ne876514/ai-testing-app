@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Suites inherit — preferred (themed)</title>
+  <link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+</head>
+<body>
+  <p class="page-note"><strong>1 · Themed Suites — preferred.</strong> FR-UI-11 inherit. No new App nav / section rail — single Lab collection. Checkbox column = multi-select for Run selected; row click focuses detail. Synthetic paths only.</p>
+  <div class="stage">
+    <header class="frozen-bar">
+      <span class="btn ghost">Back</span>
+      <h1 class="area-title">Suites</h1>
+      <span class="frozen-tag">Area bar unchanged</span>
+    </header>
+    <div class="toolbar">
+      <span class="mono" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">D:\demo\playwright-project</span>
+      <span class="btn">Discover</span>
+      <span class="btn">List tests</span>
+      <span class="btn primary">Run selected</span>
+      <span class="btn">Run all</span>
+      <span class="status">Listed 4 · 2 selected</span>
+    </div>
+    <div class="split" style="grid-template-columns:1fr 300px">
+      <div class="work">
+        <h3>Suite list</h3>
+        <p class="hint">External project files are never deleted. Selection for Run uses the checkbox column only.</p>
+        <table class="scan" aria-label="Playwright suite tests">
+          <thead>
+            <tr>
+              <th class="hit">Sel</th>
+              <th>Status</th>
+              <th>Title</th>
+              <th>File</th>
+              <th>Last</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-hit">
+              <td class="hit"><input type="checkbox" aria-label="Select login succeeds" /></td>
+              <td><span class="pill ok">Ready</span></td>
+              <td>login succeeds</td>
+              <td class="mono">tests/auth.spec.ts</td>
+              <td><span class="pill idle">—</span></td>
+            </tr>
+            <tr class="row-hit is-focus">
+              <td class="hit"><input type="checkbox" checked aria-label="Select logout clears session" /></td>
+              <td><span class="pill ok">Ready</span></td>
+              <td>logout clears session</td>
+              <td class="mono">tests/auth.spec.ts</td>
+              <td><span class="pill warn">Fail</span></td>
+            </tr>
+            <tr class="row-hit">
+              <td class="hit"><input type="checkbox" checked aria-label="Select checkout smoke" /></td>
+              <td><span class="pill ok">Ready</span></td>
+              <td>checkout smoke</td>
+              <td class="mono">tests/checkout.spec.ts</td>
+              <td><span class="pill ok">Pass</span></td>
+            </tr>
+            <tr class="row-hit">
+              <td class="hit"><input type="checkbox" aria-label="Select a11y landmark" /></td>
+              <td><span class="pill idle">Listed</span></td>
+              <td>a11y landmark</td>
+              <td class="mono">tests/a11y.spec.ts</td>
+              <td><span class="pill idle">—</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="detail" aria-label="Suite test detail">
+        <h3>logout clears session</h3>
+        <p class="hint">Focused row. Checkbox state is independent of focus.</p>
+        <div class="field">Title<div class="fake">logout clears session</div></div>
+        <div class="field">File<div class="fake mono">tests/auth.spec.ts</div></div>
+        <div class="field">Grep / title filter<div class="fake mono">logout clears session</div></div>
+        <div class="field">Last result<div class="fake">Fail · 2026-11-21 · 1.8s</div></div>
+        <div class="btn-row">
+          <span class="btn primary">Run this test</span>
+          <span class="btn">Copy path</span>
+        </div>
+        <p class="hint" style="margin-top:auto">Import / save path stays under Advanced — not list-row chrome.</p>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

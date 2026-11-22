@@ -29,6 +29,7 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 |------|----------|----------------|
 | 2026-11-21 | Council ratifies Lane C Design Studio with binding gates | `docs/ops/DESIGN_STUDIO.md` |
 | 2026-11-21 | **Settings layout grammar** is the system template for secondary App areas: in-area **section rail** + **compact scan table** + **detail pane**. Checkbox = dedicated ~28px cell (stopPropagation); row click = focus/open; destructive controls live in the detail behind confirm — never on list-row chrome. Theme/orb/home/App nav stay locked. Audit: Settings + Suites + Plans (P0 Plans text-dump; P1 Suites whole-row select + Settings `.check-row`). CU skipped — unsafe for live Settings. Spec: **FR-UI-11**; Build Story **KAN-324** / test **KAN-325** (Settings only). Suites/Plans inheritance needs follow-on stories. | `docs/mockups/settings_layout_grammar/` |
+| 2026-11-22 | **Suites + Plans inherit** FR-UI-11 grammar **accepted**. Suites: Sel·Status·Title·File·Last + detail (no section rail). Plans · Cases: replace `#plan-cases` dump with scan table; row fills detail; plan tabs stay FR-UI-9. Bridge order: Suites first, then Plans Cases. Theme/orb/home/App nav locked. Lab density / voice / FR-MAN-2 still deferred. | `docs/mockups/suites_plans_layout_inherit/` |
 
 ## Rejected / park
 
@@ -43,7 +44,7 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 
 | Idea | Status | Notes |
 |------|--------|-------|
-| Secondary-area layout system (Settings → Suites → Plans → Reports → Heal) | **Accepted grammar — Settings mockups Done; Build Settings first** | Inherit: Suites (Status·Title·File·Last + multi-select checkbox column); Plans (replace `#plan-cases` dump with scan table; row fills detail). Security `.check-row` same hit-target fix, own area. Heal/Reports contrasted only. |
+| Secondary-area layout system (Settings → Suites → Plans → Reports → Heal) | **Settings Done (KAN-324). Suites/Plans inherit Accepted 2026-11-22 — Bridge Active Suites first** | Inherit: Suites (Sel·Status·Title·File·Last + detail); Plans Cases (scan table; row fills detail). Security `.check-row` same hit-target fix, own area. Heal/Reports contrasted only. |
 
 ## Mockup index
 
@@ -52,3 +53,4 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 | Nav / areas options (historical) | `docs/mockups/kan103_nav/` | Reference — nav locked; study density only |
 | Orb styles | `docs/mockups/orb_styles.md` | Locked reference |
 | Settings layout grammar (system template) | `docs/mockups/settings_layout_grammar/` | **Accepted 2026-11-21** — wire / themed / annotated / rejected |
+| Suites + Plans FR-UI-11 inherit | `docs/mockups/suites_plans_layout_inherit/` | **Accepted 2026-11-22** — Bridge Suites → Plans Cases |

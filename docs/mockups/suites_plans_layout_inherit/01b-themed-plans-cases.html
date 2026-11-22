@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Plans · Cases inherit — preferred (themed)</title>
+  <link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+  <style>
+    .plan-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 0 12px;
+      min-height: 40px;
+      align-items: center;
+      border-bottom: 1px solid var(--cyan-border);
+      flex-shrink: 0;
+    }
+    .plan-tabs span {
+      font: var(--type-ui);
+      color: var(--muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+    }
+    .plan-tabs span[aria-current="true"] {
+      color: var(--cyan);
+      border-color: var(--cyan);
+      background: var(--accent-soft);
+    }
+  </style>
+</head>
+<body>
+  <p class="page-note"><strong>1b · Themed Plans · Cases — preferred.</strong> Existing plan tabs stay section chrome (FR-UI-9). Replace <span class="mono">#plan-cases</span> text dump with scan table; row fills edit form in detail. No enable checkbox on the row — Enabled / Archived / Quarantine live in detail. Trace panel keeps row-opens-case (not redesigned here).</p>
+  <div class="stage">
+    <header class="frozen-bar">
+      <span class="btn ghost">Back</span>
+      <h1 class="area-title">Plans</h1>
+      <span class="frozen-tag">Area bar unchanged</span>
+    </header>
+    <div class="toolbar">
+      <span>demo-plan-kan314</span>
+      <span class="btn">Open</span>
+      <span class="btn">Refresh</span>
+      <span class="btn primary">Add case ▾</span>
+      <span class="status">12 cases · 1 quarantined</span>
+    </div>
+    <div class="plan-tabs" role="tablist" aria-label="Plan sections">
+      <span>Draft</span>
+      <span aria-current="true">Cases</span>
+      <span>Coverage</span>
+      <span>Trace</span>
+      <span>History</span>
+      <span>Run</span>
+    </div>
+    <div class="split" style="grid-template-columns:1fr 320px">
+      <div class="work">
+        <h3>Cases</h3>
+        <p class="hint">Show archived stays a toolbar/work control — not a whole-row toggle. Row click focuses; does not toggle Enabled.</p>
+        <table class="scan" aria-label="Plan cases">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Id</th>
+              <th>Name</th>
+              <th>Tags</th>
+              <th>Last</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-hit is-focus">
+              <td><span class="pill ok">On</span></td>
+              <td class="mono">c1</td>
+              <td>Happy path login</td>
+              <td>smoke</td>
+              <td><span class="pill ok">Pass</span></td>
+            </tr>
+            <tr class="row-hit">
+              <td><span class="pill warn">Quar</span></td>
+              <td class="mono">c2</td>
+              <td>Flaky locator</td>
+              <td>regression</td>
+              <td><span class="pill warn">Fail</span></td>
+            </tr>
+            <tr class="row-hit">
+              <td><span class="pill idle">Off</span></td>
+              <td class="mono">c3</td>
+              <td>Desktop smoke</td>
+              <td>desktop</td>
+              <td><span class="pill idle">—</span></td>
+            </tr>
+            <tr class="row-hit">
+              <td><span class="pill idle">Arch</span></td>
+              <td class="mono">c4</td>
+              <td>Old checkout</td>
+              <td>—</td>
+              <td><span class="pill ok">Pass</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <aside class="detail" aria-label="Case detail">
+        <h3>c1 · Happy path login</h3>
+        <p class="hint">Existing edit surface — rehomed beside the scan table.</p>
+        <div class="field">Case id<div class="fake mono">c1</div></div>
+        <div class="field">Rename<div class="fake">Happy path login</div></div>
+        <div class="field">Tags<div class="fake">smoke, regression</div></div>
+        <div class="field">Priority<div class="fake">10</div></div>
+        <div class="field">Step timeout (ms)<div class="fake">10000</div></div>
+        <label class="hint" style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" checked /> Enabled
+        </label>
+        <label class="hint" style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" /> Archived
+        </label>
+        <div class="btn-row">
+          <span class="btn primary">Save case edits</span>
+          <span class="btn">Run selected</span>
+        </div>
+        <div class="danger-zone">
+          <p class="hint">Quarantine / clear stay in detail behind confirm — not list-row chrome.</p>
+          <span class="btn">Quarantine case…</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

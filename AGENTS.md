@@ -23,10 +23,11 @@
 - **FR coverage:** Every `FR-*` in `docs/FUNCTIONAL_SPEC.md` must map to a KAN Story (see §5 matrix). If a Story is Done but FR text is unfinished, keep/create open gap Stories (do not pretend Done = full FR). Reconcile with `python scripts/jira_kan_seed_backlog.py`.
 - **User change requests (CRs):** When the human changes product intent, scope, AC, or behaviour (including informal “actually do X instead”), update **all** of: `docs/FUNCTIONAL_SPEC.md` (canonical), affected KAN epic/story/test descriptions (re-enrich or edit), `PROJECT_MEMORY.md` / `ROADMAP.md` / `docs/ops/WORK_LOG.md` as needed, and any mockups/rules that contradict the CR. Do not leave Jira or the spec stale relative to what the user just decided.
 
-## Cursor workflow (two lanes; replaces Grok browser + AFK Pilot)
+## Cursor workflow (three lanes; replaces Grok browser + AFK Pilot)
 - Primary home is **Cursor IDE**.
 - **Build lane (unchanged):** fresh default Agent chat → **“pick up where we left off”** (reads `docs/ops/WORK_LOG.md` Active slice) → implement that story.
 - **Council Room (review / creative):** fresh Agent chat → type **`/council`** (slash menu; not a mode dropdown item). Multi-persona debate; may update docs/Jira/`AGENTS.md`/rules after human agree. **No product feature coding.** Guide: `docs/ops/ADVISORY_COUNCIL.md`. Skill: `advisory-council`. Do **not** treat pick-up as a coding handoff inside the council chat.
+- **Design Studio (visual / mockups):** fresh Agent chat → type **`/studio`**. Visual audit, layout mockups, UX research, Design Intent — **no product feature coding.** Theme/orb/home locked by default. Guide: `docs/ops/DESIGN_STUDIO.md`. Skill: `design-studio`.
 - **Product UI = desktop app** (`desktop_app.py`). Run and test it as a native window (Computer Use). Do not fall back to browser tabs of the shell or Gradio unless the slice says so.
 - Do not ask the human to paste coding prompts into browser Grok / AFK Pilot / other tools.
 - Ops docs: `docs/ops/HOW_WE_WORK.md`, `docs/ops/TEAM.md`, `docs/ops/ROADMAP.md`, `docs/ops/ADVISORY_COUNCIL.md`.

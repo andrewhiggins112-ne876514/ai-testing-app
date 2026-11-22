@@ -7,17 +7,17 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | deferred |
-| **Jira story** | — (Settings FR-UI-11 **KAN-324** Done) |
+| **Status** | open |
+| **Jira story** | **KAN-327** Suites FR-UI-11 inherit |
 | **Start task** | — |
 | **Epic** | — (TRACK4-LAYOUT inherit) |
 | **Roadmap ID** | TRACK4-LAYOUT |
-| **Spec** | FR-UI-11 Suites/Plans inherit |
+| **Spec** | FR-UI-11 Suites inherit (Plans Cases **KAN-329** next) |
 | **Git** | `main` |
-| **Test ticket** | — |
-| **Shipped** | Track 3 Primary Done; Settings layout grammar **KAN-324** desk107 |
-| **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2**; Suites/Plans FR-UI-11 inheritance (stories not yet Active) |
-| **Next / Shipped** | Do **not** implement Lab / voice / FR-MAN-2. Next: Designer/Studio or seed Suites→Plans FR-UI-11 inherit Stories, then set Active. |
+| **Test ticket** | **KAN-328** |
+| **Shipped** | Settings **KAN-324**; inherit mockups accepted; Lane C tooling restored |
+| **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2** |
+| **Next / Shipped** | Build pick-up implements **KAN-327**. Then **KAN-329** Plans Cases. Do **not** implement Lab / voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — Studio — Suites/Plans inherit accepted + Lane C restore
+- **Agent/chat:** Cursor IDE Agent (Studio path after deferred pick-up)
+- **Done:** Designer **accept** Suites+Plans FR-UI-11 inherit. Mockups under `docs/mockups/suites_plans_layout_inherit/`. Restored missing Lane C tooling from `eec4e25` (`DESIGN_STUDIO.md`, `design-studio` skill, `studio*` agents) + TEAM / AGENTS / ADVISORY_COUNCIL Lane C links. Bridge: Suites Story **KAN-327** / test **KAN-328**; Plans Cases **KAN-329** / test **KAN-330**. Active → **KAN-327**. No product UI code.
+- **Files:** mockups pack; Design Intent; `scripts/jira_kan_fr_ui11_inherit_bridge.py`; Studio ops/agents/skill; WORK_LOG / ROADMAP / SPEC / PROJECT_MEMORY
+- **Verify:** Open themed Suites/Plans mockups; `/studio` after reload; fresh Build → pick up **KAN-327**
+- **Jira:** Bridge comments on **KAN-327** / **KAN-329**
+- **Next:** Build implements **KAN-327** Suites inherit
 
 ### 2026-11-21 — Bug KAN-326 — Settings rail intermittent (desk108)
 - **Agent/chat:** Cursor IDE Agent — Designer reported rail buttons intermittent
