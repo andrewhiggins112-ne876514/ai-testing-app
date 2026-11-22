@@ -132,20 +132,44 @@ def list_saved_reports(limit: int = 50) -> dict:
         md_path = folder / f"{stem}.md"
         json_path = folder / f"{stem}.json"
         stamp = ""
+        title = stem
+        level = ""
+        kind = "Run"
         if json_path.is_file():
             try:
                 payload = json.loads(json_path.read_text(encoding="utf-8"))
                 if isinstance(payload, dict):
                     stamp = str(payload.get("timestamp") or "")
+                    raw_kind = str(payload.get("kind") or "").strip().lower()
+                    if raw_kind in {"read_only_export_pack", "pack"}:
+                        kind = "Pack"
+                    level = str(payload.get("security_level") or "").strip()
+                    if not level:
+                        redaction = payload.get("redaction")
+                        if isinstance(redaction, dict):
+                            level = str(redaction.get("security_level") or "").strip()
+                    req = str(payload.get("request") or "").strip()
+                    named = str(payload.get("title") or payload.get("label") or "").strip()
+                    if named:
+                        title = named
+                    elif req:
+                        title = req[:80]
+                    elif kind == "Pack":
+                        title = "Read-only pack"
             except (OSError, json.JSONDecodeError, UnicodeError):
                 stamp = ""
         if not stamp:
             stamp = datetime.fromtimestamp(mtime).isoformat(timespec="seconds")
+        if not level:
+            level = "—"
         reports.append(
             {
                 "id": stem,
-                "label": stem,
+                "label": title or stem,
+                "title": title or stem,
                 "timestamp": stamp,
+                "level": level,
+                "kind": kind,
                 "has_markdown": md_path.is_file(),
                 "has_json": json_path.is_file(),
             }
@@ -203,9 +227,24 @@ def get_saved_report(report_id: str) -> dict:
             path = Path(str(candidate))
             if path.is_file():
                 shot = path
+    label = stem
+    if isinstance(payload, dict):
+        named = str(payload.get("title") or payload.get("label") or "").strip()
+        req = str(payload.get("request") or "").strip()
+        if named:
+            label = named
+        elif req:
+            label = req[:80]
+        elif str(payload.get("kind") or "").strip().lower() in {
+            "read_only_export_pack",
+            "pack",
+        }:
+            label = "Read-only pack"
     return {
         "found": True,
         "id": stem,
+        "label": label,
+        "title": label,
         "markdown": markdown,
         "json": payload,
         "has_screenshot": shot is not None,

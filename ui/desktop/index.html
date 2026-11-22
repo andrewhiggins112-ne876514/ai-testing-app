@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk111" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk112" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -616,7 +616,7 @@
           <p id="backup-status" class="drawer-hint" role="status">Ready</p>
           </div>
         </div>
-        <div id="app-section-reports" class="app-section" hidden data-reports-ia="1" data-reports-documents-density="1">
+        <div id="app-section-reports" class="app-section" hidden data-reports-ia="1" data-reports-documents-density="1" data-reports-layout-grammar="1">
           <div id="rpt-chrome-toolbar" class="area-chrome-toolbar rpt-chrome-toolbar" data-rpt-chrome="1">
             <div class="btn-row rpt-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="rpt-library-refresh" class="save-btn secondary">Refresh library</button>
@@ -629,26 +629,32 @@
             <summary>About Reports</summary>
             <p class="drawer-hint">Saved-report library first. Section include/exclude stays under Settings → Report. Export a run or read-only pack lives under Advanced.</p>
           </details>
-          <div id="rpt-primary" class="rpt-primary" data-rpt-primary="1">
-            <h4 class="orb-section-label">Saved reports</h4>
-            <p id="rpt-empty" class="drawer-hint">
-              No saved reports yet. Run a plan case or export a run (Advanced) — files land in the local
-              reports folder outside the repo. Section include/exclude stays under Settings → Report.
-            </p>
-            <div id="rpt-library-list" class="rpt-library-list" role="listbox" aria-label="Saved reports" data-rpt-list="1"></div>
-            <label class="stack-label rpt-library-select-label" for="rpt-library-select">Open by id
-              <select id="rpt-library-select">
-                <option value="">— no reports yet —</option>
-              </select>
-            </label>
-            <div id="rpt-detail" class="rpt-detail" data-rpt-detail="1">
+          <div id="rpt-primary" class="rpt-primary rpt-grammar-split" data-rpt-primary="1">
+            <div class="rpt-scan-pane">
+              <h4 class="orb-section-label">Saved reports</h4>
+              <p id="rpt-empty" class="drawer-hint">No saved reports yet. Run a plan case or export a run (Advanced).</p>
+              <table id="rpt-scan" class="rpt-scan-table" role="grid" aria-label="Saved reports" data-rpt-scan="1">
+                <thead>
+                  <tr>
+                    <th scope="col">When</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Level</th>
+                    <th scope="col">Kind</th>
+                  </tr>
+                </thead>
+                <tbody id="rpt-scan-body"></tbody>
+              </table>
+            </div>
+            <aside class="rpt-detail-pane" id="rpt-detail" data-rpt-detail="1" aria-label="Report detail">
+              <h4 class="orb-section-label" id="rpt-viewer-title">Report</h4>
+              <p class="drawer-hint" id="rpt-viewer-hint">Row opens markdown. Screenshot and raw JSON stay here. Section include/exclude is under Settings.</p>
               <pre id="rpt-markdown" class="report-viewer" aria-live="polite">Select a report to read its markdown.</pre>
               <img id="rpt-screenshot" class="report-shot" alt="Report screenshot" hidden />
               <details class="report-json-wrap">
                 <summary>Raw JSON</summary>
                 <pre id="rpt-json" class="report-viewer">No JSON found</pre>
               </details>
-            </div>
+            </aside>
           </div>
           <details id="rpt-advanced" class="rpt-advanced" data-rpt-advanced="1">
             <summary>Advanced (export run / pack)</summary>
@@ -1454,6 +1460,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk111"></script>
+  <script src="/ui/desktop/desktop.js?v=desk112"></script>
 </body>
 </html>

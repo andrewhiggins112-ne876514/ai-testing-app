@@ -1699,11 +1699,11 @@
     documents: document.getElementById("rpt-documents"),
   };
   const rptSave = document.getElementById("rpt-save");
-  const rptLibrarySelect = document.getElementById("rpt-library-select");
-  const rptLibraryList = document.getElementById("rpt-library-list");
+  const rptScanBody = document.getElementById("rpt-scan-body");
   const rptLibraryRefresh = document.getElementById("rpt-library-refresh");
   const rptOpenSettings = document.getElementById("rpt-open-settings");
   const rptEmpty = document.getElementById("rpt-empty");
+  const rptViewerTitle = document.getElementById("rpt-viewer-title");
   const rptMarkdown = document.getElementById("rpt-markdown");
   const rptScreenshot = document.getElementById("rpt-screenshot");
   const rptJson = document.getElementById("rpt-json");
@@ -1870,50 +1870,68 @@
     }
   }
 
-  function syncReportListSelection(reportId) {
-    rptSelectedId = reportId || "";
-    if (rptLibraryList) {
-      rptLibraryList.querySelectorAll(".rpt-library-item").forEach(function (btn) {
-        btn.setAttribute(
-          "aria-selected",
-          btn.getAttribute("data-report-id") === rptSelectedId ? "true" : "false"
-        );
+  function formatReportWhen(stamp) {
+    const raw = String(stamp || "").trim();
+    if (!raw) return "—";
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return raw;
+    try {
+      return d.toLocaleString(undefined, {
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
       });
-    }
-    if (rptLibrarySelect && rptLibrarySelect.value !== rptSelectedId) {
-      const exists = Array.from(rptLibrarySelect.options).some(function (o) {
-        return o.value === rptSelectedId;
-      });
-      if (exists || !rptSelectedId) {
-        rptLibrarySelect.value = rptSelectedId;
-      }
+    } catch (err) {
+      return raw;
     }
   }
 
+  function syncReportListSelection(reportId) {
+    rptSelectedId = reportId || "";
+    if (!rptScanBody) return;
+    rptScanBody.querySelectorAll(".rpt-scan-row").forEach(function (row) {
+      const on = row.getAttribute("data-report-id") === rptSelectedId;
+      row.classList.toggle("is-focus", on);
+      row.setAttribute("aria-selected", on ? "true" : "false");
+    });
+  }
+
   function renderReportLibraryList(rows) {
-    if (!rptLibraryList) return;
-    rptLibraryList.innerHTML = "";
+    if (!rptScanBody) return;
+    rptScanBody.innerHTML = "";
     (rows || []).forEach(function (row) {
       const id = row.id || "";
       if (!id) return;
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "rpt-library-item";
-      btn.setAttribute("role", "option");
-      btn.setAttribute("data-report-id", id);
-      btn.setAttribute("aria-selected", id === rptSelectedId ? "true" : "false");
-      btn.textContent = row.label || id;
-      btn.addEventListener("click", function () {
+      const tr = document.createElement("tr");
+      tr.className = "rpt-scan-row" + (id === rptSelectedId ? " is-focus" : "");
+      tr.setAttribute("role", "row");
+      tr.setAttribute("data-report-id", id);
+      tr.setAttribute("aria-selected", id === rptSelectedId ? "true" : "false");
+      const whenTd = document.createElement("td");
+      whenTd.textContent = formatReportWhen(row.timestamp || row.when || "");
+      const titleTd = document.createElement("td");
+      titleTd.textContent = row.title || row.label || id;
+      const levelTd = document.createElement("td");
+      levelTd.textContent = row.level || row.security_level || "—";
+      const kindTd = document.createElement("td");
+      kindTd.textContent = row.kind || "Run";
+      tr.appendChild(whenTd);
+      tr.appendChild(titleTd);
+      tr.appendChild(levelTd);
+      tr.appendChild(kindTd);
+      tr.addEventListener("click", function () {
         syncReportListSelection(id);
         loadReportDetail(id);
       });
-      rptLibraryList.appendChild(btn);
+      rptScanBody.appendChild(tr);
     });
   }
 
   async function loadReportDetail(reportId) {
     syncReportListSelection(reportId || "");
     if (!reportId) {
+      if (rptViewerTitle) rptViewerTitle.textContent = "Report";
       clearReportViewer("No reports yet. Export a run or wait for a plan case export.");
       return;
     }
@@ -1924,6 +1942,9 @@
         return;
       }
       const data = await res.json();
+      if (rptViewerTitle) {
+        rptViewerTitle.textContent = data.label || data.title || reportId;
+      }
       if (rptMarkdown) rptMarkdown.textContent = data.markdown || "No markdown for this report.";
       if (rptJson) {
         try {
@@ -1954,24 +1975,7 @@
       if (!res.ok) return;
       const data = await res.json();
       const rows = (data && data.reports) || [];
-      const previous =
-        rptSelectedId || (rptLibrarySelect ? rptLibrarySelect.value || "" : "");
-      if (rptLibrarySelect) {
-        rptLibrarySelect.innerHTML = "";
-        if (!rows.length) {
-          const blank = document.createElement("option");
-          blank.value = "";
-          blank.textContent = "— no reports yet —";
-          rptLibrarySelect.appendChild(blank);
-        } else {
-          rows.forEach(function (row) {
-            const opt = document.createElement("option");
-            opt.value = row.id || "";
-            opt.textContent = row.label || row.id || "report";
-            rptLibrarySelect.appendChild(opt);
-          });
-        }
-      }
+      const previous = rptSelectedId || "";
       const stillThere =
         previous &&
         rows.some(function (row) {
@@ -1981,9 +1985,11 @@
       renderReportLibraryList(rows);
       syncReportListSelection(rptSelectedId);
       if (rptEmpty) rptEmpty.hidden = rows.length > 0;
+      if (rptScanBody) rptScanBody.hidden = rows.length === 0;
       if (rptSelectedId) {
         await loadReportDetail(rptSelectedId);
       } else {
+        if (rptViewerTitle) rptViewerTitle.textContent = "Report";
         clearReportViewer(
           (data && data.empty_hint) ||
             "No saved reports yet. Run a plan case or export a run."
@@ -10802,11 +10808,6 @@
   if (rptLibraryRefresh) {
     rptLibraryRefresh.addEventListener("click", function () {
       loadReportLibrary();
-    });
-  }
-  if (rptLibrarySelect) {
-    rptLibrarySelect.addEventListener("change", function () {
-      loadReportDetail(rptLibrarySelect.value || "");
     });
   }
   if (rptOpenSettings) {

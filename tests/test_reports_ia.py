@@ -6,21 +6,21 @@ from pathlib import Path
 
 
 class ReportsIaDesktopUiTests(unittest.TestCase):
-    def test_reports_ia_markers_desk107(self):
+    def test_reports_ia_markers_desk112(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk107", html)
-        self.assertIn("desk107", desk)
+        self.assertIn("desk112", html)
+        self.assertIn("desk112", desk)
         self.assertIn('data-reports-ia="1"', html)
         self.assertIn('data-rpt-chrome="1"', html)
         self.assertIn('id="rpt-chrome-toolbar"', html)
         self.assertIn('data-rpt-primary="1"', html)
-        self.assertIn('data-rpt-list="1"', html)
-        self.assertIn('id="rpt-library-list"', html)
-        self.assertIn('id="rpt-library-select"', html)
+        self.assertIn('data-rpt-scan="1"', html)
+        self.assertIn('id="rpt-scan"', html)
+        self.assertIn('id="rpt-scan-body"', html)
         self.assertIn('id="rpt-library-refresh"', html)
         self.assertIn('id="rpt-open-settings"', html)
         self.assertIn('data-rpt-detail="1"', html)
@@ -59,14 +59,17 @@ class ReportsIaDesktopUiTests(unittest.TestCase):
             'id="app-section-documents"', 1
         )[0]
         self.assertNotIn('id="rpt-summary"', reports_block)
+        self.assertNotIn('id="rpt-library-select"', reports_block)
+        self.assertNotIn('id="rpt-library-list"', reports_block)
         self.assertIn("No saved reports yet", reports_block)
 
         self.assertIn("renderReportLibraryList", js)
         self.assertIn("rptSelectedId", js)
+        self.assertIn("rpt-scan-row", js)
         self.assertIn("/api/reports", js)
         self.assertIn("openReportSettings", js)
         self.assertIn(".rpt-chrome-toolbar", css)
-        self.assertIn(".rpt-library-item", css)
+        self.assertIn(".rpt-scan-table", css)
         self.assertIn(".rpt-advanced", css)
 
 
