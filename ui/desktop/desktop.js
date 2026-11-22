@@ -1409,8 +1409,21 @@
   let charterDragOrigin = null;
   let charterFrameSaveTimer = null;
   const healList = document.getElementById("heal-list");
+  const healScanBody = document.getElementById("heal-scan-body");
+  const healListEmpty = document.getElementById("heal-list-empty");
   const healStatus = document.getElementById("heal-status");
   const healRefresh = document.getElementById("heal-refresh");
+  const healBulkWrap = document.querySelector("[data-heal-bulk]");
+  const healBulkApprove = document.getElementById("heal-bulk-approve");
+  const healApproveBtn = document.getElementById("heal-approve");
+  const healRejectBtn = document.getElementById("heal-reject");
+  const healDetailTitle = document.getElementById("heal-detail-title");
+  const healDetailHint = document.getElementById("heal-detail-hint");
+  const healDetailId = document.getElementById("heal-detail-id");
+  const healDetailDiff = document.getElementById("heal-detail-diff");
+  let healFocusedId = "";
+  let healById = {};
+  let healBulkAwaitingConfirm = false;
   const setJiraUrl = document.getElementById("set-jira-url");
   const setJiraProject = document.getElementById("set-jira-project");
   const setOllamaModel = document.getElementById("set-ollama-model");
@@ -6203,55 +6216,237 @@
     return parts[2] || "";
   }
 
+  function formatHealClassLabel(raw) {
+    const text = String(raw || "unclassified").replace(/_/g, " ").trim();
+    if (!text) return "Unclassified";
+    return text.replace(/\b\w/g, function (ch) {
+      return ch.toUpperCase();
+    });
+  }
+
+  function healLocatorLabel(item) {
+    const evidence = (item && item.evidence) || {};
+    const proposed = String(evidence.proposed || "").trim();
+    if (proposed) return proposed;
+    const original = String(evidence.original || "").trim();
+    if (original) return original;
+    const proposal = String((item && (item.proposal || item.message)) || "").trim();
+    if (!proposal) return "—";
+    const first = proposal.split(/\r?\n/).find(function (line) {
+      return line.trim();
+    });
+    return (first || proposal).slice(0, 80);
+  }
+
+  function healWhenLabel(raw) {
+    const text = String(raw || "").trim();
+    if (!text) return "—";
+    // Prefer compact "22 Nov 09:14" when ISO-like.
+    const m = text.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+    if (!m) return text.slice(0, 19);
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const mon = months[Number(m[2]) - 1] || m[2];
+    return Number(m[3]) + " " + mon + " " + m[4] + ":" + m[5];
+  }
+
+  function getHealCheckedIds() {
+    if (!healScanBody) return [];
+    const ids = [];
+    healScanBody.querySelectorAll(".heal-scan-row").forEach(function (tr) {
+      const cb = tr.querySelector('input[type="checkbox"]');
+      if (cb && cb.checked && tr.dataset.id) ids.push(tr.dataset.id);
+    });
+    return ids;
+  }
+
+  function syncHealBulkToolbar() {
+    const ids = getHealCheckedIds();
+    const n = ids.length;
+    if (healBulkWrap) healBulkWrap.hidden = n < 1;
+    if (healBulkApprove) {
+      healBulkApprove.disabled = n < 1;
+      if (n < 1) {
+        healBulkAwaitingConfirm = false;
+        healBulkApprove.textContent = "Approve selected (0)";
+      } else if (healBulkAwaitingConfirm) {
+        healBulkApprove.textContent = "Confirm approve (" + n + ")";
+      } else {
+        healBulkApprove.textContent = "Approve selected (" + n + ")";
+      }
+    }
+  }
+
+  function clearHealFocus() {
+    healFocusedId = "";
+    if (healScanBody) {
+      healScanBody.querySelectorAll(".heal-scan-row.is-focus").forEach(function (el) {
+        el.classList.remove("is-focus");
+      });
+    }
+    if (healDetailTitle) healDetailTitle.textContent = "No proposal focused";
+    if (healDetailHint) {
+      healDetailHint.textContent =
+        "Sel is multi-select only. Row click focuses. Approve and Reject act on the focused id only.";
+    }
+    if (healDetailId) healDetailId.value = "";
+    if (healDetailDiff) healDetailDiff.textContent = "";
+    if (healApproveBtn) healApproveBtn.disabled = true;
+    if (healRejectBtn) healRejectBtn.disabled = true;
+  }
+
+  function focusHealDetail(tr, opts) {
+    const options = opts || {};
+    if (!tr || !tr.dataset) return;
+    const id = tr.dataset.id || "";
+    if (healScanBody) {
+      healScanBody.querySelectorAll(".heal-scan-row.is-focus").forEach(function (el) {
+        el.classList.remove("is-focus");
+      });
+    }
+    tr.classList.add("is-focus");
+    healFocusedId = id;
+    const item = healById[id] || {};
+    if (healDetailTitle) healDetailTitle.textContent = "Proposal";
+    if (healDetailHint) {
+      healDetailHint.textContent =
+        "Approve / Reject act on this focused proposal only. Suite files are not auto-committed.";
+    }
+    if (healDetailId) healDetailId.value = id;
+    if (healDetailDiff) {
+      healDetailDiff.textContent =
+        item.proposal || item.message || "(no diff)";
+    }
+    if (healApproveBtn) healApproveBtn.disabled = !id;
+    if (healRejectBtn) healRejectBtn.disabled = !id;
+    if (options.focusField && healDetailId) {
+      try {
+        healDetailId.focus();
+      } catch (err) {
+        /* ignore */
+      }
+    }
+  }
+
   function renderHealProposals(payload) {
-    if (!healList) return;
-    healList.innerHTML = "";
+    if (!healScanBody) return;
     const pending = (payload && payload.pending) || [];
-    if (!pending.length) {
-      const empty = document.createElement("p");
-      empty.className = "heal-empty drawer-hint";
-      empty.textContent = selectedHealRunId()
+    const prevFocus = healFocusedId;
+    const prevChecked = {};
+    getHealCheckedIds().forEach(function (id) {
+      prevChecked[id] = true;
+    });
+    healScanBody.innerHTML = "";
+    healById = {};
+    healBulkAwaitingConfirm = false;
+    clearHealFocus();
+
+    if (healListEmpty) {
+      healListEmpty.hidden = pending.length > 0;
+      healListEmpty.textContent = selectedHealRunId()
         ? "No pending heal proposals for this run."
         : "No pending heal proposals.";
-      healList.appendChild(empty);
-      return;
     }
+
     pending.forEach(function (item) {
-      const card = document.createElement("article");
-      card.className = "heal-card";
-      card.dataset.id = item.id || "";
-      const meta = document.createElement("p");
-      meta.className = "heal-card-meta";
-      meta.textContent = [
-        item.kind || "locator",
-        item.classification || "unclassified",
-        item.run_id ? "run " + item.run_id : "",
-        item.timestamp || "",
-      ]
-        .filter(Boolean)
-        .join(" · ");
-      const diff = document.createElement("pre");
-      diff.className = "heal-diff";
-      diff.textContent = item.proposal || item.message || "(no diff)";
-      const row = document.createElement("div");
-      row.className = "btn-row";
-      const approveBtn = document.createElement("button");
-      approveBtn.type = "button";
-      approveBtn.className = "save-btn heal-approve";
-      approveBtn.textContent = "Approve";
-      approveBtn.dataset.id = item.id || "";
-      const rejectBtn = document.createElement("button");
-      rejectBtn.type = "button";
-      rejectBtn.className = "save-btn secondary heal-reject";
-      rejectBtn.textContent = "Reject";
-      rejectBtn.dataset.id = item.id || "";
-      row.appendChild(approveBtn);
-      row.appendChild(rejectBtn);
-      card.appendChild(meta);
-      card.appendChild(diff);
-      card.appendChild(row);
-      healList.appendChild(card);
+      const id = (item && item.id) || "";
+      if (!id) return;
+      healById[id] = item;
+      const tr = document.createElement("tr");
+      tr.className = "heal-scan-row";
+      tr.tabIndex = 0;
+      tr.dataset.id = id;
+      tr.setAttribute("role", "row");
+
+      const tdHit = document.createElement("td");
+      tdHit.className = "heal-hit";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.setAttribute("aria-label", "Select " + id);
+      cb.setAttribute("data-heal-checkbox-stop", "1");
+      if (prevChecked[id]) cb.checked = true;
+      cb.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+      });
+      cb.addEventListener("change", function (ev) {
+        ev.stopPropagation();
+        healBulkAwaitingConfirm = false;
+        syncHealBulkToolbar();
+      });
+      tdHit.appendChild(cb);
+
+      const tdClass = document.createElement("td");
+      const classPill = document.createElement("span");
+      const classRaw = String((item && item.classification) || "unclassified");
+      classPill.className =
+        "heal-pill " +
+        (classRaw === "test_defect" || classRaw === "product_bug" ? "warn" : "idle");
+      classPill.textContent = formatHealClassLabel(classRaw);
+      tdClass.appendChild(classPill);
+
+      const tdLoc = document.createElement("td");
+      tdLoc.className = "mono";
+      tdLoc.textContent = healLocatorLabel(item);
+
+      const tdRun = document.createElement("td");
+      tdRun.className = "mono";
+      tdRun.textContent = (item && item.run_id) || "—";
+
+      const tdWhen = document.createElement("td");
+      tdWhen.textContent = healWhenLabel(item && item.timestamp);
+
+      tr.appendChild(tdHit);
+      tr.appendChild(tdClass);
+      tr.appendChild(tdLoc);
+      tr.appendChild(tdRun);
+      tr.appendChild(tdWhen);
+
+      tr.addEventListener("click", function (ev) {
+        if (
+          ev.target &&
+          ev.target.closest &&
+          ev.target.closest('[data-heal-checkbox-stop="1"]')
+        ) {
+          return;
+        }
+        focusHealDetail(tr, { focusField: false });
+      });
+      tr.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+          if (
+            ev.target &&
+            ev.target.closest &&
+            ev.target.closest('[data-heal-checkbox-stop="1"]')
+          ) {
+            return;
+          }
+          ev.preventDefault();
+          focusHealDetail(tr, { focusField: false });
+        }
+      });
+
+      healScanBody.appendChild(tr);
     });
+
+    syncHealBulkToolbar();
+    if (prevFocus && healById[prevFocus]) {
+      const row = healScanBody.querySelector(
+        '.heal-scan-row[data-id="' + prevFocus.replace(/"/g, "") + '"]'
+      );
+      if (row) focusHealDetail(row, { focusField: false });
+    }
   }
 
   async function loadHealProposals() {
@@ -6282,10 +6477,7 @@
   }
 
   async function resolveHealProposal(id, action) {
-    if (!id) return;
-    if (healStatus) {
-      healStatus.textContent = action === "approve" ? "Approving…" : "Rejecting…";
-    }
+    if (!id) return false;
     try {
       const res = await fetch(action === "approve" ? "/api/heal/approve" : "/api/heal/reject", {
         method: "POST",
@@ -6298,17 +6490,70 @@
           healStatus.textContent =
             (data && data.error) || "Could not update heal proposal.";
         }
-        return;
+        return false;
       }
-      await loadHealProposals();
-      if (healStatus) {
-        healStatus.textContent =
-          action === "approve"
-            ? "Approved — approver recorded; suite not auto-committed."
-            : "Rejected — heal not treated as accepted.";
-      }
+      return true;
     } catch (err) {
       if (healStatus) healStatus.textContent = "Could not update heal proposal.";
+      return false;
+    }
+  }
+
+  async function approveFocusedHeal() {
+    if (!healFocusedId) return;
+    if (healStatus) healStatus.textContent = "Approving…";
+    const ok = await resolveHealProposal(healFocusedId, "approve");
+    if (!ok) return;
+    await loadHealProposals();
+    if (healStatus) {
+      healStatus.textContent =
+        "Approved — approver recorded; suite not auto-committed.";
+    }
+  }
+
+  async function rejectFocusedHeal() {
+    if (!healFocusedId) return;
+    if (healStatus) healStatus.textContent = "Rejecting…";
+    const ok = await resolveHealProposal(healFocusedId, "reject");
+    if (!ok) return;
+    await loadHealProposals();
+    if (healStatus) {
+      healStatus.textContent = "Rejected — heal not treated as accepted.";
+    }
+  }
+
+  async function bulkApproveSelectedHeals() {
+    const ids = getHealCheckedIds();
+    if (!ids.length) {
+      syncHealBulkToolbar();
+      return;
+    }
+    if (!healBulkAwaitingConfirm) {
+      healBulkAwaitingConfirm = true;
+      syncHealBulkToolbar();
+      if (healStatus) {
+        healStatus.textContent =
+          "Confirm approve " +
+          ids.length +
+          " selected heal(s)? Click Confirm approve to proceed (suite not auto-committed).";
+      }
+      return;
+    }
+    if (healStatus) healStatus.textContent = "Approving selected…";
+    let okCount = 0;
+    for (let i = 0; i < ids.length; i += 1) {
+      const ok = await resolveHealProposal(ids[i], "approve");
+      if (ok) okCount += 1;
+    }
+    healBulkAwaitingConfirm = false;
+    await loadHealProposals();
+    if (healStatus) {
+      healStatus.textContent =
+        "Approved " +
+        okCount +
+        " of " +
+        ids.length +
+        " selected — suite not auto-committed.";
     }
   }
 
@@ -11032,16 +11277,19 @@
       loadHealProposals();
     });
   }
-  if (healList) {
-    healList.addEventListener("click", function (ev) {
-      const target = ev.target;
-      if (!target || !target.classList) return;
-      const id = target.getAttribute("data-id") || "";
-      if (target.classList.contains("heal-approve")) {
-        resolveHealProposal(id, "approve");
-      } else if (target.classList.contains("heal-reject")) {
-        resolveHealProposal(id, "reject");
-      }
+  if (healApproveBtn) {
+    healApproveBtn.addEventListener("click", function () {
+      approveFocusedHeal();
+    });
+  }
+  if (healRejectBtn) {
+    healRejectBtn.addEventListener("click", function () {
+      rejectFocusedHeal();
+    });
+  }
+  if (healBulkApprove) {
+    healBulkApprove.addEventListener("click", function () {
+      bulkApproveSelectedHeals();
     });
   }
 

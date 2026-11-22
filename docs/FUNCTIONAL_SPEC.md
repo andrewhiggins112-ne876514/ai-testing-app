@@ -253,7 +253,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-UI-8 | Lab tools group on compact App menu (every layout) | **Done** **KAN-260** (desk64; test **KAN-262**) |
 | FR-UI-9 | Plans IA + non-overlapping area chrome | IA tidy **Done** **KAN-265**; chrome non-overlap **Done** **KAN-281** (desk92); layout tokens **Done** **KAN-297** (desk99) — tokens ≠ visual redesign |
 | FR-UI-10 | Enterprise area density (real geometry; Primary first; all A–E) | **Primary Done** — **KAN-308…320** + Bug **KAN-323** desk106; Lab density follow-on deferred |
-| FR-UI-11 | Secondary area layout grammar (rail + scan table + detail; Settings template) | Settings **Done** **KAN-324**; Suites **Done** **KAN-327**; Plans Cases **Done** **KAN-329**; Plans tabs **Done** **KAN-331**; Reports **Done** **KAN-333**; Documents **Done** **KAN-335**; Security **Done** **KAN-337** (desk114); next **KAN-339…345** (Active **KAN-339**) |
+| FR-UI-11 | Secondary area layout grammar (rail + scan table + detail; Settings template) | Settings **Done** **KAN-324**; Suites **Done** **KAN-327**; Plans Cases **Done** **KAN-329**; Plans tabs **Done** **KAN-331**; Reports **Done** **KAN-333**; Documents **Done** **KAN-335**; Security **Done** **KAN-337**; Heal **Done** **KAN-339** (desk115); next **KAN-341…345** (Active **KAN-341**) |
 | FR-UI-1 Manual | Primary **Manual** area (A3) | **Done** — **KAN-275** (desk90; test **KAN-276**); Charter Frame still **KAN-277** |
 | FR-MAN-1 implement | Charter Frame MVP + Track 2 completion | MVP **Done** **KAN-277**; completion stories under Track 2 epic; design **KAN-241** |
 | FR-PLUG-3 honesty | Stub labels / disable Run / Playwright default | **Done** — **KAN-267** (test **KAN-268**) |

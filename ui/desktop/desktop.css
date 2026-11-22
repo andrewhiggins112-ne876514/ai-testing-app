@@ -878,24 +878,8 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
 }
 
 .heal-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.heal-card {
-  border: 1px solid var(--cyan-border);
-  border-radius: 12px;
-  padding: 12px 14px;
-  background: linear-gradient(180deg, var(--accent-soft-2), var(--shell-fill));
-}
-
-.heal-card-meta {
-  margin: 0 0 8px;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  opacity: 0.85;
+  margin-top: 4px;
+  min-width: 0;
 }
 
 .heal-diff {
@@ -908,11 +892,137 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   border-radius: 8px;
   border: 1px solid var(--cyan-border);
   background: rgba(0, 0, 0, 0.28);
+  max-height: min(36vh, 280px);
+  overflow: auto;
 }
 
 .heal-empty {
   margin: 8px 0 0;
   opacity: 0.8;
+}
+
+.heal-toolbar-bulk {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.heal-toolbar-bulk[hidden] {
+  display: none !important;
+}
+
+/* KAN-339 / FR-UI-11 — Heal scan table + detail (no section rail) */
+#app-section-heal[data-heal-layout-grammar="1"] .heal-grammar-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  gap: var(--space-3);
+  align-items: start;
+  min-height: 0;
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-scan-pane {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-scan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--type-ui);
+  max-height: min(48vh, 420px);
+  display: block;
+  overflow: auto;
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-scan-table thead,
+#app-section-heal[data-heal-layout-grammar="1"] .heal-scan-table tbody {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-scan-table th {
+  text-align: left;
+  font: var(--type-meta);
+  color: var(--muted, #9bb4c4);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--cyan-border, rgba(80, 205, 255, 0.28));
+  background: rgba(0, 0, 0, 0.35);
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-scan-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 12%, transparent);
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-scan-row {
+  cursor: pointer;
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-scan-row.is-focus td {
+  background: color-mix(in srgb, var(--cyan, #50cdff) 12%, transparent);
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-hit {
+  width: 28px;
+  text-align: center;
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-hit input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-pill {
+  display: inline-block;
+  font: var(--type-meta);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-pill.warn {
+  color: var(--warn, #ffd37d);
+  border-color: color-mix(in srgb, var(--warn, #ffd37d) 40%, transparent);
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-pill.idle {
+  color: var(--muted, #9bb4c4);
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-detail-pane {
+  border-left: 1px solid var(--cyan-border, rgba(80, 205, 255, 0.28));
+  padding-left: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+#app-section-heal[data-heal-layout-grammar="1"] .heal-detail-pane .mono {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  #app-section-heal[data-heal-layout-grammar="1"] .heal-grammar-split {
+    grid-template-columns: 1fr;
+  }
+
+  #app-section-heal[data-heal-layout-grammar="1"] .heal-detail-pane {
+    border-left: none;
+    border-top: 1px solid var(--cyan-border, rgba(80, 205, 255, 0.28));
+    padding-left: 0;
+    padding-top: var(--space-3);
+  }
 }
 
 .report-viewer {

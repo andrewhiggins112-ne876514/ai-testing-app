@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-339** Heal review FR-UI-11 |
+| **Jira story** | **KAN-341** Manual area FR-UI-11 |
 | **Start task** | — |
 | **Epic** | — (TRACK4-LAYOUT rest) |
 | **Roadmap ID** | TRACK4-LAYOUT |
-| **Spec** | FR-UI-11 rest-of-App (Heal) |
+| **Spec** | FR-UI-11 rest-of-App (Manual) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-340** |
-| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331**; Reports **KAN-333**; Documents **KAN-335**; Security **KAN-337** desk114 |
+| **Test ticket** | **KAN-342** |
+| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331**; Reports **KAN-333**; Documents **KAN-335**; Security **KAN-337**; Heal **KAN-339** desk115 |
 | **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2** |
-| **Next / Shipped** | Build pick-up implements **KAN-339**. Order after: 341 → 343 → 345. Do **not** implement Lab / voice / FR-MAN-2. |
+| **Next / Shipped** | Build pick-up implements **KAN-341**. Order after: 343 → 345. Do **not** implement Lab / voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — KAN-339 — Heal FR-UI-11 (desk115)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-339
+- **Done:** Heal inherits FR-UI-11: scan table (Sel · Class · Locator · Run · When) with dedicated 28px Sel checkbox cell (stopPropagation; never approves); row click focuses detail (diff + Id); Approve/Reject only in `data-heal-actions` for focused id; toolbar `data-heal-bulk` Approve selected (N) with two-click confirm; no per-card `.heal-approve` / `.heal-reject` in `#heal-list`. Marker `data-heal-layout-grammar`. Cache-bust **desk115**. Theme/orb/home/App nav / Charter untouched. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_heal_layout_grammar.py`, desk115 bump on related UI tests + `tests/test_heal_review.py`
+- **Verify:** `pytest tests/test_heal_layout_grammar.py tests/test_heal_review.py tests/test_heal_policy.py tests/test_lab_areas_ia.py tests/test_security_layout_grammar.py tests/test_settings_layout_grammar.py tests/test_settings_hub.py tests/test_settings_security_density.py tests/test_documents_layout_grammar.py tests/test_reports_layout_grammar.py tests/test_reports_ia.py tests/test_reports_library.py tests/test_reports_documents_density.py tests/test_plans_tabs_layout_grammar.py tests/test_plan_cases_layout_grammar.py tests/test_suite_layout_grammar.py tests/test_suites_ia.py tests/test_plans_ia.py tests/test_nav_overlap.py tests/test_occlusion_verify_ae.py tests/test_local_side_effects_audit.py tests/test_lab_backup.py` — 52 passed. Spot-check: `desktop_app.py` → App → Heal review → Sel vs row → detail Approve → bulk Confirm approve.
+- **Jira:** close-out **KAN-339** + **KAN-340**
+- **Next:** Active **KAN-341** Manual FR-UI-11 (test **KAN-342**)
 
 ### 2026-11-22 — KAN-337 — Security FR-UI-11 (desk114)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-337

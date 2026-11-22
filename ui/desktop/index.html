@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk114" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk115" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -853,7 +853,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1">
+        <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1" data-heal-layout-grammar="1">
           <h3 class="orb-section-label">Heal proposal review</h3>
           <div id="heal-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-heal-chrome="1">
             <label class="stack-label heal-toolbar-filter" for="heal-run-filter">Filter by run
@@ -864,19 +864,50 @@
             <div class="btn-row lab-toolbar-actions">
               <button type="button" id="heal-refresh" class="save-btn secondary">Refresh</button>
             </div>
+            <span class="heal-toolbar-bulk" data-heal-bulk="1" hidden>
+              <button type="button" id="heal-bulk-approve" class="save-btn" disabled>Approve selected (0)</button>
+            </span>
             <p id="heal-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
           <div class="area-work" data-area-work="1">
-          <div id="heal-primary" class="lab-primary" data-heal-primary="1">
-            <h4 class="orb-section-label">Pending proposals</h4>
-            <div id="heal-list" class="heal-list" aria-live="polite" data-heal-list="1"></div>
+          <div id="heal-primary" class="lab-primary heal-grammar-split" data-heal-primary="1">
+            <div class="heal-scan-pane">
+              <h4 class="orb-section-label">Pending proposals</h4>
+              <p id="heal-list-empty" class="drawer-hint heal-empty">No pending heal proposals.</p>
+              <div id="heal-list" class="heal-list" aria-live="polite" data-heal-list="1">
+                <table id="heal-scan" class="heal-scan-table" role="grid" aria-label="Pending heal proposals" data-heal-scan="1" data-heal-checkbox-cell="1">
+                  <thead>
+                    <tr>
+                      <th class="heal-hit" scope="col">Sel</th>
+                      <th scope="col">Class</th>
+                      <th scope="col">Locator</th>
+                      <th scope="col">Run</th>
+                      <th scope="col">When</th>
+                    </tr>
+                  </thead>
+                  <tbody id="heal-scan-body"></tbody>
+                </table>
+              </div>
+            </div>
+            <aside class="heal-detail-pane" id="heal-detail" data-heal-detail="1" aria-label="Heal proposal detail">
+              <h4 class="orb-section-label" id="heal-detail-title">No proposal focused</h4>
+              <p class="drawer-hint" id="heal-detail-hint">Sel is multi-select only. Row click focuses. Approve and Reject act on the focused id only.</p>
+              <label class="stack-label">Id
+                <input type="text" id="heal-detail-id" class="mono" readonly autocomplete="off" />
+              </label>
+              <pre id="heal-detail-diff" class="heal-diff" aria-live="polite"></pre>
+              <div class="btn-row" data-heal-actions="1">
+                <button type="button" id="heal-approve" class="save-btn" disabled>Approve</button>
+                <button type="button" id="heal-reject" class="save-btn secondary" disabled>Reject</button>
+              </div>
+            </aside>
           </div>
           <details id="heal-advanced" class="lab-advanced" data-heal-advanced="1">
             <summary>Policy &amp; help</summary>
             <p class="drawer-hint">
               Locator-only heals wait here for approval (FR-HEAL-2). Approve records an approver in the audit log;
               reject leaves the heal unaccepted. Assertions are never auto-healed. Suite files are never auto-committed.
-              Optional run filter shows only heals stamped for that plan run.
+              Optional run filter shows only heals stamped for that plan run. Bulk Approve selected requires a confirm click.
             </p>
           </details>
           </div>
@@ -1605,6 +1636,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk114"></script>
+  <script src="/ui/desktop/desktop.js?v=desk115"></script>
 </body>
 </html>
