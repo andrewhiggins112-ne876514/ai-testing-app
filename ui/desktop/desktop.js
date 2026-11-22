@@ -1369,8 +1369,12 @@
   const manualConfirmYes = document.getElementById("manual-confirm-yes");
   const manualConfirmNo = document.getElementById("manual-confirm-no");
   const manualSessionList = document.getElementById("manual-session-list");
+  const manualSessionEmpty = document.getElementById("manual-session-empty");
   const manualLibraryLevel = document.getElementById("manual-library-level");
   const manualLoopStageLabel = document.getElementById("manual-loop-stage-label");
+  const manualDetailTitle = document.getElementById("manual-detail-title");
+  const manualDetailHint = document.getElementById("manual-detail-hint");
+  const manualDetailCharter = document.getElementById("manual-detail-charter");
   const planStartManual = document.getElementById("plan-start-manual");
   const charterFrameRoot = document.getElementById("charter-frame-root");
   const charterFrameRect = document.getElementById("charter-frame-rect");
@@ -1402,6 +1406,7 @@
   let charterSnapModePending = "";
   let charterSnapLabel = "";
   let manualOpenSessionId = "";
+  let manualFocusedSessionId = "";
   let manualLastStillId = "";
   let manualPendingProposalId = "";
   let charterFrameState = { x: 0.18, y: 0.16, w: 0.64, h: 0.58 };
@@ -5335,7 +5340,7 @@
     if (manualStatus) {
       manualStatus.textContent = parts.length
         ? "Prefill from Plans — " + parts.join(" · ") + " — ready to Start"
-        : "Opened Manual — pick a Plans case for prefill, or charter-only";
+        : "Manual ready — pick a Plans case for prefill, or charter-only";
     }
   }
 
@@ -5603,9 +5608,82 @@
     }
   }
 
+  function formatManualSessionWhen(iso) {
+    if (!iso) return "—";
+    try {
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return String(iso).slice(0, 16);
+      return d.toLocaleString(undefined, {
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (_err) {
+      return String(iso).slice(0, 16);
+    }
+  }
+
+  function manualSessionLinkLabel(s) {
+    const story = (s && s.jira_story_key) || "";
+    if (story) return story;
+    const caseId = (s && s.case_id) || "";
+    if (caseId) return caseId;
+    const planId = (s && s.plan_id) || "";
+    if (planId) return planId;
+    return "—";
+  }
+
+  function manualSessionStageLabel(s) {
+    const status = String((s && s.status) || "").toLowerCase();
+    if (status === "open") return "Recording";
+    if (status === "ended") return "Review";
+    if (status === "cancelled") return "Ended";
+    return status ? status.charAt(0).toUpperCase() + status.slice(1) : "—";
+  }
+
+  function setManualScanFocus(sessionId) {
+    manualFocusedSessionId = sessionId || "";
+    if (!manualSessionList) return;
+    const rows = manualSessionList.querySelectorAll(".manual-scan-row");
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const sid = row.getAttribute("data-session-id") || "";
+      if (sid && sid === manualFocusedSessionId) {
+        row.classList.add("is-focus");
+      } else {
+        row.classList.remove("is-focus");
+      }
+    }
+  }
+
+  function focusManualSessionRow(session) {
+    if (!session) return;
+    const sid = session.id || "";
+    setManualScanFocus(sid);
+    if (manualDetailTitle) {
+      manualDetailTitle.textContent = sid
+        ? "Focused session"
+        : "No session focused";
+    }
+    if (manualDetailCharter) {
+      manualDetailCharter.value = session.charter || "";
+    }
+    if (manualDetailHint) {
+      if (session.reviewable) {
+        manualDetailHint.textContent =
+          "Review for this session. Propose then Confirm — row click never writes Jira.";
+      } else {
+        manualDetailHint.textContent =
+          "Session is not reviewable. Start session opens Charter Frame; this row does not.";
+      }
+    }
+  }
+
   function showManualReview(session, review) {
     setManualLoopStage("review");
     if (manualReview) manualReview.hidden = false;
+    if (session) focusManualSessionRow(session);
     const notes = (session && session.notes) || (review && review.notes) || [];
     const stills = (session && session.stills) || (review && review.stills) || [];
     const drafts =
@@ -5711,13 +5789,6 @@
     }
     if (manualConfirmRow) manualConfirmRow.hidden = true;
     manualPendingProposalId = "";
-    if (manualReview && typeof manualReview.scrollIntoView === "function") {
-      try {
-        manualReview.scrollIntoView({ block: "start", behavior: "smooth" });
-      } catch (_err) {
-        /* scroll optional */
-      }
-    }
   }
 
   function clearManualUiForLevelSwitch() {
@@ -5728,9 +5799,16 @@
       /* frame optional */
     }
     manualOpenSessionId = "";
+    manualFocusedSessionId = "";
     window.__manualLastEndedId = "";
     window.__manualProposeSessionId = "";
     manualPendingProposalId = "";
+    if (manualDetailCharter) manualDetailCharter.value = "";
+    if (manualDetailTitle) manualDetailTitle.textContent = "Focused session";
+    if (manualDetailHint) {
+      manualDetailHint.textContent =
+        "Row click opens review for that session. Propose stays deliberate. Confirm dock is below the work.";
+    }
     if (manualReview) manualReview.hidden = true;
     if (manualProposeOut) {
       manualProposeOut.hidden = true;
@@ -5784,39 +5862,53 @@
       }
       if (manualSessionList) {
         const rows = data.sessions || [];
+        if (manualSessionEmpty) {
+          manualSessionEmpty.hidden = rows.length > 0;
+        }
         if (!rows.length) {
-          manualSessionList.innerHTML =
-            '<li class="manual-session-row"><p class="manual-session-meta">No sessions on this security level.</p></li>';
+          manualSessionList.innerHTML = "";
         } else {
           manualSessionList.innerHTML = rows
             .slice(0, 20)
             .map(function (s) {
-              const reviewable = !!s.reviewable;
-              const btn = reviewable
-                ? '<button type="button" class="save-btn secondary manual-library-reopen" data-manual-reopen="' +
-                  String(s.id || "").replace(/"/g, "") +
-                  '">Open review</button>'
-                : '<span class="drawer-hint">Not reviewable</span>';
+              const sid = String(s.id || "").replace(/"/g, "");
+              const charter = String(s.charter || "(no charter)")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+              const link = String(manualSessionLinkLabel(s))
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+              const stage = String(manualSessionStageLabel(s))
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+              const when = String(formatManualSessionWhen(s.created_at))
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+              const focusClass =
+                sid && sid === manualFocusedSessionId ? " is-focus" : "";
               return (
-                '<li class="manual-session-row" data-session-id="' +
-                String(s.id || "").replace(/"/g, "") +
+                '<tr class="manual-scan-row' +
+                focusClass +
+                '" data-session-id="' +
+                sid +
                 '" data-session-status="' +
-                String(s.status || "") +
-                '">' +
-                '<p class="manual-session-meta">' +
-                (s.id || "") +
-                " · " +
-                (s.status || "") +
-                " · notes " +
-                (s.note_count || 0) +
-                " · stills " +
-                (s.still_count || 0) +
-                "<br />" +
-                (s.charter || "(no charter)") +
-                "</p>" +
-                '<div class="manual-session-actions">' +
-                btn +
-                "</div></li>"
+                String(s.status || "").replace(/"/g, "") +
+                '" data-reviewable="' +
+                (s.reviewable ? "1" : "0") +
+                '" data-manual-session-row="1" role="row">' +
+                "<td>" +
+                when +
+                "</td>" +
+                "<td>" +
+                charter +
+                "</td>" +
+                "<td>" +
+                link +
+                "</td>" +
+                "<td><span class=\"manual-pill\">" +
+                stage +
+                "</span></td>" +
+                "</tr>"
               );
             })
             .join("");
@@ -5837,9 +5929,12 @@
         /* ended elsewhere */
       }
     } catch (_err) {
+      if (manualSessionEmpty) {
+        manualSessionEmpty.hidden = false;
+        manualSessionEmpty.textContent = "Could not load sessions.";
+      }
       if (manualSessionList) {
-        manualSessionList.innerHTML =
-          '<li class="manual-session-row"><p class="manual-session-meta">Could not load sessions.</p></li>';
+        manualSessionList.innerHTML = "";
       }
     }
   }
@@ -9694,9 +9789,26 @@
   if (manualSessionList) {
     manualSessionList.addEventListener("click", function (ev) {
       const t = ev.target;
-      if (!t || !t.getAttribute) return;
-      const sid = t.getAttribute("data-manual-reopen");
+      if (!t || !t.closest) return;
+      const row = t.closest("tr.manual-scan-row");
+      if (!row) return;
+      const sid = row.getAttribute("data-session-id") || "";
       if (!sid) return;
+      const reviewable = row.getAttribute("data-reviewable") === "1";
+      const charterCell = row.cells && row.cells[1] ? row.cells[1].textContent : "";
+      focusManualSessionRow({
+        id: sid,
+        charter: charterCell,
+        reviewable: reviewable,
+        status: row.getAttribute("data-session-status") || "",
+      });
+      if (!reviewable) {
+        if (manualStatus) {
+          manualStatus.textContent =
+            "Session focused — not reviewable (row does not start capture)";
+        }
+        return;
+      }
       reopenManualFromLibrary(sid);
     });
   }

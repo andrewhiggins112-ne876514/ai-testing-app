@@ -8,14 +8,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class DocumentsLayoutGrammarTests(unittest.TestCase):
-    def test_documents_fr_ui11_scan_detail_markers_desk115(self) -> None:
+    def test_documents_fr_ui11_scan_detail_markers_desk116(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk115", html)
-        self.assertIn("desk115", desk)
+        self.assertIn("desk116", html)
+        self.assertIn("desk116", desk)
 
         documents = html.split('id="app-section-documents"', 1)[1].split(
             'id="app-section-heal"', 1

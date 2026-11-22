@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-341** Manual area FR-UI-11 |
+| **Jira story** | **KAN-343** Desktop Lab FR-UI-11 |
 | **Start task** | — |
 | **Epic** | — (TRACK4-LAYOUT rest) |
 | **Roadmap ID** | TRACK4-LAYOUT |
-| **Spec** | FR-UI-11 rest-of-App (Manual) |
+| **Spec** | FR-UI-11 rest-of-App (Desktop Lab) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-342** |
-| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331**; Reports **KAN-333**; Documents **KAN-335**; Security **KAN-337**; Heal **KAN-339** desk115 |
+| **Test ticket** | **KAN-344** |
+| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331**; Reports **KAN-333**; Documents **KAN-335**; Security **KAN-337**; Heal **KAN-339**; Manual **KAN-341** desk116 |
 | **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2** |
-| **Next / Shipped** | Build pick-up implements **KAN-341**. Order after: 343 → 345. Do **not** implement Lab / voice / FR-MAN-2. |
+| **Next / Shipped** | Build pick-up implements **KAN-343**. Order after: 345. Do **not** implement Lab density / voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — KAN-341 — Manual FR-UI-11 (desk116)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-341
+- **Done:** Manual inherits FR-UI-11: session library scan (When · Charter · Link · Stage); row click focuses detail / reopens review (does not Start capture or Confirm Jira); start toggles `#manual-ticket-bound` / `#manual-assist` / `#manual-mist` (+ explicit Bug) as `data-manual-compact-check` — no `check-row` in `#app-section-manual`; Confirm dock stays outside `.area-work`; Charter Frame ids untouched. Marker `data-manual-layout-grammar`. Cache-bust **desk116**. Theme/orb/home/App nav / Charter Frame structure untouched. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_manual_layout_grammar.py`, desk116 bump on related UI tests
+- **Verify:** `pytest tests/test_manual_layout_grammar.py tests/test_manual_density.py tests/test_manual_ia.py tests/test_manual_session_library.py tests/test_manual_trustworthy_loop.py tests/test_manual_propose_harden.py tests/test_manual_session.py tests/test_manual_assist_drafts.py tests/test_manual_page_context.py tests/test_heal_layout_grammar.py tests/test_heal_review.py tests/test_heal_policy.py tests/test_security_layout_grammar.py tests/test_settings_layout_grammar.py tests/test_settings_hub.py tests/test_settings_security_density.py tests/test_documents_layout_grammar.py tests/test_reports_layout_grammar.py tests/test_reports_ia.py tests/test_reports_library.py tests/test_reports_documents_density.py tests/test_plans_tabs_layout_grammar.py tests/test_plan_cases_layout_grammar.py tests/test_suite_layout_grammar.py tests/test_suites_ia.py tests/test_plans_ia.py tests/test_nav_overlap.py tests/test_occlusion_verify_ae.py tests/test_local_side_effects_audit.py tests/test_lab_backup.py tests/test_lab_areas_ia.py` — 95 passed. Spot-check: `desktop_app.py` → App → Manual → session row → detail; Start still opens Charter Frame.
+- **Jira:** close-out **KAN-341** + **KAN-342**
+- **Next:** Active **KAN-343** Desktop Lab FR-UI-11 (test **KAN-344**)
 
 ### 2026-11-22 — KAN-339 — Heal FR-UI-11 (desk115)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-339

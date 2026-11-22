@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk115" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk116" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -1346,7 +1346,7 @@
           </div>
           </div>
         </div>
-        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-manual-density="1" data-loop-stage="idle">
+        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-manual-density="1" data-manual-layout-grammar="1" data-loop-stage="idle">
           <div id="manual-chrome-toolbar" class="area-chrome-toolbar manual-chrome-toolbar" data-manual-chrome="1">
             <div class="btn-row manual-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="manual-clear-context" class="save-btn secondary">Clear linked context</button>
@@ -1357,57 +1357,79 @@
             </div>
           </div>
           <div class="area-work" data-area-work="1">
-          <div id="manual-library" class="manual-library" data-manual-library-panel="1">
-            <h4 class="orb-section-label">Session library</h4>
-            <p id="manual-library-level" class="drawer-hint" data-manual-library-level="1">Active level: —</p>
-            <ul id="manual-session-list" class="manual-session-list" data-manual-session-list="1" role="list"></ul>
-          </div>
-          <div id="manual-primary" class="manual-primary" data-manual-primary="1">
-            <h4 class="orb-section-label">Start session</h4>
-            <label class="stack-label" for="manual-charter">Charter (required)
-              <textarea id="manual-charter" rows="3" placeholder="What will you explore?" maxlength="2000" autocomplete="off"></textarea>
-            </label>
-            <label class="check-row"><input type="checkbox" id="manual-ticket-bound" /> Link to Jira (story key required when checked)</label>
-            <label class="stack-label" for="manual-plan-id">Linked plan id
-              <input type="text" id="manual-plan-id" placeholder="plan id (optional)" autocomplete="off" />
-            </label>
-            <label class="stack-label" for="manual-case-id">Linked case id
-              <input type="text" id="manual-case-id" placeholder="case id (optional)" autocomplete="off" />
-            </label>
-            <label class="stack-label" for="manual-story-key">Jira story key
-              <input type="text" id="manual-story-key" placeholder="KAN-… when ticket-bound (optional for charter-only)" autocomplete="off" />
-            </label>
-            <label class="stack-label" for="manual-test-key">Jira test key (optional)
-              <input type="text" id="manual-test-key" placeholder="test ticket when known" autocomplete="off" />
-            </label>
-            <label class="check-row"><input type="checkbox" id="manual-assist" /> Agent assist (recommended off — local drafts only when on)</label>
-            <label class="check-row"><input type="checkbox" id="manual-mist" /> Armed mist inside frame (recommended off)</label>
-            <div class="btn-row">
-              <button type="button" id="manual-start" class="save-btn" data-manual-start="1">Start session</button>
+          <div class="manual-grammar-split" data-manual-grammar-split="1">
+            <div class="manual-scan-pane">
+              <div id="manual-library" class="manual-library" data-manual-library-panel="1">
+                <h4 class="orb-section-label">Session library</h4>
+                <p id="manual-library-level" class="drawer-hint" data-manual-library-level="1">Active level: —</p>
+                <p id="manual-session-empty" class="drawer-hint" hidden>No sessions on this security level.</p>
+                <table id="manual-session-scan" class="manual-scan-table" role="grid" aria-label="Manual session library" data-manual-session-scan="1">
+                  <thead>
+                    <tr>
+                      <th scope="col">When</th>
+                      <th scope="col">Charter</th>
+                      <th scope="col">Link</th>
+                      <th scope="col">Stage</th>
+                    </tr>
+                  </thead>
+                  <tbody id="manual-session-list" data-manual-session-list="1"></tbody>
+                </table>
+              </div>
+              <div id="manual-primary" class="manual-primary" data-manual-primary="1">
+                <h4 class="orb-section-label">Start session</h4>
+                <label class="stack-label" for="manual-charter">Charter (required)
+                  <textarea id="manual-charter" rows="3" placeholder="What will you explore?" maxlength="2000" autocomplete="off"></textarea>
+                </label>
+                <label class="manual-compact-check" data-manual-compact-check="1"><input type="checkbox" id="manual-ticket-bound" /> Link to Jira (story key required when checked)</label>
+                <label class="stack-label" for="manual-plan-id">Linked plan id
+                  <input type="text" id="manual-plan-id" placeholder="plan id (optional)" autocomplete="off" />
+                </label>
+                <label class="stack-label" for="manual-case-id">Linked case id
+                  <input type="text" id="manual-case-id" placeholder="case id (optional)" autocomplete="off" />
+                </label>
+                <label class="stack-label" for="manual-story-key">Jira story key
+                  <input type="text" id="manual-story-key" placeholder="KAN-… when ticket-bound (optional for charter-only)" autocomplete="off" />
+                </label>
+                <label class="stack-label" for="manual-test-key">Jira test key (optional)
+                  <input type="text" id="manual-test-key" placeholder="test ticket when known" autocomplete="off" />
+                </label>
+                <label class="manual-compact-check" data-manual-compact-check="1"><input type="checkbox" id="manual-assist" /> Agent assist (recommended off — local drafts only when on)</label>
+                <label class="manual-compact-check" data-manual-compact-check="1"><input type="checkbox" id="manual-mist" /> Armed mist inside frame (recommended off)</label>
+                <div class="btn-row">
+                  <button type="button" id="manual-start" class="save-btn" data-manual-start="1">Start session</button>
+                </div>
+                <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start opens Charter Frame. Assist and mist default off.</p>
+              </div>
             </div>
-            <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start opens Charter Frame. Assist and mist default off.</p>
-          </div>
-          <div id="manual-review" class="manual-review" data-manual-review="1" hidden>
-            <p id="manual-assist-status" class="drawer-hint manual-assist-status" data-manual-assist-status="1" hidden aria-live="polite"></p>
-            <pre id="manual-review-out" class="drawer-hint" aria-live="polite" data-manual-review-hint="1"></pre>
-            <div class="manual-failure-class-row" data-manual-failure-class="1">
-              <label class="stack-label" for="manual-failure-class">Failure class
-                <select id="manual-failure-class" data-manual-failure-class-select="1">
-                  <option value="product_bug" selected>Product bug</option>
-                  <option value="test_defect">Test defect</option>
-                  <option value="environment">Environment</option>
-                  <option value="known_issue">Known issue</option>
-                </select>
+            <aside class="manual-detail-pane" id="manual-detail" data-manual-detail="1" aria-label="Focused session">
+              <h4 class="orb-section-label" id="manual-detail-title">Focused session</h4>
+              <p class="drawer-hint" id="manual-detail-hint">Row click opens review for that session. Propose stays deliberate. Confirm dock is below the work.</p>
+              <label class="stack-label" for="manual-detail-charter">Charter
+                <input type="text" id="manual-detail-charter" readonly autocomplete="off" />
               </label>
-              <label class="check-row"><input type="checkbox" id="manual-explicit-bug" data-manual-explicit-bug="1" /> File as Bug (explicit) when class is not product_bug</label>
-            </div>
-            <div class="btn-row" data-manual-propose-row="1">
-              <button type="button" id="manual-propose-bug" class="save-btn" data-manual-propose="bug">Propose bug</button>
-              <button type="button" id="manual-propose-comment" class="save-btn secondary" data-manual-propose="comment">Propose comment</button>
-              <button type="button" id="manual-propose-note" class="save-btn secondary" data-manual-propose="note">Local case note</button>
-              <button type="button" id="manual-propose-steps" class="save-btn secondary" data-manual-propose="steps">Step preview</button>
-            </div>
-            <pre id="manual-propose-out" class="drawer-hint" aria-live="polite" hidden></pre>
+              <div id="manual-review" class="manual-review" data-manual-review="1" hidden>
+                <p id="manual-assist-status" class="drawer-hint manual-assist-status" data-manual-assist-status="1" hidden aria-live="polite"></p>
+                <pre id="manual-review-out" class="drawer-hint" aria-live="polite" data-manual-review-hint="1"></pre>
+                <div class="manual-failure-class-row" data-manual-failure-class="1">
+                  <label class="stack-label" for="manual-failure-class">Failure class
+                    <select id="manual-failure-class" data-manual-failure-class-select="1">
+                      <option value="product_bug" selected>Product bug</option>
+                      <option value="test_defect">Test defect</option>
+                      <option value="environment">Environment</option>
+                      <option value="known_issue">Known issue</option>
+                    </select>
+                  </label>
+                  <label class="manual-compact-check" data-manual-compact-check="1"><input type="checkbox" id="manual-explicit-bug" data-manual-explicit-bug="1" /> File as Bug (explicit) when class is not product_bug</label>
+                </div>
+                <div class="btn-row" data-manual-propose-row="1">
+                  <button type="button" id="manual-propose-bug" class="save-btn" data-manual-propose="bug">Propose bug</button>
+                  <button type="button" id="manual-propose-comment" class="save-btn secondary" data-manual-propose="comment">Propose comment</button>
+                  <button type="button" id="manual-propose-note" class="save-btn secondary" data-manual-propose="note">Local case note</button>
+                  <button type="button" id="manual-propose-steps" class="save-btn secondary" data-manual-propose="steps">Step preview</button>
+                </div>
+                <pre id="manual-propose-out" class="drawer-hint" aria-live="polite" hidden></pre>
+              </div>
+            </aside>
           </div>
           <details id="manual-advanced" class="manual-advanced" data-manual-advanced="1">
             <summary>About Manual capture</summary>
@@ -1636,6 +1658,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk115"></script>
+  <script src="/ui/desktop/desktop.js?v=desk116"></script>
 </body>
 </html>
