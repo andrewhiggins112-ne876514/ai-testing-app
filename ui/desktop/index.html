@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk109" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk110" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -757,7 +757,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1">
+        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1" data-plan-cases-layout-grammar="1">
           <div id="plan-chrome-toolbar" class="area-chrome-toolbar plan-chrome-toolbar" data-plan-chrome="1">
             <div class="btn-row plan-toolbar-actions area-chrome-toolbar-row">
               <label class="stack-label plan-toolbar-plan" for="plan-list">Plan
@@ -789,7 +789,7 @@
             <p class="drawer-hint">Open a plan, work Cases first, then draft/import or run setup as needed. Nothing is written to Jira from this screen. Import never deletes external Playwright files; Suites still runs via npx.</p>
           </details>
           <div id="plan-search-results" class="drawer-hint" aria-live="polite" role="list" aria-label="Plan search results"></div>
-          <div id="plan-panel-cases" class="plan-panel" role="tabpanel" data-plan-panel="cases" aria-labelledby="plan-tab-cases">
+          <div id="plan-panel-cases" class="plan-panel" role="tabpanel" data-plan-panel="cases" aria-labelledby="plan-tab-cases" data-plan-cases-layout-grammar="1">
             <pre id="plan-intent" class="drawer-hint" aria-live="polite" hidden></pre>
             <div class="plan-work-header" data-plan-work-header="1">
               <div class="plan-add-case" data-plan-add-menu="1">
@@ -815,8 +815,25 @@
               </div>
               <label class="stack-label plan-archived-toggle"><input type="checkbox" id="plan-show-archived" /> Show archived cases</label>
             </div>
-            <div id="plan-cases" class="drawer-hint plan-cases-list" aria-live="polite" data-plan-cases-list="1"></div>
-            <h4 class="orb-section-label">Edit selected case</h4>
+            <div class="plan-cases-grammar-split" data-plan-cases-grammar-split="1">
+            <div class="plan-cases-scan-pane">
+              <p id="plan-cases-empty" class="drawer-hint">Open a plan to list cases. Row click loads detail — Enabled / Archived / Quarantine stay in the detail pane.</p>
+              <table id="plan-cases" class="plan-cases-scan-table" role="grid" aria-label="Plan cases" aria-live="polite" data-plan-cases-list="1" data-plan-cases-scan="1">
+                <thead>
+                  <tr>
+                    <th scope="col">Status</th>
+                    <th scope="col">Id</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Tags</th>
+                    <th scope="col">Last</th>
+                  </tr>
+                </thead>
+                <tbody id="plan-cases-scan-body"></tbody>
+              </table>
+            </div>
+            <aside id="plan-case-detail-pane" class="plan-case-detail-pane" data-plan-case-detail="1" aria-label="Case detail">
+            <h4 class="orb-section-label" id="plan-case-detail-title">Edit selected case</h4>
+            <p class="drawer-hint" id="plan-case-detail-hint">Click a case row to load it here. Row click does not toggle Enabled or Archived.</p>
             <label class="stack-label">Case id
               <input type="text" id="plan-case-id" placeholder="c…" autocomplete="off" />
             </label>
@@ -903,6 +920,8 @@
             <pre id="plan-case-detail" class="drawer-hint" aria-live="polite" hidden></pre>
             <pre id="plan-defect-out" class="drawer-hint" aria-live="polite" hidden></pre>
             <p id="plan-degraded-hint" class="drawer-hint" role="status" hidden></p>
+            </aside>
+            </div>
           </div>
           <div id="plan-panel-draft" class="plan-panel" role="tabpanel" data-plan-panel="draft" aria-labelledby="plan-tab-draft" hidden>
             <p class="drawer-hint">Draft a local plan from one Jira story, optional document text, a capped project batch, or an imported Playwright project. Add a desktop-typed case to run the connected .exe via the desktop plugin on the same suite (browser cases stay Playwright). Edit cases before any run.</p>
@@ -1340,6 +1359,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk109"></script>
+  <script src="/ui/desktop/desktop.js?v=desk110"></script>
 </body>
 </html>

@@ -1446,6 +1446,10 @@
   const planSearchResults = document.getElementById("plan-search-results");
   const planIntent = document.getElementById("plan-intent");
   const planCases = document.getElementById("plan-cases");
+  const planCasesScanBody = document.getElementById("plan-cases-scan-body");
+  const planCasesEmpty = document.getElementById("plan-cases-empty");
+  const planCaseDetailTitle = document.getElementById("plan-case-detail-title");
+  const planCaseDetailHint = document.getElementById("plan-case-detail-hint");
   const planCoverageFilter = document.getElementById("plan-coverage-filter");
   const planCoverageBtn = document.getElementById("plan-coverage-btn");
   const planCoverageNoCase = document.getElementById("plan-coverage-no-case");
@@ -2703,6 +2707,75 @@
     return "\n   last run: " + parts.join(" · ");
   }
 
+  function planCaseStatusLabel(caseObj) {
+    if (!caseObj) return { text: "—", kind: "idle" };
+    if (caseObj.archived) return { text: "Arch", kind: "idle" };
+    if (isQuarantinedCase(caseObj)) return { text: "Quar", kind: "warn" };
+    if (caseObj.enabled === false) return { text: "Off", kind: "idle" };
+    return { text: "On", kind: "ok" };
+  }
+
+  function planCaseLastLabel(caseObj) {
+    const runs = (caseObj && caseObj.runs) || [];
+    if (!runs.length) return { text: "—", kind: "idle" };
+    const last = runs[runs.length - 1];
+    const result = String((last && last.result) || "").toLowerCase();
+    if (result === "pass" || result === "passed" || result === "ok") {
+      return { text: "Pass", kind: "ok" };
+    }
+    if (result === "fail" || result === "failed" || result === "error") {
+      return { text: "Fail", kind: "warn" };
+    }
+    if (result) {
+      return { text: last.result, kind: "idle" };
+    }
+    return { text: "—", kind: "idle" };
+  }
+
+  function syncPlanCaseRowFocus() {
+    if (!planCasesScanBody) return;
+    const cid =
+      planCaseId && planCaseId.value ? String(planCaseId.value).trim() : "";
+    planCasesScanBody.querySelectorAll(".plan-cases-scan-row").forEach(function (el) {
+      if (cid && el.dataset.caseId === cid) {
+        el.classList.add("is-focus");
+      } else {
+        el.classList.remove("is-focus");
+      }
+    });
+    if (planCaseDetailTitle) {
+      if (!cid) {
+        planCaseDetailTitle.textContent = "Edit selected case";
+      } else {
+        const hit = openPlanCases.find(function (c) {
+          return c && c.id === cid;
+        });
+        planCaseDetailTitle.textContent = hit
+          ? (hit.id || cid) + " · " + (hit.name || "Case")
+          : "Edit selected case";
+      }
+    }
+  }
+
+  function focusPlanCaseDetail(caseObj, opts) {
+    if (!caseObj) return;
+    if (planCaseId) planCaseId.value = caseObj.id || "";
+    if (planCaseName) planCaseName.value = caseObj.name || "";
+    syncPlanCaseRowFocus();
+    if (planCaseDetailHint) {
+      planCaseDetailHint.textContent =
+        "Focused case. Enabled / Archived / Quarantine stay in this pane — row click does not toggle them.";
+    }
+    refreshCaseDetail();
+    if (opts && opts.focusField && planCaseName) {
+      try {
+        planCaseName.focus();
+      } catch (err) {
+        /* ignore */
+      }
+    }
+  }
+
   function flakeLine(caseObj) {
     const cid = caseObj && caseObj.id;
     const row = cid && openPlanFlakeById[cid];
@@ -2772,12 +2845,22 @@
       planIntent.hidden = !intent;
       planIntent.textContent = intent || "";
     }
-    if (!planCases) {
+    const body = planCasesScanBody || planCases;
+    if (!body) {
       syncFrameworkStubHonestyUi();
       return;
     }
+    if (planCasesScanBody) {
+      planCasesScanBody.innerHTML = "";
+    } else {
+      planCases.textContent = "";
+    }
     if (!openPlanCases.length) {
-      planCases.textContent = "Cases: (none)";
+      if (planCasesEmpty) {
+        planCasesEmpty.hidden = false;
+        planCasesEmpty.textContent = "Cases: (none). Add a case or open another plan.";
+      }
+      syncPlanCaseRowFocus();
       syncFrameworkStubHonestyUi();
       return;
     }
@@ -2789,75 +2872,101 @@
       return showArchived || !c.archived;
     });
     if (!visible.length) {
-      planCases.textContent =
-        "Cases: (none visible — " +
-        archivedCount +
-        " archived; tick Show archived to list them)";
+      if (planCasesEmpty) {
+        planCasesEmpty.hidden = false;
+        planCasesEmpty.textContent =
+          "Cases: (none visible — " +
+          archivedCount +
+          " archived; tick Show archived to list them)";
+      }
+      syncPlanCaseRowFocus();
       syncFrameworkStubHonestyUi();
       return;
     }
-    const header =
-      archivedCount && !showArchived
-        ? "Cases (" +
-          visible.length +
-          " active · " +
-          archivedCount +
-          " archived hidden):\n"
-        : "Cases:\n";
-    planCases.innerHTML =
-      header +
-      visible
-        .map(function (c, idx) {
-          const en = c.enabled === false ? "OFF" : "ON";
-          const arch = c.archived ? "ARCH" : en;
-          const qflag = isQuarantinedCase(c) ? "QUAR" : arch;
-          const src = (c.source && c.source.ref) || "";
-          const kind = (c.source && c.source.kind) || "manual-draft";
-          const tags = (c.tags || []).join(", ");
-          const pri = c.priority != null ? c.priority : 0;
-          const q = c.quarantine || {};
-          const qReason =
-            isQuarantinedCase(c) && (q.reason || (openPlanFlakeById[c.id] && openPlanFlakeById[c.id].quarantine && openPlanFlakeById[c.id].quarantine.reason))
-              ? q.reason ||
-                (openPlanFlakeById[c.id].quarantine &&
-                  openPlanFlakeById[c.id].quarantine.reason)
-              : "";
-          return (
-            idx +
-            1 +
-            ". [" +
-            qflag +
-            "] " +
-            (c.id || "?") +
-            " — " +
-            (c.name || "") +
-            (c.jira_key ? " · Jira " + c.jira_key : "") +
-            (kind === "desktop" ? " · desktop" : "") +
-            (kind === "api"
-              ? src && String(src).indexOf("mock_fixture") >= 0
-                ? " · mock/contract"
-                : " · api/messaging"
-              : "") +
-            (kind === "framework" ? " · framework " + (src || "") : "") +
-            (kind === "manual-draft" && !c.jira_key ? " · manual-draft" : "") +
-            (isKnownLabel(c) ? " · known" : "") +
-            (isQuarantinedCase(c) ? " · quarantined" : "") +
-            (c.performance_budget_ms
-              ? " · budget " + c.performance_budget_ms + " ms"
-              : "") +
-            (tags ? " · tags " + tags : "") +
-            (pri ? " · P" + pri : "") +
-            (src ? "\n   source: " + src : "") +
-            (c.note ? "\n   note: " + c.note : "") +
-            (c.known_issue && c.known_issue.note
-              ? "\n   known: " + c.known_issue.note
-              : "") +
-            (qReason ? "\n   quarantine: " + qReason : "") +
-            flakeLine(c) +
-            lastRunLine(c)
-          );
-        })
-        .join("\n");
+    if (planCasesEmpty) {
+      planCasesEmpty.hidden = false;
+      planCasesEmpty.textContent =
+        archivedCount && !showArchived
+          ? visible.length +
+            " active · " +
+            archivedCount +
+            " archived hidden. Row click loads detail."
+          : visible.length +
+            " case(s). Row click loads detail; Enabled/Archived stay in the pane.";
+    }
+    if (!planCasesScanBody) {
+      // Legacy fallback if scan tbody is missing.
+      planCases.textContent =
+        "Cases:\n" +
+        visible
+          .map(function (c, idx) {
+            return (
+              idx +
+              1 +
+              ". " +
+              (c.id || "?") +
+              " — " +
+              (c.name || "") +
+              flakeLine(c) +
+              lastRunLine(c)
+            );
+          })
+          .join("\n");
+      syncFrameworkStubHonestyUi();
+      return;
+    }
+    visible.forEach(function (c) {
+      const tr = document.createElement("tr");
+      tr.className = "plan-cases-scan-row";
+      tr.tabIndex = 0;
+      tr.dataset.caseId = c.id || "";
+      tr.setAttribute("role", "row");
+      tr.setAttribute("aria-label", (c.name || c.id || "case") + " — click to edit");
+
+      const status = planCaseStatusLabel(c);
+      const tdStatus = document.createElement("td");
+      const statusPill = document.createElement("span");
+      statusPill.className = "plan-case-pill " + status.kind;
+      statusPill.textContent = status.text;
+      tdStatus.appendChild(statusPill);
+
+      const tdId = document.createElement("td");
+      tdId.className = "mono";
+      tdId.textContent = c.id || "?";
+
+      const tdName = document.createElement("td");
+      tdName.textContent = c.name || "—";
+
+      const tdTags = document.createElement("td");
+      const tags = (c.tags || []).join(", ");
+      tdTags.textContent = tags || "—";
+
+      const last = planCaseLastLabel(c);
+      const tdLast = document.createElement("td");
+      const lastPill = document.createElement("span");
+      lastPill.className = "plan-case-pill " + last.kind;
+      lastPill.textContent = last.text;
+      tdLast.appendChild(lastPill);
+
+      tr.appendChild(tdStatus);
+      tr.appendChild(tdId);
+      tr.appendChild(tdName);
+      tr.appendChild(tdTags);
+      tr.appendChild(tdLast);
+
+      tr.addEventListener("click", function () {
+        focusPlanCaseDetail(c, { focusField: false });
+      });
+      tr.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          focusPlanCaseDetail(c, { focusField: false });
+        }
+      });
+
+      planCasesScanBody.appendChild(tr);
+    });
+    syncPlanCaseRowFocus();
     syncFrameworkStubHonestyUi();
   }
 
@@ -3666,6 +3775,7 @@
       ].filter(Boolean);
       planCaseDetail.hidden = false;
       planCaseDetail.textContent = lines.join("\n");
+      syncPlanCaseRowFocus();
       if (planCaseName && payload.name) planCaseName.value = payload.name;
       if (planCaseNote && payload.note != null) planCaseNote.value = payload.note || "";
       if (planCaseTags) planCaseTags.value = caseTags.join(", ");
@@ -8647,9 +8757,11 @@
 
   if (planCaseId) {
     planCaseId.addEventListener("change", function () {
+      syncPlanCaseRowFocus();
       refreshCaseDetail();
     });
     planCaseId.addEventListener("blur", function () {
+      syncPlanCaseRowFocus();
       refreshCaseDetail();
     });
   }
