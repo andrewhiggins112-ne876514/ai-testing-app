@@ -44,8 +44,8 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 - **Agent/chat:** Cursor IDE Agent (Composer) — human confirmed desk121 still clipped
 - **Done:** Bug **KAN-356** follow-up. Real root cause: CSS targeted `#plan-panel-cases[data-plan-case-sections]` but the attribute lives on `#plan-case-detail-pane`, so flex/min-height scroll rules never applied. Retargeted selectors; `flex: 1 1 0` + `grid-template-rows: minmax(0,1fr)`. Cache-bust **desk122**.
 - **Files:** `ui/desktop/desktop.css`, `index.html`, `desktop_app.py`, `tests/test_plans_compact_sections.py`
-- **Verify:** pytest focused plans compact/layout — 8 passed. **Must fully quit/relaunch** `desktop_app.py` for desk122. Plans → Cases → focus row → scroll Quarantine/Known issue; Save/Run pinned.
-- **Jira:** **KAN-356** follow-up Fix comment
+- **Verify:** pytest focused plans compact/layout — 8 passed. Human confirmed desk122: right pane scrolls; Save/Run pinned.
+- **Jira:** **KAN-356** follow-up Fix comment; human confirm 2026-11-22
 - **Next:** Active remains **KAN-352**
 
 ### 2026-11-22 — KAN-356 — Plans Cases detail scroll clip (desk121 first pass)
