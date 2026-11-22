@@ -1454,6 +1454,13 @@
   const planCoverageBtn = document.getElementById("plan-coverage-btn");
   const planCoverageNoCase = document.getElementById("plan-coverage-no-case");
   const planCoverageDisabled = document.getElementById("plan-coverage-disabled");
+  const planCoverageScanBody = document.getElementById("plan-coverage-scan-body");
+  const planCoverageEmpty = document.getElementById("plan-coverage-empty");
+  const planCoverageDetailKey = document.getElementById("plan-coverage-detail-key");
+  const planCoverageDetailGap = document.getElementById("plan-coverage-detail-gap");
+  const planCoverageDetailSummary = document.getElementById(
+    "plan-coverage-detail-summary"
+  );
   const planDriftCheckBtn = document.getElementById("plan-drift-check-btn");
   const planDriftKeepBtn = document.getElementById("plan-drift-keep-btn");
   const planDriftRefreshBtn = document.getElementById("plan-drift-refresh-btn");
@@ -1461,12 +1468,26 @@
   const planTraceFilter = document.getElementById("plan-trace-filter");
   const planTraceBtn = document.getElementById("plan-trace-btn");
   const planTraceMatrix = document.getElementById("plan-trace-matrix");
+  const planTraceScanBody = document.getElementById("plan-trace-scan-body");
+  const planTraceEmpty = document.getElementById("plan-trace-empty");
+  const planTraceDetailKey = document.getElementById("plan-trace-detail-key");
+  const planTraceDetailCase = document.getElementById("plan-trace-detail-case");
+  const planTraceDetailFetch = document.getElementById("plan-trace-detail-fetch");
+  const planTraceOpenCase = document.getElementById("plan-trace-open-case");
   const planHistoryBtn = document.getElementById("plan-history-btn");
   const planHistoryList = document.getElementById("plan-history-list");
+  const planHistoryScanBody = document.getElementById("plan-history-scan-body");
+  const planHistoryEmpty = document.getElementById("plan-history-empty");
+  const planHistoryDetailId = document.getElementById("plan-history-detail-id");
+  const planHistoryDetailWhen = document.getElementById("plan-history-detail-when");
+  const planHistoryDetailMeta = document.getElementById("plan-history-detail-meta");
   const planHistoryA = document.getElementById("plan-history-a");
   const planHistoryB = document.getElementById("plan-history-b");
   const planCompareBtn = document.getElementById("plan-compare-btn");
   const planCompareOut = document.getElementById("plan-compare-out");
+  let focusedCoverageKey = "";
+  let focusedTraceRow = null;
+  let focusedHistoryRunId = "";
   const planCaseId = document.getElementById("plan-case-id");
   const planCaseName = document.getElementById("plan-case-name");
   const planCaseNote = document.getElementById("plan-case-note");
@@ -2970,38 +2991,104 @@
     syncFrameworkStubHonestyUi();
   }
 
-  function renderCoverageGaps(payload) {
-    function linesFor(list, emptyLabel) {
-      const rows = list || [];
-      if (!rows.length) return emptyLabel;
-      return rows
-        .map(function (r, idx) {
-          return (
-            idx +
-            1 +
-            ". " +
-            (r.key || "?") +
-            (r.summary ? " — " + r.summary : "") +
-            " · cases " +
-            (r.case_count != null ? r.case_count : 0)
-          );
-        })
-        .join("\n");
+  function focusCoverageGapDetail(row) {
+    if (!row) return;
+    focusedCoverageKey = row.key || "";
+    if (planCoverageDetailKey) planCoverageDetailKey.value = row.key || "";
+    if (planCoverageDetailGap) planCoverageDetailGap.value = row.gap || "";
+    if (planCoverageDetailSummary) {
+      planCoverageDetailSummary.value = row.summary || "";
     }
+    if (planCoverageScanBody) {
+      planCoverageScanBody.querySelectorAll(".plan-coverage-scan-row").forEach(
+        function (tr) {
+          tr.classList.toggle(
+            "is-focus",
+            (tr.dataset.storyKey || "") === focusedCoverageKey
+          );
+        }
+      );
+    }
+  }
+
+  function renderCoverageGaps(payload) {
+    const noCase = (payload && payload.no_case) || [];
+    const disabled = (payload && payload.all_disabled) || [];
+    const rows = [];
+    noCase.forEach(function (r) {
+      rows.push({
+        key: r.key || "",
+        summary: r.summary || "",
+        gap: "No case",
+        case_count: r.case_count,
+      });
+    });
+    disabled.forEach(function (r) {
+      rows.push({
+        key: r.key || "",
+        summary: r.summary || "",
+        gap: "All disabled",
+        case_count: r.case_count,
+      });
+    });
     if (planCoverageNoCase) {
-      planCoverageNoCase.textContent =
-        "No case:\n" + linesFor(payload && payload.no_case, "(none)");
+      planCoverageNoCase.textContent = String(noCase.length);
     }
     if (planCoverageDisabled) {
-      planCoverageDisabled.textContent =
-        "All cases disabled:\n" +
-        linesFor(payload && payload.all_disabled, "(none)");
+      planCoverageDisabled.textContent = String(disabled.length);
+    }
+    if (!planCoverageScanBody) return;
+    planCoverageScanBody.innerHTML = "";
+    if (planCoverageEmpty) {
+      planCoverageEmpty.hidden = rows.length > 0;
+      planCoverageEmpty.textContent = rows.length
+        ? ""
+        : "No coverage gaps for this filter.";
+    }
+    rows.forEach(function (r) {
+      const tr = document.createElement("tr");
+      tr.className = "plan-coverage-scan-row plan-tabs-scan-row";
+      tr.dataset.storyKey = r.key || "";
+      tr.setAttribute("role", "row");
+      const tdStory = document.createElement("td");
+      tdStory.textContent = r.key || "—";
+      const tdGap = document.createElement("td");
+      const pill = document.createElement("span");
+      pill.className =
+        "plan-tabs-pill " + (r.gap === "No case" ? "warn" : "idle");
+      pill.textContent = r.gap;
+      tdGap.appendChild(pill);
+      const tdSummary = document.createElement("td");
+      tdSummary.textContent = r.summary || "—";
+      tr.appendChild(tdStory);
+      tr.appendChild(tdGap);
+      tr.appendChild(tdSummary);
+      tr.addEventListener("click", function () {
+        focusCoverageGapDetail(r);
+      });
+      planCoverageScanBody.appendChild(tr);
+    });
+    if (rows.length) {
+      const keep =
+        rows.find(function (r) {
+          return r.key === focusedCoverageKey;
+        }) || rows[0];
+      focusCoverageGapDetail(keep);
+    } else {
+      focusedCoverageKey = "";
+      if (planCoverageDetailKey) planCoverageDetailKey.value = "";
+      if (planCoverageDetailGap) planCoverageDetailGap.value = "";
+      if (planCoverageDetailSummary) planCoverageDetailSummary.value = "";
     }
   }
 
   async function refreshCoverageGaps() {
     if (!openPlanId) {
       renderCoverageGaps({ no_case: [], all_disabled: [] });
+      if (planCoverageEmpty) {
+        planCoverageEmpty.hidden = false;
+        planCoverageEmpty.textContent = "Open a plan and refresh to list gaps.";
+      }
       return;
     }
     const q =
@@ -3017,85 +3104,122 @@
       );
       const payload = await res.json();
       if (payload.status !== "ok") {
-        if (planCoverageNoCase) {
-          planCoverageNoCase.textContent =
+        renderCoverageGaps({ no_case: [], all_disabled: [] });
+        if (planCoverageEmpty) {
+          planCoverageEmpty.hidden = false;
+          planCoverageEmpty.textContent =
             payload.message || "Coverage gaps unavailable.";
         }
-        if (planCoverageDisabled) planCoverageDisabled.textContent = "";
         return;
       }
       renderCoverageGaps(payload);
     } catch (err) {
-      if (planCoverageNoCase) {
-        planCoverageNoCase.textContent = "Could not load coverage gaps.";
+      renderCoverageGaps({ no_case: [], all_disabled: [] });
+      if (planCoverageEmpty) {
+        planCoverageEmpty.hidden = false;
+        planCoverageEmpty.textContent = "Could not load coverage gaps.";
       }
-      if (planCoverageDisabled) planCoverageDisabled.textContent = "";
+    }
+  }
+
+  function syncTraceDetail(row) {
+    focusedTraceRow = row || null;
+    if (planTraceDetailKey) {
+      planTraceDetailKey.value = (row && row.story_key) || "";
+    }
+    if (planTraceDetailCase) {
+      planTraceDetailCase.value = (row && row.primary_case_id) || "";
+    }
+    if (planTraceDetailFetch) {
+      planTraceDetailFetch.value =
+        (row && row.fetch_time_label) || "fetch time unknown";
+    }
+    if (planTraceOpenCase) {
+      planTraceOpenCase.disabled = !(row && row.primary_case_id);
+    }
+    if (planTraceScanBody) {
+      planTraceScanBody.querySelectorAll(".plan-trace-scan-row").forEach(
+        function (tr) {
+          const match =
+            row &&
+            (tr.dataset.storyKey || "") === (row.story_key || "") &&
+            (tr.dataset.caseId || "") === (row.primary_case_id || "");
+          tr.classList.toggle("is-focus", !!match);
+        }
+      );
     }
   }
 
   function renderTraceabilityMatrix(payload) {
-    if (!planTraceMatrix) return;
     const rows = (payload && payload.rows) || [];
-    planTraceMatrix._traceRows = rows;
-    planTraceMatrix.dataset.rowCount = String(rows.length);
-    planTraceMatrix.innerHTML = "";
-    if (!rows.length) {
-      planTraceMatrix.textContent = "Traceability: (no story rows)";
-      return;
+    if (planTraceMatrix) {
+      planTraceMatrix._traceRows = rows;
+      planTraceMatrix.dataset.rowCount = String(rows.length);
     }
-    const hint = document.createElement("div");
-    hint.className = "drawer-hint";
-    hint.textContent =
-      "Story | Cases | Last | Bugs | Known | Fetch time — click a row to open the case" +
-      (payload && payload.matrix_works_offline
-        ? " (local; works while Jira is down)"
-        : "");
-    planTraceMatrix.appendChild(hint);
+    if (!planTraceScanBody) return;
+    planTraceScanBody.innerHTML = "";
+    if (planTraceEmpty) {
+      planTraceEmpty.hidden = rows.length > 0;
+      planTraceEmpty.textContent = rows.length
+        ? ""
+        : "Traceability: (no story rows)";
+    }
     rows.forEach(function (r) {
       const bugs = (r.linked_bug_keys || []).join(", ") || "—";
       const known = r.known_issue ? "yes" : "no";
       const last = r.last_result || "not_loaded";
       const fetchLabel = r.fetch_time_label || "fetch time unknown";
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "save-btn secondary plan-trace-row";
-      btn.style.display = "block";
-      btn.style.width = "100%";
-      btn.style.textAlign = "left";
-      btn.style.marginTop = "0.35rem";
-      btn.dataset.caseId = r.primary_case_id || "";
-      btn.dataset.storyKey = r.story_key || "";
-      btn.dataset.fetchTime = fetchLabel;
-      btn.textContent =
-        (r.story_key || "?") +
-        " | " +
-        (r.case_count != null ? r.case_count : 0) +
-        " | " +
-        last +
-        " | " +
-        bugs +
-        " | " +
-        known +
-        " | " +
-        fetchLabel;
-      if (!r.primary_case_id) {
-        btn.disabled = true;
-        btn.title = "No case to open for this story · " + fetchLabel;
-      } else {
-        btn.title = "Open case " + r.primary_case_id + " · " + fetchLabel;
-        btn.addEventListener("click", function () {
-          openTraceabilityRow(r);
-        });
-      }
-      planTraceMatrix.appendChild(btn);
+      const tr = document.createElement("tr");
+      tr.className = "plan-trace-scan-row plan-tabs-scan-row plan-trace-row";
+      tr.dataset.caseId = r.primary_case_id || "";
+      tr.dataset.storyKey = r.story_key || "";
+      tr.dataset.fetchTime = fetchLabel;
+      tr.setAttribute("role", "row");
+      tr.title = r.primary_case_id
+        ? "Open case " + r.primary_case_id + " · " + fetchLabel
+        : "No case to open for this story · " + fetchLabel;
+      const cells = [
+        r.story_key || "?",
+        r.case_count != null ? String(r.case_count) : "0",
+        last,
+        bugs,
+        known,
+      ];
+      cells.forEach(function (text) {
+        const td = document.createElement("td");
+        td.textContent = text;
+        tr.appendChild(td);
+      });
+      tr.addEventListener("click", function () {
+        syncTraceDetail(r);
+        openTraceabilityRow(r);
+      });
+      planTraceScanBody.appendChild(tr);
     });
+    if (rows.length) {
+      const keep =
+        rows.find(function (r) {
+          return (
+            focusedTraceRow &&
+            r.story_key === focusedTraceRow.story_key &&
+            r.primary_case_id === focusedTraceRow.primary_case_id
+          );
+        }) || rows[0];
+      syncTraceDetail(keep);
+    } else {
+      syncTraceDetail(null);
+    }
   }
 
   async function openTraceabilityRow(row) {
-    if (!row || !row.primary_case_id || !planCaseId) return;
+    if (!row) return;
+    syncTraceDetail(row);
+    if (!row.primary_case_id || !planCaseId) return;
+    showPlanPanel("cases");
     planCaseId.value = row.primary_case_id;
     if (planCaseName && row.summary) planCaseName.value = row.summary;
     await refreshCaseDetail();
+    if (typeof syncPlanCaseRowFocus === "function") syncPlanCaseRowFocus();
     if (planCaseId.focus) planCaseId.focus();
     if (planStatus) {
       planStatus.textContent =
@@ -3104,6 +3228,12 @@
         " for " +
         (row.story_key || "story");
     }
+  }
+
+  if (planTraceOpenCase) {
+    planTraceOpenCase.addEventListener("click", function () {
+      if (focusedTraceRow) openTraceabilityRow(focusedTraceRow);
+    });
   }
 
   function renderPlanSearchResults(payload) {
@@ -3222,16 +3352,20 @@
       );
       const payload = await res.json();
       if (payload.status !== "ok") {
-        if (planTraceMatrix) {
-          planTraceMatrix.textContent =
+        renderTraceabilityMatrix({ rows: [] });
+        if (planTraceEmpty) {
+          planTraceEmpty.hidden = false;
+          planTraceEmpty.textContent =
             payload.message || "Traceability unavailable.";
         }
         return;
       }
       renderTraceabilityMatrix(payload);
     } catch (err) {
-      if (planTraceMatrix) {
-        planTraceMatrix.textContent = "Could not load traceability matrix.";
+      renderTraceabilityMatrix({ rows: [] });
+      if (planTraceEmpty) {
+        planTraceEmpty.hidden = false;
+        planTraceEmpty.textContent = "Could not load traceability matrix.";
       }
     }
   }
@@ -3273,88 +3407,175 @@
     }
   }
 
+  function syncHistoryRadiosFromSelects() {
+    if (!planHistoryScanBody) return;
+    const aVal = planHistoryA ? planHistoryA.value : "";
+    const bVal = planHistoryB ? planHistoryB.value : "";
+    planHistoryScanBody.querySelectorAll('input[name="plan-hist-a"]').forEach(
+      function (radio) {
+        radio.checked = radio.value === aVal;
+      }
+    );
+    planHistoryScanBody.querySelectorAll('input[name="plan-hist-b"]').forEach(
+      function (radio) {
+        radio.checked = radio.value === bVal;
+      }
+    );
+  }
+
+  function focusHistoryRunDetail(run) {
+    if (!run) return;
+    focusedHistoryRunId = run.id || "";
+    if (planHistoryDetailId) planHistoryDetailId.value = run.id || "";
+    if (planHistoryDetailWhen) {
+      planHistoryDetailWhen.value = run.finished_at || run.started_at || "";
+    }
+    if (planHistoryDetailMeta) {
+      planHistoryDetailMeta.textContent =
+        "pass " +
+        (run.pass != null ? run.pass : 0) +
+        " · fail " +
+        (run.fail != null ? run.fail : 0) +
+        " · " +
+        formatDurationMs(run.duration_ms) +
+        (run.tag ? " · tag " + run.tag : "") +
+        (run.known_issues ? " · known " + run.known_issues : "") +
+        (run.error ? " · err " + run.error : "");
+    }
+    if (planHistoryScanBody) {
+      planHistoryScanBody.querySelectorAll(".plan-history-scan-row").forEach(
+        function (tr) {
+          tr.classList.toggle(
+            "is-focus",
+            (tr.dataset.suiteRunId || "") === focusedHistoryRunId
+          );
+        }
+      );
+    }
+  }
+
   function renderSuiteHistory(payload) {
-    if (!planHistoryList) return;
     const runs = (payload && payload.runs) || [];
-    planHistoryList.innerHTML = "";
-    if (!runs.length) {
-      planHistoryList.textContent = "Suite history: (no runs yet)";
+    if (!planHistoryScanBody) {
+      if (planHistoryEmpty) {
+        planHistoryEmpty.hidden = false;
+        planHistoryEmpty.textContent = "Suite history: (no runs yet)";
+      }
       fillHistorySelect(planHistoryA, [], "");
       fillHistorySelect(planHistoryB, [], "");
       if (planCompareOut) planCompareOut.textContent = "";
       return;
     }
-    const hint = document.createElement("div");
-    hint.textContent =
-      runs.length +
-      " run" +
-      (runs.length === 1 ? "" : "s") +
-      " · " +
-      (payload.security_level || "") +
-      (payload.cross_level === false ? " (level-local)" : "");
-    planHistoryList.appendChild(hint);
-    runs.forEach(function (r, idx) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "save-btn secondary";
-      btn.style.display = "block";
-      btn.style.width = "100%";
-      btn.style.textAlign = "left";
-      btn.style.marginTop = "0.35rem";
-      btn.setAttribute("role", "listitem");
-      btn.dataset.suiteRunId = r.id || "";
-      btn.textContent =
-        idx +
-        1 +
-        ". " +
-        (r.finished_at || r.started_at || "?") +
+    planHistoryScanBody.innerHTML = "";
+    if (!runs.length) {
+      if (planHistoryEmpty) {
+        planHistoryEmpty.hidden = false;
+        planHistoryEmpty.textContent = "Suite history: (no runs yet)";
+      }
+      fillHistorySelect(planHistoryA, [], "");
+      fillHistorySelect(planHistoryB, [], "");
+      if (planCompareOut) planCompareOut.textContent = "";
+      if (planHistoryDetailId) planHistoryDetailId.value = "";
+      if (planHistoryDetailWhen) planHistoryDetailWhen.value = "";
+      if (planHistoryDetailMeta) {
+        planHistoryDetailMeta.textContent = "Select a run row.";
+      }
+      focusedHistoryRunId = "";
+      return;
+    }
+    if (planHistoryEmpty) {
+      planHistoryEmpty.hidden = false;
+      planHistoryEmpty.textContent =
+        runs.length +
+        " run" +
+        (runs.length === 1 ? "" : "s") +
         " · " +
-        formatDurationMs(r.duration_ms) +
-        " · pass " +
-        (r.pass != null ? r.pass : 0) +
-        " · fail " +
-        (r.fail != null ? r.fail : 0) +
-        (r.error ? " · err " + r.error : "") +
-        (r.tag ? " · tag " + r.tag : "") +
-        (r.known_issues ? " · known " + r.known_issues : "");
-      btn.title = "Select as compare run A (Shift+click = B): " + (r.id || "");
-      btn.addEventListener("click", function (ev) {
-        if (!planHistoryA || !planHistoryB) return;
-        if (ev.shiftKey) {
-          planHistoryB.value = r.id || "";
-        } else {
-          planHistoryA.value = r.id || "";
-          if (!planHistoryB.value && runs.length > 1) {
-            const other = runs.find(function (x) {
-              return x && x.id && x.id !== r.id;
-            });
-            if (other) planHistoryB.value = other.id;
-          }
-        }
-        if (planStatus) {
-          planStatus.textContent =
-            "Compare A=" +
-            (planHistoryA.value || "—") +
-            " B=" +
-            (planHistoryB.value || "—");
-        }
-      });
-      planHistoryList.appendChild(btn);
-    });
-    fillHistorySelect(
-      planHistoryA,
-      runs,
-      planHistoryA && planHistoryA.value ? planHistoryA.value : runs[0] && runs[0].id
-    );
-    fillHistorySelect(
-      planHistoryB,
-      runs,
+        (payload.security_level || "") +
+        (payload.cross_level === false ? " (level-local)" : "");
+    }
+    const preferredA =
+      planHistoryA && planHistoryA.value
+        ? planHistoryA.value
+        : runs[0] && runs[0].id;
+    const preferredB =
       planHistoryB && planHistoryB.value
         ? planHistoryB.value
         : runs[1] && runs[1].id
           ? runs[1].id
-          : ""
-    );
+          : "";
+    fillHistorySelect(planHistoryA, runs, preferredA);
+    fillHistorySelect(planHistoryB, runs, preferredB);
+    runs.forEach(function (r) {
+      const tr = document.createElement("tr");
+      tr.className = "plan-history-scan-row plan-tabs-scan-row";
+      tr.dataset.suiteRunId = r.id || "";
+      tr.setAttribute("role", "row");
+      const tdA = document.createElement("td");
+      tdA.className = "plan-tabs-hit-cell";
+      const radioA = document.createElement("input");
+      radioA.type = "radio";
+      radioA.name = "plan-hist-a";
+      radioA.value = r.id || "";
+      radioA.setAttribute("aria-label", "Compare A");
+      radioA.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        if (planHistoryA) planHistoryA.value = r.id || "";
+        if (planStatus) {
+          planStatus.textContent =
+            "Compare A=" +
+            (planHistoryA && planHistoryA.value ? planHistoryA.value : "—") +
+            " B=" +
+            (planHistoryB && planHistoryB.value ? planHistoryB.value : "—");
+        }
+      });
+      tdA.appendChild(radioA);
+      const tdB = document.createElement("td");
+      tdB.className = "plan-tabs-hit-cell";
+      const radioB = document.createElement("input");
+      radioB.type = "radio";
+      radioB.name = "plan-hist-b";
+      radioB.value = r.id || "";
+      radioB.setAttribute("aria-label", "Compare B");
+      radioB.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        if (planHistoryB) planHistoryB.value = r.id || "";
+        if (planStatus) {
+          planStatus.textContent =
+            "Compare A=" +
+            (planHistoryA && planHistoryA.value ? planHistoryA.value : "—") +
+            " B=" +
+            (planHistoryB && planHistoryB.value ? planHistoryB.value : "—");
+        }
+      });
+      tdB.appendChild(radioB);
+      const tdTime = document.createElement("td");
+      tdTime.textContent = r.finished_at || r.started_at || "?";
+      const tdDur = document.createElement("td");
+      tdDur.textContent = formatDurationMs(r.duration_ms);
+      const tdPass = document.createElement("td");
+      tdPass.textContent = r.pass != null ? String(r.pass) : "0";
+      const tdFail = document.createElement("td");
+      tdFail.textContent = r.fail != null ? String(r.fail) : "0";
+      const tdTag = document.createElement("td");
+      tdTag.textContent = r.tag || "—";
+      tr.appendChild(tdA);
+      tr.appendChild(tdB);
+      tr.appendChild(tdTime);
+      tr.appendChild(tdDur);
+      tr.appendChild(tdPass);
+      tr.appendChild(tdFail);
+      tr.appendChild(tdTag);
+      tr.addEventListener("click", function () {
+        focusHistoryRunDetail(r);
+      });
+      planHistoryScanBody.appendChild(tr);
+    });
+    syncHistoryRadiosFromSelects();
+    const focusRun =
+      runs.find(function (r) {
+        return r && r.id === focusedHistoryRunId;
+      }) || runs[0];
+    focusHistoryRunDetail(focusRun);
   }
 
   function formatDurationDelta(ms) {
@@ -3493,16 +3714,20 @@
       );
       const payload = await res.json();
       if (payload.status !== "ok") {
-        if (planHistoryList) {
-          planHistoryList.textContent =
+        renderSuiteHistory({ runs: [] });
+        if (planHistoryEmpty) {
+          planHistoryEmpty.hidden = false;
+          planHistoryEmpty.textContent =
             payload.message || "Suite history unavailable.";
         }
         return;
       }
       renderSuiteHistory(payload);
     } catch (err) {
-      if (planHistoryList) {
-        planHistoryList.textContent = "Could not load suite history.";
+      renderSuiteHistory({ runs: [] });
+      if (planHistoryEmpty) {
+        planHistoryEmpty.hidden = false;
+        planHistoryEmpty.textContent = "Could not load suite history.";
       }
     }
   }

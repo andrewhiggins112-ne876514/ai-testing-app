@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Documents — themed</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="rest.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Preferred.</strong> In-area Propose | Uploads. Dedicated Keep cell. Synthetic spec only.</p>
+<div class="stage" data-documents-layout-grammar="1">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Documents</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+
+<div class="toolbar">
+  <button class="btn primary" type="button">Parse &amp; propose</button>
+  <button class="btn" type="button">Refresh uploads</button>
+  <span class="status">OFFICIAL</span>
+</div>
+<div class="area-tabs" role="tablist">
+  <button type="button" data-panel="propose" aria-selected="true">Propose</button>
+  <button type="button" data-panel="uploads">Uploads</button>
+</div>
+<div class="split two panel" data-panel="propose">
+  <div class="work">
+    <h3>Spec text</h3>
+    <pre class="diff"># Checkout
+Target: https://shop.example.test
+Jira project: KAN</pre>
+    <h3>Proposal</h3>
+    <p class="hint">Keep is a dedicated checkbox cell. Row click focuses the change. Confirm / Decline are not the row.</p>
+    <table class="scan" data-doc-diff-scan="1">
+<thead><tr><th class="hit">Keep</th><th>Key</th><th>From</th><th>To</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus"><td class="hit"><input type="checkbox" aria-label="Select row" /></td><td>target_url</td><td>(empty)</td><td>https://shop.example.test</td></tr>
+<tr class="row-hit "><td class="hit"><input type="checkbox" aria-label="Select row" /></td><td>jira_project</td><td>KAN</td><td>KAN</td></tr>
+</tbody>
+</table>
+  </div>
+  <aside class="detail">
+  <h3>Change</h3>
+  
+    <label class="field">Key<input class="fake mono" value="target_url" readonly /></label>
+    <p class="hint">Confirm writes only checked keys after the existing confirm step. Decline writes nothing.</p>
+    <div class="btn-row">
+      <button class="btn primary" type="button">Confirm selected</button>
+      <button class="btn" type="button">Decline</button>
+    </div>
+  
+</aside>
+</div>
+<div class="split two panel" data-panel="uploads" hidden>
+  <div class="work">
+    <h3>Uploads</h3>
+    <table class="scan" data-doc-uploads-scan="1">
+<thead><tr><th>Name</th><th>Time</th><th>Level</th><th>Consent</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus"><td>checkout-spec.md</td><td>22 Nov 08:01</td><td>OFFICIAL</td><td>Yes</td></tr>
+<tr class="row-hit "><td>notes.txt</td><td>20 Nov 11:14</td><td>OFFICIAL</td><td>Yes</td></tr>
+</tbody>
+</table>
+  </div>
+  <aside class="detail">
+  <h3>Upload</h3>
+  
+    <label class="field">File<input class="fake" value="checkout-spec.md" readonly /></label>
+    <p class="hint">Name, time, level, consent only. No document body in the list. Delete stays on Security → Privacy.</p>
+  
+</aside>
+</div>
+</div>
+<script>
+document.querySelectorAll('.area-tabs button').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var id = btn.getAttribute('data-panel');
+    document.querySelectorAll('.area-tabs button').forEach(function (b) {
+      b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+    });
+    document.querySelectorAll('.panel').forEach(function (p) {
+      p.hidden = p.getAttribute('data-panel') !== id;
+    });
+  });
+});
+</script></body>
+</html>

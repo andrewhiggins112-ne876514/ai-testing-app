@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Rejected options — remaining areas</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="rest.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Rejected.</strong> Do not build these. Preferred files are 01 through 01h.</p>
+
+<div class="reject-grid">
+  <article class="reject-card">
+    <h2>KPI library</h2>
+    <div class="kpi-row"><div class="kpi"><b>12</b><span>Reports</span></div><div class="kpi"><b>98%</b><span>Pass</span></div><div class="kpi"><b>3</b><span>Heals</span></div></div>
+    <p class="why">Rejected. Pretty-empty. Hides the scan a tester opens the area to read.</p>
+  </article>
+  <article class="reject-card">
+    <h2>Whole-card Approve</h2>
+    <div class="soup">
+      <label><input type="checkbox" checked /> Approve heal · css .pay → getByRole Pay</label>
+      <label><input type="checkbox" /> Approve heal · button Checkout</label>
+    </div>
+    <p class="why">Rejected for Heal: checkbox-as-approve and whole-row/card approve. Preferred instead: detail Approve/Reject + toolbar bulk approve on dedicated Sel cells (Designer CR 2026-11-22).</p>
+  </article>
+  <article class="reject-card">
+    <h2>Page-width check-row</h2>
+    <div class="soup">
+      <label><input type="checkbox" checked /> Reports — entire label toggles</label>
+      <label><input type="checkbox" checked /> Screenshots — entire label toggles</label>
+      <label><input type="checkbox" /> Include secrets</label>
+    </div>
+    <p class="why">Rejected for Security, Documents diffs, Manual start, Desktop enable. Dedicated cell or compact checkbox.</p>
+  </article>
+  <article class="reject-card">
+    <h2>Text dumps</h2>
+    <pre class="diff">KAN-410 no case Checkout totals
+KAN-411 all disabled Guest search
+22 Nov pass 8 fail 1 smoke</pre>
+    <p class="why">Rejected for Coverage, Trace, History, report library, uploads, audit, sandboxes. That is the current row-soup.</p>
+  </article>
+  <article class="reject-card">
+    <h2>Redesign Charter Frame / home</h2>
+    <p class="why">Rejected. Manual area layout may change. #charter-frame-root, orb home, and clarify-before-act stay. FR-MAN-2 circles stay parked.</p>
+  </article>
+  <article class="reject-card">
+    <h2>New App nav items per tab</h2>
+    <div class="soup"><label>App → Coverage</label><label>App → Privacy</label><label>App → Uploads</label></div>
+    <p class="why">Rejected. Rails and tabs stay inside the area. ▦ menu model is frozen.</p>
+  </article>
+</div>
+</body>
+</html>

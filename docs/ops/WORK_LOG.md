@@ -8,16 +8,16 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-331** Plans other tabs FR-UI-11 |
+| **Jira story** | **KAN-333** Reports FR-UI-11 |
 | **Start task** | — |
 | **Epic** | — (TRACK4-LAYOUT rest) |
 | **Roadmap ID** | TRACK4-LAYOUT |
-| **Spec** | FR-UI-11 rest-of-App (Plans tabs after Cases) |
+| **Spec** | FR-UI-11 rest-of-App (Reports library) |
 | **Git** | `main` |
-| **Test ticket** | **KAN-332** |
-| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329** desk110 |
+| **Test ticket** | **KAN-334** |
+| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331** desk111 |
 | **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2** |
-| **Next / Shipped** | Build pick-up implements **KAN-331**. Order after: 333 → 335 → 337 → 339 → 341 → 343 → 345. Do **not** implement Lab / voice / FR-MAN-2. |
+| **Next / Shipped** | Build pick-up implements **KAN-333**. Order after: 335 → 337 → 339 → 341 → 343 → 345. Do **not** implement Lab / voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — KAN-331 — Plans other tabs FR-UI-11 (desk111)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-331
+- **Done:** Plans tabs after Cases inherit FR-UI-11: Coverage scan (Story · Gap · Summary) + detail; Trace scan (Story · Cases · Last · Bugs · Known) row opens case; History scan with dedicated A/B radio hit cells (stopPropagation) + run focus detail / Compare; Draft + Run compact forms (`data-plan-draft-form` / `data-plan-run-sections`); `#plan-pause-on-fail` not in `.check-row`. Cases tab untouched. Marker `data-plans-tabs-layout-grammar`. Cache-bust **desk111**. Brought Studio rest mockups + bridge scripts onto `main`. Theme/orb/home/App nav untouched. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_plans_tabs_layout_grammar.py`, desk111 bump on related UI tests; `docs/mockups/secondary_areas_rest/**`, `scripts/jira_kan_fr_ui11_rest_bridge.py`, `scripts/jira_kan_studio_heal_bulk_cr.py`
+- **Verify:** `pytest tests/test_plans_tabs_layout_grammar.py tests/test_plan_cases_layout_grammar.py tests/test_plans_cases_geometry.py tests/test_plans_ia.py tests/test_plan_suite_history.py tests/test_plan_traceability.py tests/test_suite_layout_grammar.py tests/test_suites_ia.py tests/test_settings_layout_grammar.py tests/test_settings_hub.py tests/test_settings_security_density.py tests/test_occlusion_verify_ae.py tests/test_lab_areas_ia.py tests/test_nav_overlap.py` — 29 passed. Spot-check: `desktop_app.py` → Plans → Coverage / History radios.
+- **Jira:** close-out **KAN-331** + **KAN-332**
+- **Next:** Active **KAN-333** Reports FR-UI-11 (test **KAN-334**)
 
 ### 2026-11-22 — KAN-329 — Plans Cases FR-UI-11 inherit (desk110)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-329

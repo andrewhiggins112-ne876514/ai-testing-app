@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Security — themed</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="rest.css" />
+</head>
+<body class="">
+<p class="page-note"><strong>Preferred.</strong> In-area rail. Masked status only. One level (OFFICIAL) shown. No live secrets.</p>
+<div class="stage" data-security-layout-grammar="1">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Security</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+
+<div class="toolbar"><span class="status">Active level OFFICIAL · profile-official-local</span></div>
+<div class="split">
+  <nav class="rail" aria-label="Security sections" data-sec-rail="1">
+    <p class="rail-label">Sections</p>
+    <button type="button" data-panel="level">Level</button>
+    <button type="button" data-panel="privacy" aria-current="true">Privacy</button>
+    <button type="button" data-panel="audit">Audit</button>
+    <button type="button" data-panel="redact">Redaction</button>
+    <button type="button" data-panel="backup">Backup</button>
+  </nav>
+  <div class="work">
+    <div class="panel" data-panel="level" hidden>
+      <h3>Classification</h3>
+      <p class="hint">One level at a time. Switch takes effect only after Confirm.</p>
+      <label class="field">Proposed level<select class="fake"><option>SECRET</option></select></label>
+    </div>
+    <div class="panel" data-panel="privacy">
+      <h3>Local data to wipe</h3>
+      <p class="hint">Include is a 28px checkbox cell. The row does not toggle it.</p>
+      <table class="scan" data-sec-privacy-scan="1">
+<thead><tr><th>Include</th><th>Artifact</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus"><td>cb</td><td>Reports</td></tr>
+<tr class="row-hit "><td>cb</td><td>Screenshots</td></tr>
+<tr class="row-hit "><td>cb</td><td>Heal audit</td></tr>
+<tr class="row-hit "><td>cb</td><td>Sessions (this level)</td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="panel" data-panel="audit" hidden>
+      <h3>Local side-effects</h3>
+      <table class="scan" data-sec-audit-scan="1">
+<thead><tr><th>Time</th><th>Action</th><th>Ref</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus"><td>22 Nov 09:02</td><td>plan_edit</td><td>plan-synth</td></tr>
+<tr class="row-hit "><td>21 Nov 18:11</td><td>privacy_wipe</td><td>OFFICIAL</td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="panel" data-panel="redact" hidden>
+      <h3>Redaction status</h3>
+      <p class="fake">Export redaction on · 3 pattern hits · screenshots not OCR-redacted</p>
+      <p class="hint">No secret values, tokens, or settings.json contents on this surface.</p>
+    </div>
+    <div class="panel" data-panel="backup" hidden>
+      <h3>Backups for this level</h3>
+      <table class="scan" data-sec-backup-scan="1">
+<thead><tr><th>When</th><th>Level</th><th>Secrets</th></tr></thead>
+<tbody>
+<tr class="row-hit is-focus"><td>22 Nov 07:00</td><td>OFFICIAL</td><td>No</td></tr>
+</tbody>
+</table>
+    </div>
+  </div>
+  <aside class="detail">
+    <div class="panel" data-panel="level" hidden>
+      <h3>Switch</h3>
+      <p class="hint">Browser profile name only. Stores stay unmixed.</p>
+      <div class="btn-row">
+        <button class="btn" type="button">Switch level</button>
+        <button class="btn" type="button" disabled>Confirm switch</button>
+      </div>
+    </div>
+    <div class="panel" data-panel="privacy">
+      <h3>Delete</h3>
+      <p class="hint">Credentials and settings are not deleted here.</p>
+      <div class="danger-zone">
+        <button class="btn danger" type="button">Delete local data…</button>
+        <button class="btn" type="button" disabled>Confirm delete</button>
+      </div>
+    </div>
+    <div class="panel" data-panel="audit" hidden>
+      <h3>Entry</h3>
+      <p class="fake">plan_edit · plan-synth · OFFICIAL</p>
+      <p class="hint">Time, action, id, level. No document bodies.</p>
+    </div>
+    <div class="panel" data-panel="redact" hidden>
+      <h3>Evidence</h3>
+      <p class="hint">Hit counts only. Never echo a matched secret.</p>
+    </div>
+    <div class="panel" data-panel="backup" hidden>
+      <h3>Restore</h3>
+      <label class="compact-check"><input type="checkbox" /> Include settings (no secrets)</label>
+      <label class="compact-check"><input type="checkbox" /> Include secrets — off by default</label>
+      <div class="danger-zone">
+        <button class="btn" type="button">Create backup</button>
+        <button class="btn danger" type="button">Restore…</button>
+        <button class="btn" type="button" disabled>Confirm restore</button>
+      </div>
+    </div>
+  </aside>
+</div>
+</div>
+<script>
+document.querySelectorAll('.rail button').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var id = btn.getAttribute('data-panel');
+    document.querySelectorAll('.rail button').forEach(function (b) {
+      if (b === btn) b.setAttribute('aria-current', 'true');
+      else b.removeAttribute('aria-current');
+    });
+    document.querySelectorAll('.panel').forEach(function (p) {
+      p.hidden = p.getAttribute('data-panel') !== id;
+    });
+  });
+});
+</script></body>
+</html>
