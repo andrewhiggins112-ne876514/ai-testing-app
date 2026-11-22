@@ -7,17 +7,17 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open |
-| **Jira story** | **KAN-345** Sandboxes Lab FR-UI-11 |
+| **Status** | deferred |
+| **Jira story** | — (TRACK4-LAYOUT complete) |
 | **Start task** | — |
-| **Epic** | — (TRACK4-LAYOUT rest) |
-| **Roadmap ID** | TRACK4-LAYOUT |
-| **Spec** | FR-UI-11 rest-of-App (Sandboxes Lab) |
+| **Epic** | — |
+| **Roadmap ID** | — |
+| **Spec** | — |
 | **Git** | `main` |
-| **Test ticket** | **KAN-346** |
-| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331**; Reports **KAN-333**; Documents **KAN-335**; Security **KAN-337**; Heal **KAN-339**; Manual **KAN-341**; Desktop Lab **KAN-343** desk117 |
+| **Test ticket** | — |
+| **Shipped** | Settings **KAN-324**; Suites **KAN-327**; Plans Cases **KAN-329**; Plans tabs **KAN-331**; Reports **KAN-333**; Documents **KAN-335**; Security **KAN-337**; Heal **KAN-339**; Manual **KAN-341**; Desktop Lab **KAN-343**; Sandboxes Lab **KAN-345** desk118 |
 | **Deferred** | **TRACK3-LAB** Lab density; **KAN-81** / **KAN-82** voice; **FR-MAN-2** |
-| **Next / Shipped** | Build pick-up implements **KAN-345**. Do **not** implement Lab density / voice / FR-MAN-2. |
+| **Next / Shipped** | TRACK4-LAYOUT **Done**. Do **not** implement Lab density / voice / FR-MAN-2 until Active is set. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -38,6 +38,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-22 — KAN-345 — Sandboxes Lab FR-UI-11 (desk118)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-345
+- **Done:** Sandboxes inherits FR-UI-11: scan table (Id · Label · URL · Ready); no checkbox column; row click focuses detail (id/label/URL + Save sandbox) without Remove; `#ms-remove` + `#ms-remove-confirm` propose-then-confirm in detail (confirm disabled on paint); `#ms-enabled` compact toolbar check (not `check-row`); toolbar keeps Action + `#ms-run` + Save plugin; Advanced is Help only. Marker `data-sandboxes-layout-grammar`. Cache-bust **desk118**. Theme/orb/home/App nav untouched. TRACK3-LAB density deferred. CU not required (marker/pytest AC). TRACK4-LAYOUT complete.
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_sandboxes_layout_grammar.py`, `tests/test_lab_areas_ia.py`, desk118 bump on related UI tests
+- **Verify:** `pytest tests/test_sandboxes_layout_grammar.py tests/test_lab_areas_ia.py tests/test_desktop_layout_grammar.py tests/test_manual_layout_grammar.py tests/test_manual_density.py tests/test_manual_ia.py tests/test_manual_session_library.py tests/test_heal_layout_grammar.py tests/test_heal_review.py tests/test_security_layout_grammar.py tests/test_settings_layout_grammar.py tests/test_settings_hub.py tests/test_settings_security_density.py tests/test_documents_layout_grammar.py tests/test_reports_layout_grammar.py tests/test_reports_ia.py tests/test_reports_library.py tests/test_reports_documents_density.py tests/test_plans_tabs_layout_grammar.py tests/test_plan_cases_layout_grammar.py tests/test_suite_layout_grammar.py tests/test_suites_ia.py tests/test_plans_ia.py tests/test_nav_overlap.py tests/test_occlusion_verify_ae.py tests/test_local_side_effects_audit.py tests/test_lab_backup.py tests/test_multi_sandbox.py` — 62 passed. Spot-check: `desktop_app.py` → App → Sandboxes → row focuses detail; Remove enables Confirm only.
+- **Jira:** close-out **KAN-345** + **KAN-346**
+- **Next:** Active **deferred** — TRACK4 Done; do not start TRACK3-LAB / voice / FR-MAN-2
 
 ### 2026-11-22 — KAN-343 — Desktop Lab FR-UI-11 (desk117)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-343

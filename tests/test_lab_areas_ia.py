@@ -6,13 +6,13 @@ from pathlib import Path
 
 
 class LabAreasIaDesktopUiTests(unittest.TestCase):
-    def test_lab_areas_ia_markers_desk117(self):
+    def test_lab_areas_ia_markers_desk118(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk117", html)
-        self.assertIn("desk117", desk)
+        self.assertIn("desk118", html)
+        self.assertIn("desk118", desk)
         self.assertEqual(html.count('data-lab-areas-ia="1"'), 4)
 
         # Documents: sticky + ingest/list primary + privacy advanced
@@ -94,30 +94,46 @@ class LabAreasIaDesktopUiTests(unittest.TestCase):
         self.assertNotIn('id="desk-save"', desk_advanced)
         self.assertNotIn("check-row", desk_advanced)
 
-        # Sandboxes: action/orchestrate sticky + list primary + configure advanced
+        # Sandboxes: FR-UI-11 scan/detail + enable/orchestrate sticky + help advanced
         self.assertIn('data-sandboxes-ia="1"', html)
+        self.assertIn('data-sandboxes-layout-grammar="1"', html)
         self.assertIn('data-ms-chrome="1"', html)
         self.assertIn('data-ms-primary="1"', html)
         self.assertIn('data-ms-list="1"', html)
+        self.assertIn('data-ms-scan="1"', html)
+        self.assertIn('data-ms-detail="1"', html)
         self.assertIn('data-ms-advanced="1"', html)
         ms_toolbar = html.split('id="ms-chrome-toolbar"', 1)[1].split(
             'id="ms-primary"', 1
         )[0]
         for marker in (
+            'id="ms-enabled"',
             'id="ms-action"',
             'id="ms-run"',
             'id="ms-status"',
+            'id="ms-save"',
         ):
             self.assertIn(marker, ms_toolbar)
-        self.assertNotIn('id="ms-save"', ms_toolbar)
         self.assertNotIn('id="ms-upsert"', ms_toolbar)
+        self.assertNotIn('id="ms-remove"', ms_toolbar)
+        self.assertNotIn("check-row", ms_toolbar)
+        ms_primary = html.split('id="ms-primary"', 1)[1].split(
+            'id="ms-advanced"', 1
+        )[0]
+        self.assertIn('data-ms-scan="1"', ms_primary)
+        self.assertIn('id="ms-upsert"', ms_primary)
+        self.assertIn('id="ms-remove"', ms_primary)
+        self.assertIn('id="ms-remove-confirm"', ms_primary)
+        self.assertIn('id="ms-id"', ms_primary)
         ms_advanced = html.split('id="ms-advanced"', 1)[1].split(
             "</div>\n        </div>\n        </div>", 1
         )[0]
-        self.assertIn('id="ms-enabled"', ms_advanced)
-        self.assertIn('id="ms-upsert"', ms_advanced)
-        self.assertIn('id="ms-remove"', ms_advanced)
-        self.assertIn('id="ms-save"', ms_advanced)
+        self.assertIn("<summary>Help</summary>", ms_advanced)
+        self.assertNotIn('id="ms-enabled"', ms_advanced)
+        self.assertNotIn('id="ms-upsert"', ms_advanced)
+        self.assertNotIn('id="ms-remove"', ms_advanced)
+        self.assertNotIn('id="ms-save"', ms_advanced)
+        self.assertNotIn("check-row", ms_advanced)
 
         # Primary blocks sit above advanced in each area
         for primary, advanced in (

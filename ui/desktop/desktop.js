@@ -1699,7 +1699,10 @@
   const suiteLastByKey = Object.create(null);
   const msEnabled = document.getElementById("ms-enabled");
   const msPlugins = document.getElementById("ms-plugins");
-  const msList = document.getElementById("ms-list");
+  const msScan = document.getElementById("ms-scan");
+  const msScanBody = document.getElementById("ms-scan-body");
+  const msDetail = document.getElementById("ms-detail");
+  const msDetailTitle = document.getElementById("ms-detail-title");
   const msAction = document.getElementById("ms-action");
   const msId = document.getElementById("ms-id");
   const msLabel = document.getElementById("ms-label");
@@ -1708,8 +1711,11 @@
   const msRun = document.getElementById("ms-run");
   const msUpsert = document.getElementById("ms-upsert");
   const msRemove = document.getElementById("ms-remove");
+  const msRemoveConfirm = document.getElementById("ms-remove-confirm");
   const msStatus = document.getElementById("ms-status");
   const sandboxesSection = document.getElementById("app-section-sandboxes");
+  let msFocusedId = "";
+  let msSandboxCache = [];
   const rptStatus = document.getElementById("rpt-status");
   const rptSectionsStatus = document.getElementById("rpt-sections-status");
   const rptChecks = {
@@ -4918,26 +4924,113 @@
     }
   }
 
+  function msReadyLabel(status) {
+    const s = String(status || "idle").toLowerCase();
+    if (s === "prepared") return "Prepared";
+    if (s === "error") return "Error";
+    if (s === "planned") return "Planned";
+    return "Idle";
+  }
+
+  function msReadyPillClass(status) {
+    const s = String(status || "idle").toLowerCase();
+    if (s === "prepared") return "ms-pill ms-pill-ok";
+    if (s === "error") return "ms-pill ms-pill-warn";
+    return "ms-pill ms-pill-idle";
+  }
+
+  function resetMsRemoveConfirm() {
+    if (msRemoveConfirm) {
+      msRemoveConfirm.disabled = true;
+    }
+  }
+
+  function focusSandboxDetail(sandbox) {
+    const row = sandbox || null;
+    msFocusedId = row && row.id ? String(row.id) : "";
+    if (msDetailTitle) {
+      msDetailTitle.textContent = msFocusedId || "Sandbox";
+    }
+    if (msId) msId.value = msFocusedId;
+    if (msLabel) msLabel.value = row && row.label ? String(row.label) : "";
+    if (msUrl) msUrl.value = row && row.url ? String(row.url) : "";
+    resetMsRemoveConfirm();
+    if (msScanBody) {
+      Array.prototype.forEach.call(
+        msScanBody.querySelectorAll(".ms-scan-row"),
+        function (tr) {
+          const id = tr.getAttribute("data-ms-id") || "";
+          tr.classList.toggle("is-focus", !!msFocusedId && id === msFocusedId);
+        }
+      );
+    }
+  }
+
   function renderSandboxList(sandboxes) {
-    if (!msList) return;
+    if (!msScanBody) return;
     const rows = Array.isArray(sandboxes) ? sandboxes : [];
+    msSandboxCache = rows.slice();
+    msScanBody.textContent = "";
     if (!rows.length) {
-      msList.textContent = "Sandboxes: (none configured)";
+      const empty = document.createElement("tr");
+      empty.className = "ms-scan-empty";
+      const td = document.createElement("td");
+      td.colSpan = 4;
+      td.textContent = "Sandboxes: (none configured)";
+      empty.appendChild(td);
+      msScanBody.appendChild(empty);
+      if (msFocusedId) {
+        focusSandboxDetail(null);
+      }
       return;
     }
-    msList.textContent =
-      "Sandboxes: " +
-      rows
-        .map(function (s) {
-          return (
-            (s.id || "?") +
-            "[" +
-            (s.status || "idle") +
-            "]" +
-            (s.url ? " " + s.url : "")
-          );
-        })
-        .join(" · ");
+    rows.forEach(function (s) {
+      const tr = document.createElement("tr");
+      tr.className = "ms-scan-row";
+      tr.setAttribute("data-ms-scan-row", "1");
+      tr.setAttribute("data-ms-id", s.id || "");
+      tr.tabIndex = 0;
+      const cells = [
+        s.id || "—",
+        s.label || s.id || "—",
+        s.url || "—",
+        null,
+      ];
+      cells.forEach(function (text, idx) {
+        const td = document.createElement("td");
+        if (idx === 3) {
+          const pill = document.createElement("span");
+          pill.className = msReadyPillClass(s.status);
+          pill.textContent = msReadyLabel(s.status);
+          td.appendChild(pill);
+        } else {
+          td.textContent = text;
+        }
+        tr.appendChild(td);
+      });
+      tr.addEventListener("click", function () {
+        focusSandboxDetail(s);
+      });
+      tr.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          focusSandboxDetail(s);
+        }
+      });
+      msScanBody.appendChild(tr);
+    });
+    const keep =
+      msFocusedId &&
+      rows.find(function (s) {
+        return String(s.id || "") === msFocusedId;
+      });
+    if (keep) {
+      focusSandboxDetail(keep);
+    } else if (rows.length) {
+      focusSandboxDetail(rows[0]);
+    } else {
+      focusSandboxDetail(null);
+    }
   }
 
   function applyMultiSandboxPlugin(payload) {
@@ -10824,7 +10917,26 @@
   }
 
   if (msRemove) {
-    msRemove.addEventListener("click", async function () {
+    msRemove.addEventListener("click", function () {
+      const sid = msId && msId.value ? msId.value.trim() : "";
+      if (!sid) {
+        if (msStatus) msStatus.textContent = "Select a sandbox (or enter id) before Remove.";
+        resetMsRemoveConfirm();
+        return;
+      }
+      if (msRemoveConfirm) {
+        msRemoveConfirm.disabled = false;
+      }
+      if (msStatus) {
+        msStatus.textContent =
+          "Confirm remove enabled for “" + sid + "”. Row still listed until Confirm.";
+      }
+    });
+  }
+
+  if (msRemoveConfirm) {
+    msRemoveConfirm.addEventListener("click", async function () {
+      if (msRemoveConfirm.disabled) return;
       if (msStatus) msStatus.textContent = "Removing sandbox…";
       try {
         const payload = await runMultiSandboxAction("remove");
@@ -10833,19 +10945,30 @@
             msStatus.textContent =
               payload.message || "Plugin disabled — enable and Save.";
           }
+          resetMsRemoveConfirm();
           return;
         }
         if (payload.status === "ok") {
+          msFocusedId = "";
           if (msStatus) msStatus.textContent = payload.message || "Sandbox removed.";
+          resetMsRemoveConfirm();
           return;
         }
         if (msStatus) {
           msStatus.textContent =
             payload.error || payload.message || "Remove failed.";
         }
+        resetMsRemoveConfirm();
       } catch (err) {
         if (msStatus) msStatus.textContent = "Could not reach orchestrate API.";
+        resetMsRemoveConfirm();
       }
+    });
+  }
+
+  if (msId) {
+    msId.addEventListener("input", function () {
+      resetMsRemoveConfirm();
     });
   }
 

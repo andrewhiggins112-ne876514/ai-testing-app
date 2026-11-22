@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk117" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk118" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -1530,9 +1530,11 @@
           </details>
           </div>
         </div>
-        <div id="app-section-sandboxes" class="app-section" hidden data-lab-areas-ia="1" data-sandboxes-ia="1">
+        <div id="app-section-sandboxes" class="app-section" hidden data-lab-areas-ia="1" data-sandboxes-ia="1" data-sandboxes-layout-grammar="1">
           <h3 class="orb-section-label">Sandboxes</h3>
           <div id="ms-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-ms-chrome="1">
+            <label class="ms-compact-check" data-ms-compact-check="1"><input type="checkbox" id="ms-enabled" /> Enable multi-sandbox</label>
+            <button type="button" id="ms-save" class="save-btn secondary">Save plugin</button>
             <label class="stack-label ms-toolbar-action" for="ms-action">Action
               <select id="ms-action">
                 <option value="list">list</option>
@@ -1548,28 +1550,50 @@
           </div>
           <div class="area-work" data-area-work="1">
           <div id="ms-primary" class="lab-primary" data-ms-primary="1">
-            <h4 class="orb-section-label">Sandbox list &amp; status</h4>
             <p id="ms-plugins" class="drawer-hint">Plugins: —</p>
-            <p id="ms-list" class="drawer-hint" data-ms-list="1">Sandboxes: —</p>
+            <div class="ms-grammar-split" data-ms-grammar-split="1">
+              <div class="ms-scan-pane" data-ms-list="1">
+                <h4 class="orb-section-label">Sandbox list</h4>
+                <p class="drawer-hint">No checkbox column. Row click focuses detail (does not Remove). Local only — max 4. No cloud farms.</p>
+                <table id="ms-scan" class="ms-scan-table" data-ms-scan="1" role="grid" aria-label="Sandboxes">
+                  <thead>
+                    <tr>
+                      <th scope="col">Id</th>
+                      <th scope="col">Label</th>
+                      <th scope="col">URL</th>
+                      <th scope="col">Ready</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ms-scan-body">
+                    <tr class="ms-scan-empty"><td colspan="4">Sandboxes: (none configured)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <aside id="ms-detail" class="ms-detail-pane" data-ms-detail="1" aria-label="Sandbox detail">
+                <h4 class="orb-section-label" id="ms-detail-title">Sandbox</h4>
+                <p class="drawer-hint" id="ms-detail-hint">Select a row, or enter a new id to add (max 4).</p>
+                <label class="stack-label">Sandbox id
+                  <input type="text" id="ms-id" placeholder="primary" autocomplete="off" />
+                </label>
+                <label class="stack-label">Label
+                  <input type="text" id="ms-label" placeholder="Primary AUT" autocomplete="off" />
+                </label>
+                <label class="stack-label">URL
+                  <input type="url" id="ms-url" placeholder="https://…" autocomplete="off" />
+                </label>
+                <div class="btn-row">
+                  <button type="button" id="ms-upsert" class="save-btn">Save sandbox</button>
+                </div>
+                <div class="ms-danger-zone" data-ms-danger="1">
+                  <button type="button" id="ms-remove" class="save-btn secondary">Remove…</button>
+                  <button type="button" id="ms-remove-confirm" class="save-btn secondary" disabled>Confirm remove</button>
+                </div>
+              </aside>
+            </div>
           </div>
           <details id="ms-advanced" class="lab-advanced" data-ms-advanced="1">
-            <summary>Configure &amp; help</summary>
-            <p class="drawer-hint">Local configured environments (max 4). Prepare creates profile folders. No cloud farms.</p>
-            <label class="check-row"><input type="checkbox" id="ms-enabled" /> Enable multi-sandbox plugin</label>
-            <label class="stack-label">Sandbox id
-              <input type="text" id="ms-id" placeholder="primary" autocomplete="off" />
-            </label>
-            <label class="stack-label">Label
-              <input type="text" id="ms-label" placeholder="Primary AUT" autocomplete="off" />
-            </label>
-            <label class="stack-label">URL
-              <input type="url" id="ms-url" placeholder="https://…" autocomplete="off" />
-            </label>
-            <div class="btn-row">
-              <button type="button" id="ms-save" class="save-btn">Save plugin</button>
-              <button type="button" id="ms-upsert" class="save-btn secondary">Save sandbox</button>
-              <button type="button" id="ms-remove" class="save-btn secondary">Remove</button>
-            </div>
+            <summary>Help</summary>
+            <p class="drawer-hint">Local configured environments (max 4). Prepare creates profile folders. TRACK3-LAB density stays deferred. No cloud farms.</p>
           </details>
           </div>
         </div>
@@ -1685,6 +1709,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk117"></script>
+  <script src="/ui/desktop/desktop.js?v=desk118"></script>
 </body>
 </html>
