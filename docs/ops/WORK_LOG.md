@@ -44,8 +44,8 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 - **Agent/chat:** Cursor IDE Agent (Composer) — human report after KAN-352
 - **Done:** Bug **KAN-357** (Relates **KAN-352**/353/348/349 + test **KAN-358**). Root cause: KAN-348 `overflow:hidden` on `.area-work` let the split eat full height and clipped sibling Advanced with no scroll path. Pin Advanced/About as `flex: 0 0 auto` (open max-height scroll); primary takes `flex: 1 1 0`. Cache-bust **desk124**.
 - **Files:** `ui/desktop/desktop.css`, `index.html`, `desktop_app.py`, `tests/test_advanced_foot_reachable.py`
-- **Verify:** pytest advanced-foot + related — 11 passed. Spot-check: typical window height → Desktop/Suites/Documents Advanced summary visible without resize.
-- **Jira:** **KAN-357** Fix + Done; test **KAN-358** Done
+- **Verify:** pytest advanced-foot + related — 11 passed. Human confirmed 2026-11-23: Advanced reachable without resize (**desk124**).
+- **Jira:** **KAN-357** Fix + Done; test **KAN-358** Done; human confirm commented
 - **Next:** Active remains **KAN-354** Phase 2
 
 ### 2026-11-23 — KAN-352 — Documents toolbar / Heal confirm / Lab Advanced (desk123)
