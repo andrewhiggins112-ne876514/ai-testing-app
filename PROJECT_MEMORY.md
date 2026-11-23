@@ -175,6 +175,6 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. Designer `Accept Lab wires` → Build pick-up **KAN-360** (chrome-budget markers; no Stories 2–4 geometry until Accept).
+1. Build pick-up **KAN-360** chrome-budget markers (Lab wires Accepted 2026-11-23).
 2. Then **KAN-362** → **KAN-364** → **KAN-366**; after TRACK3-LAB deepen Playwright **trace** (replace `trace.notice.txt`).
 3. **Parked:** **KAN-81** voice, **FR-MAN-2**, CI build, H3 network share, Xray, Selenium/Cypress real runners.

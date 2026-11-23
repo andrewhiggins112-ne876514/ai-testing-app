@@ -227,7 +227,7 @@ Same outside-scrollport pattern. **Level select + Switch/Confirm** stay in the n
 ## 8. Lab tools — density wires (TRACK3-LAB follow-on)
 
 **Epic:** TRACK3-LAB (FR-UI-10 Lab follow-on) · **Bridge:** Council+Designer 2026-11-23  
-**Status:** **Awaiting Designer Accept** — reply `Accept Lab wires` before Lab geometry HTML/CSS (Stories 2–4). Story 1 may land chrome-budget **markers** only after Accept.  
+**Status:** **Accepted** by Designer (2026-11-23) — reply `Accept Lab wires`. Story 1 (**KAN-360**) chrome-budget markers unblocked; Stories 2–4 geometry unblocked after Story 1 Done.  
 **Reuse:** Primary shared chrome budget (§ Shared chrome budget above). **Do not** redo KAN-310 scaffold / sticky renames — Lab toolbars already use `.area-chrome-toolbar`.  
 **Locked:** Theme / orb / home / App nav; FR-UI-11 scan+detail grammar; TRACK5 craft (quiet empty, Select a row, keyboard scan, one scroll per pane, Lab Advanced closed by default, Heal no bulk Reject, evidence-first Trace “not hooked”).  
 **Out:** Security (Primary **KAN-318**); voice; FR-MAN-2; real Playwright trace deepen; KPI heroes; auto-apply heal; silent sandbox remove.
@@ -310,15 +310,15 @@ No second filter strip. No sticky-named classes/markers.
 
 ### Lab Accept checklist
 
-- [ ] Suites wire signed (path+actions+one status; Import in Advanced)
-- [ ] Sandboxes wire signed (compact Enable/Save/Action; Remove confirm in detail)
-- [ ] Heal wire signed (one toolbar; Approve/Reject visible on focus; no bulk Reject / no auto-apply)
-- [ ] Desktop wire signed (smoke/demo + status; Save in detail)
-- [ ] Shared ≤~120px stack + no intro above toolbar acknowledged
-- [ ] A–E Lab occlusion story remains last (markers + CU/human; never soft-pass “opened Lab”)
-- [ ] TRACK4/5 craft locked; theme/orb/home/App nav locked
+- [x] Suites wire signed (path+actions+one status; Import in Advanced)
+- [x] Sandboxes wire signed (compact Enable/Save/Action; Remove confirm in detail)
+- [x] Heal wire signed (one toolbar; Approve/Reject visible on focus; no bulk Reject / no auto-apply)
+- [x] Desktop wire signed (smoke/demo + status; Save in detail)
+- [x] Shared ≤~120px stack + no intro above toolbar acknowledged
+- [x] A–E Lab occlusion story remains last (markers + CU/human; never soft-pass “opened Lab”)
+- [x] TRACK4/5 craft locked; theme/orb/home/App nav locked
 
-**Designer Accept phrase:** `Accept Lab wires`
+**Accepted:** Designer `Accept Lab wires` (2026-11-23). Next Build: **KAN-360** chrome-budget markers (then **KAN-362** Suites+Sandboxes → **KAN-364** Heal+Desktop → **KAN-366** Lab A–E).
 
 ### Lab geometry story map (after Accept)
 

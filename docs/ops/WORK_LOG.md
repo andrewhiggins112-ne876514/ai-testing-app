@@ -9,7 +9,7 @@
 |-------|--------|
 | **Status** | open |
 | **Jira story** | **KAN-360** — Lab wires Accept + chrome budget |
-| **Start task** | Expand/confirm Lab wires in `TRACK3_AREA_WIRES.md` §8; wait for Designer `Accept Lab wires`; then chrome-budget markers only (no Stories 2–4 geometry until Accept) |
+| **Start task** | Lab wires **Accepted** (2026-11-23). Implement **KAN-360** chrome-budget markers on Heal/Desktop/Suites/Sandboxes (no intro above toolbar; ≤~120px; no KAN-310 redo). Stories 2–4 geometry after Story 1 Done. |
 | **Epic** | **KAN-359** (TRACK3-LAB) |
 | **Roadmap ID** | TRACK3-LAB |
 | **Spec** | FR-UI-10 Lab density |
@@ -18,7 +18,7 @@
 | **Shipped** | TRACK5 Done (**KAN-354** / **desk125**); Bridge seeded **KAN-359…367** |
 | **Queued** | **KAN-362** Suites+Sandboxes → **KAN-364** Heal+Desktop → **KAN-366** Lab A–E → then real Playwright trace deepen |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | Active **KAN-360**. Geometry Stories 2–4 blocked until Designer `Accept Lab wires`. Park voice / FR-MAN-2. |
+| **Next / Shipped** | Active **KAN-360** — Lab wires Accepted; Build chrome-budget markers. Park voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-23 — Accept — Lab wires (TRACK3-LAB)
+- **Agent/chat:** Designer reply `Accept Lab wires`
+- **Done:** Marked `docs/design/TRACK3_AREA_WIRES.md` §8 Accepted; Lab Accept checklist checked. Active remains **KAN-360** — chrome-budget markers now unblocked. Stories **362/364/366** may proceed after Story 1 Done.
+- **Files:** `TRACK3_AREA_WIRES.md`; WORK_LOG; DESIGN_INTENT; PROJECT_MEMORY
+- **Verify:** §8 Status = Accepted; Active start task = chrome-budget markers
+- **Jira:** Accept comment on **KAN-360** / epic **KAN-359** / test **KAN-361**
+- **Next:** Build pick-up **KAN-360**
 
 ### 2026-11-23 — Bridge — TRACK3-LAB epic + Active KAN-360
 - **Agent/chat:** Council review → Designer **yes** Apply Bridge
