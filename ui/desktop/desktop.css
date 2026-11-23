@@ -3177,12 +3177,21 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   display: none !important;
 }
 
+#app-section-documents[data-scan-craft="1"] #doc-primary.lab-primary > .doc-panel:not([hidden]) {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 #app-section-documents[data-documents-layout-grammar="1"] .doc-grammar-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
   min-height: 0;
+  flex: 1 1 0;
 }
 
 #app-section-documents[data-documents-layout-grammar="1"] .doc-scan-pane {
@@ -4042,12 +4051,39 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 /* KAN-348 / TRACK5-LAYOUT-1 — shared scan craft (quiet empty, Select a row, keyboard, one scroll) */
 .app-section[data-scan-craft="1"] .area-work[data-area-work="1"]:has([data-scan-no-outer-scroll="1"]) {
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/*
+ * KAN-357 — Advanced / About foot disclosures must stay reachable.
+ * Split panes keep their own scroll; foot details are flex:0 so they are not
+ * clipped below the fold when area-work is overflow:hidden (KAN-348).
+ */
+.app-section[data-scan-craft="1"] .area-work[data-area-work="1"] > .lab-primary,
+.app-section[data-scan-craft="1"] .area-work[data-area-work="1"] > .suite-primary,
+.app-section[data-scan-craft="1"] .area-work[data-area-work="1"] > .rpt-primary,
+.app-section[data-scan-craft="1"] .area-work[data-area-work="1"] > .manual-grammar-split {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-section[data-scan-craft="1"] .area-work[data-area-work="1"] > .rpt-about,
+.app-section[data-scan-craft="1"] .area-work[data-area-work="1"] > .lab-advanced,
+.app-section[data-scan-craft="1"] .area-work[data-area-work="1"] > .suite-advanced,
+.app-section[data-scan-craft="1"] .area-work[data-area-work="1"] > .rpt-advanced,
+.app-section[data-scan-craft="1"] .area-work[data-area-work="1"] > .manual-advanced {
+  flex: 0 0 auto;
+  max-height: min(40vh, 280px);
+  overflow: auto;
 }
 
 .app-section[data-scan-craft="1"] [data-scan-no-outer-scroll="1"] {
   align-items: stretch;
   min-height: 0;
-  flex: 1 1 auto;
+  flex: 1 1 0;
 }
 
 .app-section[data-scan-craft="1"] [data-scan-scroll="scan"],
