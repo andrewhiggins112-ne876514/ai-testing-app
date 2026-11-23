@@ -4125,3 +4125,47 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .app-section[data-scan-craft="1"] [data-scan-unfocused="1"][hidden] {
   display: none !important;
 }
+
+/* KAN-354 — evidence-first detail slot (TRACK5 Phase 2) */
+.evidence-first {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 var(--space-2, 8px);
+  padding: 8px;
+  border: 1px dashed color-mix(in srgb, var(--warn, #ffd27a) 55%, transparent);
+  border-radius: 6px;
+  font: var(--type-help, var(--type-ui));
+  color: var(--warn, #ffd27a);
+}
+
+.evidence-first[hidden] {
+  display: none !important;
+}
+
+.evidence-first-tag {
+  font: var(--type-meta, var(--type-ui));
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted, #9bb4c4);
+}
+
+.evidence-first-summary,
+.evidence-first-links,
+.evidence-first-shot-warn,
+.evidence-first-trace {
+  margin: 0;
+  color: var(--text, #e8f4fc);
+  font: var(--type-ui);
+}
+
+.evidence-first-shot-warn,
+.evidence-first-trace {
+  color: var(--warn, #ffd27a);
+}
+
+.evidence-first .report-shot {
+  max-width: 100%;
+  border-radius: 4px;
+  margin-top: 4px;
+}

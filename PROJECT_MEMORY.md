@@ -152,7 +152,7 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-221** G3 Contract/mock — **Done** (KAN-222; `plugins/contract_mock.py`; desk76)
 - **KAN-223** G4 Seed data and fixtures — **Done** (KAN-224; `plugins/seed_fixture.py` + `plans/seed_case.py`; `source.kind=seed`; run stores name; missing → environment; desk77)
 - **KAN-225** G5 Visual baseline screenshots — **Done** (KAN-226; `plugins/visual_baseline.py` + `plans/visual_case.py`; `source.kind=visual`; mismatch links both images; explicit update-baseline; desk78)
-- Next Active: **KAN-354** TRACK5-LAYOUT-4 — evidence-first detail slot (test **KAN-355**; epic **KAN-347**). **KAN-352** Done (**desk123** / **KAN-353**). After TRACK5 → TRACK3-LAB → real Playwright trace deepen. **KAN-81** Voice — **parked** (mic). **FR-MAN-2** parked (DPIA).
+- Next Active: **deferred** — TRACK5 Done (**KAN-354** evidence-first **desk125** / **KAN-355**; epic **KAN-347**). Queued **TRACK3-LAB** Lab density (seed story before Build) → real Playwright trace deepen. **KAN-81** Voice — **parked** (mic). **FR-MAN-2** parked (DPIA).
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -175,6 +175,6 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. **KAN-354** — Evidence-first detail slot Phase 2 (test **KAN-355**).
-2. After TRACK5: **TRACK3-LAB** Lab density (FR-UI-10), then deepen Playwright **trace** (replace `trace.notice.txt`).
+1. Seed / Bridge **TRACK3-LAB** Lab density (FR-UI-10) as Active — do not Build while deferred.
+2. After TRACK3-LAB: deepen Playwright **trace** (replace `trace.notice.txt`).
 3. **Parked:** **KAN-81** voice, **FR-MAN-2**, CI build, H3 network share, Xray, Selenium/Cypress real runners.

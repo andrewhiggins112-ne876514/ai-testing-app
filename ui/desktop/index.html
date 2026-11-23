@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk124" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk125" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -381,6 +381,13 @@
                 </div>
                 <aside class="settings-detail-pane" id="set-env-detail" data-settings-detail="environments" data-scan-scroll="detail" aria-label="Environment detail">
                   <h4 class="orb-section-label" id="set-env-detail-title">Environment</h4>
+                  <div class="evidence-first" id="set-env-evidence-first" data-evidence-first="1" data-evidence-first-optional="1" hidden>
+                    <span class="evidence-first-tag">Last result</span>
+                    <p class="evidence-first-summary" data-evidence-summary="1">—</p>
+                    <p class="evidence-first-links" data-evidence-links="1" hidden></p>
+                    <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
+                    <p class="evidence-first-trace" data-evidence-trace="1">Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.</p>
+                  </div>
                   <p class="scan-quiet-empty" data-scan-unfocused="1" id="set-env-unfocused">Select a row</p>
                   <p class="drawer-hint">Focused row. Save writes this named environment only.</p>
                   <label class="stack-label">Environment name
@@ -653,6 +660,13 @@
                   <p id="local-audit-status" class="drawer-hint" role="status">Ready</p>
                 </div>
                 <aside class="sec-detail-pane" id="sec-audit-detail" data-sec-detail="audit" aria-label="Audit entry" data-scan-scroll="detail">
+                  <div class="evidence-first" id="sec-audit-evidence-first" data-evidence-first="1" data-evidence-first-optional="1" hidden>
+                    <span class="evidence-first-tag">Last result</span>
+                    <p class="evidence-first-summary" data-evidence-summary="1">—</p>
+                    <p class="evidence-first-links" data-evidence-links="1" hidden></p>
+                    <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
+                    <p class="evidence-first-trace" data-evidence-trace="1">Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.</p>
+                  </div>
                   <h4 class="orb-section-label" id="sec-audit-detail-title">Entry</h4>
                   <p class="scan-quiet-empty" data-scan-unfocused="1" id="sec-audit-unfocused">Select a row</p>
                   <p class="drawer-hint" id="sec-audit-detail-hint">Select a row. Time, action, id, level only — no document bodies.</p>
@@ -713,7 +727,7 @@
           </div>
           </div>
         </div>
-        <div id="app-section-reports" class="app-section" hidden data-reports-ia="1" data-reports-documents-density="1" data-reports-layout-grammar="1" data-scan-craft="1">
+        <div id="app-section-reports" class="app-section" hidden data-reports-ia="1" data-reports-documents-density="1" data-reports-layout-grammar="1" data-evidence-first-detail="1" data-scan-craft="1">
           <div id="rpt-chrome-toolbar" class="area-chrome-toolbar rpt-chrome-toolbar" data-rpt-chrome="1">
             <div class="btn-row rpt-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="rpt-library-refresh" class="save-btn secondary">Refresh library</button>
@@ -746,8 +760,15 @@
               <h4 class="orb-section-label" id="rpt-viewer-title">Report</h4>
               <p class="scan-quiet-empty" data-scan-unfocused="1" id="rpt-unfocused">Select a row</p>
               <p class="drawer-hint" id="rpt-viewer-hint">Row opens markdown. Screenshot and raw JSON stay here. Section include/exclude is under Settings.</p>
+              <div class="evidence-first" id="rpt-evidence-first" data-evidence-first="1" hidden>
+                <span class="evidence-first-tag">Last result</span>
+                <p class="evidence-first-summary" data-evidence-summary="1">—</p>
+                <p class="evidence-first-links" data-evidence-links="1" hidden></p>
+                <img id="rpt-screenshot" class="report-shot" alt="Report screenshot" hidden />
+                <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
+                <p class="evidence-first-trace" data-evidence-trace="1">Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.</p>
+              </div>
               <pre id="rpt-markdown" class="report-viewer" aria-live="polite">Select a report to read its markdown.</pre>
-              <img id="rpt-screenshot" class="report-shot" alt="Report screenshot" hidden />
               <details class="report-json-wrap">
                 <summary>Raw JSON</summary>
                 <pre id="rpt-json" class="report-viewer">No JSON found</pre>
@@ -814,6 +835,13 @@
                 </div>
                 <aside class="doc-detail-pane" id="doc-diff-detail" data-doc-diff-detail="1" aria-label="Change detail" data-scan-scroll="detail">
                   <h4 class="orb-section-label">Change</h4>
+                  <div class="evidence-first" id="doc-evidence-first" data-evidence-first="1" data-evidence-first-optional="1" hidden>
+                    <span class="evidence-first-tag">Last result</span>
+                    <p class="evidence-first-summary" data-evidence-summary="1">—</p>
+                    <p class="evidence-first-links" data-evidence-links="1" hidden></p>
+                    <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
+                    <p class="evidence-first-trace" data-evidence-trace="1">Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.</p>
+                  </div>
                   <label class="stack-label">Key
                     <p class="scan-quiet-empty" data-scan-unfocused="1" id="doc-diff-unfocused">Select a row</p>
                     <input type="text" id="doc-detail-key" class="mono" readonly value="" placeholder="Select a row" autocomplete="off" />
@@ -860,7 +888,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1" data-heal-layout-grammar="1" data-heal-confirm-copy="1" data-scan-craft="1">
+        <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1" data-heal-layout-grammar="1" data-heal-confirm-copy="1" data-evidence-first-detail="1" data-scan-craft="1">
           <h3 class="orb-section-label">Heal proposal review</h3>
           <div id="heal-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-heal-chrome="1">
             <label class="stack-label heal-toolbar-filter" for="heal-run-filter">Filter by run
@@ -900,6 +928,13 @@
               <h4 class="orb-section-label" id="heal-detail-title">No proposal focused</h4>
               <p class="scan-quiet-empty" data-scan-unfocused="1" id="heal-unfocused">Select a row</p>
               <p class="drawer-hint" id="heal-detail-hint">Select a row. Sel is multi-select only. Approve and Reject act on the focused id only.</p>
+              <div class="evidence-first" id="heal-evidence-first" data-evidence-first="1" hidden>
+                <span class="evidence-first-tag">Last result</span>
+                <p class="evidence-first-summary" data-evidence-summary="1">—</p>
+                <p class="evidence-first-links" data-evidence-links="1" hidden></p>
+                <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
+                <p class="evidence-first-trace" data-evidence-trace="1">Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.</p>
+              </div>
               <label class="stack-label">Id
                 <input type="text" id="heal-detail-id" class="mono" readonly autocomplete="off" />
               </label>
@@ -920,7 +955,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1" data-desktop-layout-grammar="1" data-lab-detail-disclosure="1" data-scan-craft="1">
+        <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1" data-desktop-layout-grammar="1" data-lab-detail-disclosure="1" data-evidence-first-detail="1" data-scan-craft="1">
           <h3 class="orb-section-label">Desktop .exe plugin</h3>
           <div id="desk-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-desk-chrome="1">
             <div class="btn-row lab-toolbar-actions">
@@ -961,6 +996,13 @@
                 <h4 class="orb-section-label" id="desk-detail-title">Plugin</h4>
                 <p class="scan-quiet-empty" data-scan-unfocused="1" id="desk-unfocused">Select a row</p>
                 <p class="drawer-hint" id="desk-detail-hint">Separate from Playwright. Save and path override live here.</p>
+                <div class="evidence-first" id="desk-evidence-first" data-evidence-first="1" hidden>
+                  <span class="evidence-first-tag">Last result</span>
+                  <p class="evidence-first-summary" data-evidence-summary="1">—</p>
+                  <p class="evidence-first-links" data-evidence-links="1" hidden></p>
+                  <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
+                  <p class="evidence-first-trace" data-evidence-trace="1">Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.</p>
+                </div>
                 <label class="stack-label">Exe path override
                   <input type="text" id="desk-exe" placeholder="C:\Path\To\App.exe" autocomplete="off" />
                 </label>
@@ -976,7 +1018,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1" data-plan-cases-layout-grammar="1" data-plans-tabs-layout-grammar="1" data-plans-compact-booleans="1" data-scan-craft="1">
+        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1" data-plan-cases-layout-grammar="1" data-plans-tabs-layout-grammar="1" data-plans-compact-booleans="1" data-evidence-first-detail="1" data-scan-craft="1">
           <div id="plan-chrome-toolbar" class="area-chrome-toolbar plan-chrome-toolbar" data-plan-chrome="1">
             <div class="btn-row plan-toolbar-actions area-chrome-toolbar-row">
               <label class="stack-label plan-toolbar-plan" for="plan-list">Plan
@@ -1056,6 +1098,13 @@
             <p class="drawer-hint" id="plan-case-detail-hint">Select a row. Row click does not toggle Enabled or Archived.</p>
             <div id="plan-case-detail-live" class="plan-case-detail-live" data-plan-case-detail-live="1" hidden>
             <div class="plan-case-detail-scroll" data-plan-case-sections-scroll="1" data-scan-scroll="detail">
+            <div class="evidence-first" id="plan-case-evidence-first" data-evidence-first="1" hidden>
+              <span class="evidence-first-tag">Last result</span>
+              <p class="evidence-first-summary" data-evidence-summary="1">—</p>
+              <p class="evidence-first-links" data-evidence-links="1" hidden></p>
+              <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
+              <p class="evidence-first-trace" data-evidence-trace="1">Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.</p>
+            </div>
             <section class="plan-case-sec" data-plan-case-section="edit" aria-labelledby="plan-case-sec-edit">
             <h4 class="orb-section-label" id="plan-case-sec-edit">Edit</h4>
             <label class="stack-label">Case id
@@ -1405,7 +1454,7 @@
           </div>
           </div>
         </div>
-        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-manual-density="1" data-manual-layout-grammar="1" data-loop-stage="idle" data-scan-craft="1">
+        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-manual-density="1" data-manual-layout-grammar="1" data-evidence-first-detail="1" data-loop-stage="idle" data-scan-craft="1">
           <div id="manual-chrome-toolbar" class="area-chrome-toolbar manual-chrome-toolbar" data-manual-chrome="1">
             <div class="btn-row manual-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="manual-clear-context" class="save-btn secondary">Clear linked context</button>
@@ -1464,6 +1513,13 @@
               <h4 class="orb-section-label" id="manual-detail-title">Focused session</h4>
               <p class="scan-quiet-empty" data-scan-unfocused="1" id="manual-unfocused">Select a row</p>
               <p class="drawer-hint" id="manual-detail-hint">Select a row. Propose stays deliberate. Confirm dock is below the work.</p>
+              <div class="evidence-first" id="manual-evidence-first" data-evidence-first="1" hidden>
+                <span class="evidence-first-tag">Last result</span>
+                <p class="evidence-first-summary" data-evidence-summary="1">—</p>
+                <p class="evidence-first-links" data-evidence-links="1" hidden></p>
+                <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
+                <p class="evidence-first-trace" data-evidence-trace="1">Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.</p>
+              </div>
               <label class="stack-label" for="manual-detail-charter">Charter
                 <input type="text" id="manual-detail-charter" readonly autocomplete="off" />
               </label>
@@ -1502,7 +1558,7 @@
             <button type="button" id="manual-confirm-no" class="save-btn secondary" data-manual-confirm-no="1">Cancel proposal</button>
           </div>
         </div>
-        <div id="app-section-suites" class="app-section" hidden data-suites-ia="1" data-suite-layout-grammar="1" data-lab-detail-disclosure="1" data-scan-craft="1">
+        <div id="app-section-suites" class="app-section" hidden data-suites-ia="1" data-suite-layout-grammar="1" data-lab-detail-disclosure="1" data-evidence-first-detail="1" data-scan-craft="1">
           <h3 class="orb-section-label">Playwright suites</h3>
           <div id="suite-chrome-toolbar" class="area-chrome-toolbar suite-chrome-toolbar" data-suite-chrome="1">
             <label class="stack-label suite-toolbar-path" for="suite-path">Project path
@@ -1539,6 +1595,13 @@
               <h4 class="orb-section-label" id="suite-detail-title">No test focused</h4>
               <p class="scan-quiet-empty" data-scan-unfocused="1" id="suite-unfocused">Select a row</p>
               <p class="drawer-hint" id="suite-detail-hint">Select a row. Checkbox state is independent of focus.</p>
+              <div class="evidence-first" id="suite-evidence-first" data-evidence-first="1" hidden>
+                <span class="evidence-first-tag">Last result</span>
+                <p class="evidence-first-summary" id="suite-detail-last" data-evidence-summary="1">Last result: —</p>
+                <p class="evidence-first-links" data-evidence-links="1" hidden></p>
+                <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
+                <p class="evidence-first-trace" data-evidence-trace="1">Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.</p>
+              </div>
               <label class="stack-label">Title
                 <input type="text" id="suite-detail-name" readonly autocomplete="off" />
               </label>
@@ -1548,7 +1611,6 @@
               <label class="stack-label">Grep / title filter
                 <input type="text" id="suite-detail-grep" class="mono" readonly autocomplete="off" />
               </label>
-              <p class="drawer-hint" id="suite-detail-last">Last result: —</p>
               <div class="btn-row">
                 <button type="button" id="suite-run-focused" class="save-btn" disabled>Run this test</button>
                 <button type="button" id="suite-copy-path" class="save-btn secondary" disabled>Copy path</button>
@@ -1607,6 +1669,13 @@
                 <h4 class="orb-section-label" id="ms-detail-title">Sandbox</h4>
                 <p class="scan-quiet-empty" data-scan-unfocused="1" id="ms-unfocused">Select a row</p>
                 <p class="drawer-hint" id="ms-detail-hint">Select a row, or enter a new id to add (max 4).</p>
+                <div class="evidence-first" id="ms-evidence-first" data-evidence-first="1" data-evidence-first-optional="1" hidden>
+                  <span class="evidence-first-tag">Last result</span>
+                  <p class="evidence-first-summary" data-evidence-summary="1">—</p>
+                  <p class="evidence-first-links" data-evidence-links="1" hidden></p>
+                  <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
+                  <p class="evidence-first-trace" data-evidence-trace="1">Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.</p>
+                </div>
                 <label class="stack-label">Sandbox id
                   <input type="text" id="ms-id" placeholder="primary" autocomplete="off" />
                 </label>
@@ -1744,6 +1813,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk124"></script>
+  <script src="/ui/desktop/desktop.js?v=desk125"></script>
 </body>
 </html>

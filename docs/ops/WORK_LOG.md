@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | now |
-| **Jira story** | **KAN-354** — Evidence-first detail slot (TRACK5 Phase 2) |
-| **Start task** | Evidence-first detail on run-bearing rows; Trace copy says not hooked |
-| **Epic** | **KAN-347** TRACK5-LAYOUT |
-| **Roadmap ID** | TRACK5-LAYOUT-4 |
-| **Spec** | FR-UI-11 enhancement Phase 2 |
+| **Status** | deferred |
+| **Jira story** | — (TRACK5 Done; next track needs Active story) |
+| **Start task** | Do **not** code while deferred — seed/Bridge **TRACK3-LAB** first |
+| **Epic** | — |
+| **Roadmap ID** | TRACK3-LAB (queued) |
+| **Spec** | FR-UI-10 Lab density |
 | **Git** | `main` |
-| **Test ticket** | **KAN-355** |
-| **Shipped** | **KAN-357** Advanced foot reachable (**desk124**); **KAN-352** (**desk123**); **KAN-350**/**356** **desk122**; TRACK4 through **KAN-345** |
-| **Queued** | After TRACK5 Phase 2 → **TRACK3-LAB** |
-| **Deferred** | **TRACK3-LAB** Lab density (after TRACK5); **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | Pick up **KAN-354**. Do **not** start TRACK3-LAB / voice / FR-MAN-2 until TRACK5 Done. |
+| **Test ticket** | — |
+| **Shipped** | **KAN-354** evidence-first (**desk125** / **KAN-355**); **KAN-357** (**desk124**); TRACK5 Phase 1 **KAN-348…352**; TRACK4 through **KAN-345** |
+| **Queued** | **TRACK3-LAB** Lab density → then real Playwright trace deepen |
+| **Deferred** | **TRACK3-LAB** until story seeded; **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
+| **Next / Shipped** | TRACK5 Done. Do **not** start TRACK3-LAB / voice / FR-MAN-2 until an Active story is set (Bridge/seed). |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-23 — KAN-354 — Evidence-first detail slot (desk125)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-354
+- **Done:** TRACK5 Phase 2 evidence-first detail. Run-bearing areas (Plans cases, Reports, Heal, Manual, Suites, Desktop) lead detail with a dashed evidence slot (status/time/failure class + screenshot link/warn when stored) before edit fields. Trace copy states runner capture is **not hooked** (notice file is not a Playwright trace). Documents/Settings/Security/Sandboxes keep optional slots (`data-evidence-first-optional`) hidden until evidence exists. Marker `data-evidence-first-detail` / `data-evidence-first`. Cache-bust **desk125**. Theme/orb/home/App nav / Charter Frame untouched. No fake Trace runner. CU not required (marker/pytest AC). TRACK5-LAYOUT complete.
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_track5_evidence_first.py`, desk125 bump on related UI tests
+- **Verify:** `pytest tests/test_track5_evidence_first.py` + related layout suite — 15 passed. Spot-check: `desktop_app.py` → App → Plans/Reports/Heal detail shows evidence slot + Trace “not hooked”.
+- **Jira:** close-out **KAN-354** + **KAN-355**
+- **Next:** Active **deferred** — TRACK5 Done; do not start TRACK3-LAB / voice / FR-MAN-2 until seeded
 
 ### 2026-11-23 — KAN-357 — Advanced foot clipped under scan craft (desk124)
 - **Agent/chat:** Cursor IDE Agent (Composer) — human report after KAN-352

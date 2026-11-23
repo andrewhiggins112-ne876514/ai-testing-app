@@ -2145,6 +2145,70 @@
     }
   }
 
+  const EVIDENCE_TRACE_COPY =
+    "Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.";
+  const EVIDENCE_SHOT_WARN =
+    "Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.";
+
+  function evidenceFirstRoot(id) {
+    return document.getElementById(id);
+  }
+
+  function hideEvidenceFirst(root) {
+    if (!root) return;
+    root.hidden = true;
+    const summary = root.querySelector("[data-evidence-summary]");
+    if (summary) summary.textContent = "—";
+    const links = root.querySelector("[data-evidence-links]");
+    if (links) {
+      links.hidden = true;
+      links.textContent = "";
+    }
+    const warn = root.querySelector("[data-evidence-shot-warn]");
+    if (warn) warn.hidden = true;
+  }
+
+  function fillEvidenceFirst(root, opts) {
+    const options = opts || {};
+    if (!root) return;
+    const optional = root.getAttribute("data-evidence-first-optional") === "1";
+    const summaryText = String(options.summary || "").trim();
+    const linkText = String(options.link || "").trim();
+    const hasShot = !!options.hasScreenshot;
+    const show =
+      !!options.force ||
+      !!summaryText ||
+      !!linkText ||
+      hasShot ||
+      !optional;
+    if (!show || (optional && !summaryText && !linkText && !hasShot)) {
+      hideEvidenceFirst(root);
+      return;
+    }
+    root.hidden = false;
+    const summary = root.querySelector("[data-evidence-summary]");
+    if (summary) {
+      summary.textContent = summaryText || "—";
+    }
+    const links = root.querySelector("[data-evidence-links]");
+    if (links) {
+      if (linkText) {
+        links.hidden = false;
+        links.textContent = linkText;
+      } else {
+        links.hidden = true;
+        links.textContent = "";
+      }
+    }
+    const warn = root.querySelector("[data-evidence-shot-warn]");
+    if (warn) {
+      warn.hidden = !hasShot;
+      if (hasShot) warn.textContent = EVIDENCE_SHOT_WARN;
+    }
+    const trace = root.querySelector("[data-evidence-trace]");
+    if (trace) trace.textContent = EVIDENCE_TRACE_COPY;
+  }
+
   function clearReportViewer(message) {
     if (rptMarkdown) rptMarkdown.textContent = message || "Select a report to read its markdown.";
     if (rptJson) rptJson.textContent = "No JSON found";
@@ -2152,6 +2216,7 @@
       rptScreenshot.hidden = true;
       rptScreenshot.removeAttribute("src");
     }
+    hideEvidenceFirst(evidenceFirstRoot("rpt-evidence-first"));
   }
 
   function formatReportWhen(stamp) {
@@ -2263,6 +2328,16 @@
           rptScreenshot.removeAttribute("src");
         }
       }
+      fillEvidenceFirst(evidenceFirstRoot("rpt-evidence-first"), {
+        force: true,
+        summary:
+          (data.label || data.title || reportId) +
+          (data.timestamp || data.when
+            ? " · " + formatReportWhen(data.timestamp || data.when)
+            : ""),
+        link: data.has_screenshot ? "Screenshot linked in detail" : "",
+        hasScreenshot: !!data.has_screenshot,
+      });
       if (rptStatus) rptStatus.textContent = "Opened " + (data.label || reportId);
     } catch (err) {
       clearReportViewer("Could not load that report.");
@@ -3096,6 +3171,9 @@
         planCaseDetailHint.textContent =
           "Select a row. Row click does not toggle Enabled or Archived.";
       }
+    }
+    if (!focused) {
+      hideEvidenceFirst(evidenceFirstRoot("plan-case-evidence-first"));
     }
   }
 
@@ -4422,6 +4500,40 @@
       ].filter(Boolean);
       planCaseDetail.hidden = false;
       planCaseDetail.textContent = lines.join("\n");
+      (function fillPlanEvidence() {
+        const last = payload.last_run || null;
+        const shotPath = (function findShot() {
+          const ev = (last && last.evidence) || [];
+          for (let i = 0; i < ev.length; i++) {
+            const text = String(ev[i] || "");
+            if (text.toLowerCase().indexOf(".png") >= 0) return text;
+          }
+          return "";
+        })();
+        const parts = [];
+        if (last) {
+          parts.push(String(last.result || "pending"));
+          if (last.finished_at || last.started_at || last.created_at) {
+            parts.push(
+              String(last.finished_at || last.started_at || last.created_at).slice(
+                0,
+                19
+              )
+            );
+          } else if (last.duration_ms != null) {
+            parts.push(last.duration_ms + "ms");
+          }
+          if (last.failure_class) parts.push(String(last.failure_class));
+        } else if (payload.last_run_summary) {
+          parts.push(String(payload.last_run_summary));
+        }
+        fillEvidenceFirst(evidenceFirstRoot("plan-case-evidence-first"), {
+          force: true,
+          summary: parts.length ? parts.join(" · ") : "No run yet",
+          link: shotPath ? "Screenshot: " + shotPath : "",
+          hasScreenshot: !!shotPath,
+        });
+      })();
       syncPlanCaseRowFocus();
       if (planCaseName && payload.name) planCaseName.value = payload.name;
       if (planCaseNote && payload.note != null) planCaseNote.value = payload.note || "";
@@ -4899,6 +5011,11 @@
       setDeskScanStatus("Disabled", "warn");
     }
     if (deskLastSmoke) deskLastSmoke.textContent = deskLastSmokeText;
+    fillEvidenceFirst(evidenceFirstRoot("desk-evidence-first"), {
+      force: true,
+      summary: deskLastSmokeText || "—",
+      hasScreenshot: false,
+    });
   }
 
   async function loadDesktopPlugin() {
@@ -4952,6 +5069,7 @@
     if (suiteDetailFile) suiteDetailFile.value = "";
     if (suiteDetailGrep) suiteDetailGrep.value = "";
     if (suiteDetailLast) suiteDetailLast.textContent = "Last result: —";
+    hideEvidenceFirst(evidenceFirstRoot("suite-evidence-first"));
     if (suiteRunFocused) suiteRunFocused.disabled = true;
     if (suiteCopyPath) suiteCopyPath.disabled = true;
   }
@@ -5021,6 +5139,11 @@
         ? "Last result: " + last
         : "Last result: —";
     }
+    fillEvidenceFirst(evidenceFirstRoot("suite-evidence-first"), {
+      force: true,
+      summary: last ? "Last result: " + last : "Last result: —",
+      hasScreenshot: false,
+    });
     if (suiteRunFocused) suiteRunFocused.disabled = !(file || grep);
     if (suiteCopyPath) suiteCopyPath.disabled = !file;
     if (opts && opts.focusField && suiteDetailName) {
@@ -6072,6 +6195,21 @@
           "Session is not reviewable. Start session opens Charter Frame; this row does not.";
       }
     }
+    const stills = session.stills || [];
+    const notes = session.notes || [];
+    const stage = manualSessionStageLabel(session);
+    const when = formatManualSessionWhen(session.created_at || session.ended_at);
+    const shotCount = Array.isArray(stills) ? stills.length : 0;
+    fillEvidenceFirst(evidenceFirstRoot("manual-evidence-first"), {
+      force: true,
+      summary: [stage, when, notes.length ? notes.length + " note(s)" : ""]
+        .filter(Boolean)
+        .join(" · "),
+      link: shotCount
+        ? shotCount + " still(s) — open from review; not a gallery"
+        : "",
+      hasScreenshot: shotCount > 0,
+    });
   }
 
   function showManualReview(session, review) {
@@ -6203,6 +6341,7 @@
       manualDetailHint.textContent =
         "Row click opens review for that session. Propose stays deliberate. Confirm dock is below the work.";
     }
+    hideEvidenceFirst(evidenceFirstRoot("manual-evidence-first"));
     if (manualReview) manualReview.hidden = true;
     if (manualProposeOut) {
       manualProposeOut.hidden = true;
@@ -6792,6 +6931,7 @@
     }
     if (healDetailId) healDetailId.value = "";
     if (healDetailDiff) healDetailDiff.textContent = "";
+    hideEvidenceFirst(evidenceFirstRoot("heal-evidence-first"));
     if (healApproveBtn) healApproveBtn.disabled = true;
     if (healRejectBtn) healRejectBtn.disabled = true;
   }
@@ -6818,6 +6958,20 @@
       healDetailDiff.textContent =
         item.proposal || item.message || "(no diff)";
     }
+    fillEvidenceFirst(evidenceFirstRoot("heal-evidence-first"), {
+      force: true,
+      summary: [
+        formatHealClassLabel(item.classification),
+        healWhenLabel(item.created_at || item.when || item.timestamp),
+        healLocatorLabel(item),
+      ]
+        .filter(function (part) {
+          return part && part !== "—";
+        })
+        .join(" · "),
+      link: "",
+      hasScreenshot: false,
+    });
     if (healApproveBtn) healApproveBtn.disabled = !id;
     if (healRejectBtn) healRejectBtn.disabled = !id;
     if (options.focusField && healDetailId) {
@@ -10892,6 +11046,11 @@
           }
           if (tr.classList.contains("is-focus") && suiteDetailLast) {
             suiteDetailLast.textContent = "Last result: " + suiteLastByKey[key];
+            fillEvidenceFirst(evidenceFirstRoot("suite-evidence-first"), {
+              force: true,
+              summary: "Last result: " + suiteLastByKey[key],
+              hasScreenshot: false,
+            });
           }
         }
       });
@@ -11356,6 +11515,11 @@
       setDeskScanStatus("Fail", "warn");
     }
     if (deskLastSmoke) deskLastSmoke.textContent = deskLastSmokeText;
+    fillEvidenceFirst(evidenceFirstRoot("desk-evidence-first"), {
+      force: true,
+      summary: deskLastSmokeText || "—",
+      hasScreenshot: false,
+    });
     return summary;
   }
 

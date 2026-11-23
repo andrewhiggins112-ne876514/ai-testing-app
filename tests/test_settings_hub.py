@@ -35,8 +35,8 @@ class SettingsHubTests(unittest.TestCase):
         self.assertIn("setSettingsCategory", js)
         self.assertIn("setSettingsSection", js)
         self.assertIn("settingsCategoryPending", js)
-        self.assertIn("desk124", desk)
-        self.assertIn("desk124", html)
+        self.assertIn("desk125", desk)
+        self.assertIn("desk125", html)
 
     def test_desktop_security_stays_separate(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
