@@ -15,9 +15,9 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 
 ## Open mandate
 
-**TRACK5-LAYOUT — FR-UI-11 structure pack** — polish craft inside the shipped grammar across **every** secondary App area. Theme/orb/home/App nav stay locked. **Not** Lab density / voice / FR-MAN-2.
+**TRACK3-LAB — FR-UI-10 Lab density** — Heal / Desktop / Suites / Sandboxes chrome budget + geometry. Theme/orb/home/App nav stay locked. TRACK4/5 grammar+craft locked. **Not** voice / FR-MAN-2 / real Playwright trace (after this track).
 
-Active Build: **deferred** (TRACK5 Done — **KAN-354** evidence-first **desk125**). Next queued: TRACK3-LAB.
+Active Build: **KAN-360** (Lab wires Accept + chrome budget). Epic **KAN-359**. Wires: `docs/design/TRACK3_AREA_WIRES.md` §8 — Designer phrase `Accept Lab wires` before Stories **362/364/366** geometry.
 
 ### Selection grammar (standing)
 
@@ -51,6 +51,7 @@ Active Build: **deferred** (TRACK5 Done — **KAN-354** evidence-first **desk125
 | 2026-11-22 | **TRACK4-LAYOUT complete** through Sandboxes Lab **KAN-345** | `docs/mockups/secondary_areas_rest/` |
 | 2026-11-22 | **Studio + Council + Creative Architect review** — nothing valuable removed; docs catch-up applied | Review chat 2026-11-22 |
 | 2026-11-22 | **Layout enhancement pack Accepted** (Designer). All secondary areas. Phase 1 = empty/keyboard/scroll + Plans/Docs/Heal/Lab craft. Phase 2 = evidence-first detail (KAN-354). Epic **KAN-347**. Stories **KAN-348/350/352/354** + tests **349/351/353/355**. Spec FR-UI-11 enhancement clause landed. After TRACK5 → TRACK3-LAB → real Playwright trace deepen. Park: voice, FR-MAN-2, CI, H3 share, bulk Heal Reject, KPI heroes. | `docs/mockups/layout_enhancement_pack/` |
+| 2026-11-23 | **TRACK3-LAB Bridge seeded** (Council+Designer). Epic **KAN-359**. Active **KAN-360**. Lab wires §8 in `TRACK3_AREA_WIRES.md` awaiting `Accept Lab wires`. Stories **362/364/366** after Accept. | `docs/design/TRACK3_AREA_WIRES.md` §8 |
 
 ## Rejected / park
 
@@ -73,7 +74,7 @@ Active Build: **deferred** (TRACK5 Done — **KAN-354** evidence-first **desk125
 | TRACK5 Plans compact + sections | Done **KAN-350** | desk120 |
 | TRACK5 Docs / Heal / Lab disclosure | Done **KAN-352** | desk123 |
 | TRACK5 Phase 2 evidence-first | **Done KAN-354** (**desk125**) | TRACK5 complete |
-| TRACK3-LAB Lab density | **Later** (after TRACK5) | FR-UI-10 Lab follow-on |
+| TRACK3-LAB Lab density | **Active** epic **KAN-359** / story **KAN-360** | FR-UI-10 Lab follow-on; Accept Lab wires first |
 | Real Playwright trace deepen | **Later** (after TRACK3-LAB) | Replace `trace.notice.txt` |
 | KAN-81/82 voice; FR-MAN-2 | **Parked** | Mic / DPIA |
 

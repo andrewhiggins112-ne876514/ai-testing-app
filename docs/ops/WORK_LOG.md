@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | deferred |
-| **Jira story** | — (TRACK5 Done; next track needs Active story) |
-| **Start task** | Do **not** code while deferred — seed/Bridge **TRACK3-LAB** first |
-| **Epic** | — |
-| **Roadmap ID** | TRACK3-LAB (queued) |
+| **Status** | open |
+| **Jira story** | **KAN-360** — Lab wires Accept + chrome budget |
+| **Start task** | Expand/confirm Lab wires in `TRACK3_AREA_WIRES.md` §8; wait for Designer `Accept Lab wires`; then chrome-budget markers only (no Stories 2–4 geometry until Accept) |
+| **Epic** | **KAN-359** (TRACK3-LAB) |
+| **Roadmap ID** | TRACK3-LAB |
 | **Spec** | FR-UI-10 Lab density |
 | **Git** | `main` |
-| **Test ticket** | — |
-| **Shipped** | **KAN-354** evidence-first (**desk125** / **KAN-355**); **KAN-357** (**desk124**); TRACK5 Phase 1 **KAN-348…352**; TRACK4 through **KAN-345** |
-| **Queued** | **TRACK3-LAB** Lab density → then real Playwright trace deepen |
-| **Deferred** | **TRACK3-LAB** until story seeded; **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | TRACK5 Done. Do **not** start TRACK3-LAB / voice / FR-MAN-2 until an Active story is set (Bridge/seed). |
+| **Test ticket** | **KAN-361** |
+| **Shipped** | TRACK5 Done (**KAN-354** / **desk125**); Bridge seeded **KAN-359…367** |
+| **Queued** | **KAN-362** Suites+Sandboxes → **KAN-364** Heal+Desktop → **KAN-366** Lab A–E → then real Playwright trace deepen |
+| **Deferred** | **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
+| **Next / Shipped** | Active **KAN-360**. Geometry Stories 2–4 blocked until Designer `Accept Lab wires`. Park voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-23 — Bridge — TRACK3-LAB epic + Active KAN-360
+- **Agent/chat:** Council review → Designer **yes** Apply Bridge
+- **Done:** Seeded Lab density follow-on. Expanded `docs/design/TRACK3_AREA_WIRES.md` §8 (Suites/Sandboxes/Heal/Desktop ASCII + Accept checklist). Epic **KAN-359**; stories **KAN-360/362/364/366** + tests **361/363/365/367**. Relates **KAN-307**. Active set to **KAN-360** (wires Accept + chrome budget). ROADMAP TRACK3-LAB now. Spec matrix / DESIGN_INTENT / PROJECT_MEMORY updated. Park: voice / FR-MAN-2 / CI; after track → Playwright trace deepen.
+- **Files:** `scripts/jira_kan_track3_lab_bridge.py`; `docs/ops/TRACK3_LAB_KEYS.json`; `docs/design/TRACK3_AREA_WIRES.md`; WORK_LOG; ROADMAP; FUNCTIONAL_SPEC; DESIGN_INTENT; PROJECT_MEMORY
+- **Verify:** Keys in TRACK3_LAB_KEYS.json; Active table = KAN-360; Jira epic/stories exist
+- **Jira:** Bridge comments on epic + stories + KAN-307
+- **Next:** Designer `Accept Lab wires` → Build pick-up **KAN-360** chrome-budget markers (no Stories 2–4 geometry until Accept)
 
 ### 2026-11-23 — KAN-354 — Evidence-first detail slot (desk125)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-354

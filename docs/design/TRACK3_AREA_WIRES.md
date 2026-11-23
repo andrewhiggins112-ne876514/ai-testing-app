@@ -224,16 +224,112 @@ Same outside-scrollport pattern. **Level select + Switch/Confirm** stay in the n
 
 ---
 
-## 8. Lab tools — outline only (follow-on)
+## 8. Lab tools — density wires (TRACK3-LAB follow-on)
 
-| Area | Slice-0 note |
-|------|----------------|
-| Heal review | Keep progressive disclosure; density epic later — do not block Primary Accept |
-| Desktop plugin | Same |
-| Suites | Same — path toolbar + suite list already IA-shaped |
-| Sandboxes | Same |
+**Epic:** TRACK3-LAB (FR-UI-10 Lab follow-on) · **Bridge:** Council+Designer 2026-11-23  
+**Status:** **Awaiting Designer Accept** — reply `Accept Lab wires` before Lab geometry HTML/CSS (Stories 2–4). Story 1 may land chrome-budget **markers** only after Accept.  
+**Reuse:** Primary shared chrome budget (§ Shared chrome budget above). **Do not** redo KAN-310 scaffold / sticky renames — Lab toolbars already use `.area-chrome-toolbar`.  
+**Locked:** Theme / orb / home / App nav; FR-UI-11 scan+detail grammar; TRACK5 craft (quiet empty, Select a row, keyboard scan, one scroll per pane, Lab Advanced closed by default, Heal no bulk Reject, evidence-first Trace “not hooked”).  
+**Out:** Security (Primary **KAN-318**); voice; FR-MAN-2; real Playwright trace deepen; KPI heroes; auto-apply heal; silent sandbox remove.
 
-Track 3 Primary Build **must not** start Lab geometry stories.
+### Lab shared stack (all four)
+
+```
+┌─ area-surface ─────────────────────────────────────────┐
+│ [←]  HEAL | DESKTOP | SUITES | SANDBOXES                │  ← ~40px surface
+├─────────────────────────────────────────────────────────┤
+│  one toolbar: actions + ONE status line                 │  ← ≤56px
+├─────────────────────────────────────────────────────────┤
+│  ┌─ .area-work (scroll) ─────────────────────────────┐  │
+│  │  scan + detail (one scroll per pane)              │  │
+│  │  Advanced / Policy under work (closed by default) │  │
+│  └────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+Stack above work ≤ ~120px. No intro <h3> / About above the toolbar.
+No second filter strip. No sticky-named classes/markers.
+```
+
+### 8a. Suites (highest pain — Done gate for Suites+Sandboxes story)
+
+```
+┌─ area-surface ─────────────────────────────────────────┐
+│ [←]  SUITES                                             │
+├─────────────────────────────────────────────────────────┤
+│ Path […………]  [Discover] [List] [Run sel] [Run all]  Ready│  ← one band; path+actions+ONE status
+├─────────────────────────────────────────────────────────┤
+│  .area-work: suite scan | detail (FR-UI-11 + TRACK5)   │
+│  Advanced (closed): Import / save path                 │
+└─────────────────────────────────────────────────────────┘
+```
+
+- Path + Discover / List / Run selected / Run all + **one** status line in the **single** toolbar (merge “Saved path” into that status — not a second chrome row).
+- Import / save path stays **Advanced** (TRACK5).
+- First suite row visible without scrolling chrome away.
+
+### 8b. Sandboxes
+
+```
+┌─ area-surface ─────────────────────────────────────────┐
+│ [←]  SANDBOXES                                          │
+├─────────────────────────────────────────────────────────┤
+│ ☑ Enable   [Save plugin]  Action ▾ [Orchestrate]  Ready │  ← compact; ≤56px
+├─────────────────────────────────────────────────────────┤
+│  .area-work: scan Id·Label·URL·Ready | detail           │
+│  Remove… → Confirm remove in detail (never silent)      │
+│  Advanced (closed): Help only                           │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 8c. Heal review
+
+```
+┌─ area-surface ─────────────────────────────────────────┐
+│ [←]  HEAL                                               │
+├─────────────────────────────────────────────────────────┤
+│ Filter ▾  [Refresh]  [Approve selected (N)]*   Ready    │  ← *bulk only when shown
+├─────────────────────────────────────────────────────────┤
+│  .area-work: scan | detail (diff + Approve/Reject)      │
+│  Approve/Reject on focused detail — fully visible       │
+│  Bulk Approve still confirm + “files not written”       │
+│  No bulk Reject. Policy & help under work (Advanced)    │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 8d. Desktop Lab
+
+```
+┌─ area-surface ─────────────────────────────────────────┐
+│ [←]  DESKTOP                                            │
+├─────────────────────────────────────────────────────────┤
+│ [Run smoke] [Run demo steps]                    Ready   │  ← thin band
+├─────────────────────────────────────────────────────────┤
+│  .area-work: single-target scan | Plugin detail (Save)  │
+│  Advanced (closed): secondary fields                    │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Lab Accept checklist
+
+- [ ] Suites wire signed (path+actions+one status; Import in Advanced)
+- [ ] Sandboxes wire signed (compact Enable/Save/Action; Remove confirm in detail)
+- [ ] Heal wire signed (one toolbar; Approve/Reject visible on focus; no bulk Reject / no auto-apply)
+- [ ] Desktop wire signed (smoke/demo + status; Save in detail)
+- [ ] Shared ≤~120px stack + no intro above toolbar acknowledged
+- [ ] A–E Lab occlusion story remains last (markers + CU/human; never soft-pass “opened Lab”)
+- [ ] TRACK4/5 craft locked; theme/orb/home/App nav locked
+
+**Designer Accept phrase:** `Accept Lab wires`
+
+### Lab geometry story map (after Accept)
+
+| After Accept | Focus |
+|--------------|--------|
+| Story 1 | Chrome-budget markers on four Lab areas (no KAN-310 redo) |
+| Story 2 | Suites + Sandboxes Lab density (Suites = Done gate) |
+| Story 3 | Heal + Desktop Lab density |
+| Story 4 | Lab occlusion verify A–E (Lab areas only) |
+
+Primary Track 3 Build **must not** reopen these Lab geometry stories under Done epic **KAN-307**.
 
 ---
 
