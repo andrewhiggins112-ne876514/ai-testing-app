@@ -8,17 +8,17 @@
 | Field | Value |
 |-------|--------|
 | **Status** | now |
-| **Jira story** | **KAN-352** — Documents toolbar, Heal confirm copy, Lab Advanced disclosure |
-| **Start task** | Docs tab-scoped Parse/Refresh; Heal bulk confirm count + files not written; Desktop/Sandboxes Advanced closed |
+| **Jira story** | **KAN-354** — Evidence-first detail slot (TRACK5 Phase 2) |
+| **Start task** | Evidence-first detail on run-bearing rows; Trace copy says not hooked |
 | **Epic** | **KAN-347** TRACK5-LAYOUT |
-| **Roadmap ID** | TRACK5-LAYOUT-3 |
-| **Spec** | FR-UI-11 enhancement (TRACK5) |
+| **Roadmap ID** | TRACK5-LAYOUT-4 |
+| **Spec** | FR-UI-11 enhancement Phase 2 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-353** |
-| **Shipped** | **KAN-350** + **KAN-356** detail scroll (**desk122** selector fix); **KAN-348** **desk119**; TRACK4 through **KAN-345** |
-| **Queued (same epic)** | **KAN-354**/355 Phase 2 evidence-first (after Phase 1) |
+| **Test ticket** | **KAN-355** |
+| **Shipped** | **KAN-352** Docs/Heal/Lab disclosure (**desk123**); **KAN-350**/**356** **desk122**; **KAN-348** **desk119**; TRACK4 through **KAN-345** |
+| **Queued** | After TRACK5 Phase 2 → **TRACK3-LAB** |
 | **Deferred** | **TRACK3-LAB** Lab density (after TRACK5); **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | Pick up **KAN-352**. Do **not** start TRACK3-LAB / voice / FR-MAN-2 / Phase 2 (**KAN-354**) until Phase 1 stories Done. |
+| **Next / Shipped** | Pick up **KAN-354**. Do **not** start TRACK3-LAB / voice / FR-MAN-2 until TRACK5 Done. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-23 — KAN-352 — Documents toolbar / Heal confirm / Lab Advanced (desk123)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-352
+- **Done:** TRACK5 Phase 1 residual craft. Documents toolbar follows tab (`data-show` Propose=Parse, Uploads=Refresh). Heal bulk confirm status names count + “Files are not written” (no bulk Reject). Desktop / Suites / Sandboxes Advanced closed by default (`data-*-detail-disclosure`); primary Save/Run/Remove stay outside. Marker `data-documents-toolbar-scope` / `data-heal-confirm-copy` / `data-lab-detail-disclosure`. Cache-bust **desk123**. Theme/orb/home/App nav / Charter Frame untouched. CU not required (marker/pytest AC). Phase 1 complete.
+- **Files:** `ui/desktop/index.html`, `desktop.js`, `desktop_app.py`, `tests/test_track5_docs_heal_lab.py`, desk123 bump + Help→Advanced on lab/sandboxes tests
+- **Verify:** `pytest tests/test_track5_docs_heal_lab.py` + related Docs/Heal/Lab suite — 19 passed. Spot-check: `desktop_app.py` → Documents tabs swap Parse/Refresh; Heal Approve selected confirm copy; Lab Advanced closed.
+- **Jira:** close-out **KAN-352** + **KAN-353**
+- **Next:** **KAN-354** Phase 2 evidence-first detail (test **KAN-355**)
 
 ### 2026-11-22 — KAN-356 — Plans Cases detail scroll clip (desk122)
 - **Agent/chat:** Cursor IDE Agent (Composer) — human confirmed desk121 still clipped

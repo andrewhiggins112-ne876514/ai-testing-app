@@ -1947,12 +1947,17 @@
   let docFocusedUpload = "";
 
   function showDocPanel(name) {
+    const panel = name || "propose";
     document.querySelectorAll(".doc-tab").forEach(function (btn) {
-      const on = btn.getAttribute("data-doc-panel") === name;
+      const on = btn.getAttribute("data-doc-panel") === panel;
       btn.setAttribute("aria-selected", on ? "true" : "false");
     });
-    document.querySelectorAll(".doc-panel").forEach(function (panel) {
-      panel.hidden = panel.getAttribute("data-doc-panel") !== name;
+    document.querySelectorAll(".doc-panel").forEach(function (el) {
+      el.hidden = el.getAttribute("data-doc-panel") !== panel;
+    });
+    // KAN-352: Propose = Parse; Uploads = Refresh (toolbar follows the tab).
+    document.querySelectorAll("#doc-chrome-toolbar [data-show]").forEach(function (el) {
+      el.hidden = el.getAttribute("data-show") !== panel;
     });
   }
 
@@ -7017,10 +7022,11 @@
       healBulkAwaitingConfirm = true;
       syncHealBulkToolbar();
       if (healStatus) {
+        // KAN-352: count + "files are not written"; Reject stays on focused detail only.
         healStatus.textContent =
-          "Confirm approve " +
+          "Approve " +
           ids.length +
-          " selected heal(s)? Click Confirm approve to proceed (suite not auto-committed).";
+          " proposals? Files are not written. Reject is not part of this step. Click Confirm approve to proceed.";
       }
       return;
     }

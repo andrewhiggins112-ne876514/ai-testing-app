@@ -17,7 +17,7 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 
 **TRACK5-LAYOUT — FR-UI-11 structure pack** — polish craft inside the shipped grammar across **every** secondary App area. Theme/orb/home/App nav stay locked. **Not** Lab density / voice / FR-MAN-2.
 
-Active Build: **KAN-348** (all-areas empty / keyboard / scroll). Then **KAN-350**, **KAN-352**. Phase 2 evidence **KAN-354** after Phase 1 Done.
+Active Build: **KAN-354** Phase 2 evidence-first. Phase 1 Done through **KAN-352** (**desk123**).
 
 ### Selection grammar (standing)
 
@@ -69,10 +69,10 @@ Active Build: **KAN-348** (all-areas empty / keyboard / scroll). Then **KAN-350*
 | Idea | Status | Notes |
 |------|--------|-------|
 | TRACK4 grammar (Settings → Sandboxes) | **Done** | KAN-324…KAN-345 |
-| TRACK5 Phase 1 shared craft | **Active KAN-348** | Quiet empty, keyboard, one scroll — all areas |
-| TRACK5 Plans compact + sections | Queued **KAN-350** | After KAN-348 |
-| TRACK5 Docs / Heal / Lab disclosure | Queued **KAN-352** | After KAN-348 |
-| TRACK5 Phase 2 evidence-first | Queued **KAN-354** | After Phase 1 Done |
+| TRACK5 Phase 1 shared craft | Done **KAN-348** | Quiet empty, keyboard, one scroll — all areas |
+| TRACK5 Plans compact + sections | Done **KAN-350** | desk120 |
+| TRACK5 Docs / Heal / Lab disclosure | Done **KAN-352** | desk123 |
+| TRACK5 Phase 2 evidence-first | **Active KAN-354** | After Phase 1 Done |
 | TRACK3-LAB Lab density | **Later** (after TRACK5) | FR-UI-10 Lab follow-on |
 | Real Playwright trace deepen | **Later** (after TRACK3-LAB) | Replace `trace.notice.txt` |
 | KAN-81/82 voice; FR-MAN-2 | **Parked** | Mic / DPIA |
