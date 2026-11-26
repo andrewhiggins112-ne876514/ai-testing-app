@@ -8,16 +8,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class PlansCompactSectionsTests(unittest.TestCase):
-    def test_plans_compact_booleans_and_case_sections_desk128(self) -> None:
+    def test_plans_compact_booleans_and_case_sections_desk129(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk128", html)
-        self.assertIn("desk128", desk)
-        self.assertIn("desktop.css?v=desk128", html)
-        self.assertIn("desktop.js?v=desk128", html)
+        self.assertIn("desk129", html)
+        self.assertIn("desk129", desk)
+        self.assertIn("desktop.css?v=desk129", html)
+        self.assertIn("desktop.js?v=desk129", html)
 
         plans = html.split('id="app-section-plans"', 1)[1].split(
             'id="app-section-manual"', 1

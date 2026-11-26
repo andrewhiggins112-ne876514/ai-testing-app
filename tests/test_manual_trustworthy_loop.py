@@ -156,14 +156,14 @@ class TrustworthyLoopUiAndApiTests(unittest.TestCase):
         self.assertFalse(cancel["writes_jira"])
         self.assertEqual(cancel["proposal"]["state"], "cancelled")
 
-    def test_desktop_trustworthy_loop_markers_desk128(self):
+    def test_desktop_trustworthy_loop_markers_desk129(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk128", html)
-        self.assertIn("desk128", desk)
+        self.assertIn("desk129", html)
+        self.assertIn("desk129", desk)
         self.assertIn('data-manual-loop="1"', html)
         self.assertIn('data-loop-stage="idle"', html)
         self.assertIn('data-manual-loop-stage="1"', html)

@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open |
+| **Status** | open — awaiting human A–E confirm |
 | **Jira story** | **KAN-366** — Lab occlusion verify A–E |
-| **Start task** | Verify Lab density (Heal/Desktop/Suites/Sandboxes) in every FR-UI-7 layout mode; CU/human clickability — never soft-pass “opened Lab”. |
+| **Start task** | Human Lab A–E clickability confirm (markers/desk129 shipped). Reply **confirm** → close **KAN-366**/367. Never soft-pass “opened Lab”. |
 | **Epic** | **KAN-359** (TRACK3-LAB) |
 | **Roadmap ID** | TRACK3-LAB |
 | **Spec** | FR-UI-10 Lab density + FR-UI-7 A–E |
 | **Git** | `main` |
 | **Test ticket** | **KAN-367** |
-| **Shipped** | **KAN-364**/365 Heal+Desktop density (**desk128**); **KAN-362**/363 Suites+Sandboxes (**desk127**); **KAN-360**/361 chrome-budget (**desk126**); TRACK5 Done (**KAN-354**) |
-| **Queued** | After **KAN-366** → real Playwright trace deepen |
+| **Shipped** | Lab occlusion markers **desk129** (pytest green; CU skipped — unsafe); **KAN-364**/365 Heal+Desktop (**desk128**); **KAN-362**/363 Suites+Sandboxes (**desk127**); **KAN-360**/361 chrome-budget (**desk126**); TRACK5 Done (**KAN-354**) |
+| **Queued** | After human confirm + **KAN-366** Done → real Playwright trace deepen |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | Active **KAN-366** Lab A–E. Park voice / FR-MAN-2. |
+| **Next / Shipped** | Active **KAN-366** awaiting human Lab A–E. Park voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-26 — KAN-366 — Lab occlusion markers (desk129; awaiting human A–E)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-366
+- **Done:** TRACK3-LAB Story 4 structural contract. Marker `data-lab-occlusion-verify-ae="1"`; pytest `tests/test_lab_occlusion_verify_ae.py` encodes Lab×A–E checklist (Heal/Desktop/Suites/Sandboxes only; Primary KAN-320 not reopened). Cache-bust **desk129**. **CU skipped — unsafe** (video + IDE + WebGL orb contested). Clickability **awaiting human confirm** — never soft-passed “opened Lab.”
+- **Files:** `ui/desktop/index.html`, `desktop_app.py`, `tests/test_lab_occlusion_verify_ae.py`, `docs/design/TRACK3_AREA_WIRES.md` Lab A–E section, desk129 bump on UI tests
+- **Verify:** `pytest tests/test_lab_occlusion_verify_ae.py` + related lab/occlusion — 10 passed. `desktop_app.py` left on desk129.
+- **Jira:** progress comments on **KAN-366**/367 (not Done until human confirm)
+- **Next:** Human Lab A–E confirm → mark **KAN-366**/367 Done → Playwright trace deepen
 
 ### 2026-11-26 — KAN-364 — Heal + Desktop Lab density (desk128)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-364

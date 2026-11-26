@@ -318,18 +318,33 @@ No second filter strip. No sticky-named classes/markers.
 - [x] A–E Lab occlusion story remains last (markers + CU/human; never soft-pass “opened Lab”)
 - [x] TRACK4/5 craft locked; theme/orb/home/App nav locked
 
-**Accepted:** Designer `Accept Lab wires` (2026-11-23). Next Build: **KAN-360** chrome-budget markers (then **KAN-362** Suites+Sandboxes → **KAN-364** Heal+Desktop → **KAN-366** Lab A–E).
+**Accepted:** Designer `Accept Lab wires` (2026-11-23). Stories **KAN-360**/362/364 Done (**desk126–128**). Active **KAN-366** Lab A–E.
 
 ### Lab geometry story map (after Accept)
 
 | After Accept | Focus |
 |--------------|--------|
-| Story 1 | Chrome-budget markers on four Lab areas (no KAN-310 redo) |
-| Story 2 | Suites + Sandboxes Lab density (Suites = Done gate) |
-| Story 3 | Heal + Desktop Lab density |
-| Story 4 | Lab occlusion verify A–E (Lab areas only) |
+| Story 1 | Chrome-budget markers on four Lab areas (no KAN-310 redo) — **KAN-360** Done |
+| Story 2 | Suites + Sandboxes Lab density (Suites = Done gate) — **KAN-362** Done |
+| Story 3 | Heal + Desktop Lab density — **KAN-364** Done |
+| Story 4 | Lab occlusion verify A–E (Lab areas only) — **KAN-366** |
 
 Primary Track 3 Build **must not** reopen these Lab geometry stories under Done epic **KAN-307**.
+
+### Lab A–E verify (KAN-366)
+
+Same §9 checklist, **Lab areas only** (Heal, Desktop, Suites, Sandboxes). Do not reopen Primary **KAN-320**.
+
+**Per Lab area × modes A–E** at ~1280×720 on `desktop_app.py`:
+
+1. Surface title + Back visible; Esc/Back returns to orb home.
+2. One toolbar fully visible and clickable — not under title bar / peer panel.
+3. First work row / primary field visible without scrolling chrome away.
+4. Scroll `.area-work` — chrome bands do not slide over inputs.
+5. Heal: Approve/Reject on focused detail stay clickable; Sandboxes: Remove + Confirm remove in detail stay clickable when relevant.
+6. Compact `▦` only — no tall rail; no top app tab bar.
+
+**KAN-366 status (desk129):** pytest encodes this contract (`tests/test_lab_occlusion_verify_ae.py`, marker `data-lab-occlusion-verify-ae`). Clickability across A–E still requires CU or numbered human confirm — never soft-pass “opened Lab.”
 
 ---
 
