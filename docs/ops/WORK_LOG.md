@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-26 — Council CR — home/vibe + BYOK + seed research additions
+- **Agent/chat:** Council — Designer: not enterprise-only; PERSONAL + Grok/BYOK; seed all research tickets; extra agents?
+- **Done:** Spec CR PERSONAL/OFFICIAL/SECRET + BYOK on PERSONAL only. New seat `council-user-home-developer`. Research brief expanded. Seed script `jira_kan_gap_research_seed.py` → GAP research stories + HOME-MARKET epic/stories. security-levels rule updated. Active remains **KAN-375**.
+- **Files:** FUNCTIONAL_SPEC; ENTERPRISE_GAP_RESEARCH; ADVISORY_COUNCIL; TEAM; skills; security-levels.mdc; council-user-home-developer.md; GAP_RESEARCH_KEYS.json; OPERATE_KEYS merge
+- **Verify:** keys JSON; PERSONAL/BYOK in Spec; seat listed
+- **Jira:** GAP **KAN-394…405**; HOME epic **KAN-406**; HOME stories **KAN-407…413** (+ tests). Keys: `GAP_RESEARCH_KEYS.json`
+- **Next:** Build **KAN-375**; unpark HOME **KAN-406** after OPERATE (or Designer says otherwise)
+
 ### 2026-11-26 — Council process CR — field research gate + enterprise gap brief
 - **Agent/chat:** Council — Designer: reviewers must research latest enterprise techniques/tools, not only repo Done
 - **Done:** Binding research gate in `ADVISORY_COUNCIL.md` / `DESIGN_STUDIO.md` + skills. Wrote `docs/ops/ENTERPRISE_GAP_RESEARCH.md` (dashboards, SBTM/Explorer Manual, traces/heal, sandboxes, ISO/CE/SOC2, agentic QA). Proposed extra GAP stories (not seeded). FR-SEC-6 expanded to Cyber Essentials + SOC2 crosswalk. Active remains **KAN-375**.

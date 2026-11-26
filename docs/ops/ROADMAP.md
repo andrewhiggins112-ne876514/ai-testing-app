@@ -20,7 +20,8 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | TRACK4-LAYOUT | Secondary area layout grammar (FR-UI-11) — Settings template first | done | Settings **KAN-324** … Sandboxes Lab **KAN-345** (**desk118** / test **KAN-346**) — rest-of-App inherit complete — **Baseline** |
 | TRACK5-LAYOUT | FR-UI-11 structure pack — all secondary areas (empty / keyboard / scroll + Plans/Docs/Heal/Lab craft) | done | Phase 1 **KAN-348…352**; Phase 2 **KAN-354** evidence-first (**desk125** / test **KAN-355**) — **Baseline** |
 | OPERATE-POLISH | Loop-hit UI only (Plans Run, Manual idle, evidence affordance) | next | After OPERATE open-trace; not a new full layout track |
-| GAP-CR | Enterprise CRs: Reports charts, Manual float snip, Doc demo pack, stub deepen, plan doc view, ISO27001 matrix | later | Epic **KAN-383**; stories **KAN-384…392** — after OPERATE |
+| GAP-CR | Enterprise CRs: charts, Manual float, stubs, plan doc, compliance + research adds (release panel, flake, heal prov, SBTM, agent gov) | later | Epic **KAN-383**; see `GAP_RESEARCH_KEYS.json` — after OPERATE |
+| HOME-MARKET | PERSONAL level + BYOK agents (Grok etc.) + home onboarding | later | Epic seeded 2026-11-26; after OPERATE unless unparked; SECRET/OFFICIAL refuse cloud LLM keys |
 | FR-MAN-2 | Live assist / circles | later | Parked until DPIA (H1 §10); distinct from Manual float-snip CR |
 | TESTALL-E | Test-all E privacy / audit / recovery | done | E1–E5 Done (**KAN-201** desk66); UI-LAB-MENU Done |
 | TESTALL-F | Test-all F role HUD / UX — F1–F7 | done | F7 Done (**KAN-215** desk73); F6 Done (**KAN-213** desk72) |

@@ -1,17 +1,19 @@
-# Enterprise gap research (Council 2026-11-26)
+# Market gap research — enterprise + home/vibe (Council 2026-11-26)
 
-**Why:** Designer feedback — Review/Studio must compare this product to **current enterprise practice**, not only to our Jira Done rows.  
-**Method:** Web research (2025–2026 sources) + map to repo maturity.  
-**Not:** a certification claim. Local-first / no mandatory cloud still wins; we adapt patterns, we do not become SaaS.
+**Why:** Designer feedback — Review/Studio must compare this product to **current practice for all buyers**, not only Jira Done rows or enterprise-only.  
+**Audiences:** enterprise QA **and** home / indie / vibe developers who purchase or download the app.  
+**Method:** Web research (2025–2026) + map to repo maturity.  
+**Not:** a certification claim. Local-first / no mandatory cloud still wins; **BYOK cloud agents are optional on PERSONAL only**.
 
 ## Research duty (binding)
 
-On every **Review / Full** Council and every **Audit / Research** Studio that claims “gaps / enterprise / what’s missing”:
+On every **Review / Full** Council and every **Audit / Research** Studio that claims “gaps / enterprise / home / vibe / what’s missing”:
 
 1. Run **web research** (or equivalent current docs) for the seated domains — not training memory alone.
-2. Cite sources in the verdict under **Research (adopt / adapt / reject)**.
-3. Produce **capability gaps vs market** separate from **repo Partial FRs**.
-4. Prefer **decision-useful** features over vanity polish.
+2. Cover **both** enterprise TM practice **and** home/vibe trends (BYOK, hybrid local+cloud, fast onboarding).
+3. Seat **council-user-home-developer** when the ask touches market, purchase, PERSONAL, or BYOK.
+4. Cite sources under **Research (adopt / adapt / reject)**.
+5. Prefer **decision-useful** features over vanity polish.
 
 ## Domains researched
 
@@ -52,26 +54,52 @@ These are the “Designer had to notice” items — now standing checklist for 
 3. **GAP-CR** (**KAN-383**) — charts, Manual float, plan doc, stubs, compliance matrix  
 4. New candidates below — **propose Jira only after Designer confirm**
 
-## Proposed additions (not seeded yet)
+## Home / vibe developer research (CR 2026-11-26)
 
-| ID | Title | Why (research) |
-|----|-------|----------------|
-| GAP-CR-REL | Release readiness summary panel (go/no-go + critical path) | QA dashboard practice — not vanity pass% |
-| GAP-CR-FLAKE | Flake/quarantine trend chart in Reports | Industry treats flake as first-class |
-| GAP-CR-HEAL-PROV | Heal proposal shows locator diff + link to trace action | Heal governance 2026 |
-| GAP-CR-SBTM | Manual session report + debrief fields (SBTM) | Exploratory tooling bar |
-| GAP-CR-AGENT-GOV | Agent token/tool budget + exportable session audit | Agentic QA enterprise asks |
-| GAP-CR-CE | Expand FR-SEC-6 matrix with UK Cyber Essentials + SOC2 crosswalk | UK buyer reality |
+| Signal | Sources | Market expectation | Our state | Adopt / adapt / reject |
+|--------|---------|-------------------|-----------|------------------------|
+| **Hybrid local + BYOK** | Local-first coding tools 2026 (Cline/Aider/Continue patterns); BYOK roundups | Ollama/local for routine/privacy; BYOK cloud (Grok/xAI, OpenAI, Anthropic, OpenRouter) for hard 10–20% | Ollama only | **Adopt** BYOK on **PERSONAL** only; **reject** cloud keys on OFFICIAL/SECRET |
+| **BYOK ≠ product telemetry** | Provider API key docs; hybrid router guides | User-paid keys, local secret store, confirm outbound | N/A | **Adopt** level-scoped keys + first-outbound confirm |
+| **Fast solo onboarding** | Indie tool expectations | Demo data, Jira-optional first hour | Checklist exists; empty docs/AUT common | **Adopt** HOME-3 + OPERATE fixtures |
+| **PERSONAL level** | Designer CR | Lower than OFFICIAL for hobby; not a fake UK tier | Only OFFICIAL/SECRET | **Adopt** PERSONAL as lowest isolated store |
+
+### Was this considered before?
+
+**Partially in spirit** (local-first, solo developer persona, Ollama) — **not** as an explicit purchase path with PERSONAL + Grok/BYOK. That gap is now Spec + HOME-MARKET epic.
+
+### Do we need more Council agents?
+
+**Yes — one new seat:** `council-user-home-developer` (home/indie/vibe).  
+**No** new Build implementer / Studio lead required. Seat this persona on market/gap Reviews alongside Security + Platform Pragmatist when BYOK/PERSONAL is in scope.
+
+## Research additions (seeded under GAP-CR + HOME-MARKET)
+
+| ID | Title | Epic |
+|----|-------|------|
+| GAP-CR-REL | Release readiness summary panel | KAN-383 |
+| GAP-CR-FLAKE | Flake/quarantine trend chart | KAN-383 |
+| GAP-CR-HEAL-PROV | Heal provenance + trace link | KAN-383 |
+| GAP-CR-SBTM | Manual SBTM session report | KAN-383 |
+| GAP-CR-AGENT-GOV | Agent token/tool budget + audit export | KAN-383 |
+| GAP-CR-CE | CE + SOC2 matrix expand | KAN-383 |
+| HOME-1 | PERSONAL security level | HOME-MARKET |
+| HOME-2 | BYOK cloud agents PERSONAL-only | HOME-MARKET |
+| HOME-3 | Home/vibe onboarding without Jira | HOME-MARKET |
+| HOME-4 | Council seat + docs for home persona | HOME-MARKET |
+
+Keys: `docs/ops/GAP_RESEARCH_KEYS.json` (also merged under OPERATE_KEYS.json → gap_research).
 
 ## Explicit rejects (local-first)
 
 - Mandatory cloud analytics / telemetry dashboards  
 - Silent heal / assertion weaken  
 - Cloud device farms as default sandbox  
-- Claiming ISO/SOC certification in-product without evidence  
+- Claiming ISO/SOC/CE certification in-product without evidence  
 - Replacing confirm-gated Jira with agent auto-write  
+- Cloud LLM keys on **OFFICIAL** or **SECRET**  
+- Treating Cursor IDE API keys as this product’s runtime  
 
 ## Next
 
-Designer: say **seed research additions** to expand **KAN-383**, or keep as backlog notes only.  
-Build: continue **KAN-375** — research does not steal Active slice.
+Build: **KAN-375** OPERATE-1 remains Active until human unparks HOME.  
+HOME-MARKET after OPERATE (or parallel only if Designer unparks).

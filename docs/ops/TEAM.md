@@ -41,6 +41,7 @@ Guide: `docs/ops/ADVISORY_COUNCIL.md` · Skill: `advisory-council`
 | council-user-test-engineer | `council-user-test-engineer.md` | Grok 4.5 | ★ Primary daily user |
 | council-user-test-manager | `council-user-test-manager.md` | Grok 4.5 | ★ Buyer / QA lead |
 | council-user-developer | `council-user-developer.md` | Grok 4.5 | ★ Dev consuming bugs/evidence |
+| council-user-home-developer | `council-user-home-developer.md` | Grok 4.5 | ★ Home / indie / vibe buyer (PERSONAL + BYOK) |
 | council-user-product-owner | `council-user-product-owner.md` | Grok 4.5 | ★ PO/BA / AC author |
 | council-user-release-manager | `council-user-release-manager.md` | Grok 4.5 | ★ Release / eng manager |
 | council-security-adviser | `council-security-adviser.md` | Grok 4.7 | ★ Security / compliance |

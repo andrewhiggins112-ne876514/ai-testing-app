@@ -1,12 +1,14 @@
 ---
-description: UK OFFICIAL/SECRET isolation, GDPR, and credential scoping
+description: PERSONAL/OFFICIAL/SECRET isolation, GDPR, BYOK gates, credential scoping
 alwaysApply: false
 ---
 
 # Security and GDPR
 
-- OFFICIAL and SECRET must stay isolated (credentials, browser profiles, settings scopes).
-- No telemetry by default. Explicit consent before storing extracted document data.
+- Levels: **PERSONAL** (lowest, home/vibe) · **OFFICIAL** · **SECRET** (highest). Isolated credentials, browser profiles, plans, settings scopes — never mix.
+- **BYOK cloud LLM keys** (Grok/xAI, OpenAI, Anthropic, OpenRouter, OpenAI-compatible): **PERSONAL only**. Refuse on OFFICIAL and SECRET.
+- Ollama remains the default agent runtime on all levels.
+- No telemetry by default. Explicit consent before storing extracted document data. First cloud agent outbound on PERSONAL needs confirm (or sticky level consent).
 - Easy local data deletion is a product requirement.
-- Confirm with the human before changing security-level handling.
-- Manual invoke: `@security-levels` when working on isolation.
+- Confirm with the human before changing security-level handling further.
+- Manual invoke: `@security-levels` when working on isolation or LLM routing.

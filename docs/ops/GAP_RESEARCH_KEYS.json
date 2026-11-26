@@ -1,0 +1,48 @@
+{
+  "gap_epic": "KAN-383",
+  "research_stories": {
+    "GAP-CR: Release readiness summary panel (go/no-g": {
+      "story": "KAN-394",
+      "test": "KAN-395"
+    },
+    "GAP-CR: Flake and quarantine trend chart in Repo": {
+      "story": "KAN-396",
+      "test": "KAN-397"
+    },
+    "GAP-CR: Heal proposal provenance + link to Playw": {
+      "story": "KAN-398",
+      "test": "KAN-399"
+    },
+    "GAP-CR: Manual SBTM session report + debrief fie": {
+      "story": "KAN-400",
+      "test": "KAN-401"
+    },
+    "GAP-CR: Agent governance (token/tool budget + ex": {
+      "story": "KAN-402",
+      "test": "KAN-403"
+    },
+    "GAP-CR: Expand compliance matrix with Cyber Esse": {
+      "story": "KAN-404",
+      "test": "KAN-405"
+    }
+  },
+  "home_epic": "KAN-406",
+  "home_stories": {
+    "HOME-1: PERSONAL security level (lowest) for hom": {
+      "story": "KAN-407",
+      "test": "KAN-408"
+    },
+    "HOME-2: BYOK cloud agent providers on PERSONAL o": {
+      "story": "KAN-409",
+      "test": "KAN-410"
+    },
+    "HOME-3: Home/vibe onboarding \u2014 demo AUT + fixtur": {
+      "story": "KAN-411",
+      "test": "KAN-412"
+    },
+    "HOME-4: Council seat + docs \u2014 home/vibe develope": {
+      "story": "KAN-413",
+      "test": "KAN-414"
+    }
+  }
+}

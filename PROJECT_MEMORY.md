@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-26 (Council Slice-0 — OPERATE unpark; Active OPERATE-1)
+Last updated: 2026-11-26 (HOME-MARKET + BYOK CR; Active still KAN-375)
 
 ## Original Vision
 A downloadable local-first **“test all”** application. The tester connects once (Jira, targets, docs, security level) and does testing work **inside the app**. Conversation (text first; voice later as a plugin) is the way in; the **orb + chat home is one home for everyone**; role needs are **HUD widgets**; App areas are full-window work.
@@ -18,7 +18,7 @@ Long-term goal: the most-used local/on-prem testing hub for testers, developers,
 - Ollama for the local LLM. This PC has `qwen2.5-coder:7b` (the default). `qwen3:8b` is still fine via `OLLAMA_MODEL` once pulled.
 - Playwright as the first execution engine (browser headed by default; headless via App Settings / run override — KAN-83).
 - Modular plugin architecture so features can be toggled and extended later.
-- Security context switcher from day one (OFFICIAL / SECRET).
+- Security context switcher from day one (OFFICIAL / SECRET); **CR 2026-11-26:** add **PERSONAL** (lowest) for home/vibe; **BYOK cloud LLMs (Grok/xAI et al.) on PERSONAL only** — refuse on OFFICIAL/SECRET; Ollama remains default.
 - Agent must clarify ambiguous requests and confirm side-effecting actions.
 - Development machine: Windows home PC (i7-8700K, 32 GB RAM, GTX 1080 Ti, Ollama already installed). User is on Python 3.15 (venv notes also mention 3.13 — watch compatibility).
 - **Primary IDE workflow is Cursor** (rules, skills, custom agents). Browser Grok + AFK Pilot copy-paste is retired to save Premium credits.
@@ -43,7 +43,7 @@ Long-term goal: the most-used local/on-prem testing hub for testers, developers,
 - **Council Track 3 (2026-11-18):** **FR-UI-10** enterprise area density — Primary first; hard wires accept gate; verify all layout modes A–E; Lab follow-on. Epic **KAN-307**; **KAN-308** wires **Accepted**; **KAN-310** shared chrome scaffold Done; **KAN-312** Plans · Cases geometry Done (**desk101**); **KAN-314** Manual density + Confirm dock Done (**desk102**, human Confirm-dock confirm); **KAN-316** Reports + Documents density Done (**desk103**); **KAN-318** Settings + Security density Done (**desk104**); **KAN-320** occlusion verify Done (**desk105** + human A–E confirm); Bug **KAN-323** First-hour checklist Screen-toggle dismiss Done (**desk106**). Track 3 Primary complete. **TRACK3-LAB** epic **KAN-359**; **KAN-360** chrome-budget markers Done (**desk126**); **KAN-362** Suites+Sandboxes density Done (**desk127**); **KAN-364** Heal+Desktop density Done (**desk128**); **KAN-366** Lab A–E Done (**desk131** human confirm; bugs **368**/370). TRACK3-LAB epic **KAN-359** Done.
 
 ## Current State
-**Maturity: prototype baselines** toward test-all — **not** enterprise-complete (Council whole-project review 2026-11-26). Coherence gap: layout Tracks 1–5 + Lab + TRACE-DEEPEN shipped; daily operate loop still thin. **Active Build: OPERATE** (`docs/ops/DAILY_LOOP.md`) — open-trace affordance + home-PC **local demo AUT** (no employer browser app). Then loop-hit polish (Plans Run / Manual idle / evidence). **GAP-CR backlog:** Reports charts, Manual OS-float snip, Documents demo pack, stub deepen + fixtures, plan document view, FR-SEC-6 ISO27001-aligned matrix. Parked: voice **KAN-81**, FR-MAN-2 live circles. Plans storage = local JSON under `%LOCALAPPDATA%\ai_testing_app\plans\{LEVEL}\` (no SQL DB). Sandboxes = **local/internal** env + profile dirs (not cloud farms). Security levels shipped: **OFFICIAL** (lower) + **SECRET** (higher); GDPR baseline — ISO27001 not claimed. Catalogue A–H + Tracks 1–5 + TRACK3-LAB **KAN-359** + TRACE-DEEPEN **KAN-372** = Done **as baselines**. **G12…G1** + **F1–F7** Done as before.
+**Maturity: prototype baselines** toward test-all — **not** enterprise- or home-market complete (Council 2026-11-26). **Active Build: OPERATE KAN-375**. Markets: enterprise QA **and** home/vibe (PERSONAL + BYOK Grok/etc. — HOME-MARKET epic; not implemented yet). Levels Spec: **PERSONAL** (lowest, BYOK allowed) / **OFFICIAL** / **SECRET** (no cloud LLM keys). Gap research + HOME tickets in `GAP_RESEARCH_KEYS.json`. Parked: voice **KAN-81**, FR-MAN-2 circles. Plans = local JSON per level; sandboxes = local profiles. GDPR + FR-SEC-6 matrix open; ISO/CE/SOC not claimed.
 
 Skeleton + substantial features exist:
 - `plans/manual_session.py` + `plans/manual_assist.py` + `plans/charter_snap.py` + `plans/aut_page_context.py` — **FR-MAN-1 (KAN-277 + KAN-283 + KAN-285 + KAN-287 + KAN-289 + KAN-291 + KAN-293):** Charter Frame + trustworthy loop + honest Ollama assist + window/monitor snap + known headed AUT URL/title + annotate-still (E3 on propose) + session library/reopen + level GDPR wipe + propose/confirm harden (failure class gate, explicit Bug, Confirm dock, audited Jira write on Confirm); assist/mist default off; desk99 layout tokens; APIs `/api/manual-sessions*` (+ snap / page-context / annotate / reopen)

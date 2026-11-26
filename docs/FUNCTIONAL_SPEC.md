@@ -9,7 +9,7 @@
 
 ## 1. Purpose and Vision
 
-A **downloadable, local-first “test all” application**. A tester installs it on Windows, enters connection details once (Jira, target URL / exe, documents, security level, Ollama model), and does their testing work **inside the app**.
+A **downloadable, local-first “test all” application** for **enterprise QA teams and home / indie / vibe developers**. A person installs it on Windows, enters connection details once (optional Jira, target URL / exe, documents, security level, LLM — local Ollama by default, optional BYOK cloud agents on **PERSONAL**), and does their testing work **inside the app**.
 
 The **primary surface** is the desktop **orb + chat home** (one home for everyone). Role-specific needs (tester, manager, release, product owner) are **HUD widgets** on that home (Screen drawer), not separate homes. App areas (Plan/Suite, Settings, Heal, Reports, Security, Documents, Desktop, Suites, Sandboxes, …) are dedicated full-window surfaces opened from home.
 
@@ -24,7 +24,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Generate and run tests from specs, Jira (story or project), or imported Playwright suites.
 - Self-heal broken locators without weakening assertions (human review).
 - Bi-directional Jira integration (read, create tests, update status, raise bugs) with confirm on writes; Xray-shaped sync later if needed.
-- UK OFFICIAL / SECRET isolation; local / on-prem (Ollama; no mandatory cloud).
+- **PERSONAL / OFFICIAL / SECRET** isolation; local / on-prem (Ollama default; no mandatory cloud; BYOK cloud LLMs only on PERSONAL).
 - Customisable reporting and role HUD widgets on the shared orb home.
 - Document ingestion that proposes settings **and** feeds plans, with confirmation.
 
@@ -39,6 +39,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 | Senior Test Engineer (primary) | Leave traditional work; build reliable automation quickly; keep everything local | Flaky tests, manual Jira updates, broken locators, cloud lock-in, GDPR/security constraints |
 | QA Lead / Tech Lead | Visibility into coverage, bugs raised, progress against stories | Customisable reports, Jira linking, evidence |
 | Solo / small-team developer | Fast feedback without standing up a full CI farm | Local execution, Playwright + desktop plugins |
+| Home / indie / vibe developer *(CR 2026-11-26)* | Buy or download the app for personal projects; strong agent when needed; minimal setup | Enterprise-only UX; 7B local limits; no BYOK; forced OFFICIAL/SECRET framing; empty desks without fixtures |
 
 ---
 
@@ -71,8 +72,8 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - **FR-TEST-6:** Negative tests and edge cases must be first-class. The agent must not optimise only for the happy path. Generated tests that only check visibility or nearby elements without asserting the actual expected outcome are incomplete.
 
 ### 3.3a Connection, in-app plan / suite (test-all)
-- **FR-CONN-1:** The person can save a connection profile: Jira site and project, target URL, optional desktop path and messaging endpoint, security level, optional documents, and the Ollama model to use. Stored only in the local level-scoped settings. Secrets never shown back in full. A health check reports whether Jira, Ollama, and the target are reachable without printing secrets.
-- **FR-PLAN-1:** The app holds a **test plan** (intent, sources, links to Jira keys and documents) that the person can view and edit before a run. Plans are stored as **local JSON files** under `%LOCALAPPDATA%\ai_testing_app\plans\{OFFICIAL|SECRET}\` — **not** an internal SQL database. **Deepen (CR 2026-11-26):** provide a **user-friendly full plan document view** (readable narrative of intent, cases, tags, last results — not only scan-table + form fields).
+- **FR-CONN-1:** The person can save a connection profile: optional Jira site and project, target URL, optional desktop path and messaging endpoint, security level, optional documents, and the **agent LLM** to use. **Default agent runtime is local Ollama** (model picker). **Deepen (CR 2026-11-26 — home/vibe):** on **PERSONAL** only, the person may **BYOK** (bring your own key) for cloud agent providers — at minimum **xAI/Grok**, OpenAI, Anthropic, OpenRouter, and a generic OpenAI-compatible base URL + model id. Keys are level-scoped, never shown in full, never committed. **OFFICIAL and SECRET refuse cloud LLM keys and refuse routing prompts to cloud LLMs.** First outbound cloud agent call on PERSONAL requires explicit confirm (or sticky level consent). Health check reports Jira / Ollama / cloud-provider reachability without printing secrets. Jira remains optional for home onboarding.
+- **FR-PLAN-1:** The app holds a **test plan** (intent, sources, links to Jira keys and documents) that the person can view and edit before a run. Plans are stored as **local JSON files** under `%LOCALAPPDATA%\ai_testing_app\plans\{PERSONAL|OFFICIAL|SECRET}\` — **not** an internal SQL database. **Deepen (CR 2026-11-26):** provide a **user-friendly full plan document view** (readable narrative of intent, cases, tags, last results — not only scan-table + form fields).
 - **FR-PLAN-2:** The app holds a **suite** of cases and runs them **inside the app**. The person can run one case or a selected set (e.g. by tag). Cases can be reordered, disabled, archived, tagged, and prioritised without deleting history.
 - **FR-PLAN-3:** The agent may draft or update a plan from one Jira issue or, in the project-scale phase, from the connected Jira project (epics, stories, tests, bugs) plus uploaded documents. Drafts are batched with a visible cap. The person reviews the plan before execution. Jira writes stay on FR-JIRA-5.
 - **FR-PLAN-4:** A run stores result, evidence, duration, and failure class on the case. Heal proposals and report sections can attach to that run. Traceability links case ↔ Jira key ↔ bugs ↔ known issues.
@@ -108,10 +109,10 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - **FR-REP-4:** The **Reports** area lists and opens saved reports for the active security level (markdown detail, screenshot, raw JSON as available). Empty state explains how a run produces a report. A deep link opens Settings → Report. The Reports surface does **not** host the section-include editor. *(CR 2026-11-17.)* **Deepen (CR 2026-11-26):** detail view adds chart panels fed by the same local report/run JSON; markdown remains a section, not the only view.
 
 ### 3.7 Security and Isolation
-- **FR-SEC-1:** Support UK security classifications **OFFICIAL** and **SECRET** from the start via isolation of credentials and browser profiles. **OFFICIAL is the lower of the two shipped levels**; SECRET is the higher. There is no third “unclassified” product level yet — do not invent extra UK tiers without a CR. *(Clarified CR 2026-11-26.)*
-- **FR-SEC-2:** No telemetry by default. Easy local data deletion. Explicit consent before storing extracted data (**GDPR** / UK data-protection baseline).
-- **FR-SEC-6 (new — compliance roadmap, CR 2026-11-26):** Beyond GDPR + UK classification isolation, the product must **plan and progressively evidence** controls useful for enterprise buyers — **ISO/IEC 27001**-aligned themes, **UK Cyber Essentials** technical controls, and a **SOC 2** crosswalk where relevant (access control, audit logging, encryption at rest for secrets, change/confirm gates, backup/restore, secure configuration, no-telemetry stance). This is **not** a claim of ISO/SOC/Cyber Essentials certification. First deliverable = compliance matrix design + gap list vs current FR-SEC-* (see also `docs/ops/ENTERPRISE_GAP_RESEARCH.md`). Implementation stories follow OPERATE.
-- **FR-SEC-3:** Security-level switcher is available and changes take effect only after confirmation.
+- **FR-SEC-1:** Support three isolated levels via credentials, browser profiles, plans, and settings scopes: **PERSONAL** (lowest — home / indie / vibe), **OFFICIAL** (UK workplace baseline), **SECRET** (highest). Stores must never mix. **PERSONAL** may use BYOK cloud agent providers (FR-CONN-1). **OFFICIAL** and **SECRET** keep local Ollama as the only agent LLM path (no cloud LLM keys). SECRET keeps the narrowest tool surface (FR-SEC-4). *(CR 2026-11-26 — home market + prior OFFICIAL/SECRET baseline.)*
+- **FR-SEC-2:** No telemetry by default. Easy local data deletion. Explicit consent before storing extracted data (**GDPR** / UK data-protection baseline). Cloud BYOK on PERSONAL is **user-initiated outbound**, not product telemetry.
+- **FR-SEC-6 (compliance roadmap, CR 2026-11-26):** Beyond GDPR + classification isolation, plan and progressively evidence controls for enterprise **and** serious home buyers — **ISO/IEC 27001**-aligned themes, **UK Cyber Essentials**, and a **SOC 2** crosswalk (access control, audit logging, encryption at rest for secrets, change/confirm gates, backup/restore, secure configuration, no-telemetry stance). **Not** a certification claim. Matrix design = first deliverable (`docs/ops/ENTERPRISE_GAP_RESEARCH.md`).
+- **FR-SEC-3:** Security-level switcher is available and changes take effect only after confirmation. Switching into PERSONAL shows that cloud BYOK becomes available; switching into OFFICIAL/SECRET warns that cloud LLM keys will not be used.
 - **FR-SEC-4:** Prompt-injection mitigations:
   - Treat all external content (uploaded specs, Jira descriptions, web pages, tool outputs) as untrusted.
   - Narrow tool surface by default. High-privilege tools (file system outside workspace, network, shell) require confirmation or are disabled in higher security levels.
@@ -164,7 +165,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Self-healing guardrails (FR-HEAL-*).
 - Prompt-injection and tool-calling reliability requirements (FR-AGENT-6, FR-SEC-4).
 - Secrets never in repo, chat, or client code.
-- Isolation for OFFICIAL / SECRET.
+- Isolation for PERSONAL / OFFICIAL / SECRET; cloud LLM BYOK gated to PERSONAL only.
 
 ### 4.3 Reliability and Observability
 - Clear error logging for agent, tool, and test failures. No silent swallows.
@@ -246,7 +247,7 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-REP-2 | Shipped (placement → Report Settings under FR-SET-4) | **Done** KAN-51; UI move **Done** **KAN-247** / **KAN-249** |
 | FR-REP-3 | Baseline export Done; deepen E3 + F6 pack | **Done** KAN-11 baseline; **deepen E3** **KAN-197** (desk63); **F6** read-only pack **KAN-213** (desk72) |
 | FR-REP-4 | Reports library/viewer **Baseline**; charts deepen open | **Done baseline** **KAN-247**; visual analytics = CR backlog |
-| FR-SEC-1, FR-SEC-3 | Shipped isolation + confirm (OFFICIAL lower / SECRET higher) | **Done** KAN-15, **KAN-16** |
+| FR-SEC-1, FR-SEC-3 | OFFICIAL/SECRET isolation **Baseline**; **PERSONAL + BYOK open** | **Done** KAN-15/16; HOME-MARKET epic for PERSONAL/BYOK |
 | FR-SEC-5 | Baseline secrets scoping Done; deepen E3 | **Done** KAN-15/16 baseline; **deepen E3** **KAN-197** (evidence/export redaction — Done desk63) |
 | FR-SEC-2 | Done (GDPR baseline) | **KAN-69** |
 | FR-SEC-4 | Done | **KAN-71** |
