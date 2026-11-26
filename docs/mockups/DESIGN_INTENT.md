@@ -15,9 +15,11 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 
 ## Open mandate
 
-**TRACK3-LAB — FR-UI-10 Lab density** — Heal / Desktop / Suites / Sandboxes chrome budget + geometry. Theme/orb/home/App nav stay locked. TRACK4/5 grammar+craft locked. **Not** voice / FR-MAN-2 / real Playwright trace (after this track).
+**OPERATE (Council 2026-11-26)** — daily loop + open-trace; home-PC demo AUT. Theme/orb/home/App nav stay locked. **Loop-hit polish only** after OPERATE-1 (Plans Run disclosure, Manual idle split, evidence affordance) — not a new full TRACK6 layout epic. Studio may mock those three touchpoints when Build asks.
 
-Active Build: **KAN-364** (Heal+Desktop density). Epic **KAN-359**. **KAN-362** Suites+Sandboxes Done (**desk127**). Lab wires **Accepted** 2026-11-23. Then **366**.
+**GAP-CR (later):** Reports charts; Manual floating snip outside main window; Documents demo pack visuals.
+
+Active Build: **OPERATE-1** (see `docs/ops/OPERATE_KEYS.json`). Lab TRACK3 / TRACE-DEEPEN = baselines Done.
 
 ### Selection grammar (standing)
 

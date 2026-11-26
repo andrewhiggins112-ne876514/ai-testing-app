@@ -1,0 +1,45 @@
+{
+  "roadmap": "OPERATE",
+  "stories": {
+    "OPERATE-1": {
+      "story": "KAN-375",
+      "test": "KAN-376"
+    },
+    "OPERATE-2": {
+      "story": "KAN-377",
+      "test": "KAN-378"
+    },
+    "OPERATE-3": {
+      "story": "KAN-379",
+      "test": "KAN-380"
+    },
+    "OPERATE-4": {
+      "story": "KAN-381",
+      "test": "KAN-382"
+    }
+  },
+  "gap_stories": {
+    "GAP-CR: Reports visual analytics (charts": {
+      "story": "KAN-384",
+      "test": "KAN-385"
+    },
+    "GAP-CR: Manual floating snip tool (OS-le": {
+      "story": "KAN-386",
+      "test": "KAN-387"
+    },
+    "GAP-CR: User-friendly full plan document": {
+      "story": "KAN-388",
+      "test": "KAN-389"
+    },
+    "GAP-CR: Deepen all stubs + varied synthe": {
+      "story": "KAN-390",
+      "test": "KAN-391"
+    },
+    "GAP-CR: Compliance matrix design (ISO270": {
+      "story": "KAN-392",
+      "test": "KAN-393"
+    }
+  },
+  "epic": "KAN-374",
+  "gap_epic": "KAN-383"
+}

@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | deferred — park queue |
-| **Jira story** | — (**KAN-372** TRACE-DEEPEN Done) |
-| **Start task** | Queue parked. Do **not** start voice / FR-MAN-2 / CI unless human unparks. |
-| **Epic** | — |
-| **Roadmap ID** | — (TRACE-DEEPEN done) |
-| **Spec** | — |
+| **Status** | ready — OPERATE |
+| **Jira story** | **KAN-375** OPERATE-1 Open-trace (epic **KAN-374**) |
+| **Start task** | Build pick-up: implement **KAN-375** (open Playwright trace from failed case). Home-PC demo AUT only — not employer app. |
+| **Epic** | **KAN-374** OPERATE |
+| **Roadmap ID** | OPERATE |
+| **Spec** | `docs/ops/DAILY_LOOP.md` + FUNCTIONAL_SPEC CR 2026-11-26 |
 | **Git** | `main` |
-| **Test ticket** | — |
-| **Shipped** | TRACE-DEEPEN **KAN-372**/373 (**desk132**); TRACK3-LAB **KAN-359**…366 |
-| **Queued** | — (park) |
-| **Deferred** | **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | TRACE-DEEPEN Done. Park voice / FR-MAN-2 / CI until human picks next. |
+| **Test ticket** | **KAN-376** |
+| **Shipped** | TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
+| **Queued** | OPERATE-2 demo AUT + golden path; OPERATE-3 loop-hit polish; OPERATE-4 Documents demo pack; then GAP-CR |
+| **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
+| **Next / Shipped** | Unparked OPERATE. Do **not** start voice / FR-MAN-2 / new full layout track. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-26 — Council Slice-0 — OPERATE unpark + Designer CRs
+- **Agent/chat:** Council / Studio / Creative Architect review → Designer decisions
+- **Done:** Whole-project review recorded. Unpark **OPERATE** (loop + open-trace; home-PC demo AUT). Spec CRs: Reports charts, Manual float snip, plan document view, sandbox = local, Documents demo pack, stub deepen, FR-SEC-6 compliance roadmap. Docs: `DAILY_LOOP.md`, ROADMAP Now=OPERATE, WORK_LOG Active, PROJECT_MEMORY. Jira seed OPERATE + GAP-CR + Baseline comments on recent Done. Truth labels: Done = baseline.
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `docs/ops/DAILY_LOOP.md`, `ROADMAP.md`, `WORK_LOG.md`, `PROJECT_MEMORY.md`, `DESIGN_INTENT.md`, `scripts/jira_kan_operate_slice0.py`, `OPERATE_KEYS.json`
+- **Verify:** keys JSON; Active = OPERATE-1; no product feature code in this chat
+- **Jira:** Epic **KAN-374**; stories **KAN-375…381** (+ tests **376…382**); GAP-CR epic **KAN-383** stories **384…392**; Baseline comments on **372/366/359/354/347/345/320/307**
+- **Next:** Build pick-up **KAN-375**
 
 ### 2026-11-26 — KAN-372 — TRACE-DEEPEN real Playwright trace.zip
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up after TRACK3-LAB deferred seed
