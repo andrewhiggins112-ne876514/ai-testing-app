@@ -14,7 +14,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | TRACK2-MAN | FR-MAN-1 completion (trustworthy loop → …) | done | **KAN-283/285/287/289/291/293** Done (desk99 propose/confirm harden) |
 | TRACK2-UX | Enterprise layout note → tokens | done | **KAN-295** note accepted; **KAN-297**/**KAN-298** tokens desk99; Track 2 complete |
 | TRACK3-UX | Enterprise area density (FR-UI-10) — Primary geometry | done | Epic **KAN-307** Primary Done (**KAN-320**/321 + **KAN-323** desk106); Lab follow-on |
-| TRACK3-LAB | Lab area density (Heal/Desktop/Suites/Sandboxes) | now | Epic **KAN-359**; **KAN-360**/361–**KAN-364**/365 Done; **KAN-366**/367 Lab A–E markers **desk129** — awaiting human clickability confirm |
+| TRACK3-LAB | Lab area density (Heal/Desktop/Suites/Sandboxes) | now | Epic **KAN-359**; Stories 1–3 Done; **KAN-366** A–E awaiting human on **desk130** (Bug **KAN-368** scroll Done) |
 | TRACK4-LAYOUT | Secondary area layout grammar (FR-UI-11) — Settings template first | done | Settings **KAN-324** … Sandboxes Lab **KAN-345** (**desk118** / test **KAN-346**) — rest-of-App inherit complete |
 | TRACK5-LAYOUT | FR-UI-11 structure pack — all secondary areas (empty / keyboard / scroll + Plans/Docs/Heal/Lab craft) | done | Phase 1 **KAN-348…352**; Phase 2 **KAN-354** evidence-first (**desk125** / test **KAN-355**) |
 | FR-MAN-2 | Live assist / circles | later | Parked until FR-MAN-1 **completion** + DPIA (H1 §10) |

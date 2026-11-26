@@ -17,7 +17,7 @@ PRIMARY_SECTIONS = (
 
 
 class Track3ChromeScaffoldTests(unittest.TestCase):
-    def test_shared_chrome_scaffold_desk129(self) -> None:
+    def test_shared_chrome_scaffold_desk130(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
@@ -25,8 +25,8 @@ class Track3ChromeScaffoldTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk129", html)
-        self.assertIn("desk129", desk)
+        self.assertIn("desk130", html)
+        self.assertIn("desk130", desk)
         self.assertIn('data-area-chrome-scaffold="1"', html)
         self.assertIn("Accepted", wires)
 

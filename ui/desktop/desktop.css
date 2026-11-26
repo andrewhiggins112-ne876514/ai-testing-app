@@ -915,13 +915,16 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
 #app-section-heal[data-heal-layout-grammar="1"] .heal-grammar-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
   min-height: 0;
 }
 
 #app-section-heal[data-heal-layout-grammar="1"] .heal-scan-pane {
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -1005,6 +1008,8 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 #app-section-heal[data-heal-layout-grammar="1"] .heal-detail-pane .mono {
@@ -2043,8 +2048,9 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 #app-section-plans[data-plans-tabs-layout-grammar="1"] .plan-tabs-grammar-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
   min-height: 0;
 }
 
@@ -2306,13 +2312,16 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 #app-section-suites[data-suite-layout-grammar="1"] .suite-grammar-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
   min-height: 0;
 }
 
 #app-section-suites[data-suite-layout-grammar="1"] .suite-scan-pane {
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -2401,6 +2410,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
 }
 
 #app-section-suites[data-suite-layout-grammar="1"] .suite-detail-pane .mono {
@@ -2508,13 +2519,16 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 #app-section-reports[data-reports-layout-grammar="1"] .rpt-grammar-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
   min-height: 0;
 }
 
 #app-section-reports[data-reports-layout-grammar="1"] .rpt-scan-pane {
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -2567,6 +2581,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
   padding: var(--space-2);
   border-radius: 8px;
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
@@ -2779,13 +2795,16 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 #app-section-manual[data-manual-layout-grammar="1"] .manual-grammar-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
   min-height: 0;
 }
 
 #app-section-manual[data-manual-layout-grammar="1"] .manual-scan-pane {
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -2849,6 +2868,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
 }
 
 #app-section-manual[data-manual-layout-grammar="1"] .manual-compact-check {
@@ -3671,13 +3692,16 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 #app-section-sandboxes[data-sandboxes-layout-grammar="1"] .ms-grammar-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
   min-height: 0;
 }
 
 #app-section-sandboxes[data-sandboxes-layout-grammar="1"] .ms-scan-pane {
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -3750,6 +3774,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
 }
 
 #app-section-sandboxes[data-sandboxes-layout-grammar="1"] .ms-danger-zone {
@@ -3778,13 +3804,16 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 #app-section-desktop[data-desktop-layout-grammar="1"] .desk-grammar-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
   min-height: 0;
 }
 
 #app-section-desktop[data-desktop-layout-grammar="1"] .desk-scan-pane {
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -3868,6 +3897,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 900px) {
@@ -3964,8 +3995,10 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 #app-section-settings[data-settings-layout-grammar="1"] .settings-section-with-detail:not([hidden]) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
 #app-section-settings[data-settings-layout-grammar="1"] .settings-scan-pane {
@@ -3982,6 +4015,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
 }
 
 #app-section-settings[data-settings-layout-grammar="1"] .settings-scan-table {
@@ -4177,8 +4212,10 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 #app-section-security[data-security-layout-grammar="1"] .sec-section-with-detail:not([hidden]) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--space-3);
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
 #app-section-security[data-security-layout-grammar="1"] .sec-scan-pane {
@@ -4195,6 +4232,8 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
+  min-height: 0;
+  overflow: auto;
 }
 
 #app-section-security[data-security-layout-grammar="1"] .sec-scan-table {
@@ -4324,8 +4363,14 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   overflow: auto;
 }
 
+/*
+ * KAN-368 — grammar splits must stretch under scan craft.
+ * align-items:start + area-work overflow:hidden left detail/Advanced
+ * below the fold with no scroll path (same class as KAN-356/357).
+ */
 .app-section[data-scan-craft="1"] [data-scan-no-outer-scroll="1"] {
   align-items: stretch;
+  grid-template-rows: minmax(0, 1fr);
   min-height: 0;
   flex: 1 1 0;
 }

@@ -152,7 +152,7 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-221** G3 Contract/mock — **Done** (KAN-222; `plugins/contract_mock.py`; desk76)
 - **KAN-223** G4 Seed data and fixtures — **Done** (KAN-224; `plugins/seed_fixture.py` + `plans/seed_case.py`; `source.kind=seed`; run stores name; missing → environment; desk77)
 - **KAN-225** G5 Visual baseline screenshots — **Done** (KAN-226; `plugins/visual_baseline.py` + `plans/visual_case.py`; `source.kind=visual`; mismatch links both images; explicit update-baseline; desk78)
-- Next Active: **KAN-366** — TRACK3-LAB Lab occlusion A–E awaiting **human confirm** (markers **desk129**; test **KAN-367**; CU skipped — unsafe). **KAN-364**/365 Heal+Desktop Done (**desk128**). After confirm/Done: real Playwright trace deepen. **KAN-81** Voice — **parked** (mic). **FR-MAN-2** parked (DPIA).
+- Next Active: **KAN-366** — TRACK3-LAB Lab occlusion A–E awaiting **human confirm** on **desk130** (Bug **KAN-368** scroll stretch Done; fixtures seeded; test **KAN-367**). After confirm/Done: real Playwright trace deepen. **KAN-81** Voice — **parked**. **FR-MAN-2** parked.
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 

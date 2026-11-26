@@ -9,13 +9,13 @@
 |-------|--------|
 | **Status** | open — awaiting human A–E confirm |
 | **Jira story** | **KAN-366** — Lab occlusion verify A–E |
-| **Start task** | Human Lab A–E clickability confirm (markers/desk129 shipped). Reply **confirm** → close **KAN-366**/367. Never soft-pass “opened Lab”. |
+| **Start task** | Human Lab A–E clickability on **desk130** with seeded fixtures. Also re-check scroll (KAN-368 fix). Reply **confirm** → close **KAN-366**/367. |
 | **Epic** | **KAN-359** (TRACK3-LAB) |
 | **Roadmap ID** | TRACK3-LAB |
 | **Spec** | FR-UI-10 Lab density + FR-UI-7 A–E |
 | **Git** | `main` |
 | **Test ticket** | **KAN-367** |
-| **Shipped** | Lab occlusion markers **desk129** (pytest green; CU skipped — unsafe); **KAN-364**/365 Heal+Desktop (**desk128**); **KAN-362**/363 Suites+Sandboxes (**desk127**); **KAN-360**/361 chrome-budget (**desk126**); TRACK5 Done (**KAN-354**) |
+| **Shipped** | Bug **KAN-368**/369 scroll stretch **desk130** + Lab A–E seeds; markers **desk129**; **KAN-364**/365; **KAN-362**/363; **KAN-360**/361; TRACK5 Done |
 | **Queued** | After human confirm + **KAN-366** Done → real Playwright trace deepen |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
 | **Next / Shipped** | Active **KAN-366** awaiting human Lab A–E. Park voice / FR-MAN-2. |
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-26 — KAN-368 — Scan-craft scroll clip (desk130)
+- **Agent/chat:** Cursor IDE Agent — Designer report during KAN-366 confirm (no scroll + no seeds)
+- **Done:** Bug **KAN-368** (Relates **KAN-366**/367; test **KAN-369**). Root cause: `align-items:start` on grammar splits under scan-craft + `area-work overflow:hidden` → no scroll path. Fixed stretch + `grid-template-rows:minmax(0,1fr)` + pane min-height/overflow; shared KAN-368 harden. Seeded Heal `206bbdf02ef5`, Sandbox `kan366demo`, Manual `ms1174248c9078`, Plan `p59d1a11a4d43`, Suites fixture folder. Cache-bust **desk130**. `desktop_app.py` left running.
+- **Files:** `ui/desktop/desktop.css`, `index.html`, `desktop_app.py`, `tests/test_scan_craft_scroll_stretch.py`, `scripts/seed_lab_ae_fixtures.py`
+- **Verify:** pytest scroll stretch + related — green. Human A–E still open on **KAN-366**.
+- **Jira:** Fix + Done **KAN-368**/369; refreshed human script on **KAN-367**
+- **Next:** Human confirm Lab A–E on desk130 → Done **KAN-366**/367
 
 ### 2026-11-26 — KAN-366 — Lab occlusion markers (desk129; awaiting human A–E)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-366
