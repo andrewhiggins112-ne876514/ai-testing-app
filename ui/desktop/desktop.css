@@ -3389,6 +3389,70 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin: 0;
 }
 
+/* KAN-360 — TRACK3-LAB chrome-budget markers (Heal/Desktop/Suites/Sandboxes) */
+#app-section-heal[data-lab-chrome-budget="1"] > .lab-chrome-toolbar,
+#app-section-desktop[data-lab-chrome-budget="1"] > .lab-chrome-toolbar,
+#app-section-suites[data-lab-chrome-budget="1"] > .suite-chrome-toolbar,
+#app-section-sandboxes[data-lab-chrome-budget="1"] > .lab-chrome-toolbar {
+  max-height: var(--chrome-toolbar);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+  flex-direction: row;
+  align-items: center;
+}
+
+#app-section-heal[data-lab-chrome-budget="1"] .lab-toolbar-actions,
+#app-section-desktop[data-lab-chrome-budget="1"] .lab-toolbar-actions,
+#app-section-suites[data-lab-chrome-budget="1"] .suite-toolbar-actions,
+#app-section-sandboxes[data-lab-chrome-budget="1"] .lab-toolbar-actions {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 0;
+  margin: 0;
+  width: 100%;
+}
+
+#app-section-heal[data-lab-chrome-budget="1"] .lab-toolbar-status,
+#app-section-desktop[data-lab-chrome-budget="1"] .lab-toolbar-status,
+#app-section-suites[data-lab-chrome-budget="1"] .suite-toolbar-status,
+#app-section-suites[data-lab-chrome-budget="1"] .suite-toolbar-saved,
+#app-section-sandboxes[data-lab-chrome-budget="1"] .lab-toolbar-status {
+  margin: 0;
+  font: var(--type-ui);
+  color: var(--cyan, #50cdff);
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+#app-section-heal[data-lab-chrome-budget="1"] .heal-toolbar-filter,
+#app-section-suites[data-lab-chrome-budget="1"] .suite-toolbar-path,
+#app-section-sandboxes[data-lab-chrome-budget="1"] .ms-toolbar-action,
+#app-section-sandboxes[data-lab-chrome-budget="1"] .ms-compact-check {
+  margin: 0;
+  flex: 0 1 auto;
+}
+
+@media (max-width: 900px) {
+  #app-section-heal[data-lab-chrome-budget="1"] > .lab-chrome-toolbar,
+  #app-section-desktop[data-lab-chrome-budget="1"] > .lab-chrome-toolbar,
+  #app-section-suites[data-lab-chrome-budget="1"] > .suite-chrome-toolbar,
+  #app-section-sandboxes[data-lab-chrome-budget="1"] > .lab-chrome-toolbar {
+    max-height: none;
+    overflow: visible;
+  }
+
+  #app-section-heal[data-lab-chrome-budget="1"] .lab-toolbar-actions,
+  #app-section-desktop[data-lab-chrome-budget="1"] .lab-toolbar-actions,
+  #app-section-suites[data-lab-chrome-budget="1"] .suite-toolbar-actions,
+  #app-section-sandboxes[data-lab-chrome-budget="1"] .lab-toolbar-actions {
+    flex-wrap: wrap;
+  }
+}
+
 .lab-primary {
   display: flex;
   flex-direction: column;

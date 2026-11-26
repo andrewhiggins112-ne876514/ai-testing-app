@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk125" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk126" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -888,21 +888,20 @@
           </details>
           </div>
         </div>
-        <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1" data-heal-layout-grammar="1" data-heal-confirm-copy="1" data-evidence-first-detail="1" data-scan-craft="1">
-          <h3 class="orb-section-label">Heal proposal review</h3>
+        <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1" data-heal-layout-grammar="1" data-heal-confirm-copy="1" data-evidence-first-detail="1" data-scan-craft="1" data-lab-chrome-budget="1">
           <div id="heal-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-heal-chrome="1">
-            <label class="stack-label heal-toolbar-filter" for="heal-run-filter">Filter by run
-              <select id="heal-run-filter">
-                <option value="">All pending</option>
-              </select>
-            </label>
-            <div class="btn-row lab-toolbar-actions">
+            <div class="btn-row lab-toolbar-actions area-chrome-toolbar-row">
+              <label class="stack-label heal-toolbar-filter" for="heal-run-filter">Filter by run
+                <select id="heal-run-filter">
+                  <option value="">All pending</option>
+                </select>
+              </label>
               <button type="button" id="heal-refresh" class="save-btn secondary">Refresh</button>
+              <span class="heal-toolbar-bulk" data-heal-bulk="1" hidden>
+                <button type="button" id="heal-bulk-approve" class="save-btn" disabled>Approve selected (0)</button>
+              </span>
+              <p id="heal-status" class="drawer-hint lab-toolbar-status" role="status" data-heal-confirm="1">Ready</p>
             </div>
-            <span class="heal-toolbar-bulk" data-heal-bulk="1" hidden>
-              <button type="button" id="heal-bulk-approve" class="save-btn" disabled>Approve selected (0)</button>
-            </span>
-            <p id="heal-status" class="drawer-hint lab-toolbar-status" role="status" data-heal-confirm="1">Ready</p>
           </div>
           <div class="area-work" data-area-work="1">
           <div id="heal-primary" class="lab-primary heal-grammar-split" data-scan-no-outer-scroll="1" data-heal-primary="1">
@@ -955,14 +954,13 @@
           </details>
           </div>
         </div>
-        <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1" data-desktop-layout-grammar="1" data-lab-detail-disclosure="1" data-evidence-first-detail="1" data-scan-craft="1">
-          <h3 class="orb-section-label">Desktop .exe plugin</h3>
+        <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1" data-desktop-layout-grammar="1" data-lab-detail-disclosure="1" data-evidence-first-detail="1" data-scan-craft="1" data-lab-chrome-budget="1">
           <div id="desk-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-desk-chrome="1">
-            <div class="btn-row lab-toolbar-actions">
+            <div class="btn-row lab-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="desk-smoke" class="save-btn">Run smoke</button>
               <button type="button" id="desk-steps" class="save-btn secondary">Run demo steps</button>
+              <p id="desk-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
             </div>
-            <p id="desk-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
           <div class="area-work" data-area-work="1">
           <div id="desk-primary" class="lab-primary" data-desk-primary="1">
@@ -1558,20 +1556,19 @@
             <button type="button" id="manual-confirm-no" class="save-btn secondary" data-manual-confirm-no="1">Cancel proposal</button>
           </div>
         </div>
-        <div id="app-section-suites" class="app-section" hidden data-suites-ia="1" data-suite-layout-grammar="1" data-lab-detail-disclosure="1" data-evidence-first-detail="1" data-scan-craft="1">
-          <h3 class="orb-section-label">Playwright suites</h3>
+        <div id="app-section-suites" class="app-section" hidden data-suites-ia="1" data-suite-layout-grammar="1" data-lab-detail-disclosure="1" data-evidence-first-detail="1" data-scan-craft="1" data-lab-chrome-budget="1">
           <div id="suite-chrome-toolbar" class="area-chrome-toolbar suite-chrome-toolbar" data-suite-chrome="1">
-            <label class="stack-label suite-toolbar-path" for="suite-path">Project path
-              <input type="text" id="suite-path" placeholder="D:\path\to\playwright-project" autocomplete="off" />
-            </label>
-            <div class="btn-row suite-toolbar-actions">
+            <div class="btn-row suite-toolbar-actions area-chrome-toolbar-row">
+              <label class="stack-label suite-toolbar-path" for="suite-path">Project path
+                <input type="text" id="suite-path" placeholder="D:\path\to\playwright-project" autocomplete="off" />
+              </label>
               <button type="button" id="suite-discover" class="save-btn">Discover</button>
               <button type="button" id="suite-list-btn" class="save-btn secondary">List tests</button>
               <button type="button" id="suite-run" class="save-btn">Run selected</button>
               <button type="button" id="suite-run-all" class="save-btn secondary">Run all</button>
+              <p id="suite-saved" class="drawer-hint suite-toolbar-saved">Saved path: —</p>
+              <p id="suite-status" class="drawer-hint suite-toolbar-status" role="status">Ready</p>
             </div>
-            <p id="suite-saved" class="drawer-hint suite-toolbar-saved">Saved path: —</p>
-            <p id="suite-status" class="drawer-hint suite-toolbar-status" role="status">Ready</p>
           </div>
           <div class="area-work" data-area-work="1">
           <div id="suite-primary" class="suite-primary suite-grammar-split" data-scan-no-outer-scroll="1" data-suite-primary="1">
@@ -1626,23 +1623,22 @@
           </details>
           </div>
         </div>
-        <div id="app-section-sandboxes" class="app-section" hidden data-lab-areas-ia="1" data-sandboxes-ia="1" data-sandboxes-layout-grammar="1" data-lab-detail-disclosure="1" data-scan-craft="1">
-          <h3 class="orb-section-label">Sandboxes</h3>
+        <div id="app-section-sandboxes" class="app-section" hidden data-lab-areas-ia="1" data-sandboxes-ia="1" data-sandboxes-layout-grammar="1" data-lab-detail-disclosure="1" data-scan-craft="1" data-lab-chrome-budget="1">
           <div id="ms-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-ms-chrome="1">
-            <label class="ms-compact-check" data-ms-compact-check="1"><input type="checkbox" id="ms-enabled" /> Enable multi-sandbox</label>
-            <button type="button" id="ms-save" class="save-btn secondary">Save plugin</button>
-            <label class="stack-label ms-toolbar-action" for="ms-action">Action
-              <select id="ms-action">
-                <option value="list">list</option>
-                <option value="plan">plan</option>
-                <option value="prepare">prepare</option>
-                <option value="status">status</option>
-              </select>
-            </label>
-            <div class="btn-row lab-toolbar-actions">
+            <div class="btn-row lab-toolbar-actions area-chrome-toolbar-row">
+              <label class="ms-compact-check" data-ms-compact-check="1"><input type="checkbox" id="ms-enabled" /> Enable multi-sandbox</label>
+              <button type="button" id="ms-save" class="save-btn secondary">Save plugin</button>
+              <label class="stack-label ms-toolbar-action" for="ms-action">Action
+                <select id="ms-action">
+                  <option value="list">list</option>
+                  <option value="plan">plan</option>
+                  <option value="prepare">prepare</option>
+                  <option value="status">status</option>
+                </select>
+              </label>
               <button type="button" id="ms-run" class="save-btn">Orchestrate</button>
+              <p id="ms-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
             </div>
-            <p id="ms-status" class="drawer-hint lab-toolbar-status" role="status">Ready</p>
           </div>
           <div class="area-work" data-area-work="1">
           <div id="ms-primary" class="lab-primary" data-ms-primary="1">
@@ -1813,6 +1809,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk125"></script>
+  <script src="/ui/desktop/desktop.js?v=desk126"></script>
 </body>
 </html>

@@ -11,7 +11,7 @@ LAYOUT_MODES = ("overlay", "stage", "orb_hub", "split", "floating")
 
 
 class PlansCasesGeometryTests(unittest.TestCase):
-    def test_plans_cases_geometry_desk125(self) -> None:
+    def test_plans_cases_geometry_desk126(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
@@ -19,8 +19,8 @@ class PlansCasesGeometryTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk125", html)
-        self.assertIn("desk125", desk)
+        self.assertIn("desk126", html)
+        self.assertIn("desk126", desk)
         self.assertIn('data-plans-cases-geometry="1"', html)
         self.assertIn("Accepted", wires)
         self.assertIn("KAN-312", wires)

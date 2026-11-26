@@ -17,7 +17,7 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 
 **TRACK3-LAB — FR-UI-10 Lab density** — Heal / Desktop / Suites / Sandboxes chrome budget + geometry. Theme/orb/home/App nav stay locked. TRACK4/5 grammar+craft locked. **Not** voice / FR-MAN-2 / real Playwright trace (after this track).
 
-Active Build: **KAN-360** (chrome-budget markers). Epic **KAN-359**. Lab wires **Accepted** 2026-11-23 (`TRACK3_AREA_WIRES.md` §8). Stories **362/364/366** after Story 1 Done.
+Active Build: **KAN-362** (Suites+Sandboxes density). Epic **KAN-359**. **KAN-360** chrome-budget markers Done (**desk126**). Lab wires **Accepted** 2026-11-23. Then **364/366**.
 
 ### Selection grammar (standing)
 
@@ -75,7 +75,7 @@ Active Build: **KAN-360** (chrome-budget markers). Epic **KAN-359**. Lab wires *
 | TRACK5 Plans compact + sections | Done **KAN-350** | desk120 |
 | TRACK5 Docs / Heal / Lab disclosure | Done **KAN-352** | desk123 |
 | TRACK5 Phase 2 evidence-first | **Done KAN-354** (**desk125**) | TRACK5 complete |
-| TRACK3-LAB Lab density | **Active** epic **KAN-359** / story **KAN-360** | FR-UI-10 Lab follow-on; Accept Lab wires first |
+| TRACK3-LAB Lab density | **Active** epic **KAN-359** / story **KAN-362** | FR-UI-10 Lab; **KAN-360** chrome budget Done (**desk126**) |
 | Real Playwright trace deepen | **Later** (after TRACK3-LAB) | Replace `trace.notice.txt` |
 | KAN-81/82 voice; FR-MAN-2 | **Parked** | Mic / DPIA |
 

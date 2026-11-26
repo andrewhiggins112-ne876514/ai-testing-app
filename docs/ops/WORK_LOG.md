@@ -8,17 +8,17 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-360** — Lab wires Accept + chrome budget |
-| **Start task** | Lab wires **Accepted** (2026-11-23). Implement **KAN-360** chrome-budget markers on Heal/Desktop/Suites/Sandboxes (no intro above toolbar; ≤~120px; no KAN-310 redo). Stories 2–4 geometry after Story 1 Done. |
+| **Jira story** | **KAN-362** — Suites + Sandboxes Lab density |
+| **Start task** | Apply accepted Lab wires density to Suites (Done gate) + Sandboxes. Path+actions+one status; Import in Advanced; Sandboxes compact Enable/Save/Action; Remove confirm in detail. |
 | **Epic** | **KAN-359** (TRACK3-LAB) |
 | **Roadmap ID** | TRACK3-LAB |
 | **Spec** | FR-UI-10 Lab density |
 | **Git** | `main` |
-| **Test ticket** | **KAN-361** |
-| **Shipped** | TRACK5 Done (**KAN-354** / **desk125**); Bridge seeded **KAN-359…367** |
-| **Queued** | **KAN-362** Suites+Sandboxes → **KAN-364** Heal+Desktop → **KAN-366** Lab A–E → then real Playwright trace deepen |
+| **Test ticket** | **KAN-363** |
+| **Shipped** | **KAN-360**/361 chrome-budget markers (**desk126**); TRACK5 Done (**KAN-354** / **desk125**) |
+| **Queued** | **KAN-364** Heal+Desktop → **KAN-366** Lab A–E → then real Playwright trace deepen |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | Active **KAN-360** — Lab wires Accepted; Build chrome-budget markers. Park voice / FR-MAN-2. |
+| **Next / Shipped** | Active **KAN-362** Suites+Sandboxes density. Park voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-26 — KAN-360 — Lab chrome-budget markers (desk126)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-360
+- **Done:** TRACK3-LAB Story 1. Removed intro `<h3>` bands above Heal/Desktop/Suites/Sandboxes toolbars; marker `data-lab-chrome-budget="1"` on all four; single-row toolbar actions + `--chrome-toolbar` max-height CSS; Advanced/Policy stay under `.area-work`. No KAN-310 sticky redo; TRACK4/5 craft untouched; theme/orb/home/App nav locked. Cache-bust **desk126**. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop_app.py`, `tests/test_lab_chrome_budget.py`, desk126 bump on related UI tests, `test_heal_review.py`
+- **Verify:** `pytest tests/test_lab_chrome_budget.py` + chrome/density regression — 22 passed. Spot-check: `desktop_app.py` → App → Suites/Heal: no intro above toolbar; one chrome band.
+- **Jira:** close-out **KAN-360** + **KAN-361**
+- **Next:** **KAN-362** Suites + Sandboxes Lab density (test **KAN-363**)
 
 ### 2026-11-23 — Accept — Lab wires (TRACK3-LAB)
 - **Agent/chat:** Designer reply `Accept Lab wires`
