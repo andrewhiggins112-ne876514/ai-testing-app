@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — awaiting Suites-only human confirm |
-| **Jira story** | **KAN-366** — Lab occlusion verify A–E |
-| **Start task** | Suites on **desk131** (path pre-seeded). Other Lab areas confirmed. Reply **confirm** → close **KAN-366**/367. |
-| **Epic** | **KAN-359** (TRACK3-LAB) |
-| **Roadmap ID** | TRACK3-LAB |
-| **Spec** | FR-UI-10 Lab density + FR-UI-7 A–E |
+| **Status** | deferred — seed next story |
+| **Jira story** | — (TRACK3-LAB **KAN-359** / **KAN-366** Done) |
+| **Start task** | Seed **Playwright trace deepen** (B1 depth — replace `trace.notice.txt`) as next Active Story+test, then implement. Do **not** start voice / FR-MAN-2. |
+| **Epic** | — |
+| **Roadmap ID** | TRACE-DEEPEN (queued) |
+| **Spec** | FR-PLAN-4 / FR-TEST-4 evidence depth |
 | **Git** | `main` |
-| **Test ticket** | **KAN-367** |
-| **Shipped** | Bug **KAN-370**/371 Suites expandvars+status wrap **desk131**; **KAN-368**/369 scroll **desk130**; Lab A–E markers; Stories 1–3 Done |
-| **Queued** | After human confirm + **KAN-366** Done → real Playwright trace deepen |
+| **Test ticket** | — |
+| **Shipped** | TRACK3-LAB Done (**KAN-360…366** + bugs **368**/370; human A–E **desk131**) |
+| **Queued** | Playwright trace deepen → then park queue |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | Active **KAN-366** awaiting human Lab A–E. Park voice / FR-MAN-2. |
+| **Next / Shipped** | TRACK3-LAB complete. Next pick-up: seed+build real Playwright trace. Park voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-26 — KAN-366 — Lab occlusion A–E human confirm (TRACK3-LAB Done)
+- **Agent/chat:** Designer `confirmed` Suites after prior confirm of Heal/Desktop/Sandboxes (+ scroll/path bug fixes)
+- **Done:** TRACK3-LAB Story 4 closed. Human clickability across Lab areas A–E accepted on **desk131** (Suites list with seeded absolute path). Markers/pytest from earlier; CU skipped — unsafe replaced by human confirm. Bugs **KAN-368**/370 Done during confirm. Epic **KAN-359** Done.
+- **Files:** (no new product code this close-out) docs Active → next TRACE-DEEPEN seed
+- **Verify:** Designer confirm Suites + prior Lab A–E
+- **Jira:** close-out **KAN-366**/367 Done; epic **KAN-359** Done
+- **Next:** Seed Playwright trace deepen Story — park voice / FR-MAN-2
 
 ### 2026-11-26 — KAN-370 — Suites path expandvars + status wrap (desk131)
 - **Agent/chat:** Designer: Suites unconfirmed; `%LOCALAPPDATA%` paste → Path not found truncated

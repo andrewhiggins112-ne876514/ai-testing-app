@@ -344,7 +344,7 @@ Same §9 checklist, **Lab areas only** (Heal, Desktop, Suites, Sandboxes). Do no
 5. Heal: Approve/Reject on focused detail stay clickable; Sandboxes: Remove + Confirm remove in detail stay clickable when relevant.
 6. Compact `▦` only — no tall rail; no top app tab bar.
 
-**KAN-366 status (desk129):** pytest encodes this contract (`tests/test_lab_occlusion_verify_ae.py`, marker `data-lab-occlusion-verify-ae`). Clickability across A–E still requires CU or numbered human confirm — never soft-pass “opened Lab.”
+**KAN-366 status (desk131):** pytest + marker `data-lab-occlusion-verify-ae`. **Human A–E confirm 2026-11-26** (Suites last after KAN-370 path seed). Story/test **Done**. Never soft-passed “opened Lab.”
 
 ---
 
