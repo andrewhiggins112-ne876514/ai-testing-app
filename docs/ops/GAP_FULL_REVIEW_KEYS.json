@@ -1,0 +1,168 @@
+{
+  "home_epic": "KAN-406",
+  "operate3": "KAN-379",
+  "epics": {
+    "QA-TRUST": "KAN-415",
+    "TM-DEPTH": "KAN-416",
+    "INTEGRATE-RO": "KAN-417",
+    "PLUGIN-PRO": "KAN-418"
+  },
+  "qa_stories": {
+    "QA: Heal policy regression harness (runner + agent)": {
+      "story": "KAN-419",
+      "test": "KAN-420"
+    },
+    "QA: DAILY_LOOP journey pytest (API chain)": {
+      "story": "KAN-421",
+      "test": "KAN-422"
+    },
+    "QA: Confirm-gated apply approved heal to plan case": {
+      "story": "KAN-423",
+      "test": "KAN-424"
+    },
+    "QA: Post-heal re-run verification hook": {
+      "story": "KAN-425",
+      "test": "KAN-426"
+    },
+    "QA: Failure evidence completeness gate": {
+      "story": "KAN-427",
+      "test": "KAN-428"
+    },
+    "QA: Pause-on-fail \u00d7 trace integrity contract": {
+      "story": "KAN-429",
+      "test": "KAN-430"
+    },
+    "QA: Flake quarantine policy beyond chart": {
+      "story": "KAN-431",
+      "test": "KAN-432"
+    },
+    "QA: Imported Playwright project immutability guard": {
+      "story": "KAN-433",
+      "test": "KAN-434"
+    },
+    "QA: Verification debt ledger (marker vs human vs jou": {
+      "story": "KAN-435",
+      "test": "KAN-436"
+    },
+    "QA: Gradio vs desktop Lab parity honesty matrix": {
+      "story": "KAN-437",
+      "test": "KAN-438"
+    }
+  },
+  "tm_stories": {
+    "STORE-1: Built-in light DB (SQLite) for plans + secu": {
+      "story": "KAN-489",
+      "test": "KAN-490"
+    },
+    "STORE-2: Company / enterprise DB connector for large": {
+      "story": "KAN-491",
+      "test": "KAN-492"
+    },
+    "TM: Run execution fingerprint on every case/suite ru": {
+      "story": "KAN-439",
+      "test": "KAN-440"
+    },
+    "TM: First-class release milestones + Plans critical-": {
+      "story": "KAN-441",
+      "test": "KAN-442"
+    },
+    "TM: Bulk case operations (retag / move / enable-disa": {
+      "story": "KAN-443",
+      "test": "KAN-444"
+    },
+    "TM: Test-data row binding on runs": {
+      "story": "KAN-445",
+      "test": "KAN-446"
+    },
+    "TM: Blocker\u2192failing-step evidence hop + named sign-o": {
+      "story": "KAN-447",
+      "test": "KAN-448"
+    },
+    "TM: Defect aging gadget + trend": {
+      "story": "KAN-449",
+      "test": "KAN-450"
+    },
+    "CONN: Named connection profiles (save/load/switch)": {
+      "story": "KAN-451",
+      "test": "KAN-452"
+    }
+  },
+  "home_stories": {
+    "HOME-5: First-run wizard (level \u2192 Ollama \u2192 skip Jira": {
+      "story": "KAN-453",
+      "test": "KAN-454"
+    },
+    "HOME-6: Hybrid Ollama-default + BYOK escalate router": {
+      "story": "KAN-455",
+      "test": "KAN-456"
+    },
+    "HOME-7: Post-demo empty-desk recovery": {
+      "story": "KAN-457",
+      "test": "KAN-458"
+    },
+    "HOME-8: Home HUD stack health chips": {
+      "story": "KAN-459",
+      "test": "KAN-460"
+    },
+    "HOME-9: PERSONAL portable project export (secrets st": {
+      "story": "KAN-461",
+      "test": "KAN-462"
+    },
+    "HOME-10: BYOK paste-first UX + outbound scrub + call": {
+      "story": "KAN-463",
+      "test": "KAN-464"
+    }
+  },
+  "int_stories": {
+    "CI: Pipelines read-only shell + on-demand artifact i": {
+      "story": "KAN-465",
+      "test": "KAN-466"
+    },
+    "XRAY: Read-only import + offline export manifest": {
+      "story": "KAN-467",
+      "test": "KAN-468"
+    },
+    "SHARE: Shared-folder outbox + confirm import (H3 pha": {
+      "story": "KAN-469",
+      "test": "KAN-470"
+    }
+  },
+  "plug_stories": {
+    "PLUG: axe-core a11y sidecar (opt-in, evidence on cas": {
+      "story": "KAN-471",
+      "test": "KAN-472"
+    },
+    "PLUG: Lighthouse perf sidecar (opt-in, level/setting": {
+      "story": "KAN-473",
+      "test": "KAN-474"
+    },
+    "LAB: Sandbox honesty + ephemeral TTL + optional Dock": {
+      "story": "KAN-475",
+      "test": "KAN-476"
+    },
+    "PW: UI Mode / Inspector launch + pause-before-step +": {
+      "story": "KAN-477",
+      "test": "KAN-478"
+    },
+    "AGENT: Chat recipes dry-run + mid-run steer with app": {
+      "story": "KAN-479",
+      "test": "KAN-480"
+    },
+    "MAN: Session\u2192case draft + env snapshot + stakeholder": {
+      "story": "KAN-481",
+      "test": "KAN-482"
+    },
+    "SEC: Compliance evidence export pack + level tool ma": {
+      "story": "KAN-483",
+      "test": "KAN-484"
+    },
+    "RUN: Configurable parallel workers with honesty pane": {
+      "story": "KAN-485",
+      "test": "KAN-486"
+    }
+  },
+  "bug_heal_trace_level": {
+    "bug": "KAN-487",
+    "test": "KAN-488"
+  }
+}

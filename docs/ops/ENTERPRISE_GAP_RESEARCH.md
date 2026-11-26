@@ -89,17 +89,40 @@ These are the “Designer had to notice” items — now standing checklist for 
 
 Keys: `docs/ops/GAP_RESEARCH_KEYS.json` (also merged under OPERATE_KEYS.json → gap_research).
 
-## Explicit rejects (local-first)
+## Explicit rejects (local-first — dishonest / unsafe everywhere)
 
-- Mandatory cloud analytics / telemetry dashboards  
+- Mandatory cloud analytics / telemetry dashboards (default on)  
 - Silent heal / assertion weaken  
-- Cloud device farms as default sandbox  
-- Claiming ISO/SOC/CE certification in-product without evidence  
+- Claiming ISO/SOC/CE certification badges in-product without evidence  
 - Replacing confirm-gated Jira with agent auto-write  
 - Cloud LLM keys on **OFFICIAL** or **SECRET**  
+- Silent / always-on capture, keylog, or video  
 - Treating Cursor IDE API keys as this product’s runtime  
+
+## Configurable first; level gates only when isolation requires it (CR 2026-11-26 Designer)
+
+Prefer **Settings on/off / limits / backends** for all buyers — including large orgs on OFFICIAL/SECRET with their own security. Soft defaults may be conservative; **do not hard-ban** enterprise features on higher levels.
+
+| Capability | How gated |
+|------------|-----------|
+| Higher parallel workers | Settings (FR-PLUG-5); honesty warnings; optional per-level *default* cap |
+| Docker / ephemeral runners | Settings plugin when Docker present |
+| Remote / device-farm connectors | Settings plugin; never pretend local = farm |
+| Opt-in Manual video | Settings after DPIA; default off |
+| Embedded Trace Viewer / UI Mode | Settings advanced; default = external open (OPERATE-1) |
+| Mid-run agent steer | Settings; approve-next-tool audited |
+| Cloud LLM BYOK (Grok etc.) | **PERSONAL-default** (outbound classification); widen only via explicit future policy |
+| OpenRouter OAuth | PERSONAL-default; paste-key v1 |
+| Team workload / SSO / RBAC | Optional plugins — Settings |
+| CI cloud OAuth | After read-only shell; Settings |
+| **Built-in light DB (SQLite)** | Settings; per-level files; JSON default + export |
+| **Company / enterprise DB** | Settings on **any** level; confirm-gated; SECRET may *default* off; buyer’s DB not vendor SaaS |
+
+## Post-seed FULL-REVIEW gaps (2026-11-26)
+
+See `docs/ops/GAP_FULL_REVIEW_KEYS.json` — QA-TRUST, TM-DEPTH (milestones first-class), HOME-5+, INTEGRATE-RO, PLUGIN-PRO. Bug: level-isolated heal/trace (SEC leakage).
 
 ## Next
 
-Build: **KAN-375** OPERATE-1 remains Active until human unparks HOME.  
-HOME-MARKET after OPERATE (or parallel only if Designer unparks).
+Build: **KAN-375** OPERATE-1 remains Active.  
+HOME-MARKET stories may seed under **KAN-406**; unpark Build only when Designer says.

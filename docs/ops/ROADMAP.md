@@ -19,9 +19,10 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | TRACE-DEEPEN | Real Playwright trace (replace notice file) | done | **KAN-372**/373 (**desk132**) — real `trace.zip` on failure; notice file removed — **Baseline** |
 | TRACK4-LAYOUT | Secondary area layout grammar (FR-UI-11) — Settings template first | done | Settings **KAN-324** … Sandboxes Lab **KAN-345** (**desk118** / test **KAN-346**) — rest-of-App inherit complete — **Baseline** |
 | TRACK5-LAYOUT | FR-UI-11 structure pack — all secondary areas (empty / keyboard / scroll + Plans/Docs/Heal/Lab craft) | done | Phase 1 **KAN-348…352**; Phase 2 **KAN-354** evidence-first (**desk125** / test **KAN-355**) — **Baseline** |
-| OPERATE-POLISH | Loop-hit UI only (Plans Run, Manual idle, evidence affordance) | next | After OPERATE open-trace; not a new full layout track |
-| GAP-CR | Enterprise CRs: charts, Manual float, stubs, plan doc, compliance + research adds (release panel, flake, heal prov, SBTM, agent gov) | later | Epic **KAN-383**; see `GAP_RESEARCH_KEYS.json` — after OPERATE |
-| HOME-MARKET | PERSONAL level + BYOK agents (Grok etc.) + home onboarding | later | Epic seeded 2026-11-26; after OPERATE unless unparked; SECRET/OFFICIAL refuse cloud LLM keys |
+| OPERATE-POLISH | Loop-hit UI + triage strip / run→report / Heal badge (OPERATE-3) | next | After OPERATE open-trace; **KAN-379** expanded |
+| GAP-CR | Enterprise CRs: charts, Manual float, stubs, plan doc, compliance + research adds | later | Epic **KAN-383**; `GAP_RESEARCH_KEYS.json` — after OPERATE |
+| HOME-MARKET | PERSONAL + BYOK + HOME-5..10 (wizard, hybrid, scrub) | later | Epic **KAN-406**; after OPERATE unless unparked |
+| FULL-REVIEW | QA-TRUST / TM-DEPTH / INTEGRATE-RO / PLUGIN-PRO; STORE JSON→SQLite→company DB | later | Epics **KAN-415…418**; STORE **KAN-489**/491; Bug **KAN-487**; keys `GAP_FULL_REVIEW_KEYS.json` |
 | FR-MAN-2 | Live assist / circles | later | Parked until DPIA (H1 §10); distinct from Manual float-snip CR |
 | TESTALL-E | Test-all E privacy / audit / recovery | done | E1–E5 Done (**KAN-201** desk66); UI-LAB-MENU Done |
 | TESTALL-F | Test-all F role HUD / UX — F1–F7 | done | F7 Done (**KAN-215** desk73); F6 Done (**KAN-213** desk72) |

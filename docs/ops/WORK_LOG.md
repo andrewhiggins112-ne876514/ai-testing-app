@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-26 — Council FULL-REVIEW apply + configurability + storage CR
+- **Agent/chat:** Council — Designer: yes+spec; level-gate not hard-reject; then: prefer Settings over level bans (large orgs); light DB + company DB; OPERATE-3 fold S1–S3; HOME under KAN-406; heal/trace = Bug
+- **Done:** Spec CR configurability (Settings-first) + FR-STORE-1 (JSON / SQLite / company DB on any level) + NEW FRs; ENTERPRISE_GAP_RESEARCH + DAILY_LOOP; seed → QA-TRUST **KAN-415**, TM-DEPTH **KAN-416**, INTEGRATE-RO **KAN-417**, PLUGIN-PRO **KAN-418**; HOME-5..10 on **KAN-406**; STORE-1 **KAN-489**/490, STORE-2 **KAN-491**/492; Bug **KAN-487**/488; OPERATE-3 **KAN-379** expanded. Follow-up comments on **KAN-491**/489/416. Active remains **KAN-375**.
+- **Files:** FUNCTIONAL_SPEC; ENTERPRISE_GAP_RESEARCH; DAILY_LOOP; ROADMAP; PROJECT_MEMORY; WORK_LOG; scripts/jira_kan_full_review_seed.py; GAP_FULL_REVIEW_KEYS.json
+- **Verify:** keys JSON; Jira stories exist; no product feature code
+- **Jira:** seeded + OPERATE-3 + STORE configurability comments
+- **Next:** Build pick-up **KAN-375**; do not steal Active for FULL-REVIEW unless Designer unparks
+
 ### 2026-11-26 — Council CR — home/vibe + BYOK + seed research additions
 - **Agent/chat:** Council — Designer: not enterprise-only; PERSONAL + Grok/BYOK; seed all research tickets; extra agents?
 - **Done:** Spec CR PERSONAL/OFFICIAL/SECRET + BYOK on PERSONAL only. New seat `council-user-home-developer`. Research brief expanded. Seed script `jira_kan_gap_research_seed.py` → GAP research stories + HOME-MARKET epic/stories. security-levels rule updated. Active remains **KAN-375**.

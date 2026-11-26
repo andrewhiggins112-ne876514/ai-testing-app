@@ -29,8 +29,8 @@ This project runs on the Designer’s **home computer**. There is **no** employe
 
 ## Out of scope for OPERATE
 
-Voice (KAN-81), FR-MAN-2 live circles, full CI sync, H3 network share, embedded Trace Viewer SPA, theme/orb/home restyle, ISO27001 certification claim.
+Voice (KAN-81 deferred), FR-MAN-2 live circles (DPIA), full CI OAuth, H3 network *service*, theme/orb/home restyle, ISO27001 certification *claim*. Optional Trace Viewer embed / higher parallel / Docker = later settings-gated plugins (not OPERATE scope).
 
 ## Follow-on (after OPERATE)
 
-Loop-hit polish only where the path touches: Plans Run disclosure, Manual idle layout, evidence affordance. Then CR backlog: Reports charts, floating Manual snip, Documents demo pack, stub deepen + fixtures, compliance design (ISO27001 etc.).
+**OPERATE-3** (Designer 2026-11-26): Plans Run disclosure, Manual idle, evidence affordance, **plus** case-detail triage strip, run→report link, App-menu Heal pending badge. Then CR backlog: GAP-CR / HOME / FULL-REVIEW (`GAP_FULL_REVIEW_KEYS.json`).
