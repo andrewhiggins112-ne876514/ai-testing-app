@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk127" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk128" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -888,11 +888,11 @@
           </details>
           </div>
         </div>
-        <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1" data-heal-layout-grammar="1" data-heal-confirm-copy="1" data-evidence-first-detail="1" data-scan-craft="1" data-lab-chrome-budget="1">
+        <div id="app-section-heal" class="app-section" hidden data-lab-areas-ia="1" data-heal-ia="1" data-heal-layout-grammar="1" data-heal-confirm-copy="1" data-evidence-first-detail="1" data-scan-craft="1" data-lab-chrome-budget="1" data-heal-desktop-density="1">
           <div id="heal-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-heal-chrome="1">
             <div class="btn-row lab-toolbar-actions area-chrome-toolbar-row">
-              <label class="stack-label heal-toolbar-filter" for="heal-run-filter">Filter by run
-                <select id="heal-run-filter">
+              <label class="heal-toolbar-filter" data-heal-compact-filter="1" for="heal-run-filter">Filter
+                <select id="heal-run-filter" aria-label="Filter by run">
                   <option value="">All pending</option>
                 </select>
               </label>
@@ -923,7 +923,8 @@
                 </table>
               </div>
             </div>
-            <aside class="heal-detail-pane" id="heal-detail" data-heal-detail="1" aria-label="Heal proposal detail" data-scan-scroll="detail">
+            <aside class="heal-detail-pane" id="heal-detail" data-heal-detail="1" aria-label="Heal proposal detail" data-heal-focused="0">
+              <div class="heal-detail-body" data-scan-scroll="detail">
               <h4 class="orb-section-label" id="heal-detail-title">No proposal focused</h4>
               <p class="scan-quiet-empty" data-scan-unfocused="1" id="heal-unfocused">Select a row</p>
               <p class="drawer-hint" id="heal-detail-hint">Select a row. Sel is multi-select only. Approve and Reject act on the focused id only.</p>
@@ -938,7 +939,8 @@
                 <input type="text" id="heal-detail-id" class="mono" readonly autocomplete="off" />
               </label>
               <pre id="heal-detail-diff" class="heal-diff" aria-live="polite"></pre>
-              <div class="btn-row" data-heal-actions="1">
+              </div>
+              <div class="btn-row heal-detail-pin" data-heal-actions="1" data-heal-pin="1" hidden>
                 <button type="button" id="heal-approve" class="save-btn" disabled>Approve</button>
                 <button type="button" id="heal-reject" class="save-btn secondary" disabled>Reject</button>
               </div>
@@ -954,7 +956,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1" data-desktop-layout-grammar="1" data-lab-detail-disclosure="1" data-evidence-first-detail="1" data-scan-craft="1" data-lab-chrome-budget="1">
+        <div id="app-section-desktop" class="app-section" hidden data-lab-areas-ia="1" data-desktop-ia="1" data-desktop-layout-grammar="1" data-lab-detail-disclosure="1" data-evidence-first-detail="1" data-scan-craft="1" data-lab-chrome-budget="1" data-heal-desktop-density="1">
           <div id="desk-chrome-toolbar" class="area-chrome-toolbar lab-chrome-toolbar" data-desk-chrome="1">
             <div class="btn-row lab-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="desk-smoke" class="save-btn">Run smoke</button>
@@ -990,9 +992,10 @@
                   </tbody>
                 </table>
               </div>
-              <aside id="desk-detail" class="desk-detail-pane" data-desk-detail="1" aria-label="Plugin detail" data-scan-scroll="detail">
+              <aside id="desk-detail" class="desk-detail-pane" data-desk-detail="1" aria-label="Plugin detail" data-desk-focused="1">
+                <div class="desk-detail-body" data-scan-scroll="detail">
                 <h4 class="orb-section-label" id="desk-detail-title">Plugin</h4>
-                <p class="scan-quiet-empty" data-scan-unfocused="1" id="desk-unfocused">Select a row</p>
+                <p class="scan-quiet-empty" data-scan-unfocused="1" id="desk-unfocused" hidden>Select a row</p>
                 <p class="drawer-hint" id="desk-detail-hint">Separate from Playwright. Save and path override live here.</p>
                 <div class="evidence-first" id="desk-evidence-first" data-evidence-first="1" hidden>
                   <span class="evidence-first-tag">Last result</span>
@@ -1004,7 +1007,8 @@
                 <label class="stack-label">Exe path override
                   <input type="text" id="desk-exe" placeholder="C:\Path\To\App.exe" autocomplete="off" />
                 </label>
-                <div class="btn-row">
+                </div>
+                <div class="btn-row desk-detail-pin" data-desk-pin="1">
                   <button type="button" id="desk-save" class="save-btn">Save plugin</button>
                 </div>
               </aside>
@@ -1808,6 +1812,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk127"></script>
+  <script src="/ui/desktop/desktop.js?v=desk128"></script>
 </body>
 </html>

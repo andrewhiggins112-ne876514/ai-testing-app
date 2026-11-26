@@ -6926,6 +6926,15 @@
     }
   }
 
+  function setHealDetailFocused(focused) {
+    const healDetail = document.getElementById("heal-detail");
+    const healUnfocused = document.getElementById("heal-unfocused");
+    const healActions = document.querySelector('[data-heal-actions="1"]');
+    if (healDetail) healDetail.setAttribute("data-heal-focused", focused ? "1" : "0");
+    if (healUnfocused) healUnfocused.hidden = !!focused;
+    if (healActions) healActions.hidden = !focused;
+  }
+
   function clearHealFocus() {
     healFocusedId = "";
     if (healScanBody) {
@@ -6943,6 +6952,7 @@
     hideEvidenceFirst(evidenceFirstRoot("heal-evidence-first"));
     if (healApproveBtn) healApproveBtn.disabled = true;
     if (healRejectBtn) healRejectBtn.disabled = true;
+    setHealDetailFocused(false);
   }
 
   function focusHealDetail(tr, opts) {
@@ -6983,6 +6993,7 @@
     });
     if (healApproveBtn) healApproveBtn.disabled = !id;
     if (healRejectBtn) healRejectBtn.disabled = !id;
+    setHealDetailFocused(!!id);
     if (options.focusField && healDetailId) {
       try {
         healDetailId.focus();

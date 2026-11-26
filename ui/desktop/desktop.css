@@ -3422,6 +3422,116 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   white-space: nowrap;
 }
 
+/* KAN-364 — TRACK3-LAB Heal + Desktop density (wires §8c–8d) */
+#app-section-heal[data-heal-desktop-density="1"] > .lab-chrome-toolbar,
+#app-section-desktop[data-heal-desktop-density="1"] > .lab-chrome-toolbar {
+  max-height: var(--chrome-toolbar);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+  flex-direction: row;
+  align-items: center;
+}
+
+#app-section-heal[data-heal-desktop-density="1"] .lab-toolbar-actions,
+#app-section-desktop[data-heal-desktop-density="1"] .lab-toolbar-actions {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 0;
+  margin: 0;
+  width: 100%;
+}
+
+#app-section-heal[data-heal-desktop-density="1"] .heal-toolbar-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  flex: 0 1 auto;
+  font: var(--type-ui);
+  color: var(--muted, #9bb4c4);
+  white-space: nowrap;
+}
+
+#app-section-heal[data-heal-desktop-density="1"] .heal-toolbar-filter select {
+  min-height: 28px;
+  min-width: 8rem;
+  max-width: 14rem;
+  padding: 2px 8px;
+}
+
+#app-section-heal[data-heal-desktop-density="1"] .lab-toolbar-status,
+#app-section-desktop[data-heal-desktop-density="1"] .lab-toolbar-status {
+  flex: 0 1 14rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app-section-heal[data-heal-desktop-density="1"] .heal-detail-pane,
+#app-section-desktop[data-heal-desktop-density="1"] .desk-detail-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#app-section-heal[data-heal-desktop-density="1"] .heal-detail-body,
+#app-section-desktop[data-heal-desktop-density="1"] .desk-detail-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  overflow: auto;
+  padding-bottom: var(--space-2);
+}
+
+#app-section-heal[data-heal-desktop-density="1"] .heal-detail-pin,
+#app-section-desktop[data-heal-desktop-density="1"] .desk-detail-pin {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  padding: var(--space-2) 0 0;
+  border-top: 1px solid var(--cyan-border, rgba(80, 205, 255, 0.28));
+  background: rgba(0, 0, 0, 0.72);
+  position: relative;
+  z-index: 1;
+}
+
+#app-section-heal[data-heal-desktop-density="1"] .heal-detail-pin[hidden] {
+  display: none !important;
+}
+
+#app-section-heal[data-heal-desktop-density="1"] .lab-primary,
+#app-section-desktop[data-heal-desktop-density="1"] .lab-primary {
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2);
+}
+
+#app-section-heal[data-heal-desktop-density="1"] .lab-advanced,
+#app-section-desktop[data-heal-desktop-density="1"] .lab-advanced {
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-2);
+}
+
+@media (max-width: 900px) {
+  #app-section-heal[data-heal-desktop-density="1"] > .lab-chrome-toolbar,
+  #app-section-desktop[data-heal-desktop-density="1"] > .lab-chrome-toolbar {
+    max-height: none;
+    overflow: visible;
+  }
+
+  #app-section-heal[data-heal-desktop-density="1"] .lab-toolbar-actions,
+  #app-section-desktop[data-heal-desktop-density="1"] .lab-toolbar-actions {
+    flex-wrap: wrap;
+  }
+}
+
 /* KAN-362 — TRACK3-LAB Suites + Sandboxes density (wires §8a–8b) */
 #app-section-suites[data-suites-sandboxes-density="1"] > .suite-chrome-toolbar,
 #app-section-sandboxes[data-suites-sandboxes-density="1"] > .lab-chrome-toolbar {

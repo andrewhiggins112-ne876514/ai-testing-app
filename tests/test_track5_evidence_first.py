@@ -8,16 +8,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class Track5EvidenceFirstDetailTests(unittest.TestCase):
-    def test_evidence_first_detail_markers_desk127(self) -> None:
+    def test_evidence_first_detail_markers_desk128(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk127", html)
-        self.assertIn("desk127", desk)
-        self.assertIn("desktop.css?v=desk127", html)
-        self.assertIn("desktop.js?v=desk127", html)
+        self.assertIn("desk128", html)
+        self.assertIn("desk128", desk)
+        self.assertIn("desktop.css?v=desk128", html)
+        self.assertIn("desktop.js?v=desk128", html)
 
         reports = html.split('id="app-section-reports"', 1)[1].split(
             'id="app-section-documents"', 1
@@ -119,7 +119,7 @@ class Track5EvidenceFirstDetailTests(unittest.TestCase):
         self.assertIn("not OCR-redacted", js)
         self.assertNotIn("Open Playwright Trace", js)
         self.assertIn(".evidence-first", css)
-        self.assertIn("desk127", desk)
+        self.assertIn("desk128", desk)
 
 
 if __name__ == "__main__":

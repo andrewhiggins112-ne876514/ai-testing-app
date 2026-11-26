@@ -8,17 +8,17 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-364** — Heal + Desktop Lab density |
-| **Start task** | Apply accepted Lab wires §8c–8d: Heal one toolbar + Approve/Reject visible on focus; Desktop smoke/demo + status, Save in detail. |
+| **Jira story** | **KAN-366** — Lab occlusion verify A–E |
+| **Start task** | Verify Lab density (Heal/Desktop/Suites/Sandboxes) in every FR-UI-7 layout mode; CU/human clickability — never soft-pass “opened Lab”. |
 | **Epic** | **KAN-359** (TRACK3-LAB) |
 | **Roadmap ID** | TRACK3-LAB |
-| **Spec** | FR-UI-10 Lab density |
+| **Spec** | FR-UI-10 Lab density + FR-UI-7 A–E |
 | **Git** | `main` |
-| **Test ticket** | **KAN-365** |
-| **Shipped** | **KAN-362**/363 Suites+Sandboxes density (**desk127**); **KAN-360**/361 chrome-budget (**desk126**); TRACK5 Done (**KAN-354**) |
-| **Queued** | **KAN-366** Lab A–E → then real Playwright trace deepen |
+| **Test ticket** | **KAN-367** |
+| **Shipped** | **KAN-364**/365 Heal+Desktop density (**desk128**); **KAN-362**/363 Suites+Sandboxes (**desk127**); **KAN-360**/361 chrome-budget (**desk126**); TRACK5 Done (**KAN-354**) |
+| **Queued** | After **KAN-366** → real Playwright trace deepen |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | Active **KAN-364** Heal+Desktop density. Park voice / FR-MAN-2. |
+| **Next / Shipped** | Active **KAN-366** Lab A–E. Park voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-26 — KAN-364 — Heal + Desktop Lab density (desk128)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-364
+- **Done:** TRACK3-LAB Story 3. Heal: compact Filter + Refresh (+ bulk Approve when shown) + one status; Approve/Reject pinned on focused detail (`data-heal-pin` / `setHealDetailFocused`); no bulk Reject / no auto-apply; Policy under Advanced. Desktop: smoke/demo + one status; Save pinned in detail; Advanced closed. Marker `data-heal-desktop-density="1"` + `--chrome-toolbar` CSS. TRACK5 craft / theme/orb/home/App nav locked. Cache-bust **desk128**. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_lab_heal_desktop_density.py`, desk128 bump on related UI tests
+- **Verify:** `pytest tests/test_lab_heal_desktop_density.py` + heal/desktop/lab chrome/scan craft — 18 passed (+10 subtests). Spot-check: `desktop_app.py` → App → Heal: one toolbar; focus row → Approve/Reject pin; Desktop: Save in detail pin.
+- **Jira:** close-out **KAN-364** + **KAN-365**
+- **Next:** **KAN-366** Lab occlusion verify A–E (test **KAN-367**)
 
 ### 2026-11-26 — KAN-362 — Suites + Sandboxes Lab density (desk127)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-362
