@@ -26,11 +26,12 @@ If recalling past council/build decisions: `search_memory` with `namespace` = `r
 
 1. Detect mode (Review / Creative / Full / Bridge).
 2. Announce seated roles.
-3. Round 1 — spawn or role-play `council-*` specialists (parallel when useful).
-4. Round 2 — challenges (Scope Guardian + Security + Senior Test Engineer at minimum for Creative).
-5. Round 3 — verdict template from ADVISORY_COUNCIL.md.
-6. Ask to apply Doc / rules / Jira patches; confirm before Jira writes.
-7. Never implement product features here. Point “next Build chat” at pick-up or a new story after Slice-0.
+3. **If Review/Full and the ask is gaps / enterprise / what’s missing:** run **field research** (web or official docs) for seated domains before Round 1 closes — test dashboards, exploratory tools, traces/heal, sandboxes, compliance (ISO/Cyber Essentials/SOC2/GDPR), agentic QA. Do **not** rely on repo Done-rows or training memory alone. Update/cite `docs/ops/ENTERPRISE_GAP_RESEARCH.md` when material. Verdict must include Research adopt/adapt/reject.
+4. Round 1 — spawn or role-play `council-*` specialists (parallel when useful).
+5. Round 2 — challenges (Scope Guardian + Security + Senior Test Engineer at minimum for Creative).
+6. Round 3 — verdict template from ADVISORY_COUNCIL.md.
+7. Ask to apply Doc / rules / Jira patches; confirm before Jira writes.
+8. Never implement product features here. Point “next Build chat” at pick-up or a new story after Slice-0.
 
 ## CR bridge
 

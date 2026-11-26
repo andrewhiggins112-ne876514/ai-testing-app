@@ -39,17 +39,19 @@ Council debates intent; Build ships code. Studio owns **seeing** the native desk
 |------|----------|---------------|
 | **Audit** | “audit UI”, “what’s wrong with layouts”, screenshot pass | Lead, Visual Critic, Code Mapper |
 | **Redesign** | “mockup”, “rework Settings/Suites…”, layout options | Lead, Critic, Layout Designer, Code Mapper (+ Test Engineer) |
-| **Research** | “best practices”, “how do tools do X” | Lead, Research Analyst (+ Critic) |
+| **Research** | “best practices”, “how do tools do X”, enterprise UX bar | Lead, Research Analyst (+ Critic) — **web/current docs required** |
 | **Continuity** | “past creative”, “remember mockups”, reconcile ideas | Lead, Continuity Keeper (+ Creative from Council if vision fight) |
 | **Bridge** | “turn into CR / Jira / stories” | Lead, Jira Shaper, Code Mapper (+ Delivery patterns from Council) |
 
 ## Room protocol
 
 1. Name mode + seated roles; restate **frozen** surfaces.
-2. **Round 1 — Evidence / positions** (screenshots or prior mockups before opinions).
+2. **Round 1 — Evidence / positions** (screenshots or prior mockups before opinions). For Audit/Research on enterprise gaps: **also** web/current-tool research (TestRail/Xray/Explorer-class Manual, release dashboards) — see `docs/ops/ENTERPRISE_GAP_RESEARCH.md`.
 3. **Round 2 — Challenges** (density, selection grammar, locks, security if Settings).
 4. **Round 3 — Studio verdict** (template below).
 5. Ask once whether to apply docs / Design Intent / Jira drafts. Confirm before Jira writes.
+
+**Field research gate (binding — Designer 2026-11-26):** Do not limit “gaps” to row-soup leftovers. Compare App areas to **current enterprise QA UX** (reporting charts, Manual float capture, plan document readability, demo fixtures). Cite adopt/adapt/reject.
 
 ### Verdict template
 
@@ -61,7 +63,7 @@ Council debates intent; Build ships code. Studio owns **seeing** the native desk
 - Diagnosis (pattern failures; hit targets)
 - Preferred layout direction (+ rejected options)
 - Mockups: paths under docs/mockups/…
-- Research: adopt / adapt / reject (if any)
+- Research: sources + adopt / adapt / reject (required for Audit/Research enterprise gap asks)
 - Creative continuity: locked vs new (Design Intent)
 - Code touch surface (files/areas; orb untouched)
 - Jira proposed: stories + AC + test tickets (draft only until confirm)

@@ -17,6 +17,8 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 
 **OPERATE (Council 2026-11-26)** — daily loop + open-trace; home-PC demo AUT. Theme/orb/home/App nav stay locked. **Loop-hit polish only** after OPERATE-1 (Plans Run disclosure, Manual idle split, evidence affordance) — not a new full TRACK6 layout epic. Studio may mock those three touchpoints when Build asks.
 
+**Research gate (2026-11-26):** Audit/Research modes must cite current enterprise QA UX (charts, Explorer-class Manual, plan readability) — `docs/ops/ENTERPRISE_GAP_RESEARCH.md`.
+
 **GAP-CR (later):** Reports charts; Manual floating snip outside main window; Documents demo pack visuals.
 
 Active Build: **OPERATE-1** (see `docs/ops/OPERATE_KEYS.json`). Lab TRACK3 / TRACE-DEEPEN = baselines Done.

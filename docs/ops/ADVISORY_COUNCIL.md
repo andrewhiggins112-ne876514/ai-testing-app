@@ -42,6 +42,8 @@ Triggers: “review the project”, “audit”, “find gaps”, Jira+repo heal
 Seat: Facilitator + Delivery Auditor + Quality Auditor + Senior Test Engineer + Security Adviser  
 (+ Test Manager / Developer / Release Manager when release or buyer impact is clear).
 
+**Field research gate (binding — Designer 2026-11-26):** Gap / enterprise / “what’s missing” reviews **must** search current practice (web or official docs) for the seated domains — test management dashboards, exploratory capture, evidence/traces, heal governance, sandboxes/envs, compliance (ISO 27001 / Cyber Essentials / SOC 2 / GDPR), agentic QA competitors — **not** invent gaps from repo Done-rows or training memory alone. Cite sources; map **adopt / adapt / reject** under local-first constraints. Standing checklist: `docs/ops/ENTERPRISE_GAP_RESEARCH.md`. Repo Partial FRs are necessary but **not sufficient**.
+
 ### Creative mode
 Triggers: “creative idea”, “vibe”, “what if”, “deviate”, “change the path/setup”.
 
@@ -70,6 +72,7 @@ Order: update `docs/FUNCTIONAL_SPEC.md` (if product intent changed) → KAN epic
 - Decision: ship-as-is insight | CR | park | need-you
 - Vision fit: align | extend | conflict
 - Who this serves (roles): …
+- Research (required for Review/Full gap asks): sources cited | adopt / adapt / reject | market gaps Designer should not have to invent
 - Top risks (max 5)
 - Agreements
 - Open disagreements (who vs who)

@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-26 — Council process CR — field research gate + enterprise gap brief
+- **Agent/chat:** Council — Designer: reviewers must research latest enterprise techniques/tools, not only repo Done
+- **Done:** Binding research gate in `ADVISORY_COUNCIL.md` / `DESIGN_STUDIO.md` + skills. Wrote `docs/ops/ENTERPRISE_GAP_RESEARCH.md` (dashboards, SBTM/Explorer Manual, traces/heal, sandboxes, ISO/CE/SOC2, agentic QA). Proposed extra GAP stories (not seeded). FR-SEC-6 expanded to Cyber Essentials + SOC2 crosswalk. Active remains **KAN-375**.
+- **Files:** ENTERPRISE_GAP_RESEARCH.md; ADVISORY_COUNCIL; DESIGN_STUDIO; advisory-council + design-studio skills; FUNCTIONAL_SPEC FR-SEC-6
+- **Verify:** research gate text present; brief cites adopt/adapt/reject
+- **Jira:** none new — ask Designer to seed research additions into **KAN-383**
+- **Next:** Build **KAN-375**; optional seed GAP-CR-REL/FLAKE/HEAL-PROV/SBTM/AGENT-GOV/CE
+
 ### 2026-11-26 — Council Slice-0 — OPERATE unpark + Designer CRs
 - **Agent/chat:** Council / Studio / Creative Architect review → Designer decisions
 - **Done:** Whole-project review recorded. Unpark **OPERATE** (loop + open-trace; home-PC demo AUT). Spec CRs: Reports charts, Manual float snip, plan document view, sandbox = local, Documents demo pack, stub deepen, FR-SEC-6 compliance roadmap. Docs: `DAILY_LOOP.md`, ROADMAP Now=OPERATE, WORK_LOG Active, PROJECT_MEMORY. Jira seed OPERATE + GAP-CR + Baseline comments on recent Done. Truth labels: Done = baseline.
