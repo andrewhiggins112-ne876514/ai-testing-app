@@ -2295,11 +2295,6 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: var(--cyan, #50cdff);
 }
 
-.suite-chrome-toolbar .suite-toolbar-saved {
-  margin: 0;
-  font: var(--type-meta);
-}
-
 .suite-primary {
   display: flex;
   flex-direction: column;
@@ -3419,13 +3414,88 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 #app-section-heal[data-lab-chrome-budget="1"] .lab-toolbar-status,
 #app-section-desktop[data-lab-chrome-budget="1"] .lab-toolbar-status,
 #app-section-suites[data-lab-chrome-budget="1"] .suite-toolbar-status,
-#app-section-suites[data-lab-chrome-budget="1"] .suite-toolbar-saved,
 #app-section-sandboxes[data-lab-chrome-budget="1"] .lab-toolbar-status {
   margin: 0;
   font: var(--type-ui);
   color: var(--cyan, #50cdff);
   flex: 0 1 auto;
   white-space: nowrap;
+}
+
+/* KAN-362 — TRACK3-LAB Suites + Sandboxes density (wires §8a–8b) */
+#app-section-suites[data-suites-sandboxes-density="1"] > .suite-chrome-toolbar,
+#app-section-sandboxes[data-suites-sandboxes-density="1"] > .lab-chrome-toolbar {
+  max-height: var(--chrome-toolbar);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+  flex-direction: row;
+  align-items: center;
+}
+
+#app-section-suites[data-suites-sandboxes-density="1"] .suite-toolbar-actions,
+#app-section-sandboxes[data-suites-sandboxes-density="1"] .lab-toolbar-actions {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 0;
+  margin: 0;
+  width: 100%;
+}
+
+#app-section-suites[data-suites-sandboxes-density="1"] .suite-toolbar-path {
+  flex: 1 1 12rem;
+  min-width: 8rem;
+  max-width: 22rem;
+  margin: 0;
+}
+
+#app-section-suites[data-suites-sandboxes-density="1"] .suite-toolbar-path input {
+  width: 100%;
+  min-height: 28px;
+  padding: 2px 8px;
+}
+
+#app-section-suites[data-suites-sandboxes-density="1"] .suite-toolbar-status,
+#app-section-sandboxes[data-suites-sandboxes-density="1"] .lab-toolbar-status {
+  flex: 0 1 14rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#app-section-sandboxes[data-suites-sandboxes-density="1"] .ms-compact-check,
+#app-section-sandboxes[data-suites-sandboxes-density="1"] .ms-toolbar-action {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+#app-section-suites[data-suites-sandboxes-density="1"] .suite-primary,
+#app-section-sandboxes[data-suites-sandboxes-density="1"] .lab-primary {
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2);
+}
+
+#app-section-suites[data-suites-sandboxes-density="1"] .suite-advanced,
+#app-section-sandboxes[data-suites-sandboxes-density="1"] .lab-advanced {
+  margin: 0 0 var(--space-1);
+  padding: var(--space-1) var(--space-2);
+}
+
+@media (max-width: 900px) {
+  #app-section-suites[data-suites-sandboxes-density="1"] > .suite-chrome-toolbar,
+  #app-section-sandboxes[data-suites-sandboxes-density="1"] > .lab-chrome-toolbar {
+    max-height: none;
+    overflow: visible;
+  }
+
+  #app-section-suites[data-suites-sandboxes-density="1"] .suite-toolbar-actions,
+  #app-section-sandboxes[data-suites-sandboxes-density="1"] .lab-toolbar-actions {
+    flex-wrap: wrap;
+  }
 }
 
 #app-section-heal[data-lab-chrome-budget="1"] .heal-toolbar-filter,

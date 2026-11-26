@@ -1744,7 +1744,6 @@
   const deskLastSmoke = document.getElementById("desk-last-smoke");
   const deskDetail = document.getElementById("desk-detail");
   let deskLastSmokeText = "—";
-  const suiteSaved = document.getElementById("suite-saved");
   const suitePath = document.getElementById("suite-path");
   const suiteDiscover = document.getElementById("suite-discover");
   const suiteListBtn = document.getElementById("suite-list-btn");
@@ -1752,6 +1751,7 @@
   const suiteRun = document.getElementById("suite-run");
   const suiteRunAll = document.getElementById("suite-run-all");
   const suiteStatus = document.getElementById("suite-status");
+  let suiteSavedPath = "";
   const suiteList = document.getElementById("suite-list");
   const suiteScanBody = document.getElementById("suite-scan-body");
   const suiteListEmpty = document.getElementById("suite-list-empty");
@@ -5029,12 +5029,21 @@
     }
   }
 
+  function suiteReadyStatusText() {
+    const saved = String(suiteSavedPath || "").trim();
+    return saved
+      ? "Ready · Saved: " + saved
+      : "Ready · Saved: (not set)";
+  }
+
+  function setSuiteReadyStatus() {
+    if (suiteStatus) suiteStatus.textContent = suiteReadyStatusText();
+  }
+
   function applyPlaywrightSuite(payload) {
     if (!payload) return;
     const saved = payload.playwright_suite_path || "";
-    if (suiteSaved) {
-      suiteSaved.textContent = "Saved path: " + (saved || "(not set)");
-    }
+    suiteSavedPath = saved;
     if (suitePath && saved && !suitePath.value) {
       suitePath.value = saved;
     }
@@ -5269,7 +5278,7 @@
       if (!res.ok) return;
       const payload = await res.json();
       applyPlaywrightSuite(payload);
-      if (suiteStatus) suiteStatus.textContent = "Ready";
+      setSuiteReadyStatus();
       const path = suitePathValue();
       if (path) {
         try {
@@ -11183,8 +11192,10 @@
           return;
         }
         applyPlaywrightSuite(payload);
+        if (!suiteSavedPath) suiteSavedPath = suitePathValue();
         if (suiteStatus) {
-          suiteStatus.textContent = payload.message || "Suite path saved.";
+          suiteStatus.textContent =
+            payload.message || ("Suite path saved. " + suiteReadyStatusText());
         }
       } catch (err) {
         if (suiteStatus) suiteStatus.textContent = "Could not reach suite import API.";

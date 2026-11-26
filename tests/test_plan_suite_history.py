@@ -195,7 +195,7 @@ class PlanSuiteHistoryTests(unittest.TestCase):
         cross = list_suite_history(spid)
         self.assertNotEqual(cross.get("status"), "ok")
 
-    def test_api_history_and_compare_and_desktop_ui_desk126(self):
+    def test_api_history_and_compare_and_desktop_ui_desk127(self):
         ids = self._seed_two_runs()
         client = TestClient(app)
         hist = client.get(f"/api/plans/{ids['plan_id']}/suite-history")
@@ -215,8 +215,8 @@ class PlanSuiteHistoryTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk126", html)
-        self.assertIn("desk126", desk)
+        self.assertIn("desk127", html)
+        self.assertIn("desk127", desk)
         self.assertIn("plan-history-list", html)
         self.assertIn("plan-history-a", html)
         self.assertIn("plan-compare-btn", html)

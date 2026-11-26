@@ -206,14 +206,14 @@ class ManualSessionApiAndUiTests(unittest.TestCase):
         ).json()
         self.assertFalse(cancel["writes_jira"])
 
-    def test_desktop_charter_frame_markers_desk126(self):
+    def test_desktop_charter_frame_markers_desk127(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk126", html)
-        self.assertIn("desk126", desk)
+        self.assertIn("desk127", html)
+        self.assertIn("desk127", desk)
         self.assertIn('data-charter-frame="1"', html)
         self.assertIn('data-charter-mvp="1"', html)
         self.assertIn('data-manual-start="1"', html)

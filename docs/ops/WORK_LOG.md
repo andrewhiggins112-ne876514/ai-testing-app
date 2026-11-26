@@ -8,17 +8,17 @@
 | Field | Value |
 |-------|--------|
 | **Status** | open |
-| **Jira story** | **KAN-362** — Suites + Sandboxes Lab density |
-| **Start task** | Apply accepted Lab wires density to Suites (Done gate) + Sandboxes. Path+actions+one status; Import in Advanced; Sandboxes compact Enable/Save/Action; Remove confirm in detail. |
+| **Jira story** | **KAN-364** — Heal + Desktop Lab density |
+| **Start task** | Apply accepted Lab wires §8c–8d: Heal one toolbar + Approve/Reject visible on focus; Desktop smoke/demo + status, Save in detail. |
 | **Epic** | **KAN-359** (TRACK3-LAB) |
 | **Roadmap ID** | TRACK3-LAB |
 | **Spec** | FR-UI-10 Lab density |
 | **Git** | `main` |
-| **Test ticket** | **KAN-363** |
-| **Shipped** | **KAN-360**/361 chrome-budget markers (**desk126**); TRACK5 Done (**KAN-354** / **desk125**) |
-| **Queued** | **KAN-364** Heal+Desktop → **KAN-366** Lab A–E → then real Playwright trace deepen |
+| **Test ticket** | **KAN-365** |
+| **Shipped** | **KAN-362**/363 Suites+Sandboxes density (**desk127**); **KAN-360**/361 chrome-budget (**desk126**); TRACK5 Done (**KAN-354**) |
+| **Queued** | **KAN-366** Lab A–E → then real Playwright trace deepen |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | Active **KAN-362** Suites+Sandboxes density. Park voice / FR-MAN-2. |
+| **Next / Shipped** | Active **KAN-364** Heal+Desktop density. Park voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-26 — KAN-362 — Suites + Sandboxes Lab density (desk127)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-362
+- **Done:** TRACK3-LAB Story 2. Suites Done gate: path+Discover/List/Run sel/Run all + **one** status (saved path merged into `suite-status`; removed `#suite-saved`); Import stays Advanced. Sandboxes: compact Enable/Save/Action/Orchestrate + one status; Remove confirm in detail. Marker `data-suites-sandboxes-density="1"` + `--chrome-toolbar` CSS. TRACK5 craft / theme/orb/home/App nav locked. Cache-bust **desk127**. CU not required (marker/pytest AC).
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_lab_suites_sandboxes_density.py`, desk127 bump on related UI tests
+- **Verify:** `pytest tests/test_lab_suites_sandboxes_density.py` + suites/sandboxes/lab chrome/scan craft — 8 passed (+10 subtests). Spot-check: `desktop_app.py` → App → Suites one status with Saved; Sandboxes Enable compact; Remove in detail.
+- **Jira:** close-out **KAN-362** + **KAN-363**
+- **Next:** **KAN-364** Heal + Desktop Lab density (test **KAN-365**)
 
 ### 2026-11-26 — KAN-360 — Lab chrome-budget markers (desk126)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up KAN-360
