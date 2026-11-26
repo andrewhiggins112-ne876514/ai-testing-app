@@ -208,7 +208,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Catalogue **H** designs complete. Tracks 1–4 Build Done (grammar through Sandboxes **KAN-345**). **TRACK5-LAYOUT Done** (Phase 1 **KAN-348…352**; Phase 2 evidence-first **KAN-354** / **desk125**). **TRACK3-LAB Done** — epic **KAN-359**; Stories **360/362/364/366** (human A–E **desk131**). Next: deepen Playwright **trace** (B1 depth — notice file today). FR-MAN-2 live circles parked (DPIA). Voice **KAN-81** / G10 deferred (mic) — do not implement while deferred. CI / H3 network share / Xray / Selenium·Cypress real runners stay parked.
+**Still open / next:** Catalogue **H** designs complete. Tracks 1–4 Build Done (grammar through Sandboxes **KAN-345**). **TRACK5-LAYOUT Done** (Phase 1 **KAN-348…352**; Phase 2 evidence-first **KAN-354** / **desk125**). **TRACK3-LAB Done** — epic **KAN-359**; Stories **360/362/364/366** (human A–E **desk131**). **TRACE-DEEPEN Done** — **KAN-372**/373 (**desk132**) real Playwright `trace.zip` on failure. Queue parked. FR-MAN-2 live circles parked (DPIA). Voice **KAN-81** / G10 deferred (mic) — do not implement while deferred. CI / H3 network share / Xray / Selenium·Cypress real runners stay parked.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 

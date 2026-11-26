@@ -15,7 +15,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | TRACK2-UX | Enterprise layout note → tokens | done | **KAN-295** note accepted; **KAN-297**/**KAN-298** tokens desk99; Track 2 complete |
 | TRACK3-UX | Enterprise area density (FR-UI-10) — Primary geometry | done | Epic **KAN-307** Primary Done (**KAN-320**/321 + **KAN-323** desk106); Lab follow-on |
 | TRACK3-LAB | Lab area density (Heal/Desktop/Suites/Sandboxes) | done | Epic **KAN-359** Done; Stories **360/362/364/366** + bugs **368**/370; human A–E **desk131** |
-| TRACE-DEEPEN | Real Playwright trace (replace notice file) | next | After TRACK3-LAB — seed Story on pick-up (B1 depth) |
+| TRACE-DEEPEN | Real Playwright trace (replace notice file) | done | **KAN-372**/373 (**desk132**) — real `trace.zip` on failure; notice file removed |
 | TRACK4-LAYOUT | Secondary area layout grammar (FR-UI-11) — Settings template first | done | Settings **KAN-324** … Sandboxes Lab **KAN-345** (**desk118** / test **KAN-346**) — rest-of-App inherit complete |
 | TRACK5-LAYOUT | FR-UI-11 structure pack — all secondary areas (empty / keyboard / scroll + Plans/Docs/Heal/Lab craft) | done | Phase 1 **KAN-348…352**; Phase 2 **KAN-354** evidence-first (**desk125** / test **KAN-355**) |
 | FR-MAN-2 | Live assist / circles | later | Parked until FR-MAN-1 **completion** + DPIA (H1 §10) |
@@ -105,7 +105,8 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 **Council Track 3 (2026-11-18):** Epic **KAN-307** Primary Done.  
 **TRACK4-LAYOUT:** Done **KAN-324…345**.  
 **TRACK5-LAYOUT (2026-11-22 Bridge):** Epic **KAN-347** Done. Phase 1 **KAN-348…352**; Phase 2 **KAN-354**/355 (**desk125**).  
-**TRACK3-LAB (2026-11-23 Bridge):** Epic **KAN-359** **Done** (2026-11-26). Stories **360/362/364/366** + bugs **368**/370; human Lab A–E confirm **desk131**. Next → real Playwright trace deepen. Park voice / FR-MAN-2 / CI.
+**TRACK3-LAB (2026-11-23 Bridge):** Epic **KAN-359** **Done** (2026-11-26). Stories **360/362/364/366** + bugs **368**/370; human Lab A–E confirm **desk131**.
+**TRACE-DEEPEN (2026-11-26):** **KAN-372**/373 Done (**desk132**) — Playwright `trace.zip` on failure. Park voice / FR-MAN-2 / CI.
 **Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1…4** (**KAN-247…249**, **KAN-253**); **C3 KAN-161**; **C4 KAN-163** coverage gaps (desk45); **C5 KAN-165** acceptance drift (desk46); **C6 KAN-167** traceability matrix (desk48); **C7 KAN-169** tags/priority/smoke/regression (desk49); **C8 KAN-171** import Playwright into suite (desk50); **C9 KAN-173** search plans/cases/failures (desk51); **C10 KAN-175** suite history/compare (desk52); **C11 KAN-177** archive case (desk53); **D1 KAN-179** sequential default + parallel cap (desk54); **D2 KAN-181** flake/quarantine (desk55); **D3 KAN-183** named environments (desk56); **D4 KAN-185** credential status (desk57); **D5 KAN-187** case step timeouts (desk58); **D6 KAN-189** local run-finish notices (desk59); **D7 KAN-191** duration on run/case + compare (desk60); **E1 KAN-193** document privacy for uploads (desk61); **E2 KAN-195** local side-effects audit (desk62); **E3 KAN-197** redact secrets in evidence/exports (desk63); **E4 KAN-199** lab backup/restore (desk65); **E5 KAN-201** offline last plan (desk66).
 
 **Council CR (2026-11-16):** Test-all vision locked; catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.

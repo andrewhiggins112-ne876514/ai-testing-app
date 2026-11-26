@@ -1,4 +1,4 @@
-"""KAN-354 / KAN-355 — TRACK5 Phase 2 evidence-first detail slot."""
+"""KAN-354 / KAN-355 — TRACK5 Phase 2 evidence-first detail slot (updated KAN-372 copy)."""
 from __future__ import annotations
 
 import unittest
@@ -8,16 +8,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class Track5EvidenceFirstDetailTests(unittest.TestCase):
-    def test_evidence_first_detail_markers_desk131(self) -> None:
+    def test_evidence_first_detail_markers_desk132(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk131", html)
-        self.assertIn("desk131", desk)
-        self.assertIn("desktop.css?v=desk131", html)
-        self.assertIn("desktop.js?v=desk131", html)
+        self.assertIn("desk132", html)
+        self.assertIn("desk132", desk)
+        self.assertIn("desktop.css?v=desk132", html)
+        self.assertIn("desktop.js?v=desk132", html)
 
         reports = html.split('id="app-section-reports"', 1)[1].split(
             'id="app-section-documents"', 1
@@ -61,12 +61,14 @@ class Track5EvidenceFirstDetailTests(unittest.TestCase):
             with self.subTest(area=name):
                 self.assertIn('data-evidence-first-detail="1"', block)
                 self.assertIn('data-evidence-first="1"', block)
-                self.assertIn("not hooked", block)
-                self.assertIn("not a Playwright trace", block)
+                self.assertIn('data-playwright-trace="1"', block)
+                self.assertIn("no Playwright trace for this run", block)
+                self.assertNotIn("not hooked", block)
+                self.assertNotIn("not a Playwright trace", block)
                 self.assertIn("not OCR-redacted", block)
                 # No fake Trace runner control in the evidence slot.
                 self.assertNotIn("Open Playwright Trace", block)
-                self.assertNotIn("id=\"trace-run\"", block)
+                self.assertNotIn('id="trace-run"', block)
 
         # Evidence slot precedes edit fields on run-bearing details.
         rpt_detail = reports.split('id="rpt-detail"', 1)[1]
@@ -113,13 +115,14 @@ class Track5EvidenceFirstDetailTests(unittest.TestCase):
 
         self.assertIn("fillEvidenceFirst", js)
         self.assertIn("hideEvidenceFirst", js)
-        self.assertIn("EVIDENCE_TRACE_COPY", js)
-        self.assertIn("not hooked yet", js)
-        self.assertIn("not a Playwright trace", js)
+        self.assertIn("EVIDENCE_TRACE_CAPTURED", js)
+        self.assertIn("EVIDENCE_TRACE_NONE", js)
+        self.assertIn("playwright show-trace", js)
+        self.assertNotIn("not hooked yet", js)
         self.assertIn("not OCR-redacted", js)
         self.assertNotIn("Open Playwright Trace", js)
         self.assertIn(".evidence-first", css)
-        self.assertIn("desk131", desk)
+        self.assertIn("desk132", desk)
 
 
 if __name__ == "__main__":

@@ -45,12 +45,16 @@ def write_failure_bundle(
         "playwright_status": playwright.get("status"),
         "error": playwright.get("error"),
     }
-    trace_placeholder = folder / "trace.notice.txt"
-    trace_placeholder.write_text(
-        "Playwright trace capture for plan runs is reserved for a future runner hook.\n",
-        encoding="utf-8",
-    )
-    bundle["trace"] = str(trace_placeholder)
+    # KAN-372 / TRACE-DEEPEN: prefer real Playwright trace.zip — never pretend notice.txt is a trace.
+    trace_src = playwright.get("trace")
+    trace_path: Path | None = None
+    if isinstance(trace_src, str) and trace_src.strip():
+        candidate = Path(trace_src.strip())
+        if candidate.is_file() and candidate.suffix.lower() == ".zip":
+            trace_path = candidate
+            bundle["trace"] = str(candidate)
+    if trace_path is None and playwright.get("trace_error"):
+        bundle["trace_error"] = str(playwright.get("trace_error"))[:200]
     from reports.redact import redact_evidence_index
 
     # Evidence index must not become a second copy of stored tokens (KAN-197 / E3).
@@ -60,5 +64,6 @@ def write_failure_bundle(
     paths = [str(manifest)]
     if screenshot:
         paths.append(str(screenshot))
-    paths.append(str(trace_placeholder))
+    if trace_path is not None:
+        paths.append(str(trace_path))
     return {"bundle_path": str(manifest), "paths": paths, "bundle": bundle}

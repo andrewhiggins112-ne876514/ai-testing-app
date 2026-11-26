@@ -19,13 +19,13 @@ SPLITS = (
 
 
 class ScanCraftScrollStretchTests(unittest.TestCase):
-    def test_grammar_splits_stretch_desk131(self) -> None:
+    def test_grammar_splits_stretch_desk132(self) -> None:
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk131", html)
-        self.assertIn("desk131", desk)
+        self.assertIn("desk132", html)
+        self.assertIn("desk132", desk)
         self.assertIn("KAN-368", css)
 
         # Shared harden: no-outer-scroll splits stretch + row minmax.

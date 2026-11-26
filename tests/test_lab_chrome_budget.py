@@ -18,7 +18,7 @@ LAYOUT_MODES = ("overlay", "stage", "orb_hub", "split", "floating")
 
 
 class LabChromeBudgetTests(unittest.TestCase):
-    def test_lab_chrome_budget_markers_desk131(self) -> None:
+    def test_lab_chrome_budget_markers_desk132(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
@@ -26,10 +26,10 @@ class LabChromeBudgetTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk131", html)
-        self.assertIn("desk131", desk)
-        self.assertIn("desktop.css?v=desk131", html)
-        self.assertIn("desktop.js?v=desk131", html)
+        self.assertIn("desk132", html)
+        self.assertIn("desk132", desk)
+        self.assertIn("desktop.css?v=desk132", html)
+        self.assertIn("desktop.js?v=desk132", html)
 
         # Accept gate recorded before geometry Stories 2–4.
         lab_section = wires.split("## 8. Lab tools", 1)[1].split("## 9.", 1)[0]
@@ -120,7 +120,7 @@ class LabChromeBudgetTests(unittest.TestCase):
             'data-lab-detail-disclosure="1"',
             'data-heal-confirm-copy="1"',
             'data-evidence-first-detail="1"',
-            "Trace: runner capture is not hooked yet",
+            "Trace: no Playwright trace for this run.",
         ):
             self.assertIn(marker, html)
 

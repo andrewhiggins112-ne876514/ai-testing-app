@@ -2145,8 +2145,10 @@
     }
   }
 
-  const EVIDENCE_TRACE_COPY =
-    "Trace: runner capture is not hooked yet. The notice file is not a Playwright trace.";
+  const EVIDENCE_TRACE_NONE =
+    "Trace: no Playwright trace for this run.";
+  const EVIDENCE_TRACE_CAPTURED =
+    "Trace: Playwright trace.zip captured — open with playwright show-trace.";
   const EVIDENCE_SHOT_WARN =
     "Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.";
 
@@ -2166,6 +2168,8 @@
     }
     const warn = root.querySelector("[data-evidence-shot-warn]");
     if (warn) warn.hidden = true;
+    const trace = root.querySelector("[data-evidence-trace]");
+    if (trace) trace.textContent = EVIDENCE_TRACE_NONE;
   }
 
   function fillEvidenceFirst(root, opts) {
@@ -2175,13 +2179,19 @@
     const summaryText = String(options.summary || "").trim();
     const linkText = String(options.link || "").trim();
     const hasShot = !!options.hasScreenshot;
+    const tracePath = String(options.tracePath || "").trim();
+    const hasTrace = !!options.hasTrace || /\.zip$/i.test(tracePath);
     const show =
       !!options.force ||
       !!summaryText ||
       !!linkText ||
       hasShot ||
+      hasTrace ||
       !optional;
-    if (!show || (optional && !summaryText && !linkText && !hasShot)) {
+    if (
+      !show ||
+      (optional && !summaryText && !linkText && !hasShot && !hasTrace)
+    ) {
       hideEvidenceFirst(root);
       return;
     }
@@ -2206,7 +2216,15 @@
       if (hasShot) warn.textContent = EVIDENCE_SHOT_WARN;
     }
     const trace = root.querySelector("[data-evidence-trace]");
-    if (trace) trace.textContent = EVIDENCE_TRACE_COPY;
+    if (trace) {
+      if (hasTrace) {
+        trace.textContent = tracePath
+          ? EVIDENCE_TRACE_CAPTURED + " " + tracePath
+          : EVIDENCE_TRACE_CAPTURED;
+      } else {
+        trace.textContent = EVIDENCE_TRACE_NONE;
+      }
+    }
   }
 
   function clearReportViewer(message) {
@@ -4510,6 +4528,18 @@
           }
           return "";
         })();
+        const tracePath = (function findTrace() {
+          const ev = (last && last.evidence) || [];
+          for (let i = 0; i < ev.length; i++) {
+            const text = String(ev[i] || "");
+            if (/\.zip$/i.test(text) && /trace/i.test(text)) return text;
+          }
+          for (let i = 0; i < ev.length; i++) {
+            const text = String(ev[i] || "");
+            if (/\.zip$/i.test(text)) return text;
+          }
+          return "";
+        })();
         const parts = [];
         if (last) {
           parts.push(String(last.result || "pending"));
@@ -4532,6 +4562,8 @@
           summary: parts.length ? parts.join(" · ") : "No run yet",
           link: shotPath ? "Screenshot: " + shotPath : "",
           hasScreenshot: !!shotPath,
+          tracePath: tracePath,
+          hasTrace: !!tracePath,
         });
       })();
       syncPlanCaseRowFocus();

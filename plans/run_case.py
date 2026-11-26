@@ -72,6 +72,9 @@ def _map_playwright_result(pw: dict[str, Any]) -> tuple[str, str | None, list[st
     screenshot = pw.get("screenshot")
     if screenshot:
         evidence.append(str(screenshot))
+    trace = pw.get("trace")
+    if trace:
+        evidence.append(str(trace))
     report = pw.get("report_json")
     if report:
         evidence.append(str(report))
@@ -1261,6 +1264,7 @@ async def _execute_case(
             "status": pw.get("status"),
             "error": pw.get("error"),
             "screenshot": pw.get("screenshot"),
+            "trace": pw.get("trace"),
             "browser_profile": pw.get("browser_profile"),
         },
         "a11y": a11y_payload,

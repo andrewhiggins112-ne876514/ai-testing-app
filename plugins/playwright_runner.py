@@ -358,6 +358,41 @@ async def _save_screenshot(page, result: Dict[str, Any], *, kind: str) -> None:
     result["evidence"] = evidence
 
 
+async def _start_tracing(context) -> bool:
+    """KAN-372 / TRACE-DEEPEN: record Playwright trace on stepped runs."""
+    try:
+        await context.tracing.start(screenshots=True, snapshots=True)
+        return True
+    except Exception:
+        return False
+
+
+async def _stop_tracing(context, result: Dict[str, Any], *, save: bool) -> None:
+    """Stop tracing; persist zip on failure. Never write a fake notice file here."""
+    if save:
+        base = os.environ.get("LOCALAPPDATA") or os.environ.get("HOME") or "."
+        trace_dir = Path(base) / "ai_testing_app" / "traces"
+        trace_dir.mkdir(parents=True, exist_ok=True)
+        path = trace_dir / f"{time.strftime('%Y%m%d-%H%M%S')}-trace.zip"
+        try:
+            await context.tracing.stop(path=str(path))
+        except Exception as exc:
+            result["trace_error"] = str(exc)[:200]
+            return
+        if path.is_file():
+            result["trace"] = str(path)
+            evidence = result.get("evidence")
+            if not isinstance(evidence, list):
+                evidence = []
+            evidence.append({"kind": "trace", "path": str(path)})
+            result["evidence"] = evidence
+        return
+    try:
+        await context.tracing.stop()
+    except Exception:
+        pass
+
+
 async def run_playwright(
     url: str = "",
     mode: str = "generate",
@@ -380,6 +415,7 @@ async def run_playwright(
         "url": url or None,
         "title": None,
         "screenshot": None,
+        "trace": None,
         "error": None,
         "evidence": [],
     }
@@ -446,6 +482,10 @@ async def run_playwright(
         else:
             # Injected browser (tests): ephemeral context, caller owns lifecycle.
             context = await browser.new_context()
+        tracing_on = False
+        if steps:
+            tracing_on = await _start_tracing(context)
+            result["tracing"] = tracing_on
         page = await context.new_page()
         try:
             if steps:
@@ -550,6 +590,10 @@ async def run_playwright(
                 result["status"] = "pass"
         finally:
             if context is not None:
+                if tracing_on:
+                    # Persist zip on non-pass (fail / error / paused-stop). Discard on pass.
+                    save_trace = str(result.get("status") or "") != "pass"
+                    await _stop_tracing(context, result, save=save_trace)
                 await context.close()
             # Headed AUT closed — page context is no longer known (KAN-289).
             try:

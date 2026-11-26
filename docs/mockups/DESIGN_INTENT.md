@@ -75,8 +75,8 @@ Active Build: **KAN-364** (Heal+Desktop density). Epic **KAN-359**. **KAN-362** 
 | TRACK5 Plans compact + sections | Done **KAN-350** | desk120 |
 | TRACK5 Docs / Heal / Lab disclosure | Done **KAN-352** | desk123 |
 | TRACK5 Phase 2 evidence-first | **Done KAN-354** (**desk125**) | TRACK5 complete |
-| TRACK3-LAB Lab density | **Active** epic **KAN-359** / story **KAN-364** | FR-UI-10 Lab; **KAN-362** Suites+Sandboxes Done (**desk127**) |
-| Real Playwright trace deepen | **Later** (after TRACK3-LAB) | Replace `trace.notice.txt` |
+| TRACK3-LAB Lab density | **Done** epic **KAN-359** | human A–E **desk131** |
+| Real Playwright trace deepen | **Done KAN-372** (**desk132**) | Real `trace.zip` on failure |
 | KAN-81/82 voice; FR-MAN-2 | **Parked** | Mic / DPIA |
 
 ## Mockup index

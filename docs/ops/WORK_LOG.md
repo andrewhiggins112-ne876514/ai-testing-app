@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | deferred — seed next story |
-| **Jira story** | — (TRACK3-LAB **KAN-359** / **KAN-366** Done) |
-| **Start task** | Seed **Playwright trace deepen** (B1 depth — replace `trace.notice.txt`) as next Active Story+test, then implement. Do **not** start voice / FR-MAN-2. |
+| **Status** | deferred — park queue |
+| **Jira story** | — (**KAN-372** TRACE-DEEPEN Done) |
+| **Start task** | Queue parked. Do **not** start voice / FR-MAN-2 / CI unless human unparks. |
 | **Epic** | — |
-| **Roadmap ID** | TRACE-DEEPEN (queued) |
-| **Spec** | FR-PLAN-4 / FR-TEST-4 evidence depth |
+| **Roadmap ID** | — (TRACE-DEEPEN done) |
+| **Spec** | — |
 | **Git** | `main` |
 | **Test ticket** | — |
-| **Shipped** | TRACK3-LAB Done (**KAN-360…366** + bugs **368**/370; human A–E **desk131**) |
-| **Queued** | Playwright trace deepen → then park queue |
+| **Shipped** | TRACE-DEEPEN **KAN-372**/373 (**desk132**); TRACK3-LAB **KAN-359**…366 |
+| **Queued** | — (park) |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
-| **Next / Shipped** | TRACK3-LAB complete. Next pick-up: seed+build real Playwright trace. Park voice / FR-MAN-2. |
+| **Next / Shipped** | TRACE-DEEPEN Done. Park voice / FR-MAN-2 / CI until human picks next. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-26 — KAN-372 — TRACE-DEEPEN real Playwright trace.zip
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up after TRACK3-LAB deferred seed
+- **Done:** Seeded Story **KAN-372** + test **KAN-373**. Runner starts `context.tracing` on stepped runs; on non-pass stops to `%LOCALAPPDATA%/ai_testing_app/traces/*-trace.zip`. Failure bundle prefers real zip; no more `trace.notice.txt` as fake trace. Desktop evidence-first copy + `data-playwright-trace="1"`; cache-bust **desk132**.
+- **Files:** `plugins/playwright_runner.py`, `plans/evidence_bundle.py`, `plans/run_case.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_playwright_trace_deepen.py`, evidence-first/lab copy tests, `scripts/jira_kan_trace_deepen_seed.py`, `docs/ops/TRACE_DEEPEN_KEYS.json`
+- **Verify:** `pytest tests/test_playwright_trace_deepen.py` + evidence-first/bundle/lab — 9 passed (+10 subtests). CU not required.
+- **Jira:** close-out **KAN-372** + **KAN-373**
+- **Next:** Park queue (voice / FR-MAN-2 / CI stay deferred)
 
 ### 2026-11-26 — KAN-366 — Lab occlusion A–E human confirm (TRACK3-LAB Done)
 - **Agent/chat:** Designer `confirmed` Suites after prior confirm of Heal/Desktop/Sandboxes (+ scroll/path bug fixes)

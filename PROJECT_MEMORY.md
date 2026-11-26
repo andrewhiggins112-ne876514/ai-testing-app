@@ -71,7 +71,7 @@ Skeleton + substantial features exist:
 - `plans/rerun_failed.py` — **FR-PLAN-2 (KAN-151 / B5 + KAN-179):** rerun failed/error cases; new suite_run id on same plan; disabled/quarantined skipped with reason; parallel capped (default 1)
 - `plans/pause_session.py` — **FR-TEST-2 / FR-PLAN-2 (KAN-149):** pause-on-fail sessions; Continue/Stop; off by default; headed browser held open on step fail
 - `settings/degraded.py` — **FR-CONN-1 (KAN-139):** `/api/degraded-mode` + Ollama-down chat block; saved plans still open
-- `plans/evidence_bundle.py` — **FR-TEST-4 (KAN-143):** failure bundle.json + screenshot paths on run
+- `plans/evidence_bundle.py` — **FR-TEST-4 (KAN-143 / deepen KAN-372):** failure bundle.json + screenshot + real Playwright `trace.zip` (no notice placeholder)
 - `plans/failure_class.py` + `set_run_failure_class` — **FR-HEAL-4 (KAN-145):** tester failure class; create-bug only for product_bug
 - `plans/known_issue.py` + `set_known_issue_link` — **FR-PLAN-4 / FR-REP-2 (KAN-153 / B6):** link known-issue note + optional Jira key on case/run; run stays red and labelled known; report section `known_issues` include/exclude; no Jira transitions
 - `plans/notes.py` + `set_plan_notes` — **FR-PLAN-4 (KAN-155 / B7):** local exploratory notes on a case (`case.note`) and on a run (`run.tester_note`, does not overwrite system/error `run.note`); level-scoped with the plan; appear under Evidence when that report section is on
@@ -152,7 +152,7 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-221** G3 Contract/mock — **Done** (KAN-222; `plugins/contract_mock.py`; desk76)
 - **KAN-223** G4 Seed data and fixtures — **Done** (KAN-224; `plugins/seed_fixture.py` + `plans/seed_case.py`; `source.kind=seed`; run stores name; missing → environment; desk77)
 - **KAN-225** G5 Visual baseline screenshots — **Done** (KAN-226; `plugins/visual_baseline.py` + `plans/visual_case.py`; `source.kind=visual`; mismatch links both images; explicit update-baseline; desk78)
-- Next Active: **deferred** — seed Playwright **trace deepen** (B1 depth). TRACK3-LAB **KAN-359**/366 Done (human A–E **desk131**). **KAN-81** Voice — **parked**. **FR-MAN-2** parked.
+- Next Active: **deferred — park queue**. TRACE-DEEPEN **KAN-372**/373 Done (**desk132**). TRACK3-LAB **KAN-359**/366 Done. **KAN-81** Voice — **parked**. **FR-MAN-2** parked.
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 
@@ -175,6 +175,6 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - If the agent starts drifting or burning tokens, point it back to the “Original Vision” section, AGENTS.md token rules, and `docs/ops/HOW_WE_WORK.md`.
 
 ## Next Recommended Steps (in order)
-1. Pick-up: seed + build Playwright **trace deepen** (replace `trace.notice.txt`).
+1. Queue parked — human unparks next story (do not auto-start voice / FR-MAN-2).
 2. Parked: voice / FR-MAN-2 / CI / H3 share.
 3. **Parked:** **KAN-81** voice, **FR-MAN-2**, CI build, H3 network share, Xray, Selenium/Cypress real runners.

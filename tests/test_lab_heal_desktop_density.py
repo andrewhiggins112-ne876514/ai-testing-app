@@ -11,7 +11,7 @@ LAYOUT_MODES = ("overlay", "stage", "orb_hub", "split", "floating")
 
 
 class LabHealDesktopDensityTests(unittest.TestCase):
-    def test_heal_desktop_density_desk131(self) -> None:
+    def test_heal_desktop_density_desk132(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
@@ -20,10 +20,10 @@ class LabHealDesktopDensityTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk131", html)
-        self.assertIn("desk131", desk)
-        self.assertIn("desktop.css?v=desk131", html)
-        self.assertIn("desktop.js?v=desk131", html)
+        self.assertIn("desk132", html)
+        self.assertIn("desk132", desk)
+        self.assertIn("desktop.css?v=desk132", html)
+        self.assertIn("desktop.js?v=desk132", html)
 
         lab_section = wires.split("## 8. Lab tools", 1)[1].split("## 9.", 1)[0]
         self.assertIn("**Accepted**", lab_section)
@@ -138,7 +138,7 @@ class LabHealDesktopDensityTests(unittest.TestCase):
             'data-heal-layout-grammar="1"',
             'data-desktop-layout-grammar="1"',
             "Select a row",
-            "Trace: runner capture is not hooked yet",
+            "Trace: no Playwright trace for this run.",
         ):
             self.assertIn(marker, html)
         self.assertIn('data-scan-craft="1"', heal)
