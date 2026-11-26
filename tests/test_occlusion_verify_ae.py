@@ -35,7 +35,7 @@ def _slice_section(html: str, section_id: str) -> str:
 
 
 class OcclusionVerifyAETests(unittest.TestCase):
-    def test_occlusion_verify_primary_a_to_e_desk130(self) -> None:
+    def test_occlusion_verify_primary_a_to_e_desk131(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
@@ -47,8 +47,8 @@ class OcclusionVerifyAETests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk130", html)
-        self.assertIn("desk130", desk)
+        self.assertIn("desk131", html)
+        self.assertIn("desk131", desk)
         self.assertIn('data-occlusion-verify-ae="1"', html)
         self.assertIn("KAN-320", wires)
         self.assertIn("A–E verify contract", wires)

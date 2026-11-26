@@ -7,15 +7,15 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — awaiting human A–E confirm |
+| **Status** | open — awaiting Suites-only human confirm |
 | **Jira story** | **KAN-366** — Lab occlusion verify A–E |
-| **Start task** | Human Lab A–E clickability on **desk130** with seeded fixtures. Also re-check scroll (KAN-368 fix). Reply **confirm** → close **KAN-366**/367. |
+| **Start task** | Suites on **desk131** (path pre-seeded). Other Lab areas confirmed. Reply **confirm** → close **KAN-366**/367. |
 | **Epic** | **KAN-359** (TRACK3-LAB) |
 | **Roadmap ID** | TRACK3-LAB |
 | **Spec** | FR-UI-10 Lab density + FR-UI-7 A–E |
 | **Git** | `main` |
 | **Test ticket** | **KAN-367** |
-| **Shipped** | Bug **KAN-368**/369 scroll stretch **desk130** + Lab A–E seeds; markers **desk129**; **KAN-364**/365; **KAN-362**/363; **KAN-360**/361; TRACK5 Done |
+| **Shipped** | Bug **KAN-370**/371 Suites expandvars+status wrap **desk131**; **KAN-368**/369 scroll **desk130**; Lab A–E markers; Stories 1–3 Done |
 | **Queued** | After human confirm + **KAN-366** Done → real Playwright trace deepen |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2**; CI / H3 share |
 | **Next / Shipped** | Active **KAN-366** awaiting human Lab A–E. Park voice / FR-MAN-2. |
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-26 — KAN-370 — Suites path expandvars + status wrap (desk131)
+- **Agent/chat:** Designer: Suites unconfirmed; `%LOCALAPPDATA%` paste → Path not found truncated
+- **Done:** Bug **KAN-370** (Relates **KAN-366**/367; test **KAN-371**). `expandvars` in `_resolve_root`; toolbar status wraps (no ellipsis). Seed writes absolute `playwright_suite_path` + minimal Playwright project under fixtures/kan366_suite. Cache-bust **desk131**. Other Lab areas already confirmed.
+- **Files:** `plugins/playwright_suite.py`, `ui/desktop/desktop.css`, `index.html`, `desktop_app.py`, `tests/test_suite_path_status_kan370.py`, `scripts/seed_lab_ae_fixtures.py`
+- **Verify:** pytest suite path/status + playwright_suite — 9 passed. List API 1 spec. `desktop_app.py` desk131 running.
+- **Jira:** Fix + Done **KAN-370**/371; Suites-only script on **KAN-367**
+- **Next:** Human Suites confirm → Done **KAN-366**/367
 
 ### 2026-11-26 — KAN-368 — Scan-craft scroll clip (desk130)
 - **Agent/chat:** Cursor IDE Agent — Designer report during KAN-366 confirm (no scroll + no seeds)

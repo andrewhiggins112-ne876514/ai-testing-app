@@ -17,14 +17,14 @@ SECTIONS = (
 
 
 class SettingsLayoutGrammarTests(unittest.TestCase):
-    def test_settings_fr_ui11_grammar_markers_desk130(self) -> None:
+    def test_settings_fr_ui11_grammar_markers_desk131(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk130", html)
-        self.assertIn("desk130", desk)
+        self.assertIn("desk131", html)
+        self.assertIn("desk131", desk)
         settings = html.split('id="app-section-settings"', 1)[1].split(
             'id="app-section-security"', 1
         )[0]

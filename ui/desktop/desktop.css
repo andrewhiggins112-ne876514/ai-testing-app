@@ -3439,8 +3439,10 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin: 0;
   font: var(--type-ui);
   color: var(--cyan, #50cdff);
-  flex: 0 1 auto;
-  white-space: nowrap;
+  flex: 1 1 12rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* KAN-364 — TRACK3-LAB Heal + Desktop density (wires §8c–8d) */
@@ -3484,13 +3486,17 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   padding: 2px 8px;
 }
 
+/* KAN-370 — Lab toolbar status wraps full errors (no ellipsis clip). */
 #app-section-heal[data-heal-desktop-density="1"] .lab-toolbar-status,
 #app-section-desktop[data-heal-desktop-density="1"] .lab-toolbar-status {
-  flex: 0 1 14rem;
+  flex: 1 1 12rem;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 100%;
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 #app-section-heal[data-heal-desktop-density="1"] .heal-detail-pane,
@@ -3589,13 +3595,17 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   padding: 2px 8px;
 }
 
+/* KAN-370 — status must show full path errors (wrap; no ellipsis clip). */
 #app-section-suites[data-suites-sandboxes-density="1"] .suite-toolbar-status,
 #app-section-sandboxes[data-suites-sandboxes-density="1"] .lab-toolbar-status {
-  flex: 0 1 14rem;
+  flex: 1 1 12rem;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 100%;
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 #app-section-sandboxes[data-suites-sandboxes-density="1"] .ms-compact-check,

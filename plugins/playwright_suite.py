@@ -264,7 +264,8 @@ def _resolve_root(suite_path: str = "") -> tuple[Optional[Path], Optional[str]]:
             "No Playwright suite path. Pass suite_path or set playwright_suite_path "
             "in settings (App → Suites)."
         )
-    path = Path(raw).expanduser()
+    # KAN-370 — expand %LOCALAPPDATA% / $VAR so handoff paths and pasted env forms work.
+    path = Path(os.path.expandvars(os.path.expanduser(raw)))
     if not path.exists():
         return None, f"Path not found: {path}"
     if path.is_file():
