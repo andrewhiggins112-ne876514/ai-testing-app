@@ -8,17 +8,17 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready — OPERATE |
-| **Jira story** | **KAN-375** OPERATE-1 Open-trace (epic **KAN-374**) |
-| **Start task** | Build pick-up: implement **KAN-375** (open Playwright trace from failed case). Home-PC demo AUT only — not employer app. |
+| **Jira story** | **KAN-377** OPERATE-2 demo AUT + golden-path seed (epic **KAN-374**) |
+| **Start task** | Build pick-up: implement **KAN-377** (local demo AUT fixture + seed). Home-PC only — not employer app. |
 | **Epic** | **KAN-374** OPERATE |
 | **Roadmap ID** | OPERATE |
 | **Spec** | `docs/ops/DAILY_LOOP.md` + FUNCTIONAL_SPEC CR 2026-11-26 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-376** |
-| **Shipped** | TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
-| **Queued** | OPERATE-2 demo AUT + golden path; OPERATE-3 loop-hit polish; OPERATE-4 Documents demo pack; then GAP-CR |
+| **Test ticket** | **KAN-378** |
+| **Shipped** | OPERATE-1 open-trace **KAN-375**/376 (**desk133**); TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
+| **Queued** | OPERATE-3 loop-hit polish; OPERATE-4 Documents demo pack; then GAP-CR |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Unparked OPERATE. Do **not** start voice / FR-MAN-2 / new full layout track. |
+| **Next / Shipped** | OPERATE-1 Done. Do **not** start voice / FR-MAN-2 / new full layout track. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-26 — KAN-375 — OPERATE-1 open Playwright trace
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
+- **Done:** Failed-case evidence slot gains Open Playwright Trace / Reveal in Explorer / Copy path for real `trace.zip` (KAN-372). FastAPI `POST /api/playwright-trace/open` allowlists `%LOCALAPPDATA%/ai_testing_app/{traces,evidence}` only; launches `python -m playwright show-trace` or Explorer select. Marker `data-operate-open-trace="1"`; cache-bust **desk133**. No Trace Viewer embed.
+- **Files:** `plugins/playwright_trace_open.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_operate_open_trace.py` (+ desk133 / evidence-first assertion updates)
+- **Verify:** `pytest tests/test_operate_open_trace.py tests/test_track5_evidence_first.py` + deepen UI/bundle — 10 passed (+10 subtests). CU not required.
+- **Jira:** close-out **KAN-375** + **KAN-376**
+- **Next:** **KAN-377** OPERATE-2 demo AUT + golden-path seed
 
 ### 2026-11-26 — Council CR — home/vibe + BYOK + seed research additions
 - **Agent/chat:** Council — Designer: not enterprise-only; PERSONAL + Grok/BYOK; seed all research tickets; extra agents?

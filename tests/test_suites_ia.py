@@ -6,14 +6,14 @@ from pathlib import Path
 
 
 class SuitesIaDesktopUiTests(unittest.TestCase):
-    def test_suites_ia_markers_desk132(self):
+    def test_suites_ia_markers_desk133(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk132", html)
-        self.assertIn("desk132", desk)
+        self.assertIn("desk133", html)
+        self.assertIn("desk133", desk)
         self.assertIn('data-suites-ia="1"', html)
         self.assertIn('data-suite-chrome="1"', html)
         self.assertIn('id="suite-chrome-toolbar"', html)

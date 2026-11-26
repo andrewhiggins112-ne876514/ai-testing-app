@@ -2148,12 +2148,153 @@
   const EVIDENCE_TRACE_NONE =
     "Trace: no Playwright trace for this run.";
   const EVIDENCE_TRACE_CAPTURED =
-    "Trace: Playwright trace.zip captured — open with playwright show-trace.";
+    "Trace: Playwright trace.zip captured.";
   const EVIDENCE_SHOT_WARN =
     "Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.";
 
   function evidenceFirstRoot(id) {
     return document.getElementById(id);
+  }
+
+  function ensureEvidenceTraceActions(root) {
+    if (!root) return null;
+    let actions = root.querySelector("[data-evidence-trace-actions]");
+    if (actions) return actions;
+    actions = document.createElement("div");
+    actions.className = "evidence-first-trace-actions";
+    actions.setAttribute("data-evidence-trace-actions", "1");
+    actions.hidden = true;
+    const openBtn = document.createElement("button");
+    openBtn.type = "button";
+    openBtn.className = "save-btn secondary";
+    openBtn.setAttribute("data-trace-action", "show_trace");
+    openBtn.textContent = "Open Playwright Trace";
+    const revealBtn = document.createElement("button");
+    revealBtn.type = "button";
+    revealBtn.className = "save-btn secondary";
+    revealBtn.setAttribute("data-trace-action", "reveal");
+    revealBtn.textContent = "Reveal in Explorer";
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "save-btn secondary";
+    copyBtn.setAttribute("data-trace-action", "copy");
+    copyBtn.textContent = "Copy path";
+    const status = document.createElement("p");
+    status.className = "evidence-first-trace-status";
+    status.setAttribute("data-evidence-trace-status", "1");
+    status.setAttribute("aria-live", "polite");
+    status.hidden = true;
+    actions.appendChild(openBtn);
+    actions.appendChild(revealBtn);
+    actions.appendChild(copyBtn);
+    actions.appendChild(status);
+    const trace = root.querySelector("[data-evidence-trace]");
+    if (trace && trace.parentNode) {
+      trace.parentNode.insertBefore(actions, trace.nextSibling);
+    } else {
+      root.appendChild(actions);
+    }
+    actions.addEventListener("click", async function (ev) {
+      const btn = ev.target && ev.target.closest
+        ? ev.target.closest("[data-trace-action]")
+        : null;
+      if (!btn || !actions.contains(btn)) return;
+      const action = btn.getAttribute("data-trace-action") || "";
+      const path = String(actions.getAttribute("data-trace-path") || "").trim();
+      const statusEl = actions.querySelector("[data-evidence-trace-status]");
+      if (!path) {
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.textContent = "No trace path available.";
+        }
+        return;
+      }
+      if (action === "copy") {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(path);
+          } else {
+            const ta = document.createElement("textarea");
+            ta.value = path;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+          }
+          if (statusEl) {
+            statusEl.hidden = false;
+            statusEl.textContent = "Copied path.";
+          }
+        } catch (err) {
+          if (statusEl) {
+            statusEl.hidden = false;
+            statusEl.textContent = "Could not copy path.";
+          }
+        }
+        return;
+      }
+      if (statusEl) {
+        statusEl.hidden = false;
+        statusEl.textContent =
+          action === "reveal" ? "Revealing…" : "Opening Playwright Trace…";
+      }
+      try {
+        const res = await fetch("/api/playwright-trace/open", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: path, action: action, launch: true }),
+        });
+        const payload = await res.json().catch(function () {
+          return {};
+        });
+        if (!res.ok) {
+          const detail =
+            (payload && payload.detail) ||
+            "Could not open trace.";
+          if (statusEl) {
+            statusEl.hidden = false;
+            statusEl.textContent = String(detail);
+          }
+          return;
+        }
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.textContent =
+            (payload && payload.message) ||
+            (action === "reveal"
+              ? "Revealed in Explorer."
+              : "Opened Playwright Trace.");
+        }
+      } catch (err) {
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.textContent = "Could not reach open-trace API.";
+        }
+      }
+    });
+    return actions;
+  }
+
+  function setEvidenceTraceActions(root, tracePath, hasTrace) {
+    const actions = ensureEvidenceTraceActions(root);
+    if (!actions) return;
+    const path = String(tracePath || "").trim();
+    const show = !!hasTrace && !!path;
+    actions.hidden = !show;
+    if (show) {
+      actions.setAttribute("data-trace-path", path);
+    } else {
+      actions.removeAttribute("data-trace-path");
+    }
+    const statusEl = actions.querySelector("[data-evidence-trace-status]");
+    if (statusEl) {
+      statusEl.hidden = true;
+      statusEl.textContent = "";
+    }
+    const buttons = actions.querySelectorAll("[data-trace-action]");
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].disabled = !show;
+    }
   }
 
   function hideEvidenceFirst(root) {
@@ -2170,6 +2311,7 @@
     if (warn) warn.hidden = true;
     const trace = root.querySelector("[data-evidence-trace]");
     if (trace) trace.textContent = EVIDENCE_TRACE_NONE;
+    setEvidenceTraceActions(root, "", false);
   }
 
   function fillEvidenceFirst(root, opts) {
@@ -2225,6 +2367,7 @@
         trace.textContent = EVIDENCE_TRACE_NONE;
       }
     }
+    setEvidenceTraceActions(root, tracePath, hasTrace);
   }
 
   function clearReportViewer(message) {

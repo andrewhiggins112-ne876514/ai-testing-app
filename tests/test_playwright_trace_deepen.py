@@ -133,22 +133,20 @@ class TraceDeepenRunnerTests(unittest.TestCase):
 
 
 class TraceDeepenUiTests(unittest.TestCase):
-    def test_ui_markers_and_copy_desk132(self) -> None:
+    def test_ui_markers_and_copy_desk133(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk132", html)
-        self.assertIn("desk132", desk)
+        self.assertIn("desk133", html)
+        self.assertIn("desk133", desk)
         self.assertIn('data-playwright-trace="1"', html)
         self.assertIn("Trace: no Playwright trace for this run.", html)
         self.assertNotIn("not hooked yet", html)
         self.assertNotIn("notice file is not a Playwright trace", html)
         self.assertIn("EVIDENCE_TRACE_CAPTURED", js)
         self.assertIn("EVIDENCE_TRACE_NONE", js)
-        self.assertIn("playwright show-trace", js)
         self.assertNotIn("not hooked yet", js)
-        self.assertNotIn("Open Playwright Trace", js)
         self.assertNotIn('id="trace-run"', html)
 
 

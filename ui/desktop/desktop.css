@@ -4463,6 +4463,30 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   color: var(--warn, #ffd27a);
 }
 
+/* KAN-375 — open / reveal / copy for real Playwright trace.zip */
+.evidence-first-trace-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 2px 0 0;
+}
+
+.evidence-first-trace-actions[hidden] {
+  display: none !important;
+}
+
+.evidence-first-trace-actions .save-btn {
+  margin: 0;
+}
+
+.evidence-first-trace-status {
+  margin: 0;
+  flex: 1 1 100%;
+  color: var(--muted, #9bb4c4);
+  font: var(--type-help, var(--type-ui));
+}
+
 .evidence-first .report-shot {
   max-width: 100%;
   border-radius: 4px;

@@ -41,6 +41,7 @@ from plugins.playwright_suite import (
     set_suite_path,
     suite_status as playwright_suite_status,
 )
+from plugins.playwright_trace_open import open_playwright_trace
 from plans.coverage import plan_coverage_gaps
 from plans.defect_packet import defect_packet_preview
 from plans.aut_page_context import (
@@ -415,6 +416,14 @@ class PlaywrightSuiteRunRequest(BaseModel):
     grep: str = ""
     test_file: str = ""
     timeout_s: float = 300.0
+
+
+class PlaywrightTraceOpenRequest(BaseModel):
+    """Open / reveal a local Playwright trace.zip (KAN-375)."""
+
+    path: str = ""
+    action: str = "show_trace"
+    launch: bool = True
 
 
 class PlanImportPlaywrightRequest(BaseModel):
@@ -1202,10 +1211,17 @@ async def post_playwright_suite_run(req: PlaywrightSuiteRunRequest):
     )
 
 
-@app.get("/api/plans")
-async def get_plans():
-    """List in-app plans for the active security level (KAN-125 / FR-PLAN-1/2)."""
-    return list_plans()
+@app.post("/api/playwright-trace/open")
+async def post_playwright_trace_open(req: PlaywrightTraceOpenRequest):
+    """Open Trace Viewer or Reveal in Explorer for a local trace.zip (KAN-375)."""
+    result = open_playwright_trace(
+        path=req.path or "",
+        action=req.action or "show_trace",
+        launch=bool(req.launch),
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("error") or "Invalid trace")
+    return result
 
 
 @app.post("/api/plans")

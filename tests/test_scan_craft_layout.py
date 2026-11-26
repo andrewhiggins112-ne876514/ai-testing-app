@@ -21,14 +21,14 @@ AREAS = (
 
 
 class ScanCraftLayoutTests(unittest.TestCase):
-    def test_all_areas_scan_craft_markers_desk132(self) -> None:
+    def test_all_areas_scan_craft_markers_desk133(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk132", html)
-        self.assertIn("desk132", desk)
+        self.assertIn("desk133", html)
+        self.assertIn("desk133", desk)
 
         for area in AREAS:
             chunk = html.split(f'id="app-section-{area}"', 1)[1]

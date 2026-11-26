@@ -8,7 +8,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 
 | ID | Item | Status | Notes |
 |----|------|--------|-------|
-| OPERATE | Daily test-all loop + open-trace (home-PC demo AUT) | now | Epic **KAN-374**; Active **KAN-375**/376 — `docs/ops/DAILY_LOOP.md` + `OPERATE_KEYS.json` |
+| OPERATE | Daily test-all loop + open-trace (home-PC demo AUT) | now | Epic **KAN-374**; OPERATE-1 **KAN-375**/376 Done (**desk133**); Active **KAN-377**/378 demo AUT — `docs/ops/DAILY_LOOP.md` + `OPERATE_KEYS.json` |
 | TRACK1-IA | Plans IA + stub honesty + other area tidy | done | Epic **KAN-264**; **KAN-265/267/269/271/273** Done (desk89 Lab areas tidy) |
 | TRACK1-H1 | Manual shell + Charter Frame MVP | done | **KAN-275** Manual shell (desk90); **KAN-277** Charter Frame MVP (desk92; test **278**); design KAN-241 §9; FR-MAN-2 parked |
 | TRACK2-CHROME | Non-overlapping area chrome (FR-UI-9) | done | **KAN-281** / **KAN-282** desk92; Bug **KAN-280** fixed |
@@ -19,7 +19,7 @@ Status: `done` | `now` | `next` | `later` | `blocked`
 | TRACE-DEEPEN | Real Playwright trace (replace notice file) | done | **KAN-372**/373 (**desk132**) — real `trace.zip` on failure; notice file removed — **Baseline** |
 | TRACK4-LAYOUT | Secondary area layout grammar (FR-UI-11) — Settings template first | done | Settings **KAN-324** … Sandboxes Lab **KAN-345** (**desk118** / test **KAN-346**) — rest-of-App inherit complete — **Baseline** |
 | TRACK5-LAYOUT | FR-UI-11 structure pack — all secondary areas (empty / keyboard / scroll + Plans/Docs/Heal/Lab craft) | done | Phase 1 **KAN-348…352**; Phase 2 **KAN-354** evidence-first (**desk125** / test **KAN-355**) — **Baseline** |
-| OPERATE-POLISH | Loop-hit UI only (Plans Run, Manual idle, evidence affordance) | next | After OPERATE open-trace; not a new full layout track |
+| OPERATE-POLISH | Loop-hit UI + triage strip / run→report / Heal badge (OPERATE-3) | next | After OPERATE-2 demo AUT; **KAN-379** expanded; not a new full layout track |
 | GAP-CR | Enterprise CRs: charts, Manual float, stubs, plan doc, compliance + research adds (release panel, flake, heal prov, SBTM, agent gov) | later | Epic **KAN-383**; see `GAP_RESEARCH_KEYS.json` — after OPERATE |
 | HOME-MARKET | PERSONAL level + BYOK agents (Grok etc.) + home onboarding | later | Epic seeded 2026-11-26; after OPERATE unless unparked; SECRET/OFFICIAL refuse cloud LLM keys |
 | FR-MAN-2 | Live assist / circles | later | Parked until DPIA (H1 §10); distinct from Manual float-snip CR |
@@ -111,7 +111,7 @@ FR gap pass KAN-83…KAN-99 complete as **prototype baselines**. Active product 
 **TRACK5-LAYOUT (2026-11-22 Bridge):** Epic **KAN-347** Done. Phase 1 **KAN-348…352**; Phase 2 **KAN-354**/355 (**desk125**).  
 **TRACK3-LAB (2026-11-23 Bridge):** Epic **KAN-359** **Done** (2026-11-26). Stories **360/362/364/366** + bugs **368**/370; human Lab A–E confirm **desk131**.
 **TRACE-DEEPEN (2026-11-26):** **KAN-372**/373 Done (**desk132**) — Playwright `trace.zip` on failure.
-**OPERATE (2026-11-26 Council):** Unpark daily loop + open-trace on **home-PC demo AUT** (`docs/ops/DAILY_LOOP.md`). Done rows above = **prototype baselines**. Park voice / FR-MAN-2 live circles; GAP-CR backlog after OPERATE.
+**OPERATE (2026-11-26 Council):** Unpark daily loop + open-trace on **home-PC demo AUT** (`docs/ops/DAILY_LOOP.md`). OPERATE-1 open-trace **KAN-375**/376 Done (**desk133**). Active **KAN-377** demo AUT. Done rows above = **prototype baselines**. Park voice / FR-MAN-2 live circles; GAP-CR backlog after OPERATE.
 **Shipped:** A1–A9 as before; **B1–B7** as before; **C1 KAN-157**; **C2 KAN-159**; **UI-NAV-IA-1…4** (**KAN-247…249**, **KAN-253**); **C3 KAN-161**; **C4 KAN-163** coverage gaps (desk45); **C5 KAN-165** acceptance drift (desk46); **C6 KAN-167** traceability matrix (desk48); **C7 KAN-169** tags/priority/smoke/regression (desk49); **C8 KAN-171** import Playwright into suite (desk50); **C9 KAN-173** search plans/cases/failures (desk51); **C10 KAN-175** suite history/compare (desk52); **C11 KAN-177** archive case (desk53); **D1 KAN-179** sequential default + parallel cap (desk54); **D2 KAN-181** flake/quarantine (desk55); **D3 KAN-183** named environments (desk56); **D4 KAN-185** credential status (desk57); **D5 KAN-187** case step timeouts (desk58); **D6 KAN-189** local run-finish notices (desk59); **D7 KAN-191** duration on run/case + compare (desk60); **E1 KAN-193** document privacy for uploads (desk61); **E2 KAN-195** local side-effects audit (desk62); **E3 KAN-197** redact secrets in evidence/exports (desk63); **E4 KAN-199** lab backup/restore (desk65); **E5 KAN-201** offline last plan (desk66).
 
 **Council CR (2026-11-16):** Test-all vision locked; catalogue seeded to Jira; cut nothing; one orb home + HUD widgets for roles.
