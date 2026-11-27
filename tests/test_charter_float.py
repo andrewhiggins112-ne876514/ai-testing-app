@@ -144,16 +144,16 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk147(self) -> None:
+    def test_desktop_float_markers_desk148(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk147", html)
-        self.assertIn("desk147", desk)
-        self.assertIn("desk147", float_html)
+        self.assertIn("desk148", html)
+        self.assertIn("desk148", desk)
+        self.assertIn("desk148", float_html)
         self.assertIn('data-snip-dock="1"', float_html)
         self.assertIn("charter_ring_native", desk)
         self.assertIn("dock_plus_native_ring", desk)
@@ -175,14 +175,23 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         )[0]
         self.assertNotIn("closeArea()", start_fn)
         self.assertIn("session_already_open", start_fn)
-        # KAN-507/508: only arm Charter when Manual is open; never hide in-app on float ok.
+        # KAN-507/508/509: Manual-only arm path; never hide in-app on float ok;
+        # open session offers Resume (no auto showCharterFrame); dock follows rect.
         self.assertIn('openAreaName === "manual"', js)
+        self.assertIn("function setManualResumeUi", js)
+        self.assertIn("Resume Charter", js)
+        self.assertIn("setManualResumeUi(openData.session)", js)
+        self.assertNotIn("await showCharterFrame(openData.session)", js)
         show_fn = js.split("async function showCharterFrame(session)", 1)[1].split(
             "async function hideCharterFrame()", 1
         )[0]
         self.assertNotIn("charterFrameRoot.hidden = true", show_fn)
         self.assertIn("NEVER hide in-app chrome", show_fn)
-        self.assertIn("in-app Charter + OS ring/dock", show_fn)
+        apply_fn = js.split("function applyCharterFrameRect()", 1)[1].split(
+          "function setManualResumeUi", 1
+        )[0]
+        self.assertIn("charterFrameDock.style.top", apply_fn)
+        self.assertIn("charter_float_nudge", js)
 
     def test_api_start_charter_only(self) -> None:
         from main import app

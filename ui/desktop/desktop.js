@@ -1447,6 +1447,9 @@
     : null;
   const charterFrameChip = document.getElementById("charter-frame-chip");
   const charterFrameDrag = document.getElementById("charter-frame-drag");
+  const charterFrameDock = document.getElementById("charter-frame-dock");
+  const manualResumeCharter = document.getElementById("manual-resume-charter");
+  const manualEndOpen = document.getElementById("manual-end-open");
   const charterAssistLive = document.getElementById("charter-assist-live");
   const charterMistLive = document.getElementById("charter-mist-live");
   const charterSnapMonitor = document.getElementById("charter-snap-monitor");
@@ -1478,6 +1481,8 @@
   let charterDragOrigin = null;
   let charterFrameSaveTimer = null;
   let charterOsFloatActive = false;
+  let pendingResumeSession = null;
+  let charterOsDragBusy = false;
   const healList = document.getElementById("heal-list");
   const healScanBody = document.getElementById("heal-scan-body");
   const healListEmpty = document.getElementById("heal-list-empty");
@@ -6895,6 +6900,21 @@
     charterFrameRect.style.top = f.y * 100 + "%";
     charterFrameRect.style.width = f.w * 100 + "%";
     charterFrameRect.style.height = f.h * 100 + "%";
+    /* Attach controls under the cyan rect so they move/resize with it (KAN-509). */
+    if (charterFrameDock) {
+      charterFrameDock.style.left = f.x * 100 + "%";
+      charterFrameDock.style.top = (f.y + f.h) * 100 + "%";
+      charterFrameDock.style.width = f.w * 100 + "%";
+      charterFrameDock.style.bottom = "auto";
+      charterFrameDock.style.transform = "translateY(10px)";
+    }
+  }
+
+  function setManualResumeUi(sessionOrNull) {
+    pendingResumeSession = sessionOrNull || null;
+    const on = !!pendingResumeSession;
+    if (manualResumeCharter) manualResumeCharter.hidden = !on;
+    if (manualEndOpen) manualEndOpen.hidden = !on;
   }
 
   function setCharterMistVisible(on) {
@@ -7056,10 +7076,11 @@
        that caused Start flash→gone (KAN-506 / KAN-508) when the dock was weak/ghosted. */
     const floated = await openOsCharterFloat(session);
     charterOsFloatActive = floated;
+    setManualResumeUi(null);
     if (manualStatus) {
       manualStatus.textContent = floated
-        ? "Recording — in-app Charter + OS ring/dock. Drag OS header to move ring; ± resize capture; End on either dock"
-        : "Session started — drag Charter Frame label to move; edges resize (no Jira write)";
+        ? "Recording — in-app frame + OS ring. Drag OS dock header (or Charter Frame label) to move outside this window; controls stay under the cyan frame"
+        : "Session started — drag Charter Frame; controls stay under the frame (no Jira write)";
     }
   }
 
@@ -7572,22 +7593,34 @@
         }
       }
       if (data.open_session_id) {
-        /* Never arm Charter chrome on home/orb — only while Manual is open (KAN-507). */
+        /* Manual open must not auto-arm chrome (KAN-509) — offer Resume / End instead. */
         if (openAreaName === "manual") {
-          if (!manualOpenSessionId) {
+          if (manualOpenSessionId) {
+            setManualResumeUi(null);
+            if (manualStatus) {
+              manualStatus.textContent = charterOsFloatActive
+                ? "Session recording — drag OS dock header to move outside this window; in-app dock follows the cyan frame."
+                : "Session recording — drag Charter Frame; controls stay under the frame. End before a new charter.";
+            }
+          } else {
             const openRes = await fetch("/api/manual-sessions/open");
             const openData = await openRes.json();
             if (openData.open && openData.session) {
-              await showCharterFrame(openData.session);
+              setManualResumeUi(openData.session);
+              setManualLoopStage("idle");
+              if (manualStatus) {
+                manualStatus.textContent =
+                  "Open session on this level — Resume Charter to continue, or End open session.";
+              }
+            } else {
+              setManualResumeUi(null);
             }
           }
-          if (manualStatus) {
-            manualStatus.textContent = charterOsFloatActive
-              ? "Session recording — use Charter dock (drag header to move). End before a new charter."
-              : "Session recording — Charter Frame armed. End before typing a new charter.";
-          }
+        } else {
+          setManualResumeUi(null);
         }
       } else {
+        setManualResumeUi(null);
         if (manualOpenSessionId) {
           await hideCharterFrame();
           manualOpenSessionId = "";
@@ -7937,6 +7970,8 @@
     charterDragOrigin = {
       x: ev.clientX,
       y: ev.clientY,
+      lastScreenX: ev.screenX,
+      lastScreenY: ev.screenY,
       frame: Object.assign({}, charterFrameState),
     };
     ev.preventDefault();
@@ -7951,6 +7986,26 @@
     if (charterDragMode === "move") {
       next.x = Math.min(1 - o.w, Math.max(0, o.x + dx));
       next.y = Math.min(1 - o.h, Math.max(0, o.y + dy));
+      /* When OS float is armed, screen deltas move the outside-window ring+dock. */
+      if (charterOsFloatActive) {
+        const sdx = Math.round(ev.screenX - charterDragOrigin.lastScreenX);
+        const sdy = Math.round(ev.screenY - charterDragOrigin.lastScreenY);
+        charterDragOrigin.lastScreenX = ev.screenX;
+        charterDragOrigin.lastScreenY = ev.screenY;
+        if ((sdx || sdy) && !charterOsDragBusy) {
+          const bridge = desktopBridgeApi();
+          if (bridge && bridge.charter_float_nudge) {
+            charterOsDragBusy = true;
+            Promise.resolve(bridge.charter_float_nudge(sdx, sdy))
+              .catch(function () {
+                /* ignore */
+              })
+              .then(function () {
+                charterOsDragBusy = false;
+              });
+          }
+        }
+      }
     } else {
       if (charterDragMode.indexOf("e") >= 0) {
         next.w = Math.min(1 - o.x, Math.max(0.12, o.w + dx));
@@ -7968,6 +8023,31 @@
         next.h = o.h + (o.y - ny);
         next.y = ny;
       }
+      if (charterOsFloatActive) {
+        const sdx = Math.round(ev.screenX - charterDragOrigin.lastScreenX);
+        const sdy = Math.round(ev.screenY - charterDragOrigin.lastScreenY);
+        charterDragOrigin.lastScreenX = ev.screenX;
+        charterDragOrigin.lastScreenY = ev.screenY;
+        let dw = 0;
+        let dh = 0;
+        if (charterDragMode.indexOf("e") >= 0) dw += sdx;
+        if (charterDragMode.indexOf("w") >= 0) dw -= sdx;
+        if (charterDragMode.indexOf("s") >= 0) dh += sdy;
+        if (charterDragMode.indexOf("n") >= 0) dh -= sdy;
+        if ((dw || dh) && !charterOsDragBusy) {
+          const bridge = desktopBridgeApi();
+          if (bridge && bridge.charter_float_resize_capture) {
+            charterOsDragBusy = true;
+            Promise.resolve(bridge.charter_float_resize_capture(dw, dh))
+              .catch(function () {
+                /* ignore */
+              })
+              .then(function () {
+                charterOsDragBusy = false;
+              });
+          }
+        }
+      }
     }
     charterFrameState = next;
     applyCharterFrameRect();
@@ -7978,6 +8058,63 @@
     charterDragMode = null;
     charterDragOrigin = null;
     scheduleFrameSave();
+  }
+
+  async function resumeManualCharter() {
+    let session = pendingResumeSession;
+    if (!session) {
+      try {
+        const openRes = await fetch("/api/manual-sessions/open");
+        const openData = await openRes.json();
+        if (openData.open && openData.session) session = openData.session;
+      } catch (_err) {
+        /* ignore */
+      }
+    }
+    if (!session) {
+      if (manualStatus) {
+        manualStatus.textContent = "No open session to resume.";
+      }
+      setManualResumeUi(null);
+      return;
+    }
+    setManualResumeUi(null);
+    await showCharterFrame(session);
+  }
+
+  async function endOpenManualSessionFromIdle() {
+    let sid =
+      (pendingResumeSession && pendingResumeSession.id) || manualOpenSessionId || "";
+    if (!sid) {
+      try {
+        const openRes = await fetch("/api/manual-sessions/open");
+        const openData = await openRes.json();
+        if (openData.open && openData.session) sid = openData.session.id || "";
+      } catch (_err) {
+        /* ignore */
+      }
+    }
+    if (!sid) {
+      if (manualStatus) manualStatus.textContent = "No open session to end.";
+      setManualResumeUi(null);
+      return;
+    }
+    try {
+      await fetch(
+        "/api/manual-sessions/" + encodeURIComponent(sid) + "/end",
+        { method: "POST" }
+      );
+    } catch (_err) {
+      /* continue cleanup */
+    }
+    await hideCharterFrame();
+    manualOpenSessionId = "";
+    setManualResumeUi(null);
+    setManualLoopStage("idle");
+    if (manualStatus) {
+      manualStatus.textContent = "Open session ended — enter a charter to Start.";
+    }
+    await refreshManualSessions();
   }
 
   function selectedHealRunId() {
@@ -11554,6 +11691,16 @@
   if (manualStart) {
     manualStart.addEventListener("click", function () {
       startManualSession();
+    });
+  }
+  if (manualResumeCharter) {
+    manualResumeCharter.addEventListener("click", function () {
+      resumeManualCharter();
+    });
+  }
+  if (manualEndOpen) {
+    manualEndOpen.addEventListener("click", function () {
+      endOpenManualSessionFromIdle();
     });
   }
   if (manualProposeBug) {

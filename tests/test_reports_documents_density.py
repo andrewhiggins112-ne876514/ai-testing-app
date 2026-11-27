@@ -11,7 +11,7 @@ LAYOUT_MODES = ("overlay", "stage", "orb_hub", "split", "floating")
 
 
 class ReportsDocumentsDensityTests(unittest.TestCase):
-    def test_reports_documents_density_desk147(self) -> None:
+    def test_reports_documents_density_desk148(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
@@ -19,8 +19,8 @@ class ReportsDocumentsDensityTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk147", html)
-        self.assertIn("desk147", desk)
+        self.assertIn("desk148", html)
+        self.assertIn("desk148", desk)
         self.assertIn('data-reports-documents-density="1"', html)
         self.assertIn("Accepted", wires)
         self.assertIn("KAN-316", wires)

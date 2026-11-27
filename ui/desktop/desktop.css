@@ -3128,20 +3128,25 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 }
 
 .charter-frame-dock {
+  /* Anchored under the cyan rect via applyCharterFrameRect (KAN-509). */
   position: absolute;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
+  left: 18%;
+  top: 74%;
+  width: 64%;
+  bottom: auto;
+  transform: translateY(10px);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-width: min(920px, 94vw);
+  max-width: none;
   padding: 8px 10px;
   border-radius: 12px;
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 40%, transparent);
   background: color-mix(in srgb, var(--panel, #061018) 94%, transparent);
   pointer-events: auto;
   backdrop-filter: blur(8px);
+  z-index: 2;
 }
 
 .charter-dock-controls {
