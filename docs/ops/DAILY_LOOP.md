@@ -66,4 +66,4 @@ Loop-hit polish only where the path touches: Plans Run disclosure, Manual idle l
   
 **CR 2026-11-27 (Council+Studio+Creative agreed):** deeper **readable step-by-step run narrative + pass/fail evidence** (FR-TEST-4 / FR-PLAN-4) — Option A **KAN-496** + deep view **KAN-498** Done (`docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`).  
 
-Next CR backlog: floating Manual snip (**KAN-386**), plan document view, stub deepen + fixtures, compliance design (ISO27001 etc.). Reports charts **KAN-384** Done.
+Next CR backlog: plan document view (**KAN-388**), stub deepen + fixtures, compliance design (ISO27001 etc.). Manual float **KAN-386** Done (**desk140**); Reports charts **KAN-384** Done.

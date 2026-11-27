@@ -118,7 +118,7 @@ def _normalize_screen_bbox(raw: Any) -> list[int] | None:
 
 def _normalize_frame_mode(raw: Any) -> str:
     mode = str(raw or "free").strip().lower()
-    if mode in {"free", "monitor", "window"}:
+    if mode in {"free", "monitor", "window", "float"}:
         return mode
     return "free"
 
@@ -497,6 +497,7 @@ def update_session_frame(
     frame: Any,
     *,
     frame_mode: str | None = None,
+    screen_bbox: Any = None,
     level: str | None = None,
 ) -> dict[str, Any]:
     session = _load(session_id, level)
@@ -514,8 +515,15 @@ def update_session_frame(
         }
     session["frame"] = _normalize_frame(frame)
     mode = _normalize_frame_mode(frame_mode if frame_mode is not None else "free")
-    # Manual drag/resize returns to free-region (clears absolute snap bbox).
-    if mode == "free" or frame_mode is None:
+    # OS float (KAN-386): keep absolute screen_bbox for still capture.
+    if mode == "float":
+        session["frame_mode"] = "float"
+        bbox = _normalize_screen_bbox(screen_bbox)
+        if bbox is not None:
+            session["screen_bbox"] = bbox
+        session["snap_label"] = session.get("snap_label") or "OS float"
+    # Manual in-app drag/resize returns to free-region (clears absolute snap bbox).
+    elif mode == "free" or frame_mode is None:
         session["frame_mode"] = "free"
         session["screen_bbox"] = None
         session["snap_label"] = ""

@@ -8,17 +8,17 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready — GAP-CR Build |
-| **Jira story** | **KAN-386** Manual floating snip tool (epic **KAN-383**) |
-| **Start task** | Build Manual OS-level floating snip (FR-MAN-1 deepen) under GAP-CR. Do **not** start voice / FR-MAN-2. |
+| **Jira story** | **KAN-388** Plan document view (epic **KAN-383**) |
+| **Start task** | Build user-friendly full plan document view (FR-PLAN-1 deepen). Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR |
 | **Roadmap ID** | GAP-CR |
-| **Spec** | FR-MAN-1 + gap research; keys in `docs/ops/OPERATE_KEYS.json` → gap_stories |
+| **Spec** | FR-PLAN-1 + gap research; keys in `docs/ops/OPERATE_KEYS.json` → gap_stories |
 | **Git** | `main` |
-| **Test ticket** | **KAN-387** |
-| **Shipped** | Reports charts **KAN-384**/385 (**desk137**); deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
-| **Queued** | Manual float **KAN-386**/387; plan doc **KAN-388**, stubs **KAN-390**, compliance **KAN-392**, research adds |
+| **Test ticket** | **KAN-389** |
+| **Shipped** | Manual float **KAN-386**/387 (**desk140**); Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
+| **Queued** | plan doc **KAN-388**/389; stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | **KAN-384** charts Done. Next Build = **KAN-386**/387. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | **KAN-386** Manual float Done (**desk140**). Next Build = **KAN-388**/389. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — KAN-386 — Manual floating snip (OS Charter Frame)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
+- **Done:** OS-level Charter Frame float window (frameless, on_top) via second pywebview window — Start without Jira/AI opens float outside main client area; Still hides chrome briefly and stores level-scoped PNG; no keylog/clipboard/mic. In-app overlay remains fallback when not in desktop shell. Cache-bust **desk140**. Did **not** start FR-MAN-2 / voice.
+- **Files:** `plans/charter_float.py`, `desktop_app.py`, `ui/desktop/charter_float.*`, `ui/desktop/desktop.js`, `index.html`, `plans/manual_session.py`, `plans/charter_snap.py`, `main.py`, `tests/test_charter_float.py` (+ desk140 marker bumps)
+- **Verify:** `pytest tests/test_charter_float.py tests/test_manual_session.py tests/test_charter_snap.py tests/test_manual_ia.py tests/test_manual_trustworthy_loop.py tests/test_manual_assist_drafts.py` — 36 passed. CU not required (API/HTML markers AC; float is desktop bridge).
+- **Jira:** close-out **KAN-386** + **KAN-387**
+- **Next:** **KAN-388** plan document view (test **KAN-389**)
 
 ### 2026-11-27 — KAN-500 — Reports markdown viewer size match
 - **Agent/chat:** Cursor IDE Agent (Composer) — Designer: make markdown box bigger; Raw JSON size is good

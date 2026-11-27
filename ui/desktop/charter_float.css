@@ -1,0 +1,141 @@
+/* KAN-386 — OS-level Charter Frame float window */
+:root {
+  --cyan: #50cdff;
+  --panel: #061018;
+  --text: #d7e6ef;
+  --muted: #8aa3b3;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: var(--text);
+  background: transparent;
+}
+
+.charter-float-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 2px solid var(--cyan);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  user-select: none;
+}
+
+.charter-float-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding: 0 10px;
+  flex: 0 0 36px;
+  cursor: move;
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan) 35%, transparent);
+  background: color-mix(in srgb, var(--panel) 96%, #000);
+}
+
+.charter-float-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: 0.02em;
+}
+
+.charter-float-chip {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.charter-float-capture {
+  flex: 1 1 auto;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  /* Hollow look: light mist only — still grab hides the whole window */
+  background:
+    radial-gradient(ellipse at 40% 35%, color-mix(in srgb, var(--cyan) 10%, transparent), transparent 65%),
+    rgba(4, 12, 18, 0.28);
+}
+
+.charter-float-hint {
+  margin: 0;
+  max-width: 28rem;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.charter-float-dock {
+  flex: 0 0 auto;
+  min-height: 92px;
+  padding: 8px 10px;
+  border-top: 1px solid color-mix(in srgb, var(--cyan) 35%, transparent);
+  background: color-mix(in srgb, var(--panel) 96%, #000);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.charter-float-page {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.charter-float-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.charter-float-row input {
+  flex: 1 1 140px;
+  min-width: 120px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan) 40%, transparent);
+  background: #0a1822;
+  color: var(--text);
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.cf-btn {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--cyan) 55%, transparent);
+  background: color-mix(in srgb, var(--cyan) 22%, #0a1822);
+  color: var(--text);
+  border-radius: 8px;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cf-btn.secondary {
+  background: #0a1822;
+  color: var(--cyan);
+}
+
+.cf-btn:hover { filter: brightness(1.08); }
+
+.charter-float-cancel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}

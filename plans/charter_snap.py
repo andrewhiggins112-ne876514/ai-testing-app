@@ -8,8 +8,8 @@ from __future__ import annotations
 import sys
 from typing import Any, Optional
 
-# Skip our own shell when listing snap-to-window targets.
-_OWN_TITLE_NEEDLES = ("ai testing agent",)
+# Skip our own shell + Charter float when listing snap-to-window targets.
+_OWN_TITLE_NEEDLES = ("ai testing agent", "charter frame")
 _MIN_SIDE = 40
 
 

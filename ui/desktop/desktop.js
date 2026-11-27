@@ -1477,6 +1477,7 @@
   let charterDragMode = null;
   let charterDragOrigin = null;
   let charterFrameSaveTimer = null;
+  let charterOsFloatActive = false;
   const healList = document.getElementById("heal-list");
   const healScanBody = document.getElementById("heal-scan-body");
   const healListEmpty = document.getElementById("heal-list-empty");
@@ -6984,27 +6985,78 @@
     if (charterSnapPickerList) charterSnapPickerList.innerHTML = "";
   }
 
-  function showCharterFrame(session) {
-    if (!charterFrameRoot || !session) return;
+  function desktopBridgeApi() {
+    return (window.pywebview && window.pywebview.api) || null;
+  }
+
+  async function openOsCharterFloat(session) {
+    const bridge = desktopBridgeApi();
+    if (!bridge || !bridge.charter_float_available || !bridge.charter_float_open) {
+      return false;
+    }
+    try {
+      const avail = await bridge.charter_float_available();
+      if (!avail || !avail.available) return false;
+      const opened = await bridge.charter_float_open(session || {});
+      return !!(opened && opened.status === "ok");
+    } catch (_err) {
+      return false;
+    }
+  }
+
+  async function closeOsCharterFloat() {
+    const bridge = desktopBridgeApi();
+    if (!bridge || !bridge.charter_float_close) return;
+    try {
+      await bridge.charter_float_close();
+    } catch (_err) {
+      /* ignore */
+    }
+  }
+
+  async function showCharterFrame(session) {
+    if (!session) return;
     manualOpenSessionId = session.id || "";
     charterFrameState = Object.assign(
       { x: 0.18, y: 0.16, w: 0.64, h: 0.58 },
       session.frame || {}
     );
     charterSnapLabel = session.snap_label || "";
+    showCharterCancelConfirm(false);
+    hideCharterSnapPicker();
+    updateCharterFrameChip(session);
+    setManualLoopStage("recording");
+
+    /* KAN-386: prefer OS-level float outside the main window when available. */
+    const floated = await openOsCharterFloat(session);
+    charterOsFloatActive = floated;
+    if (floated) {
+      if (charterFrameRoot) {
+        charterFrameRoot.hidden = true;
+        charterFrameRoot.setAttribute("aria-hidden", "true");
+      }
+      setCharterMistVisible(false);
+      if (manualStatus) {
+        manualStatus.textContent =
+          "Session started — OS Charter Frame float (drag anywhere; Still / End on float dock; no Jira write)";
+      }
+      return;
+    }
+
+    if (!charterFrameRoot) return;
     applyCharterFrameRect();
     setCharterMistVisible(!!session.armed_mist);
     if (charterAssistLive) charterAssistLive.checked = !!session.agent_assist;
     if (charterMistLive) charterMistLive.checked = !!session.armed_mist;
-    showCharterCancelConfirm(false);
-    hideCharterSnapPicker();
-    updateCharterFrameChip(session);
     charterFrameRoot.hidden = false;
     charterFrameRoot.setAttribute("aria-hidden", "false");
-    setManualLoopStage("recording");
   }
 
-  function hideCharterFrame() {
+  async function hideCharterFrame() {
+    if (charterOsFloatActive) {
+      await closeOsCharterFloat();
+      charterOsFloatActive = false;
+    }
     if (!charterFrameRoot) return;
     showCharterCancelConfirm(false);
     hideCharterSnapPicker();
@@ -7013,6 +7065,61 @@
     setCharterMistVisible(false);
     charterSnapLabel = "";
   }
+
+  window.__charterFloatEvent = async function (payload) {
+    const ev = (payload && payload.type) || "";
+    const sid = (payload && payload.session_id) || manualOpenSessionId;
+    if (ev === "ended") {
+      charterOsFloatActive = false;
+      const endedId = sid || manualOpenSessionId;
+      manualOpenSessionId = "";
+      window.__manualLastEndedId = endedId;
+      openArea("manual");
+      try {
+        const res = await fetch(
+          "/api/manual-sessions/" + encodeURIComponent(endedId) + "/review"
+        );
+        const data = await res.json();
+        if (data.status === "ok") {
+          showManualReview(data.session, data.review);
+          if (manualStatus) {
+            manualStatus.textContent =
+              "Session ended — review then Propose (Confirm uses FR-JIRA-5; Cancel writes nothing)";
+          }
+        } else if (manualStatus) {
+          manualStatus.textContent = "Session ended — open library row to review";
+          setManualLoopStage("review");
+        }
+      } catch (_err) {
+        setManualLoopStage("review");
+      }
+      await refreshManualSessions();
+      return;
+    }
+    if (ev === "cancelled") {
+      charterOsFloatActive = false;
+      manualOpenSessionId = "";
+      openArea("manual");
+      setManualLoopStage("idle");
+      if (manualReview) manualReview.hidden = true;
+      if (manualStatus) {
+        manualStatus.textContent = "Session cancelled — no Jira write";
+      }
+      await refreshManualSessions();
+      return;
+    }
+    if ((ev === "still" || ev === "note") && sid) {
+      try {
+        const res = await fetch(
+          "/api/manual-sessions/" + encodeURIComponent(sid)
+        );
+        const data = await res.json();
+        if (data && data.session) updateCharterFrameChip(data.session);
+      } catch (_err) {
+        /* ignore */
+      }
+    }
+  };
 
   function scheduleFrameSave() {
     if (!manualOpenSessionId) return;
@@ -7332,7 +7439,7 @@
   function clearManualUiForLevelSwitch() {
     /* Previous level's open session must not stay visible after confirm switch. */
     try {
-      hideCharterFrame();
+      void hideCharterFrame();
     } catch (_err) {
       /* frame optional */
     }
@@ -7457,8 +7564,8 @@
         const openRes = await fetch("/api/manual-sessions/open");
         const openData = await openRes.json();
         if (openData.open && openData.session) {
-          showCharterFrame(openData.session);
-          if (manualStatus) {
+          await showCharterFrame(openData.session);
+          if (manualStatus && !charterOsFloatActive) {
             manualStatus.textContent =
               "Session open — Charter Frame armed (no background capture)";
           }
@@ -7517,9 +7624,9 @@
         return;
       }
       if (manualReview) manualReview.hidden = true;
-      showCharterFrame(data.session);
+      await showCharterFrame(data.session);
       closeArea();
-      if (manualStatus) {
+      if (manualStatus && !charterOsFloatActive) {
         manualStatus.textContent =
           "Session started — Charter Frame dock: Note / Still / End / Cancel (no Jira write)";
       }
@@ -7539,7 +7646,7 @@
         { method: "POST" }
       );
       const data = await res.json();
-      hideCharterFrame();
+      await hideCharterFrame();
       const sid = manualOpenSessionId;
       manualOpenSessionId = "";
       window.__manualLastEndedId = sid;
@@ -7582,7 +7689,7 @@
         }
       );
       const data = await res.json();
-      hideCharterFrame();
+      await hideCharterFrame();
       manualOpenSessionId = "";
       openArea("manual");
       setManualLoopStage("idle");

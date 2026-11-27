@@ -211,7 +211,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Layout Tracks 1–5 + TRACK3-LAB + TRACE-DEEPEN + OPERATE-1..4 Done as **baselines**. Run-evidence CR Done: Option A **KAN-496**/497 + deep view **KAN-498**/499. Reports charts **KAN-384**/385 Done (**desk137**). **Active track = GAP-CR KAN-386** Manual floating snip. **CR backlog (seeded):** floating Manual snip (**FR-MAN-1**), stub deepen (**FR-PLUG-4**), plan document view (**FR-PLAN-1**), compliance matrix (**FR-SEC-6**); research adds. FR-MAN-2 live circles parked (DPIA). Voice **KAN-81** deferred (mic). Full CI OAuth / H3 network share / Xray stay later — read-only shells may precede.
+**Still open / next:** Layout Tracks 1–5 + TRACK3-LAB + TRACE-DEEPEN + OPERATE-1..4 Done as **baselines**. Run-evidence CR Done: Option A **KAN-496**/497 + deep view **KAN-498**/499. Reports charts **KAN-384**/385 Done. Manual OS float snip **KAN-386**/387 Done (**desk140**). **Active track = GAP-CR KAN-388** plan document view. **CR backlog (seeded):** plan document view (**FR-PLAN-1**), stub deepen (**FR-PLUG-4**), compliance matrix (**FR-SEC-6**); research adds. FR-MAN-2 live circles parked (DPIA). Voice **KAN-81** deferred (mic). Full CI OAuth / H3 network share / Xray stay later — read-only shells may precede.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 

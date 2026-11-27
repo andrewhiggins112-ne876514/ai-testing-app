@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" data-charter-float-page="1">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Charter Frame</title>
+  <link rel="stylesheet" href="/ui/desktop/charter_float.css?v=desk140" />
+</head>
+<body class="charter-float-body" data-charter-float="1" data-os-float="1">
+  <header class="charter-float-header pywebview-drag-region" data-charter-float-drag="1">
+    <span class="charter-float-title">Charter Frame</span>
+    <span id="cf-chip" class="charter-float-chip" role="status">Session open</span>
+  </header>
+  <main id="cf-capture" class="charter-float-capture" data-charter-float-capture="1" aria-label="Capture region">
+    <p class="charter-float-hint">
+      Drag this window over the AUT. Still hides the frame briefly and captures this region.
+      No keylog, clipboard, or mic.
+    </p>
+  </main>
+  <footer class="charter-float-dock" data-charter-float-dock="1" data-manual-loop-dock="1">
+    <p id="cf-page" class="charter-float-page" data-charter-page-context="1" hidden>No AUT page context</p>
+    <div class="charter-float-row">
+      <input id="cf-note" type="text" maxlength="500" placeholder="Note…" autocomplete="off" data-charter-note-input="1" />
+      <button type="button" id="cf-note-add" class="cf-btn secondary" data-charter-note="1">Note</button>
+      <button type="button" id="cf-still" class="cf-btn secondary" data-charter-still="1">Still</button>
+      <button type="button" id="cf-annotate" class="cf-btn secondary" data-charter-annotate-still="1">Annotate</button>
+      <button type="button" id="cf-end" class="cf-btn" data-charter-end="1">End</button>
+      <button type="button" id="cf-cancel" class="cf-btn secondary" data-charter-cancel="1">Cancel</button>
+    </div>
+    <div id="cf-cancel-confirm" class="charter-float-cancel" hidden data-charter-cancel-confirm="1">
+      <span>Discard this session?</span>
+      <button type="button" id="cf-cancel-yes" class="cf-btn" data-charter-cancel-yes="1">Yes, cancel</button>
+      <button type="button" id="cf-cancel-no" class="cf-btn secondary" data-charter-cancel-no="1">Keep</button>
+    </div>
+  </footer>
+  <script src="/ui/desktop/charter_float.js?v=desk140"></script>
+</body>
+</html>

@@ -297,6 +297,7 @@ class ManualSessionFrameRequest(BaseModel):
     w: float = 0.64
     h: float = 0.58
     frame_mode: str | None = "free"
+    screen_bbox: list[int] | None = None
 
 
 class ManualSessionSnapRequest(BaseModel):
@@ -2158,6 +2159,7 @@ async def post_manual_session_frame(session_id: str, req: ManualSessionFrameRequ
         session_id,
         {"x": req.x, "y": req.y, "w": req.w, "h": req.h},
         frame_mode=req.frame_mode,
+        screen_bbox=req.screen_bbox,
     )
 
 

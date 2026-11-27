@@ -8,14 +8,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class PlansTabsLayoutGrammarTests(unittest.TestCase):
-    def test_plans_remaining_tabs_fr_ui11_markers_desk139(self) -> None:
+    def test_plans_remaining_tabs_fr_ui11_markers_desk140(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk139", html)
-        self.assertIn("desk139", desk)
+        self.assertIn("desk140", html)
+        self.assertIn("desk140", desk)
 
         plans = html.split('id="app-section-plans"', 1)[1].split(
             'id="app-section-manual"', 1
