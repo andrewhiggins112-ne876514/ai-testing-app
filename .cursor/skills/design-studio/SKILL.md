@@ -28,10 +28,10 @@ If the human asks for Active-slice implementation here, redirect to a **Build** 
 
 1. Detect mode (Audit / Redesign / Research / Continuity / Bridge).
 2. Restate **frozen**: theme, orb, home/chat, App nav (unless Designer unlocked).
-3. Announce lean seats (default: Lead + Critic + Layout + Mapper).
-4. Evidence first — native desktop screenshots or prior mockups. **For Audit/Research on gaps/enterprise:** also search current enterprise QA UX (reporting dashboards, Explorer-class Manual, plan readability, demo fixtures) — cite adopt/adapt/reject; see `docs/ops/ENTERPRISE_GAP_RESEARCH.md`.
+3. Announce seats. Lean default: Lead + Critic + Layout + Mapper. **On Council co-seat / CR review / “what’s missing”:** full Studio roster; each seat researches its domain and names missing visual/AC requirements early (Designer is one person).
+4. Evidence first — native desktop screenshots or prior mockups. **Field research (binding):** search current enterprise QA UX (reporting dashboards, Explorer-class Manual, plan readability, run-evidence/step patterns, demo fixtures) — cite adopt/adapt/reject; see `docs/ops/ENTERPRISE_GAP_RESEARCH.md`.
 5. Enforce selection grammar + density rules.
-6. Verdict template from `DESIGN_STUDIO.md`.
+6. Verdict template from `DESIGN_STUDIO.md` — include discovered mock states / AC holes.
 7. Ask to apply docs / Intent / Jira drafts; confirm before Jira.
 8. Never implement product UI. Bridge → Spec (if needed) → KAN → Build.
 

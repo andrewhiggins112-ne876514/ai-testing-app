@@ -16,9 +16,9 @@
 | **Git** | `main` |
 | **Test ticket** | **KAN-380** |
 | **Shipped** | OPERATE-2 demo AUT **KAN-377**/378; OPERATE-1 open-trace **KAN-375**/376 (**desk133**); TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
-| **Queued** | OPERATE-4 Documents demo pack; then GAP-CR (incl. run-evidence UX CR awaiting Council) |
+| **Queued** | OPERATE-4 Documents demo pack (default next after OPERATE-3); then **KAN-496** Build Slice-1 (after Studio Slice-0 + Designer mock pick). Studio Slice-0 may run **now** in parallel (`/studio`) |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | OPERATE-2 Done. CR 2026-11-27 run-evidence UX → **Council** (not Build yet). Do **not** start voice / FR-MAN-2 / new full layout track. |
+| **Next / Shipped** | Council+Studio+Creative **agreed** KAN-496 (2026-11-27). Active Build stays **KAN-379**. Do **not** absorb 496 into OPERATE-3. Do **not** start voice / FR-MAN-2 / new full layout track. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — Council+Studio+Creative — KAN-496 accepted
+- **Agent/chat:** `/council` full room (all council + users + Studio + Creative); Designer accepted + process CR (reviews = whole team research + discover requirements early)
+- **Done:** Verdict CR/align. Studio Slice-0 **required** (thin Case-detail pack: pass / fail / honest empty; Option A vertical story). Build Slice-1 only after **KAN-379** Done + mock pick; prefer OPERATE-4 before 496 Build unless Designer elevates. Spec FR-TEST-4 AC deepen (no fake green, level-scoped evidence, one representative shot, Open Trace external). Process: Review defaults to whole-team + co-seat Studio/Creative on UI; requirement-discovery gate in ADVISORY_COUNCIL / skills / TEAM. No product feature code.
+- **Files:** `docs/ops/ADVISORY_COUNCIL.md`, `.cursor/skills/advisory-council/SKILL.md`, `.cursor/agents/council.md`, `DESIGN_STUDIO.md`, design-studio skill, `TEAM.md`, `DESIGN_INTENT.md`, `FUNCTIONAL_SPEC.md`, `ROADMAP.md`, `WORK_LOG.md`, `PROJECT_MEMORY.md`, `CR_RUN_EVIDENCE_UX_KEYS.json`
+- **Verify:** keys status `council_agreed`; Active still KAN-379
+- **Jira:** comment KAN-496/497 with verdict + AC adds (REST)
+- **Next:** Build pick-up remains KAN-379; `/studio` produce `docs/mockups/run_evidence_ux/` when Designer asks
 
 ### 2026-11-27 — CR — readable run steps + pass/fail evidence gallery
 - **Agent/chat:** Designer after OPERATE-2 confirm: Case detail not user-friendly; want step narrative + screenshots for fail and pass; create CR for Council

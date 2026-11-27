@@ -37,21 +37,23 @@ Council seats therefore include **future users and buyers**, not only people who
 ## Modes (auto-detect)
 
 ### Review mode
-Triggers: “review the project”, “audit”, “find gaps”, Jira+repo health.
+Triggers: “review”, “audit”, “find gaps”, Jira+repo health, review a KAN/CR, “what’s missing”.
 
-Seat: Facilitator + Delivery Auditor + Quality Auditor + Senior Test Engineer + Security Adviser  
-(+ Test Manager / Developer / Release Manager when release or buyer impact is clear).
+**Default seat = whole team (binding — Designer 2026-11-27):** Facilitator + **all** `council-*` specialists + **all** `council-user-*` future-user seats. Do **not** thin-seat a “review” unless the Designer explicitly names a lean roster. When the ask is visual / Case-detail / layout / mockup-gated, **also co-seat Design Studio** (Lead + Critic + Layout + Research at minimum; Continuity / Mapper / Jira Shaper as needed) and **Creative Architect** as path owner — Designer is one person and must not be the only source of missing requirements.
 
-**Field research gate (binding — Designer 2026-11-26):** Gap / enterprise / home / vibe / “what’s missing” reviews **must** search current practice (web or official docs) for the seated domains — test management dashboards, exploratory capture, evidence/traces, heal governance, sandboxes/envs, compliance (ISO 27001 / Cyber Essentials / SOC 2 / GDPR), agentic QA competitors, **and home/vibe BYOK hybrid trends** — **not** invent gaps from repo Done-rows or training memory alone. Cite sources; map **adopt / adapt / reject** under local-first constraints (BYOK cloud LLMs only on **PERSONAL**). Standing checklist: `docs/ops/ENTERPRISE_GAP_RESEARCH.md`. Seat **`council-user-home-developer`** on market/PERSONAL/BYOK asks. Repo Partial FRs are necessary but **not sufficient**.
+**Field research gate (binding — Designer 2026-11-26; strengthened 2026-11-27):** Every seated role **researches in its domain** (web or official docs / current tools) before Round 1 closes — not opinion-from-memory. Domains include test management dashboards, exploratory capture, evidence/traces, heal governance, sandboxes/envs, compliance (ISO 27001 / Cyber Essentials / SOC 2 / GDPR), agentic QA competitors, **and home/vibe BYOK hybrid trends**. Cite sources; map **adopt / adapt / reject** under local-first (BYOK cloud LLMs only on **PERSONAL**). Standing checklist: `docs/ops/ENTERPRISE_GAP_RESEARCH.md`. Seat **`council-user-home-developer`** on market/PERSONAL/BYOK asks. Repo Partial FRs are necessary but **not sufficient**.
+
+**Requirement-discovery gate (binding — Designer 2026-11-27):** Reviews exist to surface **additional requirements, AC holes, OOS fences, and Done-gate traps before Build** — not only to rubber-stamp the ticket text. Each seat must name at least one *candidate* missing need or risk from its lens (or explicitly “none — and why”). Verdict **Research** + **Agreements** must list discovered requirements the Designer did not have to invent later in a walkthrough. Prefer discovering gaps in Council/Studio over “Designer notices after OPERATE demo.”
 
 ### Creative mode
 Triggers: “creative idea”, “vibe”, “what if”, “deviate”, “change the path/setup”.
 
 Seat: Facilitator + Creative Architect + Scope Guardian + Senior Test Engineer + Test Manager  
-(+ Security if levels/telemetry/creds/heal auto-apply; + UX if chat/orb/nav; + Pragmatist if hardware/cost).
+(+ Security if levels/telemetry/creds/heal auto-apply; + UX if chat/orb/nav; + Pragmatist if hardware/cost).  
+When the creative ask will become a UI CR: co-seat Studio Research + Layout early so missing visual AC is found before Slice-0.
 
 ### Full room
-Trigger: “open the council”, “full room”, “debate this with everyone”.
+Trigger: “open the council”, “full room”, “debate this with everyone”, **or any generic “review”** (same default as Review whole-team above).
 
 ### Bridge to build
 Trigger: “turn this into a CR / Jira / Slice 1”.
@@ -72,7 +74,8 @@ Order: update `docs/FUNCTIONAL_SPEC.md` (if product intent changed) → KAN epic
 - Decision: ship-as-is insight | CR | park | need-you
 - Vision fit: align | extend | conflict
 - Who this serves (roles): …
-- Research (required for Review/Full gap asks): sources cited | adopt / adapt / reject | market gaps Designer should not have to invent
+- Research (required for Review/Full): per-seat sources cited | adopt / adapt / reject | market gaps Designer should not have to invent
+- Requirements discovered this review (AC / Spec / OOS / Done-gate — list even if “park”)
 - Top risks (max 5)
 - Agreements
 - Open disagreements (who vs who)

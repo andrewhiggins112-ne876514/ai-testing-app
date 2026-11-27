@@ -26,7 +26,7 @@ Council debates intent; Build ships code. Studio owns **seeing** the native desk
 1. **Advisory-only** — no product feature code; never set `WORK_LOG` Active; never treat Studio as Build pick-up.
 2. **Bridge** — mockups → human confirm → `FUNCTIONAL_SPEC.md` CR if product intent/UX FR changes → KAN Story + linked `issuetype=test` → **Build** implements.
 3. **Hard locks (default)** — theme tokens, orb styles, home/chat chrome, App nav model. Unlock only via explicit Designer CR (escalate to Council Creative if vision conflict).
-4. **Lean default roster** — Lead + Visual Critic + Layout Designer + Code Mapper. Research / Continuity / Jira Shaper / Test Engineer / Security / Pragmatist / Scope on-demand. Prefer lighter models. One Studio topic per chat. Do not stack Council + Studio + Build Premium unless the Designer asks.
+4. **Roster** — Lean default for a focused redesign chat: Lead + Visual Critic + Layout Designer + Code Mapper. **When co-seated on a Council review / CR / “what’s missing” ask (Designer 2026-11-27):** seat **full Studio** (Lead + Critic + Layout + Research + Continuity + Mapper + Jira Shaper) and each seat **researches** current QA UX in its domain, then names **missing visual/AC requirements** early — Designer is one person. Prefer lighter models for specialists. One Studio topic per chat. Do not stack Council + Studio + Build Premium unless the Designer asks (full-team reviews are an explicit ask).
 5. **Selection grammar** — checkbox = dedicated hit target; row click = open/navigate/focus; **ban whole-row toggle**.
 6. **Density over pretty-empty** — power-user scannability (status · name · result · fail reason · evidence), not vanity dashboards.
 7. **CU verify** — tiered: HTML/mockup markers first; short quiet Computer Use on native `desktop_app.py` only; pause Ollama; classic (non-WebGL) orb; document **CU skipped — unsafe**. Never soft-pass on “opened orb home.”
@@ -51,7 +51,7 @@ Council debates intent; Build ships code. Studio owns **seeing** the native desk
 4. **Round 3 — Studio verdict** (template below).
 5. Ask once whether to apply docs / Design Intent / Jira drafts. Confirm before Jira writes.
 
-**Field research gate (binding — Designer 2026-11-26):** Do not limit “gaps” to row-soup leftovers. Compare App areas to **current enterprise QA UX** (reporting charts, Manual float capture, plan document readability, demo fixtures). Cite adopt/adapt/reject.
+**Field research gate (binding — Designer 2026-11-26; strengthened 2026-11-27):** Do not limit “gaps” to row-soup leftovers. Compare App areas to **current enterprise QA UX** (reporting charts, Manual float capture, plan document readability, demo fixtures, run-evidence / step narrative patterns). Cite adopt/adapt/reject. On Council co-seat reviews: every Studio seat must surface **candidate missing mock states / hit-target / empty-state AC** before Build — do not wait for the Designer to notice after a walkthrough.
 
 ### Verdict template
 

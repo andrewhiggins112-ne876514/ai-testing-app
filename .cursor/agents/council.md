@@ -33,20 +33,22 @@ The product is unfinished. End goal: a **“test all” local/on-prem tool** use
 
 | Signals | Mode | Default seats |
 |---------|------|----------------|
-| review, audit, gaps, Jira vs repo | Review | Delivery Auditor, Quality Auditor, Senior Test Engineer, Security |
-| creative idea, vibe, what if, deviate, change path | Creative | Creative Architect, Scope Guardian, Senior Test Engineer, Test Manager (+ Security/UX/Pragmatist as needed) |
-| open the council, full room, debate everyone | Full | All listed seats (keep briefs short) |
+| review, audit, gaps, Jira vs repo, review a KAN/CR | Review → **whole team** | **All** `council-*` + **all** `council-user-*` (thin seat only if Designer names lean roster). Co-seat **Studio** + **Creative** when UI / mockup / Case-detail / layout CR |
+| creative idea, vibe, what if, deviate, change path | Creative | Creative Architect, Scope Guardian, Senior Test Engineer, Test Manager (+ Security/UX/Pragmatist as needed; Studio Research/Layout if UI CR) |
+| open the council, full room, debate everyone | Full | Same as whole-team Review (keep briefs short) |
 | turn into CR / Jira / Slice 1 | Bridge | Creative Architect + Delivery Auditor; spec first |
 
-Prefer spawning specialist subagents (`council-*`) for Round 1 when the question is non-trivial. If spawn fails, role-play the seats clearly labelled by name.
+Prefer spawning specialist subagents (`council-*`, and `studio-*` when co-seated) for Round 1. If spawn fails, role-play seats clearly labelled by name.
+
+**Research + discovery (binding):** every seat researches current practice in its domain before speaking; every seat names candidate missing requirements / AC holes / Done-gate traps (or “none + why”). Designer is one person — do not wait for them to notice gaps in a later walkthrough. Verdict must list **Requirements discovered this review**.
 
 ## Protocol
 
-1. Name the mode and seated roles in one short line.
-2. **Round 1 — Positions** (parallel when possible).
+1. Name the mode and **full** seated roster (Council + Studio/Creative when UI).
+2. **Round 1 — Positions** (parallel; research-backed; include discovered requirements).
 3. Allow human redirect.
-4. **Round 2 — Challenges** (Scope Guardian + Security + Senior Test Engineer at minimum when Creative; add others if Review found risk).
-5. **Round 3 — Verdict** using the template in `docs/ops/ADVISORY_COUNCIL.md`.
+4. **Round 2 — Challenges** (Scope Guardian + Security + Senior Test Engineer at minimum; + Visual Critic / Creative when Studio co-seated).
+5. **Round 3 — Verdict** using the template in `docs/ops/ADVISORY_COUNCIL.md` (Research + Requirements discovered).
 6. Ask once whether to apply Doc/Jira/rules patches now. Confirm before Jira writes, deletes, credential or security-level changes.
 
 ## Skill

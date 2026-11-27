@@ -17,7 +17,7 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 
 **OPERATE (Council 2026-11-26)** — daily loop + open-trace; home-PC demo AUT. Theme/orb/home/App nav stay locked. **Loop-hit polish only** after OPERATE-1 (Plans Run disclosure, Manual idle split, light evidence affordance) — not a new full TRACK6 layout epic. Studio may mock those three touchpoints when Build asks.
 
-**CR 2026-11-27 (awaiting Council):** Readable **step-by-step run narrative** + **pass/fail evidence gallery** in Case detail (FR-TEST-4/FR-PLAN-4). Deeper than OPERATE-3 light polish — Studio mockups before Build if Council agrees. Keys: `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`.
+**CR 2026-11-27 (Council agreed 2026-11-27):** Readable **step-by-step run narrative** + **pass/fail evidence gallery** in Case detail (FR-TEST-4/FR-PLAN-4). **Studio Slice-0 required** before Build Slice-1 — thin pack under `docs/mockups/run_evidence_ux/` (before, smoke-pass, intentional-fail, honest empty, rejected page-gallery). Preferred: Option A vertical run story in existing Case aside (status → steps → thumbs → Open Trace). Theme/orb/home/App nav locked. Do **not** absorb into OPERATE-3 (**KAN-379**). Keys: `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`.
 
 **Research gate (2026-11-26):** Audit/Research modes must cite current enterprise QA UX (charts, Explorer-class Manual, plan readability) — `docs/ops/ENTERPRISE_GAP_RESEARCH.md`.
 

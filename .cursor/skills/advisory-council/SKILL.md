@@ -24,14 +24,15 @@ If recalling past council/build decisions: `search_memory` with `namespace` = `r
 
 ## Steps
 
-1. Detect mode (Review / Creative / Full / Bridge).
-2. Announce seated roles.
-3. **If Review/Full and the ask is gaps / enterprise / home / vibe / what’s missing:** run **field research** (web or official docs) for seated domains before Round 1 closes — test dashboards, exploratory tools, traces/heal, sandboxes, compliance (ISO/Cyber Essentials/SOC2/GDPR), agentic QA, **home/vibe BYOK hybrid**. Seat **`council-user-home-developer`** for market/PERSONAL/BYOK. Do **not** rely on repo Done-rows or training memory alone. Update/cite `docs/ops/ENTERPRISE_GAP_RESEARCH.md` when material. Verdict must include Research adopt/adapt/reject.
-4. Round 1 — spawn or role-play `council-*` specialists (parallel when useful).
-5. Round 2 — challenges (Scope Guardian + Security + Senior Test Engineer at minimum for Creative).
-6. Round 3 — verdict template from ADVISORY_COUNCIL.md.
-7. Ask to apply Doc / rules / Jira patches; confirm before Jira writes.
-8. Never implement product features here. Point “next Build chat” at pick-up or a new story after Slice-0.
+1. Detect mode (Review / Creative / Full / Bridge). **Plain “review …” defaults to Full / whole-team** (all `council-*` + all `council-user-*`). Co-seat **Studio + Creative** when the topic is UI / Case detail / mockup-gated / CR layout.
+2. Announce every seated role (do not thin-seat unless Designer names a lean roster).
+3. **Field research (binding):** every seated role researches **current practice** in its domain (web or official docs) before Round 1 closes — test dashboards, exploratory tools, traces/heal, sandboxes, compliance (ISO/Cyber Essentials/SOC2/GDPR), agentic QA, **home/vibe BYOK**. Seat **`council-user-home-developer`** for market/PERSONAL/BYOK. Do **not** rely on repo Done-rows or training memory alone. Update/cite `docs/ops/ENTERPRISE_GAP_RESEARCH.md` when material.
+4. **Requirement discovery (binding — Designer 2026-11-27):** each seat must surface candidate **missing requirements / AC holes / Done-gate traps** from its lens (or explicit “none + why”). Designer is one person — the room invents the gaps early so walkthroughs do not. Verdict must include **Requirements discovered this review**.
+5. Round 1 — spawn specialists in parallel (Council + Studio seats when co-seated).
+6. Round 2 — challenges (Scope Guardian + Security + Senior Test Engineer at minimum; + Visual Critic / Creative when Studio co-seated).
+7. Round 3 — verdict template from ADVISORY_COUNCIL.md (include Research + Requirements discovered).
+8. Ask to apply Doc / rules / Jira patches; confirm before Jira writes.
+9. Never implement product features here. Point “next Build chat” at pick-up or a new story after Slice-0.
 
 ## CR bridge
 

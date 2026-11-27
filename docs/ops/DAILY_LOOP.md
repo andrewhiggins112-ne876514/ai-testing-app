@@ -58,6 +58,6 @@ Voice (KAN-81), FR-MAN-2 live circles, full CI sync, H3 network share, embedded 
 
 Loop-hit polish only where the path touches: Plans Run disclosure, Manual idle layout, light evidence affordance (**OPERATE-3**).  
 
-**CR 2026-11-27 (awaiting Council):** deeper **readable step-by-step run narrative + pass/fail evidence gallery** (FR-TEST-4 / FR-PLAN-4) — see `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`. Not absorbed into OPERATE-3.  
+**CR 2026-11-27 (Council+Studio+Creative agreed):** deeper **readable step-by-step run narrative + pass/fail evidence gallery** (FR-TEST-4 / FR-PLAN-4) — Studio Slice-0 then Build after OPERATE-3; see `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`. Not absorbed into OPERATE-3.  
 
 Then CR backlog: Reports charts, floating Manual snip, Documents demo pack, stub deepen + fixtures, compliance design (ISO27001 etc.).

@@ -9,5 +9,9 @@
     "KAN-377",
     "KAN-383"
   ],
-  "status": "awaiting_council"
+  "status": "council_agreed",
+  "agreed": "2026-11-27",
+  "slice0": "studio_mockpack_run_evidence_ux",
+  "slice1": "build_after_KAN-379_and_mock_pick",
+  "prefer_before_build": "OPERATE-4 unless Designer elevates"
 }

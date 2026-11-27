@@ -30,6 +30,8 @@ Use for project review, creative pivots, multi-persona debate, and (after you ag
 
 **Does not** replace pick-up. **Does not** implement product features.
 
+**Review = whole team researches (Designer 2026-11-27):** a plain “review …” seats **all** Council specialists + future-user seats; co-seats **Studio + Creative** when the topic is UI/mockup/CR layout. Every seat **researches** current practice in its role and surfaces **missing requirements / AC holes** early — Designer is one person and must not be the only gap detector. See `ADVISORY_COUNCIL.md` requirement-discovery gate.
+
 Guide: `docs/ops/ADVISORY_COUNCIL.md` · Skill: `advisory-council`
 
 | Agent | File | Model | When |
