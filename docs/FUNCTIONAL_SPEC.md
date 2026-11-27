@@ -211,7 +211,7 @@ The agent is the way in: clarify before acting; draft plans from **one Jira stor
 - Tests for core pieces.
 - Repo on `D:\Projects\ai_testing_app`; Ollama on `D:\Program Files\Ollama`.
 
-**Still open / next:** Layout Tracks 1–5 + TRACK3-LAB + TRACE-DEEPEN + OPERATE-1..4 Done as **baselines**. Run-evidence CR Done: Option A **KAN-496**/497 + deep view **KAN-498**/499 (**desk136**). **Active track = GAP-CR KAN-384** Reports charts. **CR backlog (seeded):** Reports charts (**FR-REP-1/4**), floating Manual snip (**FR-MAN-1**), stub deepen (**FR-PLUG-4**), plan document view (**FR-PLAN-1**), compliance matrix (**FR-SEC-6**). FR-MAN-2 live circles parked (DPIA). Voice **KAN-81** deferred (mic). Full CI OAuth / H3 network share / Xray stay later — read-only shells may precede.
+**Still open / next:** Layout Tracks 1–5 + TRACK3-LAB + TRACE-DEEPEN + OPERATE-1..4 Done as **baselines**. Run-evidence CR Done: Option A **KAN-496**/497 + deep view **KAN-498**/499. Reports charts **KAN-384**/385 Done (**desk137**). **Active track = GAP-CR KAN-386** Manual floating snip. **CR backlog (seeded):** floating Manual snip (**FR-MAN-1**), stub deepen (**FR-PLUG-4**), plan document view (**FR-PLAN-1**), compliance matrix (**FR-SEC-6**); research adds. FR-MAN-2 live circles parked (DPIA). Voice **KAN-81** deferred (mic). Full CI OAuth / H3 network share / Xray stay later — read-only shells may precede.
 
 Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN / FR-PLAN / FR-CI / FR-MAN work lives on Test-all Stories. Seed via `scripts/jira_kan_seed_test_all.py`.
 
@@ -243,10 +243,10 @@ Rule: a Done Story covers only what it actually shipped (baseline). New FR-CONN 
 | FR-JIRA-4 | Shipped (create_bug + confirm) | **Done** KAN-63 |
 | FR-JIRA-5, FR-JIRA-7 | Shipped confirm + local creds + write audit | **Done** KAN-12, **KAN-16**, **KAN-99** |
 | FR-JIRA-6 | Shipped (429 Retry-After backoff + readable auth/rate-limit errors) | **Done** **KAN-91** |
-| FR-REP-1 | **Baseline** metrics in export/HUD; **Partial** vs charts CR | **Done baseline** **KAN-67**; charts = OPERATE-follow CR epic |
+| FR-REP-1 | **Baseline** metrics in export/HUD; charts deepen **Done** | **Done baseline** **KAN-67**; charts **KAN-384**/385 (**desk137**) |
 | FR-REP-2 | Shipped (placement → Report Settings under FR-SET-4) | **Done** KAN-51; UI move **Done** **KAN-247** / **KAN-249** |
 | FR-REP-3 | Baseline export Done; deepen E3 + F6 pack | **Done** KAN-11 baseline; **deepen E3** **KAN-197** (desk63); **F6** read-only pack **KAN-213** (desk72) |
-| FR-REP-4 | Reports library/viewer **Baseline**; charts deepen open | **Done baseline** **KAN-247**; visual analytics = CR backlog |
+| FR-REP-4 | Reports library/viewer **Baseline**; chart panels in detail **Done** | **Done baseline** **KAN-247**; charts **KAN-384**/385 (**desk137**) |
 | FR-SEC-1, FR-SEC-3 | OFFICIAL/SECRET isolation **Baseline**; **PERSONAL + BYOK open** | **Done** KAN-15/16; HOME-MARKET epic for PERSONAL/BYOK |
 | FR-SEC-5 | Baseline secrets scoping Done; deepen E3 | **Done** KAN-15/16 baseline; **deepen E3** **KAN-197** (evidence/export redaction — Done desk63) |
 | FR-SEC-2 | Done (GDPR baseline) | **KAN-69** |

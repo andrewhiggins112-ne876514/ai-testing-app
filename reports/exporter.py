@@ -183,12 +183,16 @@ def list_saved_reports(limit: int = 50) -> dict:
 
 def get_saved_report(report_id: str) -> dict:
     """Load markdown / JSON / screenshot availability for one saved report."""
+    from reports.analytics import build_report_analytics
+
+    empty_analytics = build_report_analytics(None)
     empty = {
         "found": False,
         "id": "",
         "markdown": "No reports yet",
         "json": {"message": "No JSON found"},
         "has_screenshot": False,
+        "analytics": empty_analytics,
         "empty_hint": (
             "No saved reports yet. Run a plan case or export a run — "
             "Markdown/JSON land in the local reports folder. "
@@ -240,6 +244,7 @@ def get_saved_report(report_id: str) -> dict:
             "pack",
         }:
             label = "Read-only pack"
+    analytics_payload = payload if isinstance(payload, dict) else None
     return {
         "found": True,
         "id": stem,
@@ -248,6 +253,7 @@ def get_saved_report(report_id: str) -> dict:
         "markdown": markdown,
         "json": payload,
         "has_screenshot": shot is not None,
+        "analytics": build_report_analytics(analytics_payload),
         "empty_hint": "",
     }
 

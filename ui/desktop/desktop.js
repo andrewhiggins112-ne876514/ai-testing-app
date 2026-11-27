@@ -1809,6 +1809,21 @@
   const rptOpenSettings = document.getElementById("rpt-open-settings");
   const rptEmpty = document.getElementById("rpt-empty");
   const rptViewerTitle = document.getElementById("rpt-viewer-title");
+  const rptCharts = document.getElementById("rpt-charts");
+  const rptChartsEmpty = document.getElementById("rpt-charts-empty");
+  const rptChartsGrid = document.getElementById("rpt-charts-grid");
+  const rptChartPassFail = document.getElementById("rpt-chart-pass-fail");
+  const rptChartPassFailBody = document.getElementById("rpt-chart-pass-fail-body");
+  const rptChartCoverage = document.getElementById("rpt-chart-coverage");
+  const rptChartCoverageBody = document.getElementById("rpt-chart-coverage-body");
+  const rptChartDuration = document.getElementById("rpt-chart-duration");
+  const rptChartDurationBody = document.getElementById("rpt-chart-duration-body");
+  const rptChartFailureClasses = document.getElementById("rpt-chart-failure-classes");
+  const rptChartFailureClassesBody = document.getElementById(
+    "rpt-chart-failure-classes-body"
+  );
+  const rptChartBugsByStory = document.getElementById("rpt-chart-bugs-by-story");
+  const rptChartBugsByStoryBody = document.getElementById("rpt-chart-bugs-by-story-body");
   const rptMarkdown = document.getElementById("rpt-markdown");
   const rptScreenshot = document.getElementById("rpt-screenshot");
   const rptJson = document.getElementById("rpt-json");
@@ -2928,6 +2943,151 @@
     setEvidenceTraceActions(root, tracePath, hasTrace);
   }
 
+  function clearReportCharts() {
+    if (rptCharts) rptCharts.hidden = true;
+    if (rptChartsEmpty) {
+      rptChartsEmpty.hidden = true;
+      rptChartsEmpty.textContent = "No chart metrics in this report.";
+    }
+    if (rptChartsGrid) rptChartsGrid.hidden = true;
+    [
+      rptChartPassFail,
+      rptChartCoverage,
+      rptChartDuration,
+      rptChartFailureClasses,
+      rptChartBugsByStory,
+    ].forEach(function (panel) {
+      if (panel) panel.hidden = true;
+    });
+    [
+      rptChartPassFailBody,
+      rptChartCoverageBody,
+      rptChartDurationBody,
+      rptChartFailureClassesBody,
+      rptChartBugsByStoryBody,
+    ].forEach(function (body) {
+      if (body) body.innerHTML = "";
+    });
+  }
+
+  function rptChartBarRow(label, value, maxValue, tone) {
+    const safeMax = maxValue > 0 ? maxValue : 1;
+    const count = Number(value) || 0;
+    const pct = Math.max(0, Math.min(100, Math.round((100 * count) / safeMax)));
+    const row = document.createElement("div");
+    row.className = "rpt-chart-bar-row";
+    const name = document.createElement("span");
+    name.className = "rpt-chart-bar-label";
+    name.textContent = label;
+    const track = document.createElement("div");
+    track.className = "rpt-chart-bar-track";
+    track.setAttribute("role", "img");
+    track.setAttribute("aria-label", label + ": " + count);
+    const fill = document.createElement("div");
+    fill.className = "rpt-chart-bar-fill" + (tone ? " is-" + tone : "");
+    fill.style.width = pct + "%";
+    track.appendChild(fill);
+    const num = document.createElement("span");
+    num.className = "rpt-chart-bar-value";
+    num.textContent = String(count);
+    row.appendChild(name);
+    row.appendChild(track);
+    row.appendChild(num);
+    return row;
+  }
+
+  function renderReportCharts(analytics) {
+    clearReportCharts();
+    if (!rptCharts) return;
+    rptCharts.hidden = false;
+    const data = analytics && typeof analytics === "object" ? analytics : null;
+    const hasMetrics = !!(data && data.has_metrics);
+    if (!hasMetrics) {
+      if (rptChartsEmpty) {
+        rptChartsEmpty.hidden = false;
+        rptChartsEmpty.textContent =
+          (data && data.empty_hint) || "No chart metrics in this report.";
+      }
+      if (rptChartsGrid) rptChartsGrid.hidden = true;
+      return;
+    }
+    if (rptChartsEmpty) rptChartsEmpty.hidden = true;
+    if (rptChartsGrid) rptChartsGrid.hidden = false;
+
+    const passFail = data.pass_fail;
+    if (passFail && rptChartPassFail && rptChartPassFailBody) {
+      rptChartPassFail.hidden = false;
+      const maxVal = Math.max(
+        Number(passFail.passed) || 0,
+        Number(passFail.failed) || 0,
+        1
+      );
+      rptChartPassFailBody.appendChild(
+        rptChartBarRow("Passed", passFail.passed, maxVal, "pass")
+      );
+      rptChartPassFailBody.appendChild(
+        rptChartBarRow("Failed", passFail.failed, maxVal, "fail")
+      );
+      if (passFail.pass_rate_percent != null) {
+        const rate = document.createElement("p");
+        rate.className = "rpt-chart-meta";
+        rate.textContent = "Pass rate " + passFail.pass_rate_percent + "%";
+        rptChartPassFailBody.appendChild(rate);
+      }
+    }
+
+    const coverage = data.coverage;
+    if (coverage && rptChartCoverage && rptChartCoverageBody) {
+      rptChartCoverage.hidden = false;
+      const covered = Number(coverage.stories_covered) || 0;
+      rptChartCoverageBody.appendChild(
+        rptChartBarRow("Stories covered", covered, Math.max(covered, 1), "accent")
+      );
+      const keys = Array.isArray(coverage.stories) ? coverage.stories : [];
+      if (keys.length) {
+        const list = document.createElement("p");
+        list.className = "rpt-chart-meta";
+        list.textContent = keys.slice(0, 8).join(", ") + (keys.length > 8 ? "…" : "");
+        rptChartCoverageBody.appendChild(list);
+      }
+    }
+
+    const duration = data.duration;
+    if (duration && rptChartDuration && rptChartDurationBody) {
+      rptChartDuration.hidden = false;
+      const label = document.createElement("p");
+      label.className = "rpt-chart-duration-value";
+      label.textContent = duration.label || String(duration.seconds || "—") + "s";
+      rptChartDurationBody.appendChild(label);
+    }
+
+    const classes = Array.isArray(data.failure_classes) ? data.failure_classes : [];
+    if (classes.length && rptChartFailureClasses && rptChartFailureClassesBody) {
+      rptChartFailureClasses.hidden = false;
+      const maxClass = classes.reduce(function (m, row) {
+        return Math.max(m, Number(row.count) || 0);
+      }, 1);
+      classes.slice(0, 8).forEach(function (row) {
+        rptChartFailureClassesBody.appendChild(
+          rptChartBarRow(row.label || "unclassified", row.count, maxClass, "fail")
+        );
+      });
+    }
+
+    const bugs = Array.isArray(data.bugs_by_story) ? data.bugs_by_story : [];
+    if (bugs.length && rptChartBugsByStory && rptChartBugsByStoryBody) {
+      rptChartBugsByStory.hidden = false;
+      const maxBugs = bugs.reduce(function (m, row) {
+        return Math.max(m, Number(row.count) || 0);
+      }, 1);
+      bugs.slice(0, 8).forEach(function (row) {
+        rptChartBugsByStoryBody.appendChild(
+          rptChartBarRow(row.story || "unlinked", row.count, maxBugs, "warn")
+        );
+      });
+    }
+  }
+
   function clearReportViewer(message) {
     if (rptMarkdown) rptMarkdown.textContent = message || "Select a report to read its markdown.";
     if (rptJson) rptJson.textContent = "No JSON found";
@@ -2935,6 +3095,7 @@
       rptScreenshot.hidden = true;
       rptScreenshot.removeAttribute("src");
     }
+    clearReportCharts();
     hideEvidenceFirst(evidenceFirstRoot("rpt-evidence-first"));
   }
 
@@ -3057,6 +3218,7 @@
         link: data.has_screenshot ? "Screenshot linked in detail" : "",
         hasScreenshot: !!data.has_screenshot,
       });
+      renderReportCharts(data.analytics || null);
       if (rptStatus) rptStatus.textContent = "Opened " + (data.label || reportId);
     } catch (err) {
       clearReportViewer("Could not load that report.");

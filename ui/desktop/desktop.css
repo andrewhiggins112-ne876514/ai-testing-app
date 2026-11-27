@@ -2589,6 +2589,111 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   background: color-mix(in srgb, var(--panel, #0b1520) 88%, transparent);
 }
 
+/* KAN-384 — Reports visual analytics (local JSON charts) */
+.rpt-charts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+}
+
+.rpt-charts[hidden] {
+  display: none;
+}
+
+.rpt-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-2);
+}
+
+.rpt-chart-panel {
+  margin: 0;
+  padding: var(--space-2);
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 18%, transparent);
+  background: color-mix(in srgb, var(--panel, #0b1520) 70%, transparent);
+}
+
+.rpt-chart-panel[hidden] {
+  display: none;
+}
+
+.rpt-chart-caption {
+  margin: 0 0 8px;
+  color: var(--muted, #9bb4c4);
+  font: var(--type-ui);
+}
+
+.rpt-chart-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rpt-chart-bar-row {
+  display: grid;
+  grid-template-columns: minmax(72px, 0.9fr) 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.rpt-chart-bar-label,
+.rpt-chart-bar-value {
+  color: var(--text, #e8f4fb);
+  font: var(--type-ui);
+  font-size: 12px;
+}
+
+.rpt-chart-bar-value {
+  min-width: 1.5rem;
+  text-align: right;
+  color: var(--muted, #9bb4c4);
+}
+
+.rpt-chart-bar-track {
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cyan, #50cdff) 12%, transparent);
+  overflow: hidden;
+}
+
+.rpt-chart-bar-fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: var(--cyan, #50cdff);
+}
+
+.rpt-chart-bar-fill.is-pass {
+  background: #3dd68c;
+}
+
+.rpt-chart-bar-fill.is-fail {
+  background: #ff6b6b;
+}
+
+.rpt-chart-bar-fill.is-warn {
+  background: #f0b429;
+}
+
+.rpt-chart-bar-fill.is-accent {
+  background: var(--cyan, #50cdff);
+}
+
+.rpt-chart-meta,
+.rpt-chart-duration-value {
+  margin: 4px 0 0;
+  color: var(--muted, #9bb4c4);
+  font: var(--type-ui);
+  font-size: 12px;
+}
+
+.rpt-chart-duration-value {
+  color: var(--text, #e8f4fb);
+  font-size: 1.25rem;
+}
+
 @media (max-width: 900px) {
   #app-section-reports[data-reports-layout-grammar="1"] .rpt-grammar-split {
     grid-template-columns: 1fr;

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk136" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk137" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -727,7 +727,7 @@
           </div>
           </div>
         </div>
-        <div id="app-section-reports" class="app-section" hidden data-reports-ia="1" data-reports-documents-density="1" data-reports-layout-grammar="1" data-evidence-first-detail="1" data-scan-craft="1" data-playwright-trace="1" data-operate-open-trace="1">
+        <div id="app-section-reports" class="app-section" hidden data-reports-ia="1" data-reports-documents-density="1" data-reports-layout-grammar="1" data-reports-analytics="1" data-evidence-first-detail="1" data-scan-craft="1" data-playwright-trace="1" data-operate-open-trace="1">
           <div id="rpt-chrome-toolbar" class="area-chrome-toolbar rpt-chrome-toolbar" data-rpt-chrome="1">
             <div class="btn-row rpt-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="rpt-library-refresh" class="save-btn secondary">Refresh library</button>
@@ -759,7 +759,32 @@
             <aside class="rpt-detail-pane" id="rpt-detail" data-rpt-detail="1" aria-label="Report detail" data-scan-scroll="detail">
               <h4 class="orb-section-label" id="rpt-viewer-title">Report</h4>
               <p class="scan-quiet-empty" data-scan-unfocused="1" id="rpt-unfocused">Select a row</p>
-              <p class="drawer-hint" id="rpt-viewer-hint">Row opens markdown. Screenshot and raw JSON stay here. Section include/exclude is under Settings.</p>
+              <p class="drawer-hint" id="rpt-viewer-hint">Charts from local run JSON first; markdown, screenshot, and raw JSON stay below. Section include/exclude is under Settings.</p>
+              <div id="rpt-charts" class="rpt-charts" data-rpt-charts="1" data-reports-analytics="1" hidden aria-label="Report charts">
+                <p id="rpt-charts-empty" class="scan-quiet-empty" data-rpt-charts-empty="1" hidden>No chart metrics in this report.</p>
+                <div id="rpt-charts-grid" class="rpt-charts-grid" data-rpt-charts-grid="1" hidden>
+                  <figure class="rpt-chart-panel" data-rpt-chart="pass-fail" id="rpt-chart-pass-fail" hidden>
+                    <figcaption class="rpt-chart-caption">Pass / fail</figcaption>
+                    <div class="rpt-chart-body" id="rpt-chart-pass-fail-body"></div>
+                  </figure>
+                  <figure class="rpt-chart-panel" data-rpt-chart="coverage" id="rpt-chart-coverage" hidden>
+                    <figcaption class="rpt-chart-caption">Coverage</figcaption>
+                    <div class="rpt-chart-body" id="rpt-chart-coverage-body"></div>
+                  </figure>
+                  <figure class="rpt-chart-panel" data-rpt-chart="duration" id="rpt-chart-duration" hidden>
+                    <figcaption class="rpt-chart-caption">Duration</figcaption>
+                    <div class="rpt-chart-body" id="rpt-chart-duration-body"></div>
+                  </figure>
+                  <figure class="rpt-chart-panel" data-rpt-chart="failure-classes" id="rpt-chart-failure-classes" hidden>
+                    <figcaption class="rpt-chart-caption">Failure classes</figcaption>
+                    <div class="rpt-chart-body" id="rpt-chart-failure-classes-body"></div>
+                  </figure>
+                  <figure class="rpt-chart-panel" data-rpt-chart="bugs-by-story" id="rpt-chart-bugs-by-story" hidden>
+                    <figcaption class="rpt-chart-caption">Bugs by story</figcaption>
+                    <div class="rpt-chart-body" id="rpt-chart-bugs-by-story-body"></div>
+                  </figure>
+                </div>
+              </div>
               <div class="evidence-first" id="rpt-evidence-first" data-evidence-first="1" hidden>
                 <span class="evidence-first-tag">Last result</span>
                 <p class="evidence-first-summary" data-evidence-summary="1">—</p>
@@ -1880,6 +1905,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk136"></script>
+  <script src="/ui/desktop/desktop.js?v=desk137"></script>
 </body>
 </html>
