@@ -1,12 +1,9 @@
-/* KAN-386 / KAN-502 — snip-style hollow Charter Frame */
+/* KAN-503 — compact Charter dock (native ring is separate Win32 window) */
 :root {
   --cyan: #50cdff;
   --panel: #061018;
   --text: #d7e6ef;
   --muted: #8aa3b3;
-  --side: 10px;
-  --header: 40px;
-  --dock: 100px;
 }
 
 * { box-sizing: border-box; }
@@ -20,14 +17,13 @@ html, body {
   background: transparent;
 }
 
-.charter-float-body {
-  position: relative;
+.charter-float-body.charter-float-dock-only {
   display: flex;
   flex-direction: column;
   height: 100%;
   border: 2px solid var(--cyan);
-  border-radius: 6px;
-  background: transparent;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 96%, #000);
   user-select: none;
 }
 
@@ -35,19 +31,18 @@ html, body {
   display: flex;
   align-items: center;
   gap: 10px;
-  height: var(--header);
+  height: 32px;
   padding: 0 10px;
-  flex: 0 0 var(--header);
+  flex: 0 0 32px;
   cursor: move;
-  border-bottom: 1px solid color-mix(in srgb, var(--cyan) 45%, transparent);
-  background: color-mix(in srgb, var(--panel) 96%, #000);
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan) 35%, transparent);
+  background: color-mix(in srgb, var(--panel) 98%, #000);
 }
 
 .charter-float-title {
   font-size: 12px;
   font-weight: 700;
   color: var(--cyan);
-  letter-spacing: 0.02em;
 }
 
 .charter-float-chip {
@@ -58,37 +53,12 @@ html, body {
   text-overflow: ellipsis;
 }
 
-.charter-float-mid {
-  flex: 1 1 auto;
-  display: flex;
-  min-height: 120px;
-  background: transparent;
-}
-
-.charter-float-side {
-  flex: 0 0 var(--side);
-  background: color-mix(in srgb, var(--cyan) 35%, var(--panel));
-  cursor: ew-resize;
-}
-
-.charter-float-capture {
-  flex: 1 1 auto;
-  /* Intentionally empty — Win32 punches this as a click-through hole */
-  background: transparent;
-  pointer-events: none;
-  min-width: 0;
-}
-
 .charter-float-dock {
-  flex: 0 0 var(--dock);
-  min-height: var(--dock);
+  flex: 1 1 auto;
   padding: 6px 10px 8px;
-  border-top: 1px solid color-mix(in srgb, var(--cyan) 45%, transparent);
-  background: color-mix(in srgb, var(--panel) 96%, #000);
   display: flex;
   flex-direction: column;
   gap: 4px;
-  pointer-events: auto;
 }
 
 .charter-float-hint {
@@ -109,6 +79,11 @@ html, body {
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
+}
+
+.charter-float-geom .cf-btn {
+  min-width: 34px;
+  padding: 0 8px;
 }
 
 .charter-float-row input {
@@ -149,16 +124,4 @@ html, body {
   gap: 8px;
   align-items: center;
   font-size: 12px;
-}
-
-.charter-float-corner {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 18px;
-  height: 18px;
-  cursor: nwse-resize;
-  background:
-    linear-gradient(135deg, transparent 50%, color-mix(in srgb, var(--cyan) 70%, transparent) 50%);
-  z-index: 2;
 }

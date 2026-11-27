@@ -1,4 +1,4 @@
-/* KAN-386 / KAN-502 — snip hollow Charter Frame float controls */
+/* KAN-503 — compact dock; native ring is click-through hollow Win32 frame */
 (function () {
   "use strict";
 
@@ -6,13 +6,11 @@
   const noteInput = document.getElementById("cf-note");
   const pageEl = document.getElementById("cf-page");
   const cancelConfirm = document.getElementById("cf-cancel-confirm");
-  const row = document.querySelector(".charter-float-row");
+  const row = document.querySelector(".charter-float-row:not(.charter-float-geom)");
 
   let sessionId = "";
   let lastStillId = "";
   let saveTimer = null;
-  let ringTimer = null;
-  let resizing = null;
 
   function api() {
     return (window.pywebview && window.pywebview.api) || null;
@@ -68,8 +66,6 @@
           charter: data.session.charter,
           notes: (data.session.notes || []).length,
           stills: (data.session.stills || []).length,
-          agent_assist: data.session.agent_assist,
-          armed_mist: data.session.armed_mist,
         });
         return true;
       }
@@ -101,19 +97,6 @@
     }
   }
 
-  function scheduleRing() {
-    const bridge = api();
-    if (!bridge || !bridge.charter_float_apply_ring) return;
-    if (ringTimer) clearTimeout(ringTimer);
-    ringTimer = setTimeout(async function () {
-      try {
-        await bridge.charter_float_apply_ring();
-      } catch (_err) {
-        /* ignore */
-      }
-    }, 80);
-  }
-
   function scheduleFrameSave() {
     if (!sessionId) return;
     if (saveTimer) clearTimeout(saveTimer);
@@ -138,6 +121,28 @@
         /* ignore */
       }
     }, 300);
+  }
+
+  async function nudge(dx, dy) {
+    const bridge = api();
+    if (!bridge || !bridge.charter_float_nudge) return;
+    try {
+      await bridge.charter_float_nudge(dx, dy);
+      scheduleFrameSave();
+    } catch (_err) {
+      setChip("Move failed");
+    }
+  }
+
+  async function resizeCapture(dw, dh) {
+    const bridge = api();
+    if (!bridge || !bridge.charter_float_resize_capture) return;
+    try {
+      await bridge.charter_float_resize_capture(dw, dh);
+      scheduleFrameSave();
+    } catch (_err) {
+      setChip("Resize failed");
+    }
   }
 
   async function addNote() {
@@ -294,49 +299,6 @@
     await notifyMain("cancelled");
   }
 
-  function onResizePointerDown(ev) {
-    const handle = ev.target.closest("[data-resize]");
-    if (!handle) return;
-    ev.preventDefault();
-    ev.stopPropagation();
-    resizing = {
-      edge: handle.getAttribute("data-resize") || "se",
-      startX: ev.screenX,
-      startY: ev.screenY,
-      startW: window.outerWidth || window.innerWidth,
-      startH: window.outerHeight || window.innerHeight,
-    };
-    window.addEventListener("pointermove", onResizePointerMove);
-    window.addEventListener("pointerup", onResizePointerUp);
-  }
-
-  async function onResizePointerMove(ev) {
-    if (!resizing) return;
-    const bridge = api();
-    if (!bridge || !bridge.charter_float_set_size) return;
-    const dx = ev.screenX - resizing.startX;
-    const dy = ev.screenY - resizing.startY;
-    let w = resizing.startW;
-    let h = resizing.startH;
-    if (resizing.edge.indexOf("e") >= 0 || resizing.edge === "se") w = resizing.startW + dx;
-    if (resizing.edge.indexOf("s") >= 0 || resizing.edge === "se") h = resizing.startH + dy;
-    if (resizing.edge === "w") w = resizing.startW - dx;
-    try {
-      await bridge.charter_float_set_size(Math.round(w), Math.round(h));
-      scheduleFrameSave();
-    } catch (_err) {
-      /* ignore */
-    }
-  }
-
-  function onResizePointerUp() {
-    resizing = null;
-    window.removeEventListener("pointermove", onResizePointerMove);
-    window.removeEventListener("pointerup", onResizePointerUp);
-    scheduleRing();
-    scheduleFrameSave();
-  }
-
   document.getElementById("cf-note-add").addEventListener("click", addNote);
   document.getElementById("cf-still").addEventListener("click", addStill);
   document.getElementById("cf-annotate").addEventListener("click", annotateStill);
@@ -348,6 +310,24 @@
   document.getElementById("cf-cancel-no").addEventListener("click", function () {
     showCancel(false);
   });
+  document.getElementById("cf-nudge-left").addEventListener("click", function () {
+    nudge(-40, 0);
+  });
+  document.getElementById("cf-nudge-right").addEventListener("click", function () {
+    nudge(40, 0);
+  });
+  document.getElementById("cf-nudge-up").addEventListener("click", function () {
+    nudge(0, -40);
+  });
+  document.getElementById("cf-nudge-down").addEventListener("click", function () {
+    nudge(0, 40);
+  });
+  document.getElementById("cf-smaller").addEventListener("click", function () {
+    resizeCapture(-60, -40);
+  });
+  document.getElementById("cf-larger").addEventListener("click", function () {
+    resizeCapture(60, 40);
+  });
   if (noteInput) {
     noteInput.addEventListener("keydown", function (ev) {
       if (ev.key === "Enter") {
@@ -356,20 +336,12 @@
       }
     });
   }
-  document.querySelectorAll("[data-resize]").forEach(function (el) {
-    el.addEventListener("pointerdown", onResizePointerDown);
-  });
 
-  window.addEventListener("resize", function () {
-    scheduleRing();
-    scheduleFrameSave();
-  });
-  setInterval(scheduleFrameSave, 2000);
+  setInterval(scheduleFrameSave, 2500);
   loadOpenSession();
   setInterval(function () {
     if (!sessionId) loadOpenSession();
   }, 800);
-  scheduleRing();
 
   if (pageEl) {
     pageEl.hidden = false;

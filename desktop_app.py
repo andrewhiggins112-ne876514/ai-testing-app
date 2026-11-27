@@ -3,9 +3,8 @@
 Run:
     .\\venv\\Scripts\\python.exe desktop_app.py
 
-KAN-386 / KAN-502: OS-level Charter Frame = snip-style hollow ring (header +
-borders + dock). Capture hole has no window region so the AUT stays visible
-and clickable. No evaluate_js from js_api open (deadlock).
+KAN-386 / KAN-503: Manual snip = compact dock WebView + separate native Win32
+hollow ring (never SetWindowRgn on WebView2 — that stayed opaque and crashed).
 """
 from __future__ import annotations
 
@@ -21,25 +20,15 @@ import webview
 
 from plugins.playwright_env import sanitize_playwright_browsers_path
 from plans.charter_float import (
-    HEADER_H,
-    DOCK_H,
-    MIN_WINDOW_H,
-    MIN_WINDOW_W,
-    SIDE,
-    apply_hollow_window_region,
-    clamp_window_geom,
-    content_bbox_from_window,
-    default_window_geom,
-    float_hwnd_from_native,
-    float_window_title,
     is_float_available_payload,
-    relative_frame_from_window,
+    float_window_title,
 )
+from plans import charter_ring_native as ring
 from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk142"
+DESK_V = "desk143"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 FLOAT_URL = f"http://{HOST}:{PORT}/ui/desktop/charter_float.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
@@ -91,54 +80,51 @@ def _notify_main(js: str) -> None:
         pass
 
 
-def _apply_float_ring(win: Any) -> dict[str, Any]:
-    """Punch hollow capture hole after show/resize."""
+def _place_dock(bbox: list[int]) -> dict[str, Any]:
+    win = _float_window
+    if win is None:
+        return {"status": "error", "error": "float_unavailable"}
+    geom = ring.dock_geom_for_bbox(bbox)
     try:
-        w, h = int(win.width), int(win.height)
+        win.resize(int(geom["width"]), int(geom["height"]))
+        win.move(int(geom["x"]), int(geom["y"]))
+        win.on_top = True
+        win.show()
+        return {"status": "ok", "geometry": geom}
     except Exception as exc:  # noqa: BLE001
-        return {"status": "error", "error": "geom_failed", "message": str(exc)[:120]}
-    hwnd = float_hwnd_from_native(getattr(win, "native", None))
-    if not hwnd:
-        return {"status": "error", "error": "no_hwnd"}
-    return apply_hollow_window_region(
-        hwnd, w, h, header_h=HEADER_H, dock_h=DOCK_H, side=SIDE
-    )
+        return {"status": "error", "error": "dock_place_failed", "message": str(exc)[:120]}
 
 
 class DesktopApi:
-    """JS bridge for main + Charter float windows (window.pywebview.api)."""
+    """JS bridge for main + Charter dock windows."""
 
     def charter_float_available(self) -> dict[str, Any]:
-        return is_float_available_payload(_float_window is not None)
+        payload = is_float_available_payload(_float_window is not None)
+        payload["mode"] = "dock_plus_native_ring"
+        payload["click_through_hole"] = True
+        return payload
 
     def charter_float_open(self, session: Optional[dict[str, Any]] = None) -> dict[str, Any]:
-        """Show snip-sized hollow float. No evaluate_js (avoids js_api deadlock)."""
+        """Show native hollow ring + compact dock. No WebView region punching."""
         global _float_visible, _float_session_id
-        win = _float_window
-        if win is None:
+        if _float_window is None:
             return {"status": "error", "error": "float_unavailable", "available": False}
         sess = session if isinstance(session, dict) else {}
         _float_session_id = str(sess.get("id") or "")
-        frame = sess.get("frame") if isinstance(sess.get("frame"), dict) else None
         virtual, monitors = _snap_context()
-        geom = default_window_geom(virtual=virtual, frame=frame, monitors=monitors)
+        bbox = ring.default_capture_bbox(virtual=virtual, monitors=monitors)
         try:
-            win.resize(int(geom["width"]), int(geom["height"]))
-            win.move(int(geom["x"]), int(geom["y"]))
-            win.on_top = True
-            win.show()
+            ring_out = ring.set_capture_bbox(bbox, show=True)
+            dock_out = _place_dock(bbox)
             _float_visible = True
-            ring = _apply_float_ring(win)
             return {
                 "status": "ok",
                 "available": True,
-                "mode": "os_float_hollow",
+                "mode": "dock_plus_native_ring",
                 "session_id": _float_session_id,
-                "geometry": geom,
-                "screen_bbox": content_bbox_from_window(
-                    geom["x"], geom["y"], geom["width"], geom["height"]
-                ),
-                "ring": ring,
+                "screen_bbox": bbox,
+                "ring": ring_out,
+                "dock": dock_out,
             }
         except Exception as exc:  # noqa: BLE001
             return {
@@ -150,111 +136,97 @@ class DesktopApi:
 
     def charter_float_close(self) -> dict[str, Any]:
         global _float_visible, _float_session_id
-        win = _float_window
         _float_session_id = ""
-        if win is None:
-            return {"status": "ok", "available": False}
         try:
-            win.hide()
+            ring.hide_ring()
         except Exception:  # noqa: BLE001
             pass
+        win = _float_window
+        if win is not None:
+            try:
+                win.hide()
+            except Exception:  # noqa: BLE001
+                pass
         _float_visible = False
         return {"status": "ok", "available": True}
 
     def charter_float_screen_bbox(self) -> dict[str, Any]:
-        win = _float_window
-        if win is None:
-            return {"status": "error", "error": "float_unavailable"}
-        try:
-            x, y, w, h = int(win.x), int(win.y), int(win.width), int(win.height)
-        except Exception as exc:  # noqa: BLE001
-            return {"status": "error", "error": "geom_failed", "message": str(exc)[:120]}
-        virtual, _monitors = _snap_context()
-        bbox = content_bbox_from_window(x, y, w, h)
-        frame = relative_frame_from_window(x, y, w, h, virtual=virtual)
+        bbox = ring.get_capture_bbox()
+        virtual, _m = _snap_context()
+        # Relative frame approx from bbox on virtual desktop
+        from plans.charter_snap import bounds_to_frame
+
+        frame = bounds_to_frame(bbox, virtual)
         return {
             "status": "ok",
             "screen_bbox": bbox,
             "frame": frame,
-            "geometry": {"x": x, "y": y, "width": w, "height": h},
+            "geometry": ring.dock_geom_for_bbox(bbox),
         }
 
+    def charter_float_nudge(self, dx: int = 0, dy: int = 0) -> dict[str, Any]:
+        bbox = ring.nudge_bbox(ring.get_capture_bbox(), int(dx), int(dy))
+        ring.set_capture_bbox(bbox, show=True)
+        dock = _place_dock(bbox)
+        return {"status": "ok", "screen_bbox": bbox, "dock": dock}
+
+    def charter_float_resize_capture(self, d_w: int = 0, d_h: int = 0) -> dict[str, Any]:
+        bbox = ring.resize_bbox(ring.get_capture_bbox(), int(d_w), int(d_h))
+        ring.set_capture_bbox(bbox, show=True)
+        dock = _place_dock(bbox)
+        return {"status": "ok", "screen_bbox": bbox, "dock": dock}
+
     def charter_float_set_size(self, width: int, height: int) -> dict[str, Any]:
-        """Resize float from HTML handles; re-clamp + re-punch hollow ring."""
+        """Resize dock chrome only (capture size uses resize_capture)."""
         win = _float_window
         if win is None:
             return {"status": "error", "error": "float_unavailable"}
-        virtual, monitors = _snap_context()
         try:
             x, y = int(win.x), int(win.y)
-        except Exception:
-            x, y = 80, 80
-        geom = clamp_window_geom(
-            {"x": x, "y": y, "width": int(width), "height": int(height)},
-            work=_primary_work_safe(virtual, monitors),
-        )
-        try:
-            win.resize(int(geom["width"]), int(geom["height"]))
-            win.move(int(geom["x"]), int(geom["y"]))
-            ring = _apply_float_ring(win)
-            bbox = content_bbox_from_window(
-                geom["x"], geom["y"], geom["width"], geom["height"]
-            )
-            return {
-                "status": "ok",
-                "geometry": geom,
-                "screen_bbox": bbox,
-                "ring": ring,
-            }
+            win.resize(max(420, int(width)), max(100, int(height)))
+            win.move(x, y)
+            return {"status": "ok"}
         except Exception as exc:  # noqa: BLE001
             return {"status": "error", "error": "resize_failed", "message": str(exc)[:120]}
 
     def charter_float_apply_ring(self) -> dict[str, Any]:
-        win = _float_window
-        if win is None:
-            return {"status": "error", "error": "float_unavailable"}
-        return _apply_float_ring(win)
+        return ring.show_ring()
 
     def charter_float_prepare_still(self) -> dict[str, Any]:
-        """Hide float chrome, return content bbox for ImageGrab."""
-        win = _float_window
-        if win is None:
-            return {"status": "error", "error": "float_unavailable"}
-        geom = self.charter_float_screen_bbox()
-        if geom.get("status") != "ok":
-            return geom
+        bbox = ring.get_capture_bbox()
         try:
-            win.hide()
+            ring.hide_ring()
+            if _float_window is not None:
+                _float_window.hide()
             time.sleep(0.12)
         except Exception as exc:  # noqa: BLE001
             return {
                 "status": "error",
                 "error": "hide_failed",
                 "message": str(exc)[:120],
-                **{k: geom[k] for k in ("screen_bbox", "frame") if k in geom},
+                "screen_bbox": bbox,
             }
+        virtual, _m = _snap_context()
+        from plans.charter_snap import bounds_to_frame
+
         return {
             "status": "ok",
-            "screen_bbox": geom.get("screen_bbox"),
-            "frame": geom.get("frame"),
+            "screen_bbox": bbox,
+            "frame": bounds_to_frame(bbox, virtual),
             "hidden": True,
         }
 
     def charter_float_restore(self) -> dict[str, Any]:
-        win = _float_window
-        if win is None:
-            return {"status": "ok", "available": False}
+        bbox = ring.get_capture_bbox()
         try:
+            ring.show_ring()
             if _float_visible or _float_session_id:
-                win.show()
-                win.on_top = True
-                _apply_float_ring(win)
+                _place_dock(bbox)
         except Exception as exc:  # noqa: BLE001
             return {"status": "error", "error": "show_failed", "message": str(exc)[:120]}
-        return {"status": "ok", "available": True}
+        return {"status": "ok", "available": True, "screen_bbox": bbox}
 
     def charter_float_notify_main(self, event: str, session_id: str = "") -> dict[str, Any]:
-        """Float → main shell: ended / cancelled / still / note."""
         import json
 
         safe_event = str(event or "")[:32]
@@ -268,14 +240,6 @@ class DesktopApi:
         if safe_event in {"ended", "cancelled"}:
             self.charter_float_close()
         return {"status": "ok", "event": safe_event}
-
-
-def _primary_work_safe(
-    virtual: dict[str, int], monitors: list[dict[str, Any]]
-) -> dict[str, int]:
-    from plans.charter_float import _primary_work
-
-    return _primary_work(virtual, monitors)
 
 
 def main() -> int:
@@ -295,6 +259,12 @@ def main() -> int:
         print(f"ERROR: FastAPI did not become ready on {HEALTH}", flush=True)
         return 1
 
+    # Start native ring thread early (hidden).
+    try:
+        ring.ensure_ring_thread()
+    except Exception as exc:  # noqa: BLE001
+        print(f"NOTE: charter ring init deferred ({exc})", flush=True)
+
     api = DesktopApi()
     print(f"Opening desktop window → {URL}", flush=True)
     _main_window = webview.create_window(
@@ -307,25 +277,30 @@ def main() -> int:
         js_api=api,
     )
     virtual, monitors = _snap_context()
-    geom = default_window_geom(virtual=virtual, monitors=monitors)
+    bbox = ring.default_capture_bbox(virtual=virtual, monitors=monitors)
+    dock = ring.dock_geom_for_bbox(bbox)
     _float_window = webview.create_window(
         title=float_window_title(),
         url=FLOAT_URL,
-        width=int(geom["width"]),
-        height=int(geom["height"]),
-        x=int(geom["x"]),
-        y=int(geom["y"]),
-        min_size=(MIN_WINDOW_W, MIN_WINDOW_H),
+        width=int(dock["width"]),
+        height=int(dock["height"]),
+        x=int(dock["x"]),
+        y=int(dock["y"]),
+        min_size=(420, 100),
         frameless=True,
         easy_drag=False,
         on_top=True,
-        shadow=False,
-        resizable=True,
+        shadow=True,
+        resizable=False,
         hidden=True,
         background_color="#061018",
         js_api=api,
     )
     webview.start()
+    try:
+        ring.destroy_ring()
+    except Exception:  # noqa: BLE001
+        pass
     return 0
 
 

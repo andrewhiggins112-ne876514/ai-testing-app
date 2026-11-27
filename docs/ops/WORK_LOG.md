@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-27 — KAN-503 — Charter float clear hole (no WebView crash)
+- **Agent/chat:** Cursor IDE Agent (Composer) — Designer: middle not clear; click crashes app
+- **Done:** Stopped SetWindowRgn on WebView2. Compact dock WebView + **four native border bars** leave a real empty hole (AUT visible/clickable). Move/resize via dock ←↑↓→ / ±. Cache-bust **desk143**.
+- **Files:** `plans/charter_ring_native.py`, `desktop_app.py`, `ui/desktop/charter_float.*`, `ui/desktop/index.html`, `tests/test_charter_float.py`, `scripts/jira_kan_bug_charter_float_webview_rgn.py`
+- **Verify:** `pytest tests/test_charter_float.py` — 8 passed. Restart desktop for desk143.
+- **Jira:** Bug **KAN-503** Fix comment + Done
+- **Next:** Active remains **KAN-388** plan document view
+
 ### 2026-11-27 — KAN-502 — Charter float hollow snip ring
 - **Agent/chat:** Cursor IDE Agent (Composer) — Designer: oversized opaque float, no see-through, buttons flaky
 - **Done:** Snip-style hollow ring — size clamped to primary monitor; Win32 `SetWindowRgn` click-through hole so AUT is visible/usable; edge/corner resize; dock `ensureSession`. Cache-bust **desk142**. Bug **KAN-502** Relates **KAN-386**/387 → Done.
