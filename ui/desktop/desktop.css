@@ -1051,9 +1051,11 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
  * when evidence/screenshot filled the pane (Designer report 2026-11-27).
  */
 #app-section-reports .rpt-detail-pane > #rpt-markdown.report-viewer {
-  flex: 1 1 auto;
-  min-height: 8rem;
-  max-height: min(42vh, 360px);
+  flex: 0 0 auto;
+  /* Match the Raw JSON viewer size the Designer liked (desk138 feedback). */
+  min-height: 240px;
+  height: 240px;
+  max-height: 240px;
 }
 
 #app-section-reports .rpt-detail-pane .report-json-wrap {
@@ -1061,8 +1063,9 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
 }
 
 #app-section-reports .rpt-detail-pane .report-json-wrap > .report-viewer {
-  min-height: 6rem;
-  max-height: min(36vh, 280px);
+  min-height: 240px;
+  height: 240px;
+  max-height: 240px;
 }
 
 .report-shot {

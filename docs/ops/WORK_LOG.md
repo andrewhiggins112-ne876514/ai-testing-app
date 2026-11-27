@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-27 — KAN-500 — Reports markdown viewer size match
+- **Agent/chat:** Cursor IDE Agent (Composer) — Designer: make markdown box bigger; Raw JSON size is good
+- **Done:** Follow-up to clip fix — markdown + JSON viewers both locked to **240px** height (same readable size). Cache-bust **desk139**.
+- **Files:** `ui/desktop/desktop.css`, `ui/desktop/index.html`, `desktop_app.py`, `tests/test_reports_analytics.py`
+- **Verify:** `pytest tests/test_reports_analytics.py` — 5 passed. Restart desktop for desk139.
+- **Jira:** follow-up on **KAN-500** (already Done)
+- **Next:** Active remains **KAN-386** Manual floating snip
+
 ### 2026-11-27 — KAN-500 — Reports markdown viewer clip fix
 - **Agent/chat:** Cursor IDE Agent (Composer) — Designer screenshot of clipped markdown box
 - **Done:** `#rpt-markdown.report-viewer` was flex-shrunk to a thin strip when evidence/screenshot filled the detail pane (`overflow:auto` → flex min-size 0). Set min-height + flex sizing for markdown/JSON viewers. Cache-bust **desk138**. Bug **KAN-500** Relates **KAN-384**/385 → Done.

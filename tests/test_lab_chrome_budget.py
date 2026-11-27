@@ -18,7 +18,7 @@ LAYOUT_MODES = ("overlay", "stage", "orb_hub", "split", "floating")
 
 
 class LabChromeBudgetTests(unittest.TestCase):
-    def test_lab_chrome_budget_markers_desk138(self) -> None:
+    def test_lab_chrome_budget_markers_desk139(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
@@ -26,10 +26,10 @@ class LabChromeBudgetTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk138", html)
-        self.assertIn("desk138", desk)
-        self.assertIn("desktop.css?v=desk138", html)
-        self.assertIn("desktop.js?v=desk138", html)
+        self.assertIn("desk139", html)
+        self.assertIn("desk139", desk)
+        self.assertIn("desktop.css?v=desk139", html)
+        self.assertIn("desktop.js?v=desk139", html)
 
         # Accept gate recorded before geometry Stories 2–4.
         lab_section = wires.split("## 8. Lab tools", 1)[1].split("## 9.", 1)[0]

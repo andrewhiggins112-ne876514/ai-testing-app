@@ -18,7 +18,7 @@ from plugins.playwright_env import sanitize_playwright_browsers_path
 
 HOST = "127.0.0.1"
 PORT = 8765
-URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v=desk138"
+URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v=desk139"
 HEALTH = f"http://{HOST}:{PORT}/health"
 
 
