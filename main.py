@@ -1224,6 +1224,16 @@ async def post_playwright_trace_open(req: PlaywrightTraceOpenRequest):
     return result
 
 
+@app.get("/api/plans")
+async def get_plans():
+    """List in-app plans for the active security level (KAN-125 / FR-PLAN-1/2).
+
+    Restored after KAN-375 accidentally removed this route when adding
+    POST /api/playwright-trace/open (Plans dropdown showed "(none yet)").
+    """
+    return list_plans()
+
+
 @app.post("/api/plans")
 async def post_plan(req: PlanCreateRequest):
     return create_plan(

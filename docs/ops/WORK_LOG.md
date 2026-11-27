@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-27 — KAN-493 — Plans list GET /api/plans restored
+- **Agent/chat:** Designer report after KAN-377 — Plans dropdown “(none yet)” / no OPERATE golden path
+- **Done:** Root cause: KAN-375 replaced `GET /api/plans` with open-trace POST. Restored `GET /api/plans` → `list_plans()`. OPERATE golden path was already on disk (`p97123b7e8640`). Regression test added. Bug **KAN-493** Relates **375/376/377/378** → Done.
+- **Files:** `main.py`, `tests/test_plans_list_api.py`, `scripts/jira_kan_bug_plans_list_405.py`
+- **Verify:** `pytest tests/test_plans_list_api.py tests/test_operate_open_trace.py tests/test_operate_demo_aut.py` — 17 passed. Restart `desktop_app.py` → Plans → Refresh.
+- **Jira:** Bug **KAN-493** Done
+- **Next:** Active remains **KAN-379** OPERATE-3
+
 ### 2026-11-27 — KAN-377 — OPERATE-2 demo AUT + golden-path seed
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
 - **Done:** Local home-PC demo AUT under `fixtures/operate_demo/` (marker `data-operate-demo-aut="1"`) mounted at `/demo-aut/` by FastAPI/desktop. Seed script sets OFFICIAL `target_url` to `http://127.0.0.1:8765/demo-aut/` and creates idempotent plan **OPERATE golden path** with smoke pass + intentional-fail cases. `DAILY_LOOP.md` updated with exact start commands. No employer AUT/VPN.
