@@ -2,16 +2,22 @@
 
 Probes Jira, Ollama, and the target URL. Never returns secrets or token values.
 Uses the same level-scoped settings keys as App Settings (no new credential store).
+
+Local demo AUT note (KAN-494): target_url often points at this same FastAPI process
+(``http://127.0.0.1:8765/demo-aut/``). A nested sync HTTP probe from an async route
+deadlocks the event loop → false \"Target timed out.\" Self-app URLs short-circuit.
 """
 from __future__ import annotations
 
 import os
 import ssl
 from typing import Any
+from urllib.parse import urlparse
 
 import httpx
 
 _TIMEOUT = httpx.Timeout(5.0, connect=3.0)
+_LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
 
 
 def _client() -> httpx.Client:
@@ -21,6 +27,82 @@ def _client() -> httpx.Client:
         follow_redirects=True,
         verify=ssl.create_default_context(),
     )
+
+
+def _self_app_port() -> int:
+    """Port the product FastAPI listens on (desktop_app default 8765)."""
+    raw = (os.getenv("AI_TESTING_PORT") or "").strip()
+    if raw.isdigit():
+        return int(raw)
+    try:
+        from desktop_app import PORT as desk_port  # type: ignore
+
+        return int(desk_port)
+    except Exception:
+        return 8765
+
+
+def is_self_app_url(url: str) -> bool:
+    """True when URL targets this app's loopback listener (nested HTTP would deadlock)."""
+    text = (url or "").strip()
+    if not text:
+        return False
+    try:
+        parsed = urlparse(text)
+    except Exception:
+        return False
+    host = (parsed.hostname or "").lower()
+    if host not in _LOOPBACK_HOSTS:
+        return False
+    port = parsed.port
+    if port is None:
+        port = 443 if (parsed.scheme or "").lower() == "https" else 80
+    return int(port) == _self_app_port()
+
+
+def _check_self_app_target(url: str) -> dict[str, Any]:
+    """Reachability for URLs served by this process — no nested HTTP."""
+    path = (urlparse(url).path or "/").lower()
+    if "/demo-aut" in path:
+        try:
+            from plugins.operate_demo import fixture_present
+
+            present = fixture_present()
+        except Exception as exc:  # noqa: BLE001 — health must stay safe
+            return {
+                "id": "target",
+                "label": "Target URL",
+                "state": "down",
+                "up": False,
+                "message": f"Local demo AUT check failed: {str(exc)[:120]}",
+                "self_app": True,
+            }
+        if present.get("ok"):
+            return {
+                "id": "target",
+                "label": "Target URL",
+                "state": "up",
+                "up": True,
+                "message": "Local demo AUT fixture present (in-process; nested HTTP skipped).",
+                "self_app": True,
+                "fixture": present.get("index"),
+            }
+        return {
+            "id": "target",
+            "label": "Target URL",
+            "state": "down",
+            "up": False,
+            "message": "Local demo AUT fixture missing or incomplete.",
+            "self_app": True,
+        }
+    return {
+        "id": "target",
+        "label": "Target URL",
+        "state": "up",
+        "up": True,
+        "message": "Local app URL (in-process; nested HTTP probe skipped).",
+        "self_app": True,
+    }
 
 
 def _ollama_base() -> str:
@@ -199,6 +281,9 @@ def _check_target() -> dict[str, Any]:
             "up": False,
             "message": "Target URL must start with http:// or https://.",
         }
+    # Same-process loopback (OPERATE demo AUT): never nested-HTTP this app.
+    if is_self_app_url(target):
+        return _check_self_app_target(target)
     try:
         with _client() as client:
             try:

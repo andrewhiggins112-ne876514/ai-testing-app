@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-27 — KAN-494 — local demo AUT Target timed out (self-probe)
+- **Agent/chat:** Designer: both OPERATE golden path cases failed
+- **Done:** Both runs were `environment` / “Target timed out” before Playwright. Root cause: sync httpx probe to same `:8765` process deadlocked the ASGI loop. Short-circuit self-app URLs (fixture check for `/demo-aut/`); `to_thread` for external probes. Intentional-fail remains an expected fail after Playwright runs; smoke should pass.
+- **Files:** `settings/connection_health.py`, `plans/run_case.py`, `tests/test_self_app_target_probe.py`, `docs/ops/DAILY_LOOP.md`, `scripts/jira_kan_bug_self_target_timeout.py`
+- **Verify:** `pytest tests/test_self_app_target_probe.py` — 4 passed. Restart desktop → re-run smoke.
+- **Jira:** Bug **KAN-494** Done (Relates 377/378/375/493)
+- **Next:** Active remains **KAN-379**
+
 ### 2026-11-27 — KAN-493 — Plans list GET /api/plans restored
 - **Agent/chat:** Designer report after KAN-377 — Plans dropdown “(none yet)” / no OPERATE golden path
 - **Done:** Root cause: KAN-375 replaced `GET /api/plans` with open-trace POST. Restored `GET /api/plans` → `list_plans()`. OPERATE golden path was already on disk (`p97123b7e8640`). Regression test added. Bug **KAN-493** Relates **375/376/377/378** → Done.

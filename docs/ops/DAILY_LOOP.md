@@ -32,8 +32,9 @@ After seed + app start:
 
 - Settings → confirm **target URL** is `http://127.0.0.1:8765/demo-aut/` (OFFICIAL).
 - Plans → open **OPERATE golden path**.
-- Run the **smoke** case (pass: page shows “Operate Demo AUT”).
-- For open-trace: run **Intentional fail: missing banner text**, then case detail → Open Playwright Trace / Reveal / Copy path.
+- Run the **smoke** case — **expected pass** (page shows “Operate Demo AUT”).
+- For open-trace: run **Intentional fail: missing banner text** — **expected fail** (missing text on purpose), then case detail → Open Playwright Trace / Reveal / Copy path.
+- If both cases show `Target timed out` / failure class `environment`, restart `desktop_app.py` (local demo AUT must be served by the same app; nested self-probe was fixed in KAN-494).
 
 Do **not** open the desktop shell URL in a browser tab as the product; use `desktop_app.py`.
 

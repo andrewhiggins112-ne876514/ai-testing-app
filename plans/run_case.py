@@ -1081,23 +1081,42 @@ async def _execute_case(
                 "message": "Sandbox URL must start with http:// or https://.",
             }
         else:
-            # Lightweight reachability for the named sandbox URL.
-            try:
-                import httpx
+            # Lightweight reachability for the named sandbox URL (off event loop).
+            from settings.connection_health import is_self_app_url
 
-                with httpx.Client(timeout=httpx.Timeout(5.0, connect=3.0), follow_redirects=True) as client:
-                    resp = client.get(sandbox_url_s)
-                target_probe = {
-                    "up": True,
-                    "message": f"Sandbox URL reachable (HTTP {resp.status_code}).",
-                }
-            except Exception as exc:  # noqa: BLE001 — environment failure
-                target_probe = {
-                    "up": False,
-                    "message": f"Sandbox URL unreachable: {str(exc)[:160]}",
-                }
+            if is_self_app_url(sandbox_url_s):
+                target_probe = await asyncio.to_thread(_check_target)
+                if not target_probe.get("up"):
+                    # Fall through to a direct probe message if settings target differs.
+                    target_probe = {
+                        "up": True,
+                        "message": "Sandbox URL is this local app (nested HTTP skipped).",
+                    }
+            else:
+                try:
+                    import httpx
+
+                    def _probe_sandbox() -> Any:
+                        with httpx.Client(
+                            timeout=httpx.Timeout(5.0, connect=3.0),
+                            follow_redirects=True,
+                        ) as client:
+                            return client.get(sandbox_url_s)
+
+                    resp = await asyncio.to_thread(_probe_sandbox)
+                    target_probe = {
+                        "up": True,
+                        "message": f"Sandbox URL reachable (HTTP {resp.status_code}).",
+                    }
+                except Exception as exc:  # noqa: BLE001 — environment failure
+                    target_probe = {
+                        "up": False,
+                        "message": f"Sandbox URL unreachable: {str(exc)[:160]}",
+                    }
     else:
-        target_probe = _check_target()
+        # Run sync probe off the event loop so external checks do not stall ASGI.
+        # Self-app URLs (local demo AUT) short-circuit inside _check_target (KAN-494).
+        target_probe = await asyncio.to_thread(_check_target)
 
     if not target_url or not target_probe.get("up"):
         msg = target_probe.get("message") or "Target URL is not configured or unreachable."
