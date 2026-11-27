@@ -1,7 +1,7 @@
 # PROJECT_MEMORY.md
 # Persistent memory for the AI Testing Application
 
-Last updated: 2026-11-27 (KAN-509 Charter resume/attach/outside-move desk148; Active Build KAN-388)
+Last updated: 2026-11-27 (KAN-510/511/512 raised for Council/Studio; Active Build KAN-388; Manual desk148)
 
 ## Original Vision
 A downloadable local-first **“test all”** application. The tester connects once (Jira, targets, docs, security level) and does testing work **inside the app**. Conversation (text first; voice later as a plugin) is the way in; the **orb + chat home is one home for everyone**; role needs are **HUD widgets**; App areas are full-window work.
@@ -152,7 +152,7 @@ Not yet done (open Stories; see FUNCTIONAL_SPEC §5 FR matrix):
 - **KAN-221** G3 Contract/mock — **Done** (KAN-222; `plugins/contract_mock.py`; desk76)
 - **KAN-223** G4 Seed data and fixtures — **Done** (KAN-224; `plugins/seed_fixture.py` + `plans/seed_case.py`; `source.kind=seed`; run stores name; missing → environment; desk77)
 - **KAN-225** G5 Visual baseline screenshots — **Done** (KAN-226; `plugins/visual_baseline.py` + `plans/visual_case.py`; `source.kind=visual`; mismatch links both images; explicit update-baseline; desk78)
-- Next Active: **KAN-388** plan document view (test **KAN-389**). **KAN-386**/387 Manual OS float Done; UX **KAN-504** Done (**desk144**). **KAN-384**/385 Reports charts Done. **KAN-498**/499 deep view Done. **KAN-496**/497 Option A Done. OPERATE-4 **KAN-381**/382 Done. OPERATE-3 **KAN-379**/380 Done. OPERATE-2 **KAN-377**/378 Done. OPERATE-1 **KAN-375**/376 Done. TRACE-DEEPEN **KAN-372**/373 Done. TRACK3-LAB **KAN-359**/366 Done. **KAN-81** Voice — **parked**. **FR-MAN-2** parked.
+- Next Active: **KAN-388** plan document view (test **KAN-389**). Manual float usable **desk148** (**KAN-509**). Parked for `/council`→`/studio`: outside-window **KAN-510**/513, focus hang **KAN-511**/514, UX story **KAN-512**. **KAN-384**/385 Reports charts Done. **KAN-498**/499 deep view Done. **KAN-496**/497 Option A Done. OPERATE-4 **KAN-381**/382 Done. OPERATE-3 **KAN-379**/380 Done. OPERATE-2 **KAN-377**/378 Done. OPERATE-1 **KAN-375**/376 Done. TRACE-DEEPEN **KAN-372**/373 Done. TRACK3-LAB **KAN-359**/366 Done. **KAN-81** Voice — **parked**. **FR-MAN-2** parked.
 - Done Stories are baseline-only where commented (KAN-8/9/11/12/15/45/47/49/55) — remaining FR text lives on open tickets
 - Cursor agents must raise Jira **Bug** tickets when defects are found during development (Relates to Story + test ticket; replication steps + Fix comment). KAN types: **Task**=dev (e.g. per-FR), **`test`**=verification, **Bug**=defects. See AGENTS.md / JIRA_TICKET_TEMPLATE. KAN-101 / KAN-113 overlap bugs Done with KAN-110 (desk22g).
 

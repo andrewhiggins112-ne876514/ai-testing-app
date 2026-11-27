@@ -18,7 +18,7 @@
 | **Shipped** | Manual float **KAN-386**/387 + UX bugs **KAN-501**…**509** (**desk148**); Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
 | **Queued** | plan doc **KAN-388**/389; stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Resume/attach/outside-move **KAN-509** Done (**desk148**). Next Build = **KAN-388**/389. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Resume/attach/outside-move **KAN-509** Done (**desk148**). Parked for **/council** then **/studio**: outside-window **KAN-510**/513, focus hang **KAN-511**/514, UX story **KAN-512**. Next Build = **KAN-388**/389. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — KAN-510/511/512 — Charter outside-window + hang + UX (raised, not built)
+- **Agent/chat:** Cursor IDE Agent (Composer) — Designer: usable but still trapped in app window; Not Responding after Cursor focus; wants Council+Studio+Creative
+- **Done:** Raised only (no product code): Bug **KAN-510** outside-window capture (test **KAN-513**); Bug **KAN-511** Not Responding on focus return (test **KAN-514**); Story **KAN-512** Council/Studio/Creative UX. Relates **KAN-386**/383/509. Prompt given for separate `/council` then `/studio` chats. Build Active unchanged (**KAN-388**).
+- **Files:** Jira only (+ this WORK_LOG / memory note)
+- **Verify:** n/a — design/investigate in other chats
+- **Jira:** **KAN-510**, **KAN-511**, **KAN-512** (+ tests **KAN-513**, **KAN-514**) open
+- **Next:** Human opens `/council` with the pasted prompt; then `/studio`. Build pick-up remains **KAN-388** unless reprioritised.
 
 ### 2026-11-27 — KAN-509 — Resume vs auto-arm; dock on frame; outside-window move
 - **Agent/chat:** Cursor IDE Agent (Composer) — Designer: Manual opens with Charter without Start; controls not on frame; can't leave app window
