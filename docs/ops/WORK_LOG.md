@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-27 — KAN-500 — Reports markdown viewer clip fix
+- **Agent/chat:** Cursor IDE Agent (Composer) — Designer screenshot of clipped markdown box
+- **Done:** `#rpt-markdown.report-viewer` was flex-shrunk to a thin strip when evidence/screenshot filled the detail pane (`overflow:auto` → flex min-size 0). Set min-height + flex sizing for markdown/JSON viewers. Cache-bust **desk138**. Bug **KAN-500** Relates **KAN-384**/385 → Done.
+- **Files:** `ui/desktop/desktop.css`, `ui/desktop/index.html`, `desktop_app.py`, `tests/test_reports_analytics.py`, `scripts/jira_kan_bug_rpt_markdown_clip.py`
+- **Verify:** `pytest tests/test_reports_analytics.py tests/test_reports_ia.py tests/test_reports_library.py` — 11 passed. Restart desktop to load desk138.
+- **Jira:** Bug **KAN-500** Fix comment + Done
+- **Next:** Active remains **KAN-386** Manual floating snip
+
 ### 2026-11-27 — KAN-384 — Reports visual analytics / charts
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
 - **Done:** Reports detail charts from local saved-report JSON: pass/fail + coverage required; duration / failure classes / bugs-by-story when present. Quiet empty — no fake metrics; no telemetry. Analytics on `/api/reports/{id}` via `reports/analytics.py`. Cache-bust **desk137**.

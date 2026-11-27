@@ -1045,6 +1045,26 @@ html.drawer-app-open #chat-panel:not(.dragging):not(.resizing) {
   color: var(--text);
 }
 
+/*
+ * Reports detail is a flex column. overflow:auto on .report-viewer makes the
+ * flex min-size 0, so the markdown pre was flex-shrunk to a thin unreadable strip
+ * when evidence/screenshot filled the pane (Designer report 2026-11-27).
+ */
+#app-section-reports .rpt-detail-pane > #rpt-markdown.report-viewer {
+  flex: 1 1 auto;
+  min-height: 8rem;
+  max-height: min(42vh, 360px);
+}
+
+#app-section-reports .rpt-detail-pane .report-json-wrap {
+  flex: 0 0 auto;
+}
+
+#app-section-reports .rpt-detail-pane .report-json-wrap > .report-viewer {
+  min-height: 6rem;
+  max-height: min(36vh, 280px);
+}
+
 .report-shot {
   display: block;
   max-width: 100%;

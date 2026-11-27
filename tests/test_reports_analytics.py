@@ -149,16 +149,16 @@ class ReportAnalyticsApiTests(unittest.TestCase):
 
 
 class ReportAnalyticsDesktopMarkers(unittest.TestCase):
-    def test_reports_charts_markers_desk137(self) -> None:
+    def test_reports_charts_markers_desk138(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk137", html)
-        self.assertIn("desk137", desk)
-        self.assertIn("desktop.css?v=desk137", html)
-        self.assertIn("desktop.js?v=desk137", html)
+        self.assertIn("desk138", html)
+        self.assertIn("desk138", desk)
+        self.assertIn("desktop.css?v=desk138", html)
+        self.assertIn("desktop.js?v=desk138", html)
 
         reports = html.split('id="app-section-reports"', 1)[1].split(
             'id="app-section-documents"', 1
@@ -177,6 +177,9 @@ class ReportAnalyticsDesktopMarkers(unittest.TestCase):
         self.assertIn(".rpt-charts", css)
         self.assertIn(".rpt-chart-bar-fill.is-pass", css)
         self.assertIn(".rpt-chart-bar-fill.is-fail", css)
+        # Markdown clip fix — flex min-height so body stays readable with evidence.
+        self.assertIn("#rpt-markdown.report-viewer", css)
+        self.assertIn("min-height: 8rem", css)
 
 
 if __name__ == "__main__":
