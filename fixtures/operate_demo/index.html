@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Operate Demo AUT</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a222c;
+      --text: #e8eef4;
+      --muted: #9aa8b5;
+      --accent: #3d9cf0;
+      --ok: #3ecf8e;
+      --err: #f07178;
+      --border: #2a3542;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(ellipse at 20% 0%, #1a3048 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, #1a2838 0%, transparent 45%),
+        var(--bg);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+    }
+    main {
+      width: min(28rem, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem 1.5rem 1.5rem;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      margin: 0 0 0.35rem;
+      font-size: 1.45rem;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+    }
+    .lede {
+      margin: 0 0 1.25rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+    label {
+      display: block;
+      margin: 0.65rem 0 0.3rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    input {
+      width: 100%;
+      padding: 0.55rem 0.7rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #121820;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    input:focus {
+      outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+      border-color: var(--accent);
+    }
+    .actions {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 1.15rem;
+    }
+    button {
+      flex: 1;
+      border: 0;
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #login-btn {
+      background: var(--accent);
+      color: #061018;
+    }
+    #reset-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    #status {
+      margin-top: 1rem;
+      min-height: 1.4rem;
+      font-size: 0.95rem;
+    }
+    #status[data-state="ok"] { color: var(--ok); }
+    #status[data-state="err"] { color: var(--err); }
+    .meta {
+      margin-top: 1.25rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body data-operate-demo-aut="1">
+  <main aria-labelledby="demo-title">
+    <h1 id="demo-title">Operate Demo AUT</h1>
+    <p class="lede">
+      Local home-PC fixture for the daily test-all loop.
+      No employer VPN or credentials required.
+    </p>
+    <form id="login-form" autocomplete="off">
+      <label for="username">Username</label>
+      <input id="username" name="username" type="text" value="tester" />
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" value="demo" />
+      <div class="actions">
+        <button id="login-btn" type="submit">Log in</button>
+        <button id="reset-btn" type="button">Reset</button>
+      </div>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+    <p class="meta">KAN-377 · fixtures/operate_demo · served at /demo-aut/</p>
+  </main>
+  <script>
+    (function () {
+      var form = document.getElementById("login-form");
+      var status = document.getElementById("status");
+      var reset = document.getElementById("reset-btn");
+      form.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var user = (document.getElementById("username").value || "").trim();
+        var pass = document.getElementById("password").value || "";
+        if (user === "tester" && pass === "demo") {
+          status.dataset.state = "ok";
+          status.textContent = "Welcome, tester";
+        } else {
+          status.dataset.state = "err";
+          status.textContent = "Login failed — use tester / demo";
+        }
+      });
+      reset.addEventListener("click", function () {
+        document.getElementById("username").value = "tester";
+        document.getElementById("password").value = "demo";
+        status.dataset.state = "";
+        status.textContent = "";
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -8,17 +8,17 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready — OPERATE |
-| **Jira story** | **KAN-377** OPERATE-2 demo AUT + golden-path seed (epic **KAN-374**) |
-| **Start task** | Build pick-up: implement **KAN-377** (local demo AUT fixture + seed). Home-PC only — not employer app. |
+| **Jira story** | **KAN-379** OPERATE-3 loop-hit UI polish (epic **KAN-374**) |
+| **Start task** | Build pick-up: implement **KAN-379** (Plans Run disclosure, Manual idle split, evidence affordance). Not a full layout track. |
 | **Epic** | **KAN-374** OPERATE |
-| **Roadmap ID** | OPERATE |
+| **Roadmap ID** | OPERATE / OPERATE-POLISH |
 | **Spec** | `docs/ops/DAILY_LOOP.md` + FUNCTIONAL_SPEC CR 2026-11-26 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-378** |
-| **Shipped** | OPERATE-1 open-trace **KAN-375**/376 (**desk133**); TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
-| **Queued** | OPERATE-3 loop-hit polish; OPERATE-4 Documents demo pack; then GAP-CR |
+| **Test ticket** | **KAN-380** |
+| **Shipped** | OPERATE-2 demo AUT **KAN-377**/378; OPERATE-1 open-trace **KAN-375**/376 (**desk133**); TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
+| **Queued** | OPERATE-4 Documents demo pack; then GAP-CR |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | OPERATE-1 Done. Do **not** start voice / FR-MAN-2 / new full layout track. |
+| **Next / Shipped** | OPERATE-2 Done. Do **not** start voice / FR-MAN-2 / new full layout track. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — KAN-377 — OPERATE-2 demo AUT + golden-path seed
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
+- **Done:** Local home-PC demo AUT under `fixtures/operate_demo/` (marker `data-operate-demo-aut="1"`) mounted at `/demo-aut/` by FastAPI/desktop. Seed script sets OFFICIAL `target_url` to `http://127.0.0.1:8765/demo-aut/` and creates idempotent plan **OPERATE golden path** with smoke pass + intentional-fail cases. `DAILY_LOOP.md` updated with exact start commands. No employer AUT/VPN.
+- **Files:** `fixtures/operate_demo/index.html`, `plugins/operate_demo.py`, `scripts/seed_operate_demo.py`, `main.py`, `docs/ops/DAILY_LOOP.md`, `tests/test_operate_demo_aut.py`
+- **Verify:** `pytest tests/test_operate_demo_aut.py` — 8 passed. Live `scripts/seed_operate_demo.py` seeded plan. CU not required (fixture/seed AC).
+- **Jira:** close-out **KAN-377** + **KAN-378**
+- **Next:** **KAN-379** OPERATE-3 loop-hit UI polish
 
 ### 2026-11-26 — KAN-375 — OPERATE-1 open Playwright trace
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off

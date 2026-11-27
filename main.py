@@ -2186,4 +2186,13 @@ async def post_manual_session_confirm(
 
 app.mount("/ui", StaticFiles(directory=str(_UI_DIR)), name="ui")
 
+# KAN-377 / OPERATE-2: home-PC demo AUT (static fixture; no employer credentials).
+_OPERATE_DEMO_DIR = Path(__file__).resolve().parent / "fixtures" / "operate_demo"
+if _OPERATE_DEMO_DIR.is_dir():
+    app.mount(
+        "/demo-aut",
+        StaticFiles(directory=str(_OPERATE_DEMO_DIR), html=True),
+        name="operate-demo-aut",
+    )
+
 
