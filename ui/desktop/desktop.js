@@ -6884,7 +6884,7 @@
       }
       return;
     }
-    openArea("manual");
+    ensureAreaOpen("manual");
     fillManualFromPlanContext(planId, caseId, storyKey);
   }
 
@@ -7096,7 +7096,7 @@
       const endedId = sid || manualOpenSessionId;
       manualOpenSessionId = "";
       window.__manualLastEndedId = endedId;
-      openArea("manual");
+      ensureAreaOpen("manual");
       try {
         const res = await fetch(
           "/api/manual-sessions/" + encodeURIComponent(endedId) + "/review"
@@ -7121,7 +7121,7 @@
     if (ev === "cancelled") {
       charterOsFloatActive = false;
       manualOpenSessionId = "";
-      openArea("manual");
+      ensureAreaOpen("manual");
       setManualLoopStage("idle");
       if (manualReview) manualReview.hidden = true;
       if (manualStatus) {
@@ -7506,7 +7506,7 @@
         return;
       }
       window.__manualLastEndedId = sessionId;
-      openArea("manual");
+      ensureAreaOpen("manual");
       showManualReview(data.session, data.review);
       if (manualStatus) {
         manualStatus.textContent =
@@ -7582,19 +7582,29 @@
             .join("");
         }
       }
-      if (data.open_session_id && !manualOpenSessionId) {
-        const openRes = await fetch("/api/manual-sessions/open");
-        const openData = await openRes.json();
-        if (openData.open && openData.session) {
-          await showCharterFrame(openData.session);
-          if (manualStatus && !charterOsFloatActive) {
-            manualStatus.textContent =
-              "Session open — Charter Frame armed (no background capture)";
+      if (data.open_session_id) {
+        if (!manualOpenSessionId) {
+          const openRes = await fetch("/api/manual-sessions/open");
+          const openData = await openRes.json();
+          if (openData.open && openData.session) {
+            await showCharterFrame(openData.session);
           }
         }
-      }
-      if (!data.open_session_id && manualOpenSessionId) {
-        /* ended elsewhere */
+        if (manualStatus) {
+          manualStatus.textContent = charterOsFloatActive
+            ? "Session recording — use Charter dock (Note / Still / End). End before typing a new charter."
+            : "Session recording — Charter Frame armed. End before typing a new charter.";
+        }
+      } else {
+        if (manualOpenSessionId) {
+          await hideCharterFrame();
+          manualOpenSessionId = "";
+        }
+        const stage =
+          (manualSection && manualSection.getAttribute("data-loop-stage")) || "";
+        if (stage === "recording") {
+          setManualLoopStage("idle");
+        }
       }
     } catch (_err) {
       if (manualSessionEmpty) {
@@ -7641,17 +7651,22 @@
       const data = await res.json();
       if (data.status !== "ok") {
         if (manualStatus) {
-          manualStatus.textContent = data.message || data.error || "Start failed";
+          const errCode = data.error || "";
+          if (errCode === "session_already_open") {
+            manualStatus.textContent =
+              "A session is already recording — End or Cancel it before starting another.";
+            await refreshManualSessions();
+          } else {
+            manualStatus.textContent =
+              data.message || data.error || "Start failed";
+          }
         }
         return;
       }
       if (manualReview) manualReview.hidden = true;
+      /* Keep Manual open so Start is visible; do not closeArea (looked like a no-op glitch). */
       await showCharterFrame(data.session);
-      closeArea();
-      if (manualStatus && !charterOsFloatActive) {
-        manualStatus.textContent =
-          "Session started — Charter Frame dock: Note / Still / End / Cancel (no Jira write)";
-      }
+      await refreshManualSessions();
     } catch (err) {
       if (manualStatus) {
         manualStatus.textContent = "Start failed: " + (err.message || err);
@@ -7672,7 +7687,7 @@
       const sid = manualOpenSessionId;
       manualOpenSessionId = "";
       window.__manualLastEndedId = sid;
-      openArea("manual");
+      ensureAreaOpen("manual");
       if (data.status === "ok") {
         showManualReview(data.session, data.review);
         if (manualStatus) {
@@ -7713,7 +7728,7 @@
       const data = await res.json();
       await hideCharterFrame();
       manualOpenSessionId = "";
-      openArea("manual");
+      ensureAreaOpen("manual");
       setManualLoopStage("idle");
       if (manualReview) manualReview.hidden = true;
       if (manualStatus) {
@@ -8388,6 +8403,13 @@
       settingsCategoryPending = null;
     }
     loadAreaData(name);
+  }
+
+  /* Keep Manual (etc.) open when already showing — openArea toggles closed. */
+  function ensureAreaOpen(name) {
+    if (!areaMap[name]) return;
+    if (openAreaName === name) return;
+    openArea(name);
   }
 
   document.querySelectorAll(".app-nav-item[data-section], .hub-spoke[data-section]").forEach(function (btn) {

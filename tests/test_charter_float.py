@@ -122,15 +122,16 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk143(self) -> None:
+    def test_desktop_float_markers_desk144(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk143", html)
-        self.assertIn("desk143", desk)
-        self.assertIn("desk143", float_html)
+        js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
+        self.assertIn("desk144", html)
+        self.assertIn("desk144", desk)
+        self.assertIn("desk144", float_html)
         self.assertIn('data-snip-dock="1"', float_html)
         self.assertIn("charter_ring_native", desk)
         self.assertIn("dock_plus_native_ring", desk)
@@ -142,6 +143,14 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         )
         self.assertIn("charter_float_nudge", float_js)
         self.assertIn("charter_float_resize_capture", float_js)
+        # Manual UX: Start must not closeArea; library reopen must not toggle-close.
+        self.assertIn("function ensureAreaOpen", js)
+        self.assertIn('ensureAreaOpen("manual")', js)
+        start_fn = js.split("async function startManualSession()", 1)[1].split(
+            "async function endManualSessionFromFrame()", 1
+        )[0]
+        self.assertNotIn("closeArea()", start_fn)
+        self.assertIn("session_already_open", start_fn)
 
     def test_api_start_charter_only(self) -> None:
         from main import app
