@@ -126,16 +126,16 @@ class RunEvidencePersistenceTests(unittest.TestCase):
 
 
 class RunEvidenceUiContractTests(unittest.TestCase):
-    def test_option_a_markers_desk135(self) -> None:
+    def test_option_a_markers_desk136(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk135", html)
-        self.assertIn("desk135", desk)
-        self.assertIn("desktop.css?v=desk135", html)
-        self.assertIn("desktop.js?v=desk135", html)
+        self.assertIn("desk136", html)
+        self.assertIn("desk136", desk)
+        self.assertIn("desktop.css?v=desk136", html)
+        self.assertIn("desktop.js?v=desk136", html)
 
         plans = html.split('id="app-section-plans"', 1)[1].split(
             'id="app-section-manual"', 1
@@ -152,7 +152,7 @@ class RunEvidenceUiContractTests(unittest.TestCase):
             live.find('data-plan-case-section="edit"'),
         )
         self.assertIn("fillPlanRunStory", js)
-        self.assertIn("/api/evidence-shot/open", js)
+        self.assertIn("openPlanRunEvidenceDeep", js)
         self.assertIn("step_outcomes", js)
         self.assertIn(".run-story-steps", css)
         self.assertIn(".run-story-none", css)

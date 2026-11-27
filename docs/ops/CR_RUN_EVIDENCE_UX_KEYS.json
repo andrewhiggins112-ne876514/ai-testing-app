@@ -12,7 +12,7 @@
     "story": "KAN-498",
     "test": "KAN-499",
     "frames": ["05", "06", "07"],
-    "status": "seeded_separate_story",
+    "status": "build_shipped_desk136",
     "doors": ["More evidence", "thumb expand"],
     "note": "Designer 2026-11-27: thumb also expands; not folded into KAN-496"
   },
@@ -22,6 +22,6 @@
   "council_accept": "2026-11-27",
   "slice0": "studio_mockpack_run_evidence_ux_accepted",
   "slice1": "build_KAN-496_option_a_done",
-  "slice2": "build_KAN-498_deep_view",
-  "prefer_before_build": "KAN-496 Done — next Build KAN-498"
+  "slice2": "build_KAN-498_deep_view_done",
+  "prefer_before_build": "KAN-498 Done — next GAP-CR Build KAN-384"
 }

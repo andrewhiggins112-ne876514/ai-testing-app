@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk135" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk136" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -1020,7 +1020,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1" data-plan-cases-layout-grammar="1" data-plans-tabs-layout-grammar="1" data-plans-compact-booleans="1" data-operate-loop-polish="1" data-evidence-first-detail="1" data-scan-craft="1" data-playwright-trace="1" data-operate-open-trace="1">
+        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1" data-plan-cases-layout-grammar="1" data-plans-tabs-layout-grammar="1" data-plans-compact-booleans="1" data-operate-loop-polish="1" data-evidence-first-detail="1" data-scan-craft="1" data-playwright-trace="1" data-operate-open-trace="1" data-run-evidence-deep="1">
           <div id="plan-chrome-toolbar" class="area-chrome-toolbar plan-chrome-toolbar" data-plan-chrome="1">
             <div class="btn-row plan-toolbar-actions area-chrome-toolbar-row">
               <label class="stack-label plan-toolbar-plan" for="plan-list">Plan
@@ -1109,13 +1109,17 @@
               <p class="evidence-first-summary" data-evidence-summary="1" hidden>—</p>
               <ol class="run-story-steps" data-run-story-steps="1" hidden></ol>
               <p class="run-story-no-steps" data-run-story-no-steps="1" hidden>No step outcomes on this run yet.</p>
-              <button type="button" class="run-story-thumb-hit" data-run-story-thumb="1" hidden aria-label="Open the captured page screenshot">
+              <button type="button" class="run-story-thumb-hit is-expandable" data-run-story-thumb="1" data-run-story-open-deep="1" hidden aria-label="Expand into evidence deep view">
                 <img class="run-story-thumb-img" data-run-story-thumb-img="1" alt="Captured page screenshot" />
-                <span class="run-story-thumb-cap" data-run-story-thumb-cap="1">1 shot · captured page</span>
+                <span class="run-story-thumb-cap" data-run-story-thumb-cap="1">1 shot · open deep view</span>
               </button>
               <div class="run-story-none" data-run-story-none="1" hidden>
                 <strong>None captured</strong>
                 <p data-run-story-none-reason="1">The runner did not write a PNG. A green stand-in is not substituted.</p>
+              </div>
+              <div class="run-story-entry-row" data-run-story-entry="1" hidden>
+                <button type="button" class="save-btn" data-run-story-more="1" data-run-story-open-deep="1">More evidence</button>
+                <p class="run-story-entry-hint">More evidence opens the deep view. Open Trace stays external.</p>
               </div>
               <p class="evidence-first-links" data-evidence-links="1" hidden></p>
               <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
@@ -1231,6 +1235,39 @@
             </div>
             </div>
             </aside>
+            </div>
+            <div id="plan-run-evidence-deep" class="plan-run-evidence-deep" data-run-evidence-deep-surface="1" hidden role="region" aria-label="Run evidence deep view">
+              <header class="plan-deep-header">
+                <button type="button" class="save-btn secondary" data-run-deep-back="1">Back to case</button>
+                <h3 class="plan-deep-case-name" data-run-deep-case-name="1">Case</h3>
+                <span class="run-story-pill" data-run-deep-status="1">—</span>
+                <span class="plan-deep-meta" data-run-deep-meta="1"></span>
+                <span class="plan-deep-spacer"></span>
+                <button type="button" class="save-btn secondary" data-run-deep-open-trace="1" disabled>Open Trace</button>
+              </header>
+              <div class="plan-deep-body">
+                <nav class="plan-deep-steps" aria-label="Run steps">
+                  <p class="plan-deep-label">Steps</p>
+                  <ol class="plan-deep-step-list" data-run-deep-steps="1"></ol>
+                  <p class="plan-deep-hint">Selecting a step focuses that step’s captured page. Steps are not checkboxes.</p>
+                </nav>
+                <div class="plan-deep-stage">
+                  <p class="plan-deep-label" data-run-deep-stage-label="1">Evidence</p>
+                  <div class="plan-deep-page" data-run-deep-page="1" hidden>
+                    <img class="plan-deep-page-img" data-run-deep-page-img="1" alt="Selected captured page" />
+                  </div>
+                  <div class="plan-deep-none" data-run-deep-none="1" hidden>
+                    <strong>None captured</strong>
+                    <p data-run-deep-none-reason="1">The runner did not write a PNG. A green stand-in is not substituted.</p>
+                  </div>
+                  <p class="plan-deep-not-here">Rejected here: embedded Trace Viewer, network / console / DOM tiles. Those stay in Open Trace.</p>
+                </div>
+              </div>
+              <div class="plan-deep-strip" aria-label="Captured page thumbs">
+                <p class="plan-deep-label">Captured pages only</p>
+                <div class="plan-deep-thumb-strip" data-run-deep-strip="1"></div>
+                <p class="plan-deep-strip-empty" data-run-deep-strip-empty="1" hidden>No captured pages on this run.</p>
+              </div>
             </div>
           </div>
           <div id="plan-panel-draft" class="plan-panel" role="tabpanel" data-plan-panel="draft" aria-labelledby="plan-tab-draft" hidden data-plan-draft-form="1">
@@ -1843,6 +1880,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk135"></script>
+  <script src="/ui/desktop/desktop.js?v=desk136"></script>
 </body>
 </html>

@@ -4667,6 +4667,313 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin: 0;
 }
 
+.run-story-thumb-hit.is-expandable .run-story-thumb-cap::after {
+  content: " · expand";
+  color: var(--cyan, #50cdff);
+}
+
+.run-story-entry-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.run-story-entry-row[hidden] {
+  display: none !important;
+}
+
+.run-story-entry-hint {
+  margin: 0;
+  flex: 1;
+  min-width: 140px;
+  font: var(--type-help);
+  color: var(--muted, #8aa0b2);
+}
+
+/* KAN-498 — Plans run-evidence deep view (frames 05–07) */
+#plan-panel-cases[data-run-evidence-deep-open="1"] .plan-cases-grammar-split {
+  display: none !important;
+}
+
+#plan-panel-cases[data-run-evidence-deep-open="1"] .plan-run-evidence-deep {
+  display: flex;
+}
+
+.plan-run-evidence-deep[data-run-evidence-deep-surface="1"] {
+  display: none;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  margin: 0 0 var(--space-2);
+  border: 1px solid var(--cyan-border, color-mix(in srgb, var(--cyan, #50cdff) 40%, transparent));
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.plan-run-evidence-deep[hidden] {
+  display: none !important;
+}
+
+.plan-deep-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 18%, transparent);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.plan-deep-case-name {
+  margin: 0;
+  font: var(--type-ui);
+  font-weight: 600;
+  color: var(--text, #e8f4fc);
+}
+
+.plan-deep-meta {
+  font: var(--type-help);
+  color: var(--muted, #8aa0b2);
+}
+
+.plan-deep-spacer {
+  flex: 1;
+  min-width: 8px;
+}
+
+.plan-deep-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(200px, 280px) 1fr;
+  gap: 0;
+}
+
+.plan-deep-steps {
+  border-right: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 18%, transparent);
+  padding: 8px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.plan-deep-label {
+  margin: 0;
+  font: var(--type-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted, #8aa0b2);
+}
+
+.plan-deep-hint,
+.plan-deep-not-here,
+.plan-deep-strip-empty {
+  margin: 0;
+  font: var(--type-help);
+  color: var(--muted, #8aa0b2);
+}
+
+.plan-deep-not-here {
+  color: var(--warn, #ffd27a);
+  border: 1px dashed color-mix(in srgb, var(--warn, #ffd27a) 45%, transparent);
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: color-mix(in srgb, var(--warn, #ffd27a) 5%, transparent);
+}
+
+.plan-deep-step-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.plan-deep-step {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  gap: 2px 8px;
+  align-items: baseline;
+  padding: 5px 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 12%, transparent);
+  font: var(--type-ui);
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  appearance: none;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+
+.plan-deep-step:last-child {
+  border-bottom: 0;
+}
+
+.plan-deep-step:hover {
+  background: color-mix(in srgb, var(--cyan, #50cdff) 5%, transparent);
+}
+
+.plan-deep-step:focus-visible,
+.plan-deep-step.is-select {
+  outline: 1px solid var(--cyan, #50cdff);
+  outline-offset: -1px;
+  background: color-mix(in srgb, var(--cyan, #50cdff) 8%, transparent);
+}
+
+.plan-deep-step.is-fail {
+  background: color-mix(in srgb, var(--danger, #ff8b7a) 6%, transparent);
+}
+
+.plan-deep-step.is-fail.is-select {
+  background: color-mix(in srgb, var(--danger, #ff8b7a) 10%, transparent);
+}
+
+.plan-deep-step .run-story-n {
+  font: var(--type-meta);
+  color: var(--muted, #8aa0b2);
+}
+
+.plan-deep-step .run-story-ms {
+  grid-column: 2;
+}
+
+.plan-deep-step .run-story-err {
+  grid-column: 2 / -1;
+}
+
+.plan-deep-stage {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  overflow: auto;
+}
+
+.plan-deep-page {
+  flex: 1;
+  min-height: 240px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 35%, transparent);
+  border-radius: 8px;
+  background: #0c1014;
+  overflow: hidden;
+}
+
+.plan-deep-page[hidden],
+.plan-deep-none[hidden],
+.plan-deep-strip-empty[hidden] {
+  display: none !important;
+}
+
+.plan-deep-page-img {
+  display: block;
+  max-width: 100%;
+  max-height: min(52vh, 520px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.plan-deep-none {
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+  border: 1px dashed color-mix(in srgb, var(--cyan, #50cdff) 35%, transparent);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.plan-deep-none strong {
+  color: var(--text, #e8f4fc);
+  font: var(--type-ui);
+}
+
+.plan-deep-none p {
+  margin: 0;
+  font: var(--type-help);
+  color: var(--muted, #8aa0b2);
+}
+
+.plan-deep-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px 10px;
+  border-top: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 18%, transparent);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.plan-deep-thumb-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.plan-deep-thumb-chip {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 132px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.plan-deep-thumb-chip:focus-visible,
+.plan-deep-thumb-chip.is-select {
+  border-color: var(--cyan, #50cdff);
+  outline: none;
+}
+
+.plan-deep-thumb-chip img {
+  display: block;
+  width: 100%;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+  background: #0c1014;
+}
+
+.plan-deep-thumb-chip .chip-cap {
+  font: var(--type-help);
+  color: var(--muted, #8aa0b2);
+  padding: 0 2px;
+}
+
+@media (max-width: 900px) {
+  .plan-deep-body {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-deep-steps {
+    border-right: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 18%, transparent);
+    max-height: 220px;
+  }
+}
+
 /* KAN-379 — OPERATE-3 loop-hit polish (Plans Run disclosure, Manual idle, triage) */
 #plan-panel-run[data-operate-run-disclosure="1"] .plan-run-primary {
   display: flex;

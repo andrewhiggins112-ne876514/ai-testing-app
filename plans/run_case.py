@@ -1389,7 +1389,11 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
         last = (case.get("runs") or [])[-1] if case.get("runs") else None
         known = is_known_labelled(last) or is_known_labelled(case)
         from plans.quarantine import flake_score, quarantine_status
-        from plans.step_outcomes import honest_empty_reason, representative_screenshot
+        from plans.step_outcomes import (
+            deep_view_captured_pages,
+            honest_empty_reason,
+            representative_screenshot,
+        )
 
         flake = flake_score(case)
         qstat = quarantine_status(case)
@@ -1398,6 +1402,20 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
         empty_reason = honest_empty_reason(
             last if isinstance(last, dict) else None,
             case_tags=tags,
+        )
+        success_shots = True
+        try:
+            from settings.store import load_settings
+
+            success_shots = bool(
+                load_settings().get("playwright_success_evidence", True)
+            )
+        except Exception:
+            success_shots = True
+        captured_pages = deep_view_captured_pages(
+            last if isinstance(last, dict) else None,
+            case_tags=tags,
+            success_shots_enabled=success_shots,
         )
         mock_fixture = ""
         seed_fixture = ""
@@ -1477,6 +1495,7 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "last_run_summary": _last_run_summary(case),
             "evidence_shot": shot,
             "evidence_empty_reason": empty_reason,
+            "evidence_captured_pages": captured_pages,
             "last_failure": flake.get("last_failure"),
             "tester_note": (last.get("tester_note") if isinstance(last, dict) else "") or "",
             "known_issue": case.get("known_issue")

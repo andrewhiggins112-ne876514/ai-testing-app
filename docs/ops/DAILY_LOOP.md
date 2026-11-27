@@ -64,6 +64,6 @@ Voice (KAN-81), FR-MAN-2 live circles, full CI sync, H3 network share, embedded 
 
 Loop-hit polish only where the path touches: Plans Run disclosure, Manual idle layout, light evidence affordance (**OPERATE-3**). Documents demo pack (**OPERATE-4** / **KAN-381**) — `fixtures/operate_docs/` + `scripts/seed_operate_docs.py`.  
   
-**CR 2026-11-27 (Council+Studio+Creative agreed):** deeper **readable step-by-step run narrative + pass/fail evidence gallery** (FR-TEST-4 / FR-PLAN-4) — Studio Slice-0 then Build after OPERATE-4; see `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`. Not absorbed into OPERATE-3/4.  
+**CR 2026-11-27 (Council+Studio+Creative agreed):** deeper **readable step-by-step run narrative + pass/fail evidence** (FR-TEST-4 / FR-PLAN-4) — Option A **KAN-496** + deep view **KAN-498** Done (`docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`).  
 
-Then CR backlog: Reports charts, floating Manual snip, stub deepen + fixtures, compliance design (ISO27001 etc.).
+Next CR backlog: Reports charts (**KAN-384**), floating Manual snip, stub deepen + fixtures, compliance design (ISO27001 etc.).

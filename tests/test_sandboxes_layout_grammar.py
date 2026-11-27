@@ -8,16 +8,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SandboxesLayoutGrammarTests(unittest.TestCase):
-    def test_sandboxes_fr_ui11_grammar_markers_desk135(self) -> None:
+    def test_sandboxes_fr_ui11_grammar_markers_desk136(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk135", html)
-        self.assertIn("desk135", desk)
-        self.assertIn("desktop.css?v=desk135", html)
-        self.assertIn("desktop.js?v=desk135", html)
+        self.assertIn("desk136", html)
+        self.assertIn("desk136", desk)
+        self.assertIn("desktop.css?v=desk136", html)
+        self.assertIn("desktop.js?v=desk136", html)
 
         sandboxes = html.split('id="app-section-sandboxes"', 1)[1].split(
             'id="app-drawer-toggle"', 1

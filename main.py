@@ -10,7 +10,7 @@ Run with: py -3 -m uvicorn main:app --reload
 from pathlib import Path
 
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -1247,9 +1247,14 @@ async def post_evidence_shot_open(req: EvidenceShotOpenRequest):
 
 
 @app.get("/api/plans/{plan_id}/cases/{case_id}/runs/{run_id}/screenshot")
-async def get_plan_run_screenshot(plan_id: str, case_id: str, run_id: str):
-    """Serve the representative PNG for a plan-case run (KAN-496)."""
-    from plans.step_outcomes import representative_screenshot
+async def get_plan_run_screenshot(
+    plan_id: str,
+    case_id: str,
+    run_id: str,
+    path: str | None = Query(default=None, description="Optional PNG path on this run"),
+):
+    """Serve a PNG for a plan-case run (KAN-496 aside / KAN-498 deep view)."""
+    from plans.step_outcomes import representative_screenshot, run_allows_shot_path
 
     loaded = get_plan(plan_id)
     if loaded.get("status") != "ok":
@@ -1269,13 +1274,19 @@ async def get_plan_run_screenshot(plan_id: str, case_id: str, run_id: str):
         target = runs[-1] if runs else None
     if not isinstance(target, dict):
         raise HTTPException(status_code=404, detail="Run not found")
-    shot = representative_screenshot(target)
+    wanted = (path or "").strip()
+    if wanted:
+        if not run_allows_shot_path(target, wanted):
+            raise HTTPException(status_code=404, detail="Screenshot not on this run")
+        shot = wanted
+    else:
+        shot = representative_screenshot(target)
     if not shot:
         raise HTTPException(status_code=404, detail="Screenshot not found")
-    path, err = resolve_allowed_shot(shot)
-    if err or path is None:
+    resolved, err = resolve_allowed_shot(shot)
+    if err or resolved is None:
         raise HTTPException(status_code=404, detail=err or "Screenshot not found")
-    return FileResponse(path)
+    return FileResponse(resolved)
 
 
 @app.get("/api/plans")

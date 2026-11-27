@@ -56,7 +56,7 @@ def _slice_section(html: str, section_id: str) -> str:
 
 
 class LabOcclusionVerifyAETests(unittest.TestCase):
-    def test_lab_occlusion_verify_a_to_e_desk135(self) -> None:
+    def test_lab_occlusion_verify_a_to_e_desk136(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
@@ -65,10 +65,10 @@ class LabOcclusionVerifyAETests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk135", html)
-        self.assertIn("desk135", desk)
-        self.assertIn("desktop.css?v=desk135", html)
-        self.assertIn("desktop.js?v=desk135", html)
+        self.assertIn("desk136", html)
+        self.assertIn("desk136", desk)
+        self.assertIn("desktop.css?v=desk136", html)
+        self.assertIn("desktop.js?v=desk136", html)
         self.assertIn('data-lab-occlusion-verify-ae="1"', html)
         # Primary marker remains; Lab story must not reopen Primary scope.
         self.assertIn('data-occlusion-verify-ae="1"', html)

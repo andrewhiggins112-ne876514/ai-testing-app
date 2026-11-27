@@ -1648,6 +1648,7 @@
   let lastSuiteRunId = "";
   let planOfflineState = null;
   let activePlanPanel = "cases";
+  let planDeepViewState = null;
 
   function closePlanAddCaseMenu() {
     if (planAddCaseMenu) planAddCaseMenu.hidden = true;
@@ -1665,7 +1666,10 @@
       const on = tab.getAttribute("data-plan-panel") === panelName;
       tab.setAttribute("aria-selected", on ? "true" : "false");
     });
-    if (panelName !== "cases") closePlanAddCaseMenu();
+    if (panelName !== "cases") {
+      closePlanAddCaseMenu();
+      closePlanRunEvidenceDeep();
+    }
   }
 
   if (planSectionTabs) {
@@ -2321,6 +2325,7 @@
     if (thumb) {
       thumb.hidden = true;
       thumb.removeAttribute("data-shot-path");
+      thumb.removeAttribute("data-focus-step");
     }
     const thumbImg = root.querySelector("[data-run-story-thumb-img]");
     if (thumbImg) {
@@ -2329,6 +2334,8 @@
     }
     const noneBox = root.querySelector("[data-run-story-none]");
     if (noneBox) noneBox.hidden = true;
+    const entry = root.querySelector("[data-run-story-entry]");
+    if (entry) entry.hidden = true;
   }
 
   function hideEvidenceFirst(root) {
@@ -2368,24 +2375,341 @@
     return Math.round(n) + " ms";
   }
 
-  function ensureRunStoryThumbHandler(root) {
-    if (!root || root.getAttribute("data-run-story-thumb-bound") === "1") return;
-    root.setAttribute("data-run-story-thumb-bound", "1");
-    root.addEventListener("click", async function (ev) {
+  function ensureRunStoryDeepHandlers(root) {
+    if (!root || root.getAttribute("data-run-story-deep-bound") === "1") return;
+    root.setAttribute("data-run-story-deep-bound", "1");
+    root.addEventListener("click", function (ev) {
       const btn = ev.target && ev.target.closest
-        ? ev.target.closest("[data-run-story-thumb]")
+        ? ev.target.closest("[data-run-story-open-deep]")
         : null;
       if (!btn || !root.contains(btn) || btn.hidden) return;
-      const path = String(btn.getAttribute("data-shot-path") || "").trim();
-      if (!path) return;
-      try {
-        await fetch("/api/evidence-shot/open", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ path: path, action: "open", launch: true }),
+      const focusPath = String(btn.getAttribute("data-shot-path") || "").trim();
+      const focusStep = Number(btn.getAttribute("data-focus-step") || 0) || null;
+      openPlanRunEvidenceDeep({
+        focusPath: focusPath,
+        focusStep: focusStep,
+      });
+    });
+  }
+
+  function planDeepSurface() {
+    return document.getElementById("plan-run-evidence-deep");
+  }
+
+  function planCasesPanel() {
+    return document.getElementById("plan-panel-cases");
+  }
+
+  function closePlanRunEvidenceDeep() {
+    const deep = planDeepSurface();
+    const panel = planCasesPanel();
+    if (deep) deep.hidden = true;
+    if (panel) panel.removeAttribute("data-run-evidence-deep-open");
+  }
+
+  function shotUrlForDeep(planId, caseId, runId, path) {
+    let url =
+      "/api/plans/" +
+      encodeURIComponent(planId) +
+      "/cases/" +
+      encodeURIComponent(caseId) +
+      "/runs/" +
+      encodeURIComponent(runId) +
+      "/screenshot?t=" +
+      Date.now();
+    if (path) url += "&path=" + encodeURIComponent(path);
+    return url;
+  }
+
+  function focusPlanDeepView(opts) {
+    const options = opts || {};
+    const state = planDeepViewState;
+    const deep = planDeepSurface();
+    if (!state || !deep) return;
+    const pages = state.pages || [];
+    const outcomes = state.outcomes || [];
+    let stepIndex = options.stepIndex != null ? Number(options.stepIndex) : null;
+    let path = String(options.path || "").trim();
+
+    if (path) {
+      const match = pages.find(function (p) {
+        return String((p && p.path) || "") === path;
+      });
+      if (match && match.step_index != null && stepIndex == null) {
+        stepIndex = Number(match.step_index) || null;
+      }
+    } else if (stepIndex != null) {
+      const forStep = pages.find(function (p) {
+        return Number((p && p.step_index) || 0) === stepIndex;
+      });
+      path = forStep ? String(forStep.path || "") : "";
+    }
+
+    if (stepIndex == null && path) {
+      const only = pages[0];
+      if (only && only.step_index != null) stepIndex = Number(only.step_index) || null;
+    }
+    if (stepIndex == null && outcomes.length) {
+      const fail = outcomes.find(function (s) {
+        const st = String((s && s.status) || "").toLowerCase();
+        return st === "fail" || st === "error";
+      });
+      stepIndex = fail
+        ? Number(fail.index) || null
+        : Number((outcomes[outcomes.length - 1] || {}).index) || null;
+    }
+
+    state.focusStep = stepIndex;
+    state.focusPath = path;
+
+    const stepsEl = deep.querySelector("[data-run-deep-steps]");
+    if (stepsEl) {
+      const buttons = stepsEl.querySelectorAll("[data-run-deep-step]");
+      for (let i = 0; i < buttons.length; i++) {
+        const btn = buttons[i];
+        const idx = Number(btn.getAttribute("data-step-index") || 0) || null;
+        const on = stepIndex != null && idx === stepIndex;
+        btn.classList.toggle("is-select", on);
+        btn.setAttribute("aria-current", on ? "true" : "false");
+      }
+    }
+
+    const strip = deep.querySelector("[data-run-deep-strip]");
+    if (strip) {
+      const chips = strip.querySelectorAll("[data-run-deep-chip]");
+      for (let i = 0; i < chips.length; i++) {
+        const chip = chips[i];
+        const chipPath = String(chip.getAttribute("data-shot-path") || "");
+        const on = !!path && chipPath === path;
+        chip.classList.toggle("is-select", on);
+        chip.setAttribute("aria-current", on ? "true" : "false");
+      }
+    }
+
+    const stageLabel = deep.querySelector("[data-run-deep-stage-label]");
+    if (stageLabel) {
+      stageLabel.textContent =
+        stepIndex != null ? "Evidence · step " + stepIndex : "Evidence";
+    }
+
+    const pageBox = deep.querySelector("[data-run-deep-page]");
+    const pageImg = deep.querySelector("[data-run-deep-page-img]");
+    const noneBox = deep.querySelector("[data-run-deep-none]");
+    const noneReason = deep.querySelector("[data-run-deep-none-reason]");
+    if (path && pageBox && pageImg && state.planId && state.caseId && state.runId) {
+      pageBox.hidden = false;
+      if (noneBox) noneBox.hidden = true;
+      pageImg.src = shotUrlForDeep(state.planId, state.caseId, state.runId, path);
+      pageImg.alt =
+        stepIndex != null
+          ? "Captured page for step " + stepIndex
+          : "Captured page screenshot";
+    } else {
+      if (pageBox) pageBox.hidden = true;
+      if (pageImg) pageImg.removeAttribute("src");
+      if (noneBox) {
+        noneBox.hidden = false;
+        if (noneReason) {
+          noneReason.textContent =
+            state.emptyReason ||
+            "None captured. A green stand-in is not substituted.";
+        }
+      }
+    }
+  }
+
+  function fillPlanDeepView(state) {
+    const deep = planDeepSurface();
+    if (!deep || !state) return;
+    const nameEl = deep.querySelector("[data-run-deep-case-name]");
+    if (nameEl) nameEl.textContent = state.caseName || "Case";
+    const st = formatRunStoryStatus(state.result);
+    const statusEl = deep.querySelector("[data-run-deep-status]");
+    if (statusEl) {
+      statusEl.textContent = st.text;
+      statusEl.className =
+        "run-story-pill" + (st.kind !== "idle" ? " is-" + st.kind : "");
+    }
+    const metaEl = deep.querySelector("[data-run-deep-meta]");
+    if (metaEl) metaEl.textContent = state.meta || "";
+
+    const traceBtn = deep.querySelector("[data-run-deep-open-trace]");
+    if (traceBtn) {
+      const hasTrace = !!state.tracePath;
+      traceBtn.disabled = !hasTrace;
+      if (hasTrace) traceBtn.setAttribute("data-trace-path", state.tracePath);
+      else traceBtn.removeAttribute("data-trace-path");
+    }
+
+    const stepsEl = deep.querySelector("[data-run-deep-steps]");
+    if (stepsEl) {
+      stepsEl.innerHTML = "";
+      (state.outcomes || []).forEach(function (step) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        const stepStatus = String((step && step.status) || "").toLowerCase();
+        btn.className =
+          "plan-deep-step" +
+          (stepStatus === "fail" || stepStatus === "error" ? " is-fail" : "");
+        btn.setAttribute("data-run-deep-step", "1");
+        btn.setAttribute("data-step-index", String((step && step.index) || ""));
+        const n = document.createElement("span");
+        n.className = "run-story-n";
+        n.textContent = String((step && step.index) || "");
+        const verb = document.createElement("span");
+        verb.className = "run-story-verb";
+        verb.textContent = String((step && step.label) || (step && step.action) || "Step");
+        const pill = document.createElement("span");
+        const ok = stepStatus === "pass";
+        const bad = stepStatus === "fail" || stepStatus === "error";
+        pill.className =
+          "run-story-step-pill" + (ok ? " is-pass" : bad ? " is-fail" : "");
+        pill.textContent = ok ? "Pass" : bad ? "Fail" : stepStatus || "—";
+        btn.appendChild(n);
+        btn.appendChild(verb);
+        btn.appendChild(pill);
+        const hasShot = (state.pages || []).some(function (p) {
+          return Number((p && p.step_index) || 0) === Number(step.index);
         });
-      } catch (err) {
-        /* leave status via shot warn / trace */
+        if (step && step.duration_ms != null) {
+          const ms = document.createElement("span");
+          ms.className = "run-story-ms";
+          ms.textContent =
+            formatRunStoryDuration(step.duration_ms) + (hasShot ? " · shot" : "");
+          btn.appendChild(ms);
+        } else if (hasShot) {
+          const ms = document.createElement("span");
+          ms.className = "run-story-ms";
+          ms.textContent = "shot";
+          btn.appendChild(ms);
+        }
+        if (step && step.error) {
+          const err = document.createElement("p");
+          err.className = "run-story-err";
+          err.textContent = String(step.error);
+          btn.appendChild(err);
+        }
+        stepsEl.appendChild(btn);
+      });
+      if (!(state.outcomes || []).length) {
+        const empty = document.createElement("p");
+        empty.className = "plan-deep-hint";
+        empty.textContent = "No step outcomes on this run yet.";
+        stepsEl.appendChild(empty);
+      }
+    }
+
+    const strip = deep.querySelector("[data-run-deep-strip]");
+    const stripEmpty = deep.querySelector("[data-run-deep-strip-empty]");
+    if (strip) {
+      strip.innerHTML = "";
+      const pages = state.pages || [];
+      pages.forEach(function (page) {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "plan-deep-thumb-chip";
+        chip.setAttribute("data-run-deep-chip", "1");
+        chip.setAttribute("data-shot-path", String(page.path || ""));
+        if (page.step_index != null) {
+          chip.setAttribute("data-step-index", String(page.step_index));
+        }
+        chip.setAttribute(
+          "aria-label",
+          page.step_index != null
+            ? "Step " + page.step_index + " captured page"
+            : "Captured page"
+        );
+        const img = document.createElement("img");
+        img.alt = "";
+        img.src = shotUrlForDeep(
+          state.planId,
+          state.caseId,
+          state.runId,
+          page.path
+        );
+        const cap = document.createElement("span");
+        cap.className = "chip-cap";
+        cap.textContent =
+          page.step_index != null
+            ? page.step_index + " · " + String(page.label || "shot").slice(0, 28)
+            : String(page.label || "Captured page").slice(0, 32);
+        chip.appendChild(img);
+        chip.appendChild(cap);
+        strip.appendChild(chip);
+      });
+      if (stripEmpty) stripEmpty.hidden = pages.length > 0;
+    }
+  }
+
+  function openPlanRunEvidenceDeep(opts) {
+    const options = opts || {};
+    const state = planDeepViewState;
+    const deep = planDeepSurface();
+    const panel = planCasesPanel();
+    if (!state || !state.lastRun || !deep || !panel) return;
+    showPlanPanel("cases");
+    fillPlanDeepView(state);
+    deep.hidden = false;
+    panel.setAttribute("data-run-evidence-deep-open", "1");
+    focusPlanDeepView({
+      path: options.focusPath || state.shotPath || "",
+      stepIndex: options.focusStep || null,
+    });
+  }
+
+  function ensurePlanDeepViewHandlers() {
+    const deep = planDeepSurface();
+    if (!deep || deep.getAttribute("data-run-deep-bound") === "1") return;
+    deep.setAttribute("data-run-deep-bound", "1");
+    deep.addEventListener("click", async function (ev) {
+      const back = ev.target && ev.target.closest
+        ? ev.target.closest("[data-run-deep-back]")
+        : null;
+      if (back && deep.contains(back)) {
+        closePlanRunEvidenceDeep();
+        return;
+      }
+      const stepBtn = ev.target && ev.target.closest
+        ? ev.target.closest("[data-run-deep-step]")
+        : null;
+      if (stepBtn && deep.contains(stepBtn)) {
+        const idx = Number(stepBtn.getAttribute("data-step-index") || 0) || null;
+        focusPlanDeepView({ stepIndex: idx, path: "" });
+        return;
+      }
+      const chip = ev.target && ev.target.closest
+        ? ev.target.closest("[data-run-deep-chip]")
+        : null;
+      if (chip && deep.contains(chip)) {
+        focusPlanDeepView({
+          path: String(chip.getAttribute("data-shot-path") || ""),
+          stepIndex: Number(chip.getAttribute("data-step-index") || 0) || null,
+        });
+        return;
+      }
+      const traceBtn = ev.target && ev.target.closest
+        ? ev.target.closest("[data-run-deep-open-trace]")
+        : null;
+      if (traceBtn && deep.contains(traceBtn) && !traceBtn.disabled) {
+        const path = String(
+          traceBtn.getAttribute("data-trace-path") ||
+            (planDeepViewState && planDeepViewState.tracePath) ||
+            ""
+        ).trim();
+        if (!path) return;
+        try {
+          await fetch("/api/playwright-trace/open", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              path: path,
+              action: "show_trace",
+              launch: true,
+            }),
+          });
+        } catch (err) {
+          /* status stays in aside Open Trace row */
+        }
       }
     });
   }
@@ -2393,7 +2717,8 @@
   function fillPlanRunStory(root, opts) {
     const options = opts || {};
     if (!root || root.getAttribute("data-run-story") !== "1") return;
-    ensureRunStoryThumbHandler(root);
+    ensureRunStoryDeepHandlers(root);
+    ensurePlanDeepViewHandlers();
     const last = options.lastRun || null;
     const statusEl = root.querySelector("[data-run-story-status]");
     const metaEl = root.querySelector("[data-run-story-meta]");
@@ -2404,6 +2729,7 @@
     const thumbCap = root.querySelector("[data-run-story-thumb-cap]");
     const noneBox = root.querySelector("[data-run-story-none]");
     const noneReason = root.querySelector("[data-run-story-none-reason]");
+    const entry = root.querySelector("[data-run-story-entry]");
     const summary = root.querySelector("[data-evidence-summary]");
     if (summary) summary.hidden = true;
 
@@ -2419,6 +2745,7 @@
       }
       if (noStepsEl) noStepsEl.hidden = true;
       if (thumb) thumb.hidden = true;
+      if (entry) entry.hidden = true;
       if (noneBox) {
         noneBox.hidden = false;
         if (noneReason) {
@@ -2503,36 +2830,34 @@
     const runId = String((last && last.id) || "").trim();
     const planId = String(options.planId || "").trim();
     const caseId = String(options.caseId || "").trim();
+    const failStep = outcomes.find(function (s) {
+      return s && (s.status === "fail" || s.status === "error");
+    });
     if (shotPath && thumb && thumbImg) {
       thumb.hidden = false;
       if (noneBox) noneBox.hidden = true;
       thumb.setAttribute("data-shot-path", shotPath);
+      if (failStep && failStep.index != null) {
+        thumb.setAttribute("data-focus-step", String(failStep.index));
+      } else {
+        thumb.removeAttribute("data-focus-step");
+      }
       if (planId && caseId && runId) {
-        thumbImg.src =
-          "/api/plans/" +
-          encodeURIComponent(planId) +
-          "/cases/" +
-          encodeURIComponent(caseId) +
-          "/runs/" +
-          encodeURIComponent(runId) +
-          "/screenshot?t=" +
-          Date.now();
+        thumbImg.src = shotUrlForDeep(planId, caseId, runId, shotPath);
       } else {
         thumbImg.removeAttribute("src");
       }
       thumbImg.alt = "Captured page screenshot";
       if (thumbCap) {
-        const failStep = outcomes.find(function (s) {
-          return s && (s.status === "fail" || s.status === "error");
-        });
         thumbCap.textContent = failStep
-          ? "1 shot · step " + failStep.index + " · captured page"
-          : "1 shot · captured page, not a status icon";
+          ? "1 shot · step " + failStep.index + " · open deep view"
+          : "1 shot · open deep view";
       }
     } else {
       if (thumb) {
         thumb.hidden = true;
         thumb.removeAttribute("data-shot-path");
+        thumb.removeAttribute("data-focus-step");
       }
       if (thumbImg) thumbImg.removeAttribute("src");
       if (noneBox) {
@@ -2544,6 +2869,7 @@
         }
       }
     }
+    if (entry) entry.hidden = false;
   }
 
   function fillEvidenceFirst(root, opts) {
@@ -4960,16 +5286,82 @@
           tracePath: tracePath,
           hasTrace: !!tracePath,
         });
+        const caseId =
+          payload.case_id ||
+          (planCaseId && planCaseId.value ? planCaseId.value.trim() : "") ||
+          "";
+        const metaParts = [];
+        if (last) {
+          const dur = formatRunStoryDuration(last.duration_ms);
+          if (dur) metaParts.push(dur);
+          if (last.failure_class) metaParts.push(String(last.failure_class));
+          else if ((payload.tags || caseTags || []).length) {
+            metaParts.push(String((payload.tags || caseTags)[0]));
+          }
+          if (last.sandbox) metaParts.push(String(last.sandbox));
+          else if (last.environment_name) {
+            metaParts.push(String(last.environment_name));
+          }
+          const when = last.finished_at || last.started_at || "";
+          if (when) {
+            metaParts.push(
+              String(when).slice(11, 16) || String(when).slice(0, 19)
+            );
+          }
+        }
+        let capturedPages = Array.isArray(payload.evidence_captured_pages)
+          ? payload.evidence_captured_pages.slice()
+          : [];
+        if (!capturedPages.length && shotPath) {
+          const fail = (Array.isArray(last.step_outcomes) ? last.step_outcomes : []).find(
+            function (s) {
+              const st = String((s && s.status) || "").toLowerCase();
+              return st === "fail" || st === "error";
+            }
+          );
+          const outcomes = Array.isArray(last.step_outcomes)
+            ? last.step_outcomes
+            : [];
+          const attach = fail || outcomes[outcomes.length - 1] || null;
+          capturedPages = [
+            {
+              path: shotPath,
+              step_index: attach ? attach.index : null,
+              label: attach
+                ? String(attach.label || attach.action || "Step")
+                : "Captured page",
+              status: String(
+                (attach && attach.status) || last.result || "pending"
+              ),
+            },
+          ];
+        }
+        planDeepViewState = last
+          ? {
+              lastRun: last,
+              planId: openPlanId || "",
+              caseId: caseId,
+              runId: String((last && last.id) || "").trim(),
+              caseName: String(payload.name || caseId || "Case"),
+              result: last.result,
+              meta: metaParts.join(" · "),
+              outcomes: Array.isArray(last.step_outcomes)
+                ? last.step_outcomes
+                : [],
+              pages: capturedPages,
+              shotPath: shotPath,
+              emptyReason: payload.evidence_empty_reason || "",
+              tracePath: tracePath,
+            }
+          : null;
+        if (!last) closePlanRunEvidenceDeep();
         fillPlanRunStory(root, {
           lastRun: last,
           shotPath: shotPath,
           emptyReason: payload.evidence_empty_reason || "",
           tags: payload.tags || caseTags || [],
           planId: openPlanId || "",
-          caseId:
-            payload.case_id ||
-            (planCaseId && planCaseId.value ? planCaseId.value.trim() : "") ||
-            "",
+          caseId: caseId,
         });
       })();
       syncPlanCaseRowFocus();

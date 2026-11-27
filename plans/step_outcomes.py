@@ -137,6 +137,143 @@ def representative_screenshot(run: dict[str, Any] | None) -> str | None:
     return None
 
 
+def _smokeish_tags(case_tags: list[str] | None) -> bool:
+    tags = {str(t or "").strip().lower() for t in (case_tags or [])}
+    return bool(tags & {"smoke", "golden", "golden-path", "golden_path"})
+
+
+def _evidence_pngs(run: dict[str, Any]) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in run.get("evidence") or []:
+        text = str(item or "").strip()
+        if not text.lower().endswith(".png"):
+            continue
+        key = text.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(text)
+    return out
+
+
+def _hide_pass_shots(
+    *,
+    case_tags: list[str] | None,
+    success_shots_enabled: bool,
+) -> bool:
+    """AC: success-shots-off hides pass PNGs for non-smoke runs in deep view."""
+    if success_shots_enabled:
+        return False
+    return not _smokeish_tags(case_tags)
+
+
+def deep_view_captured_pages(
+    run: dict[str, Any] | None,
+    *,
+    case_tags: list[str] | None = None,
+    success_shots_enabled: bool = True,
+) -> list[dict[str, Any]]:
+    """Captured page thumbs for Plans deep view (KAN-498).
+
+    Uses per-step screenshot refs when present; otherwise attaches unattached
+    evidence PNGs to the fail step (or last step). Never invents images from
+    trace.zip. Strip omits steps with no file.
+    """
+    if not isinstance(run, dict):
+        return []
+    outcomes = normalize_step_outcomes(run.get("step_outcomes") or [])
+    hide_pass = _hide_pass_shots(
+        case_tags=case_tags,
+        success_shots_enabled=success_shots_enabled,
+    )
+    pages: list[dict[str, Any]] = []
+    used: set[str] = set()
+
+    def _append(
+        path: str,
+        *,
+        step_index: int | None,
+        label: str,
+        status: str,
+    ) -> None:
+        text = (path or "").strip()
+        if not text.lower().endswith(".png"):
+            return
+        key = text.lower()
+        if key in used:
+            return
+        if hide_pass and str(status or "").lower() == "pass":
+            return
+        used.add(key)
+        pages.append(
+            {
+                "path": text[:500],
+                "step_index": step_index,
+                "label": (label or "Captured page")[:200],
+                "status": str(status or "").strip().lower()[:20] or "pending",
+            }
+        )
+
+    for step in outcomes:
+        shot = str(step.get("screenshot") or "").strip()
+        if not shot:
+            continue
+        _append(
+            shot,
+            step_index=int(step.get("index") or 0) or None,
+            label=str(step.get("label") or step.get("action") or "Step"),
+            status=str(step.get("status") or ""),
+        )
+
+    leftover = [p for p in _evidence_pngs(run) if p.lower() not in used]
+    if leftover:
+        fail_step = next(
+            (
+                s
+                for s in outcomes
+                if str(s.get("status") or "").lower() in {"fail", "error"}
+            ),
+            None,
+        )
+        attach = fail_step or (outcomes[-1] if outcomes else None)
+        run_result = str(run.get("result") or "").lower()
+        for idx, path in enumerate(leftover):
+            if attach and idx == 0:
+                _append(
+                    path,
+                    step_index=int(attach.get("index") or 0) or None,
+                    label=str(attach.get("label") or attach.get("action") or "Step"),
+                    status=str(attach.get("status") or run_result),
+                )
+            else:
+                # Extra unattached PNGs stay in the strip without inventing a step.
+                _append(
+                    path,
+                    step_index=None,
+                    label="Captured page",
+                    status=run_result or "pending",
+                )
+    return pages
+
+
+def run_allows_shot_path(run: dict[str, Any] | None, path: str) -> bool:
+    """True when path is a PNG listed on the run (evidence or step outcome)."""
+    if not isinstance(run, dict):
+        return False
+    want = (path or "").strip().lower()
+    if not want.endswith(".png"):
+        return False
+    for item in _evidence_pngs(run):
+        if item.lower() == want:
+            return True
+    for step in normalize_step_outcomes(run.get("step_outcomes") or []):
+        shot = str(step.get("screenshot") or "").strip()
+        if shot.lower() == want:
+            return True
+    return False
+
+
 def honest_empty_reason(
     run: dict[str, Any] | None,
     *,
@@ -149,8 +286,7 @@ def honest_empty_reason(
         return ""
     result = str(run.get("result") or "").lower()
     note = str(run.get("note") or "").strip()
-    tags = {str(t or "").strip().lower() for t in (case_tags or [])}
-    smokeish = bool(tags & {"smoke", "golden", "golden-path", "golden_path"})
+    smokeish = _smokeish_tags(case_tags)
     if result == "pass":
         if smokeish:
             return (

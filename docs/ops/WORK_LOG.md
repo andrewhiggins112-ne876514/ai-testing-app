@@ -8,17 +8,17 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready — GAP-CR Build |
-| **Jira story** | **KAN-498** Plans deep-view evidence stage (epic **KAN-383**) |
-| **Start task** | Build Slice-2 from Studio frames 05–07: More evidence + thumb expand → deep view (steps + large shot + captured strip). Open Trace external. No Trace embed; do **not** replace Cases. |
+| **Jira story** | **KAN-384** Reports visual analytics / charts (epic **KAN-383**) |
+| **Start task** | Build Reports charts (FR-REP-1/4 deepen) under GAP-CR. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR |
 | **Roadmap ID** | GAP-CR |
-| **Spec** | FR-TEST-4 / FR-PLAN-4 deepen + `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json` |
+| **Spec** | FR-REP-1 / FR-REP-4 + gap research; keys in `docs/ops/OPERATE_KEYS.json` → gap_stories |
 | **Git** | `main` |
-| **Test ticket** | **KAN-499** |
-| **Shipped** | Option A aside **KAN-496**/497 (**desk135**); OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
-| **Queued** | Build **KAN-498** deep view; other GAP-CR after |
+| **Test ticket** | **KAN-385** |
+| **Shipped** | Deep view **KAN-498**/499 (**desk136**); Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
+| **Queued** | **KAN-384**/385 charts; then Manual float **KAN-386**, plan doc **KAN-388**, stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | **KAN-496** Option A Done. Next Build = **KAN-498**/499. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | **KAN-498** deep view Done. Next Build = **KAN-384**/385. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — KAN-498 — Plans deep-view evidence stage
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
+- **Done:** In-area Plans deep view from Option A doors (**More evidence** + thumb expand). Header (case / Pass-Fail / Back to case / Open Trace external), selectable steps, large PNG or honest empty, captured-pages strip only. Per-run shot path query on screenshot API; `deep_view_captured_pages` helper (no Trace embed; no Cases replacement; no screenshot-every-step policy). Cache-bust **desk136**.
+- **Files:** `plans/step_outcomes.py`, `plans/run_case.py`, `main.py`, `ui/desktop/*`, `desktop_app.py`, `tests/test_run_evidence_deep_view.py` (+ desk136 marker bumps)
+- **Verify:** `pytest tests/test_run_evidence_deep_view.py tests/test_run_evidence_ux.py` — 17 passed. CU not required (markers/API AC).
+- **Jira:** close-out **KAN-498** + **KAN-499**
+- **Next:** **KAN-384** Reports charts (test **KAN-385**)
 
 ### 2026-11-27 — KAN-496 — Option A readable run steps + evidence gallery
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
