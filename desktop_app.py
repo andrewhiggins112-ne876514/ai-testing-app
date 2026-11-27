@@ -20,15 +20,16 @@ import webview
 
 from plugins.playwright_env import sanitize_playwright_browsers_path
 from plans.charter_float import (
-    is_float_available_payload,
+    float_hwnd_from_native,
     float_window_title,
+    is_float_available_payload,
 )
 from plans import charter_ring_native as ring
 from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk144"
+DESK_V = "desk145"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 FLOAT_URL = f"http://{HOST}:{PORT}/ui/desktop/charter_float.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
@@ -80,16 +81,45 @@ def _notify_main(js: str) -> None:
         pass
 
 
+def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
+    """Unstick taskbar-only / hidden frameless dock (Show + TOPMOST)."""
+    import ctypes
+
+    hwnd = float_hwnd_from_native(getattr(win, "native", None))
+    if not hwnd:
+        return
+    user32 = ctypes.windll.user32
+    HWND_TOPMOST = -1
+    SW_RESTORE = 9
+    SWP_SHOWWINDOW = 0x0040
+    user32.ShowWindow(hwnd, SW_RESTORE)
+    user32.SetWindowPos(
+        hwnd,
+        HWND_TOPMOST,
+        int(geom["x"]),
+        int(geom["y"]),
+        int(geom["width"]),
+        int(geom["height"]),
+        SWP_SHOWWINDOW,
+    )
+
+
 def _place_dock(bbox: list[int]) -> dict[str, Any]:
     win = _float_window
     if win is None:
         return {"status": "error", "error": "float_unavailable"}
-    geom = ring.dock_geom_for_bbox(bbox)
+    virtual, monitors = _snap_context()
+    geom = ring.dock_geom_for_bbox(bbox, virtual=virtual, monitors=monitors)
     try:
+        try:
+            win.restore()
+        except Exception:  # noqa: BLE001
+            pass
         win.resize(int(geom["width"]), int(geom["height"]))
         win.move(int(geom["x"]), int(geom["y"]))
         win.on_top = True
         win.show()
+        _force_dock_native_visible(win, geom)
         return {"status": "ok", "geometry": geom}
     except Exception as exc:  # noqa: BLE001
         return {"status": "error", "error": "dock_place_failed", "message": str(exc)[:120]}
@@ -116,6 +146,17 @@ class DesktopApi:
         try:
             ring_out = ring.set_capture_bbox(bbox, show=True)
             dock_out = _place_dock(bbox)
+            if not dock_out or dock_out.get("status") != "ok":
+                return {
+                    "status": "error",
+                    "error": "dock_place_failed",
+                    "available": True,
+                    "mode": "dock_plus_native_ring",
+                    "session_id": _float_session_id,
+                    "screen_bbox": bbox,
+                    "ring": ring_out,
+                    "dock": dock_out,
+                }
             _float_visible = True
             return {
                 "status": "ok",

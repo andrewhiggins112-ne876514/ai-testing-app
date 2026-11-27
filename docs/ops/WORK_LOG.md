@@ -15,10 +15,10 @@
 | **Spec** | FR-PLAN-1 + gap research; keys in `docs/ops/OPERATE_KEYS.json` → gap_stories |
 | **Git** | `main` |
 | **Test ticket** | **KAN-389** |
-| **Shipped** | Manual float **KAN-386**/387 + UX bugs **KAN-501**…**504** (**desk144**); Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
+| **Shipped** | Manual float **KAN-386**/387 + UX bugs **KAN-501**…**506** (**desk145**); Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
 | **Queued** | plan doc **KAN-388**/389; stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Manual UX bug **KAN-504** Done (**desk144**). Next Build = **KAN-388**/389. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Dock visibility **KAN-506** Done (**desk145**). Next Build = **KAN-388**/389. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — KAN-506 — Charter dock taskbar-only / overlay vanished
+- **Agent/chat:** Cursor IDE Agent (Composer) — Designer: Start overlay flash then gone; dock on taskbar but not visible
+- **Done:** Keep in-app Charter Frame visible while OS ring/dock arms; clamp dock to primary work area (no MIN_WINDOW_H inflate); restore + native TOPMOST show; open fails if dock place fails. Cache-bust **desk145**.
+- **Files:** `ui/desktop/desktop.js`, `desktop_app.py`, `plans/charter_ring_native.py`, `ui/desktop/index.html`, `charter_float.html`, `tests/test_charter_float.py`, `scripts/jira_kan_bug_charter_dock_invisible.py`
+- **Verify:** `pytest tests/test_charter_float.py` — 8 passed. Restart desktop for desk145.
+- **Jira:** Bug **KAN-506** Fix + Done
+- **Next:** Active remains **KAN-388** plan document view
 
 ### 2026-11-27 — KAN-504 — Manual Start / library / charter focus UX
 - **Agent/chat:** Cursor IDE Agent (Composer) — Designer: reopen Manual to type charter; library click closes Manual; Start only brief glitch

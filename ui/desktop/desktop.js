@@ -7052,25 +7052,14 @@
       charterFrameRoot.setAttribute("aria-hidden", "false");
     }
 
-    /* KAN-386: prefer OS-level float outside the main window when available. */
+    /* KAN-386/506: arm OS ring+dock when available, but never hide in-app frame.
+       Hiding left Start looking like a flash when the dock was only taskbar-ghosted. */
     const floated = await openOsCharterFloat(session);
     charterOsFloatActive = floated;
-    if (floated) {
-      if (charterFrameRoot) {
-        charterFrameRoot.hidden = true;
-        charterFrameRoot.setAttribute("aria-hidden", "true");
-      }
-      setCharterMistVisible(false);
-      if (manualStatus) {
-        manualStatus.textContent =
-          "Session started — OS Charter Frame float (drag anywhere; Still / End on float dock; no Jira write)";
-      }
-      return;
-    }
-
     if (manualStatus) {
-      manualStatus.textContent =
-        "Session started — Charter Frame dock: Note / Still / End / Cancel (no Jira write)";
+      manualStatus.textContent = floated
+        ? "Session recording — in-app Charter Frame + OS ring/dock (Note / Still / End; no Jira write)"
+        : "Session started — Charter Frame dock: Note / Still / End / Cancel (no Jira write)";
     }
   }
 

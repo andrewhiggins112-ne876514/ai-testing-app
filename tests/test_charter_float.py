@@ -43,9 +43,31 @@ class CharterFloatGeometryTests(unittest.TestCase):
         self.assertTrue(payload["click_through_hole"])
 
     def test_dock_geom_under_bbox(self) -> None:
-        dock = ring.dock_geom_for_bbox([100, 80, 800, 500])
+        monitors = [
+            {
+                "id": "mon1",
+                "label": "Monitor 1 (primary)",
+                "bbox": [0, 0, 1920, 1080],
+                "is_primary": True,
+            }
+        ]
+        dock = ring.dock_geom_for_bbox(
+            [100, 80, 800, 500],
+            virtual={"left": 0, "top": 0, "width": 1920, "height": 1080},
+            monitors=monitors,
+        )
         self.assertGreaterEqual(dock["y"], 500)
+        self.assertLessEqual(dock["y"] + dock["height"], 1080)
         self.assertGreaterEqual(dock["width"], 420)
+        self.assertLessEqual(dock["height"], 160)
+        # Near bottom of screen → dock flips above ring instead of going off-screen.
+        low = ring.dock_geom_for_bbox(
+            [100, 900, 800, 1050],
+            virtual={"left": 0, "top": 0, "width": 1920, "height": 1080},
+            monitors=monitors,
+        )
+        self.assertLess(low["y"] + low["height"], 1080)
+        self.assertLessEqual(low["y"], 900)
 
 
 class CharterRingNativeTests(unittest.TestCase):
@@ -122,16 +144,16 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk144(self) -> None:
+    def test_desktop_float_markers_desk145(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk144", html)
-        self.assertIn("desk144", desk)
-        self.assertIn("desk144", float_html)
+        self.assertIn("desk145", html)
+        self.assertIn("desk145", desk)
+        self.assertIn("desk145", float_html)
         self.assertIn('data-snip-dock="1"', float_html)
         self.assertIn("charter_ring_native", desk)
         self.assertIn("dock_plus_native_ring", desk)
@@ -151,6 +173,12 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         )[0]
         self.assertNotIn("closeArea()", start_fn)
         self.assertIn("session_already_open", start_fn)
+        # KAN-506: floated OS dock must not hide in-app Charter Frame.
+        show_fn = js.split("async function showCharterFrame(session)", 1)[1].split(
+            "async function hideCharterFrame()", 1
+        )[0]
+        self.assertNotIn("charterFrameRoot.hidden = true", show_fn)
+        self.assertIn("in-app Charter Frame", show_fn)
 
     def test_api_start_charter_only(self) -> None:
         from main import app

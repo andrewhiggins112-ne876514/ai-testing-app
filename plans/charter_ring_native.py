@@ -224,16 +224,42 @@ def default_capture_bbox(
     return [120, 120, 120 + DEFAULT_CAPTURE_W, 120 + DEFAULT_CAPTURE_H]
 
 
-def dock_geom_for_bbox(bbox: list[int]) -> dict[str, int]:
-    left, _top, right, bottom = bbox
-    width = max(420, min(720, right - left + 2 * SIDE))
+def dock_geom_for_bbox(
+    bbox: list[int],
+    *,
+    virtual: dict[str, int] | None = None,
+    monitors: list[dict[str, Any]] | None = None,
+) -> dict[str, int]:
+    """Compact dock under (or above) the capture ring — always on primary work area.
+
+    Do not use full-float MIN_WINDOW_H clamp (that inflated the dock to 320px and
+    with a fake work rect could leave the window taskbar-only / hard to restore).
+    """
+    from plans.charter_float import _primary_work
+
+    work = _primary_work(virtual, monitors)
+    try:
+        left, top, right, bottom = (int(v) for v in bbox)
+    except (TypeError, ValueError):
+        left, top, right, bottom = 120, 120, 840, 540
+    width = max(420, min(720, (right - left) + 2 * SIDE))
     height = 132
     x = left - SIDE
     y = bottom + 12
-    return clamp_window_geom(
-        {"x": x, "y": y, "width": width, "height": height},
-        work={"left": 0, "top": 0, "width": 10000, "height": 10000},
-    )
+    ox = int(work["left"])
+    oy = int(work["top"])
+    aw = max(width + 16, int(work["width"]))
+    ah = max(height + 16, int(work["height"]))
+    # Prefer under ring; if that would clip past the work bottom, sit above ring.
+    if y + height > oy + ah - 8:
+        y = top - height - 12
+    if y < oy + 8:
+        y = oy + ah - height - 48
+    width = max(420, min(width, aw - 16))
+    height = max(100, min(height, ah - 16))
+    x = max(ox, min(x, ox + aw - width))
+    y = max(oy, min(y, oy + ah - height))
+    return {"x": x, "y": y, "width": width, "height": height}
 
 
 def nudge_bbox(bbox: list[int], dx: int, dy: int) -> list[int]:
