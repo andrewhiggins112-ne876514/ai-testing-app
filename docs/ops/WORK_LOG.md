@@ -15,10 +15,10 @@
 | **Spec** | FR-PLAN-1 + gap research; keys in `docs/ops/OPERATE_KEYS.json` → gap_stories |
 | **Git** | `main` |
 | **Test ticket** | **KAN-389** |
-| **Shipped** | Manual float **KAN-386**/387 + UX bugs **KAN-501**…**507** (**desk146**); Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
+| **Shipped** | Manual float **KAN-386**/387 + UX bugs **KAN-501**…**508** (**desk147**); Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
 | **Queued** | plan doc **KAN-388**/389; stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Dock drag **KAN-507** Done (**desk146**). Next Build = **KAN-388**/389. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Overlay stay-visible **KAN-508** Done (**desk147**). Next Build = **KAN-388**/389. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — KAN-508 — Start overlay flash→gone regression
+- **Agent/chat:** Cursor IDE Agent (Composer) — Designer: Start overlay opens then immediately disappears again
+- **Done:** Reverted KAN-507 hide-in-app-when-floated; OS float stays additive; pytest guards `NEVER hide in-app chrome`. Cache-bust **desk147**.
+- **Files:** `ui/desktop/desktop.js`, `index.html`, `charter_float.html`, `desktop_app.py`, `tests/test_charter_float.py`, `scripts/jira_kan_bug_charter_overlay_hide_again.py`
+- **Verify:** `pytest tests/test_charter_float.py` — 8 passed. Restart for desk147.
+- **Jira:** Bug **KAN-508** Fix + Done
+- **Next:** Active remains **KAN-388** plan document view
 
 ### 2026-11-27 — KAN-507 — Charter home chrome + dock drag / capture resize
 - **Agent/chat:** Cursor IDE Agent (Composer) — Designer: controls on app open; dock/controls immovable; sideways-only resize

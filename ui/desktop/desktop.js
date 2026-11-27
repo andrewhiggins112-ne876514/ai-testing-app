@@ -7052,24 +7052,14 @@
       charterFrameRoot.setAttribute("aria-hidden", "false");
     }
 
-    /* Prefer OS ring+dock. When it arms, hide in-app chrome so one movable UI remains. */
+    /* OS ring+dock is additive. NEVER hide in-app chrome when float reports ok —
+       that caused Start flash→gone (KAN-506 / KAN-508) when the dock was weak/ghosted. */
     const floated = await openOsCharterFloat(session);
     charterOsFloatActive = floated;
-    if (floated) {
-      if (charterFrameRoot) {
-        charterFrameRoot.hidden = true;
-        charterFrameRoot.setAttribute("aria-hidden", "true");
-      }
-      setCharterMistVisible(false);
-      if (manualStatus) {
-        manualStatus.textContent =
-          "Recording — drag Charter Frame header to move ring+dock; ←↑↓→ nudge; ± resize capture; End on dock";
-      }
-      return;
-    }
     if (manualStatus) {
-      manualStatus.textContent =
-        "Session started — drag Charter Frame label to move; edges resize (no Jira write)";
+      manualStatus.textContent = floated
+        ? "Recording — in-app Charter + OS ring/dock. Drag OS header to move ring; ± resize capture; End on either dock"
+        : "Session started — drag Charter Frame label to move; edges resize (no Jira write)";
     }
   }
 
