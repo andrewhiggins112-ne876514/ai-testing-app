@@ -262,12 +262,17 @@ def _normalize_run(raw: Any) -> Optional[dict[str, Any]]:
     framework_name = str(raw.get("framework") or "").strip().lower()[:40] or None
     if framework_name and framework_name not in {"playwright", "selenium", "cypress"}:
         framework_name = None
+    # KAN-496 / FR-PLAN-4: ordered step outcomes for Case aside narrative.
+    from plans.step_outcomes import normalize_step_outcomes
+
+    step_outcomes = normalize_step_outcomes(raw.get("step_outcomes") or raw.get("steps"))
     return {
         "id": rid,
         "result": result,
         "duration_ms": duration_ms,
         "failure_class": failure_class,
         "evidence": evidence,
+        "step_outcomes": step_outcomes,
         "suite_run_id": suite_run_id or None,
         "environment_name": env_name,
         "sandbox": sandbox_name,
@@ -651,6 +656,7 @@ def add_run(
     duration_ms: int | None = None,
     failure_class: str | None = None,
     evidence: list[str] | None = None,
+    step_outcomes: list[dict[str, Any]] | None = None,
     note: str = "",
     started_at: str | None = None,
     finished_at: str | None = None,
@@ -729,6 +735,7 @@ def add_run(
             "duration_ms": duration_ms,
             "failure_class": failure_class,
             "evidence": evidence or [],
+            "step_outcomes": step_outcomes or [],
             "suite_run_id": suite_run_id,
             "environment_name": env_label,
             "sandbox": sandbox_label,

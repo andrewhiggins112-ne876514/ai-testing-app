@@ -498,13 +498,17 @@ async def run_playwright(
                 result["steps"] = []
                 had_failure = False
                 for step in steps:
+                    step_started = time.monotonic()
                     try:
                         healed = await _run_step(page, step, click_timeout, retry_timeout)
                     except Exception as e:
                         failed = {
                             "action": step.get("action"),
+                            "selector": step.get("selector"),
+                            "value": step.get("value"),
                             "status": "fail",
                             "error": str(e),
+                            "duration_ms": int((time.monotonic() - step_started) * 1000),
                         }
                         if getattr(e, "candidates", None) is not None:
                             failed["score"] = e.score
@@ -560,7 +564,13 @@ async def run_playwright(
                                 continue
                         result["status"] = "fail"
                         break
-                    passed = {"action": step["action"], "status": "pass"}
+                    passed = {
+                        "action": step.get("action"),
+                        "selector": step.get("selector"),
+                        "value": step.get("value"),
+                        "status": "pass",
+                        "duration_ms": int((time.monotonic() - step_started) * 1000),
+                    }
                     if healed:
                         passed.update(healed)
                     result["steps"].append(passed)

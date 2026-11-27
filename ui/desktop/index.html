@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk134" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk135" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -1100,9 +1100,23 @@
             <p class="drawer-hint" id="plan-case-detail-hint">Select a row. Row click does not toggle Enabled or Archived.</p>
             <div id="plan-case-detail-live" class="plan-case-detail-live" data-plan-case-detail-live="1" hidden>
             <div class="plan-case-detail-scroll" data-plan-case-sections-scroll="1" data-scan-scroll="detail">
-            <div class="evidence-first" id="plan-case-evidence-first" data-evidence-first="1" data-operate-evidence-affordance="1" hidden>
+            <div class="evidence-first plan-run-story" id="plan-case-evidence-first" data-evidence-first="1" data-operate-evidence-affordance="1" data-run-story="1" hidden>
               <span class="evidence-first-tag">Last result</span>
-              <p class="evidence-first-summary" data-evidence-summary="1">—</p>
+              <div class="run-story-head" data-run-story-head="1">
+                <span class="run-story-pill" data-run-story-status="1">—</span>
+                <span class="run-story-meta" data-run-story-meta="1"></span>
+              </div>
+              <p class="evidence-first-summary" data-evidence-summary="1" hidden>—</p>
+              <ol class="run-story-steps" data-run-story-steps="1" hidden></ol>
+              <p class="run-story-no-steps" data-run-story-no-steps="1" hidden>No step outcomes on this run yet.</p>
+              <button type="button" class="run-story-thumb-hit" data-run-story-thumb="1" hidden aria-label="Open the captured page screenshot">
+                <img class="run-story-thumb-img" data-run-story-thumb-img="1" alt="Captured page screenshot" />
+                <span class="run-story-thumb-cap" data-run-story-thumb-cap="1">1 shot · captured page</span>
+              </button>
+              <div class="run-story-none" data-run-story-none="1" hidden>
+                <strong>None captured</strong>
+                <p data-run-story-none-reason="1">The runner did not write a PNG. A green stand-in is not substituted.</p>
+              </div>
               <p class="evidence-first-links" data-evidence-links="1" hidden></p>
               <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
               <p class="evidence-first-trace" data-evidence-trace="1">Trace: no Playwright trace for this run.</p>
@@ -1829,6 +1843,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk134"></script>
+  <script src="/ui/desktop/desktop.js?v=desk135"></script>
 </body>
 </html>

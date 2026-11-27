@@ -1244,6 +1244,9 @@ async def _execute_case(
         }
         # Functional result stays as mapped from Playwright (AC: does not replace).
 
+    from plans.step_outcomes import build_step_outcomes_from_playwright
+
+    step_outcomes = build_step_outcomes_from_playwright(pw, definitions=steps)
     recorded = add_run(
         plan_id,
         cid,
@@ -1251,6 +1254,7 @@ async def _execute_case(
         duration_ms=duration_ms,
         failure_class=failure_class,
         evidence=evidence,
+        step_outcomes=step_outcomes,
         note=note,
         suite_run_id=suite_rid,
         run_id=reserved_run_id,
@@ -1385,9 +1389,16 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
         last = (case.get("runs") or [])[-1] if case.get("runs") else None
         known = is_known_labelled(last) or is_known_labelled(case)
         from plans.quarantine import flake_score, quarantine_status
+        from plans.step_outcomes import honest_empty_reason, representative_screenshot
 
         flake = flake_score(case)
         qstat = quarantine_status(case)
+        tags = list(case.get("tags") or [])
+        shot = representative_screenshot(last if isinstance(last, dict) else None)
+        empty_reason = honest_empty_reason(
+            last if isinstance(last, dict) else None,
+            case_tags=tags,
+        )
         mock_fixture = ""
         seed_fixture = ""
         visual_baseline = ""
@@ -1434,7 +1445,7 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "name": case.get("name"),
             "note": case.get("note") or "",
             "jira_key": case.get("jira_key") or "",
-            "tags": list(case.get("tags") or []),
+            "tags": tags,
             "priority": int(case.get("priority") or 0),
             "step_timeout_ms": case_step_timeout_ms(case),
             "enabled": bool(case.get("enabled", True)),
@@ -1458,12 +1469,14 @@ def case_detail(plan: dict[str, Any], case_id: str) -> dict[str, Any]:
             "a11y_check": bool(case.get("a11y_check"))
             or any(
                 str(t or "").strip().lower() in {"a11y", "accessibility"}
-                for t in (case.get("tags") or [])
+                for t in tags
             ),
             "performance_budget_ms": case.get("performance_budget_ms"),
             "runner": runner_name,
             "last_run": last,
             "last_run_summary": _last_run_summary(case),
+            "evidence_shot": shot,
+            "evidence_empty_reason": empty_reason,
             "last_failure": flake.get("last_failure"),
             "tester_note": (last.get("tester_note") if isinstance(last, dict) else "") or "",
             "known_issue": case.get("known_issue")

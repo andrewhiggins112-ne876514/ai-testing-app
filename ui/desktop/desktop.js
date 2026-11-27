@@ -2301,11 +2301,45 @@
     }
   }
 
+  function hideRunStory(root) {
+    if (!root || root.getAttribute("data-run-story") !== "1") return;
+    const status = root.querySelector("[data-run-story-status]");
+    if (status) {
+      status.textContent = "—";
+      status.className = "run-story-pill";
+    }
+    const meta = root.querySelector("[data-run-story-meta]");
+    if (meta) meta.textContent = "";
+    const steps = root.querySelector("[data-run-story-steps]");
+    if (steps) {
+      steps.hidden = true;
+      steps.innerHTML = "";
+    }
+    const noSteps = root.querySelector("[data-run-story-no-steps]");
+    if (noSteps) noSteps.hidden = true;
+    const thumb = root.querySelector("[data-run-story-thumb]");
+    if (thumb) {
+      thumb.hidden = true;
+      thumb.removeAttribute("data-shot-path");
+    }
+    const thumbImg = root.querySelector("[data-run-story-thumb-img]");
+    if (thumbImg) {
+      thumbImg.removeAttribute("src");
+      thumbImg.alt = "Captured page screenshot";
+    }
+    const noneBox = root.querySelector("[data-run-story-none]");
+    if (noneBox) noneBox.hidden = true;
+  }
+
   function hideEvidenceFirst(root) {
     if (!root) return;
     root.hidden = true;
+    hideRunStory(root);
     const summary = root.querySelector("[data-evidence-summary]");
-    if (summary) summary.textContent = "—";
+    if (summary) {
+      summary.textContent = "—";
+      if (root.getAttribute("data-run-story") === "1") summary.hidden = true;
+    }
     const links = root.querySelector("[data-evidence-links]");
     if (links) {
       links.hidden = true;
@@ -2316,6 +2350,200 @@
     const trace = root.querySelector("[data-evidence-trace]");
     if (trace) trace.textContent = EVIDENCE_TRACE_NONE;
     setEvidenceTraceActions(root, "", false);
+  }
+
+  function formatRunStoryStatus(result) {
+    const raw = String(result || "pending").toLowerCase();
+    if (raw === "pass") return { text: "Pass", kind: "pass" };
+    if (raw === "fail") return { text: "Fail", kind: "fail" };
+    if (raw === "error") return { text: "Error", kind: "error" };
+    return { text: raw || "—", kind: "idle" };
+  }
+
+  function formatRunStoryDuration(ms) {
+    if (ms == null || ms === "") return "";
+    const n = Number(ms);
+    if (!Number.isFinite(n)) return "";
+    if (n >= 1000) return (Math.round(n / 100) / 10) + "s";
+    return Math.round(n) + " ms";
+  }
+
+  function ensureRunStoryThumbHandler(root) {
+    if (!root || root.getAttribute("data-run-story-thumb-bound") === "1") return;
+    root.setAttribute("data-run-story-thumb-bound", "1");
+    root.addEventListener("click", async function (ev) {
+      const btn = ev.target && ev.target.closest
+        ? ev.target.closest("[data-run-story-thumb]")
+        : null;
+      if (!btn || !root.contains(btn) || btn.hidden) return;
+      const path = String(btn.getAttribute("data-shot-path") || "").trim();
+      if (!path) return;
+      try {
+        await fetch("/api/evidence-shot/open", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: path, action: "open", launch: true }),
+        });
+      } catch (err) {
+        /* leave status via shot warn / trace */
+      }
+    });
+  }
+
+  function fillPlanRunStory(root, opts) {
+    const options = opts || {};
+    if (!root || root.getAttribute("data-run-story") !== "1") return;
+    ensureRunStoryThumbHandler(root);
+    const last = options.lastRun || null;
+    const statusEl = root.querySelector("[data-run-story-status]");
+    const metaEl = root.querySelector("[data-run-story-meta]");
+    const stepsEl = root.querySelector("[data-run-story-steps]");
+    const noStepsEl = root.querySelector("[data-run-story-no-steps]");
+    const thumb = root.querySelector("[data-run-story-thumb]");
+    const thumbImg = root.querySelector("[data-run-story-thumb-img]");
+    const thumbCap = root.querySelector("[data-run-story-thumb-cap]");
+    const noneBox = root.querySelector("[data-run-story-none]");
+    const noneReason = root.querySelector("[data-run-story-none-reason]");
+    const summary = root.querySelector("[data-evidence-summary]");
+    if (summary) summary.hidden = true;
+
+    if (!last) {
+      if (statusEl) {
+        statusEl.textContent = "No run";
+        statusEl.className = "run-story-pill";
+      }
+      if (metaEl) metaEl.textContent = "Run a case to see steps and evidence.";
+      if (stepsEl) {
+        stepsEl.hidden = true;
+        stepsEl.innerHTML = "";
+      }
+      if (noStepsEl) noStepsEl.hidden = true;
+      if (thumb) thumb.hidden = true;
+      if (noneBox) {
+        noneBox.hidden = false;
+        if (noneReason) {
+          noneReason.textContent =
+            options.emptyReason ||
+            "No run yet. This slot stays empty until a run writes evidence.";
+        }
+      }
+      return;
+    }
+
+    const st = formatRunStoryStatus(last.result);
+    if (statusEl) {
+      statusEl.textContent = st.text;
+      statusEl.className =
+        "run-story-pill" + (st.kind !== "idle" ? " is-" + st.kind : "");
+    }
+    const metaParts = [];
+    const dur = formatRunStoryDuration(last.duration_ms);
+    if (dur) metaParts.push(dur);
+    if (last.failure_class) metaParts.push(String(last.failure_class));
+    else if (options.tags && options.tags.length) {
+      metaParts.push(String(options.tags[0]));
+    }
+    if (last.sandbox) metaParts.push(String(last.sandbox));
+    else if (last.environment_name) metaParts.push(String(last.environment_name));
+    const when = last.finished_at || last.started_at || "";
+    if (when) metaParts.push(String(when).slice(11, 16) || String(when).slice(0, 19));
+    if (metaEl) metaEl.textContent = metaParts.join(" · ");
+
+    const outcomes = Array.isArray(last.step_outcomes) ? last.step_outcomes : [];
+    if (stepsEl) {
+      stepsEl.innerHTML = "";
+      if (outcomes.length) {
+        stepsEl.hidden = false;
+        if (noStepsEl) noStepsEl.hidden = true;
+        outcomes.forEach(function (step) {
+          const li = document.createElement("li");
+          const stepStatus = String((step && step.status) || "").toLowerCase();
+          li.className =
+            "run-story-step" + (stepStatus === "fail" || stepStatus === "error" ? " is-fail" : "");
+          const n = document.createElement("span");
+          n.className = "run-story-n";
+          n.textContent = String((step && step.index) || "");
+          const verb = document.createElement("span");
+          verb.className = "run-story-verb";
+          verb.textContent = String((step && step.label) || (step && step.action) || "Step");
+          const pill = document.createElement("span");
+          const ok = stepStatus === "pass";
+          const bad = stepStatus === "fail" || stepStatus === "error";
+          pill.className =
+            "run-story-step-pill" + (ok ? " is-pass" : bad ? " is-fail" : "");
+          pill.textContent = ok ? "Pass" : bad ? "Fail" : stepStatus || "—";
+          li.appendChild(n);
+          li.appendChild(verb);
+          li.appendChild(pill);
+          if (step && step.duration_ms != null) {
+            const ms = document.createElement("span");
+            ms.className = "run-story-ms";
+            ms.textContent = formatRunStoryDuration(step.duration_ms);
+            li.appendChild(ms);
+          }
+          if (step && step.error) {
+            const err = document.createElement("p");
+            err.className = "run-story-err";
+            err.textContent = String(step.error);
+            li.appendChild(err);
+          }
+          stepsEl.appendChild(li);
+        });
+      } else {
+        stepsEl.hidden = true;
+        if (noStepsEl) {
+          noStepsEl.hidden = false;
+          noStepsEl.textContent =
+            "No step outcomes on this run yet (older runs may lack a narrative).";
+        }
+      }
+    }
+
+    const shotPath = String(options.shotPath || "").trim();
+    const runId = String((last && last.id) || "").trim();
+    const planId = String(options.planId || "").trim();
+    const caseId = String(options.caseId || "").trim();
+    if (shotPath && thumb && thumbImg) {
+      thumb.hidden = false;
+      if (noneBox) noneBox.hidden = true;
+      thumb.setAttribute("data-shot-path", shotPath);
+      if (planId && caseId && runId) {
+        thumbImg.src =
+          "/api/plans/" +
+          encodeURIComponent(planId) +
+          "/cases/" +
+          encodeURIComponent(caseId) +
+          "/runs/" +
+          encodeURIComponent(runId) +
+          "/screenshot?t=" +
+          Date.now();
+      } else {
+        thumbImg.removeAttribute("src");
+      }
+      thumbImg.alt = "Captured page screenshot";
+      if (thumbCap) {
+        const failStep = outcomes.find(function (s) {
+          return s && (s.status === "fail" || s.status === "error");
+        });
+        thumbCap.textContent = failStep
+          ? "1 shot · step " + failStep.index + " · captured page"
+          : "1 shot · captured page, not a status icon";
+      }
+    } else {
+      if (thumb) {
+        thumb.hidden = true;
+        thumb.removeAttribute("data-shot-path");
+      }
+      if (thumbImg) thumbImg.removeAttribute("src");
+      if (noneBox) {
+        noneBox.hidden = false;
+        if (noneReason) {
+          noneReason.textContent =
+            options.emptyReason ||
+            "None captured. A green stand-in is not substituted.";
+        }
+      }
+    }
   }
 
   function fillEvidenceFirst(root, opts) {
@@ -4682,14 +4910,18 @@
       planCaseDetail.textContent = lines.join("\n");
       (function fillPlanEvidence() {
         const last = payload.last_run || null;
-        const shotPath = (function findShot() {
-          const ev = (last && last.evidence) || [];
-          for (let i = 0; i < ev.length; i++) {
-            const text = String(ev[i] || "");
-            if (text.toLowerCase().indexOf(".png") >= 0) return text;
-          }
-          return "";
-        })();
+        const shotPath = String(
+          payload.evidence_shot ||
+            (function findShot() {
+              const ev = (last && last.evidence) || [];
+              for (let i = 0; i < ev.length; i++) {
+                const text = String(ev[i] || "");
+                if (text.toLowerCase().indexOf(".png") >= 0) return text;
+              }
+              return "";
+            })() ||
+            ""
+        );
         const tracePath = (function findTrace() {
           const ev = (last && last.evidence) || [];
           for (let i = 0; i < ev.length; i++) {
@@ -4719,13 +4951,25 @@
         } else if (payload.last_run_summary) {
           parts.push(String(payload.last_run_summary));
         }
-        fillEvidenceFirst(evidenceFirstRoot("plan-case-evidence-first"), {
+        const root = evidenceFirstRoot("plan-case-evidence-first");
+        fillEvidenceFirst(root, {
           force: true,
           summary: parts.length ? parts.join(" · ") : "No run yet",
-          link: shotPath ? "Screenshot: " + shotPath : "",
+          link: "",
           hasScreenshot: !!shotPath,
           tracePath: tracePath,
           hasTrace: !!tracePath,
+        });
+        fillPlanRunStory(root, {
+          lastRun: last,
+          shotPath: shotPath,
+          emptyReason: payload.evidence_empty_reason || "",
+          tags: payload.tags || caseTags || [],
+          planId: openPlanId || "",
+          caseId:
+            payload.case_id ||
+            (planCaseId && planCaseId.value ? planCaseId.value.trim() : "") ||
+            "",
         });
       })();
       syncPlanCaseRowFocus();

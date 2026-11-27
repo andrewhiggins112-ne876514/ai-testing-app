@@ -4493,6 +4493,180 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   margin-top: 4px;
 }
 
+/* KAN-496 — Option A readable run story in Case aside */
+.plan-run-story[data-run-story="1"] {
+  gap: 8px;
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+  color: var(--text, #e8f4fc);
+}
+
+.run-story-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.run-story-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 40%, transparent);
+  font: var(--type-meta, var(--type-ui));
+  color: var(--text, #e8f4fc);
+}
+
+.run-story-pill.is-pass {
+  color: var(--ok, #7dffb3);
+  border-color: color-mix(in srgb, var(--ok, #7dffb3) 55%, transparent);
+}
+
+.run-story-pill.is-fail,
+.run-story-pill.is-error {
+  color: var(--danger, #ff8b7a);
+  border-color: color-mix(in srgb, var(--danger, #ff8b7a) 55%, transparent);
+}
+
+.run-story-meta {
+  font: var(--type-help, var(--type-ui));
+  color: var(--muted, #9bb4c4);
+}
+
+.run-story-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.run-story-steps[hidden],
+.run-story-no-steps[hidden],
+.run-story-thumb-hit[hidden],
+.run-story-none[hidden] {
+  display: none !important;
+}
+
+.run-story-step {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  gap: 2px 8px;
+  align-items: baseline;
+  padding: 5px 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 12%, transparent);
+  font: var(--type-ui);
+  color: var(--text, #e8f4fc);
+}
+
+.run-story-step:last-child {
+  border-bottom: 0;
+}
+
+.run-story-step.is-fail {
+  background: color-mix(in srgb, var(--danger, #ff8b7a) 6%, transparent);
+}
+
+.run-story-n {
+  font: var(--type-meta, var(--type-ui));
+  color: var(--muted, #9bb4c4);
+}
+
+.run-story-verb {
+  color: var(--text, #e8f4fc);
+}
+
+.run-story-ms {
+  grid-column: 2;
+  font: var(--type-help, var(--type-ui));
+  color: var(--muted, #9bb4c4);
+}
+
+.run-story-err {
+  grid-column: 2 / -1;
+  margin: 0;
+  font: var(--type-help, var(--type-ui));
+  color: var(--danger, #ff8b7a);
+}
+
+.run-story-step-pill {
+  font: var(--type-meta, var(--type-ui));
+  color: var(--muted, #9bb4c4);
+}
+
+.run-story-step-pill.is-pass {
+  color: var(--ok, #7dffb3);
+}
+
+.run-story-step-pill.is-fail {
+  color: var(--danger, #ff8b7a);
+}
+
+.run-story-no-steps {
+  margin: 0;
+  font: var(--type-help, var(--type-ui));
+  color: var(--muted, #9bb4c4);
+}
+
+.run-story-thumb-hit {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.run-story-thumb-hit:focus-visible {
+  outline: 1px solid var(--cyan, #50cdff);
+  outline-offset: 2px;
+}
+
+.run-story-thumb-img {
+  display: block;
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  object-position: top;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 35%, transparent);
+  border-radius: 6px;
+  background: #0c1014;
+}
+
+.run-story-thumb-cap {
+  font: var(--type-help, var(--type-ui));
+  color: var(--muted, #9bb4c4);
+}
+
+.run-story-none {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border: 1px dashed color-mix(in srgb, var(--muted, #9bb4c4) 45%, transparent);
+  border-radius: 6px;
+  color: var(--muted, #9bb4c4);
+  font: var(--type-help, var(--type-ui));
+}
+
+.run-story-none strong {
+  color: var(--text, #e8f4fc);
+  font: var(--type-ui);
+}
+
+.run-story-none p {
+  margin: 0;
+}
+
 /* KAN-379 — OPERATE-3 loop-hit polish (Plans Run disclosure, Manual idle, triage) */
 #plan-panel-run[data-operate-run-disclosure="1"] .plan-run-primary {
   display: flex;

@@ -6,7 +6,7 @@
     "story": "KAN-496",
     "test": "KAN-497",
     "frames": ["01", "02", "03"],
-    "status": "designer_accepted_council_aside_only"
+    "status": "build_shipped_desk135"
   },
   "deep_view": {
     "story": "KAN-498",
@@ -21,7 +21,7 @@
   "designer_pick": "2026-11-27",
   "council_accept": "2026-11-27",
   "slice0": "studio_mockpack_run_evidence_ux_accepted",
-  "slice1": "build_KAN-496_option_a",
+  "slice1": "build_KAN-496_option_a_done",
   "slice2": "build_KAN-498_deep_view",
-  "prefer_before_build": "OPERATE-4 Done — Build KAN-496 first unless Designer elevates KAN-498"
+  "prefer_before_build": "KAN-496 Done — next Build KAN-498"
 }

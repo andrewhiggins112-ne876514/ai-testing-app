@@ -41,6 +41,7 @@ from plugins.playwright_suite import (
     set_suite_path,
     suite_status as playwright_suite_status,
 )
+from plugins.evidence_shot import open_evidence_shot, resolve_allowed_shot
 from plugins.playwright_trace_open import open_playwright_trace
 from plans.coverage import plan_coverage_gaps
 from plans.defect_packet import defect_packet_preview
@@ -423,6 +424,14 @@ class PlaywrightTraceOpenRequest(BaseModel):
 
     path: str = ""
     action: str = "show_trace"
+    launch: bool = True
+
+
+class EvidenceShotOpenRequest(BaseModel):
+    """Open / reveal a local PNG evidence shot (KAN-496)."""
+
+    path: str = ""
+    action: str = "open"
     launch: bool = True
 
 
@@ -1222,6 +1231,51 @@ async def post_playwright_trace_open(req: PlaywrightTraceOpenRequest):
     if not result.get("ok"):
         raise HTTPException(status_code=400, detail=result.get("error") or "Invalid trace")
     return result
+
+
+@app.post("/api/evidence-shot/open")
+async def post_evidence_shot_open(req: EvidenceShotOpenRequest):
+    """Open or Reveal a local PNG evidence shot (KAN-496)."""
+    result = open_evidence_shot(
+        path=req.path or "",
+        action=req.action or "open",
+        launch=bool(req.launch),
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("error") or "Invalid screenshot")
+    return result
+
+
+@app.get("/api/plans/{plan_id}/cases/{case_id}/runs/{run_id}/screenshot")
+async def get_plan_run_screenshot(plan_id: str, case_id: str, run_id: str):
+    """Serve the representative PNG for a plan-case run (KAN-496)."""
+    from plans.step_outcomes import representative_screenshot
+
+    loaded = get_plan(plan_id)
+    if loaded.get("status") != "ok":
+        raise HTTPException(status_code=404, detail="Plan not found")
+    detail = case_detail(loaded["plan"], case_id)
+    if detail.get("status") != "ok":
+        raise HTTPException(status_code=404, detail="Case not found")
+    case = detail.get("case") or {}
+    target = None
+    rid = (run_id or "").strip()
+    for run in case.get("runs") or []:
+        if isinstance(run, dict) and str(run.get("id") or "") == rid:
+            target = run
+            break
+    if target is None and rid in {"last", "latest"}:
+        runs = list(case.get("runs") or [])
+        target = runs[-1] if runs else None
+    if not isinstance(target, dict):
+        raise HTTPException(status_code=404, detail="Run not found")
+    shot = representative_screenshot(target)
+    if not shot:
+        raise HTTPException(status_code=404, detail="Screenshot not found")
+    path, err = resolve_allowed_shot(shot)
+    if err or path is None:
+        raise HTTPException(status_code=404, detail=err or "Screenshot not found")
+    return FileResponse(path)
 
 
 @app.get("/api/plans")
