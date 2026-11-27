@@ -15,10 +15,10 @@
 | **Spec** | FR-PLAN-1 + gap research; keys in `docs/ops/OPERATE_KEYS.json` → gap_stories |
 | **Git** | `main` |
 | **Test ticket** | **KAN-389** |
-| **Shipped** | Manual float **KAN-386**/387 + UX bugs **KAN-501**…**506** (**desk145**); Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
+| **Shipped** | Manual float **KAN-386**/387 + UX bugs **KAN-501**…**507** (**desk146**); Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
 | **Queued** | plan doc **KAN-388**/389; stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Dock visibility **KAN-506** Done (**desk145**). Next Build = **KAN-388**/389. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Dock drag **KAN-507** Done (**desk146**). Next Build = **KAN-388**/389. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — KAN-507 — Charter home chrome + dock drag / capture resize
+- **Agent/chat:** Cursor IDE Agent (Composer) — Designer: controls on app open; dock/controls immovable; sideways-only resize
+- **Done:** Arm Charter only when Manual is open; hide in-app when OS float ok; header drag via `charter_float_drag_by` moves dock+ring; ± is capture resize (dock chrome locked). Cache-bust **desk146**.
+- **Files:** `desktop_app.py`, `ui/desktop/desktop.js`, `charter_float.js/html/css`, `tests/test_charter_float.py`, `scripts/jira_kan_bug_charter_dock_drag.py`
+- **Verify:** `pytest tests/test_charter_float.py` — 8 passed. Restart desktop for desk146.
+- **Jira:** Bug **KAN-507** Fix + Done
+- **Next:** Active remains **KAN-388** plan document view
 
 ### 2026-11-27 — KAN-506 — Charter dock taskbar-only / overlay vanished
 - **Agent/chat:** Cursor IDE Agent (Composer) — Designer: Start overlay flash then gone; dock on taskbar but not visible

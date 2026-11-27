@@ -337,6 +337,70 @@
     });
   }
 
+  /* Explicit header drag — pywebview easy_drag is off so buttons stay clickable. */
+  (function bindHeaderDrag() {
+    const header = document.querySelector(".charter-float-header");
+    if (!header) return;
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+    let pending = null;
+
+    async function flush(dx, dy) {
+      const bridge = api();
+      if (!bridge || !bridge.charter_float_drag_by) return;
+      try {
+        await bridge.charter_float_drag_by(dx, dy);
+        scheduleFrameSave();
+      } catch (_err) {
+        /* ignore */
+      }
+    }
+
+    header.addEventListener("pointerdown", function (ev) {
+      if (ev.button != null && ev.button !== 0) return;
+      dragging = true;
+      lastX = ev.screenX;
+      lastY = ev.screenY;
+      try {
+        header.setPointerCapture(ev.pointerId);
+      } catch (_err) {
+        /* ignore */
+      }
+      ev.preventDefault();
+    });
+    header.addEventListener("pointermove", function (ev) {
+      if (!dragging) return;
+      const dx = ev.screenX - lastX;
+      const dy = ev.screenY - lastY;
+      if (!dx && !dy) return;
+      lastX = ev.screenX;
+      lastY = ev.screenY;
+      if (pending) {
+        pending.dx += dx;
+        pending.dy += dy;
+        return;
+      }
+      pending = { dx: dx, dy: dy };
+      window.requestAnimationFrame(function () {
+        const step = pending;
+        pending = null;
+        if (step && (step.dx || step.dy)) flush(step.dx, step.dy);
+      });
+    });
+    function endDrag(ev) {
+      if (!dragging) return;
+      dragging = false;
+      try {
+        header.releasePointerCapture(ev.pointerId);
+      } catch (_err) {
+        /* ignore */
+      }
+    }
+    header.addEventListener("pointerup", endDrag);
+    header.addEventListener("pointercancel", endDrag);
+  })();
+
   setInterval(scheduleFrameSave, 2500);
   loadOpenSession();
   setInterval(function () {

@@ -34,9 +34,14 @@ html, body {
   height: 32px;
   padding: 0 10px;
   flex: 0 0 32px;
-  cursor: move;
+  cursor: grab;
+  touch-action: none;
   border-bottom: 1px solid color-mix(in srgb, var(--cyan) 35%, transparent);
   background: color-mix(in srgb, var(--panel) 98%, #000);
+}
+
+.charter-float-header:active {
+  cursor: grabbing;
 }
 
 .charter-float-title {

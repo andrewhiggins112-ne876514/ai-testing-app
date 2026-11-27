@@ -29,7 +29,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk145"
+DESK_V = "desk146"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 FLOAT_URL = f"http://{HOST}:{PORT}/ui/desktop/charter_float.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
@@ -38,6 +38,8 @@ _main_window: Any = None
 _float_window: Any = None
 _float_visible = False
 _float_session_id = ""
+_dock_events_hooked = False
+_suppress_dock_moved = False
 
 
 def _serve() -> None:
@@ -104,7 +106,66 @@ def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
     )
 
 
+def _sync_ring_above_dock() -> dict[str, Any]:
+    """Keep capture ring glued above the dock after the user drags the dock."""
+    win = _float_window
+    if win is None or not _float_visible:
+        return {"status": "error", "error": "float_unavailable"}
+    try:
+        x = int(win.x)
+        y = int(win.y)
+        w = int(win.width)
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "error", "error": "dock_geom_failed", "message": str(exc)[:120]}
+    bbox = ring.get_capture_bbox()
+    bw = max(ring.MIN_CAPTURE_W, int(bbox[2]) - int(bbox[0]))
+    bh = max(ring.MIN_CAPTURE_H, int(bbox[3]) - int(bbox[1]))
+    left = x + max(0, (w - bw) // 2)
+    top = y - 12 - bh
+    virtual, monitors = _snap_context()
+    work = virtual or {"left": 0, "top": 0, "width": 1920, "height": 1080}
+    if monitors:
+        primary = next((m for m in monitors if m.get("is_primary")), None) or monitors[0]
+        pb = primary.get("bbox")
+        if isinstance(pb, (list, tuple)) and len(pb) == 4:
+            work = {
+                "left": int(pb[0]),
+                "top": int(pb[1]),
+                "width": int(pb[2]) - int(pb[0]),
+                "height": int(pb[3]) - int(pb[1]),
+            }
+    ox = int(work["left"])
+    oy = int(work["top"])
+    aw = int(work["width"])
+    ah = int(work["height"])
+    left = max(ox, min(left, ox + aw - bw))
+    top = max(oy, min(top, oy + ah - bh))
+    return ring.set_capture_bbox([left, top, left + bw, top + bh], show=True)
+
+
+def _on_dock_moved() -> None:
+    global _suppress_dock_moved
+    if _suppress_dock_moved or not _float_visible:
+        return
+    try:
+        _sync_ring_above_dock()
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _hook_dock_events() -> None:
+    global _dock_events_hooked
+    if _dock_events_hooked or _float_window is None:
+        return
+    try:
+        _float_window.events.moved += _on_dock_moved
+        _dock_events_hooked = True
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def _place_dock(bbox: list[int]) -> dict[str, Any]:
+    global _suppress_dock_moved
     win = _float_window
     if win is None:
         return {"status": "error", "error": "float_unavailable"}
@@ -115,13 +176,20 @@ def _place_dock(bbox: list[int]) -> dict[str, Any]:
             win.restore()
         except Exception:  # noqa: BLE001
             pass
-        win.resize(int(geom["width"]), int(geom["height"]))
-        win.move(int(geom["x"]), int(geom["y"]))
-        win.on_top = True
-        win.show()
-        _force_dock_native_visible(win, geom)
+        _suppress_dock_moved = True
+        try:
+            # Fixed chrome size — capture size uses ± / ring, not WinForms border drag.
+            win.resize(int(geom["width"]), int(geom["height"]))
+            win.move(int(geom["x"]), int(geom["y"]))
+            win.on_top = True
+            win.show()
+            _force_dock_native_visible(win, geom)
+        finally:
+            _suppress_dock_moved = False
+        _hook_dock_events()
         return {"status": "ok", "geometry": geom}
     except Exception as exc:  # noqa: BLE001
+        _suppress_dock_moved = False
         return {"status": "error", "error": "dock_place_failed", "message": str(exc)[:120]}
 
 
@@ -211,6 +279,50 @@ class DesktopApi:
         dock = _place_dock(bbox)
         return {"status": "ok", "screen_bbox": bbox, "dock": dock}
 
+    def charter_float_drag_by(self, dx: int = 0, dy: int = 0) -> dict[str, Any]:
+        """Drag dock by delta; ring stays glued above (header drag from float JS)."""
+        global _suppress_dock_moved
+        win = _float_window
+        if win is None or not _float_visible:
+            return {"status": "error", "error": "float_unavailable"}
+        try:
+            x = int(win.x) + int(dx)
+            y = int(win.y) + int(dy)
+            w = int(win.width)
+            h = int(win.height)
+            virtual, monitors = _snap_context()
+            ox = int((virtual or {}).get("left") or 0)
+            oy = int((virtual or {}).get("top") or 0)
+            aw = int((virtual or {}).get("width") or 1920)
+            ah = int((virtual or {}).get("height") or 1080)
+            if monitors:
+                primary = next(
+                    (m for m in monitors if m.get("is_primary")), None
+                ) or monitors[0]
+                pb = primary.get("bbox")
+                if isinstance(pb, (list, tuple)) and len(pb) == 4:
+                    ox, oy = int(pb[0]), int(pb[1])
+                    aw, ah = int(pb[2]) - ox, int(pb[3]) - oy
+            x = max(ox, min(x, ox + aw - w))
+            y = max(oy, min(y, oy + ah - h))
+            geom = {"x": x, "y": y, "width": w, "height": h}
+            _suppress_dock_moved = True
+            try:
+                win.move(x, y)
+                _force_dock_native_visible(win, geom)
+            finally:
+                _suppress_dock_moved = False
+            ring_out = _sync_ring_above_dock()
+            return {
+                "status": "ok",
+                "geometry": geom,
+                "screen_bbox": ring.get_capture_bbox(),
+                "ring": ring_out,
+            }
+        except Exception as exc:  # noqa: BLE001
+            _suppress_dock_moved = False
+            return {"status": "error", "error": "drag_failed", "message": str(exc)[:120]}
+
     def charter_float_resize_capture(self, d_w: int = 0, d_h: int = 0) -> dict[str, Any]:
         bbox = ring.resize_bbox(ring.get_capture_bbox(), int(d_w), int(d_h))
         ring.set_capture_bbox(bbox, show=True)
@@ -218,15 +330,14 @@ class DesktopApi:
         return {"status": "ok", "screen_bbox": bbox, "dock": dock}
 
     def charter_float_set_size(self, width: int, height: int) -> dict[str, Any]:
-        """Resize dock chrome only (capture size uses resize_capture)."""
+        """Dock chrome size is fixed; capture size uses resize_capture / ± buttons."""
         win = _float_window
         if win is None:
             return {"status": "error", "error": "float_unavailable"}
+        geom = ring.dock_geom_for_bbox(ring.get_capture_bbox())
         try:
-            x, y = int(win.x), int(win.y)
-            win.resize(max(420, int(width)), max(100, int(height)))
-            win.move(x, y)
-            return {"status": "ok"}
+            win.resize(int(geom["width"]), int(geom["height"]))
+            return {"status": "ok", "geometry": geom, "locked": True}
         except Exception as exc:  # noqa: BLE001
             return {"status": "error", "error": "resize_failed", "message": str(exc)[:120]}
 

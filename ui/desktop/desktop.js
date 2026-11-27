@@ -7042,7 +7042,7 @@
     updateCharterFrameChip(session);
     setManualLoopStage("recording");
 
-    /* Always arm in-app overlay first so Start never looks dead if OS float stalls. */
+    /* Arm in-app first so Start never looks dead if OS float stalls. */
     if (charterFrameRoot) {
       applyCharterFrameRect();
       setCharterMistVisible(!!session.armed_mist);
@@ -7052,14 +7052,24 @@
       charterFrameRoot.setAttribute("aria-hidden", "false");
     }
 
-    /* KAN-386/506: arm OS ring+dock when available, but never hide in-app frame.
-       Hiding left Start looking like a flash when the dock was only taskbar-ghosted. */
+    /* Prefer OS ring+dock. When it arms, hide in-app chrome so one movable UI remains. */
     const floated = await openOsCharterFloat(session);
     charterOsFloatActive = floated;
+    if (floated) {
+      if (charterFrameRoot) {
+        charterFrameRoot.hidden = true;
+        charterFrameRoot.setAttribute("aria-hidden", "true");
+      }
+      setCharterMistVisible(false);
+      if (manualStatus) {
+        manualStatus.textContent =
+          "Recording — drag Charter Frame header to move ring+dock; ←↑↓→ nudge; ± resize capture; End on dock";
+      }
+      return;
+    }
     if (manualStatus) {
-      manualStatus.textContent = floated
-        ? "Session recording — in-app Charter Frame + OS ring/dock (Note / Still / End; no Jira write)"
-        : "Session started — Charter Frame dock: Note / Still / End / Cancel (no Jira write)";
+      manualStatus.textContent =
+        "Session started — drag Charter Frame label to move; edges resize (no Jira write)";
     }
   }
 
@@ -7572,17 +7582,20 @@
         }
       }
       if (data.open_session_id) {
-        if (!manualOpenSessionId) {
-          const openRes = await fetch("/api/manual-sessions/open");
-          const openData = await openRes.json();
-          if (openData.open && openData.session) {
-            await showCharterFrame(openData.session);
+        /* Never arm Charter chrome on home/orb — only while Manual is open (KAN-507). */
+        if (openAreaName === "manual") {
+          if (!manualOpenSessionId) {
+            const openRes = await fetch("/api/manual-sessions/open");
+            const openData = await openRes.json();
+            if (openData.open && openData.session) {
+              await showCharterFrame(openData.session);
+            }
           }
-        }
-        if (manualStatus) {
-          manualStatus.textContent = charterOsFloatActive
-            ? "Session recording — use Charter dock (Note / Still / End). End before typing a new charter."
-            : "Session recording — Charter Frame armed. End before typing a new charter.";
+          if (manualStatus) {
+            manualStatus.textContent = charterOsFloatActive
+              ? "Session recording — use Charter dock (drag header to move). End before a new charter."
+              : "Session recording — Charter Frame armed. End before typing a new charter.";
+          }
         }
       } else {
         if (manualOpenSessionId) {

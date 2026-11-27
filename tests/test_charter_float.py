@@ -144,16 +144,16 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk145(self) -> None:
+    def test_desktop_float_markers_desk146(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk145", html)
-        self.assertIn("desk145", desk)
-        self.assertIn("desk145", float_html)
+        self.assertIn("desk146", html)
+        self.assertIn("desk146", desk)
+        self.assertIn("desk146", float_html)
         self.assertIn('data-snip-dock="1"', float_html)
         self.assertIn("charter_ring_native", desk)
         self.assertIn("dock_plus_native_ring", desk)
@@ -165,6 +165,8 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         )
         self.assertIn("charter_float_nudge", float_js)
         self.assertIn("charter_float_resize_capture", float_js)
+        self.assertIn("charter_float_drag_by", float_js)
+        self.assertIn("charter_float_drag_by", desk)
         # Manual UX: Start must not closeArea; library reopen must not toggle-close.
         self.assertIn("function ensureAreaOpen", js)
         self.assertIn('ensureAreaOpen("manual")', js)
@@ -173,12 +175,13 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         )[0]
         self.assertNotIn("closeArea()", start_fn)
         self.assertIn("session_already_open", start_fn)
-        # KAN-506: floated OS dock must not hide in-app Charter Frame.
+        # KAN-507: only arm Charter when Manual is open; hide in-app when OS float ok.
+        self.assertIn('openAreaName === "manual"', js)
         show_fn = js.split("async function showCharterFrame(session)", 1)[1].split(
             "async function hideCharterFrame()", 1
         )[0]
-        self.assertNotIn("charterFrameRoot.hidden = true", show_fn)
-        self.assertIn("in-app Charter Frame", show_fn)
+        self.assertIn("charterFrameRoot.hidden = true", show_fn)
+        self.assertIn("drag Charter Frame header", show_fn)
 
     def test_api_start_charter_only(self) -> None:
         from main import app
