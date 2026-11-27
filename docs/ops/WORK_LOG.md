@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-27 — KAN-502 — Charter float hollow snip ring
+- **Agent/chat:** Cursor IDE Agent (Composer) — Designer: oversized opaque float, no see-through, buttons flaky
+- **Done:** Snip-style hollow ring — size clamped to primary monitor; Win32 `SetWindowRgn` click-through hole so AUT is visible/usable; edge/corner resize; dock `ensureSession`. Cache-bust **desk142**. Bug **KAN-502** Relates **KAN-386**/387 → Done.
+- **Files:** `plans/charter_float.py`, `desktop_app.py`, `ui/desktop/charter_float.*`, `ui/desktop/index.html`, `tests/test_charter_float.py`, `scripts/jira_kan_bug_charter_float_opaque.py`
+- **Verify:** `pytest tests/test_charter_float.py` — 8 passed. Restart desktop for desk142.
+- **Jira:** Bug **KAN-502** Fix comment + Done
+- **Next:** Active remains **KAN-388** plan document view
+
 ### 2026-11-27 — KAN-501 — Manual Start hang on Charter float
 - **Agent/chat:** Cursor IDE Agent (Composer) — Designer: Start session does nothing
 - **Done:** Root cause = `charter_float_open` called `evaluate_js` from main-window js_api (deadlock). Removed evaluate_js; float loads session via `/api/manual-sessions/open`; JS timeout + always show in-app overlay first. Cache-bust **desk141**. Bug **KAN-501** Relates **KAN-386**/387 → Done.

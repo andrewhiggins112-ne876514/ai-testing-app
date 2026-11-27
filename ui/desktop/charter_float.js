@@ -1,4 +1,4 @@
-/* KAN-386 — OS-level Charter Frame float controls */
+/* KAN-386 / KAN-502 — snip hollow Charter Frame float controls */
 (function () {
   "use strict";
 
@@ -11,6 +11,8 @@
   let sessionId = "";
   let lastStillId = "";
   let saveTimer = null;
+  let ringTimer = null;
+  let resizing = null;
 
   function api() {
     return (window.pywebview && window.pywebview.api) || null;
@@ -77,6 +79,17 @@
     return false;
   }
 
+  async function ensureSession() {
+    if (sessionId) return true;
+    setChip("Linking session…");
+    const ok = await loadOpenSession();
+    if (!ok || !sessionId) {
+      setChip("No open session — Start again from Manual");
+      return false;
+    }
+    return true;
+  }
+
   async function currentBbox() {
     const bridge = api();
     if (!bridge || !bridge.charter_float_screen_bbox) return null;
@@ -86,6 +99,19 @@
     } catch (_err) {
       return null;
     }
+  }
+
+  function scheduleRing() {
+    const bridge = api();
+    if (!bridge || !bridge.charter_float_apply_ring) return;
+    if (ringTimer) clearTimeout(ringTimer);
+    ringTimer = setTimeout(async function () {
+      try {
+        await bridge.charter_float_apply_ring();
+      } catch (_err) {
+        /* ignore */
+      }
+    }, 80);
   }
 
   function scheduleFrameSave() {
@@ -115,7 +141,7 @@
   }
 
   async function addNote() {
-    if (!sessionId) return;
+    if (!(await ensureSession())) return;
     const text = noteInput ? noteInput.value.trim() : "";
     if (!text) {
       setChip("Type a note first");
@@ -149,9 +175,10 @@
   }
 
   async function addStill() {
-    if (!sessionId) return;
+    if (!(await ensureSession())) return;
     const bridge = api();
     let bbox = null;
+    setChip("Capturing still…");
     try {
       if (bridge && bridge.charter_float_prepare_still) {
         const prep = await bridge.charter_float_prepare_still();
@@ -195,7 +222,7 @@
   }
 
   async function annotateStill() {
-    if (!sessionId) return;
+    if (!(await ensureSession())) return;
     const text = noteInput ? noteInput.value.trim() : "";
     if (!text) {
       setChip("Type annotation text, then Annotate");
@@ -237,7 +264,7 @@
   }
 
   async function endSession() {
-    if (!sessionId) return;
+    if (!(await ensureSession())) return;
     showCancel(false);
     try {
       await fetch(
@@ -251,16 +278,63 @@
   }
 
   async function cancelSession() {
-    if (!sessionId) return;
+    if (!(await ensureSession())) return;
     try {
       await fetch(
         "/api/manual-sessions/" + encodeURIComponent(sessionId) + "/cancel",
-        { method: "POST" }
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ confirm: true }),
+        }
       );
     } catch (_err) {
       /* ignore */
     }
     await notifyMain("cancelled");
+  }
+
+  function onResizePointerDown(ev) {
+    const handle = ev.target.closest("[data-resize]");
+    if (!handle) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    resizing = {
+      edge: handle.getAttribute("data-resize") || "se",
+      startX: ev.screenX,
+      startY: ev.screenY,
+      startW: window.outerWidth || window.innerWidth,
+      startH: window.outerHeight || window.innerHeight,
+    };
+    window.addEventListener("pointermove", onResizePointerMove);
+    window.addEventListener("pointerup", onResizePointerUp);
+  }
+
+  async function onResizePointerMove(ev) {
+    if (!resizing) return;
+    const bridge = api();
+    if (!bridge || !bridge.charter_float_set_size) return;
+    const dx = ev.screenX - resizing.startX;
+    const dy = ev.screenY - resizing.startY;
+    let w = resizing.startW;
+    let h = resizing.startH;
+    if (resizing.edge.indexOf("e") >= 0 || resizing.edge === "se") w = resizing.startW + dx;
+    if (resizing.edge.indexOf("s") >= 0 || resizing.edge === "se") h = resizing.startH + dy;
+    if (resizing.edge === "w") w = resizing.startW - dx;
+    try {
+      await bridge.charter_float_set_size(Math.round(w), Math.round(h));
+      scheduleFrameSave();
+    } catch (_err) {
+      /* ignore */
+    }
+  }
+
+  function onResizePointerUp() {
+    resizing = null;
+    window.removeEventListener("pointermove", onResizePointerMove);
+    window.removeEventListener("pointerup", onResizePointerUp);
+    scheduleRing();
+    scheduleFrameSave();
   }
 
   document.getElementById("cf-note-add").addEventListener("click", addNote);
@@ -282,15 +356,20 @@
       }
     });
   }
+  document.querySelectorAll("[data-resize]").forEach(function (el) {
+    el.addEventListener("pointerdown", onResizePointerDown);
+  });
 
-  // Persist geometry while the user moves/resizes the OS window.
-  window.addEventListener("resize", scheduleFrameSave);
+  window.addEventListener("resize", function () {
+    scheduleRing();
+    scheduleFrameSave();
+  });
   setInterval(scheduleFrameSave, 2000);
-  /* Boot + poll — main window must not evaluate_js into this page (deadlock). */
   loadOpenSession();
   setInterval(function () {
     if (!sessionId) loadOpenSession();
-  }, 1000);
+  }, 800);
+  scheduleRing();
 
   if (pageEl) {
     pageEl.hidden = false;

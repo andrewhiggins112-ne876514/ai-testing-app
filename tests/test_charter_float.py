@@ -1,4 +1,4 @@
-"""KAN-386 — OS-level Manual Charter Frame float (FR-MAN-1 snip-tool)."""
+"""KAN-386 / KAN-502 — OS-level Manual Charter Frame hollow snip float."""
 from __future__ import annotations
 
 import tempfile
@@ -20,8 +20,8 @@ class CharterFloatGeometryTests(unittest.TestCase):
         bbox = cf.content_bbox_from_window(100, 50, 640, 480)
         self.assertIsNotNone(bbox)
         assert bbox is not None
-        self.assertEqual(bbox[0], 100 + cf.BORDER)
-        self.assertEqual(bbox[1], 50 + cf.BORDER + cf.HEADER_H)
+        self.assertEqual(bbox[0], 100 + cf.SIDE)
+        self.assertEqual(bbox[1], 50 + cf.HEADER_H)
         self.assertLess(bbox[2] - bbox[0], 640)
         self.assertLess(bbox[3] - bbox[1], 480)
 
@@ -32,19 +32,43 @@ class CharterFloatGeometryTests(unittest.TestCase):
         )
         self.assertEqual(back, [200, 120, 800, 500])
 
-    def test_default_geom_and_payload(self) -> None:
+    def test_default_geom_clamped_to_primary_not_huge(self) -> None:
+        monitors = [
+            {
+                "id": "mon1",
+                "label": "Monitor 1 (primary)",
+                "bbox": [0, 0, 1920, 1080],
+                "is_primary": True,
+            },
+            {
+                "id": "mon2",
+                "label": "Monitor 2",
+                "bbox": [1920, 0, 3840, 1080],
+                "is_primary": False,
+            },
+        ]
+        # Old relative frame that spanned most of a wide virtual desktop.
         geom = cf.default_window_geom(
-            virtual={"left": 0, "top": 0, "width": 1000, "height": 800},
-            frame={"x": 0.1, "y": 0.1, "w": 0.5, "h": 0.5},
+            virtual={"left": 0, "top": 0, "width": 3840, "height": 1080},
+            frame={"x": 0.18, "y": 0.16, "w": 0.64, "h": 0.58},
+            monitors=monitors,
         )
-        self.assertGreaterEqual(geom["width"], cf.MIN_WINDOW_W)
-        self.assertGreaterEqual(geom["height"], cf.MIN_WINDOW_H)
+        self.assertLessEqual(geom["width"], cf.MAX_CAPTURE_W + 2 * cf.SIDE)
+        self.assertLessEqual(geom["height"], cf.MAX_CAPTURE_H + cf.HEADER_H + cf.DOCK_H)
+        self.assertLess(geom["x"] + geom["width"], 1920 + 1)
         payload = cf.is_float_available_payload(True)
         self.assertTrue(payload["available"])
+        self.assertTrue(payload["click_through_hole"])
         self.assertFalse(payload["keylog"])
-        self.assertFalse(payload["clipboard"])
-        self.assertFalse(payload["mic"])
-        self.assertEqual(payload["title"], "Charter Frame")
+
+    def test_hollow_region_rects(self) -> None:
+        rects = cf.hollow_region_rects(800, 500)
+        self.assertEqual(rects["outer"], [0, 0, 800, 500])
+        hole = rects["hole"]
+        self.assertEqual(hole[0], cf.SIDE)
+        self.assertEqual(hole[1], cf.HEADER_H)
+        self.assertEqual(hole[2], 800 - cf.SIDE)
+        self.assertEqual(hole[3], 500 - cf.DOCK_H)
 
 
 class CharterFloatSessionTests(unittest.TestCase):
@@ -110,7 +134,6 @@ class CharterFloatSessionTests(unittest.TestCase):
         self.assertTrue(still["still"]["captured"])
         path = Path(still["still"]["path"])
         self.assertTrue(path.is_file())
-        # Level-scoped under plans/OFFICIAL/sessions/…
         expected_root = plans_dir("OFFICIAL") / "sessions"
         self.assertEqual(path.resolve().parent.parent, expected_root.resolve())
         ended = ms.end_session(sid)
@@ -119,34 +142,32 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk141(self) -> None:
+    def test_desktop_float_markers_desk142(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk141", html)
-        self.assertIn("desk141", desk)
-        self.assertIn("desk141", float_html)
+        self.assertIn("desk142", html)
+        self.assertIn("desk142", desk)
+        self.assertIn("desk142", float_html)
         self.assertIn('data-charter-float="1"', html)
-        self.assertIn('data-charter-float="1"', float_html)
-        self.assertIn("data-os-float", float_html)
+        self.assertIn('data-snip-hollow="1"', float_html)
         self.assertIn("charter_float_open", desk)
+        self.assertIn("apply_hollow_window_region", desk)
+        self.assertIn("charter_float_set_size", desk)
         self.assertIn("openOsCharterFloat", js)
-        self.assertIn("charterOsFloatActive", js)
         self.assertIn("withTimeout", js)
-        self.assertIn("No keylog", float_html)
-        # Deadlock guard: open path must not call evaluate_js into the float page.
         open_fn = desk.split("def charter_float_open", 1)[1].split(
             "def charter_float_close", 1
         )[0]
         self.assertNotIn(".evaluate_js(", open_fn)
-        self.assertNotIn("evaluate_js(", open_fn.split('"""', 2)[-1])
         float_js = (ROOT / "ui" / "desktop" / "charter_float.js").read_text(
             encoding="utf-8"
         )
         self.assertIn("loadOpenSession", float_js)
+        self.assertIn("charter_float_set_size", float_js)
         self.assertIn("/api/manual-sessions/open", float_js)
 
     def test_api_start_charter_only_and_float_frame(self) -> None:

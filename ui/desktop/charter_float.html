@@ -1,23 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" data-charter-float-page="1">
+<html lang="en" data-charter-float-page="1" data-charter-float-hollow="1">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Charter Frame</title>
-  <link rel="stylesheet" href="/ui/desktop/charter_float.css?v=desk141" />
+  <link rel="stylesheet" href="/ui/desktop/charter_float.css?v=desk142" />
 </head>
-<body class="charter-float-body" data-charter-float="1" data-os-float="1">
+<body class="charter-float-body" data-charter-float="1" data-os-float="1" data-snip-hollow="1">
   <header class="charter-float-header pywebview-drag-region" data-charter-float-drag="1">
     <span class="charter-float-title">Charter Frame</span>
     <span id="cf-chip" class="charter-float-chip" role="status">Session open</span>
   </header>
-  <main id="cf-capture" class="charter-float-capture" data-charter-float-capture="1" aria-label="Capture region">
-    <p class="charter-float-hint">
-      Drag this window over the AUT. Still hides the frame briefly and captures this region.
-      No keylog, clipboard, or mic.
-    </p>
-  </main>
+  <div class="charter-float-mid">
+    <div class="charter-float-side side-w" data-resize="w" title="Resize"></div>
+    <main id="cf-capture" class="charter-float-capture" data-charter-float-capture="1" aria-label="Capture hole — AUT click-through">
+      <!-- Hollow: Win32 region removes this area so desktop/AUT shows through -->
+    </main>
+    <div class="charter-float-side side-e" data-resize="e" title="Resize"></div>
+  </div>
   <footer class="charter-float-dock" data-charter-float-dock="1" data-manual-loop-dock="1">
+    <p class="charter-float-hint" data-charter-float-hint="1">
+      Snip ring — use the AUT through the hole. Drag header to move · edges to resize · Still / Note / Assist criteria stay on this dock.
+    </p>
     <p id="cf-page" class="charter-float-page" data-charter-page-context="1" hidden>No AUT page context</p>
     <div class="charter-float-row">
       <input id="cf-note" type="text" maxlength="500" placeholder="Note…" autocomplete="off" data-charter-note-input="1" />
@@ -33,6 +37,7 @@
       <button type="button" id="cf-cancel-no" class="cf-btn secondary" data-charter-cancel-no="1">Keep</button>
     </div>
   </footer>
-  <script src="/ui/desktop/charter_float.js?v=desk141"></script>
+  <div class="charter-float-corner corner-se" data-resize="se" title="Resize"></div>
+  <script src="/ui/desktop/charter_float.js?v=desk142"></script>
 </body>
 </html>

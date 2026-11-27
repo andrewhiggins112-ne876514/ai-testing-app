@@ -3,8 +3,9 @@
 Run:
     .\\venv\\Scripts\\python.exe desktop_app.py
 
-KAN-386: second OS-level Charter Frame window (frameless, on_top) so Manual
-snip chrome can leave the main pywebview client area.
+KAN-386 / KAN-502: OS-level Charter Frame = snip-style hollow ring (header +
+borders + dock). Capture hole has no window region so the AUT stays visible
+and clickable. No evaluate_js from js_api open (deadlock).
 """
 from __future__ import annotations
 
@@ -20,8 +21,16 @@ import webview
 
 from plugins.playwright_env import sanitize_playwright_browsers_path
 from plans.charter_float import (
+    HEADER_H,
+    DOCK_H,
+    MIN_WINDOW_H,
+    MIN_WINDOW_W,
+    SIDE,
+    apply_hollow_window_region,
+    clamp_window_geom,
     content_bbox_from_window,
     default_window_geom,
+    float_hwnd_from_native,
     float_window_title,
     is_float_available_payload,
     relative_frame_from_window,
@@ -30,7 +39,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk141"
+DESK_V = "desk142"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 FLOAT_URL = f"http://{HOST}:{PORT}/ui/desktop/charter_float.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
@@ -63,12 +72,13 @@ def _wait_ready(timeout: float = 20.0) -> bool:
     return False
 
 
-def _virtual_desktop() -> dict[str, int]:
+def _snap_context() -> tuple[dict[str, int], list[dict[str, Any]]]:
     try:
         targets = list_snap_targets()
-        return virtual_desktop_from_monitors(list(targets.get("monitors") or []))
-    except Exception:  # noqa: BLE001 — geometry fallback must not crash shell
-        return {"left": 0, "top": 0, "width": 1280, "height": 800}
+        monitors = list(targets.get("monitors") or [])
+        return virtual_desktop_from_monitors(monitors), monitors
+    except Exception:  # noqa: BLE001
+        return {"left": 0, "top": 0, "width": 1280, "height": 800}, []
 
 
 def _notify_main(js: str) -> None:
@@ -81,6 +91,20 @@ def _notify_main(js: str) -> None:
         pass
 
 
+def _apply_float_ring(win: Any) -> dict[str, Any]:
+    """Punch hollow capture hole after show/resize."""
+    try:
+        w, h = int(win.width), int(win.height)
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "error", "error": "geom_failed", "message": str(exc)[:120]}
+    hwnd = float_hwnd_from_native(getattr(win, "native", None))
+    if not hwnd:
+        return {"status": "error", "error": "no_hwnd"}
+    return apply_hollow_window_region(
+        hwnd, w, h, header_h=HEADER_H, dock_h=DOCK_H, side=SIDE
+    )
+
+
 class DesktopApi:
     """JS bridge for main + Charter float windows (window.pywebview.api)."""
 
@@ -88,12 +112,7 @@ class DesktopApi:
         return is_float_available_payload(_float_window is not None)
 
     def charter_float_open(self, session: Optional[dict[str, Any]] = None) -> dict[str, Any]:
-        """Show the OS float window.
-
-        Must not call evaluate_js here — that deadlocks when invoked from the
-        main window's js_api promise (KAN-386 bug / Start appears to do nothing).
-        The float page loads the open session via GET /api/manual-sessions/open.
-        """
+        """Show snip-sized hollow float. No evaluate_js (avoids js_api deadlock)."""
         global _float_visible, _float_session_id
         win = _float_window
         if win is None:
@@ -101,23 +120,25 @@ class DesktopApi:
         sess = session if isinstance(session, dict) else {}
         _float_session_id = str(sess.get("id") or "")
         frame = sess.get("frame") if isinstance(sess.get("frame"), dict) else None
-        geom = default_window_geom(virtual=_virtual_desktop(), frame=frame)
+        virtual, monitors = _snap_context()
+        geom = default_window_geom(virtual=virtual, frame=frame, monitors=monitors)
         try:
-            # Geometry + show only — no evaluate_js (avoids js_api deadlock).
             win.resize(int(geom["width"]), int(geom["height"]))
             win.move(int(geom["x"]), int(geom["y"]))
             win.on_top = True
             win.show()
             _float_visible = True
+            ring = _apply_float_ring(win)
             return {
                 "status": "ok",
                 "available": True,
-                "mode": "os_float",
+                "mode": "os_float_hollow",
                 "session_id": _float_session_id,
                 "geometry": geom,
                 "screen_bbox": content_bbox_from_window(
                     geom["x"], geom["y"], geom["width"], geom["height"]
                 ),
+                "ring": ring,
             }
         except Exception as exc:  # noqa: BLE001
             return {
@@ -148,14 +169,51 @@ class DesktopApi:
             x, y, w, h = int(win.x), int(win.y), int(win.width), int(win.height)
         except Exception as exc:  # noqa: BLE001
             return {"status": "error", "error": "geom_failed", "message": str(exc)[:120]}
+        virtual, _monitors = _snap_context()
         bbox = content_bbox_from_window(x, y, w, h)
-        frame = relative_frame_from_window(x, y, w, h, virtual=_virtual_desktop())
+        frame = relative_frame_from_window(x, y, w, h, virtual=virtual)
         return {
             "status": "ok",
             "screen_bbox": bbox,
             "frame": frame,
             "geometry": {"x": x, "y": y, "width": w, "height": h},
         }
+
+    def charter_float_set_size(self, width: int, height: int) -> dict[str, Any]:
+        """Resize float from HTML handles; re-clamp + re-punch hollow ring."""
+        win = _float_window
+        if win is None:
+            return {"status": "error", "error": "float_unavailable"}
+        virtual, monitors = _snap_context()
+        try:
+            x, y = int(win.x), int(win.y)
+        except Exception:
+            x, y = 80, 80
+        geom = clamp_window_geom(
+            {"x": x, "y": y, "width": int(width), "height": int(height)},
+            work=_primary_work_safe(virtual, monitors),
+        )
+        try:
+            win.resize(int(geom["width"]), int(geom["height"]))
+            win.move(int(geom["x"]), int(geom["y"]))
+            ring = _apply_float_ring(win)
+            bbox = content_bbox_from_window(
+                geom["x"], geom["y"], geom["width"], geom["height"]
+            )
+            return {
+                "status": "ok",
+                "geometry": geom,
+                "screen_bbox": bbox,
+                "ring": ring,
+            }
+        except Exception as exc:  # noqa: BLE001
+            return {"status": "error", "error": "resize_failed", "message": str(exc)[:120]}
+
+    def charter_float_apply_ring(self) -> dict[str, Any]:
+        win = _float_window
+        if win is None:
+            return {"status": "error", "error": "float_unavailable"}
+        return _apply_float_ring(win)
 
     def charter_float_prepare_still(self) -> dict[str, Any]:
         """Hide float chrome, return content bbox for ImageGrab."""
@@ -190,6 +248,7 @@ class DesktopApi:
             if _float_visible or _float_session_id:
                 win.show()
                 win.on_top = True
+                _apply_float_ring(win)
         except Exception as exc:  # noqa: BLE001
             return {"status": "error", "error": "show_failed", "message": str(exc)[:120]}
         return {"status": "ok", "available": True}
@@ -211,11 +270,17 @@ class DesktopApi:
         return {"status": "ok", "event": safe_event}
 
 
+def _primary_work_safe(
+    virtual: dict[str, int], monitors: list[dict[str, Any]]
+) -> dict[str, int]:
+    from plans.charter_float import _primary_work
+
+    return _primary_work(virtual, monitors)
+
+
 def main() -> int:
     global _main_window, _float_window
 
-    # KAN-495: Cursor agent shells may point PLAYWRIGHT_BROWSERS_PATH at an empty
-    # sandbox cache — clear it so headed runs use %LOCALAPPDATA%\\ms-playwright.
     cleaned = sanitize_playwright_browsers_path()
     if cleaned.get("cleared"):
         print(
@@ -241,7 +306,8 @@ def main() -> int:
         background_color="#000000",
         js_api=api,
     )
-    geom = default_window_geom(virtual=_virtual_desktop())
+    virtual, monitors = _snap_context()
+    geom = default_window_geom(virtual=virtual, monitors=monitors)
     _float_window = webview.create_window(
         title=float_window_title(),
         url=FLOAT_URL,
@@ -249,11 +315,12 @@ def main() -> int:
         height=int(geom["height"]),
         x=int(geom["x"]),
         y=int(geom["y"]),
-        min_size=(420, 320),
+        min_size=(MIN_WINDOW_W, MIN_WINDOW_H),
         frameless=True,
         easy_drag=False,
         on_top=True,
         shadow=False,
+        resizable=True,
         hidden=True,
         background_color="#061018",
         js_api=api,
