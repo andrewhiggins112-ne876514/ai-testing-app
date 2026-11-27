@@ -24,6 +24,10 @@
     "GAP-CR: Expand compliance matrix with Cyber Esse": {
       "story": "KAN-404",
       "test": "KAN-405"
+    },
+    "GAP-CR: Readable run steps + pass/fail evidence ": {
+      "story": "KAN-496",
+      "test": "KAN-497"
     }
   },
   "home_epic": "KAN-406",

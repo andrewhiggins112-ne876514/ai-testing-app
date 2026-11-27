@@ -15,13 +15,15 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 
 ## Open mandate
 
-**OPERATE (Council 2026-11-26)** — daily loop + open-trace; home-PC demo AUT. Theme/orb/home/App nav stay locked. **Loop-hit polish only** after OPERATE-1 (Plans Run disclosure, Manual idle split, evidence affordance) — not a new full TRACK6 layout epic. Studio may mock those three touchpoints when Build asks.
+**OPERATE (Council 2026-11-26)** — daily loop + open-trace; home-PC demo AUT. Theme/orb/home/App nav stay locked. **Loop-hit polish only** after OPERATE-1 (Plans Run disclosure, Manual idle split, light evidence affordance) — not a new full TRACK6 layout epic. Studio may mock those three touchpoints when Build asks.
+
+**CR 2026-11-27 (awaiting Council):** Readable **step-by-step run narrative** + **pass/fail evidence gallery** in Case detail (FR-TEST-4/FR-PLAN-4). Deeper than OPERATE-3 light polish — Studio mockups before Build if Council agrees. Keys: `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`.
 
 **Research gate (2026-11-26):** Audit/Research modes must cite current enterprise QA UX (charts, Explorer-class Manual, plan readability) — `docs/ops/ENTERPRISE_GAP_RESEARCH.md`.
 
-**GAP-CR (later):** Reports charts; Manual floating snip outside main window; Documents demo pack visuals.
+**GAP-CR (later):** Reports charts; Manual floating snip outside main window; Documents demo pack visuals; **run steps + evidence gallery** (CR 2026-11-27).
 
-Active Build: **OPERATE-1** (see `docs/ops/OPERATE_KEYS.json`). Lab TRACK3 / TRACE-DEEPEN = baselines Done.
+Active Build: **OPERATE-3** / **KAN-379** (see `docs/ops/OPERATE_KEYS.json`). Lab TRACK3 / TRACE-DEEPEN / OPERATE-1/2 = baselines Done.
 
 ### Selection grammar (standing)
 

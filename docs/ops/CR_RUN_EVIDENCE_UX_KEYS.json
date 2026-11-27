@@ -1,0 +1,13 @@
+{
+  "cr": "2026-11-27-run-evidence-ux",
+  "summary": "GAP-CR: Readable run steps + pass/fail evidence gallery",
+  "story": "KAN-496",
+  "test": "KAN-497",
+  "epic": "KAN-383",
+  "relates": [
+    "KAN-379",
+    "KAN-377",
+    "KAN-383"
+  ],
+  "status": "awaiting_council"
+}

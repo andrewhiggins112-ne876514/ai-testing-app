@@ -16,9 +16,9 @@
 | **Git** | `main` |
 | **Test ticket** | **KAN-380** |
 | **Shipped** | OPERATE-2 demo AUT **KAN-377**/378; OPERATE-1 open-trace **KAN-375**/376 (**desk133**); TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
-| **Queued** | OPERATE-4 Documents demo pack; then GAP-CR |
+| **Queued** | OPERATE-4 Documents demo pack; then GAP-CR (incl. run-evidence UX CR awaiting Council) |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | OPERATE-2 Done. Do **not** start voice / FR-MAN-2 / new full layout track. |
+| **Next / Shipped** | OPERATE-2 Done. CR 2026-11-27 run-evidence UX → **Council** (not Build yet). Do **not** start voice / FR-MAN-2 / new full layout track. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — CR — readable run steps + pass/fail evidence gallery
+- **Agent/chat:** Designer after OPERATE-2 confirm: Case detail not user-friendly; want step narrative + screenshots for fail and pass; create CR for Council
+- **Done:** Spec deepen FR-TEST-4 + FR-PLAN-4. Seeded GAP-CR Story **KAN-496** + test **KAN-497** under epic **KAN-383** (keys `CR_RUN_EVIDENCE_UX_KEYS.json`). Comments on **KAN-379**/496. Active Build remains **KAN-379** (light polish only — do not absorb CR). No product feature code.
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `docs/ops/ROADMAP.md`, `DAILY_LOOP.md`, `WORK_LOG.md`, `PROJECT_MEMORY.md`, `DESIGN_INTENT.md`, `scripts/jira_kan_cr_run_evidence_ux.py`, keys JSON
+- **Verify:** keys JSON + Jira **KAN-496**/497; Spec CR text present
+- **Jira:** **KAN-496**/497 Relates **KAN-379**/377/**KAN-383**
+- **Next:** Designer opens **/council** to review **KAN-496**; Build stays on **KAN-379** until Council agree
 
 ### 2026-11-27 — KAN-495 — Playwright path Cursor sandbox cache
 - **Agent/chat:** Designer: both OPERATE cases still fail after KAN-494
