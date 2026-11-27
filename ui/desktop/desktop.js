@@ -1625,6 +1625,10 @@
   let activePauseId = "";
   const planDefectPreview = document.getElementById("plan-defect-preview");
   const planRunFailureClass = document.getElementById("plan-run-failure-class");
+  const planCaseTriageStrip = document.getElementById("plan-case-triage-strip");
+  const planTriageHealBadge = document.getElementById("plan-triage-heal-badge");
+  const planTriageOpenHeal = document.getElementById("plan-triage-open-heal");
+  const planTriageOpenReports = document.getElementById("plan-triage-open-reports");
   const planKnownNote = document.getElementById("plan-known-note");
   const planKnownJira = document.getElementById("plan-known-jira");
   const planKnownSave = document.getElementById("plan-known-save");
@@ -3335,7 +3339,22 @@
     }
     if (!focused) {
       hideEvidenceFirst(evidenceFirstRoot("plan-case-evidence-first"));
+      if (planCaseTriageStrip) planCaseTriageStrip.hidden = true;
+      if (planTriageHealBadge) planTriageHealBadge.hidden = true;
     }
+  }
+
+  function syncPlanCaseTriageStrip(lastRun) {
+    if (!planCaseTriageStrip) return;
+    const hasRun = !!(lastRun && lastRun.id);
+    planCaseTriageStrip.hidden = !hasRun;
+    if (!planTriageHealBadge) return;
+    const result = lastRun && lastRun.result
+      ? String(lastRun.result).toLowerCase()
+      : "";
+    const failed =
+      result === "fail" || result === "failed" || result === "error";
+    planTriageHealBadge.hidden = !failed;
   }
 
   function syncPlanCaseRowFocus() {
@@ -4739,10 +4758,15 @@
         if (planRunFailureClass && payload.last_run.failure_class) {
           planRunFailureClass.value = payload.last_run.failure_class;
         }
+      } else {
+        lastCaseRunId = "";
+        if (planRunFailureClass) planRunFailureClass.value = "";
       }
+      syncPlanCaseTriageStrip(payload.last_run || null);
       syncFrameworkStubHonestyUi();
     } catch (err) {
       if (planCaseDetail) planCaseDetail.hidden = true;
+      syncPlanCaseTriageStrip(null);
       syncFrameworkStubHonestyUi();
     }
   }
@@ -10998,6 +11022,17 @@
       } catch (err) {
         if (planStatus) planStatus.textContent = "Failure class save failed.";
       }
+    });
+  }
+
+  if (planTriageOpenHeal) {
+    planTriageOpenHeal.addEventListener("click", function () {
+      openArea("heal");
+    });
+  }
+  if (planTriageOpenReports) {
+    planTriageOpenReports.addEventListener("click", function () {
+      openArea("reports");
     });
   }
 

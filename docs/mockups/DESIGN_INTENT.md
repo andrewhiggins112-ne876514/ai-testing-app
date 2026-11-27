@@ -23,7 +23,7 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 
 **GAP-CR (later):** Reports charts; Manual floating snip outside main window; Documents demo pack visuals; **run steps + evidence gallery** (CR 2026-11-27).
 
-Active Build: **OPERATE-3** / **KAN-379** (see `docs/ops/OPERATE_KEYS.json`). Lab TRACK3 / TRACE-DEEPEN / OPERATE-1/2 = baselines Done.
+Active Build: **OPERATE-4** / **KAN-381** (see `docs/ops/OPERATE_KEYS.json`). OPERATE-3 **KAN-379** Done (**desk134**). Lab TRACK3 / TRACE-DEEPEN / OPERATE-1/2 = baselines Done.
 
 ### Selection grammar (standing)
 

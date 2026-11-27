@@ -8,17 +8,17 @@
 | Field | Value |
 |-------|--------|
 | **Status** | ready — OPERATE |
-| **Jira story** | **KAN-379** OPERATE-3 loop-hit UI polish (epic **KAN-374**) |
-| **Start task** | Build pick-up: implement **KAN-379** (Plans Run disclosure, Manual idle split, evidence affordance). Not a full layout track. |
+| **Jira story** | **KAN-381** OPERATE-4 Documents demo pack (epic **KAN-374**) |
+| **Start task** | Build pick-up: implement **KAN-381** (fixtures/operate_docs + OFFICIAL Documents seed; draft-from-doc path). |
 | **Epic** | **KAN-374** OPERATE |
-| **Roadmap ID** | OPERATE / OPERATE-POLISH |
+| **Roadmap ID** | OPERATE |
 | **Spec** | `docs/ops/DAILY_LOOP.md` + FUNCTIONAL_SPEC CR 2026-11-26 |
 | **Git** | `main` |
-| **Test ticket** | **KAN-380** |
-| **Shipped** | OPERATE-2 demo AUT **KAN-377**/378; OPERATE-1 open-trace **KAN-375**/376 (**desk133**); TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
-| **Queued** | OPERATE-4 Documents demo pack (default next after OPERATE-3); then **KAN-496** Build Slice-1 (after Studio Slice-0 + Designer mock pick). Studio Slice-0 may run **now** in parallel (`/studio`) |
+| **Test ticket** | **KAN-382** |
+| **Shipped** | OPERATE-3 loop-hit polish **KAN-379**/380 (**desk134**); OPERATE-2 demo AUT **KAN-377**/378; OPERATE-1 open-trace **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
+| **Queued** | **KAN-496** Build Slice-1 (after Studio Slice-0 + Designer mock pick). Studio Slice-0 may run **now** in parallel (`/studio`) |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Council+Studio+Creative **agreed** KAN-496 (2026-11-27). Active Build stays **KAN-379**. Do **not** absorb 496 into OPERATE-3. Do **not** start voice / FR-MAN-2 / new full layout track. |
+| **Next / Shipped** | OPERATE-3 **KAN-379** Done. Prefer OPERATE-4 before **KAN-496** Build unless Designer elevates. Do **not** start voice / FR-MAN-2 / absorb 496 gallery into OPERATE-4. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — KAN-379 — OPERATE-3 loop-hit UI polish
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
+- **Done:** Plans Run primary (tag run + pause) first; env/sandbox/parallel/schedule collapsed in `<details>`. Manual idle: library vs Start visually split; optional plan/case/Jira links behind disclosure. Case detail: light triage strip under evidence (failure class + Heal badge on fail + Open Heal / Open Reports). Cache-bust **desk134**. Did **not** absorb KAN-496 gallery.
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `tests/test_operate_loop_polish.py` (+ desk134 marker bumps)
+- **Verify:** `pytest tests/test_operate_loop_polish.py tests/test_plans_tabs_layout_grammar.py tests/test_manual_layout_grammar.py tests/test_operate_open_trace.py tests/test_track5_evidence_first.py` — 10 passed (+10 subtests). CU not required (markers/HTML AC).
+- **Jira:** close-out **KAN-379** + **KAN-380**
+- **Next:** **KAN-381** OPERATE-4 Documents demo pack
 
 ### 2026-11-27 — Council+Studio+Creative — KAN-496 accepted
 - **Agent/chat:** `/council` full room (all council + users + Studio + Creative); Designer accepted + process CR (reviews = whole team research + discover requirements early)

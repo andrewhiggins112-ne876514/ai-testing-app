@@ -11,7 +11,7 @@ LAYOUT_MODES = ("overlay", "stage", "orb_hub", "split", "floating")
 
 
 class SettingsSecurityDensityTests(unittest.TestCase):
-    def test_settings_security_density_desk133(self) -> None:
+    def test_settings_security_density_desk134(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
@@ -19,8 +19,8 @@ class SettingsSecurityDensityTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk133", html)
-        self.assertIn("desk133", desk)
+        self.assertIn("desk134", html)
+        self.assertIn("desk134", desk)
         self.assertIn('data-settings-security-density="1"', html)
         self.assertIn("Accepted", wires)
         self.assertIn("KAN-318", wires)

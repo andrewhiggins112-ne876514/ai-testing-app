@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk133" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk134" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -1020,7 +1020,7 @@
           </details>
           </div>
         </div>
-        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1" data-plan-cases-layout-grammar="1" data-plans-tabs-layout-grammar="1" data-plans-compact-booleans="1" data-evidence-first-detail="1" data-scan-craft="1" data-playwright-trace="1" data-operate-open-trace="1">
+        <div id="app-section-plans" class="app-section" hidden data-plans-ia="1" data-plans-cases-geometry="1" data-plan-cases-layout-grammar="1" data-plans-tabs-layout-grammar="1" data-plans-compact-booleans="1" data-operate-loop-polish="1" data-evidence-first-detail="1" data-scan-craft="1" data-playwright-trace="1" data-operate-open-trace="1">
           <div id="plan-chrome-toolbar" class="area-chrome-toolbar plan-chrome-toolbar" data-plan-chrome="1">
             <div class="btn-row plan-toolbar-actions area-chrome-toolbar-row">
               <label class="stack-label plan-toolbar-plan" for="plan-list">Plan
@@ -1100,12 +1100,29 @@
             <p class="drawer-hint" id="plan-case-detail-hint">Select a row. Row click does not toggle Enabled or Archived.</p>
             <div id="plan-case-detail-live" class="plan-case-detail-live" data-plan-case-detail-live="1" hidden>
             <div class="plan-case-detail-scroll" data-plan-case-sections-scroll="1" data-scan-scroll="detail">
-            <div class="evidence-first" id="plan-case-evidence-first" data-evidence-first="1" hidden>
+            <div class="evidence-first" id="plan-case-evidence-first" data-evidence-first="1" data-operate-evidence-affordance="1" hidden>
               <span class="evidence-first-tag">Last result</span>
               <p class="evidence-first-summary" data-evidence-summary="1">—</p>
               <p class="evidence-first-links" data-evidence-links="1" hidden></p>
               <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
               <p class="evidence-first-trace" data-evidence-trace="1">Trace: no Playwright trace for this run.</p>
+            </div>
+            <div class="plan-case-triage-strip" id="plan-case-triage-strip" data-operate-triage-strip="1" hidden>
+              <span class="plan-triage-heal-badge" id="plan-triage-heal-badge" data-operate-heal-badge="1" hidden>Heal pending</span>
+              <label class="stack-label plan-triage-failure" for="plan-run-failure-class">Failure class
+                <select id="plan-run-failure-class">
+                  <option value="">(unset)</option>
+                  <option value="product_bug">Product bug</option>
+                  <option value="test_defect">Test defect</option>
+                  <option value="environment">Environment</option>
+                  <option value="known_issue">Known issue</option>
+                </select>
+              </label>
+              <div class="btn-row plan-triage-actions">
+                <button type="button" id="plan-run-failure-save" class="save-btn secondary">Save failure class</button>
+                <button type="button" id="plan-triage-open-heal" class="save-btn secondary" data-operate-open-heal="1">Open Heal</button>
+                <button type="button" id="plan-triage-open-reports" class="save-btn secondary" data-operate-open-reports="1">Open Reports</button>
+              </div>
             </div>
             <section class="plan-case-sec" data-plan-case-section="edit" aria-labelledby="plan-case-sec-edit">
             <h4 class="orb-section-label" id="plan-case-sec-edit">Edit</h4>
@@ -1158,18 +1175,7 @@
               <button type="button" id="plan-pause-stop" class="save-btn secondary">Stop (record fail)</button>
             </div>
             <pre id="plan-rerun-out" class="drawer-hint" aria-live="polite" hidden></pre>
-            <label class="stack-label">Failure class (last run)
-              <select id="plan-run-failure-class">
-                <option value="">(unset)</option>
-                <option value="product_bug">Product bug</option>
-                <option value="test_defect">Test defect</option>
-                <option value="environment">Environment</option>
-                <option value="known_issue">Known issue</option>
-              </select>
-            </label>
-            <div class="btn-row">
-              <button type="button" id="plan-run-failure-save" class="save-btn secondary">Save failure class</button>
-            </div>
+            <p class="drawer-hint">Failure class and Heal / Reports jump live in the triage strip above Edit (next to last-result evidence).</p>
             </section>
             <section class="plan-case-sec" data-plan-case-section="quarantine" aria-labelledby="plan-case-sec-quarantine">
             <h4 class="orb-section-label" id="plan-case-sec-quarantine">Quarantine</h4>
@@ -1386,55 +1392,66 @@
               </aside>
             </div>
           </div>
-          <div id="plan-panel-run" class="plan-panel" role="tabpanel" data-plan-panel="run" aria-labelledby="plan-tab-run" hidden data-plan-run-sections="1">
-            <h4 class="orb-section-label">Named environment</h4>
-            <p class="drawer-hint" id="plan-env-hint">Suite and case runs record the active environment name. Credentials stay in Settings (level store), not on the plan. Switching here does not change security level. Manage environments under Settings / Lab where available.</p>
-            <label class="stack-label">Active environment
-              <select id="plan-env-active" aria-describedby="plan-env-hint">
-                <option value="">(none yet)</option>
-              </select>
-            </label>
-            <div class="btn-row">
-              <button type="button" id="plan-env-activate" class="save-btn secondary">Activate for runs</button>
-              <button type="button" id="plan-env-refresh" class="save-btn secondary">Refresh environments</button>
+          <div id="plan-panel-run" class="plan-panel" role="tabpanel" data-plan-panel="run" aria-labelledby="plan-tab-run" hidden data-plan-run-sections="1" data-operate-run-disclosure="1">
+            <div class="plan-run-primary" data-operate-run-primary="1">
+              <h4 class="orb-section-label">Run by tag</h4>
+              <p class="drawer-hint">Runs all cases with the chosen tag. Default is sequential; open Suite parallel below for a capped parallel run. Untagged cases are omitted and listed as not selected. Suite run stores the run id, tag, and parallel count. Smoke and regression are first-class tags.</p>
+              <label class="stack-label">Tag
+                <input type="text" id="plan-run-tag" list="plan-run-tag-suggestions" placeholder="smoke" autocomplete="off" />
+                <datalist id="plan-run-tag-suggestions">
+                  <option value="smoke"></option>
+                  <option value="regression"></option>
+                </datalist>
+              </label>
+              <div class="btn-row">
+                <button type="button" id="plan-run-by-tag" class="save-btn">Run by tag</button>
+                <button type="button" id="plan-run-tag-smoke" class="save-btn secondary">Run smoke</button>
+                <button type="button" id="plan-run-tag-regression" class="save-btn secondary">Run regression</button>
+              </div>
+              <div class="plan-bool-row" data-plan-bool-row="1">
+                <label class="plan-compact-check" data-plan-compact-check="1" title="Headed browser stays open until Continue or Stop; off by default"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail</label>
+              </div>
+              <pre id="plan-tag-run-out" class="drawer-hint" aria-live="polite" hidden></pre>
             </div>
-            <p id="plan-env-status" class="drawer-hint" role="status">Environment: —</p>
-            <h4 class="orb-section-label">Run sandbox</h4>
-            <p class="drawer-hint" id="plan-sandbox-hint">When the multi-sandbox plugin is enabled, choose one existing sandbox as the run environment. Leave blank for the normal browser profile. Run records store the sandbox name. Manage records on the Sandboxes screen. Parallel stays capped by Suite parallel (D1).</p>
-            <label class="stack-label">Sandbox for this run
-              <select id="plan-sandbox-select" aria-describedby="plan-sandbox-hint">
-                <option value="">Normal browser profile (default)</option>
-              </select>
-            </label>
-            <div class="btn-row">
-              <button type="button" id="plan-sandbox-refresh" class="save-btn secondary">Refresh sandboxes</button>
-            </div>
-            <p id="plan-sandbox-status" class="drawer-hint" role="status">Sandbox: default profile</p>
-            <h4 class="orb-section-label">Suite parallel</h4>
-            <p class="drawer-hint" id="plan-parallel-hint">Suite runs are sequential by default (1). Cap this stage: 2. The run record stores the count used; values above the cap are refused.</p>
-            <label class="stack-label">Parallel count
-              <select id="plan-parallel-count" aria-describedby="plan-parallel-hint">
-                <option value="1" selected>1 — sequential (default)</option>
-                <option value="2">2 — max this stage</option>
-              </select>
-            </label>
-            <h4 class="orb-section-label">Run by tag</h4>
-            <p class="drawer-hint">Runs all cases with the chosen tag. Default is sequential; use Suite parallel above for a capped parallel run. Untagged cases are omitted and listed as not selected. Suite run stores the run id, tag, and parallel count. Smoke and regression are first-class tags.</p>
-            <label class="stack-label">Tag
-              <input type="text" id="plan-run-tag" list="plan-run-tag-suggestions" placeholder="smoke" autocomplete="off" />
-              <datalist id="plan-run-tag-suggestions">
-                <option value="smoke"></option>
-                <option value="regression"></option>
-              </datalist>
-            </label>
-            <div class="btn-row">
-              <button type="button" id="plan-run-by-tag" class="save-btn">Run by tag</button>
-              <button type="button" id="plan-run-tag-smoke" class="save-btn secondary">Run smoke</button>
-              <button type="button" id="plan-run-tag-regression" class="save-btn secondary">Run regression</button>
-            </div>
-            <pre id="plan-tag-run-out" class="drawer-hint" aria-live="polite" hidden></pre>
-            <details class="plan-run-details" id="plan-schedule-details">
-              <summary>Scheduled local run (detail)</summary>
+            <details class="plan-run-details" id="plan-env-details" data-operate-run-advanced="env">
+              <summary>Named environment</summary>
+              <p class="drawer-hint" id="plan-env-hint">Suite and case runs record the active environment name. Credentials stay in Settings (level store), not on the plan. Switching here does not change security level. Manage environments under Settings / Lab where available.</p>
+              <label class="stack-label">Active environment
+                <select id="plan-env-active" aria-describedby="plan-env-hint">
+                  <option value="">(none yet)</option>
+                </select>
+              </label>
+              <div class="btn-row">
+                <button type="button" id="plan-env-activate" class="save-btn secondary">Activate for runs</button>
+                <button type="button" id="plan-env-refresh" class="save-btn secondary">Refresh environments</button>
+              </div>
+              <p id="plan-env-status" class="drawer-hint" role="status">Environment: —</p>
+            </details>
+            <details class="plan-run-details" id="plan-sandbox-details" data-operate-run-advanced="sandbox">
+              <summary>Run sandbox</summary>
+              <p class="drawer-hint" id="plan-sandbox-hint">When the multi-sandbox plugin is enabled, choose one existing sandbox as the run environment. Leave blank for the normal browser profile. Run records store the sandbox name. Manage records on the Sandboxes screen. Parallel stays capped by Suite parallel (D1).</p>
+              <label class="stack-label">Sandbox for this run
+                <select id="plan-sandbox-select" aria-describedby="plan-sandbox-hint">
+                  <option value="">Normal browser profile (default)</option>
+                </select>
+              </label>
+              <div class="btn-row">
+                <button type="button" id="plan-sandbox-refresh" class="save-btn secondary">Refresh sandboxes</button>
+              </div>
+              <p id="plan-sandbox-status" class="drawer-hint" role="status">Sandbox: default profile</p>
+            </details>
+            <details class="plan-run-details" id="plan-parallel-details" data-operate-run-advanced="parallel">
+              <summary>Suite parallel</summary>
+              <p class="drawer-hint" id="plan-parallel-hint">Suite runs are sequential by default (1). Cap this stage: 2. The run record stores the count used; values above the cap are refused.</p>
+              <label class="stack-label">Parallel count
+                <select id="plan-parallel-count" aria-describedby="plan-parallel-hint">
+                  <option value="1" selected>1 — sequential (default)</option>
+                  <option value="2">2 — max this stage</option>
+                </select>
+              </label>
+            </details>
+            <details class="plan-run-details" id="plan-schedule-details" data-operate-run-advanced="schedule">
+              <summary>Scheduled local run</summary>
               <p class="drawer-hint" id="plan-schedule-hint">Schedule one tagged run on this PC. Uses sequential runs and your saved connection. Missed slots (PC off) are recorded as not run — never as pass. Off until you create one. Not cloud-hosted.</p>
               <label class="stack-label">Schedule tag
                 <input type="text" id="plan-schedule-tag" list="plan-run-tag-suggestions" placeholder="smoke" autocomplete="off" aria-describedby="plan-schedule-hint" />
@@ -1450,13 +1467,10 @@
               <p id="plan-schedule-status" class="drawer-hint" role="status">Schedule: off</p>
               <pre id="plan-schedule-out" class="drawer-hint" aria-live="polite" hidden></pre>
             </details>
-            <div class="plan-bool-row" data-plan-bool-row="1">
-              <label class="plan-compact-check" data-plan-compact-check="1" title="Headed browser stays open until Continue or Stop; off by default"><input type="checkbox" id="plan-pause-on-fail" /> Pause on fail</label>
-            </div>
           </div>
           </div>
         </div>
-        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-manual-density="1" data-manual-layout-grammar="1" data-evidence-first-detail="1" data-loop-stage="idle" data-scan-craft="1" data-playwright-trace="1" data-operate-open-trace="1">
+        <div id="app-section-manual" class="app-section" hidden data-manual-ia="1" data-charter-mvp="1" data-manual-loop="1" data-manual-assist-honest="1" data-charter-snap-ui="1" data-manual-page-context="1" data-annotate-still="1" data-manual-library="1" data-manual-propose-harden="1" data-manual-density="1" data-manual-layout-grammar="1" data-manual-idle-split="1" data-evidence-first-detail="1" data-loop-stage="idle" data-scan-craft="1" data-playwright-trace="1" data-operate-open-trace="1">
           <div id="manual-chrome-toolbar" class="area-chrome-toolbar manual-chrome-toolbar" data-manual-chrome="1">
             <div class="btn-row manual-toolbar-actions area-chrome-toolbar-row">
               <button type="button" id="manual-clear-context" class="save-btn secondary">Clear linked context</button>
@@ -1468,8 +1482,8 @@
           </div>
           <div class="area-work" data-area-work="1">
           <div class="manual-grammar-split" data-scan-no-outer-scroll="1" data-manual-grammar-split="1">
-            <div class="manual-scan-pane" data-scan-scroll="scan">
-              <div id="manual-library" class="manual-library" data-manual-library-panel="1">
+            <div class="manual-scan-pane" data-scan-scroll="scan" data-manual-idle-scan="1">
+              <div id="manual-library" class="manual-library" data-manual-library-panel="1" data-manual-idle-library="1">
                 <h4 class="orb-section-label">Session library</h4>
                 <p id="manual-library-level" class="drawer-hint" data-manual-library-level="1">Active level: —</p>
                 <p id="manual-session-empty" class="scan-quiet-empty" data-scan-quiet-empty="1" hidden>No sessions on this security level.</p>
@@ -1485,30 +1499,33 @@
                   <tbody id="manual-session-list" data-manual-session-list="1"></tbody>
                 </table>
               </div>
-              <div id="manual-primary" class="manual-primary" data-manual-primary="1">
+              <div id="manual-primary" class="manual-primary" data-manual-primary="1" data-manual-idle-start="1">
                 <h4 class="orb-section-label">Start session</h4>
                 <label class="stack-label" for="manual-charter">Charter (required)
                   <textarea id="manual-charter" rows="3" placeholder="What will you explore?" maxlength="2000" autocomplete="off"></textarea>
                 </label>
                 <label class="manual-compact-check" data-manual-compact-check="1"><input type="checkbox" id="manual-ticket-bound" /> Link to Jira (story key required when checked)</label>
-                <label class="stack-label" for="manual-plan-id">Linked plan id
-                  <input type="text" id="manual-plan-id" placeholder="plan id (optional)" autocomplete="off" />
-                </label>
-                <label class="stack-label" for="manual-case-id">Linked case id
-                  <input type="text" id="manual-case-id" placeholder="case id (optional)" autocomplete="off" />
-                </label>
-                <label class="stack-label" for="manual-story-key">Jira story key
-                  <input type="text" id="manual-story-key" placeholder="KAN-… when ticket-bound (optional for charter-only)" autocomplete="off" />
-                </label>
-                <label class="stack-label" for="manual-test-key">Jira test key (optional)
-                  <input type="text" id="manual-test-key" placeholder="test ticket when known" autocomplete="off" />
-                </label>
                 <label class="manual-compact-check" data-manual-compact-check="1"><input type="checkbox" id="manual-assist" /> Agent assist (recommended off — local drafts only when on)</label>
                 <label class="manual-compact-check" data-manual-compact-check="1"><input type="checkbox" id="manual-mist" /> Armed mist inside frame (recommended off)</label>
                 <div class="btn-row">
                   <button type="button" id="manual-start" class="save-btn" data-manual-start="1">Start session</button>
                 </div>
                 <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start opens Charter Frame. Assist and mist default off.</p>
+                <details class="manual-start-links" data-manual-idle-links="1">
+                  <summary>Optional links (plan / case / Jira)</summary>
+                  <label class="stack-label" for="manual-plan-id">Linked plan id
+                    <input type="text" id="manual-plan-id" placeholder="plan id (optional)" autocomplete="off" />
+                  </label>
+                  <label class="stack-label" for="manual-case-id">Linked case id
+                    <input type="text" id="manual-case-id" placeholder="case id (optional)" autocomplete="off" />
+                  </label>
+                  <label class="stack-label" for="manual-story-key">Jira story key
+                    <input type="text" id="manual-story-key" placeholder="KAN-… when ticket-bound (optional for charter-only)" autocomplete="off" />
+                  </label>
+                  <label class="stack-label" for="manual-test-key">Jira test key (optional)
+                    <input type="text" id="manual-test-key" placeholder="test ticket when known" autocomplete="off" />
+                  </label>
+                </details>
               </div>
             </div>
             <aside class="manual-detail-pane" id="manual-detail" data-manual-detail="1" aria-label="Focused session" data-scan-scroll="detail">
@@ -1812,6 +1829,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk133"></script>
+  <script src="/ui/desktop/desktop.js?v=desk134"></script>
 </body>
 </html>

@@ -4492,3 +4492,95 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   border-radius: 4px;
   margin-top: 4px;
 }
+
+/* KAN-379 — OPERATE-3 loop-hit polish (Plans Run disclosure, Manual idle, triage) */
+#plan-panel-run[data-operate-run-disclosure="1"] .plan-run-primary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  padding: var(--space-2) 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+  background: color-mix(in srgb, var(--cyan, #50cdff) 6%, transparent);
+}
+
+#plan-panel-run[data-operate-run-disclosure="1"] .plan-run-primary .orb-section-label {
+  margin: 0;
+}
+
+.plan-case-triage-strip[data-operate-triage-strip="1"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: flex-end;
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
+}
+
+.plan-case-triage-strip[data-operate-triage-strip="1"][hidden] {
+  display: none !important;
+}
+
+.plan-case-triage-strip .plan-triage-failure {
+  flex: 1 1 160px;
+  min-width: 140px;
+  margin: 0;
+}
+
+.plan-case-triage-strip .plan-triage-actions {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+.plan-triage-heal-badge[data-operate-heal-badge="1"] {
+  display: inline-flex;
+  align-items: center;
+  font: var(--type-meta);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid color-mix(in srgb, var(--warn, #ffd27a) 50%, transparent);
+  color: var(--warn, #ffd27a);
+  background: color-mix(in srgb, var(--warn, #ffd27a) 12%, transparent);
+}
+
+.plan-triage-heal-badge[data-operate-heal-badge="1"][hidden] {
+  display: none !important;
+}
+
+#app-section-manual[data-manual-idle-split="1"] .manual-library[data-manual-idle-library="1"] {
+  padding: var(--space-2);
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 18%, transparent);
+  background: color-mix(in srgb, var(--cyan, #50cdff) 4%, transparent);
+}
+
+#app-section-manual[data-manual-idle-split="1"] .manual-primary[data-manual-idle-start="1"] {
+  margin-top: var(--space-2);
+  padding: var(--space-2) 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 28%, transparent);
+  background: color-mix(in srgb, var(--cyan, #50cdff) 6%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+#app-section-manual[data-manual-idle-split="1"] .manual-start-links {
+  margin: 0;
+  padding: var(--space-1) 8px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 16%, transparent);
+}
+
+#app-section-manual[data-manual-idle-split="1"] .manual-start-links > summary {
+  cursor: pointer;
+  color: var(--cyan, #50cdff);
+  font: var(--type-ui);
+}
+
+#app-section-manual[data-manual-idle-split="1"] .manual-start-links[open] > summary {
+  margin-bottom: var(--space-2);
+}
