@@ -6989,15 +6989,30 @@
     return (window.pywebview && window.pywebview.api) || null;
   }
 
+  function withTimeout(promise, ms) {
+    return Promise.race([
+      promise,
+      new Promise(function (resolve) {
+        setTimeout(function () {
+          resolve({ status: "timeout" });
+        }, ms);
+      }),
+    ]);
+  }
+
   async function openOsCharterFloat(session) {
     const bridge = desktopBridgeApi();
     if (!bridge || !bridge.charter_float_available || !bridge.charter_float_open) {
       return false;
     }
     try {
-      const avail = await bridge.charter_float_available();
-      if (!avail || !avail.available) return false;
-      const opened = await bridge.charter_float_open(session || {});
+      const avail = await withTimeout(bridge.charter_float_available(), 800);
+      if (!avail || avail.status === "timeout" || !avail.available) return false;
+      /* Keep Start responsive: if float bridge stalls, fall back to in-app frame. */
+      const opened = await withTimeout(
+        bridge.charter_float_open(session || {}),
+        1500
+      );
       return !!(opened && opened.status === "ok");
     } catch (_err) {
       return false;
@@ -7027,6 +7042,16 @@
     updateCharterFrameChip(session);
     setManualLoopStage("recording");
 
+    /* Always arm in-app overlay first so Start never looks dead if OS float stalls. */
+    if (charterFrameRoot) {
+      applyCharterFrameRect();
+      setCharterMistVisible(!!session.armed_mist);
+      if (charterAssistLive) charterAssistLive.checked = !!session.agent_assist;
+      if (charterMistLive) charterMistLive.checked = !!session.armed_mist;
+      charterFrameRoot.hidden = false;
+      charterFrameRoot.setAttribute("aria-hidden", "false");
+    }
+
     /* KAN-386: prefer OS-level float outside the main window when available. */
     const floated = await openOsCharterFloat(session);
     charterOsFloatActive = floated;
@@ -7043,13 +7068,10 @@
       return;
     }
 
-    if (!charterFrameRoot) return;
-    applyCharterFrameRect();
-    setCharterMistVisible(!!session.armed_mist);
-    if (charterAssistLive) charterAssistLive.checked = !!session.agent_assist;
-    if (charterMistLive) charterMistLive.checked = !!session.armed_mist;
-    charterFrameRoot.hidden = false;
-    charterFrameRoot.setAttribute("aria-hidden", "false");
+    if (manualStatus) {
+      manualStatus.textContent =
+        "Session started — Charter Frame dock: Note / Still / End / Cancel (no Jira write)";
+    }
   }
 
   async function hideCharterFrame() {

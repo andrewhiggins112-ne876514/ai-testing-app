@@ -30,7 +30,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk140"
+DESK_V = "desk141"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 FLOAT_URL = f"http://{HOST}:{PORT}/ui/desktop/charter_float.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
@@ -88,6 +88,12 @@ class DesktopApi:
         return is_float_available_payload(_float_window is not None)
 
     def charter_float_open(self, session: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+        """Show the OS float window.
+
+        Must not call evaluate_js here — that deadlocks when invoked from the
+        main window's js_api promise (KAN-386 bug / Start appears to do nothing).
+        The float page loads the open session via GET /api/manual-sessions/open.
+        """
         global _float_visible, _float_session_id
         win = _float_window
         if win is None:
@@ -97,31 +103,12 @@ class DesktopApi:
         frame = sess.get("frame") if isinstance(sess.get("frame"), dict) else None
         geom = default_window_geom(virtual=_virtual_desktop(), frame=frame)
         try:
+            # Geometry + show only — no evaluate_js (avoids js_api deadlock).
             win.resize(int(geom["width"]), int(geom["height"]))
             win.move(int(geom["x"]), int(geom["y"]))
             win.on_top = True
             win.show()
             _float_visible = True
-            # Push session payload into float page after show.
-            payload = {
-                "id": _float_session_id,
-                "charter": str(sess.get("charter") or "")[:200],
-                "agent_assist": bool(sess.get("agent_assist")),
-                "armed_mist": bool(sess.get("armed_mist")),
-                "notes": len(sess.get("notes") or []),
-                "stills": len(sess.get("stills") or []),
-                "frame_mode": "float",
-            }
-            try:
-                import json
-
-                win.evaluate_js(
-                    "window.__charterFloatApply && window.__charterFloatApply("
-                    + json.dumps(payload)
-                    + ")"
-                )
-            except Exception:  # noqa: BLE001
-                pass
             return {
                 "status": "ok",
                 "available": True,

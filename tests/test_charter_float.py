@@ -119,23 +119,35 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk140(self) -> None:
+    def test_desktop_float_markers_desk141(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk140", html)
-        self.assertIn("desk140", desk)
-        self.assertIn("desk140", float_html)
+        self.assertIn("desk141", html)
+        self.assertIn("desk141", desk)
+        self.assertIn("desk141", float_html)
         self.assertIn('data-charter-float="1"', html)
         self.assertIn('data-charter-float="1"', float_html)
         self.assertIn("data-os-float", float_html)
         self.assertIn("charter_float_open", desk)
         self.assertIn("openOsCharterFloat", js)
         self.assertIn("charterOsFloatActive", js)
+        self.assertIn("withTimeout", js)
         self.assertIn("No keylog", float_html)
+        # Deadlock guard: open path must not call evaluate_js into the float page.
+        open_fn = desk.split("def charter_float_open", 1)[1].split(
+            "def charter_float_close", 1
+        )[0]
+        self.assertNotIn(".evaluate_js(", open_fn)
+        self.assertNotIn("evaluate_js(", open_fn.split('"""', 2)[-1])
+        float_js = (ROOT / "ui" / "desktop" / "charter_float.js").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("loadOpenSession", float_js)
+        self.assertIn("/api/manual-sessions/open", float_js)
 
     def test_api_start_charter_only_and_float_frame(self) -> None:
         from main import app

@@ -56,6 +56,27 @@
 
   window.__charterFloatApply = applySession;
 
+  async function loadOpenSession() {
+    try {
+      const res = await fetch("/api/manual-sessions/open");
+      const data = await res.json();
+      if (data && data.open && data.session) {
+        applySession({
+          id: data.session.id,
+          charter: data.session.charter,
+          notes: (data.session.notes || []).length,
+          stills: (data.session.stills || []).length,
+          agent_assist: data.session.agent_assist,
+          armed_mist: data.session.armed_mist,
+        });
+        return true;
+      }
+    } catch (_err) {
+      /* ignore */
+    }
+    return false;
+  }
+
   async function currentBbox() {
     const bridge = api();
     if (!bridge || !bridge.charter_float_screen_bbox) return null;
@@ -265,6 +286,11 @@
   // Persist geometry while the user moves/resizes the OS window.
   window.addEventListener("resize", scheduleFrameSave);
   setInterval(scheduleFrameSave, 2000);
+  /* Boot + poll — main window must not evaluate_js into this page (deadlock). */
+  loadOpenSession();
+  setInterval(function () {
+    if (!sessionId) loadOpenSession();
+  }, 1000);
 
   if (pageEl) {
     pageEl.hidden = false;

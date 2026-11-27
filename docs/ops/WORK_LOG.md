@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-27 — KAN-501 — Manual Start hang on Charter float
+- **Agent/chat:** Cursor IDE Agent (Composer) — Designer: Start session does nothing
+- **Done:** Root cause = `charter_float_open` called `evaluate_js` from main-window js_api (deadlock). Removed evaluate_js; float loads session via `/api/manual-sessions/open`; JS timeout + always show in-app overlay first. Cache-bust **desk141**. Bug **KAN-501** Relates **KAN-386**/387 → Done.
+- **Files:** `desktop_app.py`, `ui/desktop/desktop.js`, `charter_float.js`, `index.html`, `charter_float.html`, `tests/test_charter_float.py`, `scripts/jira_kan_bug_charter_float_start.py`
+- **Verify:** `pytest tests/test_charter_float.py` — 7 passed. Restart desktop for desk141.
+- **Jira:** Bug **KAN-501** Fix comment + Done
+- **Next:** Active remains **KAN-388** plan document view
+
 ### 2026-11-27 — KAN-386 — Manual floating snip (OS Charter Frame)
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
 - **Done:** OS-level Charter Frame float window (frameless, on_top) via second pywebview window — Start without Jira/AI opens float outside main client area; Still hides chrome briefly and stores level-scoped PNG; no keylog/clipboard/mic. In-app overlay remains fallback when not in desktop shell. Cache-bust **desk140**. Did **not** start FR-MAN-2 / voice.

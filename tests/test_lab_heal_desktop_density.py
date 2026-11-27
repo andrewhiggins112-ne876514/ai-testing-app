@@ -11,7 +11,7 @@ LAYOUT_MODES = ("overlay", "stage", "orb_hub", "split", "floating")
 
 
 class LabHealDesktopDensityTests(unittest.TestCase):
-    def test_heal_desktop_density_desk140(self) -> None:
+    def test_heal_desktop_density_desk141(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
@@ -20,10 +20,10 @@ class LabHealDesktopDensityTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk140", html)
-        self.assertIn("desk140", desk)
-        self.assertIn("desktop.css?v=desk140", html)
-        self.assertIn("desktop.js?v=desk140", html)
+        self.assertIn("desk141", html)
+        self.assertIn("desk141", desk)
+        self.assertIn("desktop.css?v=desk141", html)
+        self.assertIn("desktop.js?v=desk141", html)
 
         lab_section = wires.split("## 8. Lab tools", 1)[1].split("## 9.", 1)[0]
         self.assertIn("**Accepted**", lab_section)
