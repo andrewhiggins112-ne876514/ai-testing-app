@@ -14,6 +14,8 @@ from urllib.error import URLError
 import uvicorn
 import webview
 
+from plugins.playwright_env import sanitize_playwright_browsers_path
+
 HOST = "127.0.0.1"
 PORT = 8765
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v=desk133"
@@ -43,6 +45,16 @@ def _wait_ready(timeout: float = 20.0) -> bool:
 
 
 def main() -> int:
+    # KAN-495: Cursor agent shells may point PLAYWRIGHT_BROWSERS_PATH at an empty
+    # sandbox cache — clear it so headed runs use %LOCALAPPDATA%\\ms-playwright.
+    cleaned = sanitize_playwright_browsers_path()
+    if cleaned.get("cleared"):
+        print(
+            "NOTE: cleared invalid PLAYWRIGHT_BROWSERS_PATH "
+            f"({cleaned.get('reason')}) → use default ms-playwright.",
+            flush=True,
+        )
+
     server = threading.Thread(target=_serve, name="fastapi-desktop", daemon=True)
     server.start()
     if not _wait_ready():

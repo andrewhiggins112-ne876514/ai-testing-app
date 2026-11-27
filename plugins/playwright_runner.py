@@ -455,7 +455,13 @@ async def run_playwright(
 
     from pathlib import Path
 
+    from plugins.playwright_env import sanitize_playwright_browsers_path
     from settings.store import browser_profile_dir, get_security_level
+
+    # KAN-495: never launch against Cursor sandbox browser cache.
+    browsers_env = sanitize_playwright_browsers_path()
+    if browsers_env.get("changed"):
+        result["playwright_browsers_path_sanitized"] = browsers_env
 
     level = (security_level or "").strip().upper() or get_security_level()
     result["security_level"] = level

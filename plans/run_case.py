@@ -90,6 +90,13 @@ def _map_playwright_result(pw: dict[str, Any]) -> tuple[str, str | None, list[st
     if status == "pass" and not err:
         return "pass", None, evidence
 
+    from plugins.playwright_env import is_missing_browser_error
+    from plans.timeouts import is_timeout_error
+
+    # Missing Chromium / bad PLAYWRIGHT_BROWSERS_PATH is environment, not product.
+    if is_missing_browser_error(err):
+        return "error", "environment", evidence
+
     classification = None
     steps = pw.get("steps") or []
     if isinstance(steps, list):
@@ -97,7 +104,6 @@ def _map_playwright_result(pw: dict[str, Any]) -> tuple[str, str | None, list[st
             if isinstance(step, dict) and step.get("classification"):
                 classification = str(step["classification"])
                 break
-    from plans.timeouts import is_timeout_error
 
     failure_class = classification or (
         "environment" if is_timeout_error(err) else "product_bug"

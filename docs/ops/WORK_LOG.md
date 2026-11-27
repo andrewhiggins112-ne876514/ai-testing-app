@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-27 — KAN-495 — Playwright path Cursor sandbox cache
+- **Agent/chat:** Designer: both OPERATE cases still fail after KAN-494
+- **Done:** Latest runs passed target probe then failed launching Chromium from `Temp\cursor-sandbox-cache\...\playwright` (env inherited from Cursor). Sanitizer clears that override; runner + `desktop_app` call it; missing-browser → `environment`. Chromium launch OK from default ms-playwright.
+- **Files:** `plugins/playwright_env.py`, `desktop_app.py`, `plugins/playwright_runner.py`, `plans/run_case.py`, `tests/test_playwright_env_sanitize.py`
+- **Verify:** pytest sanitize tests green; headless chromium launch ok; desktop restarted.
+- **Jira:** Bug **KAN-495** Done (Relates 377/378/494)
+- **Next:** Active remains **KAN-379**; Designer re-runs smoke (pass) + intentional-fail (expected fail)
+
 ### 2026-11-27 — KAN-494 — local demo AUT Target timed out (self-probe)
 - **Agent/chat:** Designer: both OPERATE golden path cases failed
 - **Done:** Both runs were `environment` / “Target timed out” before Playwright. Root cause: sync httpx probe to same `:8765` process deadlocked the ASGI loop. Short-circuit self-app URLs (fixture check for `/demo-aut/`); `to_thread` for external probes. Intentional-fail remains an expected fail after Playwright runs; smoke should pass.
