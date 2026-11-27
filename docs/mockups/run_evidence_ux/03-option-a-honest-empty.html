@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Option A — honest empty</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="../layout_enhancement_pack/enhance.css" />
+<link rel="stylesheet" href="run_evidence.css" />
+</head>
+<body>
+<p class="page-note"><strong>Option A · none captured.</strong> The run failed and the runner wrote no PNG. The slot states that in words. It does not substitute a green success image. The same empty slot is used when success shots are turned off for a non-smoke run. Steps stay readable. Open Trace remains available when a zip exists.</p>
+<div class="anno-bar">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip">Option A</span>
+  <span class="chip">No placeholder image</span>
+  <span class="chip">Reason is the evidence</span>
+</div>
+<div class="stage" data-run-evidence="option-a" data-run-state="honest-empty" data-layout-enhancement-pack="1" data-lep-area="plans-cases">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Plans</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+<div class="toolbar">
+  <span class="fake">Checkout smoke</span>
+  <button class="btn" type="button">Open</button>
+  <button class="btn" type="button">Refresh</button>
+  <label class="compact-check"><input type="checkbox" /> Show archived</label>
+  <span class="status">OFFICIAL</span>
+</div>
+<div class="area-tabs" role="tablist">
+  <button type="button">Draft</button>
+  <button type="button" aria-selected="true">Cases</button>
+  <button type="button">Coverage</button>
+  <button type="button">Trace</button>
+  <button type="button">History</button>
+  <button type="button">Run</button>
+</div>
+<div class="split two panel">
+  <div class="work scroll-host">
+    <div class="work-head"><h3>Cases</h3></div>
+    <div class="pane-scroll">
+      <table class="scan">
+        <thead><tr><th>Status</th><th>Id</th><th>Name</th><th>Tags</th><th>Last</th></tr></thead>
+        <tbody>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c1</span></td><td>Guest checkout smoke</td><td>smoke</td><td><span class="pill ok">Pass</span></td></tr>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c2</span></td><td>Pay button missing</td><td>smoke</td><td><span class="pill bad">Fail</span></td></tr>
+          <tr class="row-hit is-focus"><td><span class="pill ok">On</span></td><td><span class="mono">c3</span></td><td>Address book save</td><td>regression</td><td><span class="pill bad">Fail</span></td></tr>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c4</span></td><td>Cart badge</td><td>smoke</td><td><span class="pill ok">Pass</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="detail scroll-host" data-run-story="1">
+    <div class="detail-live pane-scroll">
+      <h3>Address book save</h3>
+      <section class="sec story" aria-label="Run story">
+        <div class="story-head">
+          <span class="pill bad">Fail</span>
+          <span class="meta">1.1s · test defect · no screenshot</span>
+        </div>
+        <ol class="steps">
+          <li class="step"><span class="n">1</span><span class="verb">Open /account/address</span><span class="pill ok">Pass</span><span class="ms">130 ms</span></li>
+          <li class="step"><span class="n">2</span><span class="verb">Fill postcode</span><span class="pill ok">Pass</span><span class="ms">50 ms</span></li>
+          <li class="step is-fail">
+            <span class="n">3</span>
+            <span class="verb">Click Save address</span>
+            <span class="pill bad">Fail</span>
+            <span class="ms">40 ms</span>
+            <p class="err">Page closed before the click. Screenshot was not written.</p>
+          </li>
+        </ol>
+        <div class="none-captured" data-evidence="none-captured">
+          <strong>None captured</strong>
+          <p>The runner did not write a PNG for this fail (page closed before screenshot). This slot stays empty. A green success image is not substituted.</p>
+          <p>Same slot when success shots are off for a non-smoke run: say why, and do not invent a picture.</p>
+        </div>
+        <div class="trace-row">
+          <button class="btn" type="button" data-hit="open-trace">Open Trace</button>
+          <p class="hint">trace.zip is still on this run. The missing PNG is a separate fact.</p>
+        </div>
+      </section>
+    </div>
+    <div class="pin"><button class="btn primary" type="button">Save</button><button class="btn" type="button">Run</button></div>
+  </aside>
+</div>
+</div>
+</body>
+</html>

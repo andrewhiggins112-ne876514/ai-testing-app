@@ -17,13 +17,13 @@ Update after every accepted Studio verdict. No secrets, no live Settings capture
 
 **OPERATE (Council 2026-11-26)** — daily loop + open-trace; home-PC demo AUT. Theme/orb/home/App nav stay locked. **Loop-hit polish only** after OPERATE-1 (Plans Run disclosure, Manual idle split, light evidence affordance) — not a new full TRACK6 layout epic. Studio may mock those three touchpoints when Build asks.
 
-**CR 2026-11-27 (Council agreed 2026-11-27):** Readable **step-by-step run narrative** + **pass/fail evidence gallery** in Case detail (FR-TEST-4/FR-PLAN-4). **Studio Slice-0 required** before Build Slice-1 — thin pack under `docs/mockups/run_evidence_ux/` (before, smoke-pass, intentional-fail, honest empty, rejected page-gallery). Preferred: Option A vertical run story in existing Case aside (status → steps → thumbs → Open Trace). Theme/orb/home/App nav locked. Do **not** absorb into OPERATE-3 (**KAN-379**). Keys: `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`.
+**CR 2026-11-27 (Council agreed 2026-11-27; Designer pick 2026-11-27):** Readable **step-by-step run narrative** + **pass/fail evidence** in Case detail (FR-TEST-4/FR-PLAN-4). **Studio Slice-0 Accepted — Option A** (`01` smoke-pass, `02` intentional-fail, `03` honest empty). Build target **KAN-496** / test **KAN-497**. Vertical run story in the existing Case aside: status → plain-language steps → one captured page (or honest None captured) → Open Trace (external). Theme/orb/home/App nav locked. Do **not** absorb into OPERATE-3 (**KAN-379**). Keys: `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`. Pack: `docs/mockups/run_evidence_ux/`.
 
 **Research gate (2026-11-26):** Audit/Research modes must cite current enterprise QA UX (charts, Explorer-class Manual, plan readability) — `docs/ops/ENTERPRISE_GAP_RESEARCH.md`.
 
-**GAP-CR (later):** Reports charts; Manual floating snip outside main window; Documents demo pack visuals; **run steps + evidence gallery** (CR 2026-11-27).
+**GAP-CR (later):** Reports charts; Manual floating snip outside main window; Documents demo pack visuals. **Run-evidence deep view** = separate story (frames 05–07) — in Spec/Jira after Council; not KAN-496.
 
-Active Build: **KAN-496** after Studio Slice-0 (see `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`). OPERATE-4 **KAN-381** Done. OPERATE-3 **KAN-379** Done (**desk134**). Lab TRACK3 / TRACE-DEEPEN / OPERATE-1..4 = baselines Done.
+Active Build: **KAN-496** Option A (Studio pick locked). OPERATE-4 **KAN-381** Done. OPERATE-3 **KAN-379** Done (**desk134**). Lab TRACK3 / TRACE-DEEPEN / OPERATE-1..4 = baselines Done.
 
 ### Selection grammar (standing)
 
@@ -59,6 +59,8 @@ Active Build: **KAN-496** after Studio Slice-0 (see `docs/ops/CR_RUN_EVIDENCE_UX
 | 2026-11-22 | **Layout enhancement pack Accepted** (Designer). All secondary areas. Phase 1 = empty/keyboard/scroll + Plans/Docs/Heal/Lab craft. Phase 2 = evidence-first detail (KAN-354). Epic **KAN-347**. Stories **KAN-348/350/352/354** + tests **349/351/353/355**. Spec FR-UI-11 enhancement clause landed. After TRACK5 → TRACK3-LAB → real Playwright trace deepen. Park: voice, FR-MAN-2, CI, H3 share, bulk Heal Reject, KPI heroes. | `docs/mockups/layout_enhancement_pack/` |
 | 2026-11-23 | **TRACK3-LAB Bridge seeded** (Council+Designer). Epic **KAN-359**. Active **KAN-360**. Lab wires §8 in `TRACK3_AREA_WIRES.md`. Stories **362/364/366** after Story 1. | `docs/design/TRACK3_AREA_WIRES.md` §8 |
 | 2026-11-23 | **Lab wires Accepted** (Designer `Accept Lab wires`). KAN-360 chrome-budget markers unblocked. | `docs/design/TRACK3_AREA_WIRES.md` §8 |
+| 2026-11-27 | **Run evidence Option A Accepted** (Designer). Frames 01–03 = Build **KAN-496**. Aside-only vertical story; no fake green; Open Trace external. | `docs/mockups/run_evidence_ux/` |
+| 2026-11-27 | **Council accept + deep view Story** (Designer: thumb also expands). **KAN-498**/499 separate from 496. Frames 05–07. No Trace embed / hosted viewer. | `docs/mockups/run_evidence_ux/` 05–07 |
 
 ## Rejected / park
 
@@ -71,6 +73,7 @@ Active Build: **KAN-496** after Studio Slice-0 (see `docs/ops/CR_RUN_EVIDENCE_UX
 | 2026-11-22 | Heal bulk Reject | Reject stays focused-detail only |
 | 2026-11-22 | Start TRACK3-LAB / voice / FR-MAN-2 from layout review | Explicitly deferred until after TRACK5 (Lab) or parked (voice / FR-MAN-2) |
 | 2026-11-22 | Second filter bar, evidence gallery, new App nav item, fake Trace control | `layout_enhancement_pack/03-rejected.html` + Council |
+| 2026-11-27 | Full-page filmstrip + **embedded** Trace Viewer **as the Cases screen** (and hosted trace.playwright.dev) | `run_evidence_ux/04-rejected-page-gallery.html` — must not replace the Cases list or absorb OPERATE-1 into the shell. Deep view = frames **05–07** as a **separate story**, not this rejected primary. |
 
 ## Creative backlog (not Active Build)
 
@@ -84,6 +87,7 @@ Active Build: **KAN-496** after Studio Slice-0 (see `docs/ops/CR_RUN_EVIDENCE_UX
 | TRACK3-LAB Lab density | **Done** epic **KAN-359** | human A–E **desk131** |
 | Real Playwright trace deepen | **Done KAN-372** (**desk132**) | Real `trace.zip` on failure |
 | KAN-81/82 voice; FR-MAN-2 | **Parked** | Mic / DPIA |
+| Run-evidence **deep view** (05–07) | **Story KAN-498** / test **KAN-499** | Council accepted 2026-11-27. Doors: **More evidence** + **thumb expand**. Not KAN-496 AC. No new App nav; no Trace embed; Cases list stays. Build after 496 unless elevated. |
 
 ## Mockup index
 
@@ -95,3 +99,5 @@ Active Build: **KAN-496** after Studio Slice-0 (see `docs/ops/CR_RUN_EVIDENCE_UX
 | Suites + Plans FR-UI-11 inherit | `docs/mockups/suites_plans_layout_inherit/` | **Accepted / shipped** |
 | Rest secondary areas (Plans tabs → Sandboxes) | `docs/mockups/secondary_areas_rest/` | **Accepted / shipped** |
 | Layout enhancement pack (all secondary areas) | `docs/mockups/layout_enhancement_pack/` | **Accepted 2026-11-22** — Build via KAN-348…354 |
+| Run evidence UX (Case aside Option A) | `docs/mockups/run_evidence_ux/` 01–03 | **Accepted 2026-11-27** — Build **KAN-496** |
+| Run evidence deep view | `docs/mockups/run_evidence_ux/` 05–07 | **KAN-498**/499 — Council Accepted; thumb also expands; `04` = rejected primary only |

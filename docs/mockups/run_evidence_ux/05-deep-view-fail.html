@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Deep view — intentional fail</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="../layout_enhancement_pack/enhance.css" />
+<link rel="stylesheet" href="run_evidence.css" />
+</head>
+<body>
+<p class="page-note"><strong>Deep view · fail (in-scope).</strong> Additional Plans work surface opened from Case aside. Cases list is not replaced — <em>Back to case</em> returns. Larger evidence stage + selectable steps + captured thumbs only. Open Trace stays external. No embedded Trace Viewer, network, console, or DOM tiles.</p>
+<div class="anno-bar">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip">Deep view</span>
+  <span class="chip">Fail · multi-shot</span>
+  <span class="chip">Not Cases replacement</span>
+</div>
+<div class="stage has-deep" data-run-evidence="deep-view" data-run-state="intentional-fail" data-layout-enhancement-pack="1" data-lep-area="plans-cases">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Plans</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+<div class="toolbar">
+  <span class="fake">Checkout smoke</span>
+  <button class="btn" type="button">Open</button>
+  <button class="btn" type="button">Refresh</button>
+  <label class="compact-check"><input type="checkbox" /> Show archived</label>
+  <span class="status">OFFICIAL</span>
+</div>
+<div class="area-tabs" role="tablist">
+  <button type="button">Draft</button>
+  <button type="button" aria-selected="true">Cases</button>
+  <button type="button">Coverage</button>
+  <button type="button">Trace</button>
+  <button type="button">History</button>
+  <button type="button">Run</button>
+</div>
+
+<div class="deep-surface" role="region" aria-label="Run evidence deep view">
+  <header class="deep-header">
+    <button class="btn ghost" type="button" data-hit="back-to-case">Back to case</button>
+    <h2 class="case-name">Pay button missing</h2>
+    <span class="pill bad">Fail</span>
+    <span class="meta">2.4s · product bug · lab-local · 09:21</span>
+    <span class="spacer"></span>
+    <button class="btn" type="button" data-hit="open-trace">Open Trace</button>
+  </header>
+
+  <div class="deep-body">
+    <nav class="deep-steps" aria-label="Run steps">
+      <p class="steps-label">Steps</p>
+      <ol class="steps">
+        <li class="step" data-hit="focus-step" tabindex="0" aria-current="false">
+          <span class="n">1</span>
+          <span class="verb">Open /shop/bag</span>
+          <span class="pill ok">Pass</span>
+          <span class="ms">140 ms · shot</span>
+        </li>
+        <li class="step" data-hit="focus-step" tabindex="0" aria-current="false">
+          <span class="n">2</span>
+          <span class="verb">Click Checkout</span>
+          <span class="pill ok">Pass</span>
+          <span class="ms">90 ms · shot</span>
+        </li>
+        <li class="step" data-hit="focus-step" tabindex="0" aria-current="false">
+          <span class="n">3</span>
+          <span class="verb">Fill guest email</span>
+          <span class="pill ok">Pass</span>
+          <span class="ms">60 ms · shot</span>
+        </li>
+        <li class="step is-fail is-select" data-hit="focus-step" tabindex="0" aria-current="true">
+          <span class="n">4</span>
+          <span class="verb">Expect Pay visible</span>
+          <span class="pill bad">Fail</span>
+          <span class="ms">1.9s · shot</span>
+          <p class="err">Pay control not found. Locator #pay matched nothing before the step timed out.</p>
+        </li>
+      </ol>
+      <p class="hint">Selecting a step focuses that step’s captured page. Steps are not checkboxes.</p>
+    </nav>
+
+    <div class="deep-stage">
+      <p class="stage-label">Evidence · step 4</p>
+      <div class="page-stage fail" data-shot="captured-page" aria-label="Selected fail page shot">
+        <span class="pm-url">shop.fixture.local/checkout</span>
+        <span class="pm-title">Guest checkout</span>
+        <span class="pm-line">Email filled · synthetic</span>
+        <span class="pm-line">Oak lamp · qty 1 still in bag summary</span>
+        <span class="pm-line">Pay control absent on the page</span>
+        <span class="pm-bad">Step 4 · Pay control not found</span>
+      </div>
+      <p class="not-here">Rejected in this page: embedded Trace Viewer columns, network / console / DOM tiles. Those stay in Open Trace (OPERATE-1).</p>
+    </div>
+  </div>
+
+  <div class="deep-strip" aria-label="Captured page thumbs">
+    <p class="strip-label">Captured pages only</p>
+    <div class="thumb-strip">
+      <button class="thumb-chip" type="button" data-hit="focus-shot" aria-label="Step 1 captured page">
+        <span class="page-mini">
+          <span class="pm-url">shop.fixture.local/shop/bag</span>
+          <span class="pm-title">Bag</span>
+          <span class="pm-line">Oak lamp · £42.00</span>
+        </span>
+        <span class="chip-cap">1 · Bag</span>
+      </button>
+      <button class="thumb-chip" type="button" data-hit="focus-shot" aria-label="Step 2 captured page">
+        <span class="page-mini">
+          <span class="pm-url">…/checkout</span>
+          <span class="pm-title">Checkout start</span>
+          <span class="pm-line">Guest path</span>
+        </span>
+        <span class="chip-cap">2 · Checkout</span>
+      </button>
+      <button class="thumb-chip" type="button" data-hit="focus-shot" aria-label="Step 3 captured page">
+        <span class="page-mini">
+          <span class="pm-url">…/checkout</span>
+          <span class="pm-title">Email filled</span>
+          <span class="pm-line">guest@fixture.local</span>
+        </span>
+        <span class="chip-cap">3 · Fill</span>
+      </button>
+      <button class="thumb-chip is-select" type="button" data-hit="focus-shot" aria-label="Step 4 captured fail page" aria-current="true">
+        <span class="page-mini fail">
+          <span class="pm-url">…/checkout</span>
+          <span class="pm-title">Pay missing</span>
+          <span class="pm-bad">#pay absent</span>
+        </span>
+        <span class="chip-cap">4 · Fail shot</span>
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+</html>

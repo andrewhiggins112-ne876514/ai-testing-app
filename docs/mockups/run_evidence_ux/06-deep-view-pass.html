@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Deep view — smoke pass</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="../layout_enhancement_pack/enhance.css" />
+<link rel="stylesheet" href="run_evidence.css" />
+</head>
+<body>
+<p class="page-note"><strong>Deep view · smoke pass (in-scope).</strong> Same chrome as the fail deep view. Success shots are real captured pages (confirmation / cart), not green status cards. Cases chrome stays reachable via Back to case. Open Trace external.</p>
+<div class="anno-bar">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip">Deep view</span>
+  <span class="chip">Smoke pass</span>
+  <span class="chip">Captured thumbs only</span>
+</div>
+<div class="stage has-deep" data-run-evidence="deep-view" data-run-state="smoke-pass" data-layout-enhancement-pack="1" data-lep-area="plans-cases">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Plans</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+<div class="toolbar">
+  <span class="fake">Checkout smoke</span>
+  <button class="btn" type="button">Open</button>
+  <button class="btn" type="button">Refresh</button>
+  <label class="compact-check"><input type="checkbox" /> Show archived</label>
+  <span class="status">OFFICIAL</span>
+</div>
+<div class="area-tabs" role="tablist">
+  <button type="button">Draft</button>
+  <button type="button" aria-selected="true">Cases</button>
+  <button type="button">Coverage</button>
+  <button type="button">Trace</button>
+  <button type="button">History</button>
+  <button type="button">Run</button>
+</div>
+
+<div class="deep-surface" role="region" aria-label="Run evidence deep view">
+  <header class="deep-header">
+    <button class="btn ghost" type="button" data-hit="back-to-case">Back to case</button>
+    <h2 class="case-name">Guest checkout smoke</h2>
+    <span class="pill ok">Pass</span>
+    <span class="meta">1.8s · smoke · lab-local · 09:14</span>
+    <span class="spacer"></span>
+    <button class="btn" type="button" data-hit="open-trace">Open Trace</button>
+  </header>
+
+  <div class="deep-body">
+    <nav class="deep-steps" aria-label="Run steps">
+      <p class="steps-label">Steps</p>
+      <ol class="steps">
+        <li class="step" data-hit="focus-step" tabindex="0" aria-current="false">
+          <span class="n">1</span>
+          <span class="verb">Open /shop/guest</span>
+          <span class="pill ok">Pass</span>
+          <span class="ms">120 ms · shot</span>
+        </li>
+        <li class="step" data-hit="focus-step" tabindex="0" aria-current="false">
+          <span class="n">2</span>
+          <span class="verb">Click Add oak lamp</span>
+          <span class="pill ok">Pass</span>
+          <span class="ms">80 ms · shot</span>
+        </li>
+        <li class="step" data-hit="focus-step" tabindex="0" aria-current="false">
+          <span class="n">3</span>
+          <span class="verb">Fill Qty = 1</span>
+          <span class="pill ok">Pass</span>
+          <span class="ms">40 ms</span>
+        </li>
+        <li class="step is-select" data-hit="focus-step" tabindex="0" aria-current="true">
+          <span class="n">4</span>
+          <span class="verb">Expect “Order placed”</span>
+          <span class="pill ok">Pass</span>
+          <span class="ms">210 ms · shot</span>
+        </li>
+      </ol>
+      <p class="hint">Step 3 has no PNG in this fixture — selecting it shows an honest empty stage, not a green stand-in.</p>
+    </nav>
+
+    <div class="deep-stage">
+      <p class="stage-label">Evidence · step 4</p>
+      <div class="page-stage" data-shot="captured-page" aria-label="Selected confirmation page shot">
+        <span class="pm-url">shop.fixture.local/orders/1842</span>
+        <span class="pm-title">Order placed</span>
+        <span class="pm-line">Oak lamp · qty 1</span>
+        <span class="pm-line">Total £42.00 · synthetic fixture</span>
+        <span class="pm-ok">Confirmation on the page</span>
+      </div>
+      <p class="not-here">Rejected in this page: embedded Trace Viewer, network / console / DOM tiles inside the shell. Open Trace remains the door (OPERATE-1).</p>
+    </div>
+  </div>
+
+  <div class="deep-strip" aria-label="Captured page thumbs">
+    <p class="strip-label">Captured pages only</p>
+    <div class="thumb-strip">
+      <button class="thumb-chip" type="button" data-hit="focus-shot" aria-label="Step 1 captured page">
+        <span class="page-mini">
+          <span class="pm-url">shop.fixture.local/shop/guest</span>
+          <span class="pm-title">Guest shop</span>
+          <span class="pm-line">Catalog</span>
+        </span>
+        <span class="chip-cap">1 · Guest</span>
+      </button>
+      <button class="thumb-chip" type="button" data-hit="focus-shot" aria-label="Step 2 captured page">
+        <span class="page-mini">
+          <span class="pm-url">…/shop/bag</span>
+          <span class="pm-title">Bag · oak lamp</span>
+          <span class="pm-line">£42.00</span>
+        </span>
+        <span class="chip-cap">2 · Add</span>
+      </button>
+      <button class="thumb-chip is-select" type="button" data-hit="focus-shot" aria-label="Step 4 confirmation page" aria-current="true">
+        <span class="page-mini">
+          <span class="pm-url">…/orders/1842</span>
+          <span class="pm-title">Order placed</span>
+          <span class="pm-ok">Confirm</span>
+        </span>
+        <span class="chip-cap">4 · Confirm</span>
+      </button>
+    </div>
+    <p class="hint">No thumb for step 3 — strip shows captured files only, never network/console/DOM tiles.</p>
+  </div>
+</div>
+</div>
+</body>
+</html>

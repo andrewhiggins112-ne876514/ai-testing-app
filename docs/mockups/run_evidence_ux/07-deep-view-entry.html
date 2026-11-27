@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Deep view entry — Option A aside</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="../layout_enhancement_pack/enhance.css" />
+<link rel="stylesheet" href="run_evidence.css" />
+</head>
+<body>
+<p class="page-note"><strong>Entry to deep view.</strong> Option A Case aside (KAN-496 Build target) with an explicit <em>More evidence</em> affordance and expandable thumb. Opens frames 05 / 06 as an in-area Plans surface — does not replace the Cases list or add an App nav item.</p>
+<div class="anno-bar">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip">Entry from Option A</span>
+  <span class="chip">More evidence</span>
+  <span class="chip">Thumb expand</span>
+</div>
+<div class="stage" data-run-evidence="deep-view-entry" data-run-state="intentional-fail" data-layout-enhancement-pack="1" data-lep-area="plans-cases">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Plans</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+<div class="toolbar">
+  <span class="fake">Checkout smoke</span>
+  <button class="btn" type="button">Open</button>
+  <button class="btn" type="button">Refresh</button>
+  <label class="compact-check"><input type="checkbox" /> Show archived</label>
+  <span class="status">OFFICIAL</span>
+</div>
+<div class="area-tabs" role="tablist">
+  <button type="button">Draft</button>
+  <button type="button" aria-selected="true">Cases</button>
+  <button type="button">Coverage</button>
+  <button type="button">Trace</button>
+  <button type="button">History</button>
+  <button type="button">Run</button>
+</div>
+<div class="split two panel">
+  <div class="work scroll-host">
+    <div class="work-head"><h3>Cases</h3><p class="hint">Row click focuses the case. It does not toggle Enabled.</p></div>
+    <div class="pane-scroll">
+      <table class="scan">
+        <thead><tr><th>Status</th><th>Id</th><th>Name</th><th>Tags</th><th>Last</th></tr></thead>
+        <tbody>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c1</span></td><td>Guest checkout smoke</td><td>smoke</td><td><span class="pill ok">Pass</span></td></tr>
+          <tr class="row-hit is-focus"><td><span class="pill ok">On</span></td><td><span class="mono">c2</span></td><td>Pay button missing</td><td>smoke</td><td><span class="pill bad">Fail</span></td></tr>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c3</span></td><td>Address book save</td><td>regression</td><td><span class="pill bad">Fail</span></td></tr>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c4</span></td><td>Cart badge</td><td>smoke</td><td><span class="pill ok">Pass</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="detail scroll-host" data-run-story="1">
+    <div class="detail-live pane-scroll">
+      <h3>Pay button missing</h3>
+      <section class="sec story" aria-label="Run story">
+        <div class="story-head">
+          <span class="pill bad">Fail</span>
+          <span class="meta">2.4s · product bug · lab-local · 09:21</span>
+        </div>
+        <ol class="steps">
+          <li class="step"><span class="n">1</span><span class="verb">Open /shop/bag</span><span class="pill ok">Pass</span><span class="ms">140 ms</span></li>
+          <li class="step"><span class="n">2</span><span class="verb">Click Checkout</span><span class="pill ok">Pass</span><span class="ms">90 ms</span></li>
+          <li class="step"><span class="n">3</span><span class="verb">Fill guest email</span><span class="pill ok">Pass</span><span class="ms">60 ms</span></li>
+          <li class="step is-fail">
+            <span class="n">4</span>
+            <span class="verb">Expect Pay visible</span>
+            <span class="pill bad">Fail</span>
+            <span class="ms">1.9s</span>
+            <p class="err">Pay control not found. Locator #pay matched nothing before the step timed out.</p>
+          </li>
+        </ol>
+        <button class="thumb-hit is-expandable" type="button" data-hit="open-deep-view" aria-label="Expand into evidence deep view">
+          <span class="page-mini fail" data-shot="captured-page">
+            <span class="pm-url">shop.fixture.local/checkout</span>
+            <span class="pm-title">Guest checkout</span>
+            <span class="pm-line">Email filled · synthetic</span>
+            <span class="pm-line">Pay control absent on the page</span>
+            <span class="pm-bad">Step 4 · Pay control not found</span>
+          </span>
+          <span class="thumb-cap">1 shot · step 4 · open deep view</span>
+        </button>
+        <div class="entry-row">
+          <button class="btn primary" type="button" data-hit="open-deep-view">More evidence</button>
+          <button class="btn" type="button" data-hit="open-trace">Open Trace</button>
+          <p class="hint">More evidence → deep view (05/06). Open Trace → external viewer. Different hits.</p>
+        </div>
+        <p class="fold-note">Aside stays Option A density for KAN-496. Deep view is an additional surface — Studio frames 05–07 — separate Jira story (own test). More evidence is that story’s door; thumb on KAN-496 opens the one PNG.</p>
+      </section>
+    </div>
+    <div class="pin"><button class="btn primary" type="button">Save</button><button class="btn" type="button">Run</button></div>
+  </aside>
+</div>
+</div>
+</body>
+</html>

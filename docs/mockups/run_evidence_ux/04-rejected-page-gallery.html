@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>REJECTED — page gallery and embedded Trace Viewer</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="../layout_enhancement_pack/enhance.css" />
+<link rel="stylesheet" href="run_evidence.css" />
+</head>
+<body class="is-rejected">
+<p class="page-note"><strong>Rejected.</strong> A full-page filmstrip plus an embedded Trace Viewer. It replaces the Case list, hides the step narrative, and pulls forensic DOM/network into the desktop shell. Do not build this.</p>
+<div class="anno-bar">
+  <span class="label reject">Rejected · do not build</span>
+  <span class="chip muted">Not Option A</span>
+  <span class="chip muted">Not a new App nav item</span>
+</div>
+<div class="stage" data-run-evidence="rejected-page-gallery" data-layout-enhancement-pack="1">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Plans</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+<div class="toolbar">
+  <span class="fake">Checkout smoke</span>
+  <span class="status">OFFICIAL</span>
+</div>
+<div class="work" style="overflow:auto">
+  <span class="reject-stamp">Rejected</span>
+  <h3>Evidence gallery · all pages</h3>
+  <p class="why">This steals the Cases split. Every action becomes a tile. The person still cannot read “Expect Pay visible” as a sentence. Trace Viewer chrome inside the shell fights the 1080 Ti and duplicates OPERATE-1.</p>
+  <div class="filmstrip" aria-hidden="true">
+    <span class="page-mini"><span class="pm-url">step 1</span><span class="pm-title">Shop home</span></span>
+    <span class="page-mini"><span class="pm-url">step 2</span><span class="pm-title">Bag</span></span>
+    <span class="page-mini fail"><span class="pm-url">step 3</span><span class="pm-title">Checkout</span></span>
+    <span class="page-mini fail"><span class="pm-url">step 4</span><span class="pm-title">Pay missing</span></span>
+    <span class="page-mini"><span class="pm-url">network</span><span class="pm-title">204 tile</span></span>
+    <span class="page-mini"><span class="pm-url">console</span><span class="pm-title">log tile</span></span>
+    <span class="page-mini"><span class="pm-url">dom</span><span class="pm-title">snapshot</span></span>
+    <span class="page-mini"><span class="pm-url">source</span><span class="pm-title">script</span></span>
+  </div>
+  <div class="viewer" aria-label="Embedded trace viewer — rejected">
+    <section>
+      <h3>Actions</h3>
+      <ul>
+        <li>goto</li>
+        <li>click</li>
+        <li>fill</li>
+        <li>expect · fail</li>
+      </ul>
+    </section>
+    <section>
+      <h3>DOM snapshot</h3>
+      <p>Embedded viewer frame. Snapshots, source, and a timeline would live here, inside Plans, instead of Open Trace.</p>
+    </section>
+    <section>
+      <h3>Network</h3>
+      <p>GET /shop/bag · 200</p>
+      <p>POST /pay · absent</p>
+      <p>Console lines would scroll beside the case form.</p>
+    </section>
+  </div>
+  <p class="why">Also rejected: a new App nav item named Evidence, a hero row of green status cards, and hosting trace.playwright.dev (needs the network; this app stays local-first).</p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Case detail — before (run evidence)</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="../layout_enhancement_pack/enhance.css" />
+<link rel="stylesheet" href="run_evidence.css" />
+</head>
+<body>
+<p class="page-note"><strong>Before.</strong> Current Case aside: a one-line last result, a filesystem path, and a JSON-ish step dump. No readable narrative and no shot. Frozen chrome is unchanged. Synthetic fixtures only.</p>
+<div class="anno-bar">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip muted">Baseline</span>
+  <span class="chip">Row = focus</span>
+  <span class="chip muted">No step hit</span>
+</div>
+<div class="stage" data-run-evidence="before" data-layout-enhancement-pack="1" data-lep-area="plans-cases">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Plans</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+<div class="toolbar">
+  <span class="fake">Checkout smoke</span>
+  <button class="btn" type="button">Open</button>
+  <button class="btn" type="button">Refresh</button>
+  <label class="compact-check"><input type="checkbox" /> Show archived</label>
+  <span class="status">OFFICIAL</span>
+</div>
+<div class="area-tabs" role="tablist">
+  <button type="button">Draft</button>
+  <button type="button" aria-selected="true">Cases</button>
+  <button type="button">Coverage</button>
+  <button type="button">Trace</button>
+  <button type="button">History</button>
+  <button type="button">Run</button>
+</div>
+<div class="split two panel">
+  <div class="work scroll-host">
+    <div class="work-head"><h3>Cases</h3></div>
+    <div class="pane-scroll">
+      <table class="scan">
+        <thead><tr><th>Status</th><th>Id</th><th>Name</th><th>Tags</th><th>Last</th></tr></thead>
+        <tbody>
+          <tr class="row-hit is-focus"><td><span class="pill ok">On</span></td><td><span class="mono">c1</span></td><td>Guest checkout smoke</td><td>smoke</td><td><span class="pill ok">Pass</span></td></tr>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c2</span></td><td>Pay button missing</td><td>smoke</td><td><span class="pill warn">Fail</span></td></tr>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c3</span></td><td>Address book save</td><td>regression</td><td><span class="pill warn">Fail</span></td></tr>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c4</span></td><td>Cart badge</td><td>smoke</td><td><span class="pill ok">Pass</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="detail scroll-host">
+    <div class="detail-live pane-scroll">
+      <h3>Guest checkout smoke</h3>
+      <div class="evidence" data-evidence-first="1">
+        <span class="tag">Last result</span>
+        <span>pass · 2026-11-27T09:14:02 · 1.8s</span>
+        <p class="path-line">Screenshot: evidence/guest-checkout/run-1842.png</p>
+        <p class="path-line">Trace: evidence/guest-checkout/trace.zip</p>
+      </div>
+      <pre class="json-soup" aria-label="Raw step dump">{
+  "steps": [
+    {"title":"goto","ok":true},
+    {"title":"click","selector":"#add","ok":true},
+    {"title":"fill","selector":"#qty","ok":true},
+    {"title":"expect","text":"Order placed","ok":true}
+  ],
+  "evidence": ["run-1842.png","trace.zip"]
+}</pre>
+      <p class="fold-note">Edit, Quarantine, and Known issue still sit under this dump. The person cannot read what the runner did.</p>
+    </div>
+    <div class="pin"><button class="btn primary" type="button">Save</button><button class="btn" type="button">Run</button></div>
+  </aside>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Option A — smoke pass</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="../secondary_areas_rest/rest.css" />
+<link rel="stylesheet" href="../layout_enhancement_pack/enhance.css" />
+<link rel="stylesheet" href="run_evidence.css" />
+</head>
+<body>
+<p class="page-note"><strong>Option A · preferred.</strong> Vertical run story in the existing Case aside: status, readable steps, one captured page, Open Trace. The thumbnail is the shop confirmation the runner saw — not a generated green success card. Theme, orb, home, and App nav stay frozen.</p>
+<div class="anno-bar">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip">Option A</span>
+  <span class="chip">Thumb = open PNG</span>
+  <span class="chip">Open Trace = external</span>
+</div>
+<div class="stage" data-run-evidence="option-a" data-run-state="smoke-pass" data-layout-enhancement-pack="1" data-lep-area="plans-cases">
+<header class="frozen-bar">
+  <button class="btn ghost" type="button">Back</button>
+  <h1 class="area-title">Plans</h1>
+  <span class="frozen-tag">Frozen chrome · synthetic</span>
+</header>
+<div class="toolbar">
+  <span class="fake">Checkout smoke</span>
+  <button class="btn" type="button">Open</button>
+  <button class="btn" type="button">Refresh</button>
+  <label class="compact-check"><input type="checkbox" /> Show archived</label>
+  <span class="status">OFFICIAL</span>
+</div>
+<div class="area-tabs" role="tablist">
+  <button type="button">Draft</button>
+  <button type="button" aria-selected="true">Cases</button>
+  <button type="button">Coverage</button>
+  <button type="button">Trace</button>
+  <button type="button">History</button>
+  <button type="button">Run</button>
+</div>
+<div class="split two panel">
+  <div class="work scroll-host">
+    <div class="work-head"><h3>Cases</h3><p class="hint">Row click focuses the case. It does not toggle Enabled.</p></div>
+    <div class="pane-scroll">
+      <table class="scan">
+        <thead><tr><th>Status</th><th>Id</th><th>Name</th><th>Tags</th><th>Last</th></tr></thead>
+        <tbody>
+          <tr class="row-hit is-focus"><td><span class="pill ok">On</span></td><td><span class="mono">c1</span></td><td>Guest checkout smoke</td><td>smoke</td><td><span class="pill ok">Pass</span></td></tr>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c2</span></td><td>Pay button missing</td><td>smoke</td><td><span class="pill warn">Fail</span></td></tr>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c3</span></td><td>Address book save</td><td>regression</td><td><span class="pill warn">Fail</span></td></tr>
+          <tr class="row-hit"><td><span class="pill ok">On</span></td><td><span class="mono">c4</span></td><td>Cart badge</td><td>smoke</td><td><span class="pill ok">Pass</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="detail scroll-host" data-run-story="1">
+    <div class="detail-live pane-scroll">
+      <h3>Guest checkout smoke</h3>
+      <section class="sec story" aria-label="Run story">
+        <div class="story-head">
+          <span class="pill ok">Pass</span>
+          <span class="meta">1.8s · smoke · lab-local · 09:14</span>
+        </div>
+        <ol class="steps">
+          <li class="step"><span class="n">1</span><span class="verb">Open /shop/guest</span><span class="pill ok">Pass</span><span class="ms">120 ms</span></li>
+          <li class="step"><span class="n">2</span><span class="verb">Click Add oak lamp</span><span class="pill ok">Pass</span><span class="ms">80 ms</span></li>
+          <li class="step"><span class="n">3</span><span class="verb">Fill Qty = 1</span><span class="pill ok">Pass</span><span class="ms">40 ms</span></li>
+          <li class="step"><span class="n">4</span><span class="verb">Expect “Order placed”</span><span class="pill ok">Pass</span><span class="ms">210 ms</span></li>
+        </ol>
+        <button class="thumb-hit" type="button" data-hit="open-shot" aria-label="Open the captured confirmation page">
+          <span class="page-mini" data-shot="captured-page">
+            <span class="pm-url">shop.fixture.local/orders/1842</span>
+            <span class="pm-title">Order placed</span>
+            <span class="pm-line">Oak lamp · qty 1</span>
+            <span class="pm-line">Total £42.00 · synthetic fixture</span>
+            <span class="pm-ok">Confirmation on the page</span>
+          </span>
+          <span class="thumb-cap">1 shot · step 4 · captured page, not a status icon</span>
+        </button>
+        <div class="trace-row">
+          <button class="btn" type="button" data-hit="open-trace">Open Trace</button>
+          <p class="hint">Opens the trace outside this panel. Trace Viewer is not embedded.</p>
+        </div>
+        <p class="fold-note">Screenshot pixels are not OCR-redacted. Review before sharing. Edit, Quarantine, and Known issue stay below this story.</p>
+      </section>
+    </div>
+    <div class="pin"><button class="btn primary" type="button">Save</button><button class="btn" type="button">Run</button></div>
+  </aside>
+</div>
+</div>
+</body>
+</html>

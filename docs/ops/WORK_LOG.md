@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | ready — GAP-CR Build (after Studio) |
+| **Status** | ready — GAP-CR Build |
 | **Jira story** | **KAN-496** Readable run steps + pass/fail evidence gallery (epic **KAN-383**) |
-| **Start task** | Only after **Studio Slice-0** mockpack + Designer mock pick. Build Slice-1: Case detail readable steps + pass/fail evidence (no fake green). Do **not** start if Studio Slice-0 unfinished — Designer may open `/studio` first. |
+| **Start task** | Build Slice-1 from Studio **Option A** (`docs/mockups/run_evidence_ux/` 01–03): Case aside status → plain steps → one shot or honest empty → Open Trace external. No fake green. Do **not** build 04 as Cases replacement; deep-view backlog stays parked. |
 | **Epic** | **KAN-383** GAP-CR |
 | **Roadmap ID** | GAP-CR |
 | **Spec** | FR-TEST-4 / FR-PLAN-4 deepen + `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json` |
 | **Git** | `main` |
 | **Test ticket** | **KAN-497** |
 | **Shipped** | OPERATE-4 Documents demo pack **KAN-381**/382; OPERATE-3 **KAN-379**/380 (**desk134**); OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
-| **Queued** | Studio Slice-0 (`/studio` → `docs/mockups/run_evidence_ux/`) then Build **KAN-496**; other GAP-CR after |
+| **Queued** | Build **KAN-496** then **KAN-498** deep view (test **KAN-499**); other GAP-CR after |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | OPERATE epic (**KAN-374**) complete through OPERATE-4. Next Build = **KAN-496** after Studio mock pick. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Studio+Council Accepted. Build pick-up = **KAN-496** (aside). Deep view = **KAN-498**/499 (doors: More evidence + thumb expand). Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,22 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — Studio+Council — Option A + deep-view two stories
+- **Agent/chat:** Design Studio + Advisory Council — Designer accept Council; thumb also expands
+- **Done:** Option A (**KAN-496**/497) aside-only. Deep view **separate** Story **KAN-498** / test **KAN-499** (frames 05–07). Doors: More evidence + thumb expand. Spec FR-TEST-4/FR-PLAN-4 deepen. Soft-vetoes: no Trace embed, no hosted viewer. Frame 04 stays rejected as Cases replacement. No product code.
+- **Files:** `docs/mockups/run_evidence_ux/*`, `docs/FUNCTIONAL_SPEC.md`, `DESIGN_INTENT.md`, `CR_RUN_EVIDENCE_UX_KEYS.json`, `scripts/jira_kan_deep_view_seed.py`, ENTERPRISE_GAP_RESEARCH, WORK_LOG
+- **Verify:** Mock PNGs 01–07 inline; Jira keys created/updated
+- **Jira:** **KAN-498**/499 seeded; **KAN-496**/497 tightened + accept comments
+- **Next:** Build chat → **KAN-496**; then **KAN-498**
+
+### 2026-11-27 — Studio Slice-0 — Run evidence Option A Accepted
+- **Agent/chat:** Design Studio (`/studio`) — Slice-0 + Designer mock pick
+- **Done:** Mockpack `docs/mockups/run_evidence_ux/` (00 before, 01–03 Option A, 04 rejected primary). Designer **Accept Option A (01–03)** as Build target for **KAN-496**. Deep view later un-parked as separate story (see entry above).
+- **Files:** `docs/mockups/run_evidence_ux/*`, `docs/mockups/DESIGN_INTENT.md`, `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json`, WORK_LOG Active
+- **Verify:** PNG frames under `docs/mockups/run_evidence_ux/png/` shown inline in Studio chat; pick recorded
+- **Jira:** superseded by Council-accept entry (KAN-498 seeded)
+- **Next:** Council + deep-view story (done in later entry)
 
 ### 2026-11-27 — KAN-381 — OPERATE-4 Documents demo pack
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
