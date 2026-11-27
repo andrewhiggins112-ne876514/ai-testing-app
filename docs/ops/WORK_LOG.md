@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | ready — OPERATE |
-| **Jira story** | **KAN-381** OPERATE-4 Documents demo pack (epic **KAN-374**) |
-| **Start task** | Build pick-up: implement **KAN-381** (fixtures/operate_docs + OFFICIAL Documents seed; draft-from-doc path). |
-| **Epic** | **KAN-374** OPERATE |
-| **Roadmap ID** | OPERATE |
-| **Spec** | `docs/ops/DAILY_LOOP.md` + FUNCTIONAL_SPEC CR 2026-11-26 |
+| **Status** | ready — GAP-CR Build (after Studio) |
+| **Jira story** | **KAN-496** Readable run steps + pass/fail evidence gallery (epic **KAN-383**) |
+| **Start task** | Only after **Studio Slice-0** mockpack + Designer mock pick. Build Slice-1: Case detail readable steps + pass/fail evidence (no fake green). Do **not** start if Studio Slice-0 unfinished — Designer may open `/studio` first. |
+| **Epic** | **KAN-383** GAP-CR |
+| **Roadmap ID** | GAP-CR |
+| **Spec** | FR-TEST-4 / FR-PLAN-4 deepen + `docs/ops/CR_RUN_EVIDENCE_UX_KEYS.json` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-382** |
-| **Shipped** | OPERATE-3 loop-hit polish **KAN-379**/380 (**desk134**); OPERATE-2 demo AUT **KAN-377**/378; OPERATE-1 open-trace **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
-| **Queued** | **KAN-496** Build Slice-1 (after Studio Slice-0 + Designer mock pick). Studio Slice-0 may run **now** in parallel (`/studio`) |
+| **Test ticket** | **KAN-497** |
+| **Shipped** | OPERATE-4 Documents demo pack **KAN-381**/382; OPERATE-3 **KAN-379**/380 (**desk134**); OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
+| **Queued** | Studio Slice-0 (`/studio` → `docs/mockups/run_evidence_ux/`) then Build **KAN-496**; other GAP-CR after |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | OPERATE-3 **KAN-379** Done. Prefer OPERATE-4 before **KAN-496** Build unless Designer elevates. Do **not** start voice / FR-MAN-2 / absorb 496 gallery into OPERATE-4. |
+| **Next / Shipped** | OPERATE epic (**KAN-374**) complete through OPERATE-4. Next Build = **KAN-496** after Studio mock pick. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-27 — KAN-381 — OPERATE-4 Documents demo pack
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
+- **Done:** Synthetic functional-spec + user-guide under `fixtures/operate_docs/` (marker `OPERATE_DOCS_DEMO=1`). Seed installs both into OFFICIAL Documents uploads with consent (`scripts/seed_operate_docs.py`). Optional `--draft-plan` drafts editable cases into plan **OPERATE documents draft** via existing `add_document_draft_cases` (no Jira / silent settings writes). `DAILY_LOOP.md` start commands updated. Did **not** absorb KAN-496 gallery.
+- **Files:** `fixtures/operate_docs/*`, `plugins/operate_docs.py`, `scripts/seed_operate_docs.py`, `tests/test_operate_docs.py`, `docs/ops/DAILY_LOOP.md` (+ WORK_LOG / ROADMAP / PROJECT_MEMORY / Spec next)
+- **Verify:** `pytest tests/test_operate_docs.py` — 4 passed. CU not required (fixture/seed/draft AC).
+- **Jira:** close-out **KAN-381** + **KAN-382**
+- **Next:** **KAN-496** after Studio Slice-0 + Designer mock pick (`/studio`)
 
 ### 2026-11-27 — KAN-379 — OPERATE-3 loop-hit UI polish
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick-up where we left off
