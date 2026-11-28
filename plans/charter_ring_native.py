@@ -107,10 +107,10 @@ user32.PostThreadMessageW.argtypes = [
 user32.PostThreadMessageW.restype = wintypes.BOOL
 
 # Suffix bumps when WndProc changes (RegisterClassW 1410 keeps stale proc).
-_CLASS_BAR = "AiTestingCharterBar534"
-_CLASS_TRAY = "AiTestingCharterTray534"
-_CLASS_MSG = "AiTestingCharterMsg534"
-_CLASS_TIP = "AiTestingCharterTip534"
+_CLASS_BAR = "AiTestingCharterBar550"
+_CLASS_TRAY = "AiTestingCharterTray550"
+_CLASS_MSG = "AiTestingCharterMsg550"
+_CLASS_TIP = "AiTestingCharterTip550"
 
 # Look 4 Compact side rail (Accepted). Under-ring Rejected (KAN-525).
 # Owner-drawn icons — no stock Win32 BUTTON chrome (Designer: cheap/outdated).
@@ -156,6 +156,7 @@ _VERB_TIPS = {
 }
 TIP_DELAY_MS = 400
 TIP_TIMER_ID = 5321
+TIP_FLASH_TIMER_ID = 5341  # KAN-548 on-overlay Still saved / fail tip
 WM_TIMER = 0x0113
 # KAN-532 — readable hover tips (was ~system-default + 28px tall).
 TIP_FONT_PX = 16
@@ -629,33 +630,47 @@ def _ensure_tip_hwnd() -> int:
     return int(_tip_hwnd)
 
 
-def _show_tip_for_verb(verb: str) -> None:
+def _show_tip_text(text: str, *, near_tray: bool = False) -> None:
+    """Show tip popup with measured font (hover or flash status — KAN-548)."""
     global _tip_text
-    text = str(_VERB_TIPS.get(verb) or _VERB_TITLES.get(verb) or verb).strip()
-    if not text:
+    msg = str(text or "").strip()
+    if not msg:
         _hide_tip()
         return
     hwnd = _ensure_tip_hwnd()
     if not hwnd:
         return
-    _tip_text = text
-    # Measure with the real tip font (KAN-532) — not the old 7px/char guess.
+    _tip_text = msg
     hdc = user32.GetDC(hwnd)
     try:
-        tw_text, th_text = _measure_tip_text(int(hdc or 0), text)
+        tw_text, th_text = _measure_tip_text(int(hdc or 0), msg)
     finally:
         if hdc:
             user32.ReleaseDC(hwnd, hdc)
     tw = max(TIP_MIN_W, min(TIP_MAX_W, tw_text + TIP_PAD_X * 2))
     th = max(TIP_FONT_PX + TIP_PAD_Y * 2, th_text + TIP_PAD_Y * 2)
-    cx, cy = _cursor_screen()
-    x = cx + 16
-    y = cy + 22
+    if near_tray and _tray_hwnd:
+        rect = wintypes.RECT()
+        user32.GetWindowRect(_tray_hwnd, ctypes.byref(rect))
+        x = int(rect.right) + 8
+        y = int(rect.top) + 8
+    else:
+        cx, cy = _cursor_screen()
+        x = cx + 16
+        y = cy + 22
     user32.SetWindowPos(
         hwnd, HWND_TOPMOST, x, y, tw, th, SWP_NOACTIVATE | SWP_SHOWWINDOW
     )
     user32.ShowWindow(hwnd, SW_SHOWNOACTIVATE)
     user32.InvalidateRect(hwnd, None, True)
+
+
+def _show_tip_for_verb(verb: str) -> None:
+    text = str(_VERB_TIPS.get(verb) or _VERB_TITLES.get(verb) or verb).strip()
+    if not text:
+        _hide_tip()
+        return
+    _show_tip_text(text, near_tray=False)
 
 
 def _schedule_tip(verb: str | None) -> None:
@@ -1010,7 +1025,11 @@ def _tray_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
         _paint_tray(int(hwnd))
         return 0
     if msg == WM_TIMER:
-        if int(wparam) == TIP_TIMER_ID and _tip_pending_verb and not _drag_active:
+        wid = int(wparam)
+        if wid == TIP_FLASH_TIMER_ID:
+            _hide_tip()
+            return 0
+        if wid == TIP_TIMER_ID and _tip_pending_verb and not _drag_active:
             _show_tip_for_verb(_tip_pending_verb)
         return 0
     if msg == WM_LBUTTONDOWN:
@@ -1204,6 +1223,29 @@ def set_geom_callback(cb: Callable[[list[int]], None] | None) -> None:
     """Fired after a completed native drag/resize (mouseup)."""
     global _geom_callback
     _geom_callback = cb
+
+
+def flash_tip(text: str, *, ms: int = 1600) -> dict[str, Any]:
+    """Brief on-overlay status tip beside the tray (KAN-548 Still saved/fail)."""
+    ensure_ring_thread()
+    msg = str(text or "").strip()[:80]
+    if not msg:
+        return {"status": "error", "error": "empty"}
+    hold = max(400, min(4000, int(ms)))
+
+    def _do() -> dict[str, Any]:
+        global _tip_pending_verb
+        _tip_pending_verb = None
+        if _tray_hwnd:
+            user32.KillTimer(_tray_hwnd, TIP_TIMER_ID)
+            user32.KillTimer(_tray_hwnd, TIP_FLASH_TIMER_ID)
+        _show_tip_text(msg, near_tray=True)
+        if _tray_hwnd:
+            user32.SetTimer(_tray_hwnd, TIP_FLASH_TIMER_ID, hold, None)
+        return {"status": "ok", "text": msg, "ms": hold, "near_tray": True}
+
+    out = _run_on_ring(_do, timeout=3.0)
+    return out if isinstance(out, dict) else {"status": "error", "error": "flash_failed"}
 
 
 def set_capture_bbox(bbox: Any, *, show: bool = True) -> dict[str, Any]:

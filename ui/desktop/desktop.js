@@ -1452,6 +1452,17 @@
   const manualSessionChip = document.getElementById("manual-session-chip");
   const manualSessionChipLabel = document.getElementById("manual-session-chip-label");
   const manualSessionChipStill = document.getElementById("manual-session-chip-still");
+  const manualSessionChipViewStill = document.getElementById(
+    "manual-session-chip-view-still"
+  );
+  const manualStillPreview = document.getElementById("manual-still-preview");
+  const manualStillList = document.getElementById("manual-still-list");
+  const manualStillPreviewImg = document.getElementById(
+    "manual-still-preview-img"
+  );
+  const manualStillPreviewWarn = document.getElementById(
+    "manual-still-preview-warn"
+  );
   const manualSessionChipNote = document.getElementById("manual-session-chip-note");
   const manualSessionChipNoteRow = document.getElementById("manual-session-chip-note-row");
   const manualSessionChipNoteInput = document.getElementById(
@@ -7127,6 +7138,7 @@
     if (!manualSessionChip) return;
     if (!sessionOrNull) {
       manualSessionChip.hidden = true;
+      if (manualSessionChipViewStill) manualSessionChipViewStill.hidden = true;
       syncManualEndVisible();
       return;
     }
@@ -7138,12 +7150,109 @@
     manualSessionChip.hidden = false;
     /* End stays on chip + toolbar whenever a session is open. */
     if (manualEndOpen) manualEndOpen.hidden = false;
+    syncManualViewStillButton(sessionOrNull);
   }
 
   function hideManualSessionChip() {
     if (manualSessionChip) manualSessionChip.hidden = true;
     if (manualSessionChipNoteRow) manualSessionChipNoteRow.hidden = true;
+    if (manualSessionChipViewStill) manualSessionChipViewStill.hidden = true;
     syncManualEndVisible();
+  }
+
+  function stillFileUrl(sessionId, stillId) {
+    return (
+      "/api/manual-sessions/" +
+      encodeURIComponent(sessionId) +
+      "/stills/" +
+      encodeURIComponent(stillId) +
+      "/file"
+    );
+  }
+
+  function syncManualViewStillButton(session) {
+    if (!manualSessionChipViewStill) return;
+    const stills = (session && session.stills) || [];
+    const has =
+      !!manualLastStillId ||
+      (Array.isArray(stills) && stills.length > 0) ||
+      !!window.__manualLastStillId;
+    manualSessionChipViewStill.hidden = !has;
+  }
+
+  function renderManualStillList(session) {
+    if (!manualStillList || !manualStillPreview) return;
+    const sid =
+      (session && session.id) ||
+      manualOpenSessionId ||
+      manualFocusedSessionId ||
+      "";
+    const stills = (session && session.stills) || [];
+    manualStillList.innerHTML = "";
+    if (!sid || !stills.length) {
+      manualStillPreview.hidden = true;
+      if (manualStillPreviewImg) {
+        manualStillPreviewImg.hidden = true;
+        manualStillPreviewImg.removeAttribute("src");
+      }
+      if (manualStillPreviewWarn) manualStillPreviewWarn.hidden = true;
+      return;
+    }
+    manualStillPreview.hidden = false;
+    stills.forEach(function (s, idx) {
+      const id = (s && s.id) || "";
+      if (!id) return;
+      const li = document.createElement("li");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "save-btn secondary";
+      btn.setAttribute("data-manual-still-open", id);
+      const ann = ((s && s.annotation) || "").trim();
+      btn.textContent =
+        "Open still " +
+        (idx + 1) +
+        " (" +
+        id +
+        ")" +
+        (ann ? " · annotated" : "");
+      btn.addEventListener("click", function () {
+        openManualStill(id, sid);
+      });
+      li.appendChild(btn);
+      manualStillList.appendChild(li);
+    });
+  }
+
+  function openManualStill(stillId, sessionId) {
+    const sid =
+      sessionId ||
+      manualOpenSessionId ||
+      manualFocusedSessionId ||
+      "";
+    const id =
+      stillId ||
+      manualLastStillId ||
+      window.__manualLastStillId ||
+      "";
+    if (!sid || !id) {
+      if (manualStatus) {
+        manualStatus.textContent = "No still to open yet — capture one first";
+      }
+      return;
+    }
+    ensureAreaOpen("manual");
+    manualLastStillId = id;
+    window.__manualLastStillId = id;
+    if (manualStillPreview) manualStillPreview.hidden = false;
+    if (manualStillPreviewImg) {
+      manualStillPreviewImg.hidden = false;
+      manualStillPreviewImg.src = stillFileUrl(sid, id) + "?t=" + Date.now();
+    }
+    if (manualStillPreviewWarn) manualStillPreviewWarn.hidden = false;
+    if (manualSessionChipViewStill) manualSessionChipViewStill.hidden = false;
+    if (manualStatus) {
+      manualStatus.textContent = "Opened still " + id;
+    }
   }
 
   async function captureStillFromManualChip() {
@@ -7174,13 +7283,19 @@
       );
       const data = await res.json();
       if (data.status === "ok" && data.session) {
-        if (data.still && data.still.id) manualLastStillId = data.still.id;
+        if (data.still && data.still.id) {
+          manualLastStillId = data.still.id;
+          window.__manualLastStillId = data.still.id;
+        }
         updateCharterFrameChip(data.session);
+        showManualSessionChip(data.session);
+        renderManualStillList(data.session);
+        syncManualViewStillButton(data.session);
         if (manualStatus) {
           manualStatus.textContent =
             "Still saved · " +
             ((data.session.stills || []).length) +
-            " stills";
+            " stills — use View still";
         }
       } else if (manualStatus) {
         manualStatus.textContent = (data && data.message) || "Still failed";
@@ -7534,36 +7649,53 @@
     }
     if ((ev === "still" || ev === "note") && sid) {
       ensureAreaOpen("manual");
+      let sess = null;
       try {
         const res = await fetch(
           "/api/manual-sessions/" + encodeURIComponent(sid)
         );
         const data = await res.json();
         if (data && data.session) {
-          updateCharterFrameChip(data.session);
-          showManualSessionChip(data.session);
+          sess = data.session;
+          updateCharterFrameChip(sess);
+          showManualSessionChip(sess);
         }
       } catch (_err) {
         /* ignore */
       }
-      if (ev === "still" && manualStatus) {
-        /* KAN-534: tray Still must show honest success/fail (not silent). */
-        const fail = window.__manualFloatFailStatus || "";
-        const payloadMsg = (payload && payload.message) || "";
-        const payloadStatus = (payload && payload.status) || "";
-        if (payloadStatus === "error" || fail) {
-          manualStatus.textContent = payloadMsg || fail || "Still failed";
-        } else if (payloadMsg) {
-          manualStatus.textContent = payloadMsg;
-        } else {
-          const stillN =
-            typeof (payload && payload.still_count) === "number"
-              ? payload.still_count
-              : null;
-          manualStatus.textContent =
-            stillN != null
-              ? "Still saved · " + stillN + " stills"
-              : "Still saved";
+      if (ev === "still") {
+        /* KAN-534/550: honest Manual status + openable still list/preview. */
+        if (sess) {
+          renderManualStillList(sess);
+          syncManualViewStillButton(sess);
+          const stills2 = sess.stills || [];
+          if (stills2.length) {
+            manualLastStillId =
+              stills2[stills2.length - 1].id || manualLastStillId;
+          }
+        }
+        if (window.__manualLastStillId) {
+          manualLastStillId = window.__manualLastStillId;
+        }
+        if (manualStatus) {
+          const fail = window.__manualFloatFailStatus || "";
+          const payloadMsg = (payload && payload.message) || "";
+          const payloadStatus = (payload && payload.status) || "";
+          if (payloadStatus === "error" || fail) {
+            manualStatus.textContent = payloadMsg || fail || "Still failed";
+          } else if (payloadMsg) {
+            manualStatus.textContent =
+              payloadMsg + (manualLastStillId ? " — use View still" : "");
+          } else {
+            const stillN =
+              typeof (payload && payload.still_count) === "number"
+                ? payload.still_count
+                : null;
+            manualStatus.textContent =
+              (stillN != null
+                ? "Still saved · " + stillN + " stills"
+                : "Still saved") + " — use View still";
+          }
         }
       }
       return;
@@ -7775,10 +7907,14 @@
         .filter(Boolean)
         .join(" · "),
       link: shotCount
-        ? shotCount + " still(s) — open from review; not a gallery"
+        ? shotCount + " still(s) — use Open still below (not a gallery)"
         : "",
       hasScreenshot: shotCount > 0,
     });
+    renderManualStillList(session);
+    if (shotCount) {
+      manualLastStillId = stills[stills.length - 1].id || manualLastStillId;
+    }
   }
 
   function showManualReview(session, review) {
@@ -7857,7 +7993,8 @@
             return (
               "- " +
               (s.id || "still") +
-              (ann ? " · annotated: " + ann : "")
+              (ann ? " · annotated: " + ann : "") +
+              " — use Open still above"
             );
           })
           .join("\n") || "(no stills)";
@@ -7866,7 +8003,7 @@
         "Charter: " + ((session && session.charter) || ""),
         pageLine,
         "Notes: " + notes.length,
-        "Stills: " + stills.length,
+        "Stills: " + stills.length + " (open via Open still buttons above)",
         "Assist: " + assistStatus + " · drafts " + drafts.length + " (local only, never silent Jira)",
         "Jira writes: never silent — Propose then Confirm (FR-JIRA-5)",
         "",
@@ -7883,6 +8020,10 @@
         "Assist drafts:",
         draftLines,
       ].join("\n");
+    }
+    renderManualStillList(session);
+    if (stills.length) {
+      manualLastStillId = stills[stills.length - 1].id || manualLastStillId;
     }
     if (manualProposeOut) {
       manualProposeOut.hidden = true;
@@ -12163,6 +12304,11 @@
   if (manualSessionChipStill) {
     manualSessionChipStill.addEventListener("click", function () {
       captureStillFromManualChip();
+    });
+  }
+  if (manualSessionChipViewStill) {
+    manualSessionChipViewStill.addEventListener("click", function () {
+      openManualStill(manualLastStillId || window.__manualLastStillId || "");
     });
   }
   if (manualSessionChipNote) {

@@ -241,17 +241,72 @@ class CharterFloatSessionTests(unittest.TestCase):
         path = Path(still["still"]["path"])
         expected_root = plans_dir("OFFICIAL") / "sessions"
         self.assertEqual(path.resolve().parent.parent, expected_root.resolve())
+        still_id = still["still"]["id"]
+        resolved = ms.still_file_path(sid, still_id)
+        self.assertIsNotNone(resolved)
+        assert resolved is not None
+        self.assertTrue(resolved.is_file())
+        self.assertEqual(resolved.name, f"{still_id}.png")
         ms.end_session(sid)
+
+    def test_api_still_file_served(self) -> None:
+        from main import app
+
+        client = TestClient(app)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with mock.patch(
+                "settings.store.get_security_level", return_value="OFFICIAL"
+            ), mock.patch(
+                "settings.store.app_data_dir", return_value=root
+            ), mock.patch("PIL.ImageGrab.grab") as grab:
+                ms.reset_open_cache()
+                fake = mock.MagicMock()
+                fake.size = (40, 30)
+
+                def _save(path, format=None):  # noqa: A002
+                    Path(path).write_bytes(b"\x89PNG\r\n\x1a\n")
+
+                fake.save.side_effect = _save
+                grab.return_value = fake
+                started = client.post(
+                    "/api/manual-sessions/start",
+                    json={
+                        "charter": "Still file serve",
+                        "ticket_bound": False,
+                        "agent_assist": False,
+                    },
+                )
+                self.assertEqual(started.json()["status"], "ok")
+                sid = started.json()["session"]["id"]
+                attached = client.post(
+                    f"/api/manual-sessions/{sid}/stills",
+                    json={"screen_bbox": [0, 0, 40, 30]},
+                )
+                self.assertEqual(attached.json()["status"], "ok")
+                still_id = attached.json()["still"]["id"]
+                file_res = client.get(
+                    f"/api/manual-sessions/{sid}/stills/{still_id}/file"
+                )
+                self.assertEqual(file_res.status_code, 200)
+                self.assertIn("image/png", file_res.headers.get("content-type", ""))
+                missing = client.get(
+                    f"/api/manual-sessions/{sid}/stills/st_missing/file"
+                )
+                self.assertEqual(missing.status_code, 404)
+                client.post(
+                    f"/api/manual-sessions/{sid}/cancel", json={"confirm": True}
+                )
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk162(self) -> None:
+    def test_desktop_float_markers_desk163(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk162", html)
-        self.assertIn("desk162", desk)
-        self.assertIn("DESK_V = \"desk162\"", desk)
+        self.assertIn("desk163", html)
+        self.assertIn("desk163", desk)
+        self.assertIn("DESK_V = \"desk163\"", desk)
         self.assertIn("native_toolwindow", desk)
         self.assertIn("g_tray_look4", desk)
         self.assertIn("charter_float_set_tray", desk)
@@ -318,7 +373,6 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("WM_NCHITTEST", ring_src)
         self.assertIn("HTTRANSPARENT", ring_src)
         self.assertIn("KAN-534", ring_src)
-        self.assertIn("AiTestingCharterTip534", ring_src)
         self.assertIn("still_count", desk)
         self.assertIn("Still saved", desk)
         self.assertIn("Still blocked while paused", desk)
@@ -330,6 +384,21 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         still_ev = js.split('if ((ev === "still" || ev === "note")', 1)[1]
         self.assertIn('ensureAreaOpen("manual")', still_ev)
         self.assertIn("manualStatus.textContent", still_ev)
+        # KAN-548 on-overlay flash + KAN-550 open/view still.
+        self.assertIn("flash_tip", ring_src)
+        self.assertIn("TIP_FLASH_TIMER_ID", ring_src)
+        self.assertIn("AiTestingCharterTip550", ring_src)
+        self.assertIn("ring.flash_tip", desk)
+        self.assertIn("data-manual-session-view-still", html)
+        self.assertIn("data-manual-still-preview", html)
+        self.assertIn("openManualStill", js)
+        self.assertIn("renderManualStillList", js)
+        self.assertIn("stillFileUrl", js)
+        self.assertIn("/stills/", js)
+        main_src = (ROOT / "main.py").read_text(encoding="utf-8")
+        self.assertIn("stills/{still_id}/file", main_src)
+        self.assertIn("still_file_path", (ROOT / "plans" / "manual_session.py").read_text(encoding="utf-8"))
+        self.assertIn("manual-still-preview", (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8"))
         # Owner-drawn Look 4 icons — no stock Win32 BUTTON chrome.
         self.assertNotIn('"BUTTON"', ring_src)
         # Under-ring must not remain the product placement lock.

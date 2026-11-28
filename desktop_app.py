@@ -28,7 +28,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk162"
+DESK_V = "desk163"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
 API = f"http://{HOST}:{PORT}/api"
@@ -116,6 +116,7 @@ def _emit_float_event(
     status: str = "",
     message: str = "",
     still_count: int | None = None,
+    still_id: str = "",
 ) -> None:
     safe_event = str(event or "")[:32]
     safe_id = str(session_id or _float_session_id or "")[:64]
@@ -126,6 +127,8 @@ def _emit_float_event(
         payload["message"] = str(message)[:160]
     if still_count is not None:
         payload["still_count"] = int(still_count)
+    if still_id:
+        payload["still_id"] = str(still_id)[:64]
     _notify_main(
         "window.__charterFloatEvent && window.__charterFloatEvent("
         + json.dumps(payload)
@@ -224,21 +227,21 @@ def _on_tray_verb(verb: str) -> None:
     if v == "still":
         # KAN-534: never silent — Manual status must show success or failure.
         if _paused:
-            _emit_float_event(
-                "still",
-                sid,
-                status="error",
-                message="Still blocked while paused — Resume first",
-            )
+            msg = "Still blocked while paused — Resume first"
+            try:
+                ring.flash_tip(msg)
+            except Exception:  # noqa: BLE001
+                pass
+            _emit_float_event("still", sid, status="error", message=msg)
             return
         bbox = ring.get_capture_bbox()
         if not bbox or len(bbox) != 4:
-            _emit_float_event(
-                "still",
-                sid,
-                status="error",
-                message="Still failed — no capture hole",
-            )
+            msg = "Still failed — no capture hole"
+            try:
+                ring.flash_tip(msg)
+            except Exception:  # noqa: BLE001
+                pass
+            _emit_float_event("still", sid, status="error", message=msg)
             return
         # Hard-fail if bbox unknown — no all-screens grab (KAN-525 AC).
         try:
@@ -255,6 +258,10 @@ def _on_tray_verb(verb: str) -> None:
                     out.get("message") or out.get("error") or "Still failed"
                 )
                 msg = str(msg)[:120]
+                try:
+                    ring.flash_tip(msg)
+                except Exception:  # noqa: BLE001
+                    pass
                 _notify_main(
                     "window.__manualFloatFailStatus=" + json.dumps(msg)
                 )
@@ -264,6 +271,9 @@ def _on_tray_verb(verb: str) -> None:
                 stills = sess.get("stills") or []
                 n = len(stills) if isinstance(stills, list) else 0
                 captured = bool((out.get("still") or {}).get("captured", True))
+                last_id = ""
+                if isinstance(stills, list) and stills:
+                    last_id = str((stills[-1] or {}).get("id") or "")
                 msg = (
                     f"Still saved · {n} stills"
                     if captured
@@ -272,6 +282,12 @@ def _on_tray_verb(verb: str) -> None:
                         or "Still recorded with placeholder — capture failed"
                     )[:120]
                 )
+                try:
+                    ring.flash_tip(
+                        "Still saved" if captured else "Still placeholder"
+                    )
+                except Exception:  # noqa: BLE001
+                    pass
                 _notify_main("window.__manualFloatFailStatus=''")
                 _emit_float_event(
                     "still",
@@ -279,9 +295,18 @@ def _on_tray_verb(verb: str) -> None:
                     status="ok",
                     message=msg,
                     still_count=n,
+                    still_id=last_id,
                 )
+                if last_id:
+                    _notify_main(
+                        "window.__manualLastStillId=" + json.dumps(last_id)
+                    )
         except Exception as exc:  # noqa: BLE001
             msg = f"Still failed: {exc}"[:120]
+            try:
+                ring.flash_tip(msg)
+            except Exception:  # noqa: BLE001
+                pass
             _notify_main(
                 "window.__manualFloatFailStatus=" + json.dumps(msg)
             )

@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — agent fix on desk162; await human Still confirm |
-| **Jira story** | **KAN-534** (Bug — tray Still appears to do nothing) |
-| **Start task** | Human **KAN-535** on desk162. Then Note **536**→…→ Cancel **546**. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Status** | open — await human: view still + overlay tip (**desk163**) |
+| **Jira story** | **KAN-550** (Bug — open/view captured still) + **KAN-548** (on-overlay tip) |
+| **Start task** | Human **KAN-551**/549 on desk163. Then Note **536**→…→ Cancel **546**. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
 | **Spec** | FR-MAN-1 snip + Look 4 tray verbs |
 | **Git** | `main` |
-| **Test ticket** | **KAN-535**; then 537/539/541/543/545/547; then **KAN-513**/514 with **KAN-510**/511 |
-| **Shipped** | Still agent fix **desk162** (await human); tips **KAN-532**/533 Done (**desk161**); glue/resize **KAN-530**/528 Done (**desk160**); host restore **KAN-525**/526; G+tray **KAN-512** + **KAN-516**…**524**; Plan doc **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497 |
-| **Queued** | Tray verbs **KAN-534** Still (human) → **536** Note → **538** Pause → **540** Assist → **542** Mist → **544** End → **546** Cancel; then **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392** |
+| **Test ticket** | **KAN-551**/549; then 537/539/541/543/545/547; then **KAN-513**/514 with **KAN-510**/511 |
+| **Shipped** | Still capture **KAN-534**/535 Done (**desk162** human); view+flash agent **desk163** (await human); tips **KAN-532**/533 Done; glue/resize **KAN-530**/528 Done; host restore **KAN-525**/526; G+tray **KAN-512** + **KAN-516**…**524** |
+| **Queued** | Human **550**/548 → tray Note **536** → Pause **538** → Assist **540** → Mist **542** → End **544** → Cancel **546**; then **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392** |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Designer confirms Still on **desk162** → Done **534**/535 → **KAN-536**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Designer confirms **desk163** View still + overlay “Still saved” → Done **550**/551 + **548**/549 → **KAN-536**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-550/548 — View still + on-overlay tip (desk163)
+- **Agent/chat:** Cursor IDE Agent — Designer: Still saved in Manual but no overlay confirm / no way to open image
+- **Done:** Closed **KAN-534**/535 (capture OK). Raised **KAN-548**/549 (overlay tip) + **KAN-550**/551 (view). Implemented: GET still `/file`; Manual **View still** + Open still list + preview img; tray `flash_tip("Still saved")`. Cache-bust **desk163**.
+- **Files:** `plans/manual_session.py`, `main.py`, `plans/charter_ring_native.py`, `desktop_app.py`, `ui/desktop/*`, `tests/test_charter_float.py`, `scripts/jira_kan_bug_still_view_overlay.py`
+- **Verify:** `pytest tests/test_charter_float.py tests/test_manual_ia.py tests/test_manual_trustworthy_loop.py` — 23 passed. **Human 551/549** required.
+- **Jira:** 534/535 Done; 548–551 created; Fix comments pending close-out
+- **Next:** Designer desk163 → Done 550/551 + 548/549 → **KAN-536** Note
 
 ### 2026-11-28 — KAN-534 — Tray Still capture + feedback (desk162)
 - **Agent/chat:** Cursor IDE Agent — pick up Active KAN-534

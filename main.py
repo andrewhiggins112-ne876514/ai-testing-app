@@ -54,6 +54,7 @@ from plans.manual_session import (
     add_note as manual_add_note,
     annotate_still as manual_annotate_still,
     attach_still as manual_attach_still,
+    still_file_path as manual_still_file_path,
     cancel_session as manual_cancel_session,
     confirm_proposal as manual_confirm_proposal,
     defaults_info as manual_defaults_info,
@@ -2195,6 +2196,15 @@ async def post_manual_session_still(
         screen_bbox=body.screen_bbox,
         annotation=body.annotation or "",
     )
+
+
+@app.get("/api/manual-sessions/{session_id}/stills/{still_id}/file")
+async def get_manual_session_still_file(session_id: str, still_id: str):
+    """Serve a captured still PNG for Manual preview (KAN-550). Level-scoped."""
+    path = manual_still_file_path(session_id, still_id)
+    if path is None:
+        raise HTTPException(status_code=404, detail="Still not found")
+    return FileResponse(path, media_type="image/png", filename=f"{still_id}.png")
 
 
 @app.post("/api/manual-sessions/{session_id}/stills/{still_id}/annotate")

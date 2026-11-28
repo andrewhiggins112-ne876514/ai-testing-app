@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk162" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk163" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -1599,6 +1599,7 @@
                   <b>Session</b>
                   <span id="manual-session-chip-label">armed</span>
                   <button type="button" id="manual-session-chip-still" class="save-btn secondary" data-manual-session-still="1" title="Capture still">Still</button>
+                  <button type="button" id="manual-session-chip-view-still" class="save-btn secondary" data-manual-session-view-still="1" title="Open last captured still" hidden>View still</button>
                   <button type="button" id="manual-session-chip-note" class="save-btn secondary" data-manual-session-note="1" title="Add note">Note</button>
                   <button type="button" id="manual-session-chip-restore" class="save-btn secondary" data-manual-session-restore="1" title="Re-arm hollow ring + side tray">Resume</button>
                   <button type="button" id="manual-session-chip-end" class="save-btn secondary" data-manual-session-end="1">End</button>
@@ -1635,6 +1636,12 @@
                 <p class="evidence-first-links" data-evidence-links="1" hidden></p>
                 <p class="evidence-first-shot-warn" data-evidence-shot-warn="1" hidden>Screenshot present: pixels are not OCR-redacted automatically. Review the image before sharing.</p>
                 <p class="evidence-first-trace" data-evidence-trace="1">Trace: no Playwright trace for this run.</p>
+              </div>
+              <div id="manual-still-preview" class="manual-still-preview" data-manual-still-preview="1" hidden>
+                <p class="drawer-hint" data-manual-still-preview-label="1">Captured stills</p>
+                <ul id="manual-still-list" class="manual-still-list" data-manual-still-list="1"></ul>
+                <img id="manual-still-preview-img" class="manual-still-preview-img" alt="Captured still preview" hidden data-manual-still-preview-img="1" />
+                <p class="drawer-hint" id="manual-still-preview-warn" hidden data-manual-still-preview-warn="1">Screenshot present: pixels are not OCR-redacted automatically. Review before sharing.</p>
               </div>
               <label class="stack-label" for="manual-detail-charter">Charter
                 <input type="text" id="manual-detail-charter" readonly autocomplete="off" />
@@ -1926,6 +1933,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk162"></script>
+  <script src="/ui/desktop/desktop.js?v=desk163"></script>
 </body>
 </html>

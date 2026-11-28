@@ -126,16 +126,16 @@ class RunEvidencePersistenceTests(unittest.TestCase):
 
 
 class RunEvidenceUiContractTests(unittest.TestCase):
-    def test_option_a_markers_desk162(self) -> None:
+    def test_option_a_markers_desk163(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk162", html)
-        self.assertIn("desk162", desk)
-        self.assertIn("desktop.css?v=desk162", html)
-        self.assertIn("desktop.js?v=desk162", html)
+        self.assertIn("desk163", html)
+        self.assertIn("desk163", desk)
+        self.assertIn("desktop.css?v=desk163", html)
+        self.assertIn("desktop.js?v=desk163", html)
 
         plans = html.split('id="app-section-plans"', 1)[1].split(
             'id="app-section-manual"', 1

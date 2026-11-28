@@ -807,6 +807,54 @@ def attach_still(
     }
 
 
+def still_file_path(
+    session_id: str,
+    still_id: str,
+    *,
+    level: str | None = None,
+) -> Path | None:
+    """Resolve a level-scoped still PNG for FileResponse (KAN-550).
+
+    Prefers the canonical ``{still_id}.png`` under the session stills dir.
+    Never returns a path outside that directory.
+    """
+    session = _load(session_id, level)
+    if session is None:
+        return None
+    wanted = str(still_id or "").strip()
+    if not wanted or not _ID_SAFE.match(wanted):
+        return None
+    stills = list(session.get("stills") or [])
+    if not any(str(s.get("id") or "") == wanted for s in stills):
+        return None
+    sid = str(session["id"])
+    lvl = str(session["level"])
+    root = _stills_dir(sid, lvl).resolve()
+    canonical = (root / f"{wanted}.png").resolve()
+    try:
+        canonical.relative_to(root)
+    except ValueError:
+        return None
+    if canonical.is_file():
+        return canonical
+    # Legacy / odd save: accept stored path only if it stays under root.
+    for s in stills:
+        if str(s.get("id") or "") != wanted:
+            continue
+        raw = str(s.get("path") or "").strip()
+        if not raw:
+            break
+        try:
+            resolved = Path(raw).resolve()
+            resolved.relative_to(root)
+        except (OSError, ValueError):
+            break
+        if resolved.is_file():
+            return resolved
+        break
+    return None
+
+
 def annotate_still(
     session_id: str,
     still_id: str,
