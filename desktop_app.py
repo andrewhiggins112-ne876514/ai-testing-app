@@ -28,7 +28,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk164"
+DESK_V = "desk165"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
 API = f"http://{HOST}:{PORT}/api"
@@ -39,6 +39,58 @@ _float_session_id = ""
 _tray_side = "east"
 _tray_collapsed = False
 _paused = False
+
+
+def _focus_main_window() -> None:
+    """Bring the product desktop window forward (KAN-536 Note affordance).
+
+    pywebview: Window.restore / show + native.Handle (WinForms) — Context7
+    /r0x0r/pywebview Window API. SetForegroundWindow needs attach dance on Win.
+    """
+    win = _main_window
+    if win is None:
+        return
+    try:
+        win.restore()
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        win.show()
+    except Exception:  # noqa: BLE001
+        pass
+    hwnd = 0
+    try:
+        native = getattr(win, "native", None)
+        handle = getattr(native, "Handle", None) if native is not None else None
+        if handle is not None:
+            hwnd = int(handle)
+    except Exception:  # noqa: BLE001
+        hwnd = 0
+    if not hwnd:
+        return
+    try:
+        import ctypes
+
+        user32 = ctypes.windll.user32
+        kernel32 = ctypes.windll.kernel32
+        user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+        fg = user32.GetForegroundWindow()
+        pid_fg = ctypes.c_ulong(0)
+        pid_target = ctypes.c_ulong(0)
+        tid_fg = user32.GetWindowThreadProcessId(fg, ctypes.byref(pid_fg)) if fg else 0
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid_target))
+        tid_self = kernel32.GetCurrentThreadId()
+        attached = False
+        if tid_fg and tid_fg != tid_self:
+            attached = bool(user32.AttachThreadInput(tid_self, tid_fg, True))
+        try:
+            user32.BringWindowToTop(hwnd)
+            user32.SetForegroundWindow(hwnd)
+        finally:
+            if attached:
+                user32.AttachThreadInput(tid_self, tid_fg, False)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def _serve() -> None:
@@ -222,6 +274,18 @@ def _on_tray_verb(verb: str) -> None:
                     status="error",
                     message="Still failed — no open session",
                 )
+            elif v == "note":
+                msg = "Note failed — no open session"
+                try:
+                    ring.flash_tip(msg)
+                except Exception:  # noqa: BLE001
+                    pass
+                _emit_float_event(
+                    "note_focus",
+                    "",
+                    status="error",
+                    message=msg,
+                )
             return
 
     if v == "still":
@@ -316,12 +380,19 @@ def _on_tray_verb(verb: str) -> None:
         return
 
     if v == "note":
-        # Note-sheet HWND is OOS — focus Manual chip note backup.
-        _emit_float_event("note_focus", sid)
-        _notify_main(
-            "(function(){var i=document.querySelector('[data-manual-session-note-input]');"
-            "if(i){i.focus();}})()"
+        # KAN-536: note-sheet HWND still OOS — open Manual chip note row,
+        # bring product window forward, flash tip so click is never silent.
+        _focus_main_window()
+        _emit_float_event(
+            "note_focus",
+            sid,
+            status="ok",
+            message="Type a note in Manual",
         )
+        try:
+            ring.flash_tip("Type note in Manual", ms=1800)
+        except Exception:  # noqa: BLE001
+            pass
         return
 
     if v == "assist":

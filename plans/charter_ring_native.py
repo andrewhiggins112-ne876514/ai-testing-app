@@ -136,7 +136,7 @@ _VERBS_EXPANDED = (
 _VERB_TITLES = {
     "toggle": "Hide or show tray",
     "still": "Still",
-    "note": "Note (use Manual chip)",
+    "note": "Note",
     "pause": "Pause",
     "assist": "Assist",
     "mist": "Mist",
@@ -147,7 +147,7 @@ _VERB_TITLES = {
 _VERB_TIPS = {
     "toggle": "Collapse or expand this tray",
     "still": "Capture a still inside the frame",
-    "note": "Add a timestamped note (Manual chip)",
+    "note": "Add a note — opens Manual note field",
     "pause": "Pause or resume recording",
     "assist": "Toggle AI assist (local drafts only)",
     "mist": "Toggle light mist inside the frame",

@@ -7633,18 +7633,48 @@
       return;
     }
     if (ev === "note_focus") {
+      /* KAN-536: unhide note row (was focused while still hidden → inert). */
       ensureAreaOpen("manual");
-      showManualSessionChip({ id: sid });
-      const noteInput = document.querySelector(
-        "[data-manual-session-note-input]"
-      );
+      if (sid) {
+        manualOpenSessionId = sid;
+      }
+      const payloadStatus = (payload && payload.status) || "";
+      const payloadMsg = (payload && payload.message) || "";
+      if (payloadStatus === "error") {
+        if (manualStatus) {
+          manualStatus.textContent = payloadMsg || "Note failed";
+        }
+        return;
+      }
+      showManualSessionChip({ id: sid || manualOpenSessionId });
+      if (manualSessionChipNoteRow) {
+        manualSessionChipNoteRow.hidden = false;
+      }
+      const noteInput =
+        manualSessionChipNoteInput ||
+        document.querySelector("[data-manual-session-note-input]");
       if (noteInput) {
         try {
           noteInput.focus();
+          if (typeof noteInput.select === "function") {
+            noteInput.select();
+          }
         } catch (_err) {
           /* ignore */
         }
       }
+      if (manualSessionChip && typeof manualSessionChip.scrollIntoView === "function") {
+        try {
+          manualSessionChip.scrollIntoView({ block: "nearest" });
+        } catch (_err2) {
+          /* ignore */
+        }
+      }
+      if (manualStatus) {
+        manualStatus.textContent =
+          payloadMsg || "Type a note — Enter saves · Esc closes";
+      }
+      setManualLoopStage("recording");
       return;
     }
     if ((ev === "still" || ev === "note") && sid) {

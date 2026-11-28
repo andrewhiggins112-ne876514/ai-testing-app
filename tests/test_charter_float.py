@@ -300,13 +300,19 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk164(self) -> None:
+    def test_desktop_float_markers_desk165(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk164", html)
-        self.assertIn("desk164", desk)
-        self.assertIn("DESK_V = \"desk164\"", desk)
+        self.assertIn("desk165", html)
+        self.assertIn("desk165", desk)
+        self.assertIn("DESK_V = \"desk165\"", desk)
+        # KAN-536 Note: open chip note row + bring main window forward.
+        self.assertIn("_focus_main_window", desk)
+        self.assertIn('v == "note"', desk)
+        self.assertIn("Type note in Manual", desk)
+        self.assertIn("Type a note in Manual", desk)
+        self.assertIn("Note failed — no open session", desk)
         self.assertIn("native_toolwindow", desk)
         self.assertIn("g_tray_look4", desk)
         self.assertIn("charter_float_set_tray", desk)
@@ -332,6 +338,13 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("addNoteFromManualChip", js)
         self.assertIn("syncManualEndVisible", js)
         self.assertIn("note_focus", js)
+        # KAN-536: note_focus must unhide chip note row before focus.
+        note_ev = js.split('if (ev === "note_focus")', 1)[1].split(
+            'if ((ev === "still" || ev === "note")', 1
+        )[0]
+        self.assertIn("manualSessionChipNoteRow.hidden = false", note_ev)
+        self.assertIn("Type a note — Enter saves", note_ev)
+        self.assertIn("KAN-536", js)
         # Resume stays available while session open (not gated on float-active).
         resume_fn = js.split("function setManualResumeUi", 1)[1].split(
             "function showManualSessionChip", 1

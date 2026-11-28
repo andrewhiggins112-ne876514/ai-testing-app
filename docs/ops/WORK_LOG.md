@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — next Build: tray Note affordance |
+| **Status** | open — awaiting Designer Note confirm on **desk165** |
 | **Jira story** | **KAN-536** (Bug — tray Note appears to do nothing) |
-| **Start task** | Fix Note (**KAN-537**). Then Pause **538**→…→ Cancel **546**. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Start task** | Human KAN-537 on desk165 → Done 536/537. Then Pause **538**→…→ Cancel **546**. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
 | **Spec** | FR-MAN-1 snip + Look 4 tray verbs |
 | **Git** | `main` |
 | **Test ticket** | **KAN-537**; then 539/541/543/545/547; then **KAN-513**/514 with **KAN-510**/511 |
-| **Shipped** | Still tip **KAN-548**/549 Done (**desk164**); view still **550**/551 Done; Still capture **534**/535 Done; tips size **532**/533 Done; glue/resize **530**/528 Done |
-| **Queued** | Tray Note **KAN-536** → Pause **538** → Assist **540** → Mist **542** → End **544** → Cancel **546**; then **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392** |
+| **Shipped** | Note fix agent-ready (**desk165**, await human); tip **548**/549 Done (**desk164**); view still **550**/551 Done; Still **534**/535 Done; tips size **532**/533 Done; glue/resize **530**/528 Done |
+| **Queued** | Tray Note **KAN-536** (confirm) → Pause **538** → Assist **540** → Mist **542** → End **544** → Cancel **546**; then **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392** |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Pick up **KAN-536**. After verb Bugs → **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Designer confirms Note on desk165 → Done **536**/537 → Pick up **KAN-538**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-536 — Tray Note visible affordance (desk165)
+- **Agent/chat:** Cursor IDE Agent — pick up Active KAN-536
+- **Done:** Root cause: `note_focus` focused a still-`hidden` chip note row (felt inert); Manual window stayed behind overlay. Fix: unhide note row + focus/select; bring main window forward (`_focus_main_window` via pywebview restore/show + Win32 foreground); tray `flash_tip("Type note in Manual")`; honest no-session error. Cache-bust **desk165**. Note-sheet HWND still OOS.
+- **Files:** `desktop_app.py`, `ui/desktop/desktop.js`, `ui/desktop/index.html`, `plans/charter_ring_native.py`, `tests/test_charter_float.py` (+ desk165 marker sweep)
+- **Verify:** `pytest tests/test_charter_float.py tests/test_manual_ia.py tests/test_manual_trustworthy_loop.py` — 23 passed. **Human KAN-537** required (Note opens typeable field). CU skipped — human-hands.
+- **Jira:** agent Fix/completion on **KAN-536**/537 (yes); story/test **not** Done until human confirm
+- **Next:** Designer runs KAN-537 on desk165 → Done 536/537 → Active **KAN-538** (Pause)
 
 ### 2026-11-28 — KAN-548/549 Done (desk164 human tip pass)
 - **Agent/chat:** Cursor IDE Agent — Designer: Still saved tip confirmed
