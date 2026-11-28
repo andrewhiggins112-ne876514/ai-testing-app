@@ -2271,6 +2271,129 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   gap: var(--space-2);
 }
 
+/* KAN-388 — readable full plan document view (not scan-table / forms) */
+.plan-document-article {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 0;
+  max-width: 46rem;
+  padding: var(--space-2) var(--space-3) var(--space-4);
+}
+
+.plan-document-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.plan-document-title {
+  margin: 0;
+  font: var(--type-title, 600 1.35rem/1.3 system-ui, sans-serif);
+  color: var(--text, #e8f4ff);
+  letter-spacing: 0.01em;
+}
+
+.plan-document-meta,
+.plan-document-lede,
+.plan-document-sources,
+.plan-document-case-meta,
+.plan-document-case-last {
+  margin: 0;
+  font: var(--type-ui);
+  color: var(--muted, #9bb4c4);
+  line-height: 1.45;
+}
+
+.plan-document-section-label {
+  margin: var(--space-2) 0 0;
+  font: var(--type-meta);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cyan, #50cdff);
+}
+
+.plan-document-intent {
+  margin: 0;
+  white-space: pre-wrap;
+  font: var(--type-ui);
+  color: var(--text, #e8f4ff);
+  line-height: 1.55;
+}
+
+.plan-document-cases {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.plan-document-case {
+  margin: 0;
+  padding: var(--space-2) 0 0;
+  border-top: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 22%, transparent);
+}
+
+.plan-document-case-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-1);
+}
+
+.plan-document-case-name {
+  margin: 0;
+  font: var(--type-ui);
+  font-weight: 600;
+  color: var(--text, #e8f4ff);
+}
+
+.plan-document-case-id {
+  font: var(--type-meta);
+  color: var(--muted, #9bb4c4);
+}
+
+.plan-document-open-case {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--cyan, #50cdff);
+  font: var(--type-meta);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.plan-document-open-case:hover,
+.plan-document-open-case:focus-visible {
+  color: var(--text, #e8f4ff);
+}
+
+.plan-document-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: var(--space-1) 0;
+}
+
+.plan-document-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 30%, transparent);
+  font: var(--type-meta);
+  color: var(--muted, #9bb4c4);
+}
+
+.plan-document-empty-cases {
+  margin: 0;
+  font: var(--type-ui);
+  color: var(--muted, #9bb4c4);
+}
+
 .plan-add-case {
   position: relative;
   display: flex;

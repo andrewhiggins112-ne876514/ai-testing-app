@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | ready — GAP-CR Build |
-| **Jira story** | **KAN-388** Plan document view (epic **KAN-383**) |
-| **Start task** | Build user-friendly full plan document view (FR-PLAN-1 deepen). Do **not** start voice / FR-MAN-2. |
-| **Epic** | **KAN-383** GAP-CR |
+| **Status** | ready — Charter G+tray Build |
+| **Jira story** | **KAN-512** Charter G+tray Look 4 (after Accept) |
+| **Start task** | Implement Manual → session chip + hollow OS shell + collapsible compact icon tray (Look 4). Then residuals **KAN-510**/511. Do **not** start voice / FR-MAN-2. |
+| **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
-| **Spec** | FR-PLAN-1 + gap research; keys in `docs/ops/OPERATE_KEYS.json` → gap_stories |
+| **Spec** | FR-MAN-1 CR 2026-11-28; mock `docs/mockups/charter_outside_window/looks/look4-*.html` |
 | **Git** | `main` |
-| **Test ticket** | **KAN-389** |
-| **Shipped** | Manual float **KAN-386**/387 + UX bugs **KAN-501**…**509** (**desk148**); Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
-| **Queued** | plan doc **KAN-388**/389; stubs **KAN-390**, compliance **KAN-392**, research adds |
+| **Test ticket** | **KAN-513** / **KAN-514** (residuals) — create/link story test if needed on pick-up |
+| **Shipped** | Plan document view **KAN-388**/389 (**desk149**); Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4…1; TRACE-DEEPEN; TRACK3-LAB |
+| **Queued** | Charter **KAN-512** (+ **KAN-510**/511); stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Active = **KAN-388**/389. After that: Charter **G+tray Look 4** Build (**KAN-512** + residuals **KAN-510**/513, **KAN-511**/514) — Designer Accepted 2026-11-28; do **not** steal Active now. Manual usable **desk148**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Active = **KAN-512** G+tray Look 4. Manual usable **desk149**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-388 — Plan document view (FR-PLAN-1 deepen)
+- **Agent/chat:** Cursor IDE Agent (Composer) — pick up Active GAP-CR
+- **Done:** Plans **Document** tab — readable narrative of intent, sources, cases, tags, last results (not scan-table/forms). Storage stays level-scoped JSON. Cache-bust **desk149**.
+- **Files:** `ui/desktop/index.html`, `desktop.css`, `desktop.js`, `desktop_app.py`, `charter_float.html`, `tests/test_plan_document_view.py`, `tests/test_plans_ia.py` (+ desk149 sweep)
+- **Verify:** `pytest tests/test_plan_document_view.py tests/test_plans_ia.py` — 4 passed (broader desk149 charter/store also green)
+- **Jira:** story agent-completion + **KAN-389** evidence/Done (via closeout script)
+- **Next:** **KAN-512** Charter G+tray Look 4 Build
 
 ### 2026-11-28 — KAN-512 — Charter G+tray Look 4 Accepted (Spec + Jira bridge)
 - **Agent/chat:** Cursor IDE Agent — Council+Studio; Designer: Accept G+tray, Look 4, collapsible tray icon; good to go

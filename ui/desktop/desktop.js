@@ -1697,6 +1697,7 @@
     });
   }
   showPlanPanel("cases");
+  renderPlanDocument(null);
   const jiraReadKey = document.getElementById("jira-read-key");
   const jiraReadBtn = document.getElementById("jira-read-btn");
   const jiraReadOut = document.getElementById("jira-read-out");
@@ -4187,8 +4188,188 @@
     }
   }
 
+  function planDocumentLastNarrative(caseObj) {
+    const runs = (caseObj && caseObj.runs) || [];
+    if (!runs.length) {
+      return "No runs recorded yet.";
+    }
+    const last = runs[runs.length - 1] || {};
+    const parts = [];
+    const result = String(last.result || "pending").trim() || "pending";
+    parts.push("Last result: " + result);
+    if (last.duration_ms != null && last.duration_ms !== "") {
+      parts.push(last.duration_ms + " ms");
+    }
+    if (last.finished_at || last.started_at) {
+      parts.push(String(last.finished_at || last.started_at));
+    }
+    if (isKnownLabel(last) || isKnownLabel(caseObj)) {
+      parts.push("known issue");
+    } else if (last.failure_class) {
+      parts.push("class " + last.failure_class);
+    }
+    const ev = last.evidence || [];
+    for (let i = 0; i < ev.length; i++) {
+      if (String(ev[i]).toLowerCase().indexOf(".png") >= 0) {
+        parts.push("screenshot on file");
+        break;
+      }
+    }
+    return parts.join(" · ");
+  }
+
+  function renderPlanDocument(plan) {
+    const emptyEl = document.getElementById("plan-document-empty");
+    const bodyEl = document.getElementById("plan-document-body");
+    if (!bodyEl) return;
+    if (!plan || !plan.id) {
+      if (emptyEl) emptyEl.hidden = false;
+      bodyEl.hidden = true;
+      bodyEl.textContent = "";
+      return;
+    }
+    if (emptyEl) emptyEl.hidden = true;
+    bodyEl.hidden = false;
+    bodyEl.textContent = "";
+
+    const title = document.createElement("h3");
+    title.className = "plan-document-title";
+    title.textContent = plan.name || plan.id || "Untitled plan";
+    bodyEl.appendChild(title);
+
+    const meta = document.createElement("p");
+    meta.className = "plan-document-meta";
+    const cases = (plan.suite && plan.suite.cases) || [];
+    meta.textContent =
+      "Plan " +
+      (plan.id || "—") +
+      " · " +
+      (plan.security_level || "—") +
+      " · " +
+      cases.length +
+      " case" +
+      (cases.length === 1 ? "" : "s") +
+      ". Stored as local JSON — not a database.";
+    bodyEl.appendChild(meta);
+
+    const intentLabel = document.createElement("p");
+    intentLabel.className = "plan-document-section-label";
+    intentLabel.textContent = "Intent";
+    bodyEl.appendChild(intentLabel);
+
+    const intentText = String(plan.intent || "").trim();
+    if (intentText) {
+      const intent = document.createElement("p");
+      intent.className = "plan-document-intent";
+      intent.textContent = intentText;
+      bodyEl.appendChild(intent);
+    } else {
+      const lede = document.createElement("p");
+      lede.className = "plan-document-lede";
+      lede.textContent = "No intent written yet. Edit cases or draft from a story when you are ready.";
+      bodyEl.appendChild(lede);
+    }
+
+    const sources = plan.sources || {};
+    const jiraKeys = sources.jira_keys || [];
+    const docs = sources.documents || [];
+    if (jiraKeys.length || docs.length) {
+      const srcLabel = document.createElement("p");
+      srcLabel.className = "plan-document-section-label";
+      srcLabel.textContent = "Sources";
+      bodyEl.appendChild(srcLabel);
+      const src = document.createElement("p");
+      src.className = "plan-document-sources";
+      const bits = [];
+      if (jiraKeys.length) bits.push("Jira: " + jiraKeys.join(", "));
+      if (docs.length) bits.push("Documents: " + docs.join(", "));
+      src.textContent = bits.join(" · ");
+      bodyEl.appendChild(src);
+    }
+
+    const casesLabel = document.createElement("p");
+    casesLabel.className = "plan-document-section-label";
+    casesLabel.textContent = "Cases";
+    bodyEl.appendChild(casesLabel);
+
+    if (!cases.length) {
+      const none = document.createElement("p");
+      none.className = "plan-document-empty-cases";
+      none.textContent = "No cases in this plan yet.";
+      bodyEl.appendChild(none);
+      return;
+    }
+
+    const list = document.createElement("ol");
+    list.className = "plan-document-cases";
+    cases.forEach(function (c, idx) {
+      const li = document.createElement("li");
+      li.className = "plan-document-case";
+      li.setAttribute("data-plan-document-case", c.id || String(idx));
+
+      const head = document.createElement("div");
+      head.className = "plan-document-case-head";
+
+      const name = document.createElement("h4");
+      name.className = "plan-document-case-name";
+      name.textContent = (idx + 1) + ". " + (c.name || c.id || "Untitled case");
+      head.appendChild(name);
+
+      const idEl = document.createElement("span");
+      idEl.className = "plan-document-case-id mono";
+      idEl.textContent = c.id || "";
+      head.appendChild(idEl);
+
+      const openBtn = document.createElement("button");
+      openBtn.type = "button";
+      openBtn.className = "plan-document-open-case";
+      openBtn.textContent = "Open in Cases";
+      openBtn.setAttribute("data-plan-document-open-case", c.id || "");
+      openBtn.addEventListener("click", function () {
+        showPlanPanel("cases");
+        focusPlanCaseDetail(c, { focusField: false });
+      });
+      head.appendChild(openBtn);
+      li.appendChild(head);
+
+      const status = planCaseStatusLabel(c);
+      const statusLine = document.createElement("p");
+      statusLine.className = "plan-document-case-meta";
+      statusLine.textContent = "Status: " + status.text;
+      li.appendChild(statusLine);
+
+      const tags = c.tags || [];
+      if (tags.length) {
+        const tagRow = document.createElement("div");
+        tagRow.className = "plan-document-tags";
+        tagRow.setAttribute("aria-label", "Tags");
+        tags.forEach(function (t) {
+          const chip = document.createElement("span");
+          chip.className = "plan-document-tag";
+          chip.textContent = t;
+          tagRow.appendChild(chip);
+        });
+        li.appendChild(tagRow);
+      } else {
+        const noTags = document.createElement("p");
+        noTags.className = "plan-document-case-meta";
+        noTags.textContent = "Tags: none";
+        li.appendChild(noTags);
+      }
+
+      const last = document.createElement("p");
+      last.className = "plan-document-case-last";
+      last.textContent = planDocumentLastNarrative(c);
+      li.appendChild(last);
+
+      list.appendChild(li);
+    });
+    bodyEl.appendChild(list);
+  }
+
   function renderPlanCases(plan) {
     openPlanCases = (plan && plan.suite && plan.suite.cases) || [];
+    renderPlanDocument(plan);
     if (planIntent) {
       const intent = (plan && plan.intent) || "";
       planIntent.hidden = !intent;

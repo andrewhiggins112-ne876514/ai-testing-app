@@ -144,16 +144,16 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk148(self) -> None:
+    def test_desktop_float_markers_desk149(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk148", html)
-        self.assertIn("desk148", desk)
-        self.assertIn("desk148", float_html)
+        self.assertIn("desk149", html)
+        self.assertIn("desk149", desk)
+        self.assertIn("desk149", float_html)
         self.assertIn('data-snip-dock="1"', float_html)
         self.assertIn("charter_ring_native", desk)
         self.assertIn("dock_plus_native_ring", desk)

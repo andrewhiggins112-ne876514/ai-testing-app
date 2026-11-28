@@ -107,8 +107,8 @@ class HealReviewTests(unittest.TestCase):
     def test_cache_bust_desk_token(self):
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        self.assertIn("desk148", app)
-        self.assertIn("desk148", html)
+        self.assertIn("desk149", app)
+        self.assertIn("desk149", html)
         self.assertRegex(html, r"desktop\.css\?v=desk\d+")
         self.assertRegex(html, r"desktop\.js\?v=desk\d+")
 

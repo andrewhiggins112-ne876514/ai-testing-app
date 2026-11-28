@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk148" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk149" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -1066,6 +1066,7 @@
           <div id="plan-section-tabs" class="plan-section-tabs" role="tablist" aria-label="Plans sections" data-plan-tabs="1">
             <button type="button" class="plan-tab" role="tab" id="plan-tab-draft" data-plan-panel="draft" aria-selected="false" aria-controls="plan-panel-draft" title="Draft &amp; import">Draft</button>
             <button type="button" class="plan-tab" role="tab" id="plan-tab-cases" data-plan-panel="cases" aria-selected="true" aria-controls="plan-panel-cases">Cases</button>
+            <button type="button" class="plan-tab" role="tab" id="plan-tab-document" data-plan-panel="document" aria-selected="false" aria-controls="plan-panel-document" title="Readable plan document">Document</button>
             <button type="button" class="plan-tab" role="tab" id="plan-tab-coverage" data-plan-panel="coverage" aria-selected="false" aria-controls="plan-panel-coverage" title="Coverage &amp; drift">Coverage</button>
             <button type="button" class="plan-tab" role="tab" id="plan-tab-trace" data-plan-panel="trace" aria-selected="false" aria-controls="plan-panel-trace" title="Traceability">Trace</button>
             <button type="button" class="plan-tab" role="tab" id="plan-tab-history" data-plan-panel="history" aria-selected="false" aria-controls="plan-panel-history">History</button>
@@ -1074,7 +1075,7 @@
           <div class="area-work" data-area-work="1">
           <details class="plan-about" data-plan-about="1">
             <summary>About Plans</summary>
-            <p class="drawer-hint">Open a plan, work Cases first, then draft/import or run setup as needed. Nothing is written to Jira from this screen. Import never deletes external Playwright files; Suites still runs via npx.</p>
+            <p class="drawer-hint">Open a plan, work Cases first, or open Document for a readable narrative of intent, cases, tags, and last results. Draft/import and run setup stay on their tabs. Nothing is written to Jira from this screen. Import never deletes external Playwright files; Suites still runs via npx.</p>
           </details>
           <div id="plan-search-results" class="drawer-hint" aria-live="polite" role="list" aria-label="Plan search results"></div>
           <div id="plan-panel-cases" class="plan-panel" role="tabpanel" data-plan-panel="cases" aria-labelledby="plan-tab-cases" data-plan-cases-layout-grammar="1">
@@ -1294,6 +1295,12 @@
                 <p class="plan-deep-strip-empty" data-run-deep-strip-empty="1" hidden>No captured pages on this run.</p>
               </div>
             </div>
+          </div>
+          <div id="plan-panel-document" class="plan-panel" role="tabpanel" data-plan-panel="document" aria-labelledby="plan-tab-document" hidden data-plan-document-view="1" data-scan-scroll="scan">
+            <article id="plan-document-article" class="plan-document-article" data-plan-document-article="1" aria-label="Plan document">
+              <p id="plan-document-empty" class="scan-quiet-empty" data-plan-document-empty="1">Open a plan to read it as a document — intent, cases, tags, and last results without the edit forms.</p>
+              <div id="plan-document-body" class="plan-document-body" data-plan-document-body="1" hidden aria-live="polite"></div>
+            </article>
           </div>
           <div id="plan-panel-draft" class="plan-panel" role="tabpanel" data-plan-panel="draft" aria-labelledby="plan-tab-draft" hidden data-plan-draft-form="1">
             <div class="plan-tabs-grammar-split" data-scan-no-outer-scroll="1" data-plan-draft-split="1">
@@ -1907,6 +1914,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk148"></script>
+  <script src="/ui/desktop/desktop.js?v=desk149"></script>
 </body>
 </html>

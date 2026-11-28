@@ -6,19 +6,21 @@ from pathlib import Path
 
 
 class PlansIaDesktopUiTests(unittest.TestCase):
-    def test_plans_ia_markers_desk148(self):
+    def test_plans_ia_markers_desk149(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         js = Path("ui/desktop/desktop.js").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk148", html)
-        self.assertIn("desk148", desk)
+        self.assertIn("desk149", html)
+        self.assertIn("desk149", desk)
         self.assertIn('data-plans-ia="1"', html)
         self.assertIn('data-plan-chrome="1"', html)
         self.assertIn('id="plan-chrome-toolbar"', html)
         self.assertIn('data-plan-tabs="1"', html)
         self.assertIn('id="plan-panel-cases"', html)
+        self.assertIn('id="plan-panel-document"', html)
+        self.assertIn('id="plan-tab-document"', html)
         self.assertIn('id="plan-panel-draft"', html)
         self.assertIn('id="plan-panel-coverage"', html)
         self.assertIn('id="plan-panel-trace"', html)
