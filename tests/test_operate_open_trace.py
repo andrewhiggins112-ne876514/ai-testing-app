@@ -126,14 +126,14 @@ class OperateOpenTraceApiTests(unittest.TestCase):
 
 
 class OperateOpenTraceUiTests(unittest.TestCase):
-    def test_marker_controls_and_desk150(self) -> None:
+    def test_marker_controls_and_desk151(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk150", html)
-        self.assertIn("desk150", desk)
+        self.assertIn("desk151", html)
+        self.assertIn("desk151", desk)
         self.assertIn('data-operate-open-trace="1"', html)
         self.assertIn("Open Playwright Trace", js)
         self.assertIn("Reveal in Explorer", js)

@@ -2968,8 +2968,18 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   display: none;
 }
 
-#app-section-manual[data-loop-stage="recording"] .manual-primary {
-  opacity: 0.72;
+/* Recording: dim Start fields only — never lock Resume / End / session chip
+   (KAN-504 / KAN-516: pointer-events:none on whole .manual-primary blocked charter). */
+#app-section-manual[data-loop-stage="recording"] .manual-primary > .orb-section-label,
+#app-section-manual[data-loop-stage="recording"] .manual-primary > .stack-label,
+#app-section-manual[data-loop-stage="recording"] .manual-primary > .manual-compact-check,
+#app-section-manual[data-loop-stage="recording"] .manual-primary > .manual-start-links,
+#app-section-manual[data-loop-stage="recording"] .manual-primary > .drawer-hint {
+  opacity: 0.55;
+  pointer-events: none;
+}
+#app-section-manual[data-loop-stage="recording"] #manual-start {
+  opacity: 0.55;
   pointer-events: none;
 }
 
@@ -2991,10 +3001,6 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .manual-session-chip b {
   color: var(--cyan, #50cdff);
   font-weight: 600;
-}
-#app-section-manual[data-loop-stage="recording"] .manual-session-chip {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .manual-primary textarea {

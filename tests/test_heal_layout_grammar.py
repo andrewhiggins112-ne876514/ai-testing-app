@@ -8,14 +8,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class HealLayoutGrammarTests(unittest.TestCase):
-    def test_heal_fr_ui11_grammar_markers_desk150(self) -> None:
+    def test_heal_fr_ui11_grammar_markers_desk151(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk150", html)
-        self.assertIn("desk150", desk)
+        self.assertIn("desk151", html)
+        self.assertIn("desk151", desk)
 
         heal = html.split('id="app-section-heal"', 1)[1].split(
             'id="app-section-desktop"', 1

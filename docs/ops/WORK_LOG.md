@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-28 — KAN-516 — Manual charter locked after Look 4 Start
+- **Agent/chat:** Cursor IDE Agent — Designer: Start not recognising entered charter
+- **Done:** Regression fix — do not set `recording` until OS shell places; idle + Resume/End on place-fail; CSS no longer `pointer-events:none` on whole `.manual-primary`. Cache-bust **desk151**.
+- **Files:** `ui/desktop/desktop.js`, `desktop.css`, `index.html`, `desktop_app.py`, `charter_float.html`, `tests/test_charter_float.py`
+- **Verify:** `pytest tests/test_charter_float.py` — 9 passed
+- **Jira:** Bug **KAN-516** Fix + Done (+ linked test)
+- **Next:** Active remains **KAN-510** residual
+
 ### 2026-11-28 — KAN-512 — Charter G+tray Look 4 Build
 - **Agent/chat:** Cursor IDE Agent (Composer) — pick up Active GAP-CR
 - **Done:** Look 4 Compact rail on desktop: Manual → session chip (no second cyan rect when OS float arms); hollow native ring + collapsible ~48px icon tray (Still/Note/Pause/Assist/Mist/End/Cancel); tray side + collapsed persisted; note sheet grows outward; place-fail is honest (no silent in-app fallback). Cache-bust **desk150**.

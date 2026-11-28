@@ -7260,10 +7260,11 @@
     showCharterCancelConfirm(false);
     hideCharterSnapPicker();
     updateCharterFrameChip(session);
-    setManualLoopStage("recording");
+    /* Do NOT set recording yet — that used to lock .manual-primary and block
+       the charter field / Resume / End when OS float failed (KAN-504 / KAN-516). */
 
     /* KAN-512 Look 4: desktop shell uses hollow OS shell + tray only.
-       Manual steps back to session chip — no second cyan capture rect.
+       Manual steps back to a session chip — no second cyan capture rect.
        Place fail → honest error (no silent in-app rect fallback). */
     const bridge = desktopBridgeApi();
     const hasFloatBridge = !!(
@@ -7272,14 +7273,15 @@
       bridge.charter_float_open
     );
     if (hasFloatBridge) {
-      const floated = await openOsCharterFloat(session);
-      charterOsFloatActive = floated;
       if (charterFrameRoot) {
         charterFrameRoot.hidden = true;
         charterFrameRoot.setAttribute("aria-hidden", "true");
         setCharterMistVisible(false);
       }
+      const floated = await openOsCharterFloat(session);
+      charterOsFloatActive = floated;
       if (floated) {
+        setManualLoopStage("recording");
         showManualSessionChip(session);
         setManualResumeUi(null);
         if (manualStatus) {
@@ -7287,11 +7289,12 @@
             "Recording — hollow OS shell + icon tray. Manual is a session chip (Restore). Drag the tray rail to move capture outside this window.";
         }
       } else {
+        setManualLoopStage("idle");
         hideManualSessionChip();
         setManualResumeUi(session);
         if (manualStatus) {
           manualStatus.textContent =
-            "Charter OS shell failed to place — no silent in-app fallback. Use Resume Charter to retry.";
+            "Charter OS shell failed to place — no silent in-app fallback. Use Resume Charter to retry, or End open session.";
         }
       }
       return;
@@ -7307,6 +7310,7 @@
       charterFrameRoot.setAttribute("aria-hidden", "false");
     }
     charterOsFloatActive = false;
+    setManualLoopStage("recording");
     hideManualSessionChip();
     setManualResumeUi(null);
     if (manualStatus) {
@@ -7877,9 +7881,22 @@
   }
 
   async function startManualSession() {
-    const charter = manualCharter ? manualCharter.value.trim() : "";
+    /* Re-read by id — avoids stale node refs after Manual re-renders. */
+    const charterEl =
+      document.getElementById("manual-charter") || manualCharter;
+    const charter = charterEl ? String(charterEl.value || "").trim() : "";
     if (!charter) {
-      if (manualStatus) manualStatus.textContent = "Charter is required to Start.";
+      if (manualStatus) {
+        manualStatus.textContent =
+          "Charter is required to Start — type in the Charter box above Start session.";
+      }
+      if (charterEl) {
+        try {
+          charterEl.focus();
+        } catch (_err) {
+          /* ignore */
+        }
+      }
       return;
     }
     const ticketBound = !!(manualTicketBound && manualTicketBound.checked);

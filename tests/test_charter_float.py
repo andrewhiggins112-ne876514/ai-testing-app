@@ -166,16 +166,16 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk150(self) -> None:
+    def test_desktop_float_markers_desk151(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk150", html)
-        self.assertIn("desk150", desk)
-        self.assertIn("desk150", float_html)
+        self.assertIn("desk151", html)
+        self.assertIn("desk151", desk)
+        self.assertIn("desk151", float_html)
         self.assertIn('data-snip-dock="1"', float_html)
         self.assertIn('data-charter-g-tray="1"', float_html)
         self.assertIn('data-look="4"', float_html)
@@ -207,7 +207,8 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("Resume Charter", js)
         self.assertIn("setManualResumeUi(openData.session)", js)
         self.assertNotIn("await showCharterFrame(openData.session)", js)
-        # KAN-512: desktop shell hides in-app rect when float bridge exists.
+        # KAN-512 / KAN-516: desktop shell hides in-app rect when float bridge exists;
+        # recording stage only after float ok (idle on place-fail so charter stays typeable).
         show_fn = js.split("async function showCharterFrame(session)", 1)[1].split(
             "async function hideCharterFrame()", 1
         )[0]
@@ -215,6 +216,17 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("no silent in-app", show_fn)
         self.assertIn("showManualSessionChip", show_fn)
         self.assertIn("charterFrameRoot.hidden = true", show_fn)
+        self.assertIn('setManualLoopStage("idle")', show_fn)
+        self.assertIn("Do NOT set recording yet", show_fn)
+        css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
+        self.assertNotIn(
+            "#app-section-manual[data-loop-stage=\"recording\"] .manual-primary {\n"
+            "  opacity: 0.72;\n"
+            "  pointer-events: none;\n"
+            "}",
+            css,
+        )
+        self.assertIn("#manual-start", css)
 
     def test_api_start_charter_only(self) -> None:
         from main import app
