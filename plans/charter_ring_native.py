@@ -107,10 +107,10 @@ user32.PostThreadMessageW.argtypes = [
 user32.PostThreadMessageW.restype = wintypes.BOOL
 
 # Suffix bumps when WndProc changes (RegisterClassW 1410 keeps stale proc).
-_CLASS_BAR = "AiTestingCharterBar550"
-_CLASS_TRAY = "AiTestingCharterTray550"
-_CLASS_MSG = "AiTestingCharterMsg550"
-_CLASS_TIP = "AiTestingCharterTip550"
+_CLASS_BAR = "AiTestingCharterBar548"
+_CLASS_TRAY = "AiTestingCharterTray548"
+_CLASS_MSG = "AiTestingCharterMsg548"
+_CLASS_TIP = "AiTestingCharterTip548"
 
 # Look 4 Compact side rail (Accepted). Under-ring Rejected (KAN-525).
 # Owner-drawn icons — no stock Win32 BUTTON chrome (Designer: cheap/outdated).
@@ -690,6 +690,9 @@ def _tip_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
     # Still/Note click after a readable hover tip appears (desk161).
     if msg == WM_NCHITTEST:
         return HTTRANSPARENT
+    if msg == WM_TIMER and int(wparam) == TIP_FLASH_TIMER_ID:
+        _hide_tip()
+        return 0
     if msg == WM_PAINT:
         ps = PAINTSTRUCT()
         hdc = user32.BeginPaint(hwnd, ctypes.byref(ps))
@@ -1226,7 +1229,10 @@ def set_geom_callback(cb: Callable[[list[int]], None] | None) -> None:
 
 
 def flash_tip(text: str, *, ms: int = 1600) -> dict[str, Any]:
-    """Brief on-overlay status tip beside the tray (KAN-548 Still saved/fail)."""
+    """Brief on-overlay status tip beside the tray (KAN-548 Still saved/fail).
+
+    Call after tray chrome is restored — destroy/recreate hides an early tip.
+    """
     ensure_ring_thread()
     msg = str(text or "").strip()[:80]
     if not msg:
@@ -1239,10 +1245,22 @@ def flash_tip(text: str, *, ms: int = 1600) -> dict[str, Any]:
         if _tray_hwnd:
             user32.KillTimer(_tray_hwnd, TIP_TIMER_ID)
             user32.KillTimer(_tray_hwnd, TIP_FLASH_TIMER_ID)
+        tip = _ensure_tip_hwnd()
+        if tip:
+            user32.KillTimer(tip, TIP_FLASH_TIMER_ID)
         _show_tip_text(msg, near_tray=True)
-        if _tray_hwnd:
-            user32.SetTimer(_tray_hwnd, TIP_FLASH_TIMER_ID, hold, None)
-        return {"status": "ok", "text": msg, "ms": hold, "near_tray": True}
+        # Prefer tray timer; fall back to tip HWND so flash still auto-hides
+        # if tray is briefly missing.
+        host = int(_tray_hwnd or tip or 0)
+        if host:
+            user32.SetTimer(host, TIP_FLASH_TIMER_ID, hold, None)
+        return {
+            "status": "ok",
+            "text": msg,
+            "ms": hold,
+            "near_tray": bool(_tray_hwnd),
+            "timer_host": host,
+        }
 
     out = _run_on_ring(_do, timeout=3.0)
     return out if isinstance(out, dict) else {"status": "error", "error": "flash_failed"}

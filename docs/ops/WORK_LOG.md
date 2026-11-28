@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — await human: view still + overlay tip (**desk163**) |
-| **Jira story** | **KAN-550** (Bug — open/view captured still) + **KAN-548** (on-overlay tip) |
-| **Start task** | Human **KAN-551**/549 on desk163. Then Note **536**→…→ Cancel **546**. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Status** | open — await human: Still saved tip only (**desk164**) |
+| **Jira story** | **KAN-548** (Bug — on-overlay Still saved tip) |
+| **Start task** | Human **KAN-549** on desk164. Then Note **536**→…→ Cancel **546**. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
 | **Spec** | FR-MAN-1 snip + Look 4 tray verbs |
 | **Git** | `main` |
-| **Test ticket** | **KAN-551**/549; then 537/539/541/543/545/547; then **KAN-513**/514 with **KAN-510**/511 |
-| **Shipped** | Still capture **KAN-534**/535 Done (**desk162** human); view+flash agent **desk163** (await human); tips **KAN-532**/533 Done; glue/resize **KAN-530**/528 Done; host restore **KAN-525**/526; G+tray **KAN-512** + **KAN-516**…**524** |
-| **Queued** | Human **550**/548 → tray Note **536** → Pause **538** → Assist **540** → Mist **542** → End **544** → Cancel **546**; then **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392** |
+| **Test ticket** | **KAN-549**; then 537/539/541/543/545/547; then **KAN-513**/514 with **KAN-510**/511 |
+| **Shipped** | View still **KAN-550**/551 Done (human); Still capture **534**/535 Done; tip fix agent **desk164** (await human); tips size **532**/533 Done; glue/resize **530**/528 Done |
+| **Queued** | Human **548**/549 → tray Note **536** → Pause **538** → Assist **540** → Mist **542** → End **544** → Cancel **546**; then **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392** |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Designer confirms **desk163** View still + overlay “Still saved” → Done **550**/551 + **548**/549 → **KAN-536**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Designer confirms **desk164** “Still saved” tip beside tray → Done **548**/549 → **KAN-536**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-548 — Still saved tip after restore (desk164)
+- **Agent/chat:** Cursor IDE Agent — Designer: view still OK; tip missing (only chrome flash)
+- **Done:** Closed **KAN-550**/551. Root cause: `flash_tip` before tray restore → `_hide_tip` on recreate. Defer tip to after `_place_chrome`; longer hold; timer on tip HWND fallback. Cache-bust **desk164**.
+- **Files:** `desktop_app.py`, `plans/charter_ring_native.py`, `ui/desktop/index.html`, tests desk164 sweep
+- **Verify:** pytest charter_float + manual_ia + trustworthy — 23 passed. **Human KAN-549** required.
+- **Jira:** 550/551 Done; Fix comment 548/549 (yes); not Done until tip confirm
+- **Next:** Designer desk164 tip → Done 548/549 → **KAN-536** Note
 
 ### 2026-11-28 — KAN-550/548 — View still + on-overlay tip (desk163)
 - **Agent/chat:** Cursor IDE Agent — Designer: Still saved in Manual but no overlay confirm / no way to open image

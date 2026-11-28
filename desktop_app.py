@@ -28,7 +28,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk163"
+DESK_V = "desk164"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
 API = f"http://{HOST}:{PORT}/api"
@@ -244,6 +244,9 @@ def _on_tray_verb(verb: str) -> None:
             _emit_float_event("still", sid, status="error", message=msg)
             return
         # Hard-fail if bbox unknown — no all-screens grab (KAN-525 AC).
+        # KAN-548: flash tip AFTER chrome restore — destroy_side_tray / fresh
+        # tray recreate hide/kill the tip if shown mid-capture.
+        tip_flash = ""
         try:
             ring.hide_ring()
             ring.destroy_side_tray()
@@ -258,10 +261,7 @@ def _on_tray_verb(verb: str) -> None:
                     out.get("message") or out.get("error") or "Still failed"
                 )
                 msg = str(msg)[:120]
-                try:
-                    ring.flash_tip(msg)
-                except Exception:  # noqa: BLE001
-                    pass
+                tip_flash = msg
                 _notify_main(
                     "window.__manualFloatFailStatus=" + json.dumps(msg)
                 )
@@ -282,12 +282,7 @@ def _on_tray_verb(verb: str) -> None:
                         or "Still recorded with placeholder — capture failed"
                     )[:120]
                 )
-                try:
-                    ring.flash_tip(
-                        "Still saved" if captured else "Still placeholder"
-                    )
-                except Exception:  # noqa: BLE001
-                    pass
+                tip_flash = "Still saved" if captured else "Still placeholder"
                 _notify_main("window.__manualFloatFailStatus=''")
                 _emit_float_event(
                     "still",
@@ -303,10 +298,7 @@ def _on_tray_verb(verb: str) -> None:
                     )
         except Exception as exc:  # noqa: BLE001
             msg = f"Still failed: {exc}"[:120]
-            try:
-                ring.flash_tip(msg)
-            except Exception:  # noqa: BLE001
-                pass
+            tip_flash = msg
             _notify_main(
                 "window.__manualFloatFailStatus=" + json.dumps(msg)
             )
@@ -314,6 +306,13 @@ def _on_tray_verb(verb: str) -> None:
         finally:
             if _float_visible:
                 _place_chrome(bbox, fresh_tray=True)
+            if tip_flash:
+                try:
+                    # Brief settle so tray HWND exists for near-tray tip + timer.
+                    time.sleep(0.05)
+                    ring.flash_tip(tip_flash, ms=2200)
+                except Exception:  # noqa: BLE001
+                    pass
         return
 
     if v == "note":

@@ -300,13 +300,13 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk163(self) -> None:
+    def test_desktop_float_markers_desk164(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk163", html)
-        self.assertIn("desk163", desk)
-        self.assertIn("DESK_V = \"desk163\"", desk)
+        self.assertIn("desk164", html)
+        self.assertIn("desk164", desk)
+        self.assertIn("DESK_V = \"desk164\"", desk)
         self.assertIn("native_toolwindow", desk)
         self.assertIn("g_tray_look4", desk)
         self.assertIn("charter_float_set_tray", desk)
@@ -387,8 +387,11 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         # KAN-548 on-overlay flash + KAN-550 open/view still.
         self.assertIn("flash_tip", ring_src)
         self.assertIn("TIP_FLASH_TIMER_ID", ring_src)
-        self.assertIn("AiTestingCharterTip550", ring_src)
+        self.assertIn("AiTestingCharterTip548", ring_src)
         self.assertIn("ring.flash_tip", desk)
+        # KAN-548: tip must run after chrome restore (not mid destroy_side_tray).
+        self.assertIn("tip_flash", desk)
+        self.assertIn("flash_tip(tip_flash", desk)
         self.assertIn("data-manual-session-view-still", html)
         self.assertIn("data-manual-still-preview", html)
         self.assertIn("openManualStill", js)

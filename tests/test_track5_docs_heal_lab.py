@@ -8,15 +8,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class Track5DocsHealLabDisclosureTests(unittest.TestCase):
-    def test_documents_heal_lab_disclosure_markers_desk163(self) -> None:
+    def test_documents_heal_lab_disclosure_markers_desk164(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk163", html)
-        self.assertIn("desk163", desk)
-        self.assertIn("desktop.css?v=desk163", html)
-        self.assertIn("desktop.js?v=desk163", html)
+        self.assertIn("desk164", html)
+        self.assertIn("desk164", desk)
+        self.assertIn("desktop.css?v=desk164", html)
+        self.assertIn("desktop.js?v=desk164", html)
 
         documents = html.split('id="app-section-documents"', 1)[1].split(
             'id="app-section-heal"', 1
