@@ -62,6 +62,7 @@ Active Build: **KAN-496** Option A (Studio pick locked). OPERATE-4 **KAN-381** D
 | 2026-11-27 | **Run evidence Option A Accepted** (Designer). Frames 01–03 = Build **KAN-496**. Aside-only vertical story; no fake green; Open Trace external. | `docs/mockups/run_evidence_ux/` |
 | 2026-11-27 | **Council accept + deep view Story** (Designer: thumb also expands). **KAN-498**/499 separate from 496. Frames 05–07. No Trace embed / hosted viewer. | `docs/mockups/run_evidence_ux/` 05–07 |
 | 2026-11-28 | **Charter G + side tray Accepted**. Look **4 Compact rail**. Tray hide/show via tray-layout icon (IDE secondary-sidebar glyph). Remember last side; Assist/Mist on tray; Pause = own icon. Do **not** steal Active — code next after current Active finishes. | `docs/mockups/charter_outside_window/` + `looks/look4-*.html` |
+| 2026-11-28 | **Under-ring / south bar Rejected** as Look 4 (Council KAN-525). KAN-524 480×88 under-ring was a reliability experiment only — not Accepted design. Side rail remains the look; host = native TOOLWINDOW side chrome (not ~48px WebView2 rail). | Council verdict; Spec FR-MAN-1 CR lock |
 
 ## Rejected / park
 
@@ -109,20 +110,29 @@ Active Build: **KAN-496** Option A (Studio pick locked). OPERATE-4 **KAN-381** D
 
 ## Accepted — Charter G + side tray (2026-11-28)
 
-**Status: Accepted (structure + look).** Ready for Spec/Jira bridge when Designer says; Build next after current Active (do not steal Active now).
+**Status: Accepted (structure + look).** Spec CR lock 2026-11-28 (Council KAN-525). Build Active = **KAN-525** host restore; then **KAN-510**/511.
 
 | Decision | Choice |
 |----------|--------|
 | Route | Option G: Manual steps back to session chip; only overlay open |
 | Look | **4 — Compact rail** (dense ~36–40px VS Code–tight chrome; thin cyan hairline; minimal glow) |
 | Chrome | One hollow OS capture shell (click-through hole) + icon tray glued to a side |
+| Tray host | **Native TOOLWINDOW side chrome on the ring thread** (Council 2026-11-28). ~48px second WebView2 rail rejected for paint/ghost class. |
 | Tray collapse | **Hide/show tray** via tray-layout icon (rounded rect + right vertical strip — IDE secondary-sidebar glyph). Collapsed = hollow frame only + that toggle on the frame edge. Expanded = full icon stack. Remember collapsed/expanded with last side. |
-| Tray side | **Remember last side** (default east; flip west at screen edge / user preference) |
+| Tray side | **Remember last side** (default east; flip west at screen edge / user preference). **Side only** — see Rejected under-ring. |
 | Assist / Mist | **On the tray** (icon toggles, default off) |
 | Pause | **Own icon** on the tray (not status-slot reuse) |
-| Active Build | **KAN-512 shipped** — residuals **KAN-510**/511 next |
-| Bugs KAN-510 / 511 | After redesign Build (expect new bugs from the redesign too) |
+| Active Build | **KAN-525** (native side tray + Resume/End→Start); then residuals **KAN-510**/511 |
+| Bugs KAN-510 / 511 | **Paused** until KAN-525/526 human paths pass |
 
-**Frozen:** theme tokens, orb, home/chat, App nav. **OOS:** FR-MAN-2, voice, keylog/clipboard/mic, continuous video, Gradio OS float.
+### Rejected — under-ring / south reliability bar (2026-11-28)
+
+| Decision | Choice |
+|----------|--------|
+| Under-ring 480×88 horizontal verb bar (KAN-524 desk155) | **Rejected** as Look 4 and as an Acceptable degraded mode. Reliability must change the **host**, not relocate chrome under the capture hole. |
+| Taskbar-only Charter Frame + dead click | **Fail** — not a restore path. Prefer no taskbar entry; Manual chip Restore is the backup. |
+| Manual session chip as primary chrome | **Rejected** — backup only. |
+
+**Frozen:** theme tokens, orb, home/chat, App nav. **OOS for KAN-525 slice:** outward note-sheet HWND, FR-MAN-2, voice, keylog/clipboard/mic, continuous video, Gradio OS float, dual WebView fallback, SetWindowRgn.
 
 Research: `docs/mockups/charter_outside_window/RESEARCH_G_TRAY.md`. Look frames: `looks/look4-expanded.html`, `looks/look4-collapsed.html`.

@@ -62,6 +62,13 @@ Win+G widgets are dark, rounded, and compact. They sit over the game without dim
 | **Adapt** | Snipping’s region stroke, without the dim or the top pill. ShareX’s “stay with the region,” as a side rail. VS Code’s activity rail, fused to the hole. Insights’ hollow box, in our cyan. qTest/Xray verbs, as icons. Game Bar materials, as one shell. |
 | **Reject** | South text dock as the primary control. Full-screen dim. Fat WebView hint with ±. A second cyan Manual rect. Purple, cream, or card-style “AI” chrome. |
 
+## Host note (Council 2026-11-28 / KAN-525)
+
+- **Side rail remains the look** (Accepted Look 4). Under-ring / south 480×88 bar is **Rejected** as product UX — including as a reliability dodge (KAN-524).
+- **Icon rail host:** native Win32 `WS_EX_TOOLWINDOW` chrome on the existing hollow-ring thread. Do **not** use a ~48px second WebView2 as the icon rail (paint/ghost class).
+- **Lifecycle:** create/show on Start/Resume; destroy/remove on End — no hide-and-reuse zombie taskbar button. Prefer no taskbar entry; Manual chip is Restore backup only.
+- **Wide surfaces** (outward note sheet): separate later story; may use a short-lived wider WebView only if destroy-on-close is proven — not the 48px rail.
+
 ## Frames
 
 | Frame | File | What it is for |

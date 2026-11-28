@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | blocked — Charter tray taskbar ghost (council) |
-| **Jira story** | **KAN-510** paused; open Bug for council first |
-| **Start task** | Council review of tray taskbar-only after Resume/End→Start + side-tray preference. Do **not** Build-patch until verdict. Then resume **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Status** | open — council verdict landed; Build host fix |
+| **Jira story** | **KAN-525** (Bug — native Look 4 side tray + Resume/End→Start restore) |
+| **Start task** | Implement council host: native TOOLWINDOW side chrome on ring thread; kill hide-reuse WebView tray zombie; side-only (under-ring rejected). Human AC on KAN-526. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
-| **Spec** | FR-MAN-1 CR 2026-11-28; mock `docs/mockups/charter_outside_window/looks/look4-*.html` |
+| **Spec** | FR-MAN-1 CR lock 2026-11-28 (KAN-525); mock `looks/look4-*.html`; Intent under-ring **Rejected** |
 | **Git** | `main` |
-| **Test ticket** | **KAN-513** (KAN-510) / **KAN-514** (KAN-511) |
-| **Shipped** | Charter G+tray Look 4 **KAN-512** + reliability **KAN-516**…**524** (**desk155** under-ring); Plan document view **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4…1; TRACE-DEEPEN; TRACK3-LAB |
-| **Queued** | Residuals **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392**, research adds |
+| **Test ticket** | **KAN-526** (KAN-525); then **KAN-513**/514 after 525 |
+| **Shipped** | Charter G+tray Look 4 **KAN-512** + reliability **KAN-516**…**524** (**desk155** under-ring superseded); Plan document view **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4…1; TRACE-DEEPEN; TRACK3-LAB |
+| **Queued** | Residuals **KAN-510**/511 (paused until 525); stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Hold Build: Bug **KAN-525** (+ test **KAN-526**) → `/council`. After verdict, Active returns to **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Pick up **KAN-525**. After 525/526 Done → Active **KAN-510**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-525 — Council Full review verdict Accepted (Slice-0)
+- **Agent/chat:** Cursor IDE Agent — `/council` Full + Studio/Creative; Designer: All of the above
+- **Done:** Verdict CR: Look 4 side rail stays Accepted; under-ring Rejected; adopt native TOOLWINDOW side chrome on ring thread; reject ~48px WebView2 rail / hide-reuse / chip-as-chrome / SetWindowRgn. Hard pause **KAN-510** until 525. Spec FR-MAN-1 lock + Design Intent + Active → **KAN-525**. Jira enrich 525/526 + comments 512/524.
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `docs/mockups/DESIGN_INTENT.md`, `docs/ops/WORK_LOG.md`, `docs/ops/ROADMAP.md`, `PROJECT_MEMORY.md`, `scripts/jira_kan_525_council_verdict.py`
+- **Verify:** n/a (docs/Jira only — no product code)
+- **Jira:** enrich **KAN-525**/526 + comments **KAN-512**/524 (yes)
+- **Next:** Build pick-up **KAN-525**; then **KAN-510**
 
 ### 2026-11-28 — KAN-525 — Charter tray still taskbar-only (council hold)
 - **Agent/chat:** Cursor IDE Agent — Designer: Resume/End→Start still no overlay; taskbar click dead; prefer side tray not bottom
