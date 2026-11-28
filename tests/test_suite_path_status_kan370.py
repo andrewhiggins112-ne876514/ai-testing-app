@@ -13,14 +13,14 @@ from plugins.playwright_suite import discover_suite, _resolve_root  # noqa: E402
 
 
 class SuitePathStatusKan370Tests(unittest.TestCase):
-    def test_expandvars_and_status_wrap_desk158(self) -> None:
+    def test_expandvars_and_status_wrap_desk159(self) -> None:
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         py = (ROOT / "plugins" / "playwright_suite.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk158", html)
-        self.assertIn("desk158", desk)
+        self.assertIn("desk159", html)
+        self.assertIn("desk159", desk)
         self.assertIn("KAN-370", css)
         self.assertIn("os.path.expandvars", py)
 

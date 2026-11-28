@@ -107,6 +107,27 @@ class CharterRingNativeTests(unittest.TestCase):
         self.assertEqual(bigger[2] - bigger[0], 440)
         self.assertEqual(bigger[3] - bigger[1], 320)
 
+    def test_apply_drag_delta_move_and_corners(self) -> None:
+        b = [200, 150, 600, 450]
+        moved = ring.apply_drag_delta(b, "move", 30, -20)
+        self.assertEqual(moved, [230, 130, 630, 430])
+        se = ring.apply_drag_delta(b, "se", 50, 40)
+        self.assertEqual(se, [200, 150, 650, 490])
+        nw = ring.apply_drag_delta(b, "nw", 40, 30)
+        self.assertEqual(nw, [240, 180, 600, 450])
+        # Min capture clamp when shrinking SE toward zero.
+        tiny = ring.apply_drag_delta(b, "se", -900, -900)
+        self.assertEqual(tiny[2] - tiny[0], ring.MIN_CAPTURE_W)
+        self.assertEqual(tiny[3] - tiny[1], ring.MIN_CAPTURE_H)
+
+    def test_bar_hit_mode_corners_and_move(self) -> None:
+        self.assertEqual(ring.bar_hit_mode("n", 5, 2, 400, 8), "nw")
+        self.assertEqual(ring.bar_hit_mode("n", 390, 2, 400, 8), "ne")
+        self.assertEqual(ring.bar_hit_mode("n", 200, 2, 400, 8), "move")
+        self.assertEqual(ring.bar_hit_mode("e", 2, 5, 8, 400), "ne")
+        self.assertEqual(ring.bar_hit_mode("e", 2, 390, 8, 400), "se")
+        self.assertEqual(ring.bar_hit_mode("w", 2, 200, 8, 400), "move")
+
     def test_default_capture_bbox_on_primary(self) -> None:
         monitors = [
             {
@@ -173,18 +194,21 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk158(self) -> None:
+    def test_desktop_float_markers_desk159(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk158", html)
-        self.assertIn("desk158", desk)
-        self.assertIn("DESK_V = \"desk158\"", desk)
+        self.assertIn("desk159", html)
+        self.assertIn("desk159", desk)
+        self.assertIn("DESK_V = \"desk159\"", desk)
         self.assertIn("native_toolwindow", desk)
         self.assertIn("g_tray_look4", desk)
         self.assertIn("charter_float_set_tray", desk)
         self.assertIn("show_side_tray", desk)
         self.assertIn("destroy_side_tray", desk)
+        self.assertIn("set_geom_callback", desk)
+        self.assertIn("_on_ring_geom", desk)
+        self.assertIn("fresh_tray", desk)
         # Must never punch WebView2 with SetWindowRgn (crash / opaque fill).
         self.assertNotIn("apply_hollow_window_region", desk)
         # KAN-525: no second pywebview Charter Frame / hide-reuse tray.
@@ -221,6 +245,13 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("WS_EX_TOOLWINDOW", ring_src)
         self.assertIn("_paint_tray", ring_src)
         self.assertIn("_draw_icon", ring_src)
+        # KAN-528 native drag/resize on ring thread.
+        self.assertIn("_bar_wndproc", ring_src)
+        self.assertIn("apply_drag_delta", ring_src)
+        self.assertIn("bar_hit_mode", ring_src)
+        self.assertIn("RING_BW", ring_src)
+        self.assertIn("_live_place_unlocked", ring_src)
+        self.assertIn("set_geom_callback", ring_src)
         # Owner-drawn Look 4 icons — no stock Win32 BUTTON chrome.
         self.assertNotIn('"BUTTON"', ring_src)
         # Under-ring must not remain the product placement lock.

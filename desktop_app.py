@@ -6,6 +6,7 @@ Run:
 KAN-525: Manual snip = native hollow ring + native TOOLWINDOW Look 4 *side*
 tray on the ring thread. No second WebView2 tray (hide-reuse zombie class).
 Never SetWindowRgn on WebView2.
+KAN-528: native ring/tray drag + corner resize; tray stays docked.
 """
 from __future__ import annotations
 
@@ -27,7 +28,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk158"
+DESK_V = "desk159"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
 API = f"http://{HOST}:{PORT}/api"
@@ -115,17 +116,47 @@ def _emit_float_event(event: str, session_id: str = "") -> None:
     )
 
 
-def _place_chrome(bbox: list[int]) -> dict[str, Any]:
-    """Show ring + fresh native side tray beside bbox."""
+def _place_chrome(bbox: list[int], *, fresh_tray: bool = False) -> dict[str, Any]:
+    """Show ring + side tray beside bbox.
+
+    Start/Resume use fresh_tray=True (Destroy+Create). Drag/nudge/resize
+    re-place the existing tray HWND so chrome does not flicker.
+    """
     virtual, monitors = _snap_context()
     ring_out = ring.set_capture_bbox(bbox, show=True)
-    tray_out = ring.show_side_tray(
-        side=_tray_side,
-        collapsed=_tray_collapsed,
-        virtual=virtual,
-        monitors=monitors,
-    )
+    if fresh_tray or not int(ring.tray_state().get("hwnd") or 0):
+        tray_out = ring.show_side_tray(
+            side=_tray_side,
+            collapsed=_tray_collapsed,
+            virtual=virtual,
+            monitors=monitors,
+        )
+    else:
+        tray_out = ring.place_side_tray(virtual=virtual, monitors=monitors)
     return {"ring": ring_out, "dock": tray_out, "tray": tray_out}
+
+
+def _on_ring_geom(bbox: list[int]) -> None:
+    """Persist hole after native drag/resize (KAN-528)."""
+    sid = _float_session_id
+    if not sid or not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
+        return
+    try:
+        virtual, _m = _snap_context()
+        from plans.charter_snap import bounds_to_frame
+
+        frame = bounds_to_frame([int(v) for v in bbox], virtual)
+        _api_json(
+            "POST",
+            f"/manual-sessions/{sid}/frame",
+            {
+                **(frame or {}),
+                "frame_mode": "float",
+                "screen_bbox": [int(v) for v in bbox],
+            },
+        )
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def _on_tray_verb(verb: str) -> None:
@@ -316,7 +347,7 @@ class DesktopApi:
             except (TypeError, ValueError):
                 pass
         try:
-            placed = _place_chrome(bbox)
+            placed = _place_chrome(bbox, fresh_tray=True)
             dock_out = placed.get("dock") or {}
             ring_out = placed.get("ring") or {}
             if dock_out.get("status") != "ok":
@@ -531,6 +562,7 @@ def main() -> int:
     try:
         ring.ensure_ring_thread()
         ring.set_verb_callback(_on_tray_verb)
+        ring.set_geom_callback(_on_ring_geom)
     except Exception as exc:  # noqa: BLE001
         print(f"NOTE: charter ring init deferred ({exc})", flush=True)
 

@@ -1,9 +1,12 @@
-"""Native capture ring + Look 4 side tray (KAN-525).
+"""Native capture ring + Look 4 side tray (KAN-525 / KAN-528).
 
 Hollow ring: four solid border HWNDs (no WebView, no SetWindowRgn).
 Side tray: native TOOLWINDOW icon chrome on the *same* ring thread.
 Create/show on Start/Resume; DestroyWindow on End — never hide-reuse a
 WebView tray (that was the taskbar-ghost zombie class).
+
+KAN-528: ring bars drag (move) + corner resize; tray drag moves hole;
+tray re-docks via dock_geom_for_bbox without DestroyWindow during drag.
 """
 from __future__ import annotations
 
@@ -16,6 +19,8 @@ from typing import Any, Callable
 from plans.charter_float import (
     DEFAULT_CAPTURE_H,
     DEFAULT_CAPTURE_W,
+    MAX_CAPTURE_H,
+    MAX_CAPTURE_W,
     MIN_CAPTURE_H,
     MIN_CAPTURE_W,
     default_window_geom,
@@ -52,10 +57,12 @@ WM_CLOSE = 0x0010
 WM_DESTROY = 0x0002
 WM_PAINT = 0x000F
 WM_ERASEBKGND = 0x0014
+WM_LBUTTONDOWN = 0x0201
 WM_LBUTTONUP = 0x0202
 WM_MOUSEMOVE = 0x0200
 WM_MOUSELEAVE = 0x02A3
 WM_SETCURSOR = 0x0020
+WM_CAPTURECHANGED = 0x0215
 WM_APP = 0x8000
 WM_RING_CMD = WM_APP + 41
 DT_CENTER = 0x00000001
@@ -63,8 +70,17 @@ DT_VCENTER = 0x00000004
 DT_SINGLELINE = 0x00000020
 PS_SOLID = 0
 TRANSPARENT = 1
+IDC_ARROW = 32512
 IDC_HAND = 32649
+IDC_SIZEALL = 32646
+IDC_SIZENWSE = 32642
+IDC_SIZENESW = 32643
 TME_LEAVE = 0x00000002
+MK_LBUTTON = 0x0001
+# Hit targets: thicker than hairline so Designer can grab the ring.
+RING_BW = 8
+CORNER_HIT = 28
+DRAG_SLOP = 6
 
 user32.SetWindowPos.argtypes = [
     wintypes.HWND,
@@ -86,9 +102,10 @@ user32.PostThreadMessageW.argtypes = [
 ]
 user32.PostThreadMessageW.restype = wintypes.BOOL
 
-_CLASS_BAR = "AiTestingCharterBar"
-_CLASS_TRAY = "AiTestingCharterTray"
-_CLASS_MSG = "AiTestingCharterMsg"
+# Suffix bumps when WndProc changes (RegisterClassW 1410 keeps stale proc).
+_CLASS_BAR = "AiTestingCharterBar528"
+_CLASS_TRAY = "AiTestingCharterTray528"
+_CLASS_MSG = "AiTestingCharterMsg528"
 
 # Look 4 Compact side rail (Accepted). Under-ring Rejected (KAN-525).
 # Owner-drawn icons — no stock Win32 BUTTON chrome (Designer: cheap/outdated).
@@ -148,9 +165,11 @@ _pause_on = False
 _assist_on = False
 _mist_on = False
 _verb_callback: Callable[[str], None] | None = None
+_geom_callback: Callable[[list[int]], None] | None = None
 _cmd_q: queue.Queue = queue.Queue()
 _wndproc_tray_ref = None
 _wndproc_msg_ref = None
+_wndproc_bar_ref = None
 _pen_cyan = 0
 _pen_muted = 0
 _pen_hot = 0
@@ -158,6 +177,14 @@ _brush_bg = 0
 _brush_cell = 0
 _brush_cell_hot = 0
 _brush_on = 0
+# Live drag state (ring thread only).
+_drag_active = False
+_drag_mode = "move"
+_drag_origin = (0, 0)
+_drag_bbox0: list[int] = [100, 100, 820, 520]
+_drag_from_tray = False
+_drag_pending_verb: str | None = None
+_drag_moved = False
 
 
 def _rgb(r: int, g: int, b: int) -> int:
@@ -193,6 +220,7 @@ POINT = wintypes.POINT
 
 def _ensure_class() -> None:
     global _registered, _brush, _tray_brush, _wndproc_tray_ref, _wndproc_msg_ref
+    global _wndproc_bar_ref
     global _pen_cyan, _pen_muted, _pen_hot
     global _brush_bg, _brush_cell, _brush_cell_hot, _brush_on
     if _registered:
@@ -207,6 +235,7 @@ def _ensure_class() -> None:
     _pen_cyan = gdi32.CreatePen(PS_SOLID, 2, COL_CYAN)
     _pen_muted = gdi32.CreatePen(PS_SOLID, 2, COL_MUTED)
     _pen_hot = gdi32.CreatePen(PS_SOLID, 2, COL_CYAN)
+    _wndproc_bar_ref = WNDPROC(_bar_wndproc)
     _wndproc_tray_ref = WNDPROC(_tray_wndproc)
     _wndproc_msg_ref = WNDPROC(_msg_wndproc)
 
@@ -214,14 +243,14 @@ def _ensure_class() -> None:
         wc = WNDCLASSW()
         wc.lpfnWndProc = lpfn
         wc.hInstance = hinst
-        wc.hCursor = user32.LoadCursorW(None, 32512)
+        wc.hCursor = user32.LoadCursorW(None, IDC_ARROW)
         wc.hbrBackground = bg
         wc.lpszClassName = name
         atom = user32.RegisterClassW(ctypes.byref(wc))
         if not atom and ctypes.GetLastError() not in (0, 1410):
             raise ctypes.WinError()
 
-    _reg(_CLASS_BAR, ctypes.cast(user32.DefWindowProcW, ctypes.c_void_p), _brush)
+    _reg(_CLASS_BAR, ctypes.cast(_wndproc_bar_ref, ctypes.c_void_p), _brush)
     _reg(_CLASS_TRAY, ctypes.cast(_wndproc_tray_ref, ctypes.c_void_p), _tray_brush)
     _reg(_CLASS_MSG, ctypes.cast(_wndproc_msg_ref, ctypes.c_void_p), 0)
     _registered = True
@@ -260,12 +289,197 @@ def _place_locked(*, hide: bool = False) -> dict[str, Any]:
     if not all(_hwnds.values()):
         return {"status": "error", "error": "no_hwnd"}
     l, t, r, b = _bbox
-    bw = 4
+    bw = RING_BW
     _place_bar(_hwnds["n"], l - bw, t - bw, (r - l) + 2 * bw, bw, hide=hide)
     _place_bar(_hwnds["s"], l - bw, b, (r - l) + 2 * bw, bw, hide=hide)
     _place_bar(_hwnds["w"], l - bw, t, bw, b - t, hide=hide)
     _place_bar(_hwnds["e"], r, t, bw, b - t, hide=hide)
     return {"status": "ok", "bbox": list(_bbox), "hidden": hide}
+
+
+def _live_place_unlocked() -> dict[str, Any]:
+    """Reposition ring + existing tray during drag (no DestroyWindow)."""
+    ring_out = _place_locked(hide=False)
+    tray_out: dict[str, Any] = {"status": "ok", "skipped": True}
+    if _tray_hwnd:
+        tray_out = _place_tray_unlocked()
+    return {"status": "ok", "ring": ring_out, "dock": tray_out, "bbox": list(_bbox)}
+
+
+def _edge_for_hwnd(hwnd: int) -> str | None:
+    h = int(hwnd)
+    for key, value in _hwnds.items():
+        if int(value) == h:
+            return key
+    return None
+
+
+def bar_hit_mode(edge: str, x: int, y: int, cw: int, ch: int) -> str:
+    """Hit-test a ring bar: corners resize, mid-edge moves the hole."""
+    e = (edge or "").lower()
+    if e == "n":
+        if x <= CORNER_HIT:
+            return "nw"
+        if x >= max(CORNER_HIT + 1, cw - CORNER_HIT):
+            return "ne"
+        return "move"
+    if e == "s":
+        if x <= CORNER_HIT:
+            return "sw"
+        if x >= max(CORNER_HIT + 1, cw - CORNER_HIT):
+            return "se"
+        return "move"
+    if e == "w":
+        if y <= CORNER_HIT:
+            return "nw"
+        if y >= max(CORNER_HIT + 1, ch - CORNER_HIT):
+            return "sw"
+        return "move"
+    if e == "e":
+        if y <= CORNER_HIT:
+            return "ne"
+        if y >= max(CORNER_HIT + 1, ch - CORNER_HIT):
+            return "se"
+        return "move"
+    return "move"
+
+
+def _cursor_for_mode(mode: str) -> int:
+    m = (mode or "move").lower()
+    if m in ("nw", "se"):
+        return IDC_SIZENWSE
+    if m in ("ne", "sw"):
+        return IDC_SIZENESW
+    return IDC_SIZEALL
+
+
+def _client_xy(lparam: int) -> tuple[int, int]:
+    x = ctypes.c_short(lparam & 0xFFFF).value
+    y = ctypes.c_short((lparam >> 16) & 0xFFFF).value
+    return int(x), int(y)
+
+
+def _cursor_screen() -> tuple[int, int]:
+    pt = wintypes.POINT()
+    if not user32.GetCursorPos(ctypes.byref(pt)):
+        return 0, 0
+    return int(pt.x), int(pt.y)
+
+
+def _begin_drag(hwnd: int, mode: str, *, from_tray: bool = False) -> None:
+    global _drag_active, _drag_mode, _drag_origin, _drag_bbox0
+    global _drag_from_tray, _drag_moved
+    _drag_active = True
+    _drag_mode = mode or "move"
+    _drag_origin = _cursor_screen()
+    _drag_bbox0 = list(_bbox)
+    _drag_from_tray = bool(from_tray)
+    _drag_moved = False
+    user32.SetCapture(hwnd)
+
+
+def _update_drag() -> None:
+    global _bbox, _drag_moved
+    if not _drag_active:
+        return
+    cx, cy = _cursor_screen()
+    dx = cx - _drag_origin[0]
+    dy = cy - _drag_origin[1]
+    if abs(dx) >= DRAG_SLOP or abs(dy) >= DRAG_SLOP:
+        _drag_moved = True
+    if not _drag_moved and _drag_from_tray:
+        return
+    _bbox = apply_drag_delta(_drag_bbox0, _drag_mode, dx, dy)
+    _live_place_unlocked()
+
+
+def _end_drag(*, commit: bool = True) -> None:
+    global _drag_active, _drag_pending_verb, _drag_moved, _drag_from_tray
+    was_active = _drag_active
+    moved = _drag_moved
+    pending = _drag_pending_verb
+    from_tray = _drag_from_tray
+    _drag_active = False
+    _drag_pending_verb = None
+    _drag_moved = False
+    _drag_from_tray = False
+    if user32.GetCapture():
+        user32.ReleaseCapture()
+    if was_active and commit and moved:
+        _notify_geom()
+    elif from_tray and pending and not moved:
+        _fire_verb(pending)
+
+
+def _notify_geom() -> None:
+    cb = _geom_callback
+    if cb is None:
+        return
+    bbox = list(_bbox)
+    try:
+        threading.Thread(
+            target=cb, args=(bbox,), name="charter-geom", daemon=True
+        ).start()
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _bar_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
+    if msg == WM_LBUTTONDOWN:
+        edge = _edge_for_hwnd(int(hwnd))
+        if edge:
+            rect = wintypes.RECT()
+            user32.GetClientRect(hwnd, ctypes.byref(rect))
+            x, y = _client_xy(int(lparam))
+            mode = bar_hit_mode(
+                edge, x, y, int(rect.right - rect.left), int(rect.bottom - rect.top)
+            )
+            _begin_drag(int(hwnd), mode, from_tray=False)
+        return 0
+    if msg == WM_MOUSEMOVE:
+        if _drag_active and (int(wparam) & MK_LBUTTON):
+            _update_drag()
+            return 0
+        edge = _edge_for_hwnd(int(hwnd))
+        if edge:
+            rect = wintypes.RECT()
+            user32.GetClientRect(hwnd, ctypes.byref(rect))
+            x, y = _client_xy(int(lparam))
+            mode = bar_hit_mode(
+                edge, x, y, int(rect.right - rect.left), int(rect.bottom - rect.top)
+            )
+            user32.SetCursor(user32.LoadCursorW(None, _cursor_for_mode(mode)))
+        return 0
+    if msg == WM_LBUTTONUP:
+        if _drag_active:
+            _update_drag()
+            _end_drag(commit=True)
+        return 0
+    if msg == WM_CAPTURECHANGED:
+        if _drag_active and int(lparam) != int(hwnd):
+            _end_drag(commit=True)
+        return 0
+    if msg == WM_SETCURSOR:
+        edge = _edge_for_hwnd(int(hwnd))
+        if edge:
+            pt = wintypes.POINT()
+            user32.GetCursorPos(ctypes.byref(pt))
+            user32.ScreenToClient(hwnd, ctypes.byref(pt))
+            rect = wintypes.RECT()
+            user32.GetClientRect(hwnd, ctypes.byref(rect))
+            mode = bar_hit_mode(
+                edge,
+                int(pt.x),
+                int(pt.y),
+                int(rect.right - rect.left),
+                int(rect.bottom - rect.top),
+            )
+            user32.SetCursor(user32.LoadCursorW(None, _cursor_for_mode(mode)))
+            return 1
+        return 0
+    if msg == WM_DESTROY:
+        return 0
+    return user32.DefWindowProcW(hwnd, msg, wparam, lparam)
 
 
 def _destroy_tray_unlocked() -> None:
@@ -542,14 +756,23 @@ def _fire_verb(verb: str) -> None:
 
 
 def _tray_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
-    global _tray_hover
+    global _tray_hover, _drag_pending_verb
     if msg == WM_ERASEBKGND:
         return 1
     if msg == WM_PAINT:
         _paint_tray(int(hwnd))
         return 0
+    if msg == WM_LBUTTONDOWN:
+        _x, y = _client_xy(int(lparam))
+        _drag_pending_verb = _verb_at_y(y)
+        # Tray drag moves the capture hole; click-without-drag still fires verb.
+        _begin_drag(int(hwnd), "move", from_tray=True)
+        return 0
     if msg == WM_MOUSEMOVE:
-        y = ctypes.c_short(lparam >> 16).value
+        if _drag_active and (int(wparam) & MK_LBUTTON):
+            _update_drag()
+            return 0
+        y = _client_xy(int(lparam))[1]
         verbs = _tray_verbs()
         idx = -1
         verb = _verb_at_y(y)
@@ -569,13 +792,25 @@ def _tray_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
             user32.InvalidateRect(hwnd, None, False)
         return 0
     if msg == WM_LBUTTONUP:
-        y = ctypes.c_short(lparam >> 16).value
+        if _drag_active:
+            _update_drag()
+            _end_drag(commit=True)
+            return 0
+        y = _client_xy(int(lparam))[1]
         verb = _verb_at_y(y)
         if verb:
             _fire_verb(verb)
         return 0
+    if msg == WM_CAPTURECHANGED:
+        if _drag_active and int(lparam) != int(hwnd):
+            _end_drag(commit=True)
+        return 0
     if msg == WM_SETCURSOR:
-        user32.SetCursor(user32.LoadCursorW(None, IDC_HAND))
+        # Move cursor when dragging / over chrome; hand over verb cells.
+        if _drag_active and _drag_moved:
+            user32.SetCursor(user32.LoadCursorW(None, IDC_SIZEALL))
+        else:
+            user32.SetCursor(user32.LoadCursorW(None, IDC_HAND))
         return 1
     if msg == WM_DESTROY:
         return 0
@@ -707,6 +942,12 @@ def ensure_ring_thread() -> None:
 def set_verb_callback(cb: Callable[[str], None] | None) -> None:
     global _verb_callback
     _verb_callback = cb
+
+
+def set_geom_callback(cb: Callable[[list[int]], None] | None) -> None:
+    """Fired after a completed native drag/resize (mouseup)."""
+    global _geom_callback
+    _geom_callback = cb
 
 
 def set_capture_bbox(bbox: Any, *, show: bool = True) -> dict[str, Any]:
@@ -977,6 +1218,48 @@ def nudge_bbox(bbox: list[int], dx: int, dy: int) -> list[int]:
 
 def resize_bbox(bbox: list[int], d_w: int, d_h: int) -> list[int]:
     l, t, r, b = bbox
-    r = max(l + MIN_CAPTURE_W, r + d_w)
-    b = max(t + MIN_CAPTURE_H, b + d_h)
+    r = max(l + MIN_CAPTURE_W, min(l + MAX_CAPTURE_W, r + d_w))
+    b = max(t + MIN_CAPTURE_H, min(t + MAX_CAPTURE_H, b + d_h))
+    return [l, t, r, b]
+
+
+def apply_drag_delta(bbox: list[int], mode: str, dx: int, dy: int) -> list[int]:
+    """Apply screen-delta move/resize for a ring drag mode (KAN-528)."""
+    try:
+        l, t, r, b = (int(v) for v in bbox)
+    except (TypeError, ValueError):
+        return list(bbox) if isinstance(bbox, list) else [100, 100, 820, 520]
+    m = str(mode or "move").strip().lower()
+    if m == "move":
+        return [l + int(dx), t + int(dy), r + int(dx), b + int(dy)]
+    dx_i, dy_i = int(dx), int(dy)
+    if "w" in m:
+        l = l + dx_i
+    if "e" in m:
+        r = r + dx_i
+    if "n" in m:
+        t = t + dy_i
+    if "s" in m:
+        b = b + dy_i
+    # Min size — keep the anchored edges fixed when possible.
+    if r - l < MIN_CAPTURE_W:
+        if "w" in m and "e" not in m:
+            l = r - MIN_CAPTURE_W
+        else:
+            r = l + MIN_CAPTURE_W
+    if b - t < MIN_CAPTURE_H:
+        if "n" in m and "s" not in m:
+            t = b - MIN_CAPTURE_H
+        else:
+            b = t + MIN_CAPTURE_H
+    if r - l > MAX_CAPTURE_W:
+        if "w" in m and "e" not in m:
+            l = r - MAX_CAPTURE_W
+        else:
+            r = l + MAX_CAPTURE_W
+    if b - t > MAX_CAPTURE_H:
+        if "n" in m and "s" not in m:
+            t = b - MAX_CAPTURE_H
+        else:
+            b = t + MAX_CAPTURE_H
     return [l, t, r, b]
