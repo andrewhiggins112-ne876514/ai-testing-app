@@ -7,9 +7,9 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | ready — Charter residual outside-window |
-| **Jira story** | **KAN-510** outside-window capture residual (after G+tray) |
-| **Start task** | Prove / fix Still over foreign app region with Look 4 shell; then **KAN-511** focus hang. Do **not** start voice / FR-MAN-2. |
+| **Status** | blocked — Charter tray taskbar ghost (council) |
+| **Jira story** | **KAN-510** paused; open Bug for council first |
+| **Start task** | Council review of tray taskbar-only after Resume/End→Start + side-tray preference. Do **not** Build-patch until verdict. Then resume **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
 | **Spec** | FR-MAN-1 CR 2026-11-28; mock `docs/mockups/charter_outside_window/looks/look4-*.html` |
@@ -18,7 +18,7 @@
 | **Shipped** | Charter G+tray Look 4 **KAN-512** + reliability **KAN-516**…**524** (**desk155** under-ring); Plan document view **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4…1; TRACE-DEEPEN; TRACK3-LAB |
 | **Queued** | Residuals **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Active = **KAN-510**. Restart **desk155** + End stuck Recording before residual. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Hold Build: Bug **KAN-525** (+ test **KAN-526**) → `/council`. After verdict, Active returns to **KAN-510**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-525 — Charter tray still taskbar-only (council hold)
+- **Agent/chat:** Cursor IDE Agent — Designer: Resume/End→Start still no overlay; taskbar click dead; prefer side tray not bottom
+- **Done:** Raised Bug **KAN-525** + test **KAN-526**; Relates KAN-512/386/387/510/518/520/522/524. No product code change — council must decide chrome host / restore / side placement. WORK_LOG Active blocked.
+- **Files:** `scripts/jira_kan_bug_charter_tray_taskbar_persist.py`, `docs/ops/WORK_LOG.md`
+- **Verify:** n/a (hold)
+- **Jira:** Bug **KAN-525** open; test **KAN-526** Relates
+- **Next:** Designer runs `/council` with provided prompt; Build stays off tray until verdict; then **KAN-510**
 
 ### 2026-11-28 — KAN-524 — Recording chip but tray missing (under-ring restore)
 - **Agent/chat:** Cursor IDE Agent — Designer: Recording + chip, no OS tray/ring
