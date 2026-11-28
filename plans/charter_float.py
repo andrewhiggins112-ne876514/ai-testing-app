@@ -16,11 +16,12 @@ MIN_CAPTURE_W = 280
 MIN_CAPTURE_H = 180
 MIN_WINDOW_W = MIN_CAPTURE_W + 2 * SIDE
 MIN_WINDOW_H = MIN_CAPTURE_H + HEADER_H + DOCK_H
-# Snip defaults — never span the whole virtual desktop.
+# Snip defaults — start modest; max allows covering a typical AUT window.
 DEFAULT_CAPTURE_W = 720
 DEFAULT_CAPTURE_H = 420
-MAX_CAPTURE_W = 960
-MAX_CAPTURE_H = 640
+# Hard ceiling (4K); live resize also clamps to primary work area − margin.
+MAX_CAPTURE_W = 3840
+MAX_CAPTURE_H = 2160
 
 _OWN_FLOAT_TITLE = "Charter Frame"
 
@@ -83,8 +84,24 @@ def window_geom_from_content_bbox(
     }
 
 
+def _screen_work_fallback() -> dict[str, int]:
+    """Real primary screen metrics — never invent 1280×800 (detaches tray)."""
+    try:
+        import ctypes
+
+        user32 = ctypes.windll.user32
+        # SM_CXSCREEN / SM_CYSCREEN — primary monitor.
+        w = int(user32.GetSystemMetrics(0) or 0)
+        h = int(user32.GetSystemMetrics(1) or 0)
+        if w >= 640 and h >= 480:
+            return {"left": 0, "top": 0, "width": w, "height": h}
+    except Exception:  # noqa: BLE001
+        pass
+    return {"left": 0, "top": 0, "width": 1920, "height": 1080}
+
+
 def _primary_work(virtual: dict[str, int] | None, monitors: list[dict[str, Any]] | None) -> dict[str, int]:
-    """Prefer primary monitor bbox; fall back to virtual desktop."""
+    """Prefer primary monitor bbox; fall back to virtual desktop / real screen."""
     if monitors:
         primary = next((m for m in monitors if m.get("is_primary")), None) or monitors[0]
         bbox = primary.get("bbox")
@@ -99,13 +116,26 @@ def _primary_work(virtual: dict[str, int] | None, monitors: list[dict[str, Any]]
                 }
             except (TypeError, ValueError):
                 pass
-    virt = virtual or {"left": 0, "top": 0, "width": 1280, "height": 800}
-    return {
-        "left": int(virt.get("left") or 0),
-        "top": int(virt.get("top") or 0),
-        "width": max(1, int(virt.get("width") or 1280)),
-        "height": max(1, int(virt.get("height") or 800)),
-    }
+    if virtual and int(virtual.get("width") or 0) >= 640 and int(virtual.get("height") or 0) >= 480:
+        return {
+            "left": int(virtual.get("left") or 0),
+            "top": int(virtual.get("top") or 0),
+            "width": max(1, int(virtual.get("width") or 1920)),
+            "height": max(1, int(virtual.get("height") or 1080)),
+        }
+    return _screen_work_fallback()
+
+
+def max_capture_for_work(
+    virtual: dict[str, int] | None = None,
+    monitors: list[dict[str, Any]] | None = None,
+) -> tuple[int, int]:
+    """Largest snip that still fits the primary work area (margin for tray/chrome)."""
+    work = _primary_work(virtual, monitors)
+    margin = 64
+    mw = max(MIN_CAPTURE_W, min(MAX_CAPTURE_W, int(work["width"]) - margin))
+    mh = max(MIN_CAPTURE_H, min(MAX_CAPTURE_H, int(work["height"]) - margin))
+    return mw, mh
 
 
 def clamp_window_geom(

@@ -28,7 +28,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk159"
+DESK_V = "desk160"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
 API = f"http://{HOST}:{PORT}/api"
@@ -69,7 +69,9 @@ def _snap_context() -> tuple[dict[str, int], list[dict[str, Any]]]:
         monitors = list(targets.get("monitors") or [])
         return virtual_desktop_from_monitors(monitors), monitors
     except Exception:  # noqa: BLE001
-        return {"left": 0, "top": 0, "width": 1280, "height": 800}, []
+        from plans.charter_float import _screen_work_fallback
+
+        return _screen_work_fallback(), []
 
 
 def _notify_main(js: str) -> None:
@@ -137,8 +139,16 @@ def _place_chrome(bbox: list[int], *, fresh_tray: bool = False) -> dict[str, Any
 
 
 def _on_ring_geom(bbox: list[int]) -> None:
-    """Persist hole after native drag/resize (KAN-528)."""
+    """Persist hole after native drag/resize (KAN-528 / KAN-530)."""
+    global _tray_side
     sid = _float_session_id
+    # Keep Python-side tray preference in sync when native flips east/west.
+    try:
+        st = ring.tray_state()
+        if st.get("side"):
+            _tray_side = ring.normalize_tray_side(st.get("side"))
+    except Exception:  # noqa: BLE001
+        pass
     if not sid or not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
         return
     try:

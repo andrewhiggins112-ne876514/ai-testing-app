@@ -128,6 +128,43 @@ class CharterRingNativeTests(unittest.TestCase):
         self.assertEqual(ring.bar_hit_mode("e", 2, 390, 8, 400), "se")
         self.assertEqual(ring.bar_hit_mode("w", 2, 200, 8, 400), "move")
 
+    def test_dock_stays_glued_on_side_flip(self) -> None:
+        """KAN-530: near right edge → west, still attached to hole (not screen-left)."""
+        monitors = [
+            {
+                "id": "mon1",
+                "bbox": [0, 0, 1920, 1080],
+                "is_primary": True,
+            }
+        ]
+        virt = {"left": 0, "top": 0, "width": 1920, "height": 1080}
+        hole = [1600, 200, 1880, 600]
+        dock = ring.dock_geom_for_bbox(
+            hole, virtual=virt, monitors=monitors, side="east", collapsed=False
+        )
+        self.assertEqual(dock["side"], "west")
+        self.assertLessEqual(dock["x"] + dock["width"] + 1, hole[0])
+        # Glued: right edge of tray within gap of hole left.
+        self.assertGreaterEqual(dock["x"] + dock["width"], hole[0] - ring.TRAY_GAP - 2)
+        self.assertGreater(dock["x"], 100)  # not clamped to screen far-left
+
+    def test_max_capture_covers_typical_window(self) -> None:
+        from plans.charter_float import max_capture_for_work
+
+        mw, mh = max_capture_for_work(
+            {"left": 0, "top": 0, "width": 1920, "height": 1080},
+            [{"id": "m", "bbox": [0, 0, 1920, 1080], "is_primary": True}],
+        )
+        self.assertGreaterEqual(mw, 1400)
+        self.assertGreaterEqual(mh, 800)
+        big = ring.apply_drag_delta([100, 100, 500, 400], "se", 2000, 2000)
+        self.assertGreaterEqual(big[2] - big[0], 1400)
+
+    def test_verb_hover_tips_defined(self) -> None:
+        for verb in ring._VERBS_EXPANDED:
+            self.assertIn(verb, ring._VERB_TIPS)
+            self.assertTrue(str(ring._VERB_TIPS[verb]).strip())
+
     def test_default_capture_bbox_on_primary(self) -> None:
         monitors = [
             {
@@ -194,13 +231,13 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk159(self) -> None:
+    def test_desktop_float_markers_desk160(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk159", html)
-        self.assertIn("desk159", desk)
-        self.assertIn("DESK_V = \"desk159\"", desk)
+        self.assertIn("desk160", html)
+        self.assertIn("desk160", desk)
+        self.assertIn("DESK_V = \"desk160\"", desk)
         self.assertIn("native_toolwindow", desk)
         self.assertIn("g_tray_look4", desk)
         self.assertIn("charter_float_set_tray", desk)
@@ -252,6 +289,13 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("RING_BW", ring_src)
         self.assertIn("_live_place_unlocked", ring_src)
         self.assertIn("set_geom_callback", ring_src)
+        # KAN-530 tray glue + hover tips + larger max.
+        self.assertIn("_VERB_TIPS", ring_src)
+        self.assertIn("_schedule_tip", ring_src)
+        self.assertIn("_remember_dock_context", ring_src)
+        self.assertIn("max_capture_for_work", ring_src)
+        self.assertIn("glued", ring_src)
+        self.assertIn("KAN-530", desk)
         # Owner-drawn Look 4 icons — no stock Win32 BUTTON chrome.
         self.assertNotIn('"BUTTON"', ring_src)
         # Under-ring must not remain the product placement lock.

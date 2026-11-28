@@ -25,6 +25,7 @@ from plans.charter_float import (
     MIN_CAPTURE_W,
     default_window_geom,
     content_bbox_from_window,
+    max_capture_for_work,
 )
 
 user32 = ctypes.windll.user32
@@ -103,9 +104,10 @@ user32.PostThreadMessageW.argtypes = [
 user32.PostThreadMessageW.restype = wintypes.BOOL
 
 # Suffix bumps when WndProc changes (RegisterClassW 1410 keeps stale proc).
-_CLASS_BAR = "AiTestingCharterBar528"
-_CLASS_TRAY = "AiTestingCharterTray528"
-_CLASS_MSG = "AiTestingCharterMsg528"
+_CLASS_BAR = "AiTestingCharterBar530"
+_CLASS_TRAY = "AiTestingCharterTray530"
+_CLASS_MSG = "AiTestingCharterMsg530"
+_CLASS_TIP = "AiTestingCharterTip530"
 
 # Look 4 Compact side rail (Accepted). Under-ring Rejected (KAN-525).
 # Owner-drawn icons — no stock Win32 BUTTON chrome (Designer: cheap/outdated).
@@ -138,6 +140,20 @@ _VERB_TITLES = {
     "end": "End",
     "cancel": "Cancel",
 }
+# Hover tooltips (KAN-530) — short “what it does” copy.
+_VERB_TIPS = {
+    "toggle": "Collapse or expand this tray",
+    "still": "Capture a still inside the frame",
+    "note": "Add a timestamped note (Manual chip)",
+    "pause": "Pause or resume recording",
+    "assist": "Toggle AI assist (local drafts only)",
+    "mist": "Toggle light mist inside the frame",
+    "end": "End session and open review",
+    "cancel": "Cancel session — nothing written to Jira",
+}
+TIP_DELAY_MS = 400
+TIP_TIMER_ID = 5301
+WM_TIMER = 0x0113
 
 LRESULT = ctypes.c_ssize_t
 WPARAM = ctypes.c_size_t
@@ -161,6 +177,11 @@ _tray_side = "east"
 _tray_collapsed = False
 _tray_visible = False
 _tray_hover = -1
+_tip_hwnd = 0
+_tip_text = ""
+_tip_pending_verb: str | None = None
+_dock_virtual: dict[str, int] | None = None
+_dock_monitors: list[dict[str, Any]] | None = None
 _pause_on = False
 _assist_on = False
 _mist_on = False
@@ -170,6 +191,7 @@ _cmd_q: queue.Queue = queue.Queue()
 _wndproc_tray_ref = None
 _wndproc_msg_ref = None
 _wndproc_bar_ref = None
+_wndproc_tip_ref = None
 _pen_cyan = 0
 _pen_muted = 0
 _pen_hot = 0
@@ -220,7 +242,7 @@ POINT = wintypes.POINT
 
 def _ensure_class() -> None:
     global _registered, _brush, _tray_brush, _wndproc_tray_ref, _wndproc_msg_ref
-    global _wndproc_bar_ref
+    global _wndproc_bar_ref, _wndproc_tip_ref
     global _pen_cyan, _pen_muted, _pen_hot
     global _brush_bg, _brush_cell, _brush_cell_hot, _brush_on
     if _registered:
@@ -238,6 +260,7 @@ def _ensure_class() -> None:
     _wndproc_bar_ref = WNDPROC(_bar_wndproc)
     _wndproc_tray_ref = WNDPROC(_tray_wndproc)
     _wndproc_msg_ref = WNDPROC(_msg_wndproc)
+    _wndproc_tip_ref = WNDPROC(_tip_wndproc)
 
     def _reg(name: str, lpfn, bg) -> None:
         wc = WNDCLASSW()
@@ -253,7 +276,20 @@ def _ensure_class() -> None:
     _reg(_CLASS_BAR, ctypes.cast(_wndproc_bar_ref, ctypes.c_void_p), _brush)
     _reg(_CLASS_TRAY, ctypes.cast(_wndproc_tray_ref, ctypes.c_void_p), _tray_brush)
     _reg(_CLASS_MSG, ctypes.cast(_wndproc_msg_ref, ctypes.c_void_p), 0)
+    tip_bg = gdi32.CreateSolidBrush(_rgb(12, 28, 40))
+    _reg(_CLASS_TIP, ctypes.cast(_wndproc_tip_ref, ctypes.c_void_p), tip_bg)
     _registered = True
+
+
+def _remember_dock_context(
+    virtual: dict[str, int] | None = None,
+    monitors: list[dict[str, Any]] | None = None,
+) -> None:
+    global _dock_virtual, _dock_monitors
+    if virtual is not None:
+        _dock_virtual = dict(virtual)
+    if monitors is not None:
+        _dock_monitors = list(monitors)
 
 
 def _make_bar() -> int:
@@ -302,7 +338,9 @@ def _live_place_unlocked() -> dict[str, Any]:
     ring_out = _place_locked(hide=False)
     tray_out: dict[str, Any] = {"status": "ok", "skipped": True}
     if _tray_hwnd:
-        tray_out = _place_tray_unlocked()
+        tray_out = _place_tray_unlocked(
+            virtual=_dock_virtual, monitors=_dock_monitors
+        )
     return {"status": "ok", "ring": ring_out, "dock": tray_out, "bbox": list(_bbox)}
 
 
@@ -482,8 +520,109 @@ def _bar_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
     return user32.DefWindowProcW(hwnd, msg, wparam, lparam)
 
 
+def _hide_tip() -> None:
+    global _tip_pending_verb
+    _tip_pending_verb = None
+    if _tray_hwnd:
+        user32.KillTimer(_tray_hwnd, TIP_TIMER_ID)
+    if _tip_hwnd:
+        user32.ShowWindow(_tip_hwnd, SW_HIDE)
+
+
+def _ensure_tip_hwnd() -> int:
+    global _tip_hwnd
+    if _tip_hwnd:
+        return int(_tip_hwnd)
+    _ensure_class()
+    hinst = kernel32.GetModuleHandleW(None)
+    hwnd = user32.CreateWindowExW(
+        WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
+        _CLASS_TIP,
+        "Charter Tip",
+        WS_POPUP,
+        0,
+        0,
+        10,
+        10,
+        None,
+        None,
+        hinst,
+        None,
+    )
+    _tip_hwnd = int(hwnd or 0)
+    return int(_tip_hwnd)
+
+
+def _show_tip_for_verb(verb: str) -> None:
+    global _tip_text
+    text = str(_VERB_TIPS.get(verb) or _VERB_TITLES.get(verb) or verb).strip()
+    if not text:
+        _hide_tip()
+        return
+    hwnd = _ensure_tip_hwnd()
+    if not hwnd:
+        return
+    _tip_text = text
+    # Measure roughly: 7px per char + padding.
+    tw = max(120, min(360, 12 + len(text) * 7))
+    th = 28
+    cx, cy = _cursor_screen()
+    x = cx + 16
+    y = cy + 20
+    user32.SetWindowPos(
+        hwnd, HWND_TOPMOST, x, y, tw, th, SWP_NOACTIVATE | SWP_SHOWWINDOW
+    )
+    user32.ShowWindow(hwnd, SW_SHOWNOACTIVATE)
+    user32.InvalidateRect(hwnd, None, True)
+
+
+def _schedule_tip(verb: str | None) -> None:
+    global _tip_pending_verb
+    if not _tray_hwnd:
+        return
+    user32.KillTimer(_tray_hwnd, TIP_TIMER_ID)
+    _tip_pending_verb = verb
+    if not verb or _drag_active:
+        _hide_tip()
+        return
+    user32.SetTimer(_tray_hwnd, TIP_TIMER_ID, TIP_DELAY_MS, None)
+
+
+def _tip_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
+    if msg == WM_PAINT:
+        ps = PAINTSTRUCT()
+        hdc = user32.BeginPaint(hwnd, ctypes.byref(ps))
+        if hdc:
+            try:
+                rect = wintypes.RECT()
+                user32.GetClientRect(hwnd, ctypes.byref(rect))
+                user32.FillRect(hdc, ctypes.byref(rect), _brush_cell)
+                gdi32.SelectObject(hdc, _pen_cyan)
+                gdi32.SelectObject(hdc, gdi32.GetStockObject(5))
+                gdi32.RoundRect(
+                    hdc, 0, 0, max(1, rect.right - 1), max(1, rect.bottom - 1), 6, 6
+                )
+                gdi32.SetBkMode(hdc, TRANSPARENT)
+                gdi32.SetTextColor(hdc, COL_CYAN)
+                # DrawTextW
+                user32.DrawTextW(
+                    hdc,
+                    _tip_text,
+                    -1,
+                    ctypes.byref(rect),
+                    DT_CENTER | DT_VCENTER | DT_SINGLELINE,
+                )
+            finally:
+                user32.EndPaint(hwnd, ctypes.byref(ps))
+        return 0
+    if msg == WM_ERASEBKGND:
+        return 1
+    return user32.DefWindowProcW(hwnd, msg, wparam, lparam)
+
+
 def _destroy_tray_unlocked() -> None:
     global _tray_hwnd, _tray_visible, _tray_hover
+    _hide_tip()
     if _tray_hwnd:
         user32.DestroyWindow(_tray_hwnd)
     _tray_hwnd = 0
@@ -701,10 +840,13 @@ def _place_tray_unlocked(
     global _tray_side, _tray_visible
     if not _tray_hwnd:
         return {"status": "error", "error": "no_tray"}
+    virt = virtual if virtual is not None else _dock_virtual
+    mons = monitors if monitors is not None else _dock_monitors
+    _remember_dock_context(virt, mons)
     geom = dock_geom_for_bbox(
         list(_bbox),
-        virtual=virtual,
-        monitors=monitors,
+        virtual=virt,
+        monitors=mons,
         side=_tray_side,
         collapsed=_tray_collapsed,
     )
@@ -740,6 +882,7 @@ def _place_tray_unlocked(
         "collapsed": _tray_collapsed,
         "hwnd": _tray_hwnd,
         "host": "native_toolwindow",
+        "glued": True,
     }
 
 
@@ -762,7 +905,12 @@ def _tray_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
     if msg == WM_PAINT:
         _paint_tray(int(hwnd))
         return 0
+    if msg == WM_TIMER:
+        if int(wparam) == TIP_TIMER_ID and _tip_pending_verb and not _drag_active:
+            _show_tip_for_verb(_tip_pending_verb)
+        return 0
     if msg == WM_LBUTTONDOWN:
+        _hide_tip()
         _x, y = _client_xy(int(lparam))
         _drag_pending_verb = _verb_at_y(y)
         # Tray drag moves the capture hole; click-without-drag still fires verb.
@@ -770,6 +918,7 @@ def _tray_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
         return 0
     if msg == WM_MOUSEMOVE:
         if _drag_active and (int(wparam) & MK_LBUTTON):
+            _hide_tip()
             _update_drag()
             return 0
         y = _client_xy(int(lparam))[1]
@@ -781,6 +930,7 @@ def _tray_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
         if idx != _tray_hover:
             _tray_hover = idx
             user32.InvalidateRect(hwnd, None, False)
+            _schedule_tip(verb)
         tme = TRACKMOUSEEVENT(
             ctypes.sizeof(TRACKMOUSEEVENT), TME_LEAVE, hwnd, 0
         )
@@ -790,6 +940,7 @@ def _tray_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
         if _tray_hover != -1:
             _tray_hover = -1
             user32.InvalidateRect(hwnd, None, False)
+        _hide_tip()
         return 0
     if msg == WM_LBUTTONUP:
         if _drag_active:
@@ -813,6 +964,7 @@ def _tray_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
             user32.SetCursor(user32.LoadCursorW(None, IDC_HAND))
         return 1
     if msg == WM_DESTROY:
+        _hide_tip()
         return 0
     return user32.DefWindowProcW(hwnd, msg, wparam, lparam)
 
@@ -999,8 +1151,12 @@ def destroy_ring() -> None:
     ensure_ring_thread()
 
     def _do() -> None:
+        global _tip_hwnd
         with _lock:
             _destroy_tray_unlocked()
+            if _tip_hwnd:
+                user32.DestroyWindow(_tip_hwnd)
+            _tip_hwnd = 0
             hwnds = list(_hwnds.values())
         for hwnd in hwnds:
             if hwnd:
@@ -1023,6 +1179,7 @@ def show_side_tray(
     ensure_ring_thread()
     _tray_side = normalize_tray_side(side)
     _tray_collapsed = bool(collapsed)
+    _remember_dock_context(virtual, monitors)
 
     # CreateWindow/DestroyWindow must run on the ring thread.
     def _create() -> dict[str, Any]:
@@ -1165,7 +1322,11 @@ def dock_geom_for_bbox(
     collapsed: bool = False,
     note_open: bool = False,  # noqa: ARG001 — OOS note-sheet HWND (KAN-525)
 ) -> dict[str, Any]:
-    """Look 4 Compact *side* rail geometry (KAN-525). Under-ring Rejected."""
+    """Look 4 Compact *side* rail geometry (KAN-525). Under-ring Rejected.
+
+    KAN-530: always glue x to the hole edge — never clamp tray to a distant
+    work-area edge (that was the detached-floating-tray bug).
+    """
     from plans.charter_float import _primary_work
 
     work = _primary_work(virtual, monitors)
@@ -1178,29 +1339,39 @@ def dock_geom_for_bbox(
     aw = max(160, int(work["width"]))
     ah = max(160, int(work["height"]))
 
-    side_n = normalize_tray_side(side)
+    prefer = normalize_tray_side(side)
     width = TRAY_COLLAPSED_W if collapsed else TRAY_W
     height = _tray_height(bool(collapsed))
-    height = min(height, ah - 16)
+    height = min(height, max(BTN_H + 2 * BTN_GAP, ah - 16))
     y = top
     if y + height > oy + ah - 8:
         y = max(oy + 8, oy + ah - height - 8)
-    if side_n == "east":
-        x = right + TRAY_GAP
-        if x + width > ox + aw - 8:
-            # Flip to west when east would leave the work area.
-            side_n = "west"
-            x = left - TRAY_GAP - width
-    else:
-        x = left - TRAY_GAP - width
-        if x < ox + 8:
-            side_n = "east"
-            x = right + TRAY_GAP
-    x = max(ox + 4, min(x, ox + aw - width - 4))
     y = max(oy + 4, min(y, oy + ah - height - 4))
+
+    east_x = right + TRAY_GAP
+    west_x = left - TRAY_GAP - width
+    east_fits = east_x + width <= ox + aw - 4
+    west_fits = west_x >= ox + 4
+
+    if prefer == "east":
+        if east_fits:
+            side_n, x = "east", east_x
+        elif west_fits:
+            side_n, x = "west", west_x
+        else:
+            # Both clipped — stay glued to preferred edge (may overhang).
+            side_n, x = "east", east_x
+    else:
+        if west_fits:
+            side_n, x = "west", west_x
+        elif east_fits:
+            side_n, x = "east", east_x
+        else:
+            side_n, x = "west", west_x
+
     return {
-        "x": x,
-        "y": y,
+        "x": int(x),
+        "y": int(y),
         "width": width,
         "height": height,
         "side": side_n,
@@ -1218,13 +1389,14 @@ def nudge_bbox(bbox: list[int], dx: int, dy: int) -> list[int]:
 
 def resize_bbox(bbox: list[int], d_w: int, d_h: int) -> list[int]:
     l, t, r, b = bbox
-    r = max(l + MIN_CAPTURE_W, min(l + MAX_CAPTURE_W, r + d_w))
-    b = max(t + MIN_CAPTURE_H, min(t + MAX_CAPTURE_H, b + d_h))
+    max_w, max_h = max_capture_for_work(_dock_virtual, _dock_monitors)
+    r = max(l + MIN_CAPTURE_W, min(l + max_w, r + d_w))
+    b = max(t + MIN_CAPTURE_H, min(t + max_h, b + d_h))
     return [l, t, r, b]
 
 
 def apply_drag_delta(bbox: list[int], mode: str, dx: int, dy: int) -> list[int]:
-    """Apply screen-delta move/resize for a ring drag mode (KAN-528)."""
+    """Apply screen-delta move/resize for a ring drag mode (KAN-528 / KAN-530)."""
     try:
         l, t, r, b = (int(v) for v in bbox)
     except (TypeError, ValueError):
@@ -1252,14 +1424,17 @@ def apply_drag_delta(bbox: list[int], mode: str, dx: int, dy: int) -> list[int]:
             t = b - MIN_CAPTURE_H
         else:
             b = t + MIN_CAPTURE_H
-    if r - l > MAX_CAPTURE_W:
+    max_w, max_h = max_capture_for_work(_dock_virtual, _dock_monitors)
+    max_w = max(MIN_CAPTURE_W, min(MAX_CAPTURE_W, max_w))
+    max_h = max(MIN_CAPTURE_H, min(MAX_CAPTURE_H, max_h))
+    if r - l > max_w:
         if "w" in m and "e" not in m:
-            l = r - MAX_CAPTURE_W
+            l = r - max_w
         else:
-            r = l + MAX_CAPTURE_W
-    if b - t > MAX_CAPTURE_H:
+            r = l + max_w
+    if b - t > max_h:
         if "n" in m and "s" not in m:
-            t = b - MAX_CAPTURE_H
+            t = b - max_h
         else:
-            b = t + MAX_CAPTURE_H
+            b = t + max_h
     return [l, t, r, b]

@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | awaiting human — desk159 move/resize confirm |
-| **Jira story** | **KAN-528** (Bug — Charter overlay move/resize; impl on desk159) |
-| **Start task** | Designer: KAN-529 drag + corner-resize + tray re-dock on desk159. Then close 528/529 → **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Status** | awaiting human — desk160 glue/max/tips confirm |
+| **Jira story** | **KAN-530** (Bug — tray detach + max too small + hover tips); also **KAN-528**/529 |
+| **Start task** | Designer: KAN-531 on desk160 (glued tray, large resize, hover tips). Then Done 530/531 + 528/529 → **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
 | **Spec** | FR-MAN-1 snip move/resize; Look 4 side host from **KAN-525** |
 | **Git** | `main` |
-| **Test ticket** | **KAN-529** (KAN-528); then **KAN-513**/514 with **KAN-510**/511 |
-| **Shipped** | Move/resize impl **KAN-528** (**desk159** — await human); host restore **KAN-525**/526 Done (**desk158**); G+tray Look 4 **KAN-512** + **KAN-516**…**524**; Plan doc **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497 |
-| **Queued** | **KAN-510**/511 after **KAN-528**/529 Done; stubs **KAN-390**, compliance **KAN-392** |
+| **Test ticket** | **KAN-531** (KAN-530); **KAN-529** (KAN-528); then **KAN-513**/514 with **KAN-510**/511 |
+| **Shipped** | Glue/max/tips **KAN-530** (**desk160** — await human); move/resize **KAN-528** (**desk159**); host restore **KAN-525**/526 Done (**desk158**); G+tray Look 4 **KAN-512** + **KAN-516**…**524**; Plan doc **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497 |
+| **Queued** | **KAN-510**/511 after 528–531 Done; stubs **KAN-390**, compliance **KAN-392** |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Human confirms **KAN-529** on desk159 → Done 528/529 → pick up **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Human confirms **KAN-531**/529 on desk160 → Done → pick up **KAN-510**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-530 — Tray glue + larger max + hover tips (desk160)
+- **Agent/chat:** Cursor IDE Agent — Designer desk159 feedback (detach / max / tips)
+- **Done:** Raised Bug **KAN-530** + test **KAN-531**. Fixed dock glue (no work-area x-clamp; real screen fallback; cache virtual/monitors during live drag). Max capture = primary work − margin (was 960×640). Hover tip popup for each tray verb (`_VERB_TIPS`). Cache-bust **desk160**.
+- **Files:** `plans/charter_ring_native.py`, `plans/charter_float.py`, `desktop_app.py`, `ui/desktop/index.html`, `tests/test_charter_float.py`, `scripts/jira_kan_bug_charter_tray_glue_max_tips.py`
+- **Verify:** `pytest tests/test_charter_float.py tests/test_manual_ia.py tests/test_manual_trustworthy_loop.py` — 21 passed. **Human KAN-531** still required.
+- **Jira:** Bug+test created; Fix comment pending close-out
+- **Next:** Designer confirms desk160 → Done 530/531 + 528/529 → **KAN-510**
 
 ### 2026-11-28 — KAN-528 — Charter overlay native drag + resize (desk159)
 - **Agent/chat:** Cursor IDE Agent — pick up Active KAN-528
