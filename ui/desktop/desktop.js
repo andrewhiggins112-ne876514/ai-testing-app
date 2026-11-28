@@ -7241,19 +7241,26 @@
   async function openOsCharterFloat(session) {
     const bridge = desktopBridgeApi();
     if (!bridge || !bridge.charter_float_available || !bridge.charter_float_open) {
-      return false;
+      return { ok: false, error: "no_bridge" };
     }
     try {
-      const avail = await withTimeout(bridge.charter_float_available(), 800);
-      if (!avail || avail.status === "timeout" || !avail.available) return false;
-      /* Keep Start responsive: if float bridge stalls, fall back to in-app frame. */
+      const avail = await withTimeout(bridge.charter_float_available(), 1200);
+      if (!avail || avail.status === "timeout" || !avail.available) {
+        return { ok: false, error: "float_unavailable", detail: avail };
+      }
+      /* Place can take >1.5s after Win32 restore — do not race-timeout into a glitch. */
       const opened = await withTimeout(
         bridge.charter_float_open(session || {}),
-        1500
+        6000
       );
-      return !!(opened && opened.status === "ok");
-    } catch (_err) {
-      return false;
+      if (opened && opened.status === "ok") return { ok: true, detail: opened };
+      return {
+        ok: false,
+        error: (opened && opened.error) || (opened && opened.status) || "open_failed",
+        detail: opened,
+      };
+    } catch (err) {
+      return { ok: false, error: "open_exception", detail: String(err && err.message || err) };
     }
   }
 
@@ -7296,8 +7303,10 @@
         charterFrameRoot.setAttribute("aria-hidden", "true");
         setCharterMistVisible(false);
       }
-      const floated = await openOsCharterFloat(session);
+      const floatResult = await openOsCharterFloat(session);
+      const floated = !!(floatResult && floatResult.ok);
       charterOsFloatActive = floated;
+      window.__charterLastFloatResult = floatResult || null;
       if (floated) {
         setManualLoopStage("recording");
         showManualSessionChip(session);
@@ -7306,17 +7315,25 @@
         if (manualEndOpen) manualEndOpen.hidden = false;
         if (manualStatus) {
           manualStatus.textContent =
-            "Recording — hollow OS shell + icon tray. Use session chip Restore/End here if the tray is missing.";
+            "Recording — look for the cyan Charter tray on the desktop (beside the hollow ring). Chip End ends the session if the tray is missing.";
         }
       } else {
         setManualLoopStage("idle");
         hideManualSessionChip();
         setManualResumeUi(session);
         if (manualEndOpen) manualEndOpen.hidden = false;
+        const why =
+          (floatResult && floatResult.error) ||
+          (floatResult && floatResult.detail && floatResult.detail.error) ||
+          "place_failed";
         if (manualStatus) {
           manualStatus.textContent =
-            "Charter OS shell failed to place — no silent in-app fallback. Use Resume Charter to retry, or End open session.";
+            "Charter OS tray failed (" +
+            why +
+            "). Session is still open — click End open session, or Resume Charter to retry. No silent in-app fallback.";
         }
+        /* Sticky flag so refreshManualSessions does not wipe this message (KAN-522). */
+        window.__manualFloatFailStatus = manualStatus ? manualStatus.textContent : "";
       }
       return;
     }
@@ -7345,6 +7362,7 @@
       await closeOsCharterFloat();
       charterOsFloatActive = false;
     }
+    window.__manualFloatFailStatus = "";
     hideManualSessionChip();
     if (!charterFrameRoot) return;
     showCharterCancelConfirm(false);
@@ -7867,9 +7885,13 @@
               });
             }
             if (manualStatus) {
-              manualStatus.textContent = charterOsFloatActive
-                ? "Session recording — tray should be on desktop; use End here if it is missing."
-                : "Session open — Resume Charter to re-arm the shell, or End open session.";
+              if (window.__manualFloatFailStatus && !charterOsFloatActive) {
+                manualStatus.textContent = window.__manualFloatFailStatus;
+              } else {
+                manualStatus.textContent = charterOsFloatActive
+                  ? "Session recording — tray should be on desktop; use End here if it is missing."
+                  : "Session open — Resume Charter to re-arm the shell, or End open session.";
+              }
             }
           } else {
             const openRes = await fetch("/api/manual-sessions/open");
@@ -7975,8 +7997,12 @@
       }
       if (manualReview) manualReview.hidden = true;
       /* Keep Manual open so Start is visible; do not closeArea (looked like a no-op glitch). */
+      window.__manualFloatFailStatus = "";
       await showCharterFrame(data.session);
       await refreshManualSessions();
+      if (window.__manualFloatFailStatus && manualStatus) {
+        manualStatus.textContent = window.__manualFloatFailStatus;
+      }
     } catch (err) {
       if (manualStatus) {
         manualStatus.textContent = "Start failed: " + (err.message || err);

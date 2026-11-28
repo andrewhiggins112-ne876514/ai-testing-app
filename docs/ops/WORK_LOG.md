@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-28 — KAN-522 — Start only glitches (false invisible + status wipe)
+- **Agent/chat:** Cursor IDE Agent — Designer: Start glitches only; End→Start same
+- **Done:** `resolve_float_hwnd` + soft size check; never hide-after-show on visibility fail; 6s open timeout; sticky fail status surviving refresh. **desk154**.
+- **Files:** `plans/charter_float.py`, `desktop_app.py`, `ui/desktop/desktop.js`, `tests/test_charter_float.py`
+- **Verify:** `pytest tests/test_charter_float.py` — 9 passed
+- **Jira:** Bug **KAN-522** Fix + Done (+ linked test)
+- **Next:** Active remains **KAN-510** residual
+
 ### 2026-11-28 — KAN-520 — Tray ghost + no Manual End
 - **Agent/chat:** Cursor IDE Agent — Designer: still no overlay after End→Start; cannot End
 - **Done:** Visibility gate (`dock_not_visible`); remove SW_HIDE from force-visible; session chip **End** + toolbar End always while session open; tray min 160×280. **desk153**.

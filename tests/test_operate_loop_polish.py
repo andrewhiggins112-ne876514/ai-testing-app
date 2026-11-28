@@ -8,16 +8,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class OperateLoopPolishTests(unittest.TestCase):
-    def test_operate3_markers_and_desk153(self) -> None:
+    def test_operate3_markers_and_desk154(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk153", html)
-        self.assertIn("desk153", desk)
-        self.assertIn("desktop.css?v=desk153", html)
-        self.assertIn("desktop.js?v=desk153", html)
+        self.assertIn("desk154", html)
+        self.assertIn("desk154", desk)
+        self.assertIn("desktop.css?v=desk154", html)
+        self.assertIn("desktop.js?v=desk154", html)
 
         plans = html.split('id="app-section-plans"', 1)[1].split(
             'id="app-section-manual"', 1

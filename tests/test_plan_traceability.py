@@ -165,12 +165,12 @@ class TraceabilityMatrixTests(unittest.TestCase):
         self.assertNotIn("traceability", sections_off)
         self.assertNotIn("## Traceability", render_markdown(sections_off))
 
-    def test_desktop_ui_has_traceability_controls_desk153(self):
+    def test_desktop_ui_has_traceability_controls_desk154(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         app = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk153", html)
-        self.assertIn("desk153", app)
+        self.assertIn("desk154", html)
+        self.assertIn("desk154", app)
         self.assertIn("plan-trace-matrix", html)
         self.assertIn("plan-trace-btn", html)
         self.assertIn("rpt-traceability", html)

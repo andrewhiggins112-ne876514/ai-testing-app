@@ -261,6 +261,28 @@ def float_hwnd_from_native(native: Any) -> int:
         return 0
 
 
+def float_hwnd_by_title(title: str | None = None) -> int:
+    """Fallback FindWindowW by Charter Frame title (KAN-522)."""
+    import ctypes
+
+    name = title or _OWN_FLOAT_TITLE
+    try:
+        hwnd = ctypes.windll.user32.FindWindowW(None, str(name))
+        return int(hwnd or 0)
+    except Exception:  # noqa: BLE001
+        return 0
+
+
+def resolve_float_hwnd(win: Any) -> int:
+    """HWND from pywebview.native, else FindWindow by title."""
+    if win is None:
+        return float_hwnd_by_title()
+    hwnd = float_hwnd_from_native(getattr(win, "native", None))
+    if hwnd:
+        return hwnd
+    return float_hwnd_by_title(float_window_title())
+
+
 def is_float_available_payload(available: bool) -> dict[str, Any]:
     return {
         "available": bool(available),

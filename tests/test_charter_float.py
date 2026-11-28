@@ -168,16 +168,16 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk153(self) -> None:
+    def test_desktop_float_markers_desk154(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk153", html)
-        self.assertIn("desk153", desk)
-        self.assertIn("desk153", float_html)
+        self.assertIn("desk154", html)
+        self.assertIn("desk154", desk)
+        self.assertIn("desk154", float_html)
         self.assertIn('data-snip-dock="1"', float_html)
         self.assertIn('data-charter-g-tray="1"', float_html)
         self.assertIn('data-look="4"', float_html)
@@ -199,6 +199,12 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("syncManualEndVisible", js)
         self.assertIn("dock_not_visible", desk)
         self.assertIn("_dock_visibly_ok", desk)
+        self.assertIn("resolve_float_hwnd", desk)
+        self.assertIn("__manualFloatFailStatus", js)
+        self.assertIn("6000", js)
+        cf = (ROOT / "plans" / "charter_float.py").read_text(encoding="utf-8")
+        self.assertIn("def resolve_float_hwnd", cf)
+        self.assertIn("def float_hwnd_by_title", cf)
         # KAN-520: never ShowWindow(..., SW_HIDE) in force-visible (taskbar ghost).
         force_fn = desk.split("def _force_dock_native_visible", 1)[1].split(
             "def _dock_visibly_ok", 1

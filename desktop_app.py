@@ -23,13 +23,14 @@ from plans.charter_float import (
     float_hwnd_from_native,
     float_window_title,
     is_float_available_payload,
+    resolve_float_hwnd,
 )
 from plans import charter_ring_native as ring
 from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk153"
+DESK_V = "desk154"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 FLOAT_URL = f"http://{HOST}:{PORT}/ui/desktop/charter_float.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
@@ -95,7 +96,7 @@ def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
     import ctypes
     from ctypes import wintypes
 
-    hwnd = float_hwnd_from_native(getattr(win, "native", None))
+    hwnd = resolve_float_hwnd(win)
     if not hwnd:
         return
     user32 = ctypes.windll.user32
@@ -141,32 +142,32 @@ def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
 
 
 def _dock_visibly_ok(win: Any) -> bool:
-    """True when the float HWND is visible and large enough on a work area."""
+    """True when the float looks placed (HWND or pywebview geometry).
+
+    KAN-522: do not false-fail when native.Handle is missing — that hid the tray
+    right after show() and looked like a Start-only glitch.
+    """
     import ctypes
     from ctypes import wintypes
 
-    hwnd = float_hwnd_from_native(getattr(win, "native", None))
-    if not hwnd:
-        return False
-    user32 = ctypes.windll.user32
-    if not user32.IsWindowVisible(hwnd):
-        return False
-    rect = wintypes.RECT()
-    if not user32.GetWindowRect(hwnd, ctypes.byref(rect)):
-        return False
-    rw = int(rect.right) - int(rect.left)
-    rh = int(rect.bottom) - int(rect.top)
-    if rw < 80 or rh < 80:
-        return False
-    work = _work_area()
-    ox, oy = int(work["left"]), int(work["top"])
-    aw, ah = int(work["width"]), int(work["height"])
-    # Any overlap with primary work area counts as on-screen.
-    if rect.right < ox + 8 or rect.bottom < oy + 8:
-        return False
-    if rect.left > ox + aw - 8 or rect.top > oy + ah - 8:
-        return False
-    return True
+    hwnd = resolve_float_hwnd(win)
+    if hwnd:
+        user32 = ctypes.windll.user32
+        rect = wintypes.RECT()
+        if user32.GetWindowRect(hwnd, ctypes.byref(rect)):
+            rw = int(rect.right) - int(rect.left)
+            rh = int(rect.bottom) - int(rect.top)
+            if rw >= 80 and rh >= 80:
+                return True
+    # Soft fallback: trust pywebview's reported size after show().
+    try:
+        w = int(getattr(win, "width", 0) or 0)
+        h = int(getattr(win, "height", 0) or 0)
+        if w >= 80 and h >= 80:
+            return True
+    except Exception:  # noqa: BLE001
+        pass
+    return False
 
 
 def _work_area() -> dict[str, int]:
@@ -281,15 +282,12 @@ def _place_dock(bbox: list[int]) -> dict[str, Any]:
             _suppress_dock_moved = False
         _hook_dock_events()
         if not _dock_visibly_ok(win):
-            # Honest fail — do not report ok for a taskbar-only ghost (KAN-520).
-            try:
-                win.hide()
-            except Exception:  # noqa: BLE001
-                pass
+            # KAN-522: do NOT hide here — hide-after-show was the Start "glitch".
+            # Leave the window up; JS still gets an honest error + End controls.
             return {
                 "status": "error",
                 "error": "dock_not_visible",
-                "message": "Charter tray HWND not visible on work area",
+                "message": "Charter tray did not report a usable size after place",
                 "geometry": geom,
                 "side": _tray_side,
             }
