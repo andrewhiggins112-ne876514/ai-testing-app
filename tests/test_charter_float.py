@@ -168,16 +168,16 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk152(self) -> None:
+    def test_desktop_float_markers_desk153(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk152", html)
-        self.assertIn("desk152", desk)
-        self.assertIn("desk152", float_html)
+        self.assertIn("desk153", html)
+        self.assertIn("desk153", desk)
+        self.assertIn("desk153", float_html)
         self.assertIn('data-snip-dock="1"', float_html)
         self.assertIn('data-charter-g-tray="1"', float_html)
         self.assertIn('data-look="4"', float_html)
@@ -195,6 +195,16 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("data-charter-pause", float_html)
         self.assertIn("data-charter-tray-toggle", float_html)
         self.assertIn("data-manual-session-chip", html)
+        self.assertIn("data-manual-session-end", html)
+        self.assertIn("syncManualEndVisible", js)
+        self.assertIn("dock_not_visible", desk)
+        self.assertIn("_dock_visibly_ok", desk)
+        # KAN-520: never ShowWindow(..., SW_HIDE) in force-visible (taskbar ghost).
+        force_fn = desk.split("def _force_dock_native_visible", 1)[1].split(
+            "def _dock_visibly_ok", 1
+        )[0]
+        self.assertNotIn("ShowWindow(hwnd, SW_HIDE)", force_fn)
+        self.assertNotIn("SW_HIDE = 0", force_fn)
         # Manual UX: Start must not closeArea; library reopen must not toggle-close.
         self.assertIn("function ensureAreaOpen", js)
         self.assertIn('ensureAreaOpen("manual")', js)

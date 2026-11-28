@@ -1452,6 +1452,7 @@
   const manualSessionChip = document.getElementById("manual-session-chip");
   const manualSessionChipLabel = document.getElementById("manual-session-chip-label");
   const manualSessionChipRestore = document.getElementById("manual-session-chip-restore");
+  const manualSessionChipEnd = document.getElementById("manual-session-chip-end");
   const manualEndOpen = document.getElementById("manual-end-open");
   const charterAssistLive = document.getElementById("charter-assist-live");
   const charterMistLive = document.getElementById("charter-mist-live");
@@ -7094,27 +7095,44 @@
     }
   }
 
+  function syncManualEndVisible() {
+    /* KAN-520: End must stay reachable even when OS tray is a taskbar ghost. */
+    const open =
+      !!manualOpenSessionId ||
+      !!(pendingResumeSession && pendingResumeSession.id);
+    if (manualEndOpen) manualEndOpen.hidden = !open;
+  }
+
   function setManualResumeUi(sessionOrNull) {
     pendingResumeSession = sessionOrNull || null;
     const on = !!pendingResumeSession;
-    if (manualResumeCharter) manualResumeCharter.hidden = !on;
-    if (manualEndOpen) manualEndOpen.hidden = !on;
+    if (manualResumeCharter) {
+      /* Resume only when float is not already claiming to be active. */
+      manualResumeCharter.hidden = !on || charterOsFloatActive;
+    }
+    syncManualEndVisible();
   }
 
   function showManualSessionChip(sessionOrNull) {
     if (!manualSessionChip) return;
     if (!sessionOrNull) {
       manualSessionChip.hidden = true;
+      syncManualEndVisible();
       return;
     }
     const label =
-      (sessionOrNull.charter || sessionOrNull.id || "Session").toString().slice(0, 48);
-    if (manualSessionChipLabel) manualSessionChipLabel.textContent = label + " · Restore";
+      (sessionOrNull.charter || sessionOrNull.id || "Session").toString().slice(0, 40);
+    if (manualSessionChipLabel) {
+      manualSessionChipLabel.textContent = label;
+    }
     manualSessionChip.hidden = false;
+    /* End stays on chip + toolbar whenever a session is open. */
+    if (manualEndOpen) manualEndOpen.hidden = false;
   }
 
   function hideManualSessionChip() {
     if (manualSessionChip) manualSessionChip.hidden = true;
+    syncManualEndVisible();
   }
 
   function setCharterMistVisible(on) {
@@ -7129,7 +7147,7 @@
     if (manualLoopStageLabel) {
       if (next === "recording") {
         manualLoopStageLabel.textContent =
-          "Loop: recording — hollow OS shell + tray; Manual is a session chip (Restore)";
+          "Loop: recording — shell + tray; session chip has Restore / End";
       } else if (next === "review") {
         manualLoopStageLabel.textContent =
           "Loop: review — Propose, then Confirm or Cancel proposal (no silent Jira)";
@@ -7283,15 +7301,18 @@
       if (floated) {
         setManualLoopStage("recording");
         showManualSessionChip(session);
-        setManualResumeUi(null);
+        pendingResumeSession = session;
+        if (manualResumeCharter) manualResumeCharter.hidden = true;
+        if (manualEndOpen) manualEndOpen.hidden = false;
         if (manualStatus) {
           manualStatus.textContent =
-            "Recording — hollow OS shell + icon tray. Manual is a session chip (Restore). Drag the tray rail to move capture outside this window.";
+            "Recording — hollow OS shell + icon tray. Use session chip Restore/End here if the tray is missing.";
         }
       } else {
         setManualLoopStage("idle");
         hideManualSessionChip();
         setManualResumeUi(session);
+        if (manualEndOpen) manualEndOpen.hidden = false;
         if (manualStatus) {
           manualStatus.textContent =
             "Charter OS shell failed to place — no silent in-app fallback. Use Resume Charter to retry, or End open session.";
@@ -7831,14 +7852,24 @@
         }
       }
       if (data.open_session_id) {
-        /* Manual open must not auto-arm chrome (KAN-509) — offer Resume / End instead. */
+        /* Manual open must not auto-arm chrome (KAN-509) — offer Resume / End instead.
+           KAN-520: End stays visible even while recording / if OS tray is ghosted. */
         if (openAreaName === "manual") {
           if (manualOpenSessionId) {
-            setManualResumeUi(null);
+            if (manualEndOpen) manualEndOpen.hidden = false;
+            if (manualResumeCharter) {
+              manualResumeCharter.hidden = !!charterOsFloatActive;
+            }
+            if (charterOsFloatActive) {
+              showManualSessionChip({
+                id: manualOpenSessionId,
+                charter: (manualCharter && manualCharter.value) || manualOpenSessionId,
+              });
+            }
             if (manualStatus) {
               manualStatus.textContent = charterOsFloatActive
-                ? "Session recording — drag OS dock header to move outside this window; in-app dock follows the cyan frame."
-                : "Session recording — drag Charter Frame; controls stay under the frame. End before a new charter.";
+                ? "Session recording — tray should be on desktop; use End here if it is missing."
+                : "Session open — Resume Charter to re-arm the shell, or End open session.";
             }
           } else {
             const openRes = await fetch("/api/manual-sessions/open");
@@ -7846,6 +7877,7 @@
             if (openData.open && openData.session) {
               setManualResumeUi(openData.session);
               setManualLoopStage("idle");
+              if (manualEndOpen) manualEndOpen.hidden = false;
               if (manualStatus) {
                 manualStatus.textContent =
                   "Open session on this level — Resume Charter to continue, or End open session.";
@@ -7856,6 +7888,7 @@
           }
         } else {
           setManualResumeUi(null);
+          if (manualEndOpen && data.open_session_id) manualEndOpen.hidden = false;
         }
       } else {
         setManualResumeUi(null);
@@ -7863,6 +7896,7 @@
           await hideCharterFrame();
           manualOpenSessionId = "";
         }
+        syncManualEndVisible();
         const stage =
           (manualSection && manualSection.getAttribute("data-loop-stage")) || "";
         if (stage === "recording") {
@@ -11952,6 +11986,11 @@
   if (manualSessionChipRestore) {
     manualSessionChipRestore.addEventListener("click", function () {
       resumeManualCharter();
+    });
+  }
+  if (manualSessionChipEnd) {
+    manualSessionChipEnd.addEventListener("click", function () {
+      endOpenManualSessionFromIdle();
     });
   }
   if (manualEndOpen) {

@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-28 — KAN-520 — Tray ghost + no Manual End
+- **Agent/chat:** Cursor IDE Agent — Designer: still no overlay after End→Start; cannot End
+- **Done:** Visibility gate (`dock_not_visible`); remove SW_HIDE from force-visible; session chip **End** + toolbar End always while session open; tray min 160×280. **desk153**.
+- **Files:** `desktop_app.py`, `ui/desktop/desktop.js|css|index.html`, `plans/charter_ring_native.py`, `tests/test_charter_float.py`
+- **Verify:** `pytest tests/test_charter_float.py` — 9 passed
+- **Jira:** Bug **KAN-520** Fix + Done (+ linked test)
+- **Next:** Active remains **KAN-510** residual
+
 ### 2026-11-28 — KAN-518 — Charter tray taskbar ghost after End→Start
 - **Agent/chat:** Cursor IDE Agent — Designer: End then Start; no overlay; taskbar click does nothing
 - **Done:** Look 4 tray HWND floor (120×200) so WebView2 paints; Start expands + clears note sheet; stronger Restore/TOPMOST + GetWindowRect recenter; second force-visible. Cache-bust **desk152**.

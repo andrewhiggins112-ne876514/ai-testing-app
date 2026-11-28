@@ -29,7 +29,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk152"
+DESK_V = "desk153"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 FLOAT_URL = f"http://{HOST}:{PORT}/ui/desktop/charter_float.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
@@ -89,8 +89,8 @@ def _notify_main(js: str) -> None:
 def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
     """Unstick taskbar-only / hidden frameless dock (Show + TOPMOST).
 
-    KAN-506 / KAN-518: after hide→show the WinForms WebView can stay a taskbar
-    ghost. Restore + SHOW + TOPMOST + size clamp to primary work area.
+    KAN-506 / KAN-518 / KAN-520: never SW_HIDE here (that created taskbar ghosts).
+    Restore + SHOW + TOPMOST + clamp to primary work area.
     """
     import ctypes
     from ctypes import wintypes
@@ -100,7 +100,6 @@ def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
         return
     user32 = ctypes.windll.user32
     HWND_TOPMOST = -1
-    SW_HIDE = 0
     SW_RESTORE = 9
     SW_SHOW = 5
     SWP_SHOWWINDOW = 0x0040
@@ -114,8 +113,6 @@ def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
     x = max(ox, min(int(geom.get("x") or ox), ox + aw - w))
     y = max(oy, min(int(geom.get("y") or oy), oy + ah - h))
 
-    # Nudge out of pure-minimized / ghost state, then force geometry.
-    user32.ShowWindow(hwnd, SW_HIDE)
     user32.ShowWindow(hwnd, SW_RESTORE)
     user32.ShowWindow(hwnd, SW_SHOW)
     user32.SetWindowPos(
@@ -131,7 +128,6 @@ def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
         user32.BringWindowToTop(hwnd)
     except Exception:  # noqa: BLE001
         pass
-    # Confirm the HWND landed on-screen; if not, recenter on primary.
     rect = wintypes.RECT()
     if user32.GetWindowRect(hwnd, ctypes.byref(rect)):
         rw = int(rect.right) - int(rect.left)
@@ -142,6 +138,35 @@ def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
             user32.SetWindowPos(
                 hwnd, HWND_TOPMOST, x2, y2, w, h, SWP_SHOWWINDOW | SWP_FRAMECHANGED
             )
+
+
+def _dock_visibly_ok(win: Any) -> bool:
+    """True when the float HWND is visible and large enough on a work area."""
+    import ctypes
+    from ctypes import wintypes
+
+    hwnd = float_hwnd_from_native(getattr(win, "native", None))
+    if not hwnd:
+        return False
+    user32 = ctypes.windll.user32
+    if not user32.IsWindowVisible(hwnd):
+        return False
+    rect = wintypes.RECT()
+    if not user32.GetWindowRect(hwnd, ctypes.byref(rect)):
+        return False
+    rw = int(rect.right) - int(rect.left)
+    rh = int(rect.bottom) - int(rect.top)
+    if rw < 80 or rh < 80:
+        return False
+    work = _work_area()
+    ox, oy = int(work["left"]), int(work["top"])
+    aw, ah = int(work["width"]), int(work["height"])
+    # Any overlap with primary work area counts as on-screen.
+    if rect.right < ox + 8 or rect.bottom < oy + 8:
+        return False
+    if rect.left > ox + aw - 8 or rect.top > oy + ah - 8:
+        return False
+    return True
 
 
 def _work_area() -> dict[str, int]:
@@ -243,12 +268,31 @@ def _place_dock(bbox: list[int]) -> dict[str, Any]:
             win.on_top = True
             win.show()
             _force_dock_native_visible(win, geom)
-            # Second paint pass after hide→show (KAN-518 taskbar ghost).
-            time.sleep(0.05)
+            time.sleep(0.08)
             _force_dock_native_visible(win, geom)
+            try:
+                win.evaluate_js(
+                    "document.documentElement && "
+                    "(document.documentElement.style.opacity='1')"
+                )
+            except Exception:  # noqa: BLE001
+                pass
         finally:
             _suppress_dock_moved = False
         _hook_dock_events()
+        if not _dock_visibly_ok(win):
+            # Honest fail — do not report ok for a taskbar-only ghost (KAN-520).
+            try:
+                win.hide()
+            except Exception:  # noqa: BLE001
+                pass
+            return {
+                "status": "error",
+                "error": "dock_not_visible",
+                "message": "Charter tray HWND not visible on work area",
+                "geometry": geom,
+                "side": _tray_side,
+            }
         return {"status": "ok", "geometry": geom, "side": _tray_side}
     except Exception as exc:  # noqa: BLE001
         _suppress_dock_moved = False

@@ -2982,6 +2982,13 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   opacity: 0.55;
   pointer-events: none;
 }
+/* End / Resume / chip must stay clickable while recording (KAN-520). */
+#app-section-manual[data-loop-stage="recording"] #manual-end-open,
+#app-section-manual[data-loop-stage="recording"] #manual-resume-charter,
+#app-section-manual[data-loop-stage="recording"] .manual-session-chip {
+  opacity: 1;
+  pointer-events: auto;
+}
 
 /* KAN-512: session chip stays clickable while recording (Look 4 / Option G) */
 .manual-session-chip {

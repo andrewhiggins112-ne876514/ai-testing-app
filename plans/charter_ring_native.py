@@ -231,8 +231,8 @@ TRAY_W = 48
 TRAY_COLLAPSED = 36
 TRAY_NOTE_EXTRA = 220
 TRAY_GAP = 0  # glued to hole edge
-MIN_TRAY_HWND_W = 120
-MIN_TRAY_HWND_H = 200
+MIN_TRAY_HWND_W = 160
+MIN_TRAY_HWND_H = 280
 
 
 def normalize_tray_side(side: Any) -> str:
