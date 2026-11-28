@@ -104,10 +104,10 @@ user32.PostThreadMessageW.argtypes = [
 user32.PostThreadMessageW.restype = wintypes.BOOL
 
 # Suffix bumps when WndProc changes (RegisterClassW 1410 keeps stale proc).
-_CLASS_BAR = "AiTestingCharterBar530"
-_CLASS_TRAY = "AiTestingCharterTray530"
-_CLASS_MSG = "AiTestingCharterMsg530"
-_CLASS_TIP = "AiTestingCharterTip530"
+_CLASS_BAR = "AiTestingCharterBar532"
+_CLASS_TRAY = "AiTestingCharterTray532"
+_CLASS_MSG = "AiTestingCharterMsg532"
+_CLASS_TIP = "AiTestingCharterTip532"
 
 # Look 4 Compact side rail (Accepted). Under-ring Rejected (KAN-525).
 # Owner-drawn icons — no stock Win32 BUTTON chrome (Designer: cheap/outdated).
@@ -152,8 +152,22 @@ _VERB_TIPS = {
     "cancel": "Cancel session — nothing written to Jira",
 }
 TIP_DELAY_MS = 400
-TIP_TIMER_ID = 5301
+TIP_TIMER_ID = 5321
 WM_TIMER = 0x0113
+# KAN-532 — readable hover tips (was ~system-default + 28px tall).
+TIP_FONT_PX = 16
+TIP_PAD_X = 16
+TIP_PAD_Y = 10
+TIP_MIN_W = 160
+TIP_MAX_W = 420
+TIP_RADIUS = 8
+FW_SEMIBOLD = 600
+DEFAULT_CHARSET = 1
+OUT_TT_PRECIS = 4
+CLIP_DEFAULT_PRECIS = 0
+CLEARTYPE_QUALITY = 5
+DEFAULT_PITCH = 0
+FF_SWISS = 32
 
 LRESULT = ctypes.c_ssize_t
 WPARAM = ctypes.c_size_t
@@ -199,6 +213,7 @@ _brush_bg = 0
 _brush_cell = 0
 _brush_cell_hot = 0
 _brush_on = 0
+_tip_font = 0
 # Live drag state (ring thread only).
 _drag_active = False
 _drag_mode = "move"
@@ -240,6 +255,63 @@ class WNDCLASSW(ctypes.Structure):
 POINT = wintypes.POINT
 
 
+class SIZE(ctypes.Structure):
+    _fields_ = [("cx", ctypes.c_long), ("cy", ctypes.c_long)]
+
+
+def _ensure_tip_font() -> int:
+    """Larger ClearType tip face (KAN-532). Negative height = character px."""
+    global _tip_font
+    if _tip_font:
+        return int(_tip_font)
+    _tip_font = int(
+        gdi32.CreateFontW(
+            -TIP_FONT_PX,
+            0,
+            0,
+            0,
+            FW_SEMIBOLD,
+            0,
+            0,
+            0,
+            DEFAULT_CHARSET,
+            OUT_TT_PRECIS,
+            CLIP_DEFAULT_PRECIS,
+            CLEARTYPE_QUALITY,
+            DEFAULT_PITCH | FF_SWISS,
+            "Segoe UI",
+        )
+        or 0
+    )
+    return int(_tip_font)
+
+
+def _measure_tip_text(hdc: int, text: str) -> tuple[int, int]:
+    """Return (width, height) for tip string using the tip font."""
+    own_dc = False
+    if not hdc:
+        hdc = int(gdi32.CreateCompatibleDC(None) or 0)
+        own_dc = bool(hdc)
+    if not hdc:
+        return max(TIP_MIN_W, min(TIP_MAX_W, TIP_PAD_X * 2 + len(text) * 10)), (
+            TIP_FONT_PX + TIP_PAD_Y * 2
+        )
+    font = _ensure_tip_font()
+    old = gdi32.SelectObject(hdc, font) if font else 0
+    size = SIZE()
+    ok = gdi32.GetTextExtentPoint32W(hdc, text, len(text), ctypes.byref(size))
+    if font and old:
+        gdi32.SelectObject(hdc, old)
+    if own_dc:
+        gdi32.DeleteDC(hdc)
+    if not ok:
+        # Fallback if GDI measure fails.
+        return max(TIP_MIN_W, min(TIP_MAX_W, TIP_PAD_X * 2 + len(text) * 10)), (
+            TIP_FONT_PX + TIP_PAD_Y * 2
+        )
+    return int(size.cx), int(size.cy)
+
+
 def _ensure_class() -> None:
     global _registered, _brush, _tray_brush, _wndproc_tray_ref, _wndproc_msg_ref
     global _wndproc_bar_ref, _wndproc_tip_ref
@@ -257,6 +329,7 @@ def _ensure_class() -> None:
     _pen_cyan = gdi32.CreatePen(PS_SOLID, 2, COL_CYAN)
     _pen_muted = gdi32.CreatePen(PS_SOLID, 2, COL_MUTED)
     _pen_hot = gdi32.CreatePen(PS_SOLID, 2, COL_CYAN)
+    _ensure_tip_font()
     _wndproc_bar_ref = WNDPROC(_bar_wndproc)
     _wndproc_tray_ref = WNDPROC(_tray_wndproc)
     _wndproc_msg_ref = WNDPROC(_msg_wndproc)
@@ -563,12 +636,18 @@ def _show_tip_for_verb(verb: str) -> None:
     if not hwnd:
         return
     _tip_text = text
-    # Measure roughly: 7px per char + padding.
-    tw = max(120, min(360, 12 + len(text) * 7))
-    th = 28
+    # Measure with the real tip font (KAN-532) — not the old 7px/char guess.
+    hdc = user32.GetDC(hwnd)
+    try:
+        tw_text, th_text = _measure_tip_text(int(hdc or 0), text)
+    finally:
+        if hdc:
+            user32.ReleaseDC(hwnd, hdc)
+    tw = max(TIP_MIN_W, min(TIP_MAX_W, tw_text + TIP_PAD_X * 2))
+    th = max(TIP_FONT_PX + TIP_PAD_Y * 2, th_text + TIP_PAD_Y * 2)
     cx, cy = _cursor_screen()
     x = cx + 16
-    y = cy + 20
+    y = cy + 22
     user32.SetWindowPos(
         hwnd, HWND_TOPMOST, x, y, tw, th, SWP_NOACTIVATE | SWP_SHOWWINDOW
     )
@@ -600,18 +679,36 @@ def _tip_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
                 gdi32.SelectObject(hdc, _pen_cyan)
                 gdi32.SelectObject(hdc, gdi32.GetStockObject(5))
                 gdi32.RoundRect(
-                    hdc, 0, 0, max(1, rect.right - 1), max(1, rect.bottom - 1), 6, 6
+                    hdc,
+                    0,
+                    0,
+                    max(1, rect.right - 1),
+                    max(1, rect.bottom - 1),
+                    TIP_RADIUS,
+                    TIP_RADIUS,
                 )
                 gdi32.SetBkMode(hdc, TRANSPARENT)
                 gdi32.SetTextColor(hdc, COL_CYAN)
-                # DrawTextW
-                user32.DrawTextW(
-                    hdc,
-                    _tip_text,
-                    -1,
-                    ctypes.byref(rect),
-                    DT_CENTER | DT_VCENTER | DT_SINGLELINE,
-                )
+                font = _ensure_tip_font()
+                old = gdi32.SelectObject(hdc, font) if font else 0
+                try:
+                    # Inset so text does not kiss the rounded border.
+                    text_rect = wintypes.RECT(
+                        rect.left + 4,
+                        rect.top + 2,
+                        max(rect.left + 5, rect.right - 4),
+                        max(rect.top + 3, rect.bottom - 2),
+                    )
+                    user32.DrawTextW(
+                        hdc,
+                        _tip_text,
+                        -1,
+                        ctypes.byref(text_rect),
+                        DT_CENTER | DT_VCENTER | DT_SINGLELINE,
+                    )
+                finally:
+                    if font and old:
+                        gdi32.SelectObject(hdc, old)
             finally:
                 user32.EndPaint(hwnd, ctypes.byref(ps))
         return 0

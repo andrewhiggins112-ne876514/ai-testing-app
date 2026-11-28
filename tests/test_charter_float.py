@@ -165,6 +165,20 @@ class CharterRingNativeTests(unittest.TestCase):
             self.assertIn(verb, ring._VERB_TIPS)
             self.assertTrue(str(ring._VERB_TIPS[verb]).strip())
 
+    def test_tip_readable_size_constants_kan532(self) -> None:
+        # KAN-532 — larger tip font/box than the old 28px system-default tip.
+        self.assertGreaterEqual(ring.TIP_FONT_PX, 15)
+        self.assertGreaterEqual(ring.TIP_PAD_Y, 8)
+        self.assertGreaterEqual(ring.TIP_MIN_W, 140)
+        self.assertGreaterEqual(ring.TIP_PAD_X, 12)
+        src = (ROOT / "plans" / "charter_ring_native.py").read_text(encoding="utf-8")
+        self.assertIn("_ensure_tip_font", src)
+        self.assertIn("_measure_tip_text", src)
+        self.assertIn("CreateFontW", src)
+        self.assertIn("GetTextExtentPoint32W", src)
+        self.assertNotIn("th = 28", src)
+        self.assertNotIn("len(text) * 7", src)
+
     def test_default_capture_bbox_on_primary(self) -> None:
         monitors = [
             {
@@ -231,13 +245,13 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk160(self) -> None:
+    def test_desktop_float_markers_desk161(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk160", html)
-        self.assertIn("desk160", desk)
-        self.assertIn("DESK_V = \"desk160\"", desk)
+        self.assertIn("desk161", html)
+        self.assertIn("desk161", desk)
+        self.assertIn("DESK_V = \"desk161\"", desk)
         self.assertIn("native_toolwindow", desk)
         self.assertIn("g_tray_look4", desk)
         self.assertIn("charter_float_set_tray", desk)
@@ -296,6 +310,10 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("max_capture_for_work", ring_src)
         self.assertIn("glued", ring_src)
         self.assertIn("KAN-530", desk)
+        # KAN-532 readable tip size.
+        self.assertIn("TIP_FONT_PX", ring_src)
+        self.assertIn("_ensure_tip_font", ring_src)
+        self.assertIn("KAN-532", ring_src)
         # Owner-drawn Look 4 icons — no stock Win32 BUTTON chrome.
         self.assertNotIn('"BUTTON"', ring_src)
         # Under-ring must not remain the product placement lock.

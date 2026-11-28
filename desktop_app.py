@@ -28,7 +28,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk160"
+DESK_V = "desk161"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
 API = f"http://{HOST}:{PORT}/api"
@@ -139,7 +139,7 @@ def _place_chrome(bbox: list[int], *, fresh_tray: bool = False) -> dict[str, Any
 
 
 def _on_ring_geom(bbox: list[int]) -> None:
-    """Persist hole after native drag/resize (KAN-528 / KAN-530)."""
+    """Persist hole after native drag/resize (KAN-528 / KAN-530 / KAN-532 tips)."""
     global _tray_side
     sid = _float_session_id
     # Keep Python-side tray preference in sync when native flips east/west.

@@ -6,13 +6,13 @@ from pathlib import Path
 
 
 class LabAreasIaDesktopUiTests(unittest.TestCase):
-    def test_lab_areas_ia_markers_desk160(self):
+    def test_lab_areas_ia_markers_desk161(self):
         html = Path("ui/desktop/index.html").read_text(encoding="utf-8")
         css = Path("ui/desktop/desktop.css").read_text(encoding="utf-8")
         desk = Path("desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk160", html)
-        self.assertIn("desk160", desk)
+        self.assertIn("desk161", html)
+        self.assertIn("desk161", desk)
         self.assertEqual(html.count('data-lab-areas-ia="1"'), 4)
 
         # Documents: sticky + ingest/list primary + privacy advanced
