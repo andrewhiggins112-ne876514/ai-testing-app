@@ -50,12 +50,21 @@ SW_HIDE = 0
 SW_SHOWNOACTIVATE = 4
 WM_CLOSE = 0x0010
 WM_DESTROY = 0x0002
-WM_COMMAND = 0x0111
+WM_PAINT = 0x000F
+WM_ERASEBKGND = 0x0014
+WM_LBUTTONUP = 0x0202
+WM_MOUSEMOVE = 0x0200
+WM_MOUSELEAVE = 0x02A3
+WM_SETCURSOR = 0x0020
 WM_APP = 0x8000
 WM_RING_CMD = WM_APP + 41
-BN_CLICKED = 0
-BS_PUSHBUTTON = 0x00000000
-BS_FLAT = 0x00008000
+DT_CENTER = 0x00000001
+DT_VCENTER = 0x00000004
+DT_SINGLELINE = 0x00000020
+PS_SOLID = 0
+TRANSPARENT = 1
+IDC_HAND = 32649
+TME_LEAVE = 0x00000002
 
 user32.SetWindowPos.argtypes = [
     wintypes.HWND,
@@ -82,8 +91,9 @@ _CLASS_TRAY = "AiTestingCharterTray"
 _CLASS_MSG = "AiTestingCharterMsg"
 
 # Look 4 Compact side rail (Accepted). Under-ring Rejected (KAN-525).
-TRAY_W = 48
-TRAY_COLLAPSED_W = 40
+# Owner-drawn icons — no stock Win32 BUTTON chrome (Designer: cheap/outdated).
+TRAY_W = 52
+TRAY_COLLAPSED_W = 44
 TRAY_GAP = 6
 BTN_H = 44  # ≥40px hit targets
 BTN_GAP = 4
@@ -101,16 +111,6 @@ _VERBS_EXPANDED = (
     "end",
     "cancel",
 )
-_VERB_LABELS = {
-    "toggle": "≡",
-    "still": "S",
-    "note": "N",
-    "pause": "II",
-    "assist": "*",
-    "mist": "~",
-    "end": "■",
-    "cancel": "X",
-}
 _VERB_TITLES = {
     "toggle": "Hide or show tray",
     "still": "Still",
@@ -140,10 +140,10 @@ _brush = 0
 _tray_brush = 0
 _msg_hwnd = 0
 _tray_hwnd = 0
-_tray_btns: dict[str, int] = {}
 _tray_side = "east"
 _tray_collapsed = False
 _tray_visible = False
+_tray_hover = -1
 _pause_on = False
 _assist_on = False
 _mist_on = False
@@ -151,10 +151,25 @@ _verb_callback: Callable[[str], None] | None = None
 _cmd_q: queue.Queue = queue.Queue()
 _wndproc_tray_ref = None
 _wndproc_msg_ref = None
+_pen_cyan = 0
+_pen_muted = 0
+_pen_hot = 0
+_brush_bg = 0
+_brush_cell = 0
+_brush_cell_hot = 0
+_brush_on = 0
 
 
 def _rgb(r: int, g: int, b: int) -> int:
     return r | (g << 8) | (b << 16)
+
+
+COL_BG = _rgb(8, 18, 28)
+COL_CELL = _rgb(12, 28, 40)
+COL_CELL_HOT = _rgb(18, 42, 58)
+COL_CYAN = _rgb(80, 205, 255)
+COL_MUTED = _rgb(120, 160, 180)
+COL_ON = _rgb(24, 70, 90)
 
 
 class WNDCLASSW(ctypes.Structure):
@@ -172,13 +187,26 @@ class WNDCLASSW(ctypes.Structure):
     ]
 
 
+# wintypes.POINT exists on Windows ctypes; alias for clarity in icon drawing.
+POINT = wintypes.POINT
+
+
 def _ensure_class() -> None:
     global _registered, _brush, _tray_brush, _wndproc_tray_ref, _wndproc_msg_ref
+    global _pen_cyan, _pen_muted, _pen_hot
+    global _brush_bg, _brush_cell, _brush_cell_hot, _brush_on
     if _registered:
         return
     hinst = kernel32.GetModuleHandleW(None)
     _brush = gdi32.CreateSolidBrush(_rgb(80, 205, 255))
-    _tray_brush = gdi32.CreateSolidBrush(_rgb(6, 16, 24))
+    _tray_brush = gdi32.CreateSolidBrush(COL_BG)
+    _brush_bg = _tray_brush
+    _brush_cell = gdi32.CreateSolidBrush(COL_CELL)
+    _brush_cell_hot = gdi32.CreateSolidBrush(COL_CELL_HOT)
+    _brush_on = gdi32.CreateSolidBrush(COL_ON)
+    _pen_cyan = gdi32.CreatePen(PS_SOLID, 2, COL_CYAN)
+    _pen_muted = gdi32.CreatePen(PS_SOLID, 2, COL_MUTED)
+    _pen_hot = gdi32.CreatePen(PS_SOLID, 2, COL_CYAN)
     _wndproc_tray_ref = WNDPROC(_tray_wndproc)
     _wndproc_msg_ref = WNDPROC(_msg_wndproc)
 
@@ -241,26 +269,39 @@ def _place_locked(*, hide: bool = False) -> dict[str, Any]:
 
 
 def _destroy_tray_unlocked() -> None:
-    global _tray_hwnd, _tray_btns, _tray_visible
-    for hwnd in list(_tray_btns.values()):
-        if hwnd:
-            user32.DestroyWindow(hwnd)
-    _tray_btns = {}
+    global _tray_hwnd, _tray_visible, _tray_hover
     if _tray_hwnd:
         user32.DestroyWindow(_tray_hwnd)
     _tray_hwnd = 0
     _tray_visible = False
+    _tray_hover = -1
+
+
+def _tray_verbs() -> tuple[str, ...]:
+    return ("toggle",) if _tray_collapsed else _VERBS_EXPANDED
 
 
 def _tray_height(collapsed: bool) -> int:
-    verbs = ("toggle",) if collapsed else _VERBS_EXPANDED
-    n = len(verbs)
+    n = 1 if collapsed else len(_VERBS_EXPANDED)
     return n * BTN_H + (n + 1) * BTN_GAP
 
 
+def _verb_at_y(y: int) -> str | None:
+    verbs = _tray_verbs()
+    if y < BTN_GAP:
+        return None
+    idx = (y - BTN_GAP) // (BTN_H + BTN_GAP)
+    if idx < 0 or idx >= len(verbs):
+        return None
+    cell_top = BTN_GAP + idx * (BTN_H + BTN_GAP)
+    if y > cell_top + BTN_H:
+        return None
+    return verbs[idx]
+
+
 def _create_tray_unlocked() -> dict[str, Any]:
-    """Fresh CreateWindow tray — never recycle a hidden HWND."""
-    global _tray_hwnd, _tray_btns, _tray_visible
+    """Fresh CreateWindow owner-drawn tray — never recycle a hidden HWND."""
+    global _tray_hwnd, _tray_visible, _tray_hover
     _destroy_tray_unlocked()
     _ensure_class()
     hinst = kernel32.GetModuleHandleW(None)
@@ -283,33 +324,159 @@ def _create_tray_unlocked() -> dict[str, Any]:
     if not hwnd:
         return {"status": "error", "error": "tray_create_failed"}
     _tray_hwnd = int(hwnd)
-    verbs = ("toggle",) if _tray_collapsed else _VERBS_EXPANDED
-    _tray_btns = {}
-    y = BTN_GAP
-    for i, verb in enumerate(verbs):
-        label = _VERB_LABELS[verb]
-        if verb == "pause" and _pause_on:
-            label = ">"
-        btn = user32.CreateWindowExW(
-            0,
-            "BUTTON",
-            label,
-            WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
-            BTN_GAP,
-            y,
-            max(MIN_TRAY_HWND_W - 2 * BTN_GAP, width - 2 * BTN_GAP),
-            BTN_H,
-            _tray_hwnd,
-            i + 1,  # control id
-            hinst,
-            None,
-        )
-        if btn:
-            _tray_btns[verb] = int(btn)
-            user32.SetWindowTextW(int(btn), label)
-        y += BTN_H + BTN_GAP
+    _tray_hover = -1
     _tray_visible = False
-    return {"status": "ok", "hwnd": _tray_hwnd, "verbs": list(verbs)}
+    return {"status": "ok", "hwnd": _tray_hwnd, "verbs": list(_tray_verbs())}
+
+
+class PAINTSTRUCT(ctypes.Structure):
+    _fields_ = [
+        ("hdc", wintypes.HDC),
+        ("fErase", wintypes.BOOL),
+        ("rcPaint", wintypes.RECT),
+        ("fRestore", wintypes.BOOL),
+        ("fIncUpdate", wintypes.BOOL),
+        ("rgbReserved", ctypes.c_byte * 32),
+    ]
+
+
+class TRACKMOUSEEVENT(ctypes.Structure):
+    _fields_ = [
+        ("cbSize", wintypes.DWORD),
+        ("dwFlags", wintypes.DWORD),
+        ("hwndTrack", wintypes.HWND),
+        ("dwHoverTime", wintypes.DWORD),
+    ]
+
+
+def _line(hdc, pen, x1: int, y1: int, x2: int, y2: int) -> None:
+    gdi32.SelectObject(hdc, pen)
+    gdi32.MoveToEx(hdc, x1, y1, None)
+    gdi32.LineTo(hdc, x2, y2)
+
+
+def _draw_icon(hdc, verb: str, cx: int, cy: int, *, hot: bool, on: bool) -> None:
+    pen = _pen_hot if (hot or on) else _pen_cyan
+    if verb == "toggle":
+        # Rounded frame + side strip (Look 4 tray icon).
+        gdi32.SelectObject(hdc, pen)
+        gdi32.SelectObject(hdc, gdi32.GetStockObject(5))  # NULL_BRUSH
+        gdi32.RoundRect(hdc, cx - 10, cy - 9, cx + 10, cy + 9, 6, 6)
+        _line(hdc, pen, cx + 3, cy - 9, cx + 3, cy + 9)
+        return
+    if verb == "still":
+        gdi32.SelectObject(hdc, pen)
+        gdi32.SelectObject(hdc, gdi32.GetStockObject(5))
+        gdi32.RoundRect(hdc, cx - 10, cy - 7, cx + 10, cy + 8, 4, 4)
+        gdi32.Ellipse(hdc, cx - 4, cy - 3, cx + 4, cy + 5)
+        _line(hdc, pen, cx - 3, cy - 7, cx - 1, cy - 10)
+        _line(hdc, pen, cx - 1, cy - 10, cx + 3, cy - 10)
+        _line(hdc, pen, cx + 3, cy - 10, cx + 5, cy - 7)
+        return
+    if verb == "note":
+        gdi32.SelectObject(hdc, pen)
+        gdi32.SelectObject(hdc, gdi32.GetStockObject(5))
+        pts = (wintypes.POINT * 5)(
+            wintypes.POINT(cx - 8, cy - 10),
+            wintypes.POINT(cx + 4, cy - 10),
+            wintypes.POINT(cx + 8, cy - 6),
+            wintypes.POINT(cx + 8, cy + 10),
+            wintypes.POINT(cx - 8, cy + 10),
+        )
+        gdi32.Polyline(hdc, pts, 5)
+        _line(hdc, pen, cx + 4, cy - 10, cx + 4, cy - 6)
+        _line(hdc, pen, cx + 4, cy - 6, cx + 8, cy - 6)
+        _line(hdc, pen, cx - 5, cy - 1, cx + 5, cy - 1)
+        _line(hdc, pen, cx - 5, cy + 3, cx + 5, cy + 3)
+        return
+    if verb == "pause":
+        if _pause_on:
+            pts = (wintypes.POINT * 3)(
+                wintypes.POINT(cx - 6, cy - 8),
+                wintypes.POINT(cx - 6, cy + 8),
+                wintypes.POINT(cx + 8, cy),
+            )
+            gdi32.SelectObject(hdc, pen)
+            gdi32.SelectObject(hdc, _brush_on if on else _brush_cell)
+            gdi32.Polygon(hdc, pts, 3)
+        else:
+            gdi32.SelectObject(hdc, _brush_cell if not on else _brush_on)
+            gdi32.SelectObject(hdc, pen)
+            gdi32.RoundRect(hdc, cx - 8, cy - 8, cx - 3, cy + 8, 2, 2)
+            gdi32.RoundRect(hdc, cx + 3, cy - 8, cx + 8, cy + 8, 2, 2)
+        return
+    if verb == "assist":
+        # Four-point star.
+        gdi32.SelectObject(hdc, pen)
+        pts = (wintypes.POINT * 8)(
+            wintypes.POINT(cx, cy - 10),
+            wintypes.POINT(cx + 3, cy - 3),
+            wintypes.POINT(cx + 10, cy),
+            wintypes.POINT(cx + 3, cy + 3),
+            wintypes.POINT(cx, cy + 10),
+            wintypes.POINT(cx - 3, cy + 3),
+            wintypes.POINT(cx - 10, cy),
+            wintypes.POINT(cx - 3, cy - 3),
+        )
+        gdi32.SelectObject(hdc, _brush_on if on else gdi32.GetStockObject(5))
+        gdi32.Polygon(hdc, pts, 8)
+        return
+    if verb == "mist":
+        gdi32.SelectObject(hdc, pen)
+        gdi32.SelectObject(hdc, _brush_on if on else gdi32.GetStockObject(5))
+        gdi32.Ellipse(hdc, cx - 9, cy - 4, cx + 2, cy + 7)
+        gdi32.Ellipse(hdc, cx - 2, cy - 8, cx + 10, cy + 5)
+        _line(hdc, pen, cx - 8, cy + 7, cx + 8, cy + 7)
+        return
+    if verb == "end":
+        gdi32.SelectObject(hdc, pen)
+        gdi32.SelectObject(hdc, _brush_cell)
+        gdi32.RoundRect(hdc, cx - 7, cy - 7, cx + 7, cy + 7, 3, 3)
+        return
+    if verb == "cancel":
+        gdi32.SelectObject(hdc, pen)
+        gdi32.SelectObject(hdc, gdi32.GetStockObject(5))
+        gdi32.Ellipse(hdc, cx - 9, cy - 9, cx + 9, cy + 9)
+        _line(hdc, pen, cx - 5, cy - 5, cx + 5, cy + 5)
+        _line(hdc, pen, cx + 5, cy - 5, cx - 5, cy + 5)
+
+
+def _paint_tray(hwnd: int) -> None:
+    ps = PAINTSTRUCT()
+    hdc = user32.BeginPaint(hwnd, ctypes.byref(ps))
+    if not hdc:
+        return
+    try:
+        rect = wintypes.RECT()
+        user32.GetClientRect(hwnd, ctypes.byref(rect))
+        user32.FillRect(hdc, ctypes.byref(rect), _brush_bg)
+        # Outer cyan hairline.
+        gdi32.SelectObject(hdc, _pen_muted)
+        gdi32.SelectObject(hdc, gdi32.GetStockObject(5))
+        gdi32.RoundRect(
+            hdc, 1, 1, max(2, rect.right - 1), max(2, rect.bottom - 1), 10, 10
+        )
+        verbs = _tray_verbs()
+        width = int(rect.right - rect.left)
+        for i, verb in enumerate(verbs):
+            top = BTN_GAP + i * (BTN_H + BTN_GAP)
+            cell = wintypes.RECT(BTN_GAP, top, width - BTN_GAP, top + BTN_H)
+            hot = i == _tray_hover
+            on = (verb == "pause" and _pause_on) or (
+                verb == "assist" and _assist_on
+            ) or (verb == "mist" and _mist_on)
+            brush = _brush_cell_hot if hot else (_brush_on if on else _brush_cell)
+            user32.FillRect(hdc, ctypes.byref(cell), brush)
+            gdi32.SelectObject(hdc, _pen_cyan if (hot or on) else _pen_muted)
+            gdi32.SelectObject(hdc, gdi32.GetStockObject(5))
+            gdi32.RoundRect(
+                hdc, cell.left, cell.top, cell.right, cell.bottom, 8, 8
+            )
+            cx = (cell.left + cell.right) // 2
+            cy = (cell.top + cell.bottom) // 2
+            _draw_icon(hdc, verb, cx, cy, hot=hot, on=on)
+    finally:
+        user32.EndPaint(hwnd, ctypes.byref(ps))
 
 
 def _place_tray_unlocked(
@@ -362,30 +529,54 @@ def _place_tray_unlocked(
     }
 
 
-def _id_to_verb(ctrl_id: int) -> str | None:
-    verbs = ("toggle",) if _tray_collapsed else _VERBS_EXPANDED
-    idx = int(ctrl_id) - 1
-    if 0 <= idx < len(verbs):
-        return verbs[idx]
-    return None
+def _fire_verb(verb: str) -> None:
+    cb = _verb_callback
+    if cb is None:
+        return
+    try:
+        threading.Thread(
+            target=cb, args=(verb,), name="charter-verb", daemon=True
+        ).start()
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def _tray_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
-    if msg == WM_COMMAND:
-        notify = (int(wparam) >> 16) & 0xFFFF
-        ctrl_id = int(wparam) & 0xFFFF
-        if notify == BN_CLICKED:
-            verb = _id_to_verb(ctrl_id)
-            if verb:
-                cb = _verb_callback
-                if cb is not None:
-                    try:
-                        threading.Thread(
-                            target=cb, args=(verb,), name="charter-verb", daemon=True
-                        ).start()
-                    except Exception:  # noqa: BLE001
-                        pass
+    global _tray_hover
+    if msg == WM_ERASEBKGND:
+        return 1
+    if msg == WM_PAINT:
+        _paint_tray(int(hwnd))
         return 0
+    if msg == WM_MOUSEMOVE:
+        y = ctypes.c_short(lparam >> 16).value
+        verbs = _tray_verbs()
+        idx = -1
+        verb = _verb_at_y(y)
+        if verb is not None:
+            idx = verbs.index(verb)
+        if idx != _tray_hover:
+            _tray_hover = idx
+            user32.InvalidateRect(hwnd, None, False)
+        tme = TRACKMOUSEEVENT(
+            ctypes.sizeof(TRACKMOUSEEVENT), TME_LEAVE, hwnd, 0
+        )
+        user32.TrackMouseEvent(ctypes.byref(tme))
+        return 0
+    if msg == WM_MOUSELEAVE:
+        if _tray_hover != -1:
+            _tray_hover = -1
+            user32.InvalidateRect(hwnd, None, False)
+        return 0
+    if msg == WM_LBUTTONUP:
+        y = ctypes.c_short(lparam >> 16).value
+        verb = _verb_at_y(y)
+        if verb:
+            _fire_verb(verb)
+        return 0
+    if msg == WM_SETCURSOR:
+        user32.SetCursor(user32.LoadCursorW(None, IDC_HAND))
+        return 1
     if msg == WM_DESTROY:
         return 0
     return user32.DefWindowProcW(hwnd, msg, wparam, lparam)
@@ -700,10 +891,8 @@ def set_toggle_flags(
             _assist_on = bool(assist)
         if mist is not None:
             _mist_on = bool(mist)
-        # Refresh pause label if button exists.
-        btn = _tray_btns.get("pause")
-        if btn:
-            user32.SetWindowTextW(btn, ">" if _pause_on else "II")
+        if _tray_hwnd:
+            user32.InvalidateRect(_tray_hwnd, None, False)
         return tray_state()
 
 

@@ -7,9 +7,9 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — host fix **desk157** (SetWindowPos HWND_TOPMOST); re-run **KAN-526** human AC |
+| **Status** | open — **desk158** Resume + owner-draw tray; re-confirm **KAN-526** Resume |
 | **Jira story** | **KAN-525** (Bug — native Look 4 side tray + Resume/End→Start restore) |
-| **Start task** | Human paths on **KAN-526** with **desk157**. Then mark 525/526 Done → Active **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Start task** | Human: confirm Resume Charter visible/re-arms + tray icons OK on **desk158**. Then 525/526 Done → **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
 | **Spec** | FR-MAN-1 CR lock 2026-11-28 (KAN-525); mock `looks/look4-*.html`; Intent under-ring **Rejected** |
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-525 — Resume visible + Look 4 owner-draw tray (desk158)
+- **Agent/chat:** Cursor IDE Agent — Designer: End→Start OK; Resume missing; tray buttons cheap
+- **Done:** Resume Charter no longer hidden while float-active; chip Restore→Resume; tray drops stock Win32 BUTTONs for owner-drawn Look 4 icon rail (hover/on). Raised+fixed related Bug via REST.
+- **Files:** `plans/charter_ring_native.py`, `ui/desktop/desktop.js`, `index.html`, `desktop_app.py` (**desk158**), `tests/test_charter_float.py`
+- **Verify:** pytest charter_float + manual_ia markers; human Resume path on desk158
+- **Jira:** Bug + Fix/Done + comments 525/526
+- **Next:** Designer confirms Resume + tray polish → close 525/526 → **KAN-510**
 
 ### 2026-11-28 — KAN-525 — SetWindowPos TOPMOST fix (desk157)
 - **Agent/chat:** Cursor IDE Agent — Designer AC: Recording chip, no ring/tray on desktop

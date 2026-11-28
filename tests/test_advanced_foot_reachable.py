@@ -9,13 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AdvancedFootReachableTests(unittest.TestCase):
-    def test_advanced_foot_pinned_not_clipped_desk157(self) -> None:
+    def test_advanced_foot_pinned_not_clipped_desk158(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk157", html)
-        self.assertIn("desk157", desk)
+        self.assertIn("desk158", html)
+        self.assertIn("desk158", desk)
 
         # Foot disclosures exist as siblings of the primary split inside area-work.
         for adv_id in (

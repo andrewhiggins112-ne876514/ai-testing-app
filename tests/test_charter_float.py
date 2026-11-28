@@ -173,13 +173,13 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk157(self) -> None:
+    def test_desktop_float_markers_desk158(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk157", html)
-        self.assertIn("desk157", desk)
-        self.assertIn("DESK_V = \"desk157\"", desk)
+        self.assertIn("desk158", html)
+        self.assertIn("desk158", desk)
+        self.assertIn("DESK_V = \"desk158\"", desk)
         self.assertIn("native_toolwindow", desk)
         self.assertIn("g_tray_look4", desk)
         self.assertIn("charter_float_set_tray", desk)
@@ -196,10 +196,19 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("data-manual-session-end", html)
         self.assertIn("data-manual-session-still", html)
         self.assertIn("data-manual-session-note", html)
+        self.assertIn("data-manual-resume", html)
+        self.assertIn('>Resume</button>', html)  # chip re-arm label
         self.assertIn("captureStillFromManualChip", js)
         self.assertIn("addNoteFromManualChip", js)
         self.assertIn("syncManualEndVisible", js)
         self.assertIn("note_focus", js)
+        # Resume stays available while session open (not gated on float-active).
+        resume_fn = js.split("function setManualResumeUi", 1)[1].split(
+            "function showManualSessionChip", 1
+        )[0]
+        self.assertIn("manualResumeCharter.hidden = !on;", resume_fn)
+        self.assertNotIn("charterOsFloatActive", resume_fn)
+        self.assertIn("setManualResumeUi(session)", js)
         self.assertIn("__manualFloatFailStatus", js)
         self.assertIn("6000", js)
         ring_src = (ROOT / "plans" / "charter_ring_native.py").read_text(
@@ -210,6 +219,10 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("show_side_tray", ring_src)
         self.assertIn("destroy_side_tray", ring_src)
         self.assertIn("WS_EX_TOOLWINDOW", ring_src)
+        self.assertIn("_paint_tray", ring_src)
+        self.assertIn("_draw_icon", ring_src)
+        # Owner-drawn Look 4 icons — no stock Win32 BUTTON chrome.
+        self.assertNotIn('"BUTTON"', ring_src)
         # Under-ring must not remain the product placement lock.
         self.assertNotIn('"placement": "under_ring"', ring_src)
         # Manual UX: Start must not closeArea; library reopen must not toggle-close.

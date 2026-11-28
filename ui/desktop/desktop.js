@@ -7116,8 +7116,9 @@
     pendingResumeSession = sessionOrNull || null;
     const on = !!pendingResumeSession;
     if (manualResumeCharter) {
-      /* Resume only when float is not already claiming to be active. */
-      manualResumeCharter.hidden = !on || charterOsFloatActive;
+      /* KAN-525/526: Resume must stay available while a session is open so the
+         tester can re-arm Look 4 chrome (End→Start is not the Resume path). */
+      manualResumeCharter.hidden = !on;
     }
     syncManualEndVisible();
   }
@@ -7247,7 +7248,7 @@
     if (manualLoopStageLabel) {
       if (next === "recording") {
         manualLoopStageLabel.textContent =
-          "Loop: recording — shell + tray; session chip has Still / Note / Restore / End. Session recording — tray should be on desktop; use End here if it is missing.";
+          "Loop: recording — shell + tray; session chip has Still / Note / Resume / End. Session recording — tray should be on desktop; use End / Resume here if needed.";
       } else if (next === "review") {
         manualLoopStageLabel.textContent =
           "Loop: review — Propose, then Confirm or Cancel proposal (no silent Jira)";
@@ -7410,12 +7411,11 @@
       if (floated) {
         setManualLoopStage("recording");
         showManualSessionChip(session);
-        pendingResumeSession = session;
-        if (manualResumeCharter) manualResumeCharter.hidden = true;
+        setManualResumeUi(session);
         if (manualEndOpen) manualEndOpen.hidden = false;
         if (manualStatus) {
           manualStatus.textContent =
-            "Recording — Look 4 side tray (native) beside the hollow ring. Chip Still/Note/Restore/End is backup only.";
+            "Recording — Look 4 side tray (native) beside the hollow ring. Resume Charter re-arms; chip Still/Note/Resume/End is backup.";
         }
       } else {
         setManualLoopStage("idle");
@@ -7993,8 +7993,12 @@
         if (openAreaName === "manual") {
           if (manualOpenSessionId) {
             if (manualEndOpen) manualEndOpen.hidden = false;
-            if (manualResumeCharter) {
-              manualResumeCharter.hidden = !!charterOsFloatActive;
+            if (manualOpenSessionId) {
+              setManualResumeUi({
+                id: manualOpenSessionId,
+                charter:
+                  (manualCharter && manualCharter.value) || manualOpenSessionId,
+              });
             }
             if (charterOsFloatActive) {
               showManualSessionChip({
