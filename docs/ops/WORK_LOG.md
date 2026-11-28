@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | awaiting human — desk160 glue/max/tips confirm |
-| **Jira story** | **KAN-530** (Bug — tray detach + max too small + hover tips); also **KAN-528**/529 |
-| **Start task** | Designer: KAN-531 on desk160 (glued tray, large resize, hover tips). Then Done 530/531 + 528/529 → **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Status** | open — next Build: readable tray tips |
+| **Jira story** | **KAN-532** (Bug — tray hover tips too small) |
+| **Start task** | Enlarge tip font/box (**KAN-533**). Then verbs **KAN-534**→**546** in order. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
-| **Spec** | FR-MAN-1 snip move/resize; Look 4 side host from **KAN-525** |
+| **Spec** | FR-MAN-1 snip + Look 4 tray verbs |
 | **Git** | `main` |
-| **Test ticket** | **KAN-531** (KAN-530); **KAN-529** (KAN-528); then **KAN-513**/514 with **KAN-510**/511 |
-| **Shipped** | Glue/max/tips **KAN-530** (**desk160** — await human); move/resize **KAN-528** (**desk159**); host restore **KAN-525**/526 Done (**desk158**); G+tray Look 4 **KAN-512** + **KAN-516**…**524**; Plan doc **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497 |
-| **Queued** | **KAN-510**/511 after 528–531 Done; stubs **KAN-390**, compliance **KAN-392** |
+| **Test ticket** | **KAN-533**; then 535/537/539/541/543/545/547; then **KAN-513**/514 with **KAN-510**/511 |
+| **Shipped** | Glue/resize/tips **KAN-530**/528 Done (**desk160**); host restore **KAN-525**/526; G+tray **KAN-512** + **KAN-516**…**524**; Plan doc **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497 |
+| **Queued** | Tray verbs **KAN-534** Still → **536** Note → **538** Pause → **540** Assist → **542** Mist → **544** End → **546** Cancel; then **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392** |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Human confirms **KAN-531**/529 on desk160 → Done → pick up **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Pick up **KAN-532**. After tip + verb Bugs → **KAN-510**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — Charter tray residuals ticketed (desk160 human)
+- **Agent/chat:** Cursor IDE Agent — Designer: glue+resize OK; tips small; most buttons inert
+- **Done:** Closed **KAN-528**/529 + **KAN-530**/531 (Done). Raised focused Bugs+tests: **KAN-532**/533 tips size; **534**/535 Still; **536**/537 Note; **538**/539 Pause; **540**/541 Assist; **542**/543 Mist; **544**/545 End; **546**/547 Cancel. Active → **KAN-532**.
+- **Files:** `scripts/jira_kan_bug_charter_tray_residuals.py`, `docs/ops/WORK_LOG.md`, `docs/ops/ROADMAP.md`, `PROJECT_MEMORY.md`
+- **Verify:** n/a (ticket + handoff)
+- **Jira:** created 532–547; closed 528–531
+- **Next:** Pick up **KAN-532** (readable tips)
 
 ### 2026-11-28 — KAN-530 — Tray glue + larger max + hover tips (desk160)
 - **Agent/chat:** Cursor IDE Agent — Designer desk159 feedback (detach / max / tips)
