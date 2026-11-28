@@ -179,10 +179,10 @@ class ManualPageContextApiAndUiTests(unittest.TestCase):
         self.assertEqual(refresh.status_code, 200)
         self.assertTrue(refresh.json()["page_context"]["known"])
 
-    def test_desktop_markers_desk156(self):
+    def test_desktop_markers_desk157(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk156", desk)
+        self.assertIn("desk157", desk)
         self.assertIn('data-manual-page-context="1"', html)
         self.assertIn('data-annotate-still="1"', html)
         self.assertIn("charter-page-refresh", html)

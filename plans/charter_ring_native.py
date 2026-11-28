@@ -41,7 +41,8 @@ WS_VISIBLE = 0x10000000
 WS_EX_TOPMOST = 0x00000008
 WS_EX_TOOLWINDOW = 0x00000080
 WS_EX_NOACTIVATE = 0x08000000
-HWND_TOPMOST = -1
+# Must be pointer-sized HWND — bare -1 breaks SetWindowPos on Win64 ctypes.
+HWND_TOPMOST = wintypes.HWND(-1)
 SWP_NOACTIVATE = 0x0010
 SWP_SHOWWINDOW = 0x0040
 SWP_HIDEWINDOW = 0x0080
@@ -55,6 +56,26 @@ WM_RING_CMD = WM_APP + 41
 BN_CLICKED = 0
 BS_PUSHBUTTON = 0x00000000
 BS_FLAT = 0x00008000
+
+user32.SetWindowPos.argtypes = [
+    wintypes.HWND,
+    wintypes.HWND,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_uint,
+]
+user32.SetWindowPos.restype = wintypes.BOOL
+user32.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
+user32.ShowWindow.restype = wintypes.BOOL
+user32.PostThreadMessageW.argtypes = [
+    wintypes.DWORD,
+    ctypes.c_uint,
+    ctypes.c_size_t,
+    ctypes.c_ssize_t,
+]
+user32.PostThreadMessageW.restype = wintypes.BOOL
 
 _CLASS_BAR = "AiTestingCharterBar"
 _CLASS_TRAY = "AiTestingCharterTray"
@@ -113,7 +134,7 @@ _hwnds: dict[str, int] = {"n": 0, "s": 0, "e": 0, "w": 0}
 _bbox: list[int] = [100, 100, 820, 520]
 _lock = threading.RLock()
 _thread: threading.Thread | None = None
-_thread_id = 0
+_win_tid = 0  # Win32 thread id for PostThreadMessageW (not Python ident)
 _ready = threading.Event()
 _brush = 0
 _tray_brush = 0
@@ -390,15 +411,20 @@ def _msg_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
 
 
 def _post_ring_cmd(fn: Callable[[], None]) -> None:
+    """Queue work and wake the ring thread (PostThreadMessage — reliable)."""
     _cmd_q.put(fn)
-    hwnd = _msg_hwnd
+    tid = int(_win_tid or 0)
+    if tid:
+        # Thread messages have hwnd=NULL; GetMessage loop handles WM_RING_CMD.
+        user32.PostThreadMessageW(tid, WM_RING_CMD, 0, 0)
+    hwnd = int(_msg_hwnd or 0)
     if hwnd:
         user32.PostMessageW(hwnd, WM_RING_CMD, 0, 0)
 
 
-def _run_on_ring(fn: Callable[[], Any], timeout: float = 3.0) -> Any:
+def _run_on_ring(fn: Callable[[], Any], timeout: float = 5.0) -> Any:
     """Run fn on the ring thread; return its result."""
-    if threading.current_thread() is _thread:
+    if _thread is not None and threading.current_thread() is _thread:
         return fn()
     box: dict[str, Any] = {}
     done = threading.Event()
@@ -415,34 +441,40 @@ def _run_on_ring(fn: Callable[[], Any], timeout: float = 3.0) -> Any:
     if not done.wait(timeout):
         return {"status": "error", "error": "ring_cmd_timeout"}
     if "error" in box:
-        return {"status": "error", "error": "ring_cmd_failed", "message": str(box["error"])[:120]}
+        return {
+            "status": "error",
+            "error": "ring_cmd_failed",
+            "message": str(box["error"])[:120],
+        }
     return box.get("value")
 
 
 def _message_loop() -> None:
-    global _hwnds, _msg_hwnd, _thread_id
-    _thread_id = threading.get_ident()
+    global _hwnds, _msg_hwnd, _win_tid
+    _win_tid = int(kernel32.GetCurrentThreadId())
     try:
         _ensure_class()
         hinst = kernel32.GetModuleHandleW(None)
-        # Message-only HWND so PostMessage wakes the ring thread (no taskbar).
+        # Hidden popup as wake target (HWND_MESSAGE parent is flaky via ctypes).
         _msg_hwnd = int(
             user32.CreateWindowExW(
-                0,
+                WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
                 _CLASS_MSG,
                 "CharterMsg",
+                WS_POPUP,
                 0,
                 0,
-                0,
-                0,
-                0,
-                wintypes.HWND(-3),  # HWND_MESSAGE
+                1,
+                1,
+                None,
                 None,
                 hinst,
                 None,
             )
             or 0
         )
+        if _msg_hwnd:
+            user32.ShowWindow(_msg_hwnd, SW_HIDE)
         _hwnds = {k: _make_bar() for k in ("n", "s", "e", "w")}
         _place_locked(hide=True)
     except Exception:
@@ -457,10 +489,14 @@ def _message_loop() -> None:
             continue
         user32.TranslateMessage(ctypes.byref(msg))
         user32.DispatchMessageW(ctypes.byref(msg))
+        # Drain any cmds that arrived via hwnd PostMessage during dispatch.
+        if not _cmd_q.empty():
+            _drain_cmds()
     with _lock:
         _destroy_tray_unlocked()
         _hwnds = {"n": 0, "s": 0, "e": 0, "w": 0}
         _msg_hwnd = 0
+        _win_tid = 0
 
 
 def ensure_ring_thread() -> None:
@@ -483,6 +519,7 @@ def set_verb_callback(cb: Callable[[str], None] | None) -> None:
 
 
 def set_capture_bbox(bbox: Any, *, show: bool = True) -> dict[str, Any]:
+    """Place ring bars. SetWindowPos is safe cross-thread once HWNDs exist."""
     if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
         return {"status": "error", "error": "bad_bbox"}
     try:
@@ -494,16 +531,13 @@ def set_capture_bbox(bbox: Any, *, show: bool = True) -> dict[str, Any]:
     if bottom - top < MIN_CAPTURE_H:
         bottom = top + MIN_CAPTURE_H
 
-    def _do() -> dict[str, Any]:
-        global _bbox
-        with _lock:
-            _bbox = [left, top, right, bottom]
-            if not all(_hwnds.values()):
-                return {"status": "error", "error": "no_hwnd", "bbox": list(_bbox)}
-            return _place_locked(hide=not show)
-
     ensure_ring_thread()
-    return _run_on_ring(_do) or {"status": "error", "error": "ring_cmd_failed"}
+    global _bbox
+    with _lock:
+        _bbox = [left, top, right, bottom]
+        if not all(_hwnds.values()):
+            return {"status": "error", "error": "no_hwnd", "bbox": list(_bbox)}
+        return _place_locked(hide=not show)
 
 
 def get_capture_bbox() -> list[int]:
@@ -513,28 +547,20 @@ def get_capture_bbox() -> list[int]:
 
 def hide_ring() -> dict[str, Any]:
     ensure_ring_thread()
-
-    def _do() -> dict[str, Any]:
-        with _lock:
-            if not all(_hwnds.values()):
-                return {"status": "ok", "hidden": True, "bbox": list(_bbox)}
-            for hwnd in _hwnds.values():
-                user32.ShowWindow(hwnd, SW_HIDE)
+    with _lock:
+        if not all(_hwnds.values()):
             return {"status": "ok", "hidden": True, "bbox": list(_bbox)}
-
-    return _run_on_ring(_do) or {"status": "ok", "hidden": True}
+        for hwnd in _hwnds.values():
+            user32.ShowWindow(hwnd, SW_HIDE)
+        return {"status": "ok", "hidden": True, "bbox": list(_bbox)}
 
 
 def show_ring() -> dict[str, Any]:
     ensure_ring_thread()
-
-    def _do() -> dict[str, Any]:
-        with _lock:
-            if not all(_hwnds.values()):
-                return {"status": "error", "error": "no_hwnd"}
-            return _place_locked(hide=False)
-
-    return _run_on_ring(_do) or {"status": "error", "error": "ring_cmd_failed"}
+    with _lock:
+        if not all(_hwnds.values()):
+            return {"status": "error", "error": "no_hwnd"}
+        return _place_locked(hide=False)
 
 
 def destroy_ring() -> None:
@@ -561,20 +587,24 @@ def show_side_tray(
     monitors: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Create (fresh) + place Look 4 side tray. Destroys any prior tray first."""
+    global _tray_side, _tray_collapsed
     ensure_ring_thread()
+    _tray_side = normalize_tray_side(side)
+    _tray_collapsed = bool(collapsed)
 
-    def _do() -> dict[str, Any]:
-        global _tray_side, _tray_collapsed
+    # CreateWindow/DestroyWindow must run on the ring thread.
+    def _create() -> dict[str, Any]:
         with _lock:
-            _tray_side = normalize_tray_side(side)
-            _tray_collapsed = bool(collapsed)
-            created = _create_tray_unlocked()
-            if created.get("status") != "ok":
-                return created
-            placed = _place_tray_unlocked(virtual=virtual, monitors=monitors)
-            return placed
+            return _create_tray_unlocked()
 
-    return _run_on_ring(_do) or {"status": "error", "error": "tray_show_failed"}
+    created = _run_on_ring(_create, timeout=5.0)
+    if not isinstance(created, dict) or created.get("status") != "ok":
+        return created if isinstance(created, dict) else {
+            "status": "error",
+            "error": "tray_show_failed",
+        }
+    with _lock:
+        return _place_tray_unlocked(virtual=virtual, monitors=monitors)
 
 
 def destroy_side_tray() -> dict[str, Any]:
@@ -596,16 +626,22 @@ def place_side_tray(
 ) -> dict[str, Any]:
     """Re-place existing tray beside current bbox (or create if missing)."""
     ensure_ring_thread()
-
-    def _do() -> dict[str, Any]:
-        with _lock:
-            if not _tray_hwnd:
-                created = _create_tray_unlocked()
-                if created.get("status") != "ok":
-                    return created
+    with _lock:
+        if _tray_hwnd:
             return _place_tray_unlocked(virtual=virtual, monitors=monitors)
 
-    return _run_on_ring(_do) or {"status": "error", "error": "tray_place_failed"}
+    def _create() -> dict[str, Any]:
+        with _lock:
+            return _create_tray_unlocked()
+
+    created = _run_on_ring(_create, timeout=5.0)
+    if not isinstance(created, dict) or created.get("status") != "ok":
+        return created if isinstance(created, dict) else {
+            "status": "error",
+            "error": "tray_place_failed",
+        }
+    with _lock:
+        return _place_tray_unlocked(virtual=virtual, monitors=monitors)
 
 
 def set_tray_prefs(
@@ -615,22 +651,25 @@ def set_tray_prefs(
     virtual: dict[str, int] | None = None,
     monitors: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    global _tray_side, _tray_collapsed
     ensure_ring_thread()
+    if side is not None:
+        _tray_side = normalize_tray_side(side)
+    if collapsed is not None:
+        _tray_collapsed = bool(collapsed)
 
-    def _do() -> dict[str, Any]:
-        global _tray_side, _tray_collapsed
+    def _create() -> dict[str, Any]:
         with _lock:
-            if side is not None:
-                _tray_side = normalize_tray_side(side)
-            if collapsed is not None:
-                _tray_collapsed = bool(collapsed)
-            # Collapse changes child set → recreate (still destroy+create, not hide).
-            created = _create_tray_unlocked()
-            if created.get("status") != "ok":
-                return created
-            return _place_tray_unlocked(virtual=virtual, monitors=monitors)
+            return _create_tray_unlocked()
 
-    return _run_on_ring(_do) or {"status": "error", "error": "tray_prefs_failed"}
+    created = _run_on_ring(_create, timeout=5.0)
+    if not isinstance(created, dict) or created.get("status") != "ok":
+        return created if isinstance(created, dict) else {
+            "status": "error",
+            "error": "tray_prefs_failed",
+        }
+    with _lock:
+        return _place_tray_unlocked(virtual=virtual, monitors=monitors)
 
 
 def tray_state() -> dict[str, Any]:

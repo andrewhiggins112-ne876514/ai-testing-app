@@ -7,9 +7,9 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — host shipped (**desk156**); awaiting **KAN-526** human AC |
+| **Status** | open — host fix **desk157** (SetWindowPos HWND_TOPMOST); re-run **KAN-526** human AC |
 | **Jira story** | **KAN-525** (Bug — native Look 4 side tray + Resume/End→Start restore) |
-| **Start task** | Human paths on **KAN-526** (Cold Start / End→Start / Resume; side chrome on desktop; no taskbar ghost). Then mark 525/526 Done → Active **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Start task** | Human paths on **KAN-526** with **desk157**. Then mark 525/526 Done → Active **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
 | **Spec** | FR-MAN-1 CR lock 2026-11-28 (KAN-525); mock `looks/look4-*.html`; Intent under-ring **Rejected** |
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-525 — SetWindowPos TOPMOST fix (desk157)
+- **Agent/chat:** Cursor IDE Agent — Designer AC: Recording chip, no ring/tray on desktop
+- **Done:** Root cause: `HWND_TOPMOST = -1` broke Win64 ctypes `SetWindowPos` (bars stuck 5×5/10×10 at 0,0; tray never visible). Fixed pointer-sized HWND + SetWindowPos argtypes; PostThreadMessage wake; place ring cross-thread. Enum smoke: tray 846,180 48×388 + four bars visible.
+- **Files:** `plans/charter_ring_native.py`, `desktop_app.py` (**desk157**), `ui/desktop/index.html`, tests desk157 sweep, `docs/ops/WORK_LOG.md`
+- **Verify:** enum visible chrome; `pytest tests/test_charter_float.py` — 9 passed
+- **Jira:** comment on 525/526 (pending)
+- **Next:** Designer re-runs KAN-526 on desk157
 
 ### 2026-11-28 — KAN-525 — Native TOOLWINDOW side tray host (desk156)
 - **Agent/chat:** Cursor IDE Agent — pick up Active KAN-525
