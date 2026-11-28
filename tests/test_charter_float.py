@@ -245,13 +245,13 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk161(self) -> None:
+    def test_desktop_float_markers_desk162(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk161", html)
-        self.assertIn("desk161", desk)
-        self.assertIn("DESK_V = \"desk161\"", desk)
+        self.assertIn("desk162", html)
+        self.assertIn("desk162", desk)
+        self.assertIn("DESK_V = \"desk162\"", desk)
         self.assertIn("native_toolwindow", desk)
         self.assertIn("g_tray_look4", desk)
         self.assertIn("charter_float_set_tray", desk)
@@ -314,6 +314,22 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("TIP_FONT_PX", ring_src)
         self.assertIn("_ensure_tip_font", ring_src)
         self.assertIn("KAN-532", ring_src)
+        # KAN-534: tip click-through + Still status feedback.
+        self.assertIn("WM_NCHITTEST", ring_src)
+        self.assertIn("HTTRANSPARENT", ring_src)
+        self.assertIn("KAN-534", ring_src)
+        self.assertIn("AiTestingCharterTip534", ring_src)
+        self.assertIn("still_count", desk)
+        self.assertIn("Still saved", desk)
+        self.assertIn("Still blocked while paused", desk)
+        self.assertIn('status="error"', desk)
+        self.assertIn("fresh_tray=True", desk)
+        self.assertIn("payload.message", js)
+        self.assertIn("Still saved · ", js)
+        self.assertIn('ev === "still"', js)
+        still_ev = js.split('if ((ev === "still" || ev === "note")', 1)[1]
+        self.assertIn('ensureAreaOpen("manual")', still_ev)
+        self.assertIn("manualStatus.textContent", still_ev)
         # Owner-drawn Look 4 icons — no stock Win32 BUTTON chrome.
         self.assertNotIn('"BUTTON"', ring_src)
         # Under-ring must not remain the product placement lock.

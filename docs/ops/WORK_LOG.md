@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — next Build: tray Still capture + visible feedback |
+| **Status** | open — agent fix on desk162; await human Still confirm |
 | **Jira story** | **KAN-534** (Bug — tray Still appears to do nothing) |
-| **Start task** | Fix Still (**KAN-535**). Then Note **536**→…→ Cancel **546**. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Start task** | Human **KAN-535** on desk162. Then Note **536**→…→ Cancel **546**. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
 | **Spec** | FR-MAN-1 snip + Look 4 tray verbs |
 | **Git** | `main` |
 | **Test ticket** | **KAN-535**; then 537/539/541/543/545/547; then **KAN-513**/514 with **KAN-510**/511 |
-| **Shipped** | Readable tips **KAN-532**/533 Done (**desk161** human); glue/resize **KAN-530**/528 Done (**desk160**); host restore **KAN-525**/526; G+tray **KAN-512** + **KAN-516**…**524**; Plan doc **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497 |
-| **Queued** | Tray verbs **KAN-534** Still → **536** Note → **538** Pause → **540** Assist → **542** Mist → **544** End → **546** Cancel; then **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392** |
+| **Shipped** | Still agent fix **desk162** (await human); tips **KAN-532**/533 Done (**desk161**); glue/resize **KAN-530**/528 Done (**desk160**); host restore **KAN-525**/526; G+tray **KAN-512** + **KAN-516**…**524**; Plan doc **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497 |
+| **Queued** | Tray verbs **KAN-534** Still (human) → **536** Note → **538** Pause → **540** Assist → **542** Mist → **544** End → **546** Cancel; then **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392** |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Pick up **KAN-534**. After verb Bugs → **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Designer confirms Still on **desk162** → Done **534**/535 → **KAN-536**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-534 — Tray Still capture + feedback (desk162)
+- **Agent/chat:** Cursor IDE Agent — pick up Active KAN-534
+- **Done:** Root cause: hover tip HWND stole clicks after readable tips (desk161). Tip `WM_NCHITTEST` → `HTTRANSPARENT`; drag slop 10; Still path never silent (paused/no-hole/API) + Manual status via `__charterFloatEvent` message; restore chrome with `fresh_tray=True`. Cache-bust **desk162**.
+- **Files:** `plans/charter_ring_native.py`, `desktop_app.py`, `ui/desktop/desktop.js`, `ui/desktop/index.html`, `tests/test_charter_float.py` (+ desk162 marker sweep)
+- **Verify:** `pytest tests/test_charter_float.py tests/test_manual_ia.py tests/test_manual_trustworthy_loop.py` — 22 passed. **Human KAN-535** still required.
+- **Jira:** agent Fix/completion on **KAN-534**/535 (yes); story/test **not** Done until human confirm
+- **Next:** Designer runs KAN-535 on desk162 → Done 534/535 → Active **KAN-536** (Note)
 
 ### 2026-11-28 — KAN-532/533 Done (desk161 human tip pass)
 - **Agent/chat:** Cursor IDE Agent — Designer: tip size pass

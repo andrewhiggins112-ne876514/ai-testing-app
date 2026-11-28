@@ -28,7 +28,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk161"
+DESK_V = "desk162"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
 API = f"http://{HOST}:{PORT}/api"
@@ -109,12 +109,27 @@ def _api_json(
         return {"status": "error", "error": str(exc)[:120]}
 
 
-def _emit_float_event(event: str, session_id: str = "") -> None:
+def _emit_float_event(
+    event: str,
+    session_id: str = "",
+    *,
+    status: str = "",
+    message: str = "",
+    still_count: int | None = None,
+) -> None:
     safe_event = str(event or "")[:32]
     safe_id = str(session_id or _float_session_id or "")[:64]
-    payload = json.dumps({"type": safe_event, "session_id": safe_id})
+    payload: dict[str, Any] = {"type": safe_event, "session_id": safe_id}
+    if status:
+        payload["status"] = str(status)[:16]
+    if message:
+        payload["message"] = str(message)[:160]
+    if still_count is not None:
+        payload["still_count"] = int(still_count)
     _notify_main(
-        "window.__charterFloatEvent && window.__charterFloatEvent(" + payload + ")"
+        "window.__charterFloatEvent && window.__charterFloatEvent("
+        + json.dumps(payload)
+        + ")"
     )
 
 
@@ -197,33 +212,83 @@ def _on_tray_verb(verb: str) -> None:
         sess = (open_data or {}).get("session") or {}
         sid = str(sess.get("id") or "")
         if not sid:
+            if v == "still":
+                _emit_float_event(
+                    "still",
+                    "",
+                    status="error",
+                    message="Still failed — no open session",
+                )
             return
 
     if v == "still":
+        # KAN-534: never silent — Manual status must show success or failure.
         if _paused:
+            _emit_float_event(
+                "still",
+                sid,
+                status="error",
+                message="Still blocked while paused — Resume first",
+            )
             return
         bbox = ring.get_capture_bbox()
         if not bbox or len(bbox) != 4:
+            _emit_float_event(
+                "still",
+                sid,
+                status="error",
+                message="Still failed — no capture hole",
+            )
             return
         # Hard-fail if bbox unknown — no all-screens grab (KAN-525 AC).
         try:
             ring.hide_ring()
             ring.destroy_side_tray()
-            time.sleep(0.1)
+            time.sleep(0.12)
             out = _api_json(
                 "POST",
                 f"/manual-sessions/{sid}/stills",
-                {"screen_bbox": bbox},
+                {"screen_bbox": [int(x) for x in bbox]},
             )
-            _emit_float_event("still", sid)
             if out.get("status") != "ok":
-                _notify_main(
-                    "window.__manualFloatFailStatus="
-                    + json.dumps((out.get("message") or "Still failed")[:120])
+                msg = (
+                    out.get("message") or out.get("error") or "Still failed"
                 )
+                msg = str(msg)[:120]
+                _notify_main(
+                    "window.__manualFloatFailStatus=" + json.dumps(msg)
+                )
+                _emit_float_event("still", sid, status="error", message=msg)
+            else:
+                sess = out.get("session") or {}
+                stills = sess.get("stills") or []
+                n = len(stills) if isinstance(stills, list) else 0
+                captured = bool((out.get("still") or {}).get("captured", True))
+                msg = (
+                    f"Still saved · {n} stills"
+                    if captured
+                    else str(
+                        out.get("message")
+                        or "Still recorded with placeholder — capture failed"
+                    )[:120]
+                )
+                _notify_main("window.__manualFloatFailStatus=''")
+                _emit_float_event(
+                    "still",
+                    sid,
+                    status="ok",
+                    message=msg,
+                    still_count=n,
+                )
+        except Exception as exc:  # noqa: BLE001
+            msg = f"Still failed: {exc}"[:120]
+            _notify_main(
+                "window.__manualFloatFailStatus=" + json.dumps(msg)
+            )
+            _emit_float_event("still", sid, status="error", message=msg)
         finally:
             if _float_visible:
-                _place_chrome(bbox)
+                _place_chrome(bbox, fresh_tray=True)
         return
 
     if v == "note":

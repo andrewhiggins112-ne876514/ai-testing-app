@@ -7533,6 +7533,7 @@
       return;
     }
     if ((ev === "still" || ev === "note") && sid) {
+      ensureAreaOpen("manual");
       try {
         const res = await fetch(
           "/api/manual-sessions/" + encodeURIComponent(sid)
@@ -7545,6 +7546,34 @@
       } catch (_err) {
         /* ignore */
       }
+      if (ev === "still" && manualStatus) {
+        /* KAN-534: tray Still must show honest success/fail (not silent). */
+        const fail = window.__manualFloatFailStatus || "";
+        const payloadMsg = (payload && payload.message) || "";
+        const payloadStatus = (payload && payload.status) || "";
+        if (payloadStatus === "error" || fail) {
+          manualStatus.textContent = payloadMsg || fail || "Still failed";
+        } else if (payloadMsg) {
+          manualStatus.textContent = payloadMsg;
+        } else {
+          const stillN =
+            typeof (payload && payload.still_count) === "number"
+              ? payload.still_count
+              : null;
+          manualStatus.textContent =
+            stillN != null
+              ? "Still saved · " + stillN + " stills"
+              : "Still saved";
+        }
+      }
+      return;
+    }
+    if (ev === "still" && manualStatus) {
+      /* No session id — still surface the error (paused / no hole / no session). */
+      ensureAreaOpen("manual");
+      const fail = window.__manualFloatFailStatus || "";
+      manualStatus.textContent =
+        (payload && payload.message) || fail || "Still failed";
     }
   };
 

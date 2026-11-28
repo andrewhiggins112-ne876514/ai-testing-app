@@ -64,8 +64,10 @@ WM_MOUSEMOVE = 0x0200
 WM_MOUSELEAVE = 0x02A3
 WM_SETCURSOR = 0x0020
 WM_CAPTURECHANGED = 0x0215
+WM_NCHITTEST = 0x0084
 WM_APP = 0x8000
 WM_RING_CMD = WM_APP + 41
+HTTRANSPARENT = -1
 DT_CENTER = 0x00000001
 DT_VCENTER = 0x00000004
 DT_SINGLELINE = 0x00000020
@@ -81,7 +83,8 @@ MK_LBUTTON = 0x0001
 # Hit targets: thicker than hairline so Designer can grab the ring.
 RING_BW = 8
 CORNER_HIT = 28
-DRAG_SLOP = 6
+# Slightly larger slop so Still/Note clicks are not eaten as tray drags (KAN-534).
+DRAG_SLOP = 10
 
 user32.SetWindowPos.argtypes = [
     wintypes.HWND,
@@ -104,10 +107,10 @@ user32.PostThreadMessageW.argtypes = [
 user32.PostThreadMessageW.restype = wintypes.BOOL
 
 # Suffix bumps when WndProc changes (RegisterClassW 1410 keeps stale proc).
-_CLASS_BAR = "AiTestingCharterBar532"
-_CLASS_TRAY = "AiTestingCharterTray532"
-_CLASS_MSG = "AiTestingCharterMsg532"
-_CLASS_TIP = "AiTestingCharterTip532"
+_CLASS_BAR = "AiTestingCharterBar534"
+_CLASS_TRAY = "AiTestingCharterTray534"
+_CLASS_MSG = "AiTestingCharterMsg534"
+_CLASS_TIP = "AiTestingCharterTip534"
 
 # Look 4 Compact side rail (Accepted). Under-ring Rejected (KAN-525).
 # Owner-drawn icons — no stock Win32 BUTTON chrome (Designer: cheap/outdated).
@@ -668,6 +671,10 @@ def _schedule_tip(verb: str | None) -> None:
 
 
 def _tip_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
+    # KAN-534: tip sits near the cursor; without HTTRANSPARENT it steals the
+    # Still/Note click after a readable hover tip appears (desk161).
+    if msg == WM_NCHITTEST:
+        return HTTRANSPARENT
     if msg == WM_PAINT:
         ps = PAINTSTRUCT()
         hdc = user32.BeginPaint(hwnd, ctypes.byref(ps))
