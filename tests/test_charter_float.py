@@ -59,7 +59,8 @@ class CharterFloatGeometryTests(unittest.TestCase):
             collapsed=False,
         )
         self.assertEqual(dock["side"], "east")
-        self.assertEqual(dock["width"], ring.TRAY_W)
+        self.assertGreaterEqual(dock["width"], ring.MIN_TRAY_HWND_W)
+        self.assertGreaterEqual(dock["height"], ring.MIN_TRAY_HWND_H)
         self.assertGreaterEqual(dock["x"], 800)
         self.assertLessEqual(dock["x"] + dock["width"], 1920)
         # Near right edge → flip west.
@@ -73,7 +74,7 @@ class CharterFloatGeometryTests(unittest.TestCase):
         self.assertEqual(edge["side"], "west")
         self.assertLessEqual(edge["x"] + edge["width"], 1700)
 
-    def test_tray_collapsed_is_small_toggle(self) -> None:
+    def test_tray_collapsed_keeps_webview2_min_hwnd(self) -> None:
         dock = ring.dock_geom_for_bbox(
             [200, 120, 700, 520],
             virtual={"left": 0, "top": 0, "width": 1920, "height": 1080},
@@ -88,8 +89,9 @@ class CharterFloatGeometryTests(unittest.TestCase):
             collapsed=True,
         )
         self.assertTrue(dock["collapsed"])
-        self.assertEqual(dock["width"], ring.TRAY_COLLAPSED)
-        self.assertEqual(dock["height"], ring.TRAY_COLLAPSED)
+        # KAN-518: never shrink to 36px ghost — WebView2 must paint.
+        self.assertGreaterEqual(dock["width"], ring.MIN_TRAY_HWND_W)
+        self.assertGreaterEqual(dock["height"], 120)
 
 
 class CharterRingNativeTests(unittest.TestCase):
@@ -166,16 +168,16 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk151(self) -> None:
+    def test_desktop_float_markers_desk152(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk151", html)
-        self.assertIn("desk151", desk)
-        self.assertIn("desk151", float_html)
+        self.assertIn("desk152", html)
+        self.assertIn("desk152", desk)
+        self.assertIn("desk152", float_html)
         self.assertIn('data-snip-dock="1"', float_html)
         self.assertIn('data-charter-g-tray="1"', float_html)
         self.assertIn('data-look="4"', float_html)

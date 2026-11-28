@@ -225,10 +225,14 @@ def default_capture_bbox(
 
 
 # Look 4 Compact rail (KAN-512) — side tray glued to capture hole.
+# Visual rail stays ~48px; HWND must stay ≥ MIN_* so WebView2 actually paints
+# (KAN-518: 36–48px windows became taskbar-only ghosts after End→Start).
 TRAY_W = 48
 TRAY_COLLAPSED = 36
 TRAY_NOTE_EXTRA = 220
 TRAY_GAP = 0  # glued to hole edge
+MIN_TRAY_HWND_W = 120
+MIN_TRAY_HWND_H = 200
 
 
 def normalize_tray_side(side: Any) -> str:
@@ -247,8 +251,8 @@ def dock_geom_for_bbox(
 ) -> dict[str, Any]:
     """Look 4 side tray geom (east/west of capture hole) on primary work area.
 
-    Expanded: ~48px icon rail matching hole height.
-    Collapsed: small tray-layout toggle on the hole edge.
+    Expanded: compact icon rail matching hole height (HWND ≥ WebView2 minimum).
+    Collapsed: CSS hides the rail; HWND stays large enough to paint the toggle.
     Optional note sheet grows outward (does not shrink the hole).
     Auto-flips side when the preferred edge would leave the work area.
     """
@@ -267,12 +271,18 @@ def dock_geom_for_bbox(
 
     prefer = normalize_tray_side(side)
     if collapsed:
-        width = TRAY_COLLAPSED
-        height = TRAY_COLLAPSED
+        # Keep HWND WebView2-viable; extra pixels sit away from the hole.
+        width = max(MIN_TRAY_HWND_W, TRAY_COLLAPSED)
+        height = max(120, MIN_TRAY_HWND_H // 2)
         y = top + 8
     else:
-        width = TRAY_W + (TRAY_NOTE_EXTRA if note_open else 0)
-        height = max(TRAY_W * 6, min(hole_h, max(280, ah - 48)))
+        width = max(
+            MIN_TRAY_HWND_W, TRAY_W + (TRAY_NOTE_EXTRA if note_open else 0)
+        )
+        height = max(
+            MIN_TRAY_HWND_H,
+            max(TRAY_W * 6, min(hole_h, max(280, ah - 48))),
+        )
         y = top
 
     def _x_for(which: str) -> int:
@@ -290,6 +300,8 @@ def dock_geom_for_bbox(
         chosen = "east"
         x = _x_for(chosen)
 
+    width = max(MIN_TRAY_HWND_W, min(width, max(MIN_TRAY_HWND_W, aw - 16)))
+    height = max(120, min(height, max(120, ah - 16)))
     x = max(ox, min(x, ox + aw - width))
     y = max(oy, min(y, oy + ah - height))
     return {

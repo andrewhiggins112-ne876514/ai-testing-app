@@ -40,6 +40,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 
 ## Log
 
+### 2026-11-28 — KAN-518 — Charter tray taskbar ghost after End→Start
+- **Agent/chat:** Cursor IDE Agent — Designer: End then Start; no overlay; taskbar click does nothing
+- **Done:** Look 4 tray HWND floor (120×200) so WebView2 paints; Start expands + clears note sheet; stronger Restore/TOPMOST + GetWindowRect recenter; second force-visible. Cache-bust **desk152**.
+- **Files:** `plans/charter_ring_native.py`, `desktop_app.py`, `ui/desktop/charter_float.css`, `tests/test_charter_float.py`
+- **Verify:** `pytest tests/test_charter_float.py` — 9 passed
+- **Jira:** Bug **KAN-518** Fix + Done (+ linked test)
+- **Next:** Active remains **KAN-510** residual
+
 ### 2026-11-28 — KAN-516 — Manual charter locked after Look 4 Start
 - **Agent/chat:** Cursor IDE Agent — Designer: Start not recognising entered charter
 - **Done:** Regression fix — do not set `recording` until OS shell places; idle + Resume/End on place-fail; CSS no longer `pointer-events:none` on whole `.manual-primary`. Cache-bust **desk151**.

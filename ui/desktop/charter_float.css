@@ -35,9 +35,12 @@ body[data-tray="west"] {
 }
 
 body[data-collapsed="1"] {
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
-  padding: 2px;
+  padding: 8px;
+  background: var(--rail);
+  border: 1px solid var(--cyan);
+  border-radius: 10px;
 }
 
 .charter-tray-rail {

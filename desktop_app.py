@@ -29,7 +29,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk151"
+DESK_V = "desk152"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 FLOAT_URL = f"http://{HOST}:{PORT}/ui/desktop/charter_float.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
@@ -87,26 +87,61 @@ def _notify_main(js: str) -> None:
 
 
 def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
-    """Unstick taskbar-only / hidden frameless dock (Show + TOPMOST)."""
+    """Unstick taskbar-only / hidden frameless dock (Show + TOPMOST).
+
+    KAN-506 / KAN-518: after hide→show the WinForms WebView can stay a taskbar
+    ghost. Restore + SHOW + TOPMOST + size clamp to primary work area.
+    """
     import ctypes
+    from ctypes import wintypes
 
     hwnd = float_hwnd_from_native(getattr(win, "native", None))
     if not hwnd:
         return
     user32 = ctypes.windll.user32
     HWND_TOPMOST = -1
+    SW_HIDE = 0
     SW_RESTORE = 9
+    SW_SHOW = 5
     SWP_SHOWWINDOW = 0x0040
+    SWP_FRAMECHANGED = 0x0020
+
+    work = _work_area()
+    ox, oy = int(work["left"]), int(work["top"])
+    aw, ah = max(160, int(work["width"])), max(160, int(work["height"]))
+    w = max(ring.MIN_TRAY_HWND_W, int(geom.get("width") or ring.MIN_TRAY_HWND_W))
+    h = max(120, int(geom.get("height") or ring.MIN_TRAY_HWND_H))
+    x = max(ox, min(int(geom.get("x") or ox), ox + aw - w))
+    y = max(oy, min(int(geom.get("y") or oy), oy + ah - h))
+
+    # Nudge out of pure-minimized / ghost state, then force geometry.
+    user32.ShowWindow(hwnd, SW_HIDE)
     user32.ShowWindow(hwnd, SW_RESTORE)
+    user32.ShowWindow(hwnd, SW_SHOW)
     user32.SetWindowPos(
         hwnd,
         HWND_TOPMOST,
-        int(geom["x"]),
-        int(geom["y"]),
-        int(geom["width"]),
-        int(geom["height"]),
-        SWP_SHOWWINDOW,
+        x,
+        y,
+        w,
+        h,
+        SWP_SHOWWINDOW | SWP_FRAMECHANGED,
     )
+    try:
+        user32.BringWindowToTop(hwnd)
+    except Exception:  # noqa: BLE001
+        pass
+    # Confirm the HWND landed on-screen; if not, recenter on primary.
+    rect = wintypes.RECT()
+    if user32.GetWindowRect(hwnd, ctypes.byref(rect)):
+        rw = int(rect.right) - int(rect.left)
+        rh = int(rect.bottom) - int(rect.top)
+        if rw < 80 or rh < 80 or rect.right < ox + 8 or rect.bottom < oy + 8:
+            x2 = ox + max(24, (aw - w) // 2)
+            y2 = oy + max(24, (ah - h) // 3)
+            user32.SetWindowPos(
+                hwnd, HWND_TOPMOST, x2, y2, w, h, SWP_SHOWWINDOW | SWP_FRAMECHANGED
+            )
 
 
 def _work_area() -> dict[str, int]:
@@ -208,6 +243,9 @@ def _place_dock(bbox: list[int]) -> dict[str, Any]:
             win.on_top = True
             win.show()
             _force_dock_native_visible(win, geom)
+            # Second paint pass after hide→show (KAN-518 taskbar ghost).
+            time.sleep(0.05)
+            _force_dock_native_visible(win, geom)
         finally:
             _suppress_dock_moved = False
         _hook_dock_events()
@@ -251,11 +289,15 @@ class DesktopApi:
 
     def charter_float_open(self, session: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         """Show native hollow ring + Look 4 side tray. No WebView region punching."""
-        global _float_visible, _float_session_id
+        global _float_visible, _float_session_id, _tray_note_open, _tray_collapsed
         if _float_window is None:
             return {"status": "error", "error": "float_unavailable", "available": False}
         sess = session if isinstance(session, dict) else {}
         _float_session_id = str(sess.get("id") or "")
+        # Fresh Start: drop note sheet; expand tray so End→Start never reopens a
+        # sub-WebView2 ghost (collapsed prefs re-applied by float JS after visible).
+        _tray_note_open = False
+        _tray_collapsed = False
         virtual, monitors = _snap_context()
         bbox = ring.default_capture_bbox(virtual=virtual, monitors=monitors)
         try:
@@ -297,8 +339,9 @@ class DesktopApi:
             }
 
     def charter_float_close(self) -> dict[str, Any]:
-        global _float_visible, _float_session_id
+        global _float_visible, _float_session_id, _tray_note_open
         _float_session_id = ""
+        _tray_note_open = False
         try:
             ring.hide_ring()
         except Exception:  # noqa: BLE001
@@ -503,7 +546,7 @@ def main() -> int:
         height=int(dock["height"]),
         x=int(dock["x"]),
         y=int(dock["y"]),
-        min_size=(36, 36),
+        min_size=(ring.MIN_TRAY_HWND_W, 120),
         frameless=True,
         easy_drag=False,
         on_top=True,
