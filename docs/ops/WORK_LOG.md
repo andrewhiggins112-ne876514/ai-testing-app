@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — awaiting human tip-size confirm on **desk161**; then tray Still |
-| **Jira story** | **KAN-532** (Bug — tray hover tips too small) — agent fix landed; **KAN-533** human AC |
-| **Start task** | Designer confirms readable tips (**KAN-533**). Then verbs **KAN-534**→**546** in order. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Status** | open — next Build: tray Still capture + visible feedback |
+| **Jira story** | **KAN-534** (Bug — tray Still appears to do nothing) |
+| **Start task** | Fix Still (**KAN-535**). Then Note **536**→…→ Cancel **546**. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
 | **Spec** | FR-MAN-1 snip + Look 4 tray verbs |
 | **Git** | `main` |
-| **Test ticket** | **KAN-533**; then 535/537/539/541/543/545/547; then **KAN-513**/514 with **KAN-510**/511 |
-| **Shipped** | Tip font/box enlarge agent (**desk161**, await human); glue/resize **KAN-530**/528 Done (**desk160**); host restore **KAN-525**/526; G+tray **KAN-512** + **KAN-516**…**524**; Plan doc **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497 |
+| **Test ticket** | **KAN-535**; then 537/539/541/543/545/547; then **KAN-513**/514 with **KAN-510**/511 |
+| **Shipped** | Readable tips **KAN-532**/533 Done (**desk161** human); glue/resize **KAN-530**/528 Done (**desk160**); host restore **KAN-525**/526; G+tray **KAN-512** + **KAN-516**…**524**; Plan doc **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497 |
 | **Queued** | Tray verbs **KAN-534** Still → **536** Note → **538** Pause → **540** Assist → **542** Mist → **544** End → **546** Cancel; then **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392** |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Human confirms **desk161** tips → Done **532**/533 → pick up **KAN-534**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Pick up **KAN-534**. After verb Bugs → **KAN-510**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-532/533 Done (desk161 human tip pass)
+- **Agent/chat:** Cursor IDE Agent — Designer: tip size pass
+- **Done:** Closed **KAN-532**/533 Done. Active → **KAN-534** (Still).
+- **Files:** `docs/ops/WORK_LOG.md`, `docs/ops/ROADMAP.md`, `PROJECT_MEMORY.md`
+- **Verify:** Human KAN-533 pass on desk161
+- **Jira:** Done comments + transitions 532/533
+- **Next:** Pick up **KAN-534** (Still capture + visible feedback)
 
 ### 2026-11-28 — KAN-532 — Readable tray hover tips (desk161)
 - **Agent/chat:** Cursor IDE Agent — pick up Active KAN-532
