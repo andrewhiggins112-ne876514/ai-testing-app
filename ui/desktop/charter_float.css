@@ -1,4 +1,4 @@
-/* KAN-512 — Look 4 Compact rail + collapsible tray */
+/* KAN-524 — Look 4 verbs on a reliable under-ring horizontal bar */
 :root {
   --cyan: #50cdff;
   --cyan-dim: rgba(80, 205, 255, 0.22);
@@ -6,7 +6,7 @@
   --accent-soft: rgba(80, 205, 255, 0.12);
   --rail: #12161c;
   --text: #e8f7ff;
-  --muted: rgba(180, 220, 240, 0.45);
+  --muted: rgba(180, 220, 240, 0.55);
   --font: "Segoe UI", "Bahnschrift", "Trebuchet MS", sans-serif;
 }
 
@@ -21,61 +21,62 @@ html, body {
   background: transparent;
 }
 
-.charter-float-body.charter-tray {
+.charter-float-body.charter-tray-bar {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   height: 100%;
   width: 100%;
-  user-select: none;
-  background: transparent;
-}
-
-body[data-tray="west"] {
-  flex-direction: row-reverse;
-}
-
-body[data-collapsed="1"] {
-  justify-content: flex-start;
-  align-items: flex-start;
-  padding: 8px;
   background: var(--rail);
   border: 1px solid var(--cyan);
   border-radius: 10px;
+  user-select: none;
 }
 
-.charter-tray-rail {
-  width: 48px;
-  flex: 0 0 48px;
-  background: var(--rail);
-  border: 1px solid var(--cyan);
-  border-radius: 0 10px 10px 0;
+.charter-tray-bar-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 6px 0 8px;
-  gap: 2px;
+  gap: 8px;
+  height: 28px;
+  padding: 0 10px;
+  flex: 0 0 28px;
   cursor: grab;
   touch-action: none;
+  border-bottom: 1px solid var(--cyan-dim);
 }
 
-body[data-tray="west"] .charter-tray-rail {
-  border-radius: 10px 0 0 10px;
+.charter-tray-bar-header:active { cursor: grabbing; }
+
+.charter-tray-bar-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cyan);
 }
 
-body[data-collapsed="1"] .charter-tray-rail,
-body[data-collapsed="1"] .charter-note-sheet,
-body[data-collapsed="1"] .charter-float-cancel {
-  display: none !important;
+.charter-tray-bar-chip {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.charter-tray-bar-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  flex: 1 1 auto;
 }
 
 .cf-icon {
   appearance: none;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border: 0;
   background: transparent;
   color: var(--muted);
-  border-radius: 5px;
+  border-radius: 6px;
   display: grid;
   place-items: center;
   padding: 0;
@@ -83,8 +84,8 @@ body[data-collapsed="1"] .charter-float-cancel {
 }
 
 .cf-icon svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   display: block;
   pointer-events: none;
 }
@@ -96,51 +97,24 @@ body[data-collapsed="1"] .charter-float-cancel {
   background: var(--accent-soft);
 }
 
-.tray-toggle[aria-pressed="true"] {
-  border: 1px solid var(--cyan);
-  background: var(--accent-soft);
-}
-
-.tray-toggle-edge {
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--cyan-border);
-  background: rgba(12, 16, 20, 0.92);
-  color: var(--cyan);
-  border-radius: 6px;
-  margin-top: 2px;
-}
-
 .cf-sep {
-  width: 18px;
-  height: 1px;
-  margin: 4px 0;
+  width: 1px;
+  height: 22px;
+  margin: 0 4px;
   background: var(--cyan-dim);
 }
 
-.cf-spacer { flex: 1; }
-
 .charter-note-sheet {
-  flex: 1 1 auto;
-  min-width: 0;
   display: flex;
-  flex-direction: column;
   gap: 6px;
-  padding: 8px;
-  background: var(--rail);
-  border: 1px solid var(--cyan);
-  border-left: 0;
-}
-
-body[data-tray="west"] .charter-note-sheet {
-  border-left: 1px solid var(--cyan);
-  border-right: 0;
+  padding: 0 8px 8px;
+  align-items: center;
 }
 
 .charter-note-sheet[hidden] { display: none !important; }
 
 .charter-note-sheet input {
-  width: 100%;
+  flex: 1 1 auto;
   height: 30px;
   border-radius: 6px;
   border: 1px solid var(--cyan-border);
@@ -169,30 +143,12 @@ body[data-tray="west"] .charter-note-sheet {
 }
 
 .charter-float-cancel {
-  position: absolute;
-  inset: 8px 8px auto 56px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
-  padding: 8px;
+  padding: 6px 8px 8px;
   font-size: 11px;
-  background: rgba(6, 16, 24, 0.96);
-  border: 1px solid var(--cyan);
-  border-radius: 8px;
-  z-index: 4;
-}
-
-body[data-tray="west"] .charter-float-cancel {
-  inset: 8px 56px auto 8px;
 }
 
 .charter-float-cancel[hidden] { display: none !important; }
-
-.charter-tray-chip {
-  position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-}

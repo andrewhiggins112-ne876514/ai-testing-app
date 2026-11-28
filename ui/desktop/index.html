@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk154" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk155" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -1598,10 +1598,16 @@
                 <div id="manual-session-chip" class="manual-session-chip" hidden data-manual-session-chip="1" role="status">
                   <b>Session</b>
                   <span id="manual-session-chip-label">armed</span>
+                  <button type="button" id="manual-session-chip-still" class="save-btn secondary" data-manual-session-still="1" title="Capture still">Still</button>
+                  <button type="button" id="manual-session-chip-note" class="save-btn secondary" data-manual-session-note="1" title="Add note">Note</button>
                   <button type="button" id="manual-session-chip-restore" class="save-btn secondary" data-manual-session-restore="1">Restore</button>
                   <button type="button" id="manual-session-chip-end" class="save-btn secondary" data-manual-session-end="1">End</button>
                 </div>
-                <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start opens hollow OS Charter shell + compact icon tray (Look 4). Manual steps back to a session chip — no second capture rectangle. Drag the tray rail to move outside this window.</p>
+                <div id="manual-session-chip-note-row" class="manual-session-chip-note-row" hidden data-manual-session-note-row="1">
+                  <input id="manual-session-chip-note-input" type="text" maxlength="500" placeholder="Note…" autocomplete="off" data-manual-session-note-input="1" />
+                  <button type="button" id="manual-session-chip-note-add" class="save-btn secondary" data-manual-session-note-add="1">Add</button>
+                </div>
+                <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start opens hollow OS Charter shell + under-ring Look 4 bar (Still/Note/Pause/…). Manual keeps a session chip with Still / Note / Restore / End if the tray is missing.</p>
                 <details class="manual-start-links" data-manual-idle-links="1">
                   <summary>Optional links (plan / case / Jira)</summary>
                   <label class="stack-label" for="manual-plan-id">Linked plan id
@@ -1920,6 +1926,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk154"></script>
+  <script src="/ui/desktop/desktop.js?v=desk155"></script>
 </body>
 </html>

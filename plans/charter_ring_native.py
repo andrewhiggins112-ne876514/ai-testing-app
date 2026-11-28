@@ -224,15 +224,16 @@ def default_capture_bbox(
     return [120, 120, 120 + DEFAULT_CAPTURE_W, 120 + DEFAULT_CAPTURE_H]
 
 
-# Look 4 Compact rail (KAN-512) — side tray glued to capture hole.
-# Visual rail stays ~48px; HWND must stay ≥ MIN_* so WebView2 actually paints
-# (KAN-518: 36–48px windows became taskbar-only ghosts after End→Start).
+# Look 4 compact chrome (KAN-512) — reliability path (KAN-524):
+# place a *horizontal* icon strip under (or above) the capture ring.
+# Side-rail HWNDs kept ghosting on WebView2; south dock sizes worked through desk148.
 TRAY_W = 48
 TRAY_COLLAPSED = 36
 TRAY_NOTE_EXTRA = 220
-TRAY_GAP = 0  # glued to hole edge
-MIN_TRAY_HWND_W = 160
-MIN_TRAY_HWND_H = 280
+TRAY_GAP = 0
+MIN_TRAY_HWND_W = 480
+MIN_TRAY_HWND_H = 88
+DOCK_H = 88
 
 
 def normalize_tray_side(side: Any) -> str:
@@ -249,12 +250,10 @@ def dock_geom_for_bbox(
     collapsed: bool = False,
     note_open: bool = False,
 ) -> dict[str, Any]:
-    """Look 4 side tray geom (east/west of capture hole) on primary work area.
+    """Compact Look 4 icon strip under (or above) the capture ring.
 
-    Expanded: compact icon rail matching hole height (HWND ≥ WebView2 minimum).
-    Collapsed: CSS hides the rail; HWND stays large enough to paint the toggle.
-    Optional note sheet grows outward (does not shrink the hole).
-    Auto-flips side when the preferred edge would leave the work area.
+    KAN-524: horizontal under-ring dock — proven WebView2 size class from KAN-503/509.
+    `side` / `collapsed` kept for API compat; collapsed shortens height slightly.
     """
     from plans.charter_float import _primary_work
 
@@ -265,43 +264,22 @@ def dock_geom_for_bbox(
         left, top, right, bottom = 120, 120, 840, 540
     ox = int(work["left"])
     oy = int(work["top"])
-    aw = max(80, int(work["width"]))
-    ah = max(80, int(work["height"]))
-    hole_h = max(MIN_CAPTURE_H, bottom - top)
+    aw = max(MIN_TRAY_HWND_W + 16, int(work["width"]))
+    ah = max(MIN_TRAY_HWND_H + 16, int(work["height"]))
 
-    prefer = normalize_tray_side(side)
-    if collapsed:
-        # Keep HWND WebView2-viable; extra pixels sit away from the hole.
-        width = max(MIN_TRAY_HWND_W, TRAY_COLLAPSED)
-        height = max(120, MIN_TRAY_HWND_H // 2)
-        y = top + 8
-    else:
-        width = max(
-            MIN_TRAY_HWND_W, TRAY_W + (TRAY_NOTE_EXTRA if note_open else 0)
-        )
-        height = max(
-            MIN_TRAY_HWND_H,
-            max(TRAY_W * 6, min(hole_h, max(280, ah - 48))),
-        )
-        y = top
-
-    def _x_for(which: str) -> int:
-        if which == "east":
-            return right + TRAY_GAP
-        return left - width - TRAY_GAP
-
-    chosen = prefer
-    x = _x_for(chosen)
-    # Flip if preferred side clips past the work area.
-    if chosen == "east" and x + width > ox + aw - 4:
-        chosen = "west"
-        x = _x_for(chosen)
-    elif chosen == "west" and x < ox + 4:
-        chosen = "east"
-        x = _x_for(chosen)
-
-    width = max(MIN_TRAY_HWND_W, min(width, max(MIN_TRAY_HWND_W, aw - 16)))
-    height = max(120, min(height, max(120, ah - 16)))
+    width = max(MIN_TRAY_HWND_W, min(720, (right - left) + 24))
+    if note_open:
+        width = min(aw - 16, width + TRAY_NOTE_EXTRA)
+    height = 56 if collapsed else (DOCK_H + (36 if note_open else 0))
+    height = max(56, min(height, ah - 16))
+    x = left - 8
+    y = bottom + 12
+    # Prefer under ring; flip above if it would leave the work area.
+    if y + height > oy + ah - 8:
+        y = top - height - 12
+    if y < oy + 8:
+        y = oy + ah - height - 48
+    width = max(MIN_TRAY_HWND_W, min(width, aw - 16))
     x = max(ox, min(x, ox + aw - width))
     y = max(oy, min(y, oy + ah - height))
     return {
@@ -309,9 +287,10 @@ def dock_geom_for_bbox(
         "y": y,
         "width": width,
         "height": height,
-        "side": chosen,
+        "side": normalize_tray_side(side),
         "collapsed": bool(collapsed),
         "note_open": bool(note_open),
+        "placement": "under_ring",
     }
 
 

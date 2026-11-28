@@ -4,16 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Charter Frame</title>
-  <link rel="stylesheet" href="/ui/desktop/charter_float.css?v=desk154" />
+  <link rel="stylesheet" href="/ui/desktop/charter_float.css?v=desk155" />
 </head>
-<body class="charter-float-body charter-tray" data-charter-float="1" data-os-float="1" data-snip-dock="1" data-tray="east" data-collapsed="0">
-  <aside id="cf-rail" class="charter-tray-rail" aria-label="Charter tray" data-charter-float-dock="1" data-manual-loop-dock="1">
-    <button type="button" id="cf-tray-toggle" class="cf-icon tray-toggle" aria-pressed="true" title="Hide tray" data-charter-tray-toggle="1">
-      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7">
-        <rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/>
-        <path d="M15.5 4.5v15"/>
-      </svg>
-    </button>
+<body class="charter-float-body charter-tray-bar" data-charter-float="1" data-os-float="1" data-snip-dock="1" data-placement="under_ring">
+  <header class="charter-tray-bar-header" data-charter-float-drag="1" title="Drag to move ring + tray">
+    <span class="charter-tray-bar-title">Charter</span>
+    <span id="cf-chip" class="charter-tray-bar-chip" role="status">Session open</span>
+  </header>
+  <div class="charter-tray-bar-row" data-charter-float-dock="1" data-manual-loop-dock="1">
     <button type="button" id="cf-still" class="cf-icon" title="Still" data-charter-still="1">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8.5h3l1.4-2h7.2l1.4 2H20v10H4V8.5z"/><circle cx="12" cy="13" r="3.2"/></svg>
     </button>
@@ -30,31 +28,25 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 15.5h9.5a3.5 3.5 0 0 0 .2-7 5 5 0 0 0-9.5 1.2A3.2 3.2 0 0 0 7 15.5z"/></svg>
     </button>
     <span class="cf-sep" aria-hidden="true"></span>
-    <span class="cf-spacer" aria-hidden="true"></span>
     <button type="button" id="cf-end" class="cf-icon" title="End" data-charter-end="1">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="6.5" y="6.5" width="11" height="11" rx="1.2"/></svg>
     </button>
     <button type="button" id="cf-cancel" class="cf-icon" title="Cancel" data-charter-cancel="1">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="7.2"/><path d="m9 9 6 6M15 9l-6 6"/></svg>
     </button>
-  </aside>
+  </div>
   <div id="cf-note-sheet" class="charter-note-sheet" hidden data-charter-note-sheet="1">
     <input id="cf-note-input" type="text" maxlength="500" placeholder="Note…" autocomplete="off" data-charter-note-input="1" />
     <button type="button" id="cf-note-add" class="cf-note-go" title="Add note">Add</button>
   </div>
   <div id="cf-cancel-confirm" class="charter-float-cancel" hidden data-charter-cancel-confirm="1">
-    <span>Discard?</span>
+    <span>Discard this session?</span>
     <button type="button" id="cf-cancel-yes" class="cf-note-go" data-charter-cancel-yes="1">Yes</button>
     <button type="button" id="cf-cancel-no" class="cf-note-go secondary" data-charter-cancel-no="1">Keep</button>
   </div>
-  <p id="cf-chip" class="charter-tray-chip" role="status" hidden>Session open</p>
-  <!-- Collapsed: only the tray-layout toggle sits on the hole edge -->
-  <button type="button" id="cf-tray-toggle-edge" class="cf-icon tray-toggle tray-toggle-edge" aria-pressed="false" title="Show tray" hidden data-charter-tray-toggle-edge="1">
-    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7">
-      <rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/>
-      <path d="M15.5 4.5v15"/>
-    </svg>
-  </button>
-  <script src="/ui/desktop/charter_float.js?v=desk154"></script>
+  <!-- Keep ids/markers for JS/tests (collapsed toggle unused in under-ring mode). -->
+  <button type="button" id="cf-tray-toggle" hidden aria-hidden="true" data-charter-tray-toggle="1"></button>
+  <button type="button" id="cf-tray-toggle-edge" hidden aria-hidden="true" data-charter-tray-toggle="1"></button>
+  <script src="/ui/desktop/charter_float.js?v=desk155"></script>
 </body>
 </html>

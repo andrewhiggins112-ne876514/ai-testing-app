@@ -30,7 +30,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk154"
+DESK_V = "desk155"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 FLOAT_URL = f"http://{HOST}:{PORT}/ui/desktop/charter_float.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
@@ -110,7 +110,8 @@ def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
     ox, oy = int(work["left"]), int(work["top"])
     aw, ah = max(160, int(work["width"])), max(160, int(work["height"]))
     w = max(ring.MIN_TRAY_HWND_W, int(geom.get("width") or ring.MIN_TRAY_HWND_W))
-    h = max(120, int(geom.get("height") or ring.MIN_TRAY_HWND_H))
+    # KAN-524 under-ring bar is ~88px tall — do not force 120 and stretch wrongly.
+    h = max(ring.MIN_TRAY_HWND_H, int(geom.get("height") or ring.MIN_TRAY_HWND_H))
     x = max(ox, min(int(geom.get("x") or ox), ox + aw - w))
     y = max(oy, min(int(geom.get("y") or oy), oy + ah - h))
 
@@ -192,7 +193,7 @@ def _work_area() -> dict[str, int]:
 
 
 def _sync_ring_with_tray() -> dict[str, Any]:
-    """Keep capture ring glued beside the Look 4 tray after the user drags it."""
+    """Keep capture ring glued above the under-ring Look 4 dock (KAN-524)."""
     win = _float_window
     if win is None or not _float_visible:
         return {"status": "error", "error": "float_unavailable"}
@@ -205,15 +206,9 @@ def _sync_ring_with_tray() -> dict[str, Any]:
     bbox = ring.get_capture_bbox()
     bw = max(ring.MIN_CAPTURE_W, int(bbox[2]) - int(bbox[0]))
     bh = max(ring.MIN_CAPTURE_H, int(bbox[3]) - int(bbox[1]))
-    side = ring.normalize_tray_side(_tray_side)
-    if side == "east":
-        # Tray sits on the right of the hole → hole ends at tray left edge.
-        right = x
-        left = right - bw
-    else:
-        left = x + w
-        right = left + bw
-    top = y if not _tray_collapsed else max(0, y - 8)
+    # Dock sits under the ring → ring bottom is just above dock top.
+    left = x + max(0, (w - bw) // 2)
+    top = y - 12 - bh
     work = _work_area()
     ox, oy, aw, ah = work["left"], work["top"], work["width"], work["height"]
     left = max(ox, min(left, ox + aw - bw))
@@ -588,7 +583,7 @@ def main() -> int:
         height=int(dock["height"]),
         x=int(dock["x"]),
         y=int(dock["y"]),
-        min_size=(ring.MIN_TRAY_HWND_W, 120),
+        min_size=(420, 72),
         frameless=True,
         easy_drag=False,
         on_top=True,

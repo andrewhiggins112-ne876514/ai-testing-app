@@ -1451,6 +1451,15 @@
   const manualResumeCharter = document.getElementById("manual-resume-charter");
   const manualSessionChip = document.getElementById("manual-session-chip");
   const manualSessionChipLabel = document.getElementById("manual-session-chip-label");
+  const manualSessionChipStill = document.getElementById("manual-session-chip-still");
+  const manualSessionChipNote = document.getElementById("manual-session-chip-note");
+  const manualSessionChipNoteRow = document.getElementById("manual-session-chip-note-row");
+  const manualSessionChipNoteInput = document.getElementById(
+    "manual-session-chip-note-input"
+  );
+  const manualSessionChipNoteAdd = document.getElementById(
+    "manual-session-chip-note-add"
+  );
   const manualSessionChipRestore = document.getElementById("manual-session-chip-restore");
   const manualSessionChipEnd = document.getElementById("manual-session-chip-end");
   const manualEndOpen = document.getElementById("manual-end-open");
@@ -7132,7 +7141,98 @@
 
   function hideManualSessionChip() {
     if (manualSessionChip) manualSessionChip.hidden = true;
+    if (manualSessionChipNoteRow) manualSessionChipNoteRow.hidden = true;
     syncManualEndVisible();
+  }
+
+  async function captureStillFromManualChip() {
+    if (!manualOpenSessionId) return;
+    if (manualStatus) {
+      manualStatus.textContent = "Capturing still…";
+    }
+    try {
+      const bridge = desktopBridgeApi();
+      let bbox = null;
+      if (bridge && bridge.charter_float_prepare_still) {
+        try {
+          const prep = await bridge.charter_float_prepare_still();
+          if (prep && prep.screen_bbox) bbox = prep.screen_bbox;
+        } catch (_prepErr) {
+          /* fall through without bbox */
+        }
+      }
+      const res = await fetch(
+        "/api/manual-sessions/" +
+          encodeURIComponent(manualOpenSessionId) +
+          "/stills",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ screen_bbox: bbox }),
+        }
+      );
+      const data = await res.json();
+      if (data.status === "ok" && data.session) {
+        if (data.still && data.still.id) manualLastStillId = data.still.id;
+        updateCharterFrameChip(data.session);
+        if (manualStatus) {
+          manualStatus.textContent =
+            "Still saved · " +
+            ((data.session.stills || []).length) +
+            " stills";
+        }
+      } else if (manualStatus) {
+        manualStatus.textContent = (data && data.message) || "Still failed";
+      }
+    } catch (_err) {
+      if (manualStatus) manualStatus.textContent = "Still failed";
+    } finally {
+      const bridge = desktopBridgeApi();
+      if (bridge && bridge.charter_float_restore) {
+        try {
+          await bridge.charter_float_restore();
+        } catch (_restoreErr) {
+          /* ignore */
+        }
+      }
+    }
+  }
+
+  async function addNoteFromManualChip() {
+    if (!manualOpenSessionId || !manualSessionChipNoteInput) return;
+    const text = manualSessionChipNoteInput.value.trim();
+    if (!text) {
+      if (manualStatus) manualStatus.textContent = "Type a note first";
+      return;
+    }
+    try {
+      const res = await fetch(
+        "/api/manual-sessions/" +
+          encodeURIComponent(manualOpenSessionId) +
+          "/notes",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: text }),
+        }
+      );
+      const data = await res.json();
+      if (data.status === "ok" && data.session) {
+        manualSessionChipNoteInput.value = "";
+        if (manualSessionChipNoteRow) manualSessionChipNoteRow.hidden = true;
+        updateCharterFrameChip(data.session);
+        if (manualStatus) {
+          manualStatus.textContent =
+            "Note saved · " +
+            ((data.session.notes || []).length) +
+            " notes";
+        }
+      } else if (manualStatus) {
+        manualStatus.textContent = (data && data.message) || "Note failed";
+      }
+    } catch (_err) {
+      if (manualStatus) manualStatus.textContent = "Note failed";
+    }
   }
 
   function setCharterMistVisible(on) {
@@ -7147,7 +7247,7 @@
     if (manualLoopStageLabel) {
       if (next === "recording") {
         manualLoopStageLabel.textContent =
-          "Loop: recording — shell + tray; session chip has Restore / End";
+          "Loop: recording — shell + tray; session chip has Still / Note / Restore / End. Session recording — tray should be on desktop; use End here if it is missing.";
       } else if (next === "review") {
         manualLoopStageLabel.textContent =
           "Loop: review — Propose, then Confirm or Cancel proposal (no silent Jira)";
@@ -12007,6 +12107,40 @@
   if (manualResumeCharter) {
     manualResumeCharter.addEventListener("click", function () {
       resumeManualCharter();
+    });
+  }
+  if (manualSessionChipStill) {
+    manualSessionChipStill.addEventListener("click", function () {
+      captureStillFromManualChip();
+    });
+  }
+  if (manualSessionChipNote) {
+    manualSessionChipNote.addEventListener("click", function () {
+      if (!manualSessionChipNoteRow) return;
+      const open = !!manualSessionChipNoteRow.hidden;
+      manualSessionChipNoteRow.hidden = !open;
+      if (open && manualSessionChipNoteInput) {
+        try {
+          manualSessionChipNoteInput.focus();
+        } catch (_err) {
+          /* ignore */
+        }
+      }
+    });
+  }
+  if (manualSessionChipNoteAdd) {
+    manualSessionChipNoteAdd.addEventListener("click", function () {
+      addNoteFromManualChip();
+    });
+  }
+  if (manualSessionChipNoteInput) {
+    manualSessionChipNoteInput.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        addNoteFromManualChip();
+      } else if (ev.key === "Escape") {
+        if (manualSessionChipNoteRow) manualSessionChipNoteRow.hidden = true;
+      }
     });
   }
   if (manualSessionChipRestore) {

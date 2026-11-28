@@ -1,17 +1,11 @@
-/* KAN-512 — Look 4 Compact rail + collapsible tray */
+/* KAN-524 — Look 4 verbs on under-ring horizontal bar (reliable WebView size) */
 (function () {
   "use strict";
-
-  const PREF_SIDE = "charterTraySide";
-  const PREF_COLLAPSED = "charterTrayCollapsed";
 
   const chip = document.getElementById("cf-chip");
   const noteInput = document.getElementById("cf-note-input");
   const noteSheet = document.getElementById("cf-note-sheet");
   const cancelConfirm = document.getElementById("cf-cancel-confirm");
-  const rail = document.getElementById("cf-rail");
-  const trayToggle = document.getElementById("cf-tray-toggle");
-  const trayToggleEdge = document.getElementById("cf-tray-toggle-edge");
   const pauseBtn = document.getElementById("cf-pause");
   const assistBtn = document.getElementById("cf-assist");
   const mistBtn = document.getElementById("cf-mist");
@@ -23,8 +17,6 @@
   let assistOn = false;
   let mistOn = false;
   let noteOpen = false;
-  let traySide = "east";
-  let collapsed = false;
 
   function api() {
     return (window.pywebview && window.pywebview.api) || null;
@@ -34,39 +26,8 @@
     if (chip) chip.textContent = text;
   }
 
-  function loadPrefs() {
-    try {
-      const s = localStorage.getItem(PREF_SIDE);
-      traySide = s === "west" ? "west" : "east";
-      collapsed = localStorage.getItem(PREF_COLLAPSED) === "1";
-    } catch (_err) {
-      traySide = "east";
-      collapsed = false;
-    }
-  }
-
-  function savePrefs() {
-    try {
-      localStorage.setItem(PREF_SIDE, traySide);
-      localStorage.setItem(PREF_COLLAPSED, collapsed ? "1" : "0");
-    } catch (_err) {
-      /* ignore */
-    }
-  }
-
   function applyChrome() {
-    document.body.setAttribute("data-tray", traySide);
-    document.body.setAttribute("data-collapsed", collapsed ? "1" : "0");
-    if (rail) rail.hidden = !!collapsed;
-    if (trayToggle) {
-      trayToggle.setAttribute("aria-pressed", collapsed ? "false" : "true");
-      trayToggle.title = collapsed ? "Show tray" : "Hide tray";
-    }
-    if (trayToggleEdge) {
-      trayToggleEdge.hidden = !collapsed;
-      trayToggleEdge.setAttribute("aria-pressed", "false");
-    }
-    if (noteSheet) noteSheet.hidden = !noteOpen || collapsed;
+    if (noteSheet) noteSheet.hidden = !noteOpen;
     if (pauseBtn) {
       pauseBtn.setAttribute("aria-pressed", paused ? "true" : "false");
       pauseBtn.classList.toggle("is-on", paused);
@@ -86,13 +47,11 @@
     const bridge = api();
     if (!bridge || !bridge.charter_float_set_tray) return;
     try {
-      const res = await bridge.charter_float_set_tray({
-        side: traySide,
-        collapsed: collapsed,
-        note_open: noteOpen && !collapsed,
+      await bridge.charter_float_set_tray({
+        side: "east",
+        collapsed: false,
+        note_open: noteOpen,
       });
-      if (res && res.side) traySide = res.side === "west" ? "west" : "east";
-      applyChrome();
       scheduleFrameSave();
     } catch (_err) {
       /* ignore */
@@ -206,16 +165,7 @@
     }, 300);
   }
 
-  async function setCollapsed(next) {
-    collapsed = !!next;
-    if (collapsed) noteOpen = false;
-    savePrefs();
-    applyChrome();
-    await pushTrayLayout();
-  }
-
   async function toggleNoteSheet() {
-    if (collapsed) return;
     noteOpen = !noteOpen;
     applyChrome();
     await pushTrayLayout();
@@ -252,6 +202,7 @@
       const data = await res.json();
       if (data.status === "ok" && data.session) {
         if (noteInput) noteInput.value = "";
+        noteOpen = false;
         applySession({
           id: data.session.id,
           charter: data.session.charter,
@@ -260,8 +211,6 @@
           agent_assist: data.session.agent_assist,
           armed_mist: data.session.armed_mist,
         });
-        noteOpen = false;
-        applyChrome();
         await pushTrayLayout();
         await notifyMain("note");
       } else {
@@ -414,11 +363,6 @@
   document.getElementById("cf-cancel-no").addEventListener("click", function () {
     showCancel(false);
   });
-  function onTrayToggle() {
-    setCollapsed(!collapsed);
-  }
-  if (trayToggle) trayToggle.addEventListener("click", onTrayToggle);
-  if (trayToggleEdge) trayToggleEdge.addEventListener("click", onTrayToggle);
 
   if (noteInput) {
     noteInput.addEventListener("keydown", function (ev) {
@@ -433,9 +377,8 @@
     });
   }
 
-  /* Drag whole shell via tray rail (moves ring + tray). */
-  (function bindRailDrag() {
-    const handle = rail;
+  (function bindHeaderDrag() {
+    const handle = document.querySelector(".charter-tray-bar-header");
     if (!handle) return;
     let dragging = false;
     let lastX = 0;
@@ -455,9 +398,6 @@
 
     handle.addEventListener("pointerdown", function (ev) {
       if (ev.button != null && ev.button !== 0) return;
-      if (ev.target && ev.target.closest && ev.target.closest("button, input")) {
-        return;
-      }
       dragging = true;
       lastX = ev.screenX;
       lastY = ev.screenY;
@@ -500,7 +440,6 @@
     handle.addEventListener("pointercancel", endDrag);
   })();
 
-  loadPrefs();
   applyChrome();
   pushTrayLayout();
   setInterval(scheduleFrameSave, 2500);

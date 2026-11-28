@@ -2990,10 +2990,11 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   pointer-events: auto;
 }
 
-/* KAN-512: session chip stays clickable while recording (Look 4 / Option G) */
+/* KAN-512 / KAN-524: session chip stays clickable while recording (Look 4) */
 .manual-session-chip {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 6px 10px;
   border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 40%, transparent);
@@ -3008,6 +3009,26 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
 .manual-session-chip b {
   color: var(--cyan, #50cdff);
   font-weight: 600;
+}
+.manual-session-chip-note-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  max-width: 100%;
+}
+.manual-session-chip-note-row[hidden] {
+  display: none !important;
+}
+.manual-session-chip-note-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 35%, transparent);
+  background: color-mix(in srgb, #000 70%, transparent);
+  color: var(--text, #e8f7ff);
+  padding: 0 10px;
 }
 
 .manual-primary textarea {

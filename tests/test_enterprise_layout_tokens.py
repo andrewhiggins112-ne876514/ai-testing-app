@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class EnterpriseLayoutTokensTests(unittest.TestCase):
-    def test_tokens_and_wiring_desk154(self) -> None:
+    def test_tokens_and_wiring_desk155(self) -> None:
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
@@ -17,8 +17,8 @@ class EnterpriseLayoutTokensTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn("desk154", html)
-        self.assertIn("desk154", desk)
+        self.assertIn("desk155", html)
+        self.assertIn("desk155", desk)
         self.assertIn('data-enterprise-layout-tokens="1"', html)
         self.assertIn('data-area-chrome-nonoverlap="1"', html)
 

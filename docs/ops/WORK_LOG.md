@@ -15,10 +15,10 @@
 | **Spec** | FR-MAN-1 CR 2026-11-28; mock `docs/mockups/charter_outside_window/looks/look4-*.html` |
 | **Git** | `main` |
 | **Test ticket** | **KAN-513** (KAN-510) / **KAN-514** (KAN-511) |
-| **Shipped** | Charter G+tray Look 4 **KAN-512** (**desk150**); Plan document view **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4…1; TRACE-DEEPEN; TRACK3-LAB |
+| **Shipped** | Charter G+tray Look 4 **KAN-512** + reliability **KAN-516**…**524** (**desk155** under-ring); Plan document view **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4…1; TRACE-DEEPEN; TRACK3-LAB |
 | **Queued** | Residuals **KAN-510**/511; stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Active = **KAN-510**. G+tray Look 4 shipped **desk150**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Active = **KAN-510**. Restart **desk155** + End stuck Recording before residual. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-524 — Recording chip but tray missing (under-ring restore)
+- **Agent/chat:** Cursor IDE Agent — Designer: Recording + chip, no OS tray/ring
+- **Done:** Restore proven under-ring horizontal Look 4 dock (MIN 480×88); rewrite float HTML/CSS/JS for bar (not side rail); Manual session chip Still / Note / Restore / End backup. Cache-bust **desk155**.
+- **Files:** `plans/charter_ring_native.py`, `desktop_app.py`, `ui/desktop/charter_float.*`, `ui/desktop/desktop.js|css|index.html`, `tests/test_charter_float.py` (+ desk155 sweep)
+- **Verify:** `pytest tests/test_charter_float.py` — 9 passed; Manual IA/trustworthy 16 passed with related
+- **Jira:** Bug **KAN-524** Fix + Done (+ linked test)
+- **Next:** Active remains **KAN-510** residual — fully restart `desktop_app.py` and End any stuck Recording first
 
 ### 2026-11-28 — KAN-522 — Start only glitches (false invisible + status wipe)
 - **Agent/chat:** Cursor IDE Agent — Designer: Start glitches only; End→Start same
