@@ -1,31 +1,43 @@
-"""Native capture ring as four solid border HWNDs (no WebView, no WndProc).
+"""Native capture ring + Look 4 side tray (KAN-525).
 
-KAN-503: WebView SetWindowRgn stayed opaque and crashed. Four thin TOPMOST
-tool windows leave a real empty hole so the AUT is visible and clickable.
+Hollow ring: four solid border HWNDs (no WebView, no SetWindowRgn).
+Side tray: native TOOLWINDOW icon chrome on the *same* ring thread.
+Create/show on Start/Resume; DestroyWindow on End — never hide-reuse a
+WebView tray (that was the taskbar-ghost zombie class).
 """
 from __future__ import annotations
 
 import ctypes
+import queue
 import threading
 from ctypes import wintypes
-from typing import Any
+from typing import Any, Callable
 
 from plans.charter_float import (
     DEFAULT_CAPTURE_H,
     DEFAULT_CAPTURE_W,
     MIN_CAPTURE_H,
     MIN_CAPTURE_W,
-    SIDE,
-    clamp_window_geom,
-    content_bbox_from_window,
     default_window_geom,
+    content_bbox_from_window,
 )
 
 user32 = ctypes.windll.user32
 gdi32 = ctypes.windll.gdi32
 kernel32 = ctypes.windll.kernel32
 
+# 64-bit WPARAM/LPARAM overflow if DefWindowProc keeps default c_long argtypes.
+user32.DefWindowProcW.argtypes = [
+    wintypes.HWND,
+    ctypes.c_uint,
+    ctypes.c_size_t,
+    ctypes.c_ssize_t,
+]
+user32.DefWindowProcW.restype = ctypes.c_ssize_t
+
 WS_POPUP = 0x80000000
+WS_CHILD = 0x40000000
+WS_VISIBLE = 0x10000000
 WS_EX_TOPMOST = 0x00000008
 WS_EX_TOOLWINDOW = 0x00000080
 WS_EX_NOACTIVATE = 0x08000000
@@ -36,16 +48,88 @@ SWP_HIDEWINDOW = 0x0080
 SW_HIDE = 0
 SW_SHOWNOACTIVATE = 4
 WM_CLOSE = 0x0010
+WM_DESTROY = 0x0002
+WM_COMMAND = 0x0111
+WM_APP = 0x8000
+WM_RING_CMD = WM_APP + 41
+BN_CLICKED = 0
+BS_PUSHBUTTON = 0x00000000
+BS_FLAT = 0x00008000
 
-_CLASS = "AiTestingCharterBar"
-_BORDER = 4
+_CLASS_BAR = "AiTestingCharterBar"
+_CLASS_TRAY = "AiTestingCharterTray"
+_CLASS_MSG = "AiTestingCharterMsg"
+
+# Look 4 Compact side rail (Accepted). Under-ring Rejected (KAN-525).
+TRAY_W = 48
+TRAY_COLLAPSED_W = 40
+TRAY_GAP = 6
+BTN_H = 44  # ≥40px hit targets
+BTN_GAP = 4
+MIN_TRAY_HWND_W = 40
+MIN_TRAY_HWND_H = 40
+
+# Verb order (expanded). Collapsed shows toggle only.
+_VERBS_EXPANDED = (
+    "toggle",
+    "still",
+    "note",
+    "pause",
+    "assist",
+    "mist",
+    "end",
+    "cancel",
+)
+_VERB_LABELS = {
+    "toggle": "≡",
+    "still": "S",
+    "note": "N",
+    "pause": "II",
+    "assist": "*",
+    "mist": "~",
+    "end": "■",
+    "cancel": "X",
+}
+_VERB_TITLES = {
+    "toggle": "Hide or show tray",
+    "still": "Still",
+    "note": "Note (use Manual chip)",
+    "pause": "Pause",
+    "assist": "Assist",
+    "mist": "Mist",
+    "end": "End",
+    "cancel": "Cancel",
+}
+
+LRESULT = ctypes.c_ssize_t
+WPARAM = ctypes.c_size_t
+LPARAM = ctypes.c_ssize_t
+WNDPROC = ctypes.WINFUNCTYPE(
+    LRESULT, wintypes.HWND, ctypes.c_uint, WPARAM, LPARAM
+)
+
 _registered = False
 _hwnds: dict[str, int] = {"n": 0, "s": 0, "e": 0, "w": 0}
 _bbox: list[int] = [100, 100, 820, 520]
 _lock = threading.RLock()
 _thread: threading.Thread | None = None
+_thread_id = 0
 _ready = threading.Event()
 _brush = 0
+_tray_brush = 0
+_msg_hwnd = 0
+_tray_hwnd = 0
+_tray_btns: dict[str, int] = {}
+_tray_side = "east"
+_tray_collapsed = False
+_tray_visible = False
+_pause_on = False
+_assist_on = False
+_mist_on = False
+_verb_callback: Callable[[str], None] | None = None
+_cmd_q: queue.Queue = queue.Queue()
+_wndproc_tray_ref = None
+_wndproc_msg_ref = None
 
 
 def _rgb(r: int, g: int, b: int) -> int:
@@ -68,20 +152,29 @@ class WNDCLASSW(ctypes.Structure):
 
 
 def _ensure_class() -> None:
-    global _registered, _brush
+    global _registered, _brush, _tray_brush, _wndproc_tray_ref, _wndproc_msg_ref
     if _registered:
         return
     hinst = kernel32.GetModuleHandleW(None)
     _brush = gdi32.CreateSolidBrush(_rgb(80, 205, 255))
-    wc = WNDCLASSW()
-    wc.lpfnWndProc = ctypes.cast(user32.DefWindowProcW, ctypes.c_void_p)
-    wc.hInstance = hinst
-    wc.hCursor = user32.LoadCursorW(None, 32512)
-    wc.hbrBackground = _brush
-    wc.lpszClassName = _CLASS
-    atom = user32.RegisterClassW(ctypes.byref(wc))
-    if not atom and ctypes.GetLastError() not in (0, 1410):
-        raise ctypes.WinError()
+    _tray_brush = gdi32.CreateSolidBrush(_rgb(6, 16, 24))
+    _wndproc_tray_ref = WNDPROC(_tray_wndproc)
+    _wndproc_msg_ref = WNDPROC(_msg_wndproc)
+
+    def _reg(name: str, lpfn, bg) -> None:
+        wc = WNDCLASSW()
+        wc.lpfnWndProc = lpfn
+        wc.hInstance = hinst
+        wc.hCursor = user32.LoadCursorW(None, 32512)
+        wc.hbrBackground = bg
+        wc.lpszClassName = name
+        atom = user32.RegisterClassW(ctypes.byref(wc))
+        if not atom and ctypes.GetLastError() not in (0, 1410):
+            raise ctypes.WinError()
+
+    _reg(_CLASS_BAR, ctypes.cast(user32.DefWindowProcW, ctypes.c_void_p), _brush)
+    _reg(_CLASS_TRAY, ctypes.cast(_wndproc_tray_ref, ctypes.c_void_p), _tray_brush)
+    _reg(_CLASS_MSG, ctypes.cast(_wndproc_msg_ref, ctypes.c_void_p), 0)
     _registered = True
 
 
@@ -90,7 +183,7 @@ def _make_bar() -> int:
     hinst = kernel32.GetModuleHandleW(None)
     hwnd = user32.CreateWindowExW(
         WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
-        _CLASS,
+        _CLASS_BAR,
         "Charter Ring",
         WS_POPUP,
         0,
@@ -118,8 +211,7 @@ def _place_locked(*, hide: bool = False) -> dict[str, Any]:
     if not all(_hwnds.values()):
         return {"status": "error", "error": "no_hwnd"}
     l, t, r, b = _bbox
-    bw = _BORDER
-    # North / South full width including corners; East / West fill sides only.
+    bw = 4
     _place_bar(_hwnds["n"], l - bw, t - bw, (r - l) + 2 * bw, bw, hide=hide)
     _place_bar(_hwnds["s"], l - bw, b, (r - l) + 2 * bw, bw, hide=hide)
     _place_bar(_hwnds["w"], l - bw, t, bw, b - t, hide=hide)
@@ -127,22 +219,248 @@ def _place_locked(*, hide: bool = False) -> dict[str, Any]:
     return {"status": "ok", "bbox": list(_bbox), "hidden": hide}
 
 
+def _destroy_tray_unlocked() -> None:
+    global _tray_hwnd, _tray_btns, _tray_visible
+    for hwnd in list(_tray_btns.values()):
+        if hwnd:
+            user32.DestroyWindow(hwnd)
+    _tray_btns = {}
+    if _tray_hwnd:
+        user32.DestroyWindow(_tray_hwnd)
+    _tray_hwnd = 0
+    _tray_visible = False
+
+
+def _tray_height(collapsed: bool) -> int:
+    verbs = ("toggle",) if collapsed else _VERBS_EXPANDED
+    n = len(verbs)
+    return n * BTN_H + (n + 1) * BTN_GAP
+
+
+def _create_tray_unlocked() -> dict[str, Any]:
+    """Fresh CreateWindow tray — never recycle a hidden HWND."""
+    global _tray_hwnd, _tray_btns, _tray_visible
+    _destroy_tray_unlocked()
+    _ensure_class()
+    hinst = kernel32.GetModuleHandleW(None)
+    height = _tray_height(_tray_collapsed)
+    width = TRAY_COLLAPSED_W if _tray_collapsed else TRAY_W
+    hwnd = user32.CreateWindowExW(
+        WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
+        _CLASS_TRAY,
+        "Charter Tray",
+        WS_POPUP,
+        0,
+        0,
+        width,
+        height,
+        None,
+        None,
+        hinst,
+        None,
+    )
+    if not hwnd:
+        return {"status": "error", "error": "tray_create_failed"}
+    _tray_hwnd = int(hwnd)
+    verbs = ("toggle",) if _tray_collapsed else _VERBS_EXPANDED
+    _tray_btns = {}
+    y = BTN_GAP
+    for i, verb in enumerate(verbs):
+        label = _VERB_LABELS[verb]
+        if verb == "pause" and _pause_on:
+            label = ">"
+        btn = user32.CreateWindowExW(
+            0,
+            "BUTTON",
+            label,
+            WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
+            BTN_GAP,
+            y,
+            max(MIN_TRAY_HWND_W - 2 * BTN_GAP, width - 2 * BTN_GAP),
+            BTN_H,
+            _tray_hwnd,
+            i + 1,  # control id
+            hinst,
+            None,
+        )
+        if btn:
+            _tray_btns[verb] = int(btn)
+            user32.SetWindowTextW(int(btn), label)
+        y += BTN_H + BTN_GAP
+    _tray_visible = False
+    return {"status": "ok", "hwnd": _tray_hwnd, "verbs": list(verbs)}
+
+
+def _place_tray_unlocked(
+    *,
+    virtual: dict[str, int] | None = None,
+    monitors: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    global _tray_side, _tray_visible
+    if not _tray_hwnd:
+        return {"status": "error", "error": "no_tray"}
+    geom = dock_geom_for_bbox(
+        list(_bbox),
+        virtual=virtual,
+        monitors=monitors,
+        side=_tray_side,
+        collapsed=_tray_collapsed,
+    )
+    _tray_side = normalize_tray_side(geom.get("side") or _tray_side)
+    user32.SetWindowPos(
+        _tray_hwnd,
+        HWND_TOPMOST,
+        int(geom["x"]),
+        int(geom["y"]),
+        int(geom["width"]),
+        int(geom["height"]),
+        SWP_NOACTIVATE | SWP_SHOWWINDOW,
+    )
+    user32.ShowWindow(_tray_hwnd, SW_SHOWNOACTIVATE)
+    _tray_visible = True
+    # Soft visibility: GetWindowRect must report ≥40×40 on-screen.
+    rect = wintypes.RECT()
+    if not user32.GetWindowRect(_tray_hwnd, ctypes.byref(rect)):
+        return {"status": "error", "error": "tray_rect_failed", "geometry": geom}
+    rw = int(rect.right) - int(rect.left)
+    rh = int(rect.bottom) - int(rect.top)
+    if rw < MIN_TRAY_HWND_W or rh < MIN_TRAY_HWND_H:
+        return {
+            "status": "error",
+            "error": "tray_not_visible",
+            "geometry": geom,
+            "rect": [rect.left, rect.top, rect.right, rect.bottom],
+        }
+    return {
+        "status": "ok",
+        "geometry": geom,
+        "side": _tray_side,
+        "collapsed": _tray_collapsed,
+        "hwnd": _tray_hwnd,
+        "host": "native_toolwindow",
+    }
+
+
+def _id_to_verb(ctrl_id: int) -> str | None:
+    verbs = ("toggle",) if _tray_collapsed else _VERBS_EXPANDED
+    idx = int(ctrl_id) - 1
+    if 0 <= idx < len(verbs):
+        return verbs[idx]
+    return None
+
+
+def _tray_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
+    if msg == WM_COMMAND:
+        notify = (int(wparam) >> 16) & 0xFFFF
+        ctrl_id = int(wparam) & 0xFFFF
+        if notify == BN_CLICKED:
+            verb = _id_to_verb(ctrl_id)
+            if verb:
+                cb = _verb_callback
+                if cb is not None:
+                    try:
+                        threading.Thread(
+                            target=cb, args=(verb,), name="charter-verb", daemon=True
+                        ).start()
+                    except Exception:  # noqa: BLE001
+                        pass
+        return 0
+    if msg == WM_DESTROY:
+        return 0
+    return user32.DefWindowProcW(hwnd, msg, wparam, lparam)
+
+
+def _drain_cmds() -> None:
+    while True:
+        try:
+            fn = _cmd_q.get_nowait()
+        except queue.Empty:
+            break
+        try:
+            fn()
+        except Exception:  # noqa: BLE001
+            pass
+
+
+def _msg_wndproc(hwnd, msg, wparam, lparam):  # noqa: ANN001
+    if msg == WM_RING_CMD:
+        _drain_cmds()
+        return 0
+    return user32.DefWindowProcW(hwnd, msg, wparam, lparam)
+
+
+def _post_ring_cmd(fn: Callable[[], None]) -> None:
+    _cmd_q.put(fn)
+    hwnd = _msg_hwnd
+    if hwnd:
+        user32.PostMessageW(hwnd, WM_RING_CMD, 0, 0)
+
+
+def _run_on_ring(fn: Callable[[], Any], timeout: float = 3.0) -> Any:
+    """Run fn on the ring thread; return its result."""
+    if threading.current_thread() is _thread:
+        return fn()
+    box: dict[str, Any] = {}
+    done = threading.Event()
+
+    def wrapper() -> None:
+        try:
+            box["value"] = fn()
+        except Exception as exc:  # noqa: BLE001
+            box["error"] = exc
+        finally:
+            done.set()
+
+    _post_ring_cmd(wrapper)
+    if not done.wait(timeout):
+        return {"status": "error", "error": "ring_cmd_timeout"}
+    if "error" in box:
+        return {"status": "error", "error": "ring_cmd_failed", "message": str(box["error"])[:120]}
+    return box.get("value")
+
+
 def _message_loop() -> None:
-    global _hwnds
+    global _hwnds, _msg_hwnd, _thread_id
+    _thread_id = threading.get_ident()
     try:
         _ensure_class()
+        hinst = kernel32.GetModuleHandleW(None)
+        # Message-only HWND so PostMessage wakes the ring thread (no taskbar).
+        _msg_hwnd = int(
+            user32.CreateWindowExW(
+                0,
+                _CLASS_MSG,
+                "CharterMsg",
+                0,
+                0,
+                0,
+                0,
+                0,
+                wintypes.HWND(-3),  # HWND_MESSAGE
+                None,
+                hinst,
+                None,
+            )
+            or 0
+        )
         _hwnds = {k: _make_bar() for k in ("n", "s", "e", "w")}
         _place_locked(hide=True)
     except Exception:
         _hwnds = {"n": 0, "s": 0, "e": 0, "w": 0}
+        _msg_hwnd = 0
     finally:
         _ready.set()
     msg = wintypes.MSG()
     while user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
+        if msg.message == WM_RING_CMD:
+            _drain_cmds()
+            continue
         user32.TranslateMessage(ctypes.byref(msg))
         user32.DispatchMessageW(ctypes.byref(msg))
     with _lock:
+        _destroy_tray_unlocked()
         _hwnds = {"n": 0, "s": 0, "e": 0, "w": 0}
+        _msg_hwnd = 0
 
 
 def ensure_ring_thread() -> None:
@@ -159,6 +477,11 @@ def ensure_ring_thread() -> None:
     _ready.wait(timeout=3.0)
 
 
+def set_verb_callback(cb: Callable[[str], None] | None) -> None:
+    global _verb_callback
+    _verb_callback = cb
+
+
 def set_capture_bbox(bbox: Any, *, show: bool = True) -> dict[str, Any]:
     if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
         return {"status": "error", "error": "bad_bbox"}
@@ -170,13 +493,17 @@ def set_capture_bbox(bbox: Any, *, show: bool = True) -> dict[str, Any]:
         right = left + MIN_CAPTURE_W
     if bottom - top < MIN_CAPTURE_H:
         bottom = top + MIN_CAPTURE_H
-    ensure_ring_thread()
-    with _lock:
+
+    def _do() -> dict[str, Any]:
         global _bbox
-        _bbox = [left, top, right, bottom]
-        if not all(_hwnds.values()):
-            return {"status": "error", "error": "no_hwnd", "bbox": list(_bbox)}
-        return _place_locked(hide=not show)
+        with _lock:
+            _bbox = [left, top, right, bottom]
+            if not all(_hwnds.values()):
+                return {"status": "error", "error": "no_hwnd", "bbox": list(_bbox)}
+            return _place_locked(hide=not show)
+
+    ensure_ring_thread()
+    return _run_on_ring(_do) or {"status": "error", "error": "ring_cmd_failed"}
 
 
 def get_capture_bbox() -> list[int]:
@@ -186,28 +513,159 @@ def get_capture_bbox() -> list[int]:
 
 def hide_ring() -> dict[str, Any]:
     ensure_ring_thread()
-    with _lock:
-        if not all(_hwnds.values()):
+
+    def _do() -> dict[str, Any]:
+        with _lock:
+            if not all(_hwnds.values()):
+                return {"status": "ok", "hidden": True, "bbox": list(_bbox)}
+            for hwnd in _hwnds.values():
+                user32.ShowWindow(hwnd, SW_HIDE)
             return {"status": "ok", "hidden": True, "bbox": list(_bbox)}
-        for hwnd in _hwnds.values():
-            user32.ShowWindow(hwnd, SW_HIDE)
-        return {"status": "ok", "hidden": True, "bbox": list(_bbox)}
+
+    return _run_on_ring(_do) or {"status": "ok", "hidden": True}
 
 
 def show_ring() -> dict[str, Any]:
     ensure_ring_thread()
-    with _lock:
-        if not all(_hwnds.values()):
-            return {"status": "error", "error": "no_hwnd"}
-        return _place_locked(hide=False)
+
+    def _do() -> dict[str, Any]:
+        with _lock:
+            if not all(_hwnds.values()):
+                return {"status": "error", "error": "no_hwnd"}
+            return _place_locked(hide=False)
+
+    return _run_on_ring(_do) or {"status": "error", "error": "ring_cmd_failed"}
 
 
 def destroy_ring() -> None:
+    ensure_ring_thread()
+
+    def _do() -> None:
+        with _lock:
+            _destroy_tray_unlocked()
+            hwnds = list(_hwnds.values())
+        for hwnd in hwnds:
+            if hwnd:
+                user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+        if _msg_hwnd:
+            user32.PostMessageW(_msg_hwnd, WM_CLOSE, 0, 0)
+
+    _post_ring_cmd(_do)
+
+
+def show_side_tray(
+    *,
+    side: str = "east",
+    collapsed: bool = False,
+    virtual: dict[str, int] | None = None,
+    monitors: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Create (fresh) + place Look 4 side tray. Destroys any prior tray first."""
+    ensure_ring_thread()
+
+    def _do() -> dict[str, Any]:
+        global _tray_side, _tray_collapsed
+        with _lock:
+            _tray_side = normalize_tray_side(side)
+            _tray_collapsed = bool(collapsed)
+            created = _create_tray_unlocked()
+            if created.get("status") != "ok":
+                return created
+            placed = _place_tray_unlocked(virtual=virtual, monitors=monitors)
+            return placed
+
+    return _run_on_ring(_do) or {"status": "error", "error": "tray_show_failed"}
+
+
+def destroy_side_tray() -> dict[str, Any]:
+    """DestroyWindow tray chrome (End path). No hide-reuse."""
+    ensure_ring_thread()
+
+    def _do() -> dict[str, Any]:
+        with _lock:
+            _destroy_tray_unlocked()
+        return {"status": "ok", "destroyed": True}
+
+    return _run_on_ring(_do) or {"status": "ok", "destroyed": True}
+
+
+def place_side_tray(
+    *,
+    virtual: dict[str, int] | None = None,
+    monitors: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Re-place existing tray beside current bbox (or create if missing)."""
+    ensure_ring_thread()
+
+    def _do() -> dict[str, Any]:
+        with _lock:
+            if not _tray_hwnd:
+                created = _create_tray_unlocked()
+                if created.get("status") != "ok":
+                    return created
+            return _place_tray_unlocked(virtual=virtual, monitors=monitors)
+
+    return _run_on_ring(_do) or {"status": "error", "error": "tray_place_failed"}
+
+
+def set_tray_prefs(
+    *,
+    side: str | None = None,
+    collapsed: bool | None = None,
+    virtual: dict[str, int] | None = None,
+    monitors: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    ensure_ring_thread()
+
+    def _do() -> dict[str, Any]:
+        global _tray_side, _tray_collapsed
+        with _lock:
+            if side is not None:
+                _tray_side = normalize_tray_side(side)
+            if collapsed is not None:
+                _tray_collapsed = bool(collapsed)
+            # Collapse changes child set → recreate (still destroy+create, not hide).
+            created = _create_tray_unlocked()
+            if created.get("status") != "ok":
+                return created
+            return _place_tray_unlocked(virtual=virtual, monitors=monitors)
+
+    return _run_on_ring(_do) or {"status": "error", "error": "tray_prefs_failed"}
+
+
+def tray_state() -> dict[str, Any]:
     with _lock:
-        hwnds = list(_hwnds.values())
-    for hwnd in hwnds:
-        if hwnd:
-            user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+        return {
+            "visible": _tray_visible,
+            "hwnd": _tray_hwnd,
+            "side": _tray_side,
+            "collapsed": _tray_collapsed,
+            "pause": _pause_on,
+            "assist": _assist_on,
+            "mist": _mist_on,
+            "host": "native_toolwindow",
+        }
+
+
+def set_toggle_flags(
+    *,
+    pause: bool | None = None,
+    assist: bool | None = None,
+    mist: bool | None = None,
+) -> dict[str, Any]:
+    global _pause_on, _assist_on, _mist_on
+    with _lock:
+        if pause is not None:
+            _pause_on = bool(pause)
+        if assist is not None:
+            _assist_on = bool(assist)
+        if mist is not None:
+            _mist_on = bool(mist)
+        # Refresh pause label if button exists.
+        btn = _tray_btns.get("pause")
+        if btn:
+            user32.SetWindowTextW(btn, ">" if _pause_on else "II")
+        return tray_state()
 
 
 def default_capture_bbox(
@@ -224,18 +682,6 @@ def default_capture_bbox(
     return [120, 120, 120 + DEFAULT_CAPTURE_W, 120 + DEFAULT_CAPTURE_H]
 
 
-# Look 4 compact chrome (KAN-512) — reliability path (KAN-524):
-# place a *horizontal* icon strip under (or above) the capture ring.
-# Side-rail HWNDs kept ghosting on WebView2; south dock sizes worked through desk148.
-TRAY_W = 48
-TRAY_COLLAPSED = 36
-TRAY_NOTE_EXTRA = 220
-TRAY_GAP = 0
-MIN_TRAY_HWND_W = 480
-MIN_TRAY_HWND_H = 88
-DOCK_H = 88
-
-
 def normalize_tray_side(side: Any) -> str:
     s = str(side or "east").strip().lower()
     return "west" if s == "west" else "east"
@@ -248,13 +694,9 @@ def dock_geom_for_bbox(
     monitors: list[dict[str, Any]] | None = None,
     side: str = "east",
     collapsed: bool = False,
-    note_open: bool = False,
+    note_open: bool = False,  # noqa: ARG001 — OOS note-sheet HWND (KAN-525)
 ) -> dict[str, Any]:
-    """Compact Look 4 icon strip under (or above) the capture ring.
-
-    KAN-524: horizontal under-ring dock — proven WebView2 size class from KAN-503/509.
-    `side` / `collapsed` kept for API compat; collapsed shortens height slightly.
-    """
+    """Look 4 Compact *side* rail geometry (KAN-525). Under-ring Rejected."""
     from plans.charter_float import _primary_work
 
     work = _primary_work(virtual, monitors)
@@ -264,33 +706,39 @@ def dock_geom_for_bbox(
         left, top, right, bottom = 120, 120, 840, 540
     ox = int(work["left"])
     oy = int(work["top"])
-    aw = max(MIN_TRAY_HWND_W + 16, int(work["width"]))
-    ah = max(MIN_TRAY_HWND_H + 16, int(work["height"]))
+    aw = max(160, int(work["width"]))
+    ah = max(160, int(work["height"]))
 
-    width = max(MIN_TRAY_HWND_W, min(720, (right - left) + 24))
-    if note_open:
-        width = min(aw - 16, width + TRAY_NOTE_EXTRA)
-    height = 56 if collapsed else (DOCK_H + (36 if note_open else 0))
-    height = max(56, min(height, ah - 16))
-    x = left - 8
-    y = bottom + 12
-    # Prefer under ring; flip above if it would leave the work area.
+    side_n = normalize_tray_side(side)
+    width = TRAY_COLLAPSED_W if collapsed else TRAY_W
+    height = _tray_height(bool(collapsed))
+    height = min(height, ah - 16)
+    y = top
     if y + height > oy + ah - 8:
-        y = top - height - 12
-    if y < oy + 8:
-        y = oy + ah - height - 48
-    width = max(MIN_TRAY_HWND_W, min(width, aw - 16))
-    x = max(ox, min(x, ox + aw - width))
-    y = max(oy, min(y, oy + ah - height))
+        y = max(oy + 8, oy + ah - height - 8)
+    if side_n == "east":
+        x = right + TRAY_GAP
+        if x + width > ox + aw - 8:
+            # Flip to west when east would leave the work area.
+            side_n = "west"
+            x = left - TRAY_GAP - width
+    else:
+        x = left - TRAY_GAP - width
+        if x < ox + 8:
+            side_n = "east"
+            x = right + TRAY_GAP
+    x = max(ox + 4, min(x, ox + aw - width - 4))
+    y = max(oy + 4, min(y, oy + ah - height - 4))
     return {
         "x": x,
         "y": y,
         "width": width,
         "height": height,
-        "side": normalize_tray_side(side),
+        "side": side_n,
         "collapsed": bool(collapsed),
-        "note_open": bool(note_open),
-        "placement": "under_ring",
+        "note_open": False,
+        "placement": "side",
+        "host": "native_toolwindow",
     }
 
 

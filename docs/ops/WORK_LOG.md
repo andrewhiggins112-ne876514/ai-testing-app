@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — council verdict landed; Build host fix |
+| **Status** | open — host shipped (**desk156**); awaiting **KAN-526** human AC |
 | **Jira story** | **KAN-525** (Bug — native Look 4 side tray + Resume/End→Start restore) |
-| **Start task** | Implement council host: native TOOLWINDOW side chrome on ring thread; kill hide-reuse WebView tray zombie; side-only (under-ring rejected). Human AC on KAN-526. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Start task** | Human paths on **KAN-526** (Cold Start / End→Start / Resume; side chrome on desktop; no taskbar ghost). Then mark 525/526 Done → Active **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
 | **Spec** | FR-MAN-1 CR lock 2026-11-28 (KAN-525); mock `looks/look4-*.html`; Intent under-ring **Rejected** |
 | **Git** | `main` |
-| **Test ticket** | **KAN-526** (KAN-525); then **KAN-513**/514 after 525 |
-| **Shipped** | Charter G+tray Look 4 **KAN-512** + reliability **KAN-516**…**524** (**desk155** under-ring superseded); Plan document view **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4…1; TRACE-DEEPEN; TRACK3-LAB |
-| **Queued** | Residuals **KAN-510**/511 (paused until 525); stubs **KAN-390**, compliance **KAN-392**, research adds |
+| **Test ticket** | **KAN-526** (human AC gate); then **KAN-513**/514 after 525 |
+| **Shipped** | Native TOOLWINDOW side tray host **desk156** (code); Charter G+tray Look 4 **KAN-512** + reliability **KAN-516**…**524** (under-ring superseded); Plan document view **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4…1; TRACE-DEEPEN; TRACK3-LAB |
+| **Queued** | Residuals **KAN-510**/511 (paused until 525/526 human Done); stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Pick up **KAN-525**. After 525/526 Done → Active **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Confirm **KAN-526** human paths → close 525/526 → Active **KAN-510**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-525 — Native TOOLWINDOW side tray host (desk156)
+- **Agent/chat:** Cursor IDE Agent — pick up Active KAN-525
+- **Done:** Replaced WebView2 under-ring / hide-reuse tray with native Look 4 **side** TOOLWINDOW chrome on the hollow-ring thread. Create/show on Start/Resume; DestroyWindow on End (no `win.hide()` recycle). No second pywebview Charter Frame (no taskbar ghost class). Verb buttons (≥44px) call session Still/Note/Pause/Assist/Mist/End/Cancel; Note focuses Manual chip (note-sheet HWND OOS). Pytest under_ring locks inverted → `placement=side`. Cache-bust **desk156**.
+- **Files:** `plans/charter_ring_native.py`, `desktop_app.py`, `ui/desktop/desktop.js`, `ui/desktop/index.html`, `tests/test_charter_float.py` (+ desk156 test sweep)
+- **Verify:** `pytest tests/test_charter_float.py tests/test_manual_ia.py tests/test_manual_trustworthy_loop.py` — 16 passed; ring/tray smoke create→destroy→recreate ok. **KAN-526 human AC still required** (Cold Start / End→Start / Resume).
+- **Jira:** agent implementation comment on **KAN-525**/526 (yes); story/test **not** Done until human paths
+- **Next:** Designer runs KAN-526 steps → then Active **KAN-510**
 
 ### 2026-11-28 — KAN-525 — Council Full review verdict Accepted (Slice-0)
 - **Agent/chat:** Cursor IDE Agent — `/council` Full + Studio/Creative; Designer: All of the above

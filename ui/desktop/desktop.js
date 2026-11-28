@@ -7415,7 +7415,7 @@
         if (manualEndOpen) manualEndOpen.hidden = false;
         if (manualStatus) {
           manualStatus.textContent =
-            "Recording — look for the cyan Charter tray on the desktop (beside the hollow ring). Chip End ends the session if the tray is missing.";
+            "Recording — Look 4 side tray (native) beside the hollow ring. Chip Still/Note/Restore/End is backup only.";
         }
       } else {
         setManualLoopStage("idle");
@@ -7517,13 +7517,31 @@
       await refreshManualSessions();
       return;
     }
+    if (ev === "note_focus") {
+      ensureAreaOpen("manual");
+      showManualSessionChip({ id: sid });
+      const noteInput = document.querySelector(
+        "[data-manual-session-note-input]"
+      );
+      if (noteInput) {
+        try {
+          noteInput.focus();
+        } catch (_err) {
+          /* ignore */
+        }
+      }
+      return;
+    }
     if ((ev === "still" || ev === "note") && sid) {
       try {
         const res = await fetch(
           "/api/manual-sessions/" + encodeURIComponent(sid)
         );
         const data = await res.json();
-        if (data && data.session) updateCharterFrameChip(data.session);
+        if (data && data.session) {
+          updateCharterFrameChip(data.session);
+          showManualSessionChip(data.session);
+        }
       } catch (_err) {
         /* ignore */
       }

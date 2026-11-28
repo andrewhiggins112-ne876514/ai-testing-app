@@ -168,7 +168,7 @@ class LabBackupTests(unittest.TestCase):
         self.assertEqual(blocked["status"], "error")
         self.assertIn("mix", blocked["message"].lower())
 
-    def test_api_backup_and_desktop_ui_desk155(self):
+    def test_api_backup_and_desktop_ui_desk156(self):
         self._seed_lab()
         client = TestClient(main.app)
         status = client.get("/api/backup")
@@ -197,8 +197,8 @@ class LabBackupTests(unittest.TestCase):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIn("desk155", html)
-        self.assertIn("desk155", desk)
+        self.assertIn("desk156", html)
+        self.assertIn("desk156", desk)
         self.assertIn("backup-create", html)
         self.assertIn("backup-restore-confirm", html)
         self.assertIn("Backup &amp; restore", html)

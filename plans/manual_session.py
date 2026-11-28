@@ -739,6 +739,15 @@ def attach_still(
     if bbox is None:
         bbox = _normalize_screen_bbox(session.get("screen_bbox"))
 
+    # KAN-525: OS float stills must use the hole bbox — never full-desk grab.
+    frame_mode = _normalize_frame_mode(session.get("frame_mode"))
+    if bbox is None and frame_mode == "float":
+        return {
+            "status": "error",
+            "error": "bbox_required",
+            "message": "Still needs the capture hole bbox (no full-desk grab fallback).",
+        }
+
     captured = False
     capture_error = ""
     try:
@@ -747,11 +756,11 @@ def attach_still(
         if bbox is not None:
             img = ImageGrab.grab(bbox=tuple(bbox), all_screens=True)
         else:
+            # In-app free frame only: crop relative region from a single grab.
             try:
                 img = ImageGrab.grab(all_screens=True)
             except TypeError:
                 img = ImageGrab.grab()
-            # Crop to relative frame when no absolute bbox provided.
             frame = _normalize_frame(session.get("frame"))
             w, h = img.size
             left = int(frame["x"] * w)

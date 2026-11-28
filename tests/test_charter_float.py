@@ -1,4 +1,4 @@
-"""KAN-386 / KAN-502 / KAN-503 / KAN-512 / KAN-524 — Charter float: Look 4 under-ring."""
+"""KAN-386 / KAN-512 / KAN-525 — Charter float: native Look 4 side tray."""
 from __future__ import annotations
 
 import tempfile
@@ -42,8 +42,8 @@ class CharterFloatGeometryTests(unittest.TestCase):
         payload = cf.is_float_available_payload(True)
         self.assertTrue(payload["click_through_hole"])
 
-    def test_tray_geom_under_ring(self) -> None:
-        """KAN-524: horizontal bar sits under the capture ring (not a side rail)."""
+    def test_tray_geom_side_look4(self) -> None:
+        """KAN-525: side rail beside the capture ring (under-ring Rejected)."""
         monitors = [
             {
                 "id": "mon1",
@@ -59,25 +59,27 @@ class CharterFloatGeometryTests(unittest.TestCase):
             side="east",
             collapsed=False,
         )
-        self.assertEqual(dock["placement"], "under_ring")
+        self.assertEqual(dock["placement"], "side")
+        self.assertEqual(dock["host"], "native_toolwindow")
         self.assertEqual(dock["side"], "east")
         self.assertGreaterEqual(dock["width"], ring.MIN_TRAY_HWND_W)
-        self.assertGreaterEqual(dock["height"], ring.MIN_TRAY_HWND_H)
-        # Under the ring bottom edge (with flip when near bottom of work area).
-        self.assertGreaterEqual(dock["y"], 500)
+        self.assertGreaterEqual(dock["height"], ring.BTN_H)
+        # East of the ring right edge.
+        self.assertGreaterEqual(dock["x"], 800)
         self.assertLessEqual(dock["x"] + dock["width"], 1920)
-        # Near bottom → flip above the ring.
+        # Near right edge → flip west.
         edge = ring.dock_geom_for_bbox(
-            [200, 900, 900, 1040],
+            [1700, 100, 1880, 500],
             virtual={"left": 0, "top": 0, "width": 1920, "height": 1080},
             monitors=monitors,
             side="east",
             collapsed=False,
         )
-        self.assertEqual(edge["placement"], "under_ring")
-        self.assertLessEqual(edge["y"] + edge["height"], 900)
+        self.assertEqual(edge["placement"], "side")
+        self.assertEqual(edge["side"], "west")
+        self.assertLessEqual(edge["x"] + edge["width"], 1700)
 
-    def test_tray_collapsed_keeps_webview2_min_hwnd(self) -> None:
+    def test_tray_collapsed_keeps_min_hit(self) -> None:
         dock = ring.dock_geom_for_bbox(
             [200, 120, 700, 520],
             virtual={"left": 0, "top": 0, "width": 1920, "height": 1080},
@@ -92,9 +94,9 @@ class CharterFloatGeometryTests(unittest.TestCase):
             collapsed=True,
         )
         self.assertTrue(dock["collapsed"])
-        # KAN-524 under-ring: never shrink below horizontal min paint size.
+        self.assertEqual(dock["placement"], "side")
         self.assertGreaterEqual(dock["width"], ring.MIN_TRAY_HWND_W)
-        self.assertGreaterEqual(dock["height"], 56)
+        self.assertGreaterEqual(dock["height"], ring.BTN_H)
 
 
 class CharterRingNativeTests(unittest.TestCase):
@@ -171,35 +173,25 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk155(self) -> None:
+    def test_desktop_float_markers_desk156(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
-        float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
-            encoding="utf-8"
-        )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk155", html)
-        self.assertIn("desk155", desk)
-        self.assertIn("desk155", float_html)
-        self.assertIn('data-snip-dock="1"', float_html)
-        self.assertIn('data-charter-g-tray="1"', float_html)
-        self.assertIn('data-look="4"', float_html)
-        self.assertIn('data-placement="under_ring"', float_html)
-        self.assertIn("charter-tray-bar", float_html)
-        self.assertIn("charter_ring_native", desk)
+        self.assertIn("desk156", html)
+        self.assertIn("desk156", desk)
+        self.assertIn("DESK_V = \"desk156\"", desk)
+        self.assertIn("native_toolwindow", desk)
         self.assertIn("g_tray_look4", desk)
         self.assertIn("charter_float_set_tray", desk)
+        self.assertIn("show_side_tray", desk)
+        self.assertIn("destroy_side_tray", desk)
         # Must never punch WebView2 with SetWindowRgn (crash / opaque fill).
         self.assertNotIn("apply_hollow_window_region", desk)
+        # KAN-525: no second pywebview Charter Frame / hide-reuse tray.
+        self.assertNotIn("FLOAT_URL", desk)
+        self.assertNotIn("_float_window", desk)
+        self.assertNotIn("win.hide()", desk)
         self.assertIn("charter_float_drag_by", desk)
-        float_js = (ROOT / "ui" / "desktop" / "charter_float.js").read_text(
-            encoding="utf-8"
-        )
-        self.assertIn("charter_float_drag_by", float_js)
-        self.assertIn("charter_float_set_tray", float_js)
-        self.assertIn("charter-tray-bar-header", float_js)
-        self.assertIn("data-charter-pause", float_html)
-        self.assertIn("data-charter-tray-toggle", float_html)
         self.assertIn("data-manual-session-chip", html)
         self.assertIn("data-manual-session-end", html)
         self.assertIn("data-manual-session-still", html)
@@ -207,25 +199,19 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("captureStillFromManualChip", js)
         self.assertIn("addNoteFromManualChip", js)
         self.assertIn("syncManualEndVisible", js)
-        self.assertIn("dock_not_visible", desk)
-        self.assertIn("_dock_visibly_ok", desk)
-        self.assertIn("resolve_float_hwnd", desk)
+        self.assertIn("note_focus", js)
         self.assertIn("__manualFloatFailStatus", js)
         self.assertIn("6000", js)
-        cf_src = (ROOT / "plans" / "charter_float.py").read_text(encoding="utf-8")
-        self.assertIn("def resolve_float_hwnd", cf_src)
-        self.assertIn("def float_hwnd_by_title", cf_src)
         ring_src = (ROOT / "plans" / "charter_ring_native.py").read_text(
             encoding="utf-8"
         )
-        self.assertIn('"placement": "under_ring"', ring_src)
-        self.assertIn("MIN_TRAY_HWND_W = 480", ring_src)
-        # KAN-520: never ShowWindow(..., SW_HIDE) in force-visible (taskbar ghost).
-        force_fn = desk.split("def _force_dock_native_visible", 1)[1].split(
-            "def _dock_visibly_ok", 1
-        )[0]
-        self.assertNotIn("ShowWindow(hwnd, SW_HIDE)", force_fn)
-        self.assertNotIn("SW_HIDE = 0", force_fn)
+        self.assertIn('"placement": "side"', ring_src)
+        self.assertIn("native_toolwindow", ring_src)
+        self.assertIn("show_side_tray", ring_src)
+        self.assertIn("destroy_side_tray", ring_src)
+        self.assertIn("WS_EX_TOOLWINDOW", ring_src)
+        # Under-ring must not remain the product placement lock.
+        self.assertNotIn('"placement": "under_ring"', ring_src)
         # Manual UX: Start must not closeArea; library reopen must not toggle-close.
         self.assertIn("function ensureAreaOpen", js)
         self.assertIn('ensureAreaOpen("manual")', js)
@@ -240,8 +226,6 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         self.assertIn("Resume Charter", js)
         self.assertIn("setManualResumeUi(openData.session)", js)
         self.assertNotIn("await showCharterFrame(openData.session)", js)
-        # KAN-512 / KAN-516: desktop shell hides in-app rect when float bridge exists;
-        # recording stage only after float ok (idle on place-fail so charter stays typeable).
         show_fn = js.split("async function showCharterFrame(session)", 1)[1].split(
             "async function hideCharterFrame()", 1
         )[0]

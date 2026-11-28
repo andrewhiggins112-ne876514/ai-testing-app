@@ -3,47 +3,41 @@
 Run:
     .\\venv\\Scripts\\python.exe desktop_app.py
 
-KAN-386 / KAN-503 / KAN-512: Manual snip = Look 4 side tray WebView + native
-Win32 hollow ring (never SetWindowRgn on WebView2 — opaque/crash).
+KAN-525: Manual snip = native hollow ring + native TOOLWINDOW Look 4 *side*
+tray on the ring thread. No second WebView2 tray (hide-reuse zombie class).
+Never SetWindowRgn on WebView2.
 """
 from __future__ import annotations
 
+import json
 import sys
 import time
 import threading
 from typing import Any, Optional
-from urllib.request import urlopen
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 import uvicorn
 import webview
 
 from plugins.playwright_env import sanitize_playwright_browsers_path
-from plans.charter_float import (
-    float_hwnd_from_native,
-    float_window_title,
-    is_float_available_payload,
-    resolve_float_hwnd,
-)
+from plans.charter_float import is_float_available_payload
 from plans import charter_ring_native as ring
 from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk155"
+DESK_V = "desk156"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
-FLOAT_URL = f"http://{HOST}:{PORT}/ui/desktop/charter_float.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
+API = f"http://{HOST}:{PORT}/api"
 
 _main_window: Any = None
-_float_window: Any = None
 _float_visible = False
 _float_session_id = ""
-_dock_events_hooked = False
-_suppress_dock_moved = False
 _tray_side = "east"
 _tray_collapsed = False
-_tray_note_open = False
+_paused = False
 
 
 def _serve() -> None:
@@ -87,279 +81,284 @@ def _notify_main(js: str) -> None:
         pass
 
 
-def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
-    """Unstick taskbar-only / hidden frameless dock (Show + TOPMOST).
-
-    KAN-506 / KAN-518 / KAN-520: never SW_HIDE here (that created taskbar ghosts).
-    Restore + SHOW + TOPMOST + clamp to primary work area.
-    """
-    import ctypes
-    from ctypes import wintypes
-
-    hwnd = resolve_float_hwnd(win)
-    if not hwnd:
-        return
-    user32 = ctypes.windll.user32
-    HWND_TOPMOST = -1
-    SW_RESTORE = 9
-    SW_SHOW = 5
-    SWP_SHOWWINDOW = 0x0040
-    SWP_FRAMECHANGED = 0x0020
-
-    work = _work_area()
-    ox, oy = int(work["left"]), int(work["top"])
-    aw, ah = max(160, int(work["width"])), max(160, int(work["height"]))
-    w = max(ring.MIN_TRAY_HWND_W, int(geom.get("width") or ring.MIN_TRAY_HWND_W))
-    # KAN-524 under-ring bar is ~88px tall — do not force 120 and stretch wrongly.
-    h = max(ring.MIN_TRAY_HWND_H, int(geom.get("height") or ring.MIN_TRAY_HWND_H))
-    x = max(ox, min(int(geom.get("x") or ox), ox + aw - w))
-    y = max(oy, min(int(geom.get("y") or oy), oy + ah - h))
-
-    user32.ShowWindow(hwnd, SW_RESTORE)
-    user32.ShowWindow(hwnd, SW_SHOW)
-    user32.SetWindowPos(
-        hwnd,
-        HWND_TOPMOST,
-        x,
-        y,
-        w,
-        h,
-        SWP_SHOWWINDOW | SWP_FRAMECHANGED,
-    )
+def _api_json(
+    method: str,
+    path: str,
+    body: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    data = None
+    headers = {"Accept": "application/json"}
+    if body is not None:
+        data = json.dumps(body).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+    req = Request(f"{API}{path}", data=data, headers=headers, method=method)
     try:
-        user32.BringWindowToTop(hwnd)
-    except Exception:  # noqa: BLE001
-        pass
-    rect = wintypes.RECT()
-    if user32.GetWindowRect(hwnd, ctypes.byref(rect)):
-        rw = int(rect.right) - int(rect.left)
-        rh = int(rect.bottom) - int(rect.top)
-        if rw < 80 or rh < 80 or rect.right < ox + 8 or rect.bottom < oy + 8:
-            x2 = ox + max(24, (aw - w) // 2)
-            y2 = oy + max(24, (ah - h) // 3)
-            user32.SetWindowPos(
-                hwnd, HWND_TOPMOST, x2, y2, w, h, SWP_SHOWWINDOW | SWP_FRAMECHANGED
-            )
-
-
-def _dock_visibly_ok(win: Any) -> bool:
-    """True when the float looks placed (HWND or pywebview geometry).
-
-    KAN-522: do not false-fail when native.Handle is missing — that hid the tray
-    right after show() and looked like a Start-only glitch.
-    """
-    import ctypes
-    from ctypes import wintypes
-
-    hwnd = resolve_float_hwnd(win)
-    if hwnd:
-        user32 = ctypes.windll.user32
-        rect = wintypes.RECT()
-        if user32.GetWindowRect(hwnd, ctypes.byref(rect)):
-            rw = int(rect.right) - int(rect.left)
-            rh = int(rect.bottom) - int(rect.top)
-            if rw >= 80 and rh >= 80:
-                return True
-    # Soft fallback: trust pywebview's reported size after show().
-    try:
-        w = int(getattr(win, "width", 0) or 0)
-        h = int(getattr(win, "height", 0) or 0)
-        if w >= 80 and h >= 80:
-            return True
-    except Exception:  # noqa: BLE001
-        pass
-    return False
-
-
-def _work_area() -> dict[str, int]:
-    virtual, monitors = _snap_context()
-    work = virtual or {"left": 0, "top": 0, "width": 1920, "height": 1080}
-    if monitors:
-        primary = next((m for m in monitors if m.get("is_primary")), None) or monitors[0]
-        pb = primary.get("bbox")
-        if isinstance(pb, (list, tuple)) and len(pb) == 4:
-            work = {
-                "left": int(pb[0]),
-                "top": int(pb[1]),
-                "width": int(pb[2]) - int(pb[0]),
-                "height": int(pb[3]) - int(pb[1]),
-            }
-    return {
-        "left": int(work["left"]),
-        "top": int(work["top"]),
-        "width": int(work["width"]),
-        "height": int(work["height"]),
-    }
-
-
-def _sync_ring_with_tray() -> dict[str, Any]:
-    """Keep capture ring glued above the under-ring Look 4 dock (KAN-524)."""
-    win = _float_window
-    if win is None or not _float_visible:
-        return {"status": "error", "error": "float_unavailable"}
-    try:
-        x = int(win.x)
-        y = int(win.y)
-        w = int(win.width)
+        with urlopen(req, timeout=12.0) as resp:
+            raw = resp.read().decode("utf-8")
+            return json.loads(raw) if raw else {"status": "ok"}
+    except HTTPError as exc:
+        try:
+            raw = exc.read().decode("utf-8")
+            return json.loads(raw) if raw else {"status": "error", "error": str(exc)}
+        except Exception:  # noqa: BLE001
+            return {"status": "error", "error": str(exc)[:120]}
     except Exception as exc:  # noqa: BLE001
-        return {"status": "error", "error": "dock_geom_failed", "message": str(exc)[:120]}
-    bbox = ring.get_capture_bbox()
-    bw = max(ring.MIN_CAPTURE_W, int(bbox[2]) - int(bbox[0]))
-    bh = max(ring.MIN_CAPTURE_H, int(bbox[3]) - int(bbox[1]))
-    # Dock sits under the ring → ring bottom is just above dock top.
-    left = x + max(0, (w - bw) // 2)
-    top = y - 12 - bh
-    work = _work_area()
-    ox, oy, aw, ah = work["left"], work["top"], work["width"], work["height"]
-    left = max(ox, min(left, ox + aw - bw))
-    top = max(oy, min(top, oy + ah - bh))
-    return ring.set_capture_bbox([left, top, left + bw, top + bh], show=True)
+        return {"status": "error", "error": str(exc)[:120]}
 
 
-def _on_dock_moved() -> None:
-    global _suppress_dock_moved
-    if _suppress_dock_moved or not _float_visible:
-        return
-    try:
-        _sync_ring_with_tray()
-    except Exception:  # noqa: BLE001
-        pass
+def _emit_float_event(event: str, session_id: str = "") -> None:
+    safe_event = str(event or "")[:32]
+    safe_id = str(session_id or _float_session_id or "")[:64]
+    payload = json.dumps({"type": safe_event, "session_id": safe_id})
+    _notify_main(
+        "window.__charterFloatEvent && window.__charterFloatEvent(" + payload + ")"
+    )
 
 
-def _hook_dock_events() -> None:
-    global _dock_events_hooked
-    if _dock_events_hooked or _float_window is None:
-        return
-    try:
-        _float_window.events.moved += _on_dock_moved
-        _dock_events_hooked = True
-    except Exception:  # noqa: BLE001
-        pass
-
-
-def _place_dock(bbox: list[int]) -> dict[str, Any]:
-    global _suppress_dock_moved, _tray_side
-    win = _float_window
-    if win is None:
-        return {"status": "error", "error": "float_unavailable"}
+def _place_chrome(bbox: list[int]) -> dict[str, Any]:
+    """Show ring + fresh native side tray beside bbox."""
     virtual, monitors = _snap_context()
-    geom = ring.dock_geom_for_bbox(
-        bbox,
-        virtual=virtual,
-        monitors=monitors,
+    ring_out = ring.set_capture_bbox(bbox, show=True)
+    tray_out = ring.show_side_tray(
         side=_tray_side,
         collapsed=_tray_collapsed,
-        note_open=_tray_note_open,
+        virtual=virtual,
+        monitors=monitors,
     )
-    _tray_side = ring.normalize_tray_side(geom.get("side") or _tray_side)
-    try:
+    return {"ring": ring_out, "dock": tray_out, "tray": tray_out}
+
+
+def _on_tray_verb(verb: str) -> None:
+    """Native tray button → session actions (runs on worker thread)."""
+    global _paused, _tray_collapsed, _float_visible
+    sid = _float_session_id
+    v = str(verb or "").strip().lower()
+
+    if v == "toggle":
+        _tray_collapsed = not _tray_collapsed
+        virtual, monitors = _snap_context()
+        ring.set_tray_prefs(
+            collapsed=_tray_collapsed,
+            side=_tray_side,
+            virtual=virtual,
+            monitors=monitors,
+        )
+        return
+
+    if v == "pause":
+        _paused = not _paused
+        ring.set_toggle_flags(pause=_paused)
+        return
+
+    if not sid:
+        # Try open session from API.
+        open_data = _api_json("GET", "/manual-sessions/open")
+        sess = (open_data or {}).get("session") or {}
+        sid = str(sess.get("id") or "")
+        if not sid:
+            return
+
+    if v == "still":
+        if _paused:
+            return
+        bbox = ring.get_capture_bbox()
+        if not bbox or len(bbox) != 4:
+            return
+        # Hard-fail if bbox unknown — no all-screens grab (KAN-525 AC).
         try:
-            win.restore()
+            ring.hide_ring()
+            ring.destroy_side_tray()
+            time.sleep(0.1)
+            out = _api_json(
+                "POST",
+                f"/manual-sessions/{sid}/stills",
+                {"screen_bbox": bbox},
+            )
+            _emit_float_event("still", sid)
+            if out.get("status") != "ok":
+                _notify_main(
+                    "window.__manualFloatFailStatus="
+                    + json.dumps((out.get("message") or "Still failed")[:120])
+                )
+        finally:
+            if _float_visible:
+                _place_chrome(bbox)
+        return
+
+    if v == "note":
+        # Note-sheet HWND is OOS — focus Manual chip note backup.
+        _emit_float_event("note_focus", sid)
+        _notify_main(
+            "(function(){var i=document.querySelector('[data-manual-session-note-input]');"
+            "if(i){i.focus();}})()"
+        )
+        return
+
+    if v == "assist":
+        st = ring.tray_state()
+        nxt = not bool(st.get("assist"))
+        _api_json(
+            "POST",
+            f"/manual-sessions/{sid}/toggles",
+            {"agent_assist": nxt},
+        )
+        ring.set_toggle_flags(assist=nxt)
+        return
+
+    if v == "mist":
+        st = ring.tray_state()
+        nxt = not bool(st.get("mist"))
+        _api_json(
+            "POST",
+            f"/manual-sessions/{sid}/toggles",
+            {"armed_mist": nxt},
+        )
+        ring.set_toggle_flags(mist=nxt)
+        return
+
+    if v == "end":
+        _api_json("POST", f"/manual-sessions/{sid}/end")
+        _emit_float_event("ended", sid)
+        # notify_main path also closes chrome via DesktopApi when called from JS;
+        # native path closes here.
+        try:
+            api = DesktopApi()
+            api.charter_float_close()
         except Exception:  # noqa: BLE001
             pass
-        _suppress_dock_moved = True
+        return
+
+    if v == "cancel":
+        # Native confirm (no WebView sheet).
+        import ctypes
+
+        result = ctypes.windll.user32.MessageBoxW(
+            0,
+            "Cancel this charter session? Nothing is written to Jira.",
+            "Cancel charter",
+            0x00000031,  # MB_OKCANCEL | MB_ICONWARNING
+        )
+        if int(result) != 1:  # IDOK
+            return
+        _api_json(
+            "POST",
+            f"/manual-sessions/{sid}/cancel",
+            {"confirm": True},
+        )
+        _emit_float_event("cancelled", sid)
         try:
-            win.resize(int(geom["width"]), int(geom["height"]))
-            win.move(int(geom["x"]), int(geom["y"]))
-            win.on_top = True
-            win.show()
-            _force_dock_native_visible(win, geom)
-            time.sleep(0.08)
-            _force_dock_native_visible(win, geom)
-            try:
-                win.evaluate_js(
-                    "document.documentElement && "
-                    "(document.documentElement.style.opacity='1')"
-                )
-            except Exception:  # noqa: BLE001
-                pass
-        finally:
-            _suppress_dock_moved = False
-        _hook_dock_events()
-        if not _dock_visibly_ok(win):
-            # KAN-522: do NOT hide here — hide-after-show was the Start "glitch".
-            # Leave the window up; JS still gets an honest error + End controls.
-            return {
-                "status": "error",
-                "error": "dock_not_visible",
-                "message": "Charter tray did not report a usable size after place",
-                "geometry": geom,
-                "side": _tray_side,
-            }
-        return {"status": "ok", "geometry": geom, "side": _tray_side}
-    except Exception as exc:  # noqa: BLE001
-        _suppress_dock_moved = False
-        return {"status": "error", "error": "dock_place_failed", "message": str(exc)[:120]}
+            api = DesktopApi()
+            api.charter_float_close()
+        except Exception:  # noqa: BLE001
+            pass
 
 
 class DesktopApi:
-    """JS bridge for main + Charter dock windows."""
+    """JS bridge for main window (native Charter chrome — no float WebView)."""
 
     def charter_float_available(self) -> dict[str, Any]:
-        payload = is_float_available_payload(_float_window is not None)
+        # Native host is always available once the ring thread can start.
+        payload = is_float_available_payload(True)
         payload["mode"] = "g_tray_look4"
+        payload["host"] = "native_toolwindow"
         payload["click_through_hole"] = True
         payload["tray_side"] = _tray_side
         payload["tray_collapsed"] = _tray_collapsed
+        payload["placement"] = "side"
         return payload
 
     def charter_float_set_tray(self, prefs: Optional[dict[str, Any]] = None) -> dict[str, Any]:
-        """Update Look 4 tray side / collapsed / note sheet and re-place chrome."""
-        global _tray_side, _tray_collapsed, _tray_note_open
+        global _tray_side, _tray_collapsed
         data = prefs if isinstance(prefs, dict) else {}
         if "side" in data:
             _tray_side = ring.normalize_tray_side(data.get("side"))
         if "collapsed" in data:
             _tray_collapsed = bool(data.get("collapsed"))
-        if "note_open" in data:
-            _tray_note_open = bool(data.get("note_open")) and not _tray_collapsed
-        bbox = ring.get_capture_bbox()
-        dock = _place_dock(bbox) if _float_visible else {"status": "ok"}
+        virtual, monitors = _snap_context()
+        dock = {"status": "ok"}
+        if _float_visible:
+            dock = ring.set_tray_prefs(
+                side=_tray_side,
+                collapsed=_tray_collapsed,
+                virtual=virtual,
+                monitors=monitors,
+            )
         return {
             "status": "ok",
             "side": _tray_side,
             "collapsed": _tray_collapsed,
-            "note_open": _tray_note_open,
+            "note_open": False,
             "dock": dock,
-            "screen_bbox": bbox,
+            "screen_bbox": ring.get_capture_bbox(),
+            "host": "native_toolwindow",
+            "placement": "side",
         }
 
     def charter_float_open(self, session: Optional[dict[str, Any]] = None) -> dict[str, Any]:
-        """Show native hollow ring + Look 4 side tray. No WebView region punching."""
-        global _float_visible, _float_session_id, _tray_note_open, _tray_collapsed
-        if _float_window is None:
-            return {"status": "error", "error": "float_unavailable", "available": False}
+        """Show hollow ring + Look 4 native side tray. Fresh CreateWindow every Start."""
+        global _float_visible, _float_session_id, _tray_collapsed, _paused
         sess = session if isinstance(session, dict) else {}
         _float_session_id = str(sess.get("id") or "")
-        # Fresh Start: drop note sheet; expand tray so End→Start never reopens a
-        # sub-WebView2 ghost (collapsed prefs re-applied by float JS after visible).
-        _tray_note_open = False
         _tray_collapsed = False
+        _paused = False
+        ring.set_toggle_flags(
+            pause=False,
+            assist=bool(sess.get("agent_assist")),
+            mist=bool(sess.get("armed_mist")),
+        )
         virtual, monitors = _snap_context()
         bbox = ring.default_capture_bbox(virtual=virtual, monitors=monitors)
+        # Prefer saved screen_bbox when Resume carries one.
+        saved = sess.get("screen_bbox")
+        if isinstance(saved, (list, tuple)) and len(saved) == 4:
+            try:
+                bbox = [int(v) for v in saved]
+            except (TypeError, ValueError):
+                pass
         try:
-            ring_out = ring.set_capture_bbox(bbox, show=True)
-            dock_out = _place_dock(bbox)
-            if not dock_out or dock_out.get("status") != "ok":
+            placed = _place_chrome(bbox)
+            dock_out = placed.get("dock") or {}
+            ring_out = placed.get("ring") or {}
+            if dock_out.get("status") != "ok":
                 try:
                     ring.hide_ring()
+                    ring.destroy_side_tray()
                 except Exception:  # noqa: BLE001
                     pass
+                _float_visible = False
                 return {
                     "status": "error",
-                    "error": "dock_place_failed",
+                    "error": dock_out.get("error") or "dock_place_failed",
                     "available": True,
                     "mode": "g_tray_look4",
+                    "host": "native_toolwindow",
                     "session_id": _float_session_id,
                     "screen_bbox": bbox,
                     "ring": ring_out,
                     "dock": dock_out,
                 }
             _float_visible = True
+            # Persist hole bbox + float mode so Still hard-fail path has bbox.
+            if _float_session_id:
+                virtual, _m = _snap_context()
+                from plans.charter_snap import bounds_to_frame
+
+                frame = bounds_to_frame(bbox, virtual)
+                _api_json(
+                    "POST",
+                    f"/manual-sessions/{_float_session_id}/frame",
+                    {
+                        **(frame or {}),
+                        "frame_mode": "float",
+                        "screen_bbox": bbox,
+                    },
+                )
             return {
                 "status": "ok",
                 "available": True,
                 "mode": "g_tray_look4",
+                "host": "native_toolwindow",
+                "placement": "side",
                 "session_id": _float_session_id,
                 "screen_bbox": bbox,
                 "ring": ring_out,
@@ -368,6 +367,7 @@ class DesktopApi:
                 "collapsed": _tray_collapsed,
             }
         except Exception as exc:  # noqa: BLE001
+            _float_visible = False
             return {
                 "status": "error",
                 "error": "float_open_failed",
@@ -376,26 +376,23 @@ class DesktopApi:
             }
 
     def charter_float_close(self) -> dict[str, Any]:
-        global _float_visible, _float_session_id, _tray_note_open
+        global _float_visible, _float_session_id
         _float_session_id = ""
-        _tray_note_open = False
         try:
             ring.hide_ring()
         except Exception:  # noqa: BLE001
             pass
-        win = _float_window
-        if win is not None:
-            try:
-                win.hide()
-            except Exception:  # noqa: BLE001
-                pass
+        try:
+            # Destroy — never hide-reuse tray HWND (KAN-525).
+            ring.destroy_side_tray()
+        except Exception:  # noqa: BLE001
+            pass
         _float_visible = False
-        return {"status": "ok", "available": True}
+        return {"status": "ok", "available": True, "host": "native_toolwindow"}
 
     def charter_float_screen_bbox(self) -> dict[str, Any]:
         bbox = ring.get_capture_bbox()
         virtual, _m = _snap_context()
-        # Relative frame approx from bbox on virtual desktop
         from plans.charter_snap import bounds_to_frame
 
         frame = bounds_to_frame(bbox, virtual)
@@ -407,84 +404,61 @@ class DesktopApi:
                 bbox,
                 side=_tray_side,
                 collapsed=_tray_collapsed,
-                note_open=_tray_note_open,
             ),
             "side": _tray_side,
             "collapsed": _tray_collapsed,
+            "host": "native_toolwindow",
+            "placement": "side",
         }
 
     def charter_float_nudge(self, dx: int = 0, dy: int = 0) -> dict[str, Any]:
         bbox = ring.nudge_bbox(ring.get_capture_bbox(), int(dx), int(dy))
-        ring.set_capture_bbox(bbox, show=True)
-        dock = _place_dock(bbox)
-        return {"status": "ok", "screen_bbox": bbox, "dock": dock}
+        placed = _place_chrome(bbox) if _float_visible else {
+            "ring": ring.set_capture_bbox(bbox, show=True),
+            "dock": {"status": "ok"},
+        }
+        return {
+            "status": "ok",
+            "screen_bbox": bbox,
+            "dock": placed.get("dock"),
+            "ring": placed.get("ring"),
+        }
 
     def charter_float_drag_by(self, dx: int = 0, dy: int = 0) -> dict[str, Any]:
-        """Drag dock by delta; ring stays glued above (header drag from float JS)."""
-        global _suppress_dock_moved
-        win = _float_window
-        if win is None or not _float_visible:
+        """Drag capture hole by delta; tray stays glued to the side."""
+        if not _float_visible:
             return {"status": "error", "error": "float_unavailable"}
-        try:
-            x = int(win.x) + int(dx)
-            y = int(win.y) + int(dy)
-            w = int(win.width)
-            h = int(win.height)
-            virtual, monitors = _snap_context()
-            ox = int((virtual or {}).get("left") or 0)
-            oy = int((virtual or {}).get("top") or 0)
-            aw = int((virtual or {}).get("width") or 1920)
-            ah = int((virtual or {}).get("height") or 1080)
-            if monitors:
-                primary = next(
-                    (m for m in monitors if m.get("is_primary")), None
-                ) or monitors[0]
-                pb = primary.get("bbox")
-                if isinstance(pb, (list, tuple)) and len(pb) == 4:
-                    ox, oy = int(pb[0]), int(pb[1])
-                    aw, ah = int(pb[2]) - ox, int(pb[3]) - oy
-            x = max(ox, min(x, ox + aw - w))
-            y = max(oy, min(y, oy + ah - h))
-            geom = {"x": x, "y": y, "width": w, "height": h}
-            _suppress_dock_moved = True
-            try:
-                win.move(x, y)
-                _force_dock_native_visible(win, geom)
-            finally:
-                _suppress_dock_moved = False
-            ring_out = _sync_ring_with_tray()
-            return {
-                "status": "ok",
-                "geometry": geom,
-                "screen_bbox": ring.get_capture_bbox(),
-                "ring": ring_out,
-            }
-        except Exception as exc:  # noqa: BLE001
-            _suppress_dock_moved = False
-            return {"status": "error", "error": "drag_failed", "message": str(exc)[:120]}
+        bbox = ring.nudge_bbox(ring.get_capture_bbox(), int(dx), int(dy))
+        placed = _place_chrome(bbox)
+        return {
+            "status": "ok",
+            "screen_bbox": bbox,
+            "dock": placed.get("dock"),
+            "ring": placed.get("ring"),
+        }
 
     def charter_float_resize_capture(self, d_w: int = 0, d_h: int = 0) -> dict[str, Any]:
         bbox = ring.resize_bbox(ring.get_capture_bbox(), int(d_w), int(d_h))
-        ring.set_capture_bbox(bbox, show=True)
-        dock = _place_dock(bbox)
-        return {"status": "ok", "screen_bbox": bbox, "dock": dock}
+        placed = _place_chrome(bbox) if _float_visible else {
+            "ring": ring.set_capture_bbox(bbox, show=True),
+            "dock": {"status": "ok"},
+        }
+        return {
+            "status": "ok",
+            "screen_bbox": bbox,
+            "dock": placed.get("dock"),
+            "ring": placed.get("ring"),
+        }
 
     def charter_float_set_size(self, width: int, height: int) -> dict[str, Any]:
-        """Dock chrome size is fixed; capture size uses resize_capture / ± buttons."""
-        win = _float_window
-        if win is None:
-            return {"status": "error", "error": "float_unavailable"}
+        """Tray size is fixed by Look 4; capture size uses resize_capture."""
+        del width, height
         geom = ring.dock_geom_for_bbox(
             ring.get_capture_bbox(),
             side=_tray_side,
             collapsed=_tray_collapsed,
-            note_open=_tray_note_open,
         )
-        try:
-            win.resize(int(geom["width"]), int(geom["height"]))
-            return {"status": "ok", "geometry": geom, "locked": True}
-        except Exception as exc:  # noqa: BLE001
-            return {"status": "error", "error": "resize_failed", "message": str(exc)[:120]}
+        return {"status": "ok", "geometry": geom, "locked": True, "host": "native_toolwindow"}
 
     def charter_float_apply_ring(self) -> dict[str, Any]:
         return ring.show_ring()
@@ -493,8 +467,7 @@ class DesktopApi:
         bbox = ring.get_capture_bbox()
         try:
             ring.hide_ring()
-            if _float_window is not None:
-                _float_window.hide()
+            ring.destroy_side_tray()
             time.sleep(0.12)
         except Exception as exc:  # noqa: BLE001
             return {
@@ -516,31 +489,30 @@ class DesktopApi:
     def charter_float_restore(self) -> dict[str, Any]:
         bbox = ring.get_capture_bbox()
         try:
-            ring.show_ring()
             if _float_visible or _float_session_id:
-                _place_dock(bbox)
+                _place_chrome(bbox)
+            else:
+                ring.show_ring()
         except Exception as exc:  # noqa: BLE001
             return {"status": "error", "error": "show_failed", "message": str(exc)[:120]}
-        return {"status": "ok", "available": True, "screen_bbox": bbox}
+        return {
+            "status": "ok",
+            "available": True,
+            "screen_bbox": bbox,
+            "host": "native_toolwindow",
+        }
 
     def charter_float_notify_main(self, event: str, session_id: str = "") -> dict[str, Any]:
-        import json
-
         safe_event = str(event or "")[:32]
         safe_id = str(session_id or _float_session_id or "")[:64]
-        payload = json.dumps({"type": safe_event, "session_id": safe_id})
-        _notify_main(
-            "window.__charterFloatEvent && window.__charterFloatEvent("
-            + payload
-            + ")"
-        )
+        _emit_float_event(safe_event, safe_id)
         if safe_event in {"ended", "cancelled"}:
             self.charter_float_close()
         return {"status": "ok", "event": safe_event}
 
 
 def main() -> int:
-    global _main_window, _float_window
+    global _main_window
 
     cleaned = sanitize_playwright_browsers_path()
     if cleaned.get("cleared"):
@@ -556,9 +528,9 @@ def main() -> int:
         print(f"ERROR: FastAPI did not become ready on {HEALTH}", flush=True)
         return 1
 
-    # Start native ring thread early (hidden).
     try:
         ring.ensure_ring_thread()
+        ring.set_verb_callback(_on_tray_verb)
     except Exception as exc:  # noqa: BLE001
         print(f"NOTE: charter ring init deferred ({exc})", flush=True)
 
@@ -573,26 +545,7 @@ def main() -> int:
         background_color="#000000",
         js_api=api,
     )
-    virtual, monitors = _snap_context()
-    bbox = ring.default_capture_bbox(virtual=virtual, monitors=monitors)
-    dock = ring.dock_geom_for_bbox(bbox, side=_tray_side, collapsed=_tray_collapsed)
-    _float_window = webview.create_window(
-        title=float_window_title(),
-        url=FLOAT_URL,
-        width=int(dock["width"]),
-        height=int(dock["height"]),
-        x=int(dock["x"]),
-        y=int(dock["y"]),
-        min_size=(420, 72),
-        frameless=True,
-        easy_drag=False,
-        on_top=True,
-        shadow=True,
-        resizable=False,
-        hidden=True,
-        background_color="#061018",
-        js_api=api,
-    )
+    # KAN-525: no second pywebview Charter Frame window (taskbar ghost class).
     webview.start()
     try:
         ring.destroy_ring()
