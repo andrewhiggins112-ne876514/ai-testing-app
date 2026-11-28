@@ -1,9 +1,13 @@
-/* KAN-503 — compact Charter dock (native ring is separate Win32 window) */
+/* KAN-512 — Look 4 Compact rail + collapsible tray */
 :root {
   --cyan: #50cdff;
-  --panel: #061018;
-  --text: #d7e6ef;
-  --muted: #8aa3b3;
+  --cyan-dim: rgba(80, 205, 255, 0.22);
+  --cyan-border: rgba(80, 205, 255, 0.28);
+  --accent-soft: rgba(80, 205, 255, 0.12);
+  --rail: #12161c;
+  --text: #e8f7ff;
+  --muted: rgba(180, 220, 240, 0.45);
+  --font: "Segoe UI", "Bahnschrift", "Trebuchet MS", sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -12,121 +16,180 @@ html, body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font);
   color: var(--text);
   background: transparent;
 }
 
-.charter-float-body.charter-float-dock-only {
+.charter-float-body.charter-tray {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  user-select: none;
+  background: transparent;
+}
+
+body[data-tray="west"] {
+  flex-direction: row-reverse;
+}
+
+body[data-collapsed="1"] {
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2px;
+}
+
+.charter-tray-rail {
+  width: 48px;
+  flex: 0 0 48px;
+  background: var(--rail);
+  border: 1px solid var(--cyan);
+  border-radius: 0 10px 10px 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  border: 2px solid var(--cyan);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--panel) 96%, #000);
-  user-select: none;
-}
-
-.charter-float-header {
-  display: flex;
   align-items: center;
-  gap: 10px;
-  height: 32px;
-  padding: 0 10px;
-  flex: 0 0 32px;
+  padding: 6px 0 8px;
+  gap: 2px;
   cursor: grab;
   touch-action: none;
-  border-bottom: 1px solid color-mix(in srgb, var(--cyan) 35%, transparent);
-  background: color-mix(in srgb, var(--panel) 98%, #000);
 }
 
-.charter-float-header:active {
-  cursor: grabbing;
+body[data-tray="west"] .charter-tray-rail {
+  border-radius: 10px 0 0 10px;
 }
 
-.charter-float-title {
+body[data-collapsed="1"] .charter-tray-rail,
+body[data-collapsed="1"] .charter-note-sheet,
+body[data-collapsed="1"] .charter-float-cancel {
+  display: none !important;
+}
+
+.cf-icon {
+  appearance: none;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cf-icon svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+  pointer-events: none;
+}
+
+.cf-icon:hover,
+.cf-icon[aria-pressed="true"],
+.cf-icon.is-on {
+  color: var(--cyan);
+  background: var(--accent-soft);
+}
+
+.tray-toggle[aria-pressed="true"] {
+  border: 1px solid var(--cyan);
+  background: var(--accent-soft);
+}
+
+.tray-toggle-edge {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--cyan-border);
+  background: rgba(12, 16, 20, 0.92);
+  color: var(--cyan);
+  border-radius: 6px;
+  margin-top: 2px;
+}
+
+.cf-sep {
+  width: 18px;
+  height: 1px;
+  margin: 4px 0;
+  background: var(--cyan-dim);
+}
+
+.cf-spacer { flex: 1; }
+
+.charter-note-sheet {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: var(--rail);
+  border: 1px solid var(--cyan);
+  border-left: 0;
+}
+
+body[data-tray="west"] .charter-note-sheet {
+  border-left: 1px solid var(--cyan);
+  border-right: 0;
+}
+
+.charter-note-sheet[hidden] { display: none !important; }
+
+.charter-note-sheet input {
+  width: 100%;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--cyan-border);
+  background: #0a1822;
+  color: var(--text);
+  padding: 0 8px;
   font-size: 12px;
-  font-weight: 700;
+}
+
+.cf-note-go {
+  appearance: none;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--cyan) 55%, transparent);
+  background: color-mix(in srgb, var(--cyan) 22%, #0a1822);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.cf-note-go.secondary {
+  background: #0a1822;
   color: var(--cyan);
 }
 
-.charter-float-chip {
-  font-size: 11px;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.charter-float-dock {
-  flex: 1 1 auto;
-  padding: 6px 10px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.charter-float-hint {
-  margin: 0;
-  font-size: 11px;
-  line-height: 1.35;
-  color: var(--muted);
-}
-
-.charter-float-page {
-  margin: 0;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.charter-float-row {
+.charter-float-cancel {
+  position: absolute;
+  inset: 8px 8px auto 56px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
-}
-
-.charter-float-geom .cf-btn {
-  min-width: 34px;
-  padding: 0 8px;
-}
-
-.charter-float-row input {
-  flex: 1 1 120px;
-  min-width: 100px;
-  height: 30px;
+  padding: 8px;
+  font-size: 11px;
+  background: rgba(6, 16, 24, 0.96);
+  border: 1px solid var(--cyan);
   border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--cyan) 40%, transparent);
-  background: #0a1822;
-  color: var(--text);
-  padding: 0 8px;
-  font-size: 12px;
+  z-index: 4;
 }
 
-.cf-btn {
-  appearance: none;
-  border: 1px solid color-mix(in srgb, var(--cyan) 55%, transparent);
-  background: color-mix(in srgb, var(--cyan) 22%, #0a1822);
-  color: var(--text);
-  border-radius: 8px;
-  height: 30px;
-  padding: 0 10px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
+body[data-tray="west"] .charter-float-cancel {
+  inset: 8px 56px auto 8px;
 }
 
-.cf-btn.secondary {
-  background: #0a1822;
-  color: var(--cyan);
-}
+.charter-float-cancel[hidden] { display: none !important; }
 
-.cf-btn:hover { filter: brightness(1.08); }
-
-.charter-float-cancel {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  font-size: 12px;
+.charter-tray-chip {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }

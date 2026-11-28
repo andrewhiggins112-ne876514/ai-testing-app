@@ -2973,6 +2973,30 @@ html[data-area-open="true"][data-area-chrome="floating"] .area-surface {
   pointer-events: none;
 }
 
+/* KAN-512: session chip stays clickable while recording (Look 4 / Option G) */
+.manual-session-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--cyan, #50cdff) 40%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, #000 78%, transparent);
+  font-size: 12px;
+  color: var(--text, #e8f7ff);
+}
+.manual-session-chip[hidden] {
+  display: none !important;
+}
+.manual-session-chip b {
+  color: var(--cyan, #50cdff);
+  font-weight: 600;
+}
+#app-section-manual[data-loop-stage="recording"] .manual-session-chip {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .manual-primary textarea {
   width: 100%;
   min-height: 72px;

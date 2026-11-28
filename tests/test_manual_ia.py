@@ -10,14 +10,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ManualIaDesktopUiTests(unittest.TestCase):
-    def test_manual_primary_shell_markers_desk149(self):
+    def test_manual_primary_shell_markers_desk150(self):
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         css = (ROOT / "ui" / "desktop" / "desktop.css").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
 
-        self.assertIn("desk149", html)
-        self.assertIn("desk149", desk)
+        self.assertIn("desk150", html)
+        self.assertIn("desk150", desk)
         self.assertIn('data-manual-ia="1"', html)
         self.assertIn('data-manual-assist-honest="1"', html)
         self.assertIn('data-manual-assist-status="1"', html)

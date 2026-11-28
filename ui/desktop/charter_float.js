@@ -1,16 +1,30 @@
-/* KAN-503 — compact dock; native ring is click-through hollow Win32 frame */
+/* KAN-512 — Look 4 Compact rail + collapsible tray */
 (function () {
   "use strict";
 
+  const PREF_SIDE = "charterTraySide";
+  const PREF_COLLAPSED = "charterTrayCollapsed";
+
   const chip = document.getElementById("cf-chip");
-  const noteInput = document.getElementById("cf-note");
-  const pageEl = document.getElementById("cf-page");
+  const noteInput = document.getElementById("cf-note-input");
+  const noteSheet = document.getElementById("cf-note-sheet");
   const cancelConfirm = document.getElementById("cf-cancel-confirm");
-  const row = document.querySelector(".charter-float-row:not(.charter-float-geom)");
+  const rail = document.getElementById("cf-rail");
+  const trayToggle = document.getElementById("cf-tray-toggle");
+  const trayToggleEdge = document.getElementById("cf-tray-toggle-edge");
+  const pauseBtn = document.getElementById("cf-pause");
+  const assistBtn = document.getElementById("cf-assist");
+  const mistBtn = document.getElementById("cf-mist");
 
   let sessionId = "";
   let lastStillId = "";
   let saveTimer = null;
+  let paused = false;
+  let assistOn = false;
+  let mistOn = false;
+  let noteOpen = false;
+  let traySide = "east";
+  let collapsed = false;
 
   function api() {
     return (window.pywebview && window.pywebview.api) || null;
@@ -20,9 +34,73 @@
     if (chip) chip.textContent = text;
   }
 
+  function loadPrefs() {
+    try {
+      const s = localStorage.getItem(PREF_SIDE);
+      traySide = s === "west" ? "west" : "east";
+      collapsed = localStorage.getItem(PREF_COLLAPSED) === "1";
+    } catch (_err) {
+      traySide = "east";
+      collapsed = false;
+    }
+  }
+
+  function savePrefs() {
+    try {
+      localStorage.setItem(PREF_SIDE, traySide);
+      localStorage.setItem(PREF_COLLAPSED, collapsed ? "1" : "0");
+    } catch (_err) {
+      /* ignore */
+    }
+  }
+
+  function applyChrome() {
+    document.body.setAttribute("data-tray", traySide);
+    document.body.setAttribute("data-collapsed", collapsed ? "1" : "0");
+    if (rail) rail.hidden = !!collapsed;
+    if (trayToggle) {
+      trayToggle.setAttribute("aria-pressed", collapsed ? "false" : "true");
+      trayToggle.title = collapsed ? "Show tray" : "Hide tray";
+    }
+    if (trayToggleEdge) {
+      trayToggleEdge.hidden = !collapsed;
+      trayToggleEdge.setAttribute("aria-pressed", "false");
+    }
+    if (noteSheet) noteSheet.hidden = !noteOpen || collapsed;
+    if (pauseBtn) {
+      pauseBtn.setAttribute("aria-pressed", paused ? "true" : "false");
+      pauseBtn.classList.toggle("is-on", paused);
+      pauseBtn.title = paused ? "Resume" : "Pause";
+    }
+    if (assistBtn) {
+      assistBtn.setAttribute("aria-pressed", assistOn ? "true" : "false");
+      assistBtn.classList.toggle("is-on", assistOn);
+    }
+    if (mistBtn) {
+      mistBtn.setAttribute("aria-pressed", mistOn ? "true" : "false");
+      mistBtn.classList.toggle("is-on", mistOn);
+    }
+  }
+
+  async function pushTrayLayout() {
+    const bridge = api();
+    if (!bridge || !bridge.charter_float_set_tray) return;
+    try {
+      const res = await bridge.charter_float_set_tray({
+        side: traySide,
+        collapsed: collapsed,
+        note_open: noteOpen && !collapsed,
+      });
+      if (res && res.side) traySide = res.side === "west" ? "west" : "east";
+      applyChrome();
+      scheduleFrameSave();
+    } catch (_err) {
+      /* ignore */
+    }
+  }
+
   function showCancel(on) {
     if (cancelConfirm) cancelConfirm.hidden = !on;
-    if (row) row.hidden = !!on;
   }
 
   async function notifyMain(event) {
@@ -39,18 +117,21 @@
   function applySession(payload) {
     if (!payload) return;
     sessionId = payload.id || sessionId;
+    assistOn = !!payload.agent_assist;
+    mistOn = !!payload.armed_mist;
     const notes = payload.notes != null ? payload.notes : 0;
     const stills = payload.stills != null ? payload.stills : 0;
     setChip(
-      "Recording · " +
+      (paused ? "Paused · " : "Recording · ") +
         ((payload.charter || sessionId || "session").slice(0, 36)) +
         " · " +
         notes +
-        " notes · " +
+        "n · " +
         stills +
-        " stills"
+        "s"
     );
     showCancel(false);
+    applyChrome();
     scheduleFrameSave();
   }
 
@@ -66,6 +147,8 @@
           charter: data.session.charter,
           notes: (data.session.notes || []).length,
           stills: (data.session.stills || []).length,
+          agent_assist: data.session.agent_assist,
+          armed_mist: data.session.armed_mist,
         });
         return true;
       }
@@ -123,33 +206,38 @@
     }, 300);
   }
 
-  async function nudge(dx, dy) {
-    const bridge = api();
-    if (!bridge || !bridge.charter_float_nudge) return;
-    try {
-      await bridge.charter_float_nudge(dx, dy);
-      scheduleFrameSave();
-    } catch (_err) {
-      setChip("Move failed");
-    }
+  async function setCollapsed(next) {
+    collapsed = !!next;
+    if (collapsed) noteOpen = false;
+    savePrefs();
+    applyChrome();
+    await pushTrayLayout();
   }
 
-  async function resizeCapture(dw, dh) {
-    const bridge = api();
-    if (!bridge || !bridge.charter_float_resize_capture) return;
-    try {
-      await bridge.charter_float_resize_capture(dw, dh);
-      scheduleFrameSave();
-    } catch (_err) {
-      setChip("Resize failed");
+  async function toggleNoteSheet() {
+    if (collapsed) return;
+    noteOpen = !noteOpen;
+    applyChrome();
+    await pushTrayLayout();
+    if (noteOpen && noteInput) {
+      try {
+        noteInput.focus();
+      } catch (_err) {
+        /* ignore */
+      }
     }
   }
 
   async function addNote() {
+    if (paused) {
+      setChip("Paused — resume to add notes");
+      return;
+    }
     if (!(await ensureSession())) return;
     const text = noteInput ? noteInput.value.trim() : "";
     if (!text) {
       setChip("Type a note first");
+      if (!noteOpen) await toggleNoteSheet();
       return;
     }
     try {
@@ -169,7 +257,12 @@
           charter: data.session.charter,
           notes: (data.session.notes || []).length,
           stills: (data.session.stills || []).length,
+          agent_assist: data.session.agent_assist,
+          armed_mist: data.session.armed_mist,
         });
+        noteOpen = false;
+        applyChrome();
+        await pushTrayLayout();
         await notifyMain("note");
       } else {
         setChip(data.message || "Note failed");
@@ -180,6 +273,10 @@
   }
 
   async function addStill() {
+    if (paused) {
+      setChip("Paused — resume to capture stills");
+      return;
+    }
     if (!(await ensureSession())) return;
     const bridge = api();
     let bbox = null;
@@ -208,6 +305,8 @@
           charter: data.session.charter,
           notes: (data.session.notes || []).length,
           stills: (data.session.stills || []).length,
+          agent_assist: data.session.agent_assist,
+          armed_mist: data.session.armed_mist,
         });
         await notifyMain("still");
       } else {
@@ -226,45 +325,45 @@
     }
   }
 
-  async function annotateStill() {
+  async function togglePause() {
+    paused = !paused;
+    applyChrome();
+    setChip(paused ? "Paused" : "Recording");
+  }
+
+  async function toggleAssist() {
     if (!(await ensureSession())) return;
-    const text = noteInput ? noteInput.value.trim() : "";
-    if (!text) {
-      setChip("Type annotation text, then Annotate");
-      return;
-    }
-    if (!lastStillId) {
-      setChip("Capture a Still first, then Annotate");
-      return;
-    }
+    assistOn = !assistOn;
+    applyChrome();
     try {
-      const res = await fetch(
-        "/api/manual-sessions/" +
-          encodeURIComponent(sessionId) +
-          "/stills/" +
-          encodeURIComponent(lastStillId) +
-          "/annotate",
+      await fetch(
+        "/api/manual-sessions/" + encodeURIComponent(sessionId) + "/toggles",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ annotation: text }),
+          body: JSON.stringify({ agent_assist: assistOn }),
         }
       );
-      const data = await res.json();
-      if (data.status === "ok" && data.session) {
-        if (noteInput) noteInput.value = "";
-        applySession({
-          id: data.session.id,
-          charter: data.session.charter,
-          notes: (data.session.notes || []).length,
-          stills: (data.session.stills || []).length,
-        });
-        setChip((chip && chip.textContent ? chip.textContent : "") + " · annotated");
-      } else {
-        setChip((data && data.message) || "Annotate failed");
-      }
     } catch (_err) {
-      setChip("Annotate failed");
+      setChip("Assist toggle failed");
+    }
+  }
+
+  async function toggleMist() {
+    if (!(await ensureSession())) return;
+    mistOn = !mistOn;
+    applyChrome();
+    try {
+      await fetch(
+        "/api/manual-sessions/" + encodeURIComponent(sessionId) + "/toggles",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ armed_mist: mistOn }),
+        }
+      );
+    } catch (_err) {
+      setChip("Mist toggle failed");
     }
   }
 
@@ -299,9 +398,14 @@
     await notifyMain("cancelled");
   }
 
-  document.getElementById("cf-note-add").addEventListener("click", addNote);
   document.getElementById("cf-still").addEventListener("click", addStill);
-  document.getElementById("cf-annotate").addEventListener("click", annotateStill);
+  document.getElementById("cf-note").addEventListener("click", function () {
+    toggleNoteSheet();
+  });
+  document.getElementById("cf-note-add").addEventListener("click", addNote);
+  document.getElementById("cf-pause").addEventListener("click", togglePause);
+  document.getElementById("cf-assist").addEventListener("click", toggleAssist);
+  document.getElementById("cf-mist").addEventListener("click", toggleMist);
   document.getElementById("cf-end").addEventListener("click", endSession);
   document.getElementById("cf-cancel").addEventListener("click", function () {
     showCancel(true);
@@ -310,37 +414,29 @@
   document.getElementById("cf-cancel-no").addEventListener("click", function () {
     showCancel(false);
   });
-  document.getElementById("cf-nudge-left").addEventListener("click", function () {
-    nudge(-40, 0);
-  });
-  document.getElementById("cf-nudge-right").addEventListener("click", function () {
-    nudge(40, 0);
-  });
-  document.getElementById("cf-nudge-up").addEventListener("click", function () {
-    nudge(0, -40);
-  });
-  document.getElementById("cf-nudge-down").addEventListener("click", function () {
-    nudge(0, 40);
-  });
-  document.getElementById("cf-smaller").addEventListener("click", function () {
-    resizeCapture(-60, -40);
-  });
-  document.getElementById("cf-larger").addEventListener("click", function () {
-    resizeCapture(60, 40);
-  });
+  function onTrayToggle() {
+    setCollapsed(!collapsed);
+  }
+  if (trayToggle) trayToggle.addEventListener("click", onTrayToggle);
+  if (trayToggleEdge) trayToggleEdge.addEventListener("click", onTrayToggle);
+
   if (noteInput) {
     noteInput.addEventListener("keydown", function (ev) {
       if (ev.key === "Enter") {
         ev.preventDefault();
         addNote();
+      } else if (ev.key === "Escape") {
+        noteOpen = false;
+        applyChrome();
+        pushTrayLayout();
       }
     });
   }
 
-  /* Explicit header drag — pywebview easy_drag is off so buttons stay clickable. */
-  (function bindHeaderDrag() {
-    const header = document.querySelector(".charter-float-header");
-    if (!header) return;
+  /* Drag whole shell via tray rail (moves ring + tray). */
+  (function bindRailDrag() {
+    const handle = rail;
+    if (!handle) return;
     let dragging = false;
     let lastX = 0;
     let lastY = 0;
@@ -357,19 +453,22 @@
       }
     }
 
-    header.addEventListener("pointerdown", function (ev) {
+    handle.addEventListener("pointerdown", function (ev) {
       if (ev.button != null && ev.button !== 0) return;
+      if (ev.target && ev.target.closest && ev.target.closest("button, input")) {
+        return;
+      }
       dragging = true;
       lastX = ev.screenX;
       lastY = ev.screenY;
       try {
-        header.setPointerCapture(ev.pointerId);
+        handle.setPointerCapture(ev.pointerId);
       } catch (_err) {
         /* ignore */
       }
       ev.preventDefault();
     });
-    header.addEventListener("pointermove", function (ev) {
+    handle.addEventListener("pointermove", function (ev) {
       if (!dragging) return;
       const dx = ev.screenX - lastX;
       const dy = ev.screenY - lastY;
@@ -392,23 +491,21 @@
       if (!dragging) return;
       dragging = false;
       try {
-        header.releasePointerCapture(ev.pointerId);
+        handle.releasePointerCapture(ev.pointerId);
       } catch (_err) {
         /* ignore */
       }
     }
-    header.addEventListener("pointerup", endDrag);
-    header.addEventListener("pointercancel", endDrag);
+    handle.addEventListener("pointerup", endDrag);
+    handle.addEventListener("pointercancel", endDrag);
   })();
 
+  loadPrefs();
+  applyChrome();
+  pushTrayLayout();
   setInterval(scheduleFrameSave, 2500);
   loadOpenSession();
   setInterval(function () {
     if (!sessionId) loadOpenSession();
   }, 800);
-
-  if (pageEl) {
-    pageEl.hidden = false;
-    pageEl.textContent = "AUT page: none known (notes/stills still work)";
-  }
 })();

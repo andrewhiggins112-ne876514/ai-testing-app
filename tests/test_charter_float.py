@@ -1,4 +1,4 @@
-"""KAN-386 / KAN-502 / KAN-503 — Manual Charter float dock + native hollow ring."""
+"""KAN-386 / KAN-502 / KAN-503 / KAN-512 — Charter float: Look 4 G+tray."""
 from __future__ import annotations
 
 import tempfile
@@ -42,7 +42,7 @@ class CharterFloatGeometryTests(unittest.TestCase):
         payload = cf.is_float_available_payload(True)
         self.assertTrue(payload["click_through_hole"])
 
-    def test_dock_geom_under_bbox(self) -> None:
+    def test_tray_geom_east_of_bbox(self) -> None:
         monitors = [
             {
                 "id": "mon1",
@@ -55,19 +55,41 @@ class CharterFloatGeometryTests(unittest.TestCase):
             [100, 80, 800, 500],
             virtual={"left": 0, "top": 0, "width": 1920, "height": 1080},
             monitors=monitors,
+            side="east",
+            collapsed=False,
         )
-        self.assertGreaterEqual(dock["y"], 500)
-        self.assertLessEqual(dock["y"] + dock["height"], 1080)
-        self.assertGreaterEqual(dock["width"], 420)
-        self.assertLessEqual(dock["height"], 160)
-        # Near bottom of screen → dock flips above ring instead of going off-screen.
-        low = ring.dock_geom_for_bbox(
-            [100, 900, 800, 1050],
+        self.assertEqual(dock["side"], "east")
+        self.assertEqual(dock["width"], ring.TRAY_W)
+        self.assertGreaterEqual(dock["x"], 800)
+        self.assertLessEqual(dock["x"] + dock["width"], 1920)
+        # Near right edge → flip west.
+        edge = ring.dock_geom_for_bbox(
+            [1700, 80, 1900, 500],
             virtual={"left": 0, "top": 0, "width": 1920, "height": 1080},
             monitors=monitors,
+            side="east",
+            collapsed=False,
         )
-        self.assertLess(low["y"] + low["height"], 1080)
-        self.assertLessEqual(low["y"], 900)
+        self.assertEqual(edge["side"], "west")
+        self.assertLessEqual(edge["x"] + edge["width"], 1700)
+
+    def test_tray_collapsed_is_small_toggle(self) -> None:
+        dock = ring.dock_geom_for_bbox(
+            [200, 120, 700, 520],
+            virtual={"left": 0, "top": 0, "width": 1920, "height": 1080},
+            monitors=[
+                {
+                    "id": "mon1",
+                    "bbox": [0, 0, 1920, 1080],
+                    "is_primary": True,
+                }
+            ],
+            side="east",
+            collapsed=True,
+        )
+        self.assertTrue(dock["collapsed"])
+        self.assertEqual(dock["width"], ring.TRAY_COLLAPSED)
+        self.assertEqual(dock["height"], ring.TRAY_COLLAPSED)
 
 
 class CharterRingNativeTests(unittest.TestCase):
@@ -144,29 +166,33 @@ class CharterFloatSessionTests(unittest.TestCase):
 
 
 class CharterFloatUiMarkersTests(unittest.TestCase):
-    def test_desktop_float_markers_desk149(self) -> None:
+    def test_desktop_float_markers_desk150(self) -> None:
         html = (ROOT / "ui" / "desktop" / "index.html").read_text(encoding="utf-8")
         float_html = (ROOT / "ui" / "desktop" / "charter_float.html").read_text(
             encoding="utf-8"
         )
         desk = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
         js = (ROOT / "ui" / "desktop" / "desktop.js").read_text(encoding="utf-8")
-        self.assertIn("desk149", html)
-        self.assertIn("desk149", desk)
-        self.assertIn("desk149", float_html)
+        self.assertIn("desk150", html)
+        self.assertIn("desk150", desk)
+        self.assertIn("desk150", float_html)
         self.assertIn('data-snip-dock="1"', float_html)
+        self.assertIn('data-charter-g-tray="1"', float_html)
+        self.assertIn('data-look="4"', float_html)
         self.assertIn("charter_ring_native", desk)
-        self.assertIn("dock_plus_native_ring", desk)
+        self.assertIn("g_tray_look4", desk)
+        self.assertIn("charter_float_set_tray", desk)
         # Must never punch WebView2 with SetWindowRgn (crash / opaque fill).
         self.assertNotIn("apply_hollow_window_region", desk)
-        self.assertIn("charter_float_nudge", desk)
+        self.assertIn("charter_float_drag_by", desk)
         float_js = (ROOT / "ui" / "desktop" / "charter_float.js").read_text(
             encoding="utf-8"
         )
-        self.assertIn("charter_float_nudge", float_js)
-        self.assertIn("charter_float_resize_capture", float_js)
         self.assertIn("charter_float_drag_by", float_js)
-        self.assertIn("charter_float_drag_by", desk)
+        self.assertIn("charter_float_set_tray", float_js)
+        self.assertIn("data-charter-pause", float_html)
+        self.assertIn("data-charter-tray-toggle", float_html)
+        self.assertIn("data-manual-session-chip", html)
         # Manual UX: Start must not closeArea; library reopen must not toggle-close.
         self.assertIn("function ensureAreaOpen", js)
         self.assertIn('ensureAreaOpen("manual")', js)
@@ -175,23 +201,20 @@ class CharterFloatUiMarkersTests(unittest.TestCase):
         )[0]
         self.assertNotIn("closeArea()", start_fn)
         self.assertIn("session_already_open", start_fn)
-        # KAN-507/508/509: Manual-only arm path; never hide in-app on float ok;
-        # open session offers Resume (no auto showCharterFrame); dock follows rect.
         self.assertIn('openAreaName === "manual"', js)
         self.assertIn("function setManualResumeUi", js)
+        self.assertIn("function showManualSessionChip", js)
         self.assertIn("Resume Charter", js)
         self.assertIn("setManualResumeUi(openData.session)", js)
         self.assertNotIn("await showCharterFrame(openData.session)", js)
+        # KAN-512: desktop shell hides in-app rect when float bridge exists.
         show_fn = js.split("async function showCharterFrame(session)", 1)[1].split(
             "async function hideCharterFrame()", 1
         )[0]
-        self.assertNotIn("charterFrameRoot.hidden = true", show_fn)
-        self.assertIn("NEVER hide in-app chrome", show_fn)
-        apply_fn = js.split("function applyCharterFrameRect()", 1)[1].split(
-          "function setManualResumeUi", 1
-        )[0]
-        self.assertIn("charterFrameDock.style.top", apply_fn)
-        self.assertIn("charter_float_nudge", js)
+        self.assertIn("Look 4", show_fn)
+        self.assertIn("no silent in-app", show_fn)
+        self.assertIn("showManualSessionChip", show_fn)
+        self.assertIn("charterFrameRoot.hidden = true", show_fn)
 
     def test_api_start_charter_only(self) -> None:
         from main import app

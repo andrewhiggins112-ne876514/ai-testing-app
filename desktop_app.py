@@ -3,8 +3,8 @@
 Run:
     .\\venv\\Scripts\\python.exe desktop_app.py
 
-KAN-386 / KAN-503: Manual snip = compact dock WebView + separate native Win32
-hollow ring (never SetWindowRgn on WebView2 — that stayed opaque and crashed).
+KAN-386 / KAN-503 / KAN-512: Manual snip = Look 4 side tray WebView + native
+Win32 hollow ring (never SetWindowRgn on WebView2 — opaque/crash).
 """
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ from plans.charter_snap import list_snap_targets, virtual_desktop_from_monitors
 
 HOST = "127.0.0.1"
 PORT = 8765
-DESK_V = "desk149"
+DESK_V = "desk150"
 URL = f"http://{HOST}:{PORT}/ui/desktop/index.html?v={DESK_V}"
 FLOAT_URL = f"http://{HOST}:{PORT}/ui/desktop/charter_float.html?v={DESK_V}"
 HEALTH = f"http://{HOST}:{PORT}/health"
@@ -40,6 +40,9 @@ _float_visible = False
 _float_session_id = ""
 _dock_events_hooked = False
 _suppress_dock_moved = False
+_tray_side = "east"
+_tray_collapsed = False
+_tray_note_open = False
 
 
 def _serve() -> None:
@@ -106,22 +109,7 @@ def _force_dock_native_visible(win: Any, geom: dict[str, int]) -> None:
     )
 
 
-def _sync_ring_above_dock() -> dict[str, Any]:
-    """Keep capture ring glued above the dock after the user drags the dock."""
-    win = _float_window
-    if win is None or not _float_visible:
-        return {"status": "error", "error": "float_unavailable"}
-    try:
-        x = int(win.x)
-        y = int(win.y)
-        w = int(win.width)
-    except Exception as exc:  # noqa: BLE001
-        return {"status": "error", "error": "dock_geom_failed", "message": str(exc)[:120]}
-    bbox = ring.get_capture_bbox()
-    bw = max(ring.MIN_CAPTURE_W, int(bbox[2]) - int(bbox[0]))
-    bh = max(ring.MIN_CAPTURE_H, int(bbox[3]) - int(bbox[1]))
-    left = x + max(0, (w - bw) // 2)
-    top = y - 12 - bh
+def _work_area() -> dict[str, int]:
     virtual, monitors = _snap_context()
     work = virtual or {"left": 0, "top": 0, "width": 1920, "height": 1080}
     if monitors:
@@ -134,10 +122,39 @@ def _sync_ring_above_dock() -> dict[str, Any]:
                 "width": int(pb[2]) - int(pb[0]),
                 "height": int(pb[3]) - int(pb[1]),
             }
-    ox = int(work["left"])
-    oy = int(work["top"])
-    aw = int(work["width"])
-    ah = int(work["height"])
+    return {
+        "left": int(work["left"]),
+        "top": int(work["top"]),
+        "width": int(work["width"]),
+        "height": int(work["height"]),
+    }
+
+
+def _sync_ring_with_tray() -> dict[str, Any]:
+    """Keep capture ring glued beside the Look 4 tray after the user drags it."""
+    win = _float_window
+    if win is None or not _float_visible:
+        return {"status": "error", "error": "float_unavailable"}
+    try:
+        x = int(win.x)
+        y = int(win.y)
+        w = int(win.width)
+    except Exception as exc:  # noqa: BLE001
+        return {"status": "error", "error": "dock_geom_failed", "message": str(exc)[:120]}
+    bbox = ring.get_capture_bbox()
+    bw = max(ring.MIN_CAPTURE_W, int(bbox[2]) - int(bbox[0]))
+    bh = max(ring.MIN_CAPTURE_H, int(bbox[3]) - int(bbox[1]))
+    side = ring.normalize_tray_side(_tray_side)
+    if side == "east":
+        # Tray sits on the right of the hole → hole ends at tray left edge.
+        right = x
+        left = right - bw
+    else:
+        left = x + w
+        right = left + bw
+    top = y if not _tray_collapsed else max(0, y - 8)
+    work = _work_area()
+    ox, oy, aw, ah = work["left"], work["top"], work["width"], work["height"]
     left = max(ox, min(left, ox + aw - bw))
     top = max(oy, min(top, oy + ah - bh))
     return ring.set_capture_bbox([left, top, left + bw, top + bh], show=True)
@@ -148,7 +165,7 @@ def _on_dock_moved() -> None:
     if _suppress_dock_moved or not _float_visible:
         return
     try:
-        _sync_ring_above_dock()
+        _sync_ring_with_tray()
     except Exception:  # noqa: BLE001
         pass
 
@@ -165,12 +182,20 @@ def _hook_dock_events() -> None:
 
 
 def _place_dock(bbox: list[int]) -> dict[str, Any]:
-    global _suppress_dock_moved
+    global _suppress_dock_moved, _tray_side
     win = _float_window
     if win is None:
         return {"status": "error", "error": "float_unavailable"}
     virtual, monitors = _snap_context()
-    geom = ring.dock_geom_for_bbox(bbox, virtual=virtual, monitors=monitors)
+    geom = ring.dock_geom_for_bbox(
+        bbox,
+        virtual=virtual,
+        monitors=monitors,
+        side=_tray_side,
+        collapsed=_tray_collapsed,
+        note_open=_tray_note_open,
+    )
+    _tray_side = ring.normalize_tray_side(geom.get("side") or _tray_side)
     try:
         try:
             win.restore()
@@ -178,7 +203,6 @@ def _place_dock(bbox: list[int]) -> dict[str, Any]:
             pass
         _suppress_dock_moved = True
         try:
-            # Fixed chrome size — capture size uses ± / ring, not WinForms border drag.
             win.resize(int(geom["width"]), int(geom["height"]))
             win.move(int(geom["x"]), int(geom["y"]))
             win.on_top = True
@@ -187,7 +211,7 @@ def _place_dock(bbox: list[int]) -> dict[str, Any]:
         finally:
             _suppress_dock_moved = False
         _hook_dock_events()
-        return {"status": "ok", "geometry": geom}
+        return {"status": "ok", "geometry": geom, "side": _tray_side}
     except Exception as exc:  # noqa: BLE001
         _suppress_dock_moved = False
         return {"status": "error", "error": "dock_place_failed", "message": str(exc)[:120]}
@@ -198,12 +222,35 @@ class DesktopApi:
 
     def charter_float_available(self) -> dict[str, Any]:
         payload = is_float_available_payload(_float_window is not None)
-        payload["mode"] = "dock_plus_native_ring"
+        payload["mode"] = "g_tray_look4"
         payload["click_through_hole"] = True
+        payload["tray_side"] = _tray_side
+        payload["tray_collapsed"] = _tray_collapsed
         return payload
 
+    def charter_float_set_tray(self, prefs: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+        """Update Look 4 tray side / collapsed / note sheet and re-place chrome."""
+        global _tray_side, _tray_collapsed, _tray_note_open
+        data = prefs if isinstance(prefs, dict) else {}
+        if "side" in data:
+            _tray_side = ring.normalize_tray_side(data.get("side"))
+        if "collapsed" in data:
+            _tray_collapsed = bool(data.get("collapsed"))
+        if "note_open" in data:
+            _tray_note_open = bool(data.get("note_open")) and not _tray_collapsed
+        bbox = ring.get_capture_bbox()
+        dock = _place_dock(bbox) if _float_visible else {"status": "ok"}
+        return {
+            "status": "ok",
+            "side": _tray_side,
+            "collapsed": _tray_collapsed,
+            "note_open": _tray_note_open,
+            "dock": dock,
+            "screen_bbox": bbox,
+        }
+
     def charter_float_open(self, session: Optional[dict[str, Any]] = None) -> dict[str, Any]:
-        """Show native hollow ring + compact dock. No WebView region punching."""
+        """Show native hollow ring + Look 4 side tray. No WebView region punching."""
         global _float_visible, _float_session_id
         if _float_window is None:
             return {"status": "error", "error": "float_unavailable", "available": False}
@@ -215,11 +262,15 @@ class DesktopApi:
             ring_out = ring.set_capture_bbox(bbox, show=True)
             dock_out = _place_dock(bbox)
             if not dock_out or dock_out.get("status") != "ok":
+                try:
+                    ring.hide_ring()
+                except Exception:  # noqa: BLE001
+                    pass
                 return {
                     "status": "error",
                     "error": "dock_place_failed",
                     "available": True,
-                    "mode": "dock_plus_native_ring",
+                    "mode": "g_tray_look4",
                     "session_id": _float_session_id,
                     "screen_bbox": bbox,
                     "ring": ring_out,
@@ -229,11 +280,13 @@ class DesktopApi:
             return {
                 "status": "ok",
                 "available": True,
-                "mode": "dock_plus_native_ring",
+                "mode": "g_tray_look4",
                 "session_id": _float_session_id,
                 "screen_bbox": bbox,
                 "ring": ring_out,
                 "dock": dock_out,
+                "side": _tray_side,
+                "collapsed": _tray_collapsed,
             }
         except Exception as exc:  # noqa: BLE001
             return {
@@ -270,7 +323,14 @@ class DesktopApi:
             "status": "ok",
             "screen_bbox": bbox,
             "frame": frame,
-            "geometry": ring.dock_geom_for_bbox(bbox),
+            "geometry": ring.dock_geom_for_bbox(
+                bbox,
+                side=_tray_side,
+                collapsed=_tray_collapsed,
+                note_open=_tray_note_open,
+            ),
+            "side": _tray_side,
+            "collapsed": _tray_collapsed,
         }
 
     def charter_float_nudge(self, dx: int = 0, dy: int = 0) -> dict[str, Any]:
@@ -312,7 +372,7 @@ class DesktopApi:
                 _force_dock_native_visible(win, geom)
             finally:
                 _suppress_dock_moved = False
-            ring_out = _sync_ring_above_dock()
+            ring_out = _sync_ring_with_tray()
             return {
                 "status": "ok",
                 "geometry": geom,
@@ -334,7 +394,12 @@ class DesktopApi:
         win = _float_window
         if win is None:
             return {"status": "error", "error": "float_unavailable"}
-        geom = ring.dock_geom_for_bbox(ring.get_capture_bbox())
+        geom = ring.dock_geom_for_bbox(
+            ring.get_capture_bbox(),
+            side=_tray_side,
+            collapsed=_tray_collapsed,
+            note_open=_tray_note_open,
+        )
         try:
             win.resize(int(geom["width"]), int(geom["height"]))
             return {"status": "ok", "geometry": geom, "locked": True}
@@ -430,7 +495,7 @@ def main() -> int:
     )
     virtual, monitors = _snap_context()
     bbox = ring.default_capture_bbox(virtual=virtual, monitors=monitors)
-    dock = ring.dock_geom_for_bbox(bbox)
+    dock = ring.dock_geom_for_bbox(bbox, side=_tray_side, collapsed=_tray_collapsed)
     _float_window = webview.create_window(
         title=float_window_title(),
         url=FLOAT_URL,
@@ -438,7 +503,7 @@ def main() -> int:
         height=int(dock["height"]),
         x=int(dock["x"]),
         y=int(dock["y"]),
-        min_size=(420, 100),
+        min_size=(36, 36),
         frameless=True,
         easy_drag=False,
         on_top=True,

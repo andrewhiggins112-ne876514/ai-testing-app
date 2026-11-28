@@ -224,16 +224,33 @@ def default_capture_bbox(
     return [120, 120, 120 + DEFAULT_CAPTURE_W, 120 + DEFAULT_CAPTURE_H]
 
 
+# Look 4 Compact rail (KAN-512) — side tray glued to capture hole.
+TRAY_W = 48
+TRAY_COLLAPSED = 36
+TRAY_NOTE_EXTRA = 220
+TRAY_GAP = 0  # glued to hole edge
+
+
+def normalize_tray_side(side: Any) -> str:
+    s = str(side or "east").strip().lower()
+    return "west" if s == "west" else "east"
+
+
 def dock_geom_for_bbox(
     bbox: list[int],
     *,
     virtual: dict[str, int] | None = None,
     monitors: list[dict[str, Any]] | None = None,
-) -> dict[str, int]:
-    """Compact dock under (or above) the capture ring — always on primary work area.
+    side: str = "east",
+    collapsed: bool = False,
+    note_open: bool = False,
+) -> dict[str, Any]:
+    """Look 4 side tray geom (east/west of capture hole) on primary work area.
 
-    Do not use full-float MIN_WINDOW_H clamp (that inflated the dock to 320px and
-    with a fake work rect could leave the window taskbar-only / hard to restore).
+    Expanded: ~48px icon rail matching hole height.
+    Collapsed: small tray-layout toggle on the hole edge.
+    Optional note sheet grows outward (does not shrink the hole).
+    Auto-flips side when the preferred edge would leave the work area.
     """
     from plans.charter_float import _primary_work
 
@@ -242,24 +259,48 @@ def dock_geom_for_bbox(
         left, top, right, bottom = (int(v) for v in bbox)
     except (TypeError, ValueError):
         left, top, right, bottom = 120, 120, 840, 540
-    width = max(420, min(720, (right - left) + 2 * SIDE))
-    height = 132
-    x = left - SIDE
-    y = bottom + 12
     ox = int(work["left"])
     oy = int(work["top"])
-    aw = max(width + 16, int(work["width"]))
-    ah = max(height + 16, int(work["height"]))
-    # Prefer under ring; if that would clip past the work bottom, sit above ring.
-    if y + height > oy + ah - 8:
-        y = top - height - 12
-    if y < oy + 8:
-        y = oy + ah - height - 48
-    width = max(420, min(width, aw - 16))
-    height = max(100, min(height, ah - 16))
+    aw = max(80, int(work["width"]))
+    ah = max(80, int(work["height"]))
+    hole_h = max(MIN_CAPTURE_H, bottom - top)
+
+    prefer = normalize_tray_side(side)
+    if collapsed:
+        width = TRAY_COLLAPSED
+        height = TRAY_COLLAPSED
+        y = top + 8
+    else:
+        width = TRAY_W + (TRAY_NOTE_EXTRA if note_open else 0)
+        height = max(TRAY_W * 6, min(hole_h, max(280, ah - 48)))
+        y = top
+
+    def _x_for(which: str) -> int:
+        if which == "east":
+            return right + TRAY_GAP
+        return left - width - TRAY_GAP
+
+    chosen = prefer
+    x = _x_for(chosen)
+    # Flip if preferred side clips past the work area.
+    if chosen == "east" and x + width > ox + aw - 4:
+        chosen = "west"
+        x = _x_for(chosen)
+    elif chosen == "west" and x < ox + 4:
+        chosen = "east"
+        x = _x_for(chosen)
+
     x = max(ox, min(x, ox + aw - width))
     y = max(oy, min(y, oy + ah - height))
-    return {"x": x, "y": y, "width": width, "height": height}
+    return {
+        "x": x,
+        "y": y,
+        "width": width,
+        "height": height,
+        "side": chosen,
+        "collapsed": bool(collapsed),
+        "note_open": bool(note_open),
+    }
 
 
 def nudge_bbox(bbox: list[int], dx: int, dy: int) -> list[int]:

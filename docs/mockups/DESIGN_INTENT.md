@@ -90,7 +90,7 @@ Active Build: **KAN-496** Option A (Studio pick locked). OPERATE-4 **KAN-381** D
 | KAN-81/82 voice; FR-MAN-2 | **Parked** | Mic / DPIA |
 | Run-evidence **deep view** (05–07) | **Story KAN-498** / test **KAN-499** | Council accepted 2026-11-27. Doors: **More evidence** + **thumb expand**. Not KAN-496 AC. No new App nav; no Trace embed; Cases list stays. Build after 496 unless elevated. |
 | Charter outside-window options A–H | Historical | Superseded by G+tray Accepted |
-| Charter **G + side tray** | **Accepted 2026-11-28** | Look **4 Compact rail** + collapsible tray (tray icon toggle). Build next (do not steal Active now). |
+| Charter **G + side tray** | **Shipped 2026-11-28** (**KAN-512**, desk150) | Look **4 Compact rail** + collapsible tray (tray icon toggle). |
 
 ## Mockup index
 
@@ -120,7 +120,7 @@ Active Build: **KAN-496** Option A (Studio pick locked). OPERATE-4 **KAN-381** D
 | Tray side | **Remember last side** (default east; flip west at screen edge / user preference) |
 | Assist / Mist | **On the tray** (icon toggles, default off) |
 | Pause | **Own icon** on the tray (not status-slot reuse) |
-| Active Build | **Do not reprioritise** — finish current Active; Charter G+tray codes **next** while still in Manual/float area |
+| Active Build | **KAN-512 shipped** — residuals **KAN-510**/511 next |
 | Bugs KAN-510 / 511 | After redesign Build (expect new bugs from the redesign too) |
 
 **Frozen:** theme tokens, orb, home/chat, App nav. **OOS:** FR-MAN-2, voice, keylog/clipboard/mic, continuous video, Gradio OS float.

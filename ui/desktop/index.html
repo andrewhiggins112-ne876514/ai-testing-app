@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AI Testing Agent</title>
-  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk149" />
+  <link rel="stylesheet" href="/ui/desktop/desktop.css?v=desk150" />
 </head>
 <body>
   <div id="run-finish-toast" class="run-finish-toast" hidden role="status" aria-live="polite"></div>
@@ -1595,7 +1595,12 @@
                   <button type="button" id="manual-resume-charter" class="save-btn secondary" data-manual-resume="1" hidden>Resume Charter</button>
                   <button type="button" id="manual-end-open" class="save-btn secondary" data-manual-end-open="1" hidden>End open session</button>
                 </div>
-                <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start opens OS Charter Frame float (desktop) — snip without Jira/AI. Assist and mist default off. Drag the OS dock header to move capture outside this window.</p>
+                <div id="manual-session-chip" class="manual-session-chip" hidden data-manual-session-chip="1" role="status">
+                  <b>Session</b>
+                  <span id="manual-session-chip-label">armed</span>
+                  <button type="button" id="manual-session-chip-restore" class="save-btn secondary" data-manual-session-restore="1">Restore</button>
+                </div>
+                <p id="manual-start-hint" class="drawer-hint" data-manual-shell="1">Start opens hollow OS Charter shell + compact icon tray (Look 4). Manual steps back to a session chip — no second capture rectangle. Drag the tray rail to move outside this window.</p>
                 <details class="manual-start-links" data-manual-idle-links="1">
                   <summary>Optional links (plan / case / Jira)</summary>
                   <label class="stack-label" for="manual-plan-id">Linked plan id
@@ -1914,6 +1919,6 @@
 
   <script src="/ui/vendor/three.min.js"></script>
   <script src="/ui/orb_webgl.js?v=apex4b"></script>
-  <script src="/ui/desktop/desktop.js?v=desk149"></script>
+  <script src="/ui/desktop/desktop.js?v=desk150"></script>
 </body>
 </html>

@@ -1,43 +1,60 @@
 <!DOCTYPE html>
-<html lang="en" data-charter-float-page="1" data-charter-float-dock="1">
+<html lang="en" data-charter-float-page="1" data-charter-g-tray="1" data-look="4">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Charter Frame</title>
-  <link rel="stylesheet" href="/ui/desktop/charter_float.css?v=desk149" />
+  <link rel="stylesheet" href="/ui/desktop/charter_float.css?v=desk150" />
 </head>
-<body class="charter-float-body charter-float-dock-only" data-charter-float="1" data-os-float="1" data-snip-dock="1">
-  <header class="charter-float-header pywebview-drag-region" data-charter-float-drag="1">
-    <span class="charter-float-title">Charter Frame</span>
-    <span id="cf-chip" class="charter-float-chip" role="status">Session open</span>
-  </header>
-  <footer class="charter-float-dock" data-charter-float-dock="1" data-manual-loop-dock="1">
-    <p class="charter-float-hint" data-charter-float-hint="1">
-      Drag this header to move ring+dock. ←↑↓→ nudge · ± resize capture (not the dock). Click through the cyan ring. No keylog / clipboard / mic.
-    </p>
-    <p id="cf-page" class="charter-float-page" data-charter-page-context="1" hidden>No AUT page context</p>
-    <div class="charter-float-row charter-float-geom">
-      <button type="button" id="cf-nudge-left" class="cf-btn secondary" title="Move ring left">←</button>
-      <button type="button" id="cf-nudge-up" class="cf-btn secondary" title="Move ring up">↑</button>
-      <button type="button" id="cf-nudge-down" class="cf-btn secondary" title="Move ring down">↓</button>
-      <button type="button" id="cf-nudge-right" class="cf-btn secondary" title="Move ring right">→</button>
-      <button type="button" id="cf-smaller" class="cf-btn secondary" title="Shrink capture">−</button>
-      <button type="button" id="cf-larger" class="cf-btn secondary" title="Grow capture">+</button>
-    </div>
-    <div class="charter-float-row">
-      <input id="cf-note" type="text" maxlength="500" placeholder="Note…" autocomplete="off" data-charter-note-input="1" />
-      <button type="button" id="cf-note-add" class="cf-btn secondary" data-charter-note="1">Note</button>
-      <button type="button" id="cf-still" class="cf-btn secondary" data-charter-still="1">Still</button>
-      <button type="button" id="cf-annotate" class="cf-btn secondary" data-charter-annotate-still="1">Annotate</button>
-      <button type="button" id="cf-end" class="cf-btn" data-charter-end="1">End</button>
-      <button type="button" id="cf-cancel" class="cf-btn secondary" data-charter-cancel="1">Cancel</button>
-    </div>
-    <div id="cf-cancel-confirm" class="charter-float-cancel" hidden data-charter-cancel-confirm="1">
-      <span>Discard this session?</span>
-      <button type="button" id="cf-cancel-yes" class="cf-btn" data-charter-cancel-yes="1">Yes, cancel</button>
-      <button type="button" id="cf-cancel-no" class="cf-btn secondary" data-charter-cancel-no="1">Keep</button>
-    </div>
-  </footer>
-  <script src="/ui/desktop/charter_float.js?v=desk149"></script>
+<body class="charter-float-body charter-tray" data-charter-float="1" data-os-float="1" data-snip-dock="1" data-tray="east" data-collapsed="0">
+  <aside id="cf-rail" class="charter-tray-rail" aria-label="Charter tray" data-charter-float-dock="1" data-manual-loop-dock="1">
+    <button type="button" id="cf-tray-toggle" class="cf-icon tray-toggle" aria-pressed="true" title="Hide tray" data-charter-tray-toggle="1">
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7">
+        <rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/>
+        <path d="M15.5 4.5v15"/>
+      </svg>
+    </button>
+    <button type="button" id="cf-still" class="cf-icon" title="Still" data-charter-still="1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8.5h3l1.4-2h7.2l1.4 2H20v10H4V8.5z"/><circle cx="12" cy="13" r="3.2"/></svg>
+    </button>
+    <button type="button" id="cf-note" class="cf-icon" title="Note" data-charter-note="1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 4.5h8.5L19 8v11.5H7V4.5z"/><path d="M15 4.5V8h3.5"/><path d="M9.5 12h5M9.5 15.5h5"/></svg>
+    </button>
+    <button type="button" id="cf-pause" class="cf-icon" title="Pause" data-charter-pause="1" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="7" y="6" width="3.2" height="12" rx="0.6"/><rect x="13.8" y="6" width="3.2" height="12" rx="0.6"/></svg>
+    </button>
+    <button type="button" id="cf-assist" class="cf-icon" title="Assist" data-charter-assist="1" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 4.5 13.2 9H18l-3.6 2.8L15.6 17 12 14.4 8.4 17l1.2-5.2L6 9h4.8L12 4.5z"/></svg>
+    </button>
+    <button type="button" id="cf-mist" class="cf-icon" title="Mist" data-charter-mist="1" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 15.5h9.5a3.5 3.5 0 0 0 .2-7 5 5 0 0 0-9.5 1.2A3.2 3.2 0 0 0 7 15.5z"/></svg>
+    </button>
+    <span class="cf-sep" aria-hidden="true"></span>
+    <span class="cf-spacer" aria-hidden="true"></span>
+    <button type="button" id="cf-end" class="cf-icon" title="End" data-charter-end="1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="6.5" y="6.5" width="11" height="11" rx="1.2"/></svg>
+    </button>
+    <button type="button" id="cf-cancel" class="cf-icon" title="Cancel" data-charter-cancel="1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="7.2"/><path d="m9 9 6 6M15 9l-6 6"/></svg>
+    </button>
+  </aside>
+  <div id="cf-note-sheet" class="charter-note-sheet" hidden data-charter-note-sheet="1">
+    <input id="cf-note-input" type="text" maxlength="500" placeholder="Note…" autocomplete="off" data-charter-note-input="1" />
+    <button type="button" id="cf-note-add" class="cf-note-go" title="Add note">Add</button>
+  </div>
+  <div id="cf-cancel-confirm" class="charter-float-cancel" hidden data-charter-cancel-confirm="1">
+    <span>Discard?</span>
+    <button type="button" id="cf-cancel-yes" class="cf-note-go" data-charter-cancel-yes="1">Yes</button>
+    <button type="button" id="cf-cancel-no" class="cf-note-go secondary" data-charter-cancel-no="1">Keep</button>
+  </div>
+  <p id="cf-chip" class="charter-tray-chip" role="status" hidden>Session open</p>
+  <!-- Collapsed: only the tray-layout toggle sits on the hole edge -->
+  <button type="button" id="cf-tray-toggle-edge" class="cf-icon tray-toggle tray-toggle-edge" aria-pressed="false" title="Show tray" hidden data-charter-tray-toggle-edge="1">
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7">
+      <rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/>
+      <path d="M15.5 4.5v15"/>
+    </svg>
+  </button>
+  <script src="/ui/desktop/charter_float.js?v=desk150"></script>
 </body>
 </html>

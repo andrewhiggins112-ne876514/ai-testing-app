@@ -1449,6 +1449,9 @@
   const charterFrameDrag = document.getElementById("charter-frame-drag");
   const charterFrameDock = document.getElementById("charter-frame-dock");
   const manualResumeCharter = document.getElementById("manual-resume-charter");
+  const manualSessionChip = document.getElementById("manual-session-chip");
+  const manualSessionChipLabel = document.getElementById("manual-session-chip-label");
+  const manualSessionChipRestore = document.getElementById("manual-session-chip-restore");
   const manualEndOpen = document.getElementById("manual-end-open");
   const charterAssistLive = document.getElementById("charter-assist-live");
   const charterMistLive = document.getElementById("charter-mist-live");
@@ -7098,6 +7101,22 @@
     if (manualEndOpen) manualEndOpen.hidden = !on;
   }
 
+  function showManualSessionChip(sessionOrNull) {
+    if (!manualSessionChip) return;
+    if (!sessionOrNull) {
+      manualSessionChip.hidden = true;
+      return;
+    }
+    const label =
+      (sessionOrNull.charter || sessionOrNull.id || "Session").toString().slice(0, 48);
+    if (manualSessionChipLabel) manualSessionChipLabel.textContent = label + " · Restore";
+    manualSessionChip.hidden = false;
+  }
+
+  function hideManualSessionChip() {
+    if (manualSessionChip) manualSessionChip.hidden = true;
+  }
+
   function setCharterMistVisible(on) {
     if (!charterFrameMist) return;
     charterFrameMist.hidden = !on;
@@ -7110,7 +7129,7 @@
     if (manualLoopStageLabel) {
       if (next === "recording") {
         manualLoopStageLabel.textContent =
-          "Loop: recording — notes / stills / End / Cancel on Charter Frame dock";
+          "Loop: recording — hollow OS shell + tray; Manual is a session chip (Restore)";
       } else if (next === "review") {
         manualLoopStageLabel.textContent =
           "Loop: review — Propose, then Confirm or Cancel proposal (no silent Jira)";
@@ -7243,7 +7262,42 @@
     updateCharterFrameChip(session);
     setManualLoopStage("recording");
 
-    /* Arm in-app first so Start never looks dead if OS float stalls. */
+    /* KAN-512 Look 4: desktop shell uses hollow OS shell + tray only.
+       Manual steps back to session chip — no second cyan capture rect.
+       Place fail → honest error (no silent in-app rect fallback). */
+    const bridge = desktopBridgeApi();
+    const hasFloatBridge = !!(
+      bridge &&
+      bridge.charter_float_available &&
+      bridge.charter_float_open
+    );
+    if (hasFloatBridge) {
+      const floated = await openOsCharterFloat(session);
+      charterOsFloatActive = floated;
+      if (charterFrameRoot) {
+        charterFrameRoot.hidden = true;
+        charterFrameRoot.setAttribute("aria-hidden", "true");
+        setCharterMistVisible(false);
+      }
+      if (floated) {
+        showManualSessionChip(session);
+        setManualResumeUi(null);
+        if (manualStatus) {
+          manualStatus.textContent =
+            "Recording — hollow OS shell + icon tray. Manual is a session chip (Restore). Drag the tray rail to move capture outside this window.";
+        }
+      } else {
+        hideManualSessionChip();
+        setManualResumeUi(session);
+        if (manualStatus) {
+          manualStatus.textContent =
+            "Charter OS shell failed to place — no silent in-app fallback. Use Resume Charter to retry.";
+        }
+      }
+      return;
+    }
+
+    /* Non-desktop / no bridge: keep in-app Charter Frame. */
     if (charterFrameRoot) {
       applyCharterFrameRect();
       setCharterMistVisible(!!session.armed_mist);
@@ -7252,16 +7306,12 @@
       charterFrameRoot.hidden = false;
       charterFrameRoot.setAttribute("aria-hidden", "false");
     }
-
-    /* OS ring+dock is additive. NEVER hide in-app chrome when float reports ok —
-       that caused Start flash→gone (KAN-506 / KAN-508) when the dock was weak/ghosted. */
-    const floated = await openOsCharterFloat(session);
-    charterOsFloatActive = floated;
+    charterOsFloatActive = false;
+    hideManualSessionChip();
     setManualResumeUi(null);
     if (manualStatus) {
-      manualStatus.textContent = floated
-        ? "Recording — in-app frame + OS ring. Drag OS dock header (or Charter Frame label) to move outside this window; controls stay under the cyan frame"
-        : "Session started — drag Charter Frame; controls stay under the frame (no Jira write)";
+      manualStatus.textContent =
+        "Session started — drag Charter Frame; controls stay under the frame (no Jira write)";
     }
   }
 
@@ -7270,6 +7320,7 @@
       await closeOsCharterFloat();
       charterOsFloatActive = false;
     }
+    hideManualSessionChip();
     if (!charterFrameRoot) return;
     showCharterCancelConfirm(false);
     hideCharterSnapPicker();
@@ -7284,6 +7335,7 @@
     const sid = (payload && payload.session_id) || manualOpenSessionId;
     if (ev === "ended") {
       charterOsFloatActive = false;
+      hideManualSessionChip();
       const endedId = sid || manualOpenSessionId;
       manualOpenSessionId = "";
       window.__manualLastEndedId = endedId;
@@ -7311,6 +7363,7 @@
     }
     if (ev === "cancelled") {
       charterOsFloatActive = false;
+      hideManualSessionChip();
       manualOpenSessionId = "";
       ensureAreaOpen("manual");
       setManualLoopStage("idle");
@@ -11876,6 +11929,11 @@
   }
   if (manualResumeCharter) {
     manualResumeCharter.addEventListener("click", function () {
+      resumeManualCharter();
+    });
+  }
+  if (manualSessionChipRestore) {
+    manualSessionChipRestore.addEventListener("click", function () {
       resumeManualCharter();
     });
   }
