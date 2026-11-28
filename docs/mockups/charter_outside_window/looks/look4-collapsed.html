@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Look 4 — tray collapsed</title>
+<link rel="stylesheet" href="look4.css" />
+</head>
+<body>
+<p class="note"><a href="look4-picker.html">Look 4 picker</a> · <strong>Collapsed.</strong> Icon stack hidden. Only the hollow frame + tray-layout toggle on the edge (your secondary-sidebar glyph). Click restores the compact rail. Not product UI.</p>
+<div class="scene">
+  <div class="ide" aria-hidden="true">
+    <div class="ide-act"><i></i><i></i><i></i><i></i></div>
+    <div class="ide-main">
+      <div class="dim">// shop.fixture.local · cart badge</div>
+      <div><span class="tok">expect</span>(badge).<span class="tok">toBe</span>(1)</div>
+      <div class="bubble">Tray hidden — more of the AUT stays clear while I explore.</div>
+    </div>
+  </div>
+
+  <div class="shell is-collapsed" data-tray="east" data-look="4">
+    <div class="hole" data-hit="click-through">
+      <div class="cap" aria-hidden="true">
+        <svg viewBox="0 0 32 8"><circle cx="4" cy="4" r="1.2" fill="currentColor"/><circle cx="10" cy="4" r="1.2" fill="currentColor"/><circle cx="16" cy="4" r="1.2" fill="currentColor"/><circle cx="22" cy="4" r="1.2" fill="currentColor"/><circle cx="28" cy="4" r="1.2" fill="currentColor"/></svg>
+      </div>
+      <button class="tray-toggle" type="button" aria-pressed="false" title="Show tray">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7">
+          <rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/>
+          <path d="M15.5 4.5v15"/>
+        </svg>
+      </button>
+    </div>
+    <aside class="rail" hidden aria-hidden="true"></aside>
+    <span class="anno" style="left:0;top:-22px">hole only · max AUT</span>
+    <span class="anno" style="right:-4px;top:8px">tray icon · show rail</span>
+  </div>
+
+  <div class="chip"><b>Session</b> Explore checkout · Restore</div>
+</div>
+</body>
+</html>

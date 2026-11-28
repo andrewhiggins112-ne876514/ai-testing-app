@@ -18,7 +18,7 @@
 | **Shipped** | Manual float **KAN-386**/387 + UX bugs **KAN-501**…**509** (**desk148**); Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4 **KAN-381**/382; OPERATE-3 **KAN-379**/380; OPERATE-2 **KAN-377**/378; OPERATE-1 **KAN-375**/376; TRACE-DEEPEN **KAN-372**/373; TRACK3-LAB **KAN-359**…366 |
 | **Queued** | plan doc **KAN-388**/389; stubs **KAN-390**, compliance **KAN-392**, research adds |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Resume/attach/outside-move **KAN-509** Done (**desk148**). Parked for **/council** then **/studio**: outside-window **KAN-510**/513, focus hang **KAN-511**/514, UX story **KAN-512**. Next Build = **KAN-388**/389. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Active = **KAN-388**/389. After that: Charter **G+tray Look 4** Build (**KAN-512** + residuals **KAN-510**/513, **KAN-511**/514) — Designer Accepted 2026-11-28; do **not** steal Active now. Manual usable **desk148**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-512 — Charter G+tray Look 4 Accepted (Spec + Jira bridge)
+- **Agent/chat:** Cursor IDE Agent — Council+Studio; Designer: Accept G+tray, Look 4, collapsible tray icon; good to go
+- **Done:** Design Accept bridged (no product code). FR-MAN-1 CR for desktop G+tray Look 4; Design Intent Accepted; mock pack `looks/look4-*.html`; Jira comments/AC on **KAN-512**/510/511 (+ tests 513/514). Active Build unchanged (**KAN-388**); Charter Build queued **next** after 388.
+- **Files:** `docs/FUNCTIONAL_SPEC.md`, `docs/mockups/DESIGN_INTENT.md`, `docs/mockups/charter_outside_window/looks/**`, `docs/ops/WORK_LOG.md`, `docs/ops/ROADMAP.md`, `PROJECT_MEMORY.md`, `scripts/jira_kan_512_g_tray_accept.py`
+- **Verify:** open `looks/look4-picker.html`; Jira **KAN-512** description + Accept comment
+- **Jira:** Accept comments on **KAN-512**, **KAN-510**, **KAN-511**, **KAN-513**, **KAN-514** (yes)
+- **Next:** pick-up remains **KAN-388**; after 388 → implement **KAN-512** G+tray (then 510/511)
 
 ### 2026-11-27 — KAN-510/511/512 — Charter outside-window + hang + UX (raised, not built)
 - **Agent/chat:** Cursor IDE Agent (Composer) — Designer: usable but still trapped in app window; Not Responding after Cursor focus; wants Council+Studio+Creative

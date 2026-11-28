@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Charter — paused, amber ring, Resume</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="charter_os.css" />
+</head>
+<body>
+<p class="page-note"><strong>Option A state · paused.</strong> Not a separate product path. Not a preferred pick. The ring turns amber. The clock holds at 00:04:12. Resume replaces Pause. The hole stays click-through. Manual shows the same paused state and still draws no capture rect. Not product UI.</p>
+<div class="anno-bar">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip warn">Amber</span>
+  <span class="chip">Resume</span>
+  <span class="chip muted">Clock held</span>
+  <span class="chip muted">Hole still click-through</span>
+</div>
+<div class="desktop" data-charter-os="paused" data-in-app-rect="absent" data-path-a="win32-ring">
+  <span class="desktop-tag">Windows desktop · synthetic · OFFICIAL</span>
+  <div class="foreign" style="left:200px;top:24px;width:880px;height:500px">
+    <div class="foreign-title"><span class="dot"></span> Cursor — chat · shop.fixture.local</div>
+    <div class="foreign-body">
+      <div class="ide-side"><strong>Chat</strong>Checkout badge<br />Clock held<br />Clicks still pass</div>
+      <div class="chat">
+        <div class="bubble user"><span class="who">You</span>Paused so I can read this thread without the clock running.</div>
+        <div class="bubble"><span class="who">Agent</span>Amber means paused. Resume is on the strip. The hole is still empty.</div>
+      </div>
+    </div>
+  </div>
+  <div class="app-win" style="left:16px;top:400px;width:400px;height:220px">
+    <header class="frozen-bar">
+      <button class="btn ghost" type="button">Back</button>
+      <h1 class="area-title">Manual</h1>
+      <span class="frozen-tag">OFFICIAL</span>
+    </header>
+    <div class="app-body">
+      <h2>Explore checkout errors</h2>
+      <p class="status-line warn">Paused · 00:04:12 · ring stays up</p>
+      <div class="mini-row is-focus"><span>Explore checkout errors</span><span>Open</span></div>
+      <div class="snap-row">
+        <button class="btn" type="button">Monitor</button>
+        <button class="btn" type="button">Window</button>
+        <button class="btn" type="button">Page</button>
+        <button class="btn" type="button">Annotate</button>
+      </div>
+    </div>
+  </div>
+  <div class="os-ring is-paused" style="left:430px;top:78px;width:560px;height:300px" data-ring="paused">
+    <div class="ring-bar bar-n" data-hit="move">Charter · paused</div>
+    <div class="ring-bar bar-s" data-hit="resize"></div>
+    <div class="ring-bar bar-e" data-hit="resize"></div>
+    <div class="ring-bar bar-w" data-hit="resize"></div>
+    <div class="corner nw" data-hit="resize"></div>
+    <div class="corner ne" data-hit="resize"></div>
+    <div class="corner sw" data-hit="resize"></div>
+    <div class="corner se" data-hit="resize"></div>
+    <div class="ring-hole" data-hit="click-through"></div>
+    <div class="edge-dock" data-dock="glued-south">
+      <span class="rec">00:04:12</span>
+      <button class="btn primary" type="button">Resume</button>
+      <label class="dock-check"><input type="checkbox" /> Assist</label>
+      <label class="dock-check"><input type="checkbox" /> Mist</label>
+      <span class="note-slot">Note…</span>
+      <button class="btn" type="button">Still</button>
+      <button class="btn primary" type="button">End</button>
+      <button class="btn" type="button">Cancel</button>
+    </div>
+    <span class="anno move">header = move</span>
+    <span class="anno edge">edges = resize</span>
+    <span class="anno hole">hole = click-through</span>
+    <span class="anno glue">Resume replaces Pause</span>
+  </div>
+</div>
+</body>
+</html>

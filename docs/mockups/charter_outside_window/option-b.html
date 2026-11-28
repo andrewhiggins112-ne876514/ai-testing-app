@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Option B — hybrid dual chrome</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<link rel="stylesheet" href="charter_os.css" />
+</head>
+<body>
+<p class="page-note"><a href="index.html">All options</a> · <strong>Option B — hybrid dual chrome.</strong> The in-app cyan rect stays visible in Manual and the OS ring sits on the foreign app. Still and End live only on the OS dock. The Manual rect is a read-only ghost: it does not move, resize, or capture. Not a preferred pick. Not product UI.</p>
+<div class="risk">Dual-chrome risk, shown so this path can still be picked: two cyan shapes are on screen at once. Only the OS dock takes Still and End. The ghost does not. A tester can click the ghost and think the session moved.</div>
+<div class="anno-bar">
+  <span class="label">Studio note · not product chrome</span>
+  <span class="chip">Option B</span>
+  <span class="chip warn">Two cyan shapes</span>
+  <span class="chip">OS dock = Still / End</span>
+  <span class="chip muted">Manual rect = read-only ghost</span>
+</div>
+<div class="desktop" data-option="b" data-in-app-rect="ghost" data-os-ring="live">
+  <span class="stamp risk">Two chromes</span>
+  <span class="desktop-tag">Windows desktop · synthetic · OFFICIAL</span>
+  <div class="foreign" style="left:400px;top:28px;width:690px;height:500px">
+    <div class="foreign-title"><span class="dot"></span> Cursor — chat · shop.fixture.local</div>
+    <div class="foreign-body">
+      <div class="ide-side"><strong>Chat</strong>Live ring<br />is here</div>
+      <div class="chat">
+        <div class="bubble user"><span class="who">You</span>Oak lamp £42.00. Cart badge still says 0.</div>
+        <div class="bubble"><span class="who">Agent</span>This chat is under the live ring. The cyan box in Manual is only a ghost.</div>
+      </div>
+    </div>
+  </div>
+  <div class="app-win" style="left:16px;top:28px;width:370px;height:500px">
+    <header class="frozen-bar">
+      <button class="btn ghost" type="button">Back</button>
+      <h1 class="area-title">Manual</h1>
+      <span class="frozen-tag">OFFICIAL · frozen chrome</span>
+    </header>
+    <div class="app-body">
+      <h2>Explore checkout errors</h2>
+      <p class="status-line warn">Ghost rect visible · not a hit target</p>
+      <div class="mini-row is-focus"><span>Explore checkout errors</span><span>Open</span></div>
+      <div style="position:relative;height:158px;margin-top:6px">
+        <div class="ghost-rect" style="inset:0" data-hit="none">
+          <span class="ghost-cap">Read-only ghost · not a hit</span>
+        </div>
+      </div>
+      <p>No Still. No End. This mark does not follow the IDE.</p>
+      <div class="snap-row">
+        <button class="btn ghost" type="button">Monitor</button>
+        <button class="btn ghost" type="button">Window</button>
+        <button class="btn ghost" type="button">Page</button>
+        <button class="btn ghost" type="button">Annotate</button>
+      </div>
+    </div>
+  </div>
+  <div class="os-ring" style="left:520px;top:110px;width:500px;height:250px" data-ring="armed">
+    <div class="ring-bar bar-n" data-hit="drag-move">Charter · live ring</div>
+    <div class="ring-bar bar-s" data-hit="drag-resize"></div>
+    <div class="ring-bar bar-e" data-hit="drag-resize"></div>
+    <div class="ring-bar bar-w" data-hit="drag-resize"></div>
+    <div class="corner nw" data-hit="drag-resize"></div>
+    <div class="corner ne" data-hit="drag-resize"></div>
+    <div class="corner sw" data-hit="drag-resize"></div>
+    <div class="corner se" data-hit="drag-resize"></div>
+    <div class="ring-hole" data-hit="click-through"></div>
+    <div class="edge-dock" data-dock="glued-south" data-hit="only-still-end">
+      <span class="rec">Armed</span>
+      <span class="note-slot">Note…</span>
+      <button class="btn" type="button">Still</button>
+      <button class="btn primary" type="button">End</button>
+    </div>
+    <span class="anno move">only live drag</span>
+    <span class="anno glue">only place for Still / End</span>
+  </div>
+  <span class="wall" style="left:400px;top:430px">Risk · ghost and ring both look armed</span>
+</div>
+</body>
+</html>

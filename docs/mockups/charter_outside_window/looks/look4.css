@@ -1,0 +1,213 @@
+/* Look 4 Compact rail + collapsible tray — Studio mock only.
+   Tokens from settings grammar. Not product runtime. */
+
+:root {
+  --void: #000;
+  --cyan: #50cdff;
+  --cyan-dim: rgba(80, 205, 255, 0.22);
+  --cyan-border: rgba(80, 205, 255, 0.28);
+  --accent-soft: rgba(80, 205, 255, 0.12);
+  --text: #e8f7ff;
+  --muted: rgba(180, 220, 240, 0.45);
+  --rail: #12161c;
+  --font: "Segoe UI", "Bahnschrift", "Trebuchet MS", sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--void); color: var(--text); font-family: var(--font); }
+body { padding: 24px; }
+a { color: var(--cyan); }
+.note { max-width: 1120px; margin: 0 auto 12px; font: 400 12px/1.4 var(--font); color: var(--muted); }
+.note strong { color: var(--cyan); font-weight: 600; }
+
+.scene {
+  position: relative;
+  width: 1120px;
+  height: 640px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--cyan-border);
+  background:
+    radial-gradient(900px 400px at 10% 0%, rgba(60, 70, 82, 0.35), transparent 55%),
+    #0c1014;
+}
+
+.ide {
+  position: absolute;
+  inset: 18px 18px 56px;
+  border-radius: 8px;
+  border: 1px solid #3a4250;
+  background: #1b2128;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.ide-act {
+  background: #14181e;
+  border-right: 1px solid #2c333d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  color: #7d8694;
+}
+.ide-act i {
+  width: 18px; height: 18px;
+  border: 1.4px solid currentColor;
+  border-radius: 3px;
+  display: block;
+  opacity: 0.7;
+}
+.ide-main { padding: 16px 18px; color: #c7d0da; font: 13px/1.45 Consolas, ui-monospace, monospace; }
+.ide-main .dim { color: #6b7380; }
+.ide-main .tok { color: #7dcfff; }
+.bubble {
+  margin-top: 12px;
+  max-width: 70%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #262c36;
+  font: 12px/1.4 var(--font);
+  color: #e6edf3;
+}
+
+/* Compact shell */
+.shell {
+  position: absolute;
+  left: 280px;
+  top: 110px;
+  display: flex;
+  align-items: stretch;
+  z-index: 5;
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+}
+
+.shell[data-tray="east"] { flex-direction: row; }
+.shell[data-tray="west"] { flex-direction: row-reverse; }
+
+.hole {
+  position: relative;
+  width: 420px;
+  height: 280px;
+  border: 1px solid var(--cyan);
+  background: transparent;
+  border-radius: 10px 0 0 10px;
+  box-shadow: 0 0 0 1px rgba(80, 205, 255, 0.12);
+}
+.shell[data-tray="west"] .hole { border-radius: 0 10px 10px 0; }
+.shell.is-collapsed .hole { border-radius: 10px; }
+
+.cap {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(80, 205, 255, 0.55);
+  pointer-events: none;
+}
+.cap svg { width: 28px; height: 8px; }
+
+/* Tray toggle — Designer's secondary-sidebar glyph */
+.tray-toggle {
+  position: absolute;
+  z-index: 6;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--cyan-border);
+  background: rgba(12, 16, 20, 0.92);
+  color: var(--cyan);
+  border-radius: 6px;
+  cursor: default;
+  padding: 0;
+}
+.tray-toggle svg { width: 16px; height: 16px; display: block; }
+.tray-toggle[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--cyan);
+}
+.shell[data-tray="east"] .tray-toggle { right: -14px; top: 10px; }
+.shell[data-tray="west"] .tray-toggle { left: -14px; top: 10px; }
+.shell.is-collapsed[data-tray="east"] .tray-toggle { right: -14px; }
+.shell.is-collapsed[data-tray="west"] .tray-toggle { left: -14px; }
+
+.rail {
+  width: 40px;
+  background: var(--rail);
+  border: 1px solid var(--cyan);
+  border-left: 0;
+  border-radius: 0 10px 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 0 8px;
+  gap: 2px;
+}
+.shell[data-tray="west"] .rail {
+  border-left: 1px solid var(--cyan);
+  border-right: 0;
+  border-radius: 10px 0 0 10px;
+}
+.shell.is-collapsed .rail { display: none; }
+
+.rail button {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.rail button:hover,
+.rail button.is-on {
+  color: var(--cyan);
+  background: var(--accent-soft);
+}
+.rail button svg { width: 15px; height: 15px; }
+.rail .sep {
+  width: 18px;
+  height: 1px;
+  margin: 4px 0;
+  background: var(--cyan-dim);
+}
+.rail .spacer { flex: 1; }
+
+.chip {
+  position: absolute;
+  left: 24px;
+  bottom: 16px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--cyan-border);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.78);
+  font: 600 11px/1 var(--font);
+  color: var(--text);
+}
+.chip b { color: var(--cyan); font-weight: 600; }
+
+.anno {
+  position: absolute;
+  z-index: 8;
+  pointer-events: none;
+  font: 600 10px/1.2 var(--font);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #ffd27a;
+  background: rgba(0, 0, 0, 0.82);
+  border: 1px dashed rgba(255, 210, 122, 0.75);
+  padding: 2px 5px;
+}

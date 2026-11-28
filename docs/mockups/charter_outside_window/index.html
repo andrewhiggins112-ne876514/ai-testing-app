@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Charter outside-window — all design options (pick one)</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<style>
+  body { max-width: 760px; }
+  h1 {
+    margin: 0 0 8px;
+    font: 600 22px/1.3 var(--font);
+    color: var(--cyan);
+  }
+  h2 {
+    margin: 0 0 6px;
+    font: var(--type-area-title);
+    font-size: 16px;
+    color: var(--text);
+  }
+  h3 {
+    margin: 28px 0 8px;
+    font: var(--type-ui);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+  p { margin: 0 0 8px; font: var(--type-body); color: var(--text); }
+  .status {
+    margin: 0 0 16px;
+    padding: 8px 10px;
+    border: 1px solid var(--warn);
+    color: var(--warn);
+    font: var(--type-help);
+    background: rgba(255, 210, 122, 0.06);
+  }
+  .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; }
+  .jump a {
+    color: var(--cyan);
+    font: var(--type-ui);
+    border: 1px solid var(--cyan-border);
+    border-radius: 999px;
+    padding: 4px 10px;
+    text-decoration: none;
+  }
+  article {
+    margin: 0 0 28px;
+    padding-top: 8px;
+    border-top: 1px solid var(--cyan-border);
+  }
+  .trade { color: var(--muted); font: var(--type-help); }
+  .open {
+    display: inline-block;
+    margin: 4px 0 8px;
+    color: var(--cyan);
+    font: var(--type-ui);
+  }
+  .preview {
+    width: 640px;
+    height: 420px;
+    overflow: hidden;
+    border: 1px solid var(--shell-border);
+    background: #000;
+  }
+  .preview iframe {
+    width: 1200px;
+    height: 840px;
+    border: 0;
+    transform: scale(0.53);
+    transform-origin: top left;
+    pointer-events: none;
+  }
+  .preview.tall { height: 460px; }
+  .preview.tall iframe { height: 980px; transform: scale(0.46); }
+  a { color: var(--cyan); }
+  .fine { color: var(--muted); font: var(--type-help); }
+  .lean {
+    margin: 0 0 22px;
+    padding: 14px 14px 12px;
+    border: 1px solid var(--cyan);
+    background:
+      linear-gradient(180deg, rgba(80, 205, 255, 0.1), transparent 56px),
+      #070a0d;
+  }
+  .lean-kicker {
+    margin: 0 0 4px;
+    font: var(--type-meta);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+  .lean h2 {
+    margin: 0 0 8px;
+    font: 600 20px/1.3 var(--font);
+    color: var(--text);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .lean .open {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 4px 10px;
+    border: 1px solid var(--cyan);
+    border-radius: 999px;
+    text-decoration: none;
+    background: var(--accent-soft);
+  }
+</style>
+</head>
+<body>
+<section class="lean" id="g-tray">
+  <p class="lean-kicker">Designer lean — review</p>
+  <h2>Option G + side tray</h2>
+  <p>Manual stays a session chip. The only overlay is one rounded shell: a hollow cyan stroke over the IDE, and a 48px icon tray on its right edge. Higher-fidelity frames cover armed, recording, paused, note, edge flip, still, and end confirm.</p>
+  <p class="trade">Review only. This lean is not Accepted. Options A–H below stay on the table.</p>
+  <a class="open" href="g-tray-index.html">Open the G + tray review</a>
+</section>
+<h1>Charter outside-window — all design options (pick one)</h1>
+<p class="status">Designer review — no preferred. Nothing here is Accepted. Bugs KAN-510 and KAN-511 stay deferred until after a redesign ships. Theme, orb, home, and App nav stay frozen. These frames are Charter capture chrome only.</p>
+<p>Synthetic OFFICIAL fixture (shop.fixture.local, oak lamp, £42.00). Open a full mock to read the click targets. The panes below are scaled previews.</p>
+<ul class="jump">
+  <li><a href="#g-tray">G + tray</a></li>
+  <li><a href="#a">A</a></li>
+  <li><a href="#b">B</a></li>
+  <li><a href="#c">C</a></li>
+  <li><a href="#d">D</a></li>
+  <li><a href="#e">E</a></li>
+  <li><a href="#f">F</a></li>
+  <li><a href="#g">G</a></li>
+  <li><a href="#h">H</a></li>
+  <li><a href="#states">Option A states</a></li>
+</ul>
+
+<article id="a">
+  <h2>Option A — OS ring + thin edge-glued dock</h2>
+  <p>A hollow Win32 ring sits on the fake IDE chat. One thin dock is glued to the bottom edge of that ring. Manual stays open and draws no second cyan rectangle. Assist and Mist are off. Drag the header to move the ring and the dock together. Drag edges and corners to resize. The hole is click-through.</p>
+  <p class="trade">One capture surface, and the controls stay on the hole. The dock can cover the bottom of the framed chat.</p>
+  <a class="open" href="option-a.html">Open full mock</a>
+  <div class="preview"><iframe title="Option A preview" src="option-a.html"></iframe></div>
+</article>
+
+<article id="b">
+  <h2>Option B — Hybrid dual chrome</h2>
+  <p>The in-app cyan rect is still visible in Manual, and an OS ring sits on the foreign app. Still and End exist only on the OS dock. The Manual rect is labeled a read-only ghost: it does not move, resize, or capture. The frame shows the dual-chrome risk on purpose, and this path is still pickable.</p>
+  <p class="trade">Manual keeps a visible mark of the session. Two cyan shapes are on screen, and the ghost looks draggable.</p>
+  <a class="open" href="option-b.html">Open full mock</a>
+  <div class="preview"><iframe title="Option B preview" src="option-b.html"></iframe></div>
+</article>
+
+<article id="c">
+  <h2>Option C — Ring only, controls in Manual</h2>
+  <p>A hollow OS ring sits on the IDE for move and resize. Still, Note, and End stay on the Manual toolbar. There is no OS dock strip.</p>
+  <p class="trade">Nothing extra sits on the framed app. You leave that app to Still or End.</p>
+  <a class="open" href="option-c.html">Open full mock</a>
+  <div class="preview"><iframe title="Option C preview" src="option-c.html"></iframe></div>
+</article>
+
+<article id="d">
+  <h2>Option D — In-app only (trapped)</h2>
+  <p>Current pain / baseline. The cyan rect and the control stack stay inside the main window. The foreign IDE is outside the client-area wall. Same picture as <a href="00-before-trapped.html">00-before-trapped.html</a>.</p>
+  <p class="trade">One window, and nothing new on the OS. You cannot frame the IDE chat.</p>
+  <a class="open" href="option-d.html">Open full mock</a>
+  <div class="preview"><iframe title="Option D preview" src="option-d.html"></iframe></div>
+</article>
+
+<article id="e">
+  <h2>Option E — Fat second WebView float</h2>
+  <p>A hollow ring plus a tall OS HTML window: hint text, nudge arrows, and ±. This is the desk148-ish direction. Beat 1 leaves Manual without a rect. Beat 2 draws a rect in Manual as well. Both beats are this one option. Scroll the full mock for beat 2.</p>
+  <p class="trade">Nudge and ± stay familiar. A second tall window sits beside the ring.</p>
+  <a class="open" href="option-e.html">Open full mock</a>
+  <div class="preview tall"><iframe title="Option E preview" src="option-e.html"></iframe></div>
+</article>
+
+<article id="f">
+  <h2>Option F — Free dock</h2>
+  <p>Same hollow ring as A. The dock is a free-floating strip, not glued. In this frame it is parked on another corner and can sit away from the ring. Its own cap drags the strip. The ring header drags only the ring.</p>
+  <p class="trade">The framed chat is not covered by the dock. The strip can drift away from the hole.</p>
+  <a class="open" href="option-f.html">Open full mock</a>
+  <div class="preview"><iframe title="Option F preview" src="option-f.html"></iframe></div>
+</article>
+
+<article id="g">
+  <h2>Option G — Manual steps back</h2>
+  <p>Same ring and glued dock as A. Manual is minimized to a small “Session on Charter” chip. The IDE is the focus. Restore brings Manual back.</p>
+  <p class="trade">The app under test fills the screen. Library, snap, and annotate wait behind Restore.</p>
+  <a class="open" href="option-g.html">Open full mock</a>
+  <div class="preview"><iframe title="Option G preview" src="option-g.html"></iframe></div>
+</article>
+
+<article id="h">
+  <h2>Option H — One-shot snip</h2>
+  <p>No persistent armed frame. Beat 1 is a momentary region select, then Still. Beat 2 the region is gone. Manual holds the session notes and the still. Scroll the full mock for beat 2.</p>
+  <p class="trade">Nothing stays on screen after the grab. There is no hole left to nudge between stills.</p>
+  <a class="open" href="option-h.html">Open full mock</a>
+  <div class="preview tall"><iframe title="Option H preview" src="option-h.html"></iframe></div>
+</article>
+
+<h3 id="states">Option A states</h3>
+<p>These are states of Option A, not separate product paths. Idle / armed is the Option A frame above.</p>
+
+<article id="state-recording">
+  <h2>Recording</h2>
+  <p>Session clock on the glued dock, pulse on the bars, Pause. The hole stays empty. This is not video.</p>
+  <a class="open" href="02-recording.html">Open full mock</a>
+  <div class="preview"><iframe title="Option A recording preview" src="02-recording.html"></iframe></div>
+</article>
+
+<article id="state-paused">
+  <h2>Paused</h2>
+  <p>Amber ring, clock held, Resume on the dock. The hole stays click-through.</p>
+  <a class="open" href="03-resume-paused.html">Open full mock</a>
+  <div class="preview"><iframe title="Option A paused preview" src="03-resume-paused.html"></iframe></div>
+</article>
+
+<article id="state-edge">
+  <h2>Edge clamp</h2>
+  <p>The hole sits flush to the bottom of the work area. The glued dock flips above the ring and stays on screen.</p>
+  <a class="open" href="04-edge-clamp.html">Open full mock</a>
+  <div class="preview"><iframe title="Option A edge-clamp preview" src="04-edge-clamp.html"></iframe></div>
+</article>
+
+<article id="state-still">
+  <h2>Still beat</h2>
+  <p>Beat 1 hides the bars and the dock for the grab. Beat 2 restores them. The thumbnail is the hole only. Scroll the full mock for beat 2.</p>
+  <a class="open" href="05-still-beat.html">Open full mock</a>
+  <div class="preview tall"><iframe title="Option A still preview" src="05-still-beat.html"></iframe></div>
+</article>
+
+<p class="fine">Earlier filenames 00–06 stay in this folder. 06 is an archive sheet that splits into Options B and E. No option is marked preferred.</p>
+</body>
+</html>

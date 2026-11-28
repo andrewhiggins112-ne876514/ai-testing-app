@@ -61,6 +61,7 @@ Active Build: **KAN-496** Option A (Studio pick locked). OPERATE-4 **KAN-381** D
 | 2026-11-23 | **Lab wires Accepted** (Designer `Accept Lab wires`). KAN-360 chrome-budget markers unblocked. | `docs/design/TRACK3_AREA_WIRES.md` §8 |
 | 2026-11-27 | **Run evidence Option A Accepted** (Designer). Frames 01–03 = Build **KAN-496**. Aside-only vertical story; no fake green; Open Trace external. | `docs/mockups/run_evidence_ux/` |
 | 2026-11-27 | **Council accept + deep view Story** (Designer: thumb also expands). **KAN-498**/499 separate from 496. Frames 05–07. No Trace embed / hosted viewer. | `docs/mockups/run_evidence_ux/` 05–07 |
+| 2026-11-28 | **Charter G + side tray Accepted**. Look **4 Compact rail**. Tray hide/show via tray-layout icon (IDE secondary-sidebar glyph). Remember last side; Assist/Mist on tray; Pause = own icon. Do **not** steal Active — code next after current Active finishes. | `docs/mockups/charter_outside_window/` + `looks/look4-*.html` |
 
 ## Rejected / park
 
@@ -88,6 +89,8 @@ Active Build: **KAN-496** Option A (Studio pick locked). OPERATE-4 **KAN-381** D
 | Real Playwright trace deepen | **Done KAN-372** (**desk132**) | Real `trace.zip` on failure |
 | KAN-81/82 voice; FR-MAN-2 | **Parked** | Mic / DPIA |
 | Run-evidence **deep view** (05–07) | **Story KAN-498** / test **KAN-499** | Council accepted 2026-11-27. Doors: **More evidence** + **thumb expand**. Not KAN-496 AC. No new App nav; no Trace embed; Cases list stays. Build after 496 unless elevated. |
+| Charter outside-window options A–H | Historical | Superseded by G+tray Accepted |
+| Charter **G + side tray** | **Accepted 2026-11-28** | Look **4 Compact rail** + collapsible tray (tray icon toggle). Build next (do not steal Active now). |
 
 ## Mockup index
 
@@ -101,3 +104,25 @@ Active Build: **KAN-496** Option A (Studio pick locked). OPERATE-4 **KAN-381** D
 | Layout enhancement pack (all secondary areas) | `docs/mockups/layout_enhancement_pack/` | **Accepted 2026-11-22** — Build via KAN-348…354 |
 | Run evidence UX (Case aside Option A) | `docs/mockups/run_evidence_ux/` 01–03 | **Accepted 2026-11-27** — Build **KAN-496** |
 | Run evidence deep view | `docs/mockups/run_evidence_ux/` 05–07 | **KAN-498**/499 — Council Accepted; thumb also expands; `04` = rejected primary only |
+| Charter outside-window (options A–H) | `docs/mockups/charter_outside_window/index.html` | Historical options gallery |
+| Charter **G + side tray** (Accepted) | `docs/mockups/charter_outside_window/looks/look4-picker.html` | **Accepted 2026-11-28.** Look 4 Compact rail + tray icon collapse. |
+
+## Accepted — Charter G + side tray (2026-11-28)
+
+**Status: Accepted (structure + look).** Ready for Spec/Jira bridge when Designer says; Build next after current Active (do not steal Active now).
+
+| Decision | Choice |
+|----------|--------|
+| Route | Option G: Manual steps back to session chip; only overlay open |
+| Look | **4 — Compact rail** (dense ~36–40px VS Code–tight chrome; thin cyan hairline; minimal glow) |
+| Chrome | One hollow OS capture shell (click-through hole) + icon tray glued to a side |
+| Tray collapse | **Hide/show tray** via tray-layout icon (rounded rect + right vertical strip — IDE secondary-sidebar glyph). Collapsed = hollow frame only + that toggle on the frame edge. Expanded = full icon stack. Remember collapsed/expanded with last side. |
+| Tray side | **Remember last side** (default east; flip west at screen edge / user preference) |
+| Assist / Mist | **On the tray** (icon toggles, default off) |
+| Pause | **Own icon** on the tray (not status-slot reuse) |
+| Active Build | **Do not reprioritise** — finish current Active; Charter G+tray codes **next** while still in Manual/float area |
+| Bugs KAN-510 / 511 | After redesign Build (expect new bugs from the redesign too) |
+
+**Frozen:** theme tokens, orb, home/chat, App nav. **OOS:** FR-MAN-2, voice, keylog/clipboard/mic, continuous video, Gradio OS float.
+
+Research: `docs/mockups/charter_outside_window/RESEARCH_G_TRAY.md`. Look frames: `looks/look4-expanded.html`, `looks/look4-collapsed.html`.

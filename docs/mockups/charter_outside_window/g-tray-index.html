@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Designer lean — Option G + side tray (review)</title>
+<link rel="stylesheet" href="../settings_layout_grammar/grammar.css" />
+<style>
+  body { max-width: 1120px; }
+  h1 {
+    margin: 0 0 8px;
+    font: 600 26px/1.25 var(--font);
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  h2 {
+    margin: 0 0 8px;
+    font: 600 16px/1.3 var(--font);
+    color: var(--text);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  h3 {
+    margin: 0 0 6px;
+    font: var(--type-meta);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  p { margin: 0 0 8px; font: var(--type-body); color: var(--text); }
+  a { color: var(--cyan); }
+  .kicker {
+    margin: 0 0 6px;
+    font: var(--type-meta);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+  .status {
+    margin: 0 0 18px;
+    padding: 8px 10px;
+    border: 1px solid var(--warn);
+    color: var(--warn);
+    font: var(--type-help);
+    background: rgba(255, 210, 122, 0.06);
+  }
+  .lede { max-width: 68ch; color: var(--text); }
+  .split {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 18px;
+    margin: 8px 0 22px;
+    align-items: start;
+  }
+  table.scan { margin-top: 4px; }
+  table.scan td:first-child {
+    width: 92px;
+    color: var(--cyan);
+    font: var(--type-meta);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .verdict {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin: 0 0 22px;
+  }
+  .verdict article {
+    border: 1px solid var(--shell-border);
+    padding: 12px;
+    min-height: 180px;
+    background: rgba(0, 0, 0, 0.28);
+  }
+  .verdict h3.ok { color: var(--ok); }
+  .verdict h3.adapt { color: var(--cyan); }
+  .verdict h3.no { color: var(--danger); }
+  .verdict ul {
+    margin: 0;
+    padding-left: 16px;
+    font: var(--type-help);
+    color: var(--text);
+  }
+  .verdict li { margin: 0 0 6px; }
+  .qs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin: 0 0 26px;
+  }
+  .qs article {
+    border: 1px solid rgba(255, 210, 122, 0.45);
+    padding: 12px;
+    background: rgba(255, 210, 122, 0.04);
+  }
+  .qs h3 { color: var(--warn); }
+  .qs p { font: var(--type-help); color: var(--text); margin: 0; }
+  .section-label {
+    margin: 8px 0 10px;
+    font: var(--type-meta);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+  article.frame {
+    margin: 0 0 26px;
+    padding-top: 8px;
+    border-top: 1px solid var(--cyan-border);
+  }
+  .open {
+    display: inline-block;
+    margin: 2px 0 8px;
+    color: var(--cyan);
+    font: var(--type-ui);
+  }
+  .preview {
+    width: 720px;
+    height: 468px;
+    overflow: hidden;
+    border: 1px solid var(--shell-border);
+    background: #000;
+  }
+  .preview iframe {
+    width: 1200px;
+    height: 900px;
+    border: 0;
+    transform: scale(0.6);
+    transform-origin: top left;
+    pointer-events: none;
+  }
+  .preview.tall { height: 640px; }
+  .preview.tall iframe { height: 1280px; transform: scale(0.56); }
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 18px;
+  }
+  .pair .preview { width: 100%; height: 300px; }
+  .pair .preview iframe {
+    width: 1200px;
+    height: 820px;
+    transform: scale(0.42);
+  }
+  .trade { color: var(--muted); font: var(--type-help); }
+  .reject-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 18px;
+    padding: 0;
+    list-style: none;
+  }
+  .reject-row a {
+    color: var(--danger);
+    font: var(--type-ui);
+    border: 1px solid rgba(255, 139, 122, 0.45);
+    border-radius: 999px;
+    padding: 4px 10px;
+    text-decoration: none;
+  }
+  .foot { color: var(--muted); font: var(--type-help); }
+</style>
+</head>
+<body>
+<p class="kicker">Design Studio · Charter · this route only</p>
+<h1>Designer lean — Option G + side tray</h1>
+<p class="status">Review. Not Accepted. Options A–H stay available. Theme, orb, home, and App nav stay frozen. These frames are capture chrome only.</p>
+<p class="lede">Manual is a session chip. The only overlay is one rounded shell: a hollow cyan stroke over a foreign IDE, and a 48px icon tray on the side. The hole stays click-through. The tray grows outward when Note or a still receipt needs room.</p>
+
+<div class="split">
+  <div>
+    <p class="section-label">Shell</p>
+    <table class="scan">
+      <tbody>
+        <tr><td>Stroke</td><td>1.75px <span class="mono">--cyan</span> #50cdff, 12px radius, soft cyan-dim glow</td></tr>
+        <tr><td>Hole</td><td>Click-through. IDE stays at full strength. North grip moves the shell. Edges and corners resize the hole.</td></tr>
+        <tr><td>Tray</td><td>48px, fill #161b22, shared cyan hairline. Icons only, tooltips on the title. Hits 36×32, 5px gaps.</td></tr>
+        <tr><td>Order</td><td>Status, Still, Note, Assist, Mist, hairline, End, Cancel.</td></tr>
+        <tr><td>Expand</td><td>+240px outward. Hole size stays. Esc collapses the note.</td></tr>
+        <tr><td>Manual</td><td>One chip. Restore only. OFFICIAL.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <p class="section-label">Read next</p>
+    <p>Pattern notes, with the adopt / adapt / reject in long form, live in <a href="RESEARCH_G_TRAY.md">RESEARCH_G_TRAY.md</a>.</p>
+    <p class="trade">Hover a rail icon in a full frame to read its tooltip. Focus uses the same accent-soft fill and cyan edge as hover.</p>
+    <p><a href="index.html">Back to options A–H</a></p>
+  </div>
+</div>
+
+<p class="section-label">Adopt · adapt · reject</p>
+<div class="verdict">
+  <article>
+    <h3 class="ok">Adopt</h3>
+    <ul>
+      <li>Hollow stroke and a soft glow, in the Insights sense: the chat stays visible and clickable.</li>
+      <li>VS Code’s 48px activity rail: icon-only, tooltips, dark fill, a foot cluster under a hairline.</li>
+      <li>qTest / Xray session verbs: state, still, note, end.</li>
+      <li>Game Bar materials: quiet, dark, rounded, no lesson panel.</li>
+    </ul>
+  </article>
+  <article>
+    <h3 class="adapt">Adapt</h3>
+    <ul>
+      <li>Snipping’s region stroke, kept up for the whole session.</li>
+      <li>ShareX’s “toolbar follows the region,” moved to the side so the south edge of the hole stays clear.</li>
+      <li>A secondary sidebar that grows outward (+240px) for Note and for the still crop.</li>
+      <li>Our cyan token, not the Insights highlight color.</li>
+    </ul>
+  </article>
+  <article>
+    <h3 class="no">Reject</h3>
+    <ul>
+      <li>Snipping’s top pill as the primary control, and its full-desktop dim.</li>
+      <li>A south text dock glued to the hole.</li>
+      <li>A fat hint window with nudge arrows and ±.</li>
+      <li>A second cyan Manual rectangle. Purple or cream cards.</li>
+    </ul>
+  </article>
+</div>
+
+<p class="section-label">Open for the Designer</p>
+<div class="qs">
+  <article>
+    <h3>1 · Which side</h3>
+    <p>Default the tray to the right, or remember the last side? Frame 05 flips the tray west when the hole meets the right edge. That flip is a proposal.</p>
+  </article>
+  <article>
+    <h3>2 · Assist and Mist</h3>
+    <p>Both sit on the rail in these frames, and both are off. They could move to an overflow if the rail feels long.</p>
+  </article>
+  <article>
+    <h3>3 · Pause</h3>
+    <p>Frames 02 and 03 turn the status slot into Pause, then Resume. A separate Pause icon is the other reading. The clock stays in the tooltip.</p>
+  </article>
+</div>
+
+<p class="section-label">Frames</p>
+
+<article class="frame" id="armed">
+  <h2>01 · Armed</h2>
+  <p>Collapsed tray on the right. Session chip with Restore. Annotations mark the north cap, the resize grips, the 48px tray, and the icon hits.</p>
+  <a class="open" href="g-tray-01-armed.html">Open full frame</a>
+  <div class="preview"><iframe title="Armed tray" src="g-tray-01-armed.html"></iframe></div>
+</article>
+
+<div class="pair">
+  <article class="frame" id="recording">
+    <h2>02 · Recording</h2>
+    <p>Status slot is Pause, with a rec pip. The stroke glow breathes. Tooltip carries 00:04:12. The hole stays clear.</p>
+    <a class="open" href="g-tray-02-recording.html">Open full frame</a>
+    <div class="preview"><iframe title="Recording tray" src="g-tray-02-recording.html"></iframe></div>
+  </article>
+  <article class="frame" id="paused">
+    <h2>03 · Paused</h2>
+    <p>Amber stroke and an amber status glyph. The slot is Resume. The clock is held.</p>
+    <a class="open" href="g-tray-03-paused.html">Open full frame</a>
+    <div class="preview"><iframe title="Paused tray" src="g-tray-03-paused.html"></iframe></div>
+  </article>
+  <article class="frame" id="note">
+    <h2>04 · Note expanded</h2>
+    <p>The tray grows 240px to the right. The hole keeps its width. Save and Discard sit on the sheet. Esc collapses it.</p>
+    <a class="open" href="g-tray-04-note-expanded.html">Open full frame</a>
+    <div class="preview"><iframe title="Note expanded" src="g-tray-04-note-expanded.html"></iframe></div>
+  </article>
+  <article class="frame" id="edge">
+    <h2>05 · Edge flip</h2>
+    <p>The hole meets the right screen edge. The tray moves to the left of the hole. Icon order is the same. Width stays 48px.</p>
+    <a class="open" href="g-tray-05-edge-flip.html">Open full frame</a>
+    <div class="preview"><iframe title="Edge flip" src="g-tray-05-edge-flip.html"></iframe></div>
+  </article>
+</div>
+
+<article class="frame" id="still">
+  <h2>06 · Still</h2>
+  <p>Beat 1 hides the shell. Beat 2 restores it and opens an outward sheet with a crop of the hole only.</p>
+  <a class="open" href="g-tray-06-still-beat.html">Open full frame</a>
+  <div class="preview tall"><iframe title="Still beat" src="g-tray-06-still-beat.html"></iframe></div>
+</article>
+
+<article class="frame" id="end">
+  <h2>07 · End confirm</h2>
+  <p>End opens a chip on the outer side of the tray. Keep or End. The chat under the hole stays clear.</p>
+  <a class="open" href="g-tray-07-end-confirm.html">Open full frame</a>
+  <div class="preview"><iframe title="End confirm" src="g-tray-07-end-confirm.html"></iframe></div>
+</article>
+
+<p class="section-label">Already drawn elsewhere — not repeated here</p>
+<ul class="reject-row">
+  <li><a href="option-a.html">South text dock · Option A</a></li>
+  <li><a href="option-g.html">Earlier Option G · dock plus chip</a></li>
+  <li><a href="option-h.html">Full-desktop dim · Option H</a></li>
+  <li><a href="option-e.html">Fat hint and ± · Option E</a></li>
+  <li><a href="option-b.html">Second Manual rect · Option B</a></li>
+</ul>
+<p class="foot">Synthetic fixture only (shop.fixture.local, oak lamp, £42.00). One security level on the chip: OFFICIAL. Studio annotations are the dashed amber labels. They are not product chrome.</p>
+</body>
+</html>
