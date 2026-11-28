@@ -7,18 +7,18 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | open — **desk158** Resume + owner-draw tray; re-confirm **KAN-526** Resume |
-| **Jira story** | **KAN-525** (Bug — native Look 4 side tray + Resume/End→Start restore) |
-| **Start task** | Human: confirm Resume Charter visible/re-arms + tray icons OK on **desk158**. Then 525/526 Done → **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Status** | open — next Build: move/resize overlay |
+| **Jira story** | **KAN-528** (Bug — Charter overlay cannot move/resize) |
+| **Start task** | Native ring/tray drag + resize; tray stays docked. Test **KAN-529**. Then **KAN-510**. Do **not** start voice / FR-MAN-2. |
 | **Epic** | **KAN-383** GAP-CR (Charter UX) |
 | **Roadmap ID** | GAP-CR |
-| **Spec** | FR-MAN-1 CR lock 2026-11-28 (KAN-525); mock `looks/look4-*.html`; Intent under-ring **Rejected** |
+| **Spec** | FR-MAN-1 snip move/resize; Look 4 side host from **KAN-525** |
 | **Git** | `main` |
-| **Test ticket** | **KAN-526** (human AC gate); then **KAN-513**/514 after 525 |
-| **Shipped** | Native TOOLWINDOW side tray host **desk156** (code); Charter G+tray Look 4 **KAN-512** + reliability **KAN-516**…**524** (under-ring superseded); Plan document view **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports charts **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497; OPERATE-4…1; TRACE-DEEPEN; TRACK3-LAB |
-| **Queued** | Residuals **KAN-510**/511 (paused until 525/526 human Done); stubs **KAN-390**, compliance **KAN-392**, research adds |
+| **Test ticket** | **KAN-529** (KAN-528); then **KAN-513**/514 with **KAN-510**/511 |
+| **Shipped** | Host restore **KAN-525**/526 Done (**desk158** — Start / End→Start / Resume); G+tray Look 4 **KAN-512** + **KAN-516**…**524**; Plan doc **KAN-388**/389; Manual float **KAN-386**/387 + UX **KAN-501**…**509**; Reports **KAN-384**/385; deep view **KAN-498**/499; Option A **KAN-496**/497 |
+| **Queued** | **KAN-510**/511 after **KAN-528**; stubs **KAN-390**, compliance **KAN-392** |
 | **Deferred** | **KAN-81**/82 voice; **FR-MAN-2** live circles; full CI OAuth / H3 share |
-| **Next / Shipped** | Confirm **KAN-526** human paths → close 525/526 → Active **KAN-510**. Do **not** start voice / FR-MAN-2. |
+| **Next / Shipped** | Pick up **KAN-528**. After 528/529 → **KAN-510**. Do **not** start voice / FR-MAN-2. |
 
 When the user says **“pick up where we left off”** / **“continue”**: read this Active slice table. If Status is **deferred**, do **not** code that story. Otherwise open the Jira story description and start coding that story immediately (no long rediscovery).
 
@@ -39,6 +39,14 @@ When the user says **“pick up where we left off”** / **“continue”**: rea
 ---
 
 ## Log
+
+### 2026-11-28 — KAN-528 — Charter overlay move/resize Bug (handoff)
+- **Agent/chat:** Cursor IDE Agent — Designer: Resume returned; overlay cannot move/resize; raise bug for next chat
+- **Done:** Raised Bug **KAN-528** + test **KAN-529**; Relates 525/526/512/386/510. Closed **KAN-525**/526 (human: End→Start + Resume OK on desk158). Reopened **KAN-513**/514 if closeout fan-out marked them Done. Active → **KAN-528**.
+- **Files:** `scripts/jira_kan_bug_charter_move_resize.py`, `docs/ops/WORK_LOG.md`, `docs/ops/ROADMAP.md`, `PROJECT_MEMORY.md`
+- **Verify:** n/a (bug raise + handoff)
+- **Jira:** **KAN-528**/529 created; **KAN-525**/526 Done
+- **Next:** Pick up **KAN-528** (drag + resize native chrome)
 
 ### 2026-11-28 — KAN-525 — Resume visible + Look 4 owner-draw tray (desk158)
 - **Agent/chat:** Cursor IDE Agent — Designer: End→Start OK; Resume missing; tray buttons cheap
